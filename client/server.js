@@ -7,9 +7,9 @@ const expressSession = require("express-session");
 
 const app = express();
 const path = require("path");
-const root = require("path").join(__dirname, "frontend", "build");
 const port = process.env.PORT || 8000;
 
+app.use(pino);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -22,13 +22,12 @@ app.use(
     },
   })
 );
-app.use(pino);
 
 require("./routes/user")(app);
 
-app.use("/client/frontend/", express.static(path.join(__dirname, "/build")));
+app.use(express.static(path.join(__dirname, "/frontend/build")));
 app.get("*", (_, response) => {
-  response.sendFile("index.html", { root });
+  response.sendFile(path.join(__dirname, "/build/frontend/index.html"));
 });
 
 app.listen(port, () => {
