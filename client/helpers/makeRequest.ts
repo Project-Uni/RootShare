@@ -3,7 +3,9 @@ import log from "./logger";
 
 //TODO Update with deployed IPs
 function getServerPath(serverName: String) {
-  if (serverName == "client") return "http://localhost:8000";
+  if (serverName === "client") return "http://localhost:8000";
+  else if (serverName === "balancer") return "http://localhost:8001";
+  else if (serverName === "ranker") return "http://localhost:8002";
   else return "ERROR";
 }
 
