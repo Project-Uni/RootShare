@@ -1,0 +1,58 @@
+#!/bin/sh
+
+echo "Starting University Connections Program"
+
+PROJECT_ENV="dev"
+if [ $# -ge 1 ]; then 
+    if [ $1 = "prod" ]; then
+        PROJECT_ENV="prod"
+    elif [ $1 = "dev" ]; then
+        PROJECT_ENV="dev"
+    fi
+fi
+
+INSTALL="false"
+if [ $# -gt 1 ]; then
+    if [ $2 = "install" ]; then
+        INSTALL="true"
+    fi
+fi
+
+if [ $INSTALL == "true" ]; then
+osascript <<END
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader BALANCER; cd balancer; source ../scripts/createEnv; source venv/bin/activate; export FLASK_ENV=$PROJECT_ENV; pip install -r requirements.txt; python3 loadBalancer.py"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"NODEJS CLIENT\"; cd client; npm install; npm run startDev"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"REACT CLIENT\"; cd client/frontend; npm install; npm start"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader RANKER; cd ranker; source ../scripts/createEnv; source venv/bin/activate; export FLASK_ENV=$PROJECT_ENV; pip install -r requirements.txt; python3 ranker.py"
+    end tell
+END
+
+else
+osascript <<END
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader BALANCER; cd balancer; source venv/bin/activate; export FLASK_ENV=$PROJECT_ENV; python3 loadBalancer.py"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"NODEJS CLIENT\"; cd client; npm run startDev"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"REACT CLIENT\"; cd client/frontend; npm start"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader RANKER; cd ranker; source ../scripts/createEnv; source venv/bin/activate; export FLASK_ENV=$PROJECT_ENV; python3 ranker.py"
+    end tell
+END
+fi

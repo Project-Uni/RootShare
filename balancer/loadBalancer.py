@@ -15,5 +15,5 @@ def index():
   return redirect(getServerPath('client'))
 
 if __name__ == "__main__":
-  log('info', "Listening on port "+str(PORT))
+  log('info', "Listening on port "+str(PORT) + ", " + str(app.config['ENV']) + " environment.")
   app.run(debug=True, host='0.0.0.0', port=PORT)
