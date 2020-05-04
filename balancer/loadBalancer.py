@@ -1,12 +1,19 @@
-from flask import Flask, request
+from flask import Flask, request, redirect
+import sys
+sys.path.append('./helpers')
+from logger import log
+from makeRequest import makeRequest, getServerPath
+from sendPacket import sendPacket
+
 
 app = Flask(__name__)
 PORT = 8001
 
 @app.route('/', methods=['GET'])
 def index():
-  return 'Hello I am the load balancer'
+  log('redirect', "Redirecting to client server")
+  return redirect(getServerPath('client'))
 
 if __name__ == "__main__":
-  print("Listening on port "+str(PORT))
+  log('info', "Listening on port "+str(PORT))
   app.run(debug=True, host='0.0.0.0', port=PORT)
