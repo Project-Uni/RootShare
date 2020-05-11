@@ -6,7 +6,7 @@ var userSchema = new Schema({
     lastName: {type: String, required: true},
     email: {type: String, required: true},
     hashedPassword: {type: String, required: true},
-    university: {type: String, required: true},
+    university: {type: Schema.ObjectId, ref: 'universities', required: true},
     accountType: {type: String, required: true},
     graduationYear: Number,
     department: String,
