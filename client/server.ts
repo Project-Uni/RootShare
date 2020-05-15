@@ -6,7 +6,7 @@ import passport = require('passport')
 import log from "./helpers/logger";
 import * as path from "path";
 
-const mongoConfig = require('./mongoConfig')
+const mongoConfig = require('./config/mongoConfig')
 const fs = require('fs')
 
 // Use mongoose to connect to MongoDB
@@ -42,7 +42,7 @@ require("./routes/user")(app);
 require("./routes/dbTest")(app);
 require("./routes/loginTest")(app);
 
-require('./passport/setup')(passport)
+require('./config/setup')(passport)
 
 app.use(express.static(path.join("./", "/frontend/build")));
 app.get("*", (_, response) => {
