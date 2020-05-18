@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -10,8 +10,10 @@ import {
   Step,
   StepLabel,
 } from "@material-ui/core";
-
 import { FaArrowLeft } from "react-icons/fa";
+
+import RegistrationStep0 from "./RegistrationStep0";
+import GoogleButton from "./GoogleButton";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -52,17 +54,10 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "20px",
     marginRight: "20px",
   },
-  tabDesc: {
-    fontSize: "13pt",
-    fontWeight: "bold",
-    fontFamily: "Arial, Helvetica, sans-serif",
-    textAlign: "left",
-    marginLeft: "25px",
-  },
-  emailField: {
-    width: "375px",
-    marginTop: "15px",
-    marginBottom: "35px",
+  googleDiv: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "20px",
   },
 }));
 
@@ -78,8 +73,6 @@ function HypeRegistration(props: Props) {
   const [usernameErr, setUsernameErr] = useState("");
 
   const steps = ["Email", "Basic Info", "Password"];
-
-  const timer = useRef();
 
   function handleUsernameChange(event: any) {
     setUsername(event.target.value);
@@ -112,37 +105,18 @@ function HypeRegistration(props: Props) {
       }
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
-
-      // const { data } = await axios.get(`/validateUsername/${username}`);
-      // console.log("Data:", data);
-      // if (data.success === 1) {
-      //   changeUsernameErr("");
-      //   const newStep = currentStep + 1;
-      //   setCurrentStep(newStep);
-      // } else {
-      //   changeUsernameErr("Email already exists");
-      // }
     }, 1000);
   }
 
-  function renderStep0() {
-    return (
-      <>
-        <p className={styles.tabDesc}>Enter your email:</p>
-        <TextField
-          error={usernameErr !== ""}
-          label="Email"
-          value={username}
-          variant="outlined"
-          className={styles.emailField}
-          onChange={handleUsernameChange}
-          helperText={usernameErr}
-        />
-      </>
-    );
-  }
   function getStepContent(step: Number) {
-    if (step === 0) return renderStep0();
+    if (step === 0)
+      return (
+        <RegistrationStep0
+          username={username}
+          handleUsernameChange={handleUsernameChange}
+          usernameErr={usernameErr}
+        />
+      );
     else return <p>I am step {step}</p>;
   }
 
@@ -203,6 +177,17 @@ function HypeRegistration(props: Props) {
               {currentStep < steps.length - 1 ? "Next" : "Submit"}
             </Button>
           </div>
+
+          {currentStep === 0 && (
+            <>
+              <div className={styles.googleDiv}>
+                <GoogleButton />
+              </div>
+              <div className={styles.googleDiv}>
+                <GoogleButton />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
