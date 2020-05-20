@@ -15,8 +15,12 @@ const useStyles = makeStyles((_: any) => ({
   },
   emailField: {
     width: "375px",
-    marginTop: "10px",
+    marginTop: "20px",
     marginBottom: "10px",
+  },
+  autocompleteDiv: {
+    marginLeft: "25px",
+    marginTop: "20px",
   },
 }));
 
@@ -43,7 +47,9 @@ function RegistrationStep0(props: Props) {
       />
 
       <p className={styles.tabDesc}>University:</p>
-      <UniversityAutocomplete />
+      <div className={styles.autocompleteDiv}>
+        <UniversityAutocomplete />
+      </div>
     </>
   );
 }

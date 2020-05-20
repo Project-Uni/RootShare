@@ -14,6 +14,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import RegistrationStep0 from "./RegistrationStep0";
 import GoogleButton from "./GoogleButton";
+import LinkedInButton from "./LinkedInButton";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -137,7 +138,7 @@ function HypeRegistration(props: Props) {
             <FaArrowLeft color={"rgb(30, 67, 201)"} size={24} />
           </a>
           {/* Should be Logo here */}
-          <p>UConnect</p>
+          <p>UConnect Logo</p>
           {/* End of Logo */}
           <p className={styles.header}>Create Account</p>
 
@@ -184,7 +185,7 @@ function HypeRegistration(props: Props) {
                 <GoogleButton />
               </div>
               <div className={styles.googleDiv}>
-                <GoogleButton />
+                <LinkedInButton />
               </div>
             </>
           )}

@@ -1,7 +1,8 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper } from "@material-ui/core";
-import googleLogo from "../../images/google.svg";
+// import googleLogo from "../../images/google.svg";
+import linkedInLogo from "../../images/linkedIn.png";
 
 const useStyles = makeStyles((theme) => ({
   googlePaper: {
@@ -9,16 +10,17 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     width: "275px",
     height: "50px",
-    backgroundColor: "white",
+    backgroundColor: "rgb(14, 118, 168)",
     "&:hover": {
-      backgroundColor: "rgb(230,230,230)",
+      backgroundColor: "rgb(12, 93, 133)",
     },
   },
   googleText: {
     display: "inline-block",
     flex: 1,
     fontFamily: "Arial",
-    color: "black",
+    color: "white",
+    fontWeight: "bold",
   },
   googleLink: {
     display: "flex",
@@ -29,17 +31,28 @@ const useStyles = makeStyles((theme) => ({
       color: "inherit",
     },
     justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  logoStyle: {
+    width: "35px",
+    height: "35px",
+    marginLeft: "7px",
   },
 }));
 
-export default function GoogleButton() {
+export default function LinkedInButton() {
   const styles = useStyles();
 
   return (
     <Paper className={styles.googlePaper} elevation={3}>
       <a href="/auth/google" className={styles.googleLink}>
-        <img src={googleLogo} alt="Google logo" />
-        <p className={styles.googleText}>Register With Google</p>
+        <img
+          src={linkedInLogo}
+          alt="Google logo"
+          className={styles.logoStyle}
+        />
+
+        <p className={styles.googleText}>Register With LinkedIn</p>
       </a>
     </Paper>
   );
