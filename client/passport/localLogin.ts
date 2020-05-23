@@ -5,7 +5,7 @@ var bCrypt = require('bcryptjs')
 
 module.exports = function (passport) {
 
-  passport.use('login', new LocalStrategy({
+  passport.use('local-login', new LocalStrategy({
     passReqToCallback: true,
     usernameField: 'email',
   },
@@ -19,8 +19,13 @@ module.exports = function (passport) {
           // Username does not exist, log the error and redirect back
           if (!user) {
             console.log('User Not Found with email address ' + email);
-            return done(null, false, { message: 'User Not found.' });
+            return done(null, false, { message: 'User Not Found.' });
           }
+          // User is not yet confirmed, log the error and remind to confirm
+          // if (!user.confirmed) {
+          //   console.log('Please confirm your email address');
+          //   return done(null, false, { message: 'User Not Confirmed.' });
+          // }
           // User exists but wrong password, log the error 
           if (!isValidPassword(user, password)) {
             console.log('Invalid Password');

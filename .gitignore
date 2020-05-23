@@ -4,4 +4,5 @@ balancer/venv/
 ranker/venv/
 metrics/venv/
 keys.ts
+aws_key.json
 */__pycache__/
