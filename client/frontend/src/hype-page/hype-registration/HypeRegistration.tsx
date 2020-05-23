@@ -73,10 +73,22 @@ function HypeRegistration(props: Props) {
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
+  const [university, setUniversity] = useState("");
+
   const steps = ["Email", "Basic Info", "Password"];
 
   function handleUsernameChange(event: any) {
     setUsername(event.target.value);
+  }
+
+  function handleUniversityChange(event: any) {
+    setUniversity(event.target.value);
+  }
+
+  function handleUniversityAutocompleteChange(_: any, newValue: any) {
+    if (newValue === null) {
+      setUniversity("");
+    } else setUniversity(newValue);
   }
 
   function handlePreviousButtonClicked() {
@@ -97,13 +109,14 @@ function HypeRegistration(props: Props) {
   function handleStep0NextButtonClick() {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setLoading(true);
-    console.log(username);
     setTimeout(async () => {
       setLoading(false);
       if (!re.test(String(username).toLowerCase())) {
         setUsernameErr("Email address not valid");
         return;
       }
+      setUsernameErr("");
+
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
     }, 1000);
@@ -116,6 +129,11 @@ function HypeRegistration(props: Props) {
           username={username}
           handleUsernameChange={handleUsernameChange}
           usernameErr={usernameErr}
+          university={university}
+          handleUniversityChange={handleUniversityChange}
+          handleUniversityAutocompleteChange={
+            handleUniversityAutocompleteChange
+          }
         />
       );
     else return <p>I am step {step}</p>;

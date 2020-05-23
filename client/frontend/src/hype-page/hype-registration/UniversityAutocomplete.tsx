@@ -21,7 +21,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  handleAutoCompleteChange: (_: any, newValue: any) => void;
+  handleQueryChange: (event: any) => void;
+  value: String;
+};
 
 function UniversityAutocomplete(props: Props) {
   const styles = useStyles();
@@ -29,18 +33,22 @@ function UniversityAutocomplete(props: Props) {
     { school: "Purdue" },
     { school: "Other" },
   ]);
-  const [value, setValue] = useState("");
+  // const [value, setValue] = useState("");
 
   return (
     <Autocomplete
       style={{ width: 375, marginBottom: "35px" }}
       options={options.map((option) => option.school)}
+      onChange={props.handleAutoCompleteChange}
+      value={props.value}
       renderInput={(params) => (
         <TextField
           {...params}
           label="University"
           variant="outlined"
           fullWidth
+          value={props.value}
+          onChange={props.handleQueryChange}
         />
       )}
       renderOption={(option) => (

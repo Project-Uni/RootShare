@@ -28,6 +28,9 @@ type Props = {
   handleUsernameChange: (event: any) => void;
   username: String;
   usernameErr: String;
+  university: String;
+  handleUniversityChange: (event: any) => void;
+  handleUniversityAutocompleteChange: (_: any, newValue: any) => void;
 };
 
 function RegistrationStep0(props: Props) {
@@ -48,7 +51,11 @@ function RegistrationStep0(props: Props) {
 
       <p className={styles.tabDesc}>University:</p>
       <div className={styles.autocompleteDiv}>
-        <UniversityAutocomplete />
+        <UniversityAutocomplete
+          value={props.university}
+          handleQueryChange={props.handleUniversityChange}
+          handleAutoCompleteChange={props.handleUniversityAutocompleteChange}
+        />
       </div>
     </>
   );
