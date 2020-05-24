@@ -13,6 +13,7 @@ import {
 import { FaArrowLeft } from "react-icons/fa";
 
 import RegistrationStep0 from "./RegistrationStep0";
+import RegistrationStep1 from "./RegistrationStep1";
 import GoogleButton from "./GoogleButton";
 import LinkedInButton from "./LinkedInButton";
 
@@ -75,6 +76,13 @@ function HypeRegistration(props: Props) {
 
   const [university, setUniversity] = useState("");
 
+  const [firstName, setFirstName] = useState("");
+  const [firstNameErr, setFirstNameErr] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [lastNameErr, setLastNameErr] = useState("");
+  const [standing, setStanding] = useState("");
+  const [standingErr, setStandingErr] = useState("");
+
   const steps = ["Email", "Basic Info", "Password"];
 
   function handleUsernameChange(event: any) {
@@ -91,6 +99,18 @@ function HypeRegistration(props: Props) {
     } else setUniversity(newValue);
   }
 
+  function handleFirstNameChange(event: React.ChangeEvent<{ value: unknown }>) {
+    setFirstName(event.target.value as string);
+  }
+  
+  function handleLastNameChange(event: React.ChangeEvent<{ value: unknown }>) {
+    setLastName(event.target.value as string)
+  }
+
+  function handleStandingChange(event: React.ChangeEvent<{ value: unknown }>) {
+    setStanding(event.target.value as string);
+  }
+
   function handlePreviousButtonClicked() {
     if (currentStep > 0) {
       const newStep = currentStep - 1;
@@ -100,6 +120,7 @@ function HypeRegistration(props: Props) {
 
   function handleNextButtonClicked() {
     if (currentStep === 0) handleStep0NextButtonClick();
+    else if(currentStep === 1) handleStep1NextButtonClick();
     else {
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
@@ -122,6 +143,39 @@ function HypeRegistration(props: Props) {
     }, 1000);
   }
 
+  function handleStep1NextButtonClick() {
+    setLoading(true);
+    let hasErr = false;
+    setTimeout(async () => {
+      setLoading(false);
+
+      console.log(`F_Name: ${firstName}, L_Name: ${lastName}, Standing: ${standing}`)
+      if (firstName.length===0) {
+        setFirstNameErr('First name is required')
+        hasErr = true;
+      }
+      else setFirstNameErr('');
+
+      if (lastName.length===0) {
+        setLastNameErr('Last name is required')
+        hasErr = true;
+      }
+      else setLastNameErr('');
+
+      if (standing.length===0) {
+        setStandingErr('Standing is required')
+        hasErr = true;
+      }
+      else setStandingErr('');
+
+      if(!hasErr) {
+        const newStep = currentStep + 1;
+      setCurrentStep(newStep);
+      }
+      
+    }, 1000)
+  }
+
   function getStepContent(step: Number) {
     if (step === 0)
       return (
@@ -134,6 +188,20 @@ function HypeRegistration(props: Props) {
           handleUniversityAutocompleteChange={
             handleUniversityAutocompleteChange
           }
+        />
+      );
+    else if (step === 1) 
+      return (
+        <RegistrationStep1 
+          firstName={firstName}
+          handleFirstNameChange={handleFirstNameChange}
+          firstNameErr={firstNameErr}
+          lastName={lastName}
+          handleLastNameChange={handleLastNameChange}
+          lastNameErr={lastNameErr}
+          standing={standing}
+          handleStandingChange={handleStandingChange}
+          standingErr={standingErr}
         />
       );
     else return <p>I am step {step}</p>;
