@@ -15,6 +15,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import RegistrationStep0 from "./RegistrationStep0";
 import RegistrationStep1 from "./RegistrationStep1";
 import RegistrationStep2 from "./RegistrationStep2";
+import RegistrationStep3 from "./RegistrationStep3";
 import GoogleButton from "./GoogleButton";
 import LinkedInButton from "./LinkedInButton";
 
@@ -70,7 +71,8 @@ function HypeRegistration(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  //Fix
+  const [currentStep, setCurrentStep] = useState(3);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
@@ -253,8 +255,8 @@ function HypeRegistration(props: Props) {
           handleConfirmPasswordChange={handleConfirmPasswordChange}
           confirmErr={confirmErr}
         />
-      )
-    else return <p>I am step {step}</p>;
+      );
+    else return <RegistrationStep3 />;
   }
 
   return (
@@ -293,7 +295,7 @@ function HypeRegistration(props: Props) {
           {getStepContent(currentStep)}
 
           <div className={styles.buttonDiv}>
-            {currentStep > 0 ? (
+            {currentStep > 0 && currentStep !== 3 ? (
               <Button
                 variant="contained"
                 color="inherit"
@@ -305,14 +307,18 @@ function HypeRegistration(props: Props) {
             ) : (
               <Button></Button>
             )}
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleNextButtonClicked}
-              disabled={loading}
-            >
-              {currentStep < steps.length - 1 ? "Next" : "Submit"}
-            </Button>
+            {currentStep !== 3 ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNextButtonClicked}
+                disabled={loading}
+              >
+                {currentStep < steps.length - 1 ? "Next" : "Submit"}
+              </Button>
+            ) : (
+              <Button></Button>
+            )}
           </div>
 
           {currentStep === 0 && (
