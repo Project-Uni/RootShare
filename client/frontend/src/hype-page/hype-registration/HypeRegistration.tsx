@@ -14,6 +14,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import RegistrationStep0 from "./RegistrationStep0";
 import RegistrationStep1 from "./RegistrationStep1";
+import RegistrationStep2 from "./RegistrationStep2";
 import GoogleButton from "./GoogleButton";
 import LinkedInButton from "./LinkedInButton";
 
@@ -83,6 +84,12 @@ function HypeRegistration(props: Props) {
   const [standing, setStanding] = useState("");
   const [standingErr, setStandingErr] = useState("");
 
+  const [password, setPassword] = useState("");
+  const [passwordErr, setPasswordErr] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmErr, setConfirmErr] = useState("");
+
+
   const steps = ["Email", "Basic Info", "Password"];
 
   function handleUsernameChange(event: any) {
@@ -111,6 +118,14 @@ function HypeRegistration(props: Props) {
     setStanding(event.target.value as string);
   }
 
+  function handlePasswordChange(event: React.ChangeEvent<{ value: unknown }>) {
+    setPassword(event.target.value as string)
+  }
+
+  function handleConfirmPasswordChange(event: React.ChangeEvent<{ value: unknown }>) {
+    setConfirmPassword(event.target.value as string)
+  }
+
   function handlePreviousButtonClicked() {
     if (currentStep > 0) {
       const newStep = currentStep - 1;
@@ -121,6 +136,7 @@ function HypeRegistration(props: Props) {
   function handleNextButtonClicked() {
     if (currentStep === 0) handleStep0NextButtonClick();
     else if(currentStep === 1) handleStep1NextButtonClick();
+    else if(currentStep === 2) handleStep2NextButtonClick();
     else {
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
@@ -149,7 +165,6 @@ function HypeRegistration(props: Props) {
     setTimeout(async () => {
       setLoading(false);
 
-      console.log(`F_Name: ${firstName}, L_Name: ${lastName}, Standing: ${standing}`)
       if (firstName.length===0) {
         setFirstNameErr('First name is required')
         hasErr = true;
@@ -170,10 +185,34 @@ function HypeRegistration(props: Props) {
 
       if(!hasErr) {
         const newStep = currentStep + 1;
-      setCurrentStep(newStep);
+        setCurrentStep(newStep);
       }
+    }, 1000);
+  }
+
+  function handleStep2NextButtonClick() {
+    setLoading(true);
+    let hasErr = false;
+    setTimeout(async () => {
+      setLoading(false);
       
-    }, 1000)
+      if(password.length < 8) {
+        setPasswordErr('Password must be atleast 8 characters')
+        hasErr = true;
+      }
+      else setPasswordErr('')
+
+      if(confirmPassword !== password) {
+        setConfirmErr('Passwords must match')
+        hasErr = true;
+      }
+      else setConfirmErr('')
+
+      if(!hasErr) {
+        const newStep = currentStep + 1;
+        setCurrentStep(newStep);
+      }
+    }, 1000);
   }
 
   function getStepContent(step: Number) {
@@ -204,6 +243,17 @@ function HypeRegistration(props: Props) {
           standingErr={standingErr}
         />
       );
+    else if (step === 2)
+      return (
+        <RegistrationStep2 
+          password={password}
+          handlePasswordChange={handlePasswordChange}
+          passwordErr={passwordErr}
+          confirmPassword={confirmPassword}
+          handleConfirmPasswordChange={handleConfirmPasswordChange}
+          confirmErr={confirmErr}
+        />
+      )
     else return <p>I am step {step}</p>;
   }
 
