@@ -31,6 +31,7 @@ type Props = {
   university: String;
   handleUniversityChange: (event: any) => void;
   handleUniversityAutocompleteChange: (_: any, newValue: any) => void;
+  universityErr: String,
 };
 
 function RegistrationStep0(props: Props) {
@@ -55,6 +56,7 @@ function RegistrationStep0(props: Props) {
           value={props.university}
           handleQueryChange={props.handleUniversityChange}
           handleAutoCompleteChange={props.handleUniversityAutocompleteChange}
+          universityErr={props.universityErr}
         />
       </div>
     </>

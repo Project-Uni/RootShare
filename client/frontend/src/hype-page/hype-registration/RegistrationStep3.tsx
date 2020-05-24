@@ -25,7 +25,9 @@ const useStyles = makeStyles((_: any) => ({
   }
 }));
 
-type Props = {};
+type Props = {
+  email: string
+};
 
 function RegistrationStep3(props: Props) {
   const styles = useStyles();
@@ -35,7 +37,7 @@ function RegistrationStep3(props: Props) {
       <p 
         className={`${styles.allText} ${styles.emailText}`}
       >
-        An account has been created with the email: <b>mahesh.ashwin1998@gmail.com</b>.
+        An account has been created with the email: <b>{props.email}</b>.
       </p>
       <p 
         className={`${styles.allText} ${styles.confirmText}`}

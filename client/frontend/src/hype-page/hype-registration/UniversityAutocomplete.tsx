@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Autocomplete } from "@material-ui/lab";
-import { TextField, Grid, Typography } from "@material-ui/core";
+import { TextField, Grid } from "@material-ui/core";
 
 import PurdueLogo from "../../images/purdueLogo.png";
 import { FaPlus } from "react-icons/fa";
@@ -25,6 +25,7 @@ type Props = {
   handleAutoCompleteChange: (_: any, newValue: any) => void;
   handleQueryChange: (event: any) => void;
   value: String;
+  universityErr: String
 };
 
 function UniversityAutocomplete(props: Props) {
@@ -33,7 +34,6 @@ function UniversityAutocomplete(props: Props) {
     { school: "Purdue" },
     { school: "Other" },
   ]);
-  // const [value, setValue] = useState("");
 
   return (
     <Autocomplete
@@ -48,7 +48,9 @@ function UniversityAutocomplete(props: Props) {
           variant="outlined"
           fullWidth
           value={props.value}
-          onChange={props.handleQueryChange}
+          // onChange={props.handleQueryChange}
+          error={props.universityErr !== ''}
+          helperText={props.universityErr}
         />
       )}
       renderOption={(option) => (

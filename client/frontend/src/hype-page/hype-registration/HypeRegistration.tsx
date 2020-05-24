@@ -71,13 +71,13 @@ function HypeRegistration(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
-  //Fix
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
   const [university, setUniversity] = useState("");
+  const [universityErr, setUniversityErr] = useState("");
 
   const [firstName, setFirstName] = useState("");
   const [firstNameErr, setFirstNameErr] = useState("");
@@ -148,16 +148,26 @@ function HypeRegistration(props: Props) {
   function handleStep0NextButtonClick() {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setLoading(true);
+    let hasErr = false;
+
     setTimeout(async () => {
       setLoading(false);
       if (!re.test(String(username).toLowerCase())) {
         setUsernameErr("Email address not valid");
-        return;
+        hasErr = true;
       }
-      setUsernameErr("");
+      else setUsernameErr("");
 
-      const newStep = currentStep + 1;
-      setCurrentStep(newStep);
+      if(university.length === 0) {
+        setUniversityErr('University is required');
+        hasErr = true;
+      }
+      else setUniversityErr("");
+
+      if (!hasErr) {
+        const newStep = currentStep + 1;
+        setCurrentStep(newStep);
+      }
     }, 1000);
   }
 
@@ -229,6 +239,7 @@ function HypeRegistration(props: Props) {
           handleUniversityAutocompleteChange={
             handleUniversityAutocompleteChange
           }
+          universityErr={universityErr}
         />
       );
     else if (step === 1) 
@@ -256,7 +267,7 @@ function HypeRegistration(props: Props) {
           confirmErr={confirmErr}
         />
       );
-    else return <RegistrationStep3 />;
+    else return <RegistrationStep3 email={username}/>;
   }
 
   return (
