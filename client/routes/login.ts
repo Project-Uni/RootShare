@@ -1,7 +1,8 @@
 var passport = require('passport')
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
-let { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
+var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
+let { completeRegistration } = require('../interactions/registration-data')
 
 module.exports = (app) => {
   // redirects should be handled by React
@@ -11,19 +12,26 @@ module.exports = (app) => {
 
   app.post('/auth/signup/local', passport.authenticate('local-signup'), (req, res) => {
     res.json('Successfully signed up locally!')
-    sendConfirmationEmail(req.body.email) // Confirmation email
 
-    // REACT: redirect to Pre-Confirmation Page
+    // REACT: redirect to Pre-Confirmation Page if not confirmed
   });
 
-  app.post('/auth/login/linkedin', passport.authenticate('linkedin-login'), (req, res) => {
-    res.json('Successfully logged in through LinkedIn!')
+  app.get('/auth/login/linkedin', passport.authenticate('linkedin-login'), (req, res) => {
+    // This will not get called because of routing to LinkedIn
+
+    // REACT: redirect to Pre-Confirmation Page if not confirmed
   });
 
-  app.post('/auth/signup/linkedin', passport.authenticate('linkedin-signup'), (req, res) => {
-    res.json('Successfully signed up through LinkedIn!')
-    // REACT: redirect to Pre-Confirmation Page
-  });
+  app.get('/auth/callback/linkedin', passport.authenticate('linkedin-login', {
+    successRedirect: '/secure',
+    failureRedirect: '/logout'
+  }))
+
+  app.get('/auth/complete-registration', (req, res) => {
+    completeRegistration(req.body)
+
+    res.json("Completed Registration")
+  })
 
   app.get('/secure', isAuthenticated, (req, res) => {
     res.json('Successfully accessed secure endpoint!')

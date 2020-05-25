@@ -1,8 +1,11 @@
+import { link } from "fs"
+
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 
 var localLogin = require('../passport/localLogin')
 var localSignup = require('../passport/localSignup')
+var linkedinLoginSignup = require('../passport/linkedinLoginSignup')
 
 module.exports = function (passport) {
 
@@ -22,4 +25,5 @@ module.exports = function (passport) {
   // Setting up Passport Strategies for Login and SignUp/Registration
   localLogin(passport)
   localSignup(passport)
+  linkedinLoginSignup(passport)
 }

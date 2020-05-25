@@ -3,6 +3,8 @@ var mongoose = require('mongoose')
 var User = mongoose.model('users')
 var bCrypt = require('bcryptjs');
 
+var { sendConfirmationEmail } = require('../interactions/email-confirmation')
+
 module.exports = function (passport) {
 
   passport.use('local-signup', new LocalStrategy({
@@ -54,6 +56,7 @@ module.exports = function (passport) {
                 return done(err);
               }
               console.log('User Registration succesful');
+              sendConfirmationEmail(email)
               return done(null, newUser);
             });
           }
