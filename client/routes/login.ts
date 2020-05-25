@@ -8,6 +8,8 @@ module.exports = (app) => {
   // redirects should be handled by React
   app.post('/auth/login/local', passport.authenticate('local-login'), (req, res) => {
     res.json('Successfully logged in locally!')
+
+    // REACT: redirect to Pre-Confirmation Page if not confirmed
   });
 
   app.post('/auth/signup/local', passport.authenticate('local-signup'), (req, res) => {
@@ -18,8 +20,6 @@ module.exports = (app) => {
 
   app.get('/auth/login/linkedin', passport.authenticate('linkedin-login'), (req, res) => {
     // This will not get called because of routing to LinkedIn
-
-    // REACT: redirect to Pre-Confirmation Page if not confirmed
   });
 
   app.get('/auth/callback/linkedin', passport.authenticate('linkedin-login', {

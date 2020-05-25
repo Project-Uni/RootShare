@@ -3,8 +3,6 @@ const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys')
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 
-var { sendConfirmationEmail } = require('../interactions/email-confirmation')
-
 module.exports = (passport) => {
   passport.use('linkedin-login', new LinkedInStrategy({
     clientID: LINKEDIN_KEY,
@@ -60,6 +58,7 @@ module.exports = (passport) => {
     newUser.lastName = lastName
     newUser.email = email
     newUser.linkedinID = linkedinID
+    newUser.confirmed = true
 
     // save the user
     newUser.save(function (err) {
@@ -69,7 +68,6 @@ module.exports = (passport) => {
       }
 
       console.log('User Registration succesful');
-      sendConfirmationEmail(email)
       return newUser
     });
 
