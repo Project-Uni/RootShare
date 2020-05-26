@@ -27,6 +27,7 @@ module.exports = (passport) => {
           if (!user) {
             console.log('New email address, creating account with ' + email);
             let newUser = await createNewUserLinkedIn(firstName, lastName, email, linkedinID)
+            console.log(newUser)
             return done(null, newUser)
           }
           if (user.linkedinID.localeCompare("undefined") === 0) {
