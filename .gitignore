@@ -3,5 +3,6 @@ frontend/node_modules/
 balancer/venv/
 ranker/venv/
 metrics/venv/
-keys.ts
+keys/aws_key.json
+keys/keys.json
 */__pycache__/
