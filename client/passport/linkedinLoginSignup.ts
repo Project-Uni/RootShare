@@ -1,5 +1,5 @@
 var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy
-const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys')
+const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys.json')
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 
@@ -18,8 +18,8 @@ module.exports = (passport) => {
       let linkedinID = profile.id
       let firstName = profile.name.givenName
       let lastName = profile.name.familyName
-      console.log(email)
-      console.log(linkedinID)
+      // console.log(email)
+      // console.log(linkedinID)
 
 
       User.findOne({ 'email': email },

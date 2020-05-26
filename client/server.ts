@@ -40,7 +40,8 @@ app.use(passport.session())
 
 require("./routes/user")(app);
 require("./routes/dbTest")(app);
-require("./routes/login")(app);
+require("./routes/registrationInternal")(app);
+require("./routes/registrationExternal")(app);
 
 require('./config/setup')(passport)
 

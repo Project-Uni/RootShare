@@ -4,7 +4,7 @@ var mongoose = require('mongoose')
 var User = mongoose.model('users')
 const Cryptr = require('cryptr')
 
-const { CRYPT_SECRET } = require('../../keys')
+const { CRYPT_SECRET } = require('../../keys.json')
 const cryptr = new Cryptr(CRYPT_SECRET)
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
