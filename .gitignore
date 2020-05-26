@@ -5,3 +5,5 @@ ranker/venv/
 metrics/venv/
 keys.ts
 */__pycache__/
+balancer/helpers/__pycache__/
+ranker/helpers/__pycache__/
