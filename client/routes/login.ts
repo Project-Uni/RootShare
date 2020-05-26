@@ -2,7 +2,7 @@ var passport = require('passport')
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
 var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
-let { completeRegistration } = require('../interactions/registration-data')
+var { completeRegistration } = require('../interactions/registration-data')
 
 module.exports = (app) => {
   // redirects should be handled by React

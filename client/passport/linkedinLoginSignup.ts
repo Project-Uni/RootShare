@@ -1,5 +1,5 @@
 var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy
-const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys.json')
+const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json')
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 

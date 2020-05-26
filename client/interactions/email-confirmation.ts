@@ -4,11 +4,11 @@ var mongoose = require('mongoose')
 var User = mongoose.model('users')
 const Cryptr = require('cryptr')
 
-const { CRYPT_SECRET } = require('../../keys.json')
+const { CRYPT_SECRET } = require('../../keys/keys.json')
 const cryptr = new Cryptr(CRYPT_SECRET)
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
-aws.config.loadFromPath('./../aws_key.json')
+aws.config.loadFromPath('./../keys/aws_key.json')
 
 
 let transporter = nodemailer.createTransport({
