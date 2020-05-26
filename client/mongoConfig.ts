@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-const { dbKey } = require("../keys");
+const { DB_KEY } = require("../../keys/keys");
 
 //DEFINE Database Stuff here
 const MongoClient = require("mongodb").MongoClient;
