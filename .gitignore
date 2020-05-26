@@ -3,5 +3,7 @@ frontend/node_modules/
 balancer/venv/
 ranker/venv/
 metrics/venv/
-keys.ts
+keys/
 */__pycache__/
+balancer/helpers/__pycache__/
+ranker/helpers/__pycache__/

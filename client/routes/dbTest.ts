@@ -1,5 +1,5 @@
 var mongoose = require('mongoose')
-const User = mongoose.model('users')
+var User = mongoose.model('users')
 const University = mongoose.model('universities')
 
 const user1 = {
@@ -23,7 +23,7 @@ module.exports = (app) => {
   })
 
   app.get('/dbTestCreate/User', (req, res) => {
-    University.find({universityName: 'Purdue University'}, (err, universities) => {
+    University.find({ universityName: 'Purdue University' }, (err, universities) => {
       var tempUser = user1
       tempUser["university"] = universities[0]["id"]
       console.log(tempUser)
@@ -36,7 +36,7 @@ module.exports = (app) => {
   })
 
   app.get('/dbTestDelete/User', (req, res) => {
-    User.deleteOne({firstName: 'Smit'}, (err) => {
+    User.deleteOne({ firstName: 'Smit' }, (err) => {
       if (err) return console.error(err);
     })
 
@@ -58,11 +58,10 @@ module.exports = (app) => {
   })
 
   app.get('/dbTestDelete/University', (req, res) => {
-    University.deleteOne({universityName: 'Purdue University'}, (err) => {
+    University.deleteOne({ universityName: 'Purdue University' }, (err) => {
       if (err) return console.error(err);
     })
 
     res.redirect('/dbTestFind/University')
   })
 };
-  

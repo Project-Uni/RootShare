@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "1.0.0",
-  "description": "",
+  "description": "NodeJs + React Client for ProjectU",
   "main": "server.js",
   "scripts": {
     "start": "node server.ts | pino-colada",
@@ -13,11 +13,14 @@
   "dependencies": {
     "@types/node": "^13.13.9",
     "axios": "^0.19.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "express-pino-logger": "^5.0.0",
     "express-session": "^1.17.1",
     "mongoose": "^5.9.11",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
     "path": "^0.12.7"
   },
   "devDependencies": {
