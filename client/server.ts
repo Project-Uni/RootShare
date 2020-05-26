@@ -46,7 +46,7 @@ require('./config/setup')(passport)
 
 app.use(express.static(path.join("./", "/frontend/build")));
 app.get("*", (_, response) => {
-  response.sendFile(path.resolve("./", "/build/frontend/index.html"));
+  response.sendFile(path.join(__dirname, "/frontend/build/index.html"));
 });
 
 app.listen(port, () => {

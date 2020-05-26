@@ -49,7 +49,7 @@ module.exports = (passport) => {
     return (user.linkedinID.localeCompare(linkedinID) === 0)
   }
 
-  var createNewUserLinkedIn = (firstName, lastName, email, linkedinID) => {
+  var createNewUserLinkedIn = async (firstName, lastName, email, linkedinID) => {
     // create the user
     var newUser = new User();
 
@@ -61,7 +61,7 @@ module.exports = (passport) => {
     newUser.confirmed = true
 
     // save the user
-    newUser.save(function (err) {
+    await newUser.save(function (err) {
       if (err) {
         console.log('Error in Saving user: ' + err);
         throw err
