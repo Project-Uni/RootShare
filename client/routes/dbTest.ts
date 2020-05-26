@@ -13,7 +13,7 @@ const user1 = {
   major: 'Computer Science',
 }
 
-const purdue_entry = require('../helpers/universityCatalog.json')
+// const purdue_entry = require('../helpers/universityCatalog.json')
 
 module.exports = (app) => {
   app.get('/dbTestFind/User', (req, res) => {
@@ -49,19 +49,19 @@ module.exports = (app) => {
     })
   })
 
-  app.get('/dbTestCreate/University', (req, res) => {
-    University.create(purdue_entry, (err) => {
-      if (err) return console.error(err);
-    })
+  // app.get('/dbTestCreate/University', (req, res) => {
+  //   University.create(purdue_entry, (err) => {
+  //     if (err) return console.error(err);
+  //   })
 
-    res.redirect('/dbTestFind/University')
-  })
+  //   res.redirect('/dbTestFind/University')
+  // })
 
-  app.get('/dbTestDelete/University', (req, res) => {
-    University.deleteOne({ universityName: 'Purdue University' }, (err) => {
-      if (err) return console.error(err);
-    })
+  // app.get('/dbTestDelete/University', (req, res) => {
+  //   University.deleteOne({ universityName: 'Purdue University' }, (err) => {
+  //     if (err) return console.error(err);
+  //   })
 
-    res.redirect('/dbTestFind/University')
-  })
+  //   res.redirect('/dbTestFind/University')
+  // })
 };
