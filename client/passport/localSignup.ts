@@ -35,18 +35,6 @@ module.exports = function (passport) {
             newUser.lastName = req.body['lastName']
             newUser.email = email;
             newUser.hashedPassword = createHash(password);
-            newUser.university = req.body['university']
-            newUser.accountType = req.body['accountType']
-
-            // set the user's optional information
-            newUser.graduationYear = req.body['graduationYear']
-            newUser.department = req.body['department']
-            newUser.major = req.body['major']
-            newUser.phoneNumber = req.body['phoneNumber']
-            newUser.organizations = req.body['organizations']
-            newUser.work = req.body['work']
-            newUser.position = req.body['position']
-            newUser.interests = req.body['interests']
 
             // save the user
             newUser.save(function (err) {

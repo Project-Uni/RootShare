@@ -7,6 +7,6 @@ module.exports = (app) => {
 
   app.get('/auth/callback/linkedin', passport.authenticate('linkedin-login', {
     successRedirect: '/secure-confirmed',
-    failureRedirect: '/logout'
+    failureRedirect: '/register'
   }))
 }

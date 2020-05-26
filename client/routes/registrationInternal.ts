@@ -49,11 +49,7 @@ module.exports = (app) => {
   })
 
   app.get('/secure-confirmed', isAuthenticated, (req, res) => {
-    res.json('Successfully accessed secure endpoint! User needs to fill out extraneous data')
-  })
-
-  app.get('/secure-filled', isAuthenticated, (req, res) => {
-    res.json('Successfully accessed secure endpoint! Account is all set up!')
+    res.json('Successfully accessed secure endpoint! Account has been confirmed')
   })
 
   app.get('/logout', (req, res) => {
