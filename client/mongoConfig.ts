@@ -11,7 +11,8 @@ module.exports = {
     connectDB: function(callback) {
         mongoose.connect(uri, {
             useUnifiedTopology: true,
-            useNewUrlParser: true
+            useNewUrlParser: true,
+            useCreateIndex: true
         })
         .then(() => {
             console.log("Connected to MongoDB!")
