@@ -18,7 +18,7 @@ module.exports = (app) => {
     // REACT: redirect to Pre-Confirmation Page if not confirmed
   });
 
-  app.get('/auth/complete-registration', (req, res) => {
+  app.post('/auth/complete-registration', (req, res) => {
     completeRegistration(req.body)
 
     res.json("Completed Registration")
