@@ -6,3 +6,5 @@ metrics/venv/
 keys/aws_key.json
 keys/keys.json
 */__pycache__/
+balancer/helpers/__pycache__/
+ranker/helpers/__pycache__/
