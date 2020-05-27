@@ -61,7 +61,7 @@ function UniversityAutocomplete(props: Props) {
                 <FaPlus size={14} color="black" />
               </div>
             ) : (
-              <img src={PurdueLogo} className={styles.logoStyle} />
+              <img src={PurdueLogo} className={styles.logoStyle} alt='Purdue P' />
             )}
           </Grid>
           <Grid item xs>
