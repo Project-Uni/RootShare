@@ -1,6 +1,7 @@
 var passport = require('passport')
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
+var isConfirmed = require('./middleware/isConfirmed')
 var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
 var { completeRegistration } = require('../interactions/registration-data')
 
@@ -48,7 +49,7 @@ module.exports = (app) => {
     res.json('Successfully accessed secure endpoint! User needs to confirm account')
   })
 
-  app.get('/secure-confirmed', isAuthenticated, (req, res) => {
+  app.get('/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
     res.json('Successfully accessed secure endpoint! Account has been confirmed')
   })
 
