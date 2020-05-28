@@ -16,10 +16,10 @@ module.exports = {
             useCreateIndex: true
         })
             .then(() => {
-                log("MONGO", "connected to DB")
+                log("info", "Connected to Database")
             })
             .catch(err => {
-                log("MONGO ERROR", err.message);
+                log("error", err.message);
             })
     },
 }
