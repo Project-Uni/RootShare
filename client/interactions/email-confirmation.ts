@@ -39,7 +39,7 @@ module.exports = {
 
   sendConfirmationEmail: (emailAddress) => {
     let emailToken = module.exports.convertEmailToToken(emailAddress)
-    let confirmationLink = `http://rootshare.io/confirmation/${emailToken}`
+    let confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
 
     log("EMAIL", "Sending Confirmation Email")
     transporter.sendMail({
