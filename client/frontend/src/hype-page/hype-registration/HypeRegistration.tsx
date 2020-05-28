@@ -21,10 +21,10 @@ import LinkedInButton from "./LinkedInButton";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
+    // display: "flex",
+    // justifyContent: "center",
+    // alignItems: "center",
+    // height: "100vh",
   },
   card: {
     width: "450px",
@@ -91,7 +91,6 @@ function HypeRegistration(props: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
 
-
   const steps = ["Email", "Basic Info", "Password"];
 
   function handleUsernameChange(event: any) {
@@ -111,9 +110,9 @@ function HypeRegistration(props: Props) {
   function handleFirstNameChange(event: React.ChangeEvent<{ value: unknown }>) {
     setFirstName(event.target.value as string);
   }
-  
+
   function handleLastNameChange(event: React.ChangeEvent<{ value: unknown }>) {
-    setLastName(event.target.value as string)
+    setLastName(event.target.value as string);
   }
 
   function handleStandingChange(event: React.ChangeEvent<{ value: unknown }>) {
@@ -121,11 +120,13 @@ function HypeRegistration(props: Props) {
   }
 
   function handlePasswordChange(event: React.ChangeEvent<{ value: unknown }>) {
-    setPassword(event.target.value as string)
+    setPassword(event.target.value as string);
   }
 
-  function handleConfirmPasswordChange(event: React.ChangeEvent<{ value: unknown }>) {
-    setConfirmPassword(event.target.value as string)
+  function handleConfirmPasswordChange(
+    event: React.ChangeEvent<{ value: unknown }>
+  ) {
+    setConfirmPassword(event.target.value as string);
   }
 
   function handlePreviousButtonClicked() {
@@ -137,8 +138,8 @@ function HypeRegistration(props: Props) {
 
   function handleNextButtonClicked() {
     if (currentStep === 0) handleStep0NextButtonClick();
-    else if(currentStep === 1) handleStep1NextButtonClick();
-    else if(currentStep === 2) handleStep2NextButtonClick();
+    else if (currentStep === 1) handleStep1NextButtonClick();
+    else if (currentStep === 2) handleStep2NextButtonClick();
     else {
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
@@ -155,14 +156,12 @@ function HypeRegistration(props: Props) {
       if (!re.test(String(username).toLowerCase())) {
         setUsernameErr("Email address not valid");
         hasErr = true;
-      }
-      else setUsernameErr("");
+      } else setUsernameErr("");
 
-      if(university.length === 0) {
-        setUniversityErr('University is required');
+      if (university.length === 0) {
+        setUniversityErr("University is required");
         hasErr = true;
-      }
-      else setUniversityErr("");
+      } else setUniversityErr("");
 
       if (!hasErr) {
         const newStep = currentStep + 1;
@@ -177,25 +176,22 @@ function HypeRegistration(props: Props) {
     setTimeout(async () => {
       setLoading(false);
 
-      if (firstName.length===0) {
-        setFirstNameErr('First name is required')
+      if (firstName.length === 0) {
+        setFirstNameErr("First name is required");
         hasErr = true;
-      }
-      else setFirstNameErr('');
+      } else setFirstNameErr("");
 
-      if (lastName.length===0) {
-        setLastNameErr('Last name is required')
+      if (lastName.length === 0) {
+        setLastNameErr("Last name is required");
         hasErr = true;
-      }
-      else setLastNameErr('');
+      } else setLastNameErr("");
 
-      if (standing.length===0) {
-        setStandingErr('Standing is required')
+      if (standing.length === 0) {
+        setStandingErr("Standing is required");
         hasErr = true;
-      }
-      else setStandingErr('');
+      } else setStandingErr("");
 
-      if(!hasErr) {
+      if (!hasErr) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
@@ -207,20 +203,18 @@ function HypeRegistration(props: Props) {
     let hasErr = false;
     setTimeout(async () => {
       setLoading(false);
-      
-      if(password.length < 8) {
-        setPasswordErr('Password must be atleast 8 characters')
-        hasErr = true;
-      }
-      else setPasswordErr('')
 
-      if(confirmPassword !== password) {
-        setConfirmErr('Passwords must match')
+      if (password.length < 8) {
+        setPasswordErr("Password must be atleast 8 characters");
         hasErr = true;
-      }
-      else setConfirmErr('')
+      } else setPasswordErr("");
 
-      if(!hasErr) {
+      if (confirmPassword !== password) {
+        setConfirmErr("Passwords must match");
+        hasErr = true;
+      } else setConfirmErr("");
+
+      if (!hasErr) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
@@ -242,9 +236,9 @@ function HypeRegistration(props: Props) {
           universityErr={universityErr}
         />
       );
-    else if (step === 1) 
+    else if (step === 1)
       return (
-        <RegistrationStep1 
+        <RegistrationStep1
           firstName={firstName}
           handleFirstNameChange={handleFirstNameChange}
           firstNameErr={firstNameErr}
@@ -258,7 +252,7 @@ function HypeRegistration(props: Props) {
       );
     else if (step === 2)
       return (
-        <RegistrationStep2 
+        <RegistrationStep2
           password={password}
           handlePasswordChange={handlePasswordChange}
           passwordErr={passwordErr}
@@ -267,7 +261,7 @@ function HypeRegistration(props: Props) {
           confirmErr={confirmErr}
         />
       );
-    else return <RegistrationStep3 email={username}/>;
+    else return <RegistrationStep3 email={username} />;
   }
 
   return (

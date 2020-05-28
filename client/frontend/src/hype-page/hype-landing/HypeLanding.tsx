@@ -1,30 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Typography, Button, Toolbar } from "@material-ui/core";
 // import HypeBackground from "../../images/CreatedHypeBG.png";
 import HypeBackground from "../../images/PurdueHypeAlt.png";
-import RootShareLogo from "../../images/RootShareLogoWhite.png";
+import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
+import RootShareLogoFull from "../../images/RootShareLogoFull.png";
+import HypeRegistration from "../hype-registration/HypeRegistration";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
-  background: {
-    width: "100vw",
-    backgroundImage: `url(${HypeBackground})`,
-    height: `51.34vw`,
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "100vw auto",
+  // background: {
+  //   width: "100vw",
+  //   backgroundImage: `url(${HypeBackground})`,
+  //   height: `51.34vw`,
+  //   backgroundRepeat: "no-repeat",
+  //   backgroundSize: "100vw auto",
+  // },
+  buttonLink: {
+    textDecoration: "none",
   },
-  registerLink: {
-    background: "linear-gradient(45deg, rgb(20, 29, 156), rgb(73, 106, 252))",
-    borderRadius: 3,
-    border: 0,
-    color: "white",
-    fontSize: "18pt",
-    padding: "10px 60px",
-    boxShadow: "0 3px 5px 2px rgba(13, 89, 255, .3)",
-    // marginTop: "500px",
-    marginTop: "30vw",
-  },
+  // registerLink: {
+  //   background: "linear-gradient(45deg, rgb(20, 29, 156), rgb(73, 106, 252))",
+  //   borderRadius: 3,
+  //   border: 0,
+  //   color: "white",
+  //   fontSize: "18pt",
+  //   padding: "10px 60px",
+  //   boxShadow: "0 3px 5px 2px rgba(13, 89, 255, .3)",
+  //   // marginTop: "500px",
+  //   marginTop: "30vw",
+  // },
   interior: {
     background: "radial-gradient(closest-side, rgba(0,0,0,0), rgba(0,0,0,0.1))",
     width: "100%",
@@ -41,49 +46,125 @@ const useStyles = makeStyles((_: any) => ({
   headerRegisterButton: {
     color: "white",
   },
-  buttonLink: {
-    textDecoration: "none",
-  },
+
   headerLogo: {
     color: "white",
     height: "38px",
     width: "190px",
+  },
+  top: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    verticalAlign: "center",
+    margin: "20px 20px",
+  },
+  logoFull: {
+    height: "100px",
+  },
+  missionStatement: {
+    flexGrow: 1,
+    textAlign: "left",
+    margin: 0,
+    padding: 0,
+    height: "auto",
+    fontFamily: "Ubuntu",
+    marginLeft: "30px",
+  },
+  body: {
+    display: "flex",
+    justifyContent: "",
+  },
+  left: {
+    flexGrow: 1,
+    textAlign: "left",
+    marginTop: "20px",
+    marginLeft: "20px",
+    marginRight: "30px",
+  },
+  right: {
+    width: "500px",
+    marginTop: "20px",
+  },
+  eventImage: {
+    width: "800px",
+  },
+  eventDate: {
+    fontFamily: "Ubuntu",
+    fontWeight: "bold",
+  },
+  eventText: {
+    width: 800,
+    fontFamily: "Ubuntu",
+    marginTop: 15,
   },
 }));
 
 type Props = {};
 
 function HypeLanding(props: Props) {
-  const [width, setWidth] = useState(0);
   const styles = useStyles();
 
   return (
     <div className={styles.wrapper}>
       <AppBar position="static" className={styles.header}>
         <Toolbar>
-          {/* <Typography className={styles.headerTitle} variant="h5">
-            RootShare
-          </Typography> */}
           <div className={styles.headerTitle}>
             <img
-              src={RootShareLogo}
+              src={RootShareLogoWhite}
               alt="RootShare"
               className={styles.headerLogo}
             />
           </div>
 
-          <a href="/register" className={styles.buttonLink}>
+          {/* <a href="/register" className={styles.buttonLink}>
             <Button className={styles.headerRegisterButton}>Register</Button>
-          </a>
+          </a> */}
         </Toolbar>
       </AppBar>
-      <div className={styles.background}>
+
+      <div className={styles.top}>
+        <img
+          src={RootShareLogoFull}
+          className={styles.logoFull}
+          alt="RootShare"
+        />
+        <Typography className={styles.missionStatement} variant="h4">
+          Building stronger connections among universities by connecting alumni
+          and students (Replace)
+        </Typography>
+      </div>
+      <div className={styles.body}>
+        <div className={styles.left}>
+          <img
+            src={HypeBackground}
+            className={styles.eventImage}
+            alt={`Robbie Hummel, JaJuan Johnson, and E${"'"}Twaun Moore`}
+          />
+          <Typography className={styles.eventDate} variant="h4">
+            AUGUST 15, 2020
+          </Typography>
+          <Typography variant="h5" className={styles.eventText}>
+            RootShare is proud to present a special event on August 15th 2020,
+            where speakers will talk about their experience as Purdue athletes,
+            and what life has been like for them post graduation. RootShare is
+            proud to present a special event on August 15th 2020, where speakers
+            will talk about their experience as Purdue athletes, and what life
+            has been like for them post graduation.
+          </Typography>
+        </div>
+        <div className={styles.right}>
+          <HypeRegistration />
+        </div>
+      </div>
+
+      {/* <div className={styles.background}>
         <a href="/register" className={styles.buttonLink}>
           <Button variant="outlined" className={styles.registerLink}>
             Join Now
           </Button>
         </a>
-      </div>
+      </div> */}
     </div>
   );
 }
