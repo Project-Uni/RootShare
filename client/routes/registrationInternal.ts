@@ -29,7 +29,7 @@ module.exports = (app) => {
     let user = await findUser(req.params.token)
 
     if (user) {
-      res.json(`${user.firstName}, your account has been confirmed!`)
+      res.redirect('/secure-confirmed')
     } else {
       res.json("There was an error processing your request")
     }
