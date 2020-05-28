@@ -11,7 +11,7 @@ const fs = require('fs')
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
-  if (err) console.log(err);
+  if (err) log("MONGO ERROR", err);
 });
 
 // Load all files in models directory
@@ -39,14 +39,14 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 require("./routes/user")(app);
-require("./routes/dbTest")(app);
-require("./routes/loginTest")(app);
+require("./routes/registrationInternal")(app);
+require("./routes/registrationExternal")(app);
 
 require('./config/setup')(passport)
 
 app.use(express.static(path.join("./", "/frontend/build")));
 app.get("*", (_, response) => {
-  response.sendFile(path.resolve("./", "/build/frontend/index.html"));
+  response.sendFile(path.join(__dirname, "/frontend/build/index.html"));
 });
 
 app.listen(port, () => {
