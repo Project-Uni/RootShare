@@ -18,6 +18,7 @@ import RegistrationStep2 from "./RegistrationStep2";
 import RegistrationStep3 from "./RegistrationStep3";
 import GoogleButton from "./GoogleButton";
 import LinkedInButton from "./LinkedInButton";
+import RootShareLogoFull from "../../images/RootShareLogoFull.png";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -62,6 +63,9 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "center",
     marginTop: "20px",
+  },
+  rootshareLogo: {
+    height: "50px",
   },
 }));
 
@@ -280,9 +284,11 @@ function HypeRegistration(props: Props) {
           <a href="/" className={styles.backArrow}>
             <FaArrowLeft color={"rgb(30, 67, 201)"} size={24} />
           </a>
-          {/* Should be Logo here */}
-          <p>UConnect Logo</p>
-          {/* End of Logo */}
+          <img
+            src={RootShareLogoFull}
+            className={styles.rootshareLogo}
+            alt="RootShare"
+          />
           <p className={styles.header}>Create Account</p>
 
           <Stepper activeStep={currentStep}>

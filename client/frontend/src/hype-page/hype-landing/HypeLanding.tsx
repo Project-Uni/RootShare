@@ -1,11 +1,12 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Typography, Button, Toolbar } from "@material-ui/core";
-// import HypeBackground from "../../images/CreatedHypeBG.png";
 import HypeBackground from "../../images/PurdueHypeAlt.png";
 import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
 import RootShareLogoFull from "../../images/RootShareLogoFull.png";
 import HypeRegistration from "../hype-registration/HypeRegistration";
+
+import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -30,18 +31,14 @@ const useStyles = makeStyles((_: any) => ({
   //   // marginTop: "500px",
   //   marginTop: "30vw",
   // },
-  interior: {
-    background: "radial-gradient(closest-side, rgba(0,0,0,0), rgba(0,0,0,0.1))",
-    width: "100%",
-    height: `51.34vw`,
-  },
   headerTitle: {
     flexGrow: 1,
     textAlign: "left",
   },
   header: {
     marginBottom: "5px",
-    background: "rgb(19, 52, 156)",
+    // background: "rgb(19, 52, 156)",
+    background: "#3D66DE",
   },
   headerRegisterButton: {
     color: "white",
@@ -60,7 +57,7 @@ const useStyles = makeStyles((_: any) => ({
     margin: "20px 20px",
   },
   logoFull: {
-    height: "100px",
+    height: "90px",
   },
   missionStatement: {
     flexGrow: 1,
@@ -87,16 +84,41 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "20px",
   },
   eventImage: {
-    width: "800px",
+    width: "700px",
   },
   eventDate: {
     fontFamily: "Ubuntu",
     fontWeight: "bold",
   },
   eventText: {
-    width: 800,
+    width: 700,
     fontFamily: "Ubuntu",
     marginTop: 15,
+  },
+  footer: {
+    display: "block",
+    background: "#3D66DE",
+    paddingTop: "20px",
+    paddingBottom: "20px",
+    marginTop: "50px",
+  },
+  footerLogo: {
+    height: "40px",
+  },
+  footerText: {
+    fontFamily: "Ubuntu",
+    color: "white",
+  },
+  instagramIcon: {
+    height: 50,
+    width: 50,
+    color: "white",
+    "&:hover": {
+      color: "rgb(220,220,220)",
+    },
+  },
+  instagramLink: {
+    marginTop: "20px",
   },
 }));
 
@@ -165,6 +187,17 @@ function HypeLanding(props: Props) {
           </Button>
         </a>
       </div> */}
+      <div className={styles.footer}>
+        <img
+          src={RootShareLogoWhite}
+          className={styles.footerLogo}
+          alt="RootShare"
+        />
+        <br />
+        <a href="https://www.instagram.com" className={styles.instagramLink}>
+          <FaInstagram className={styles.instagramIcon} />
+        </a>
+      </div>
     </div>
   );
 }
