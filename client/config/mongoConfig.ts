@@ -1,5 +1,6 @@
 var mongoose = require("mongoose");
 const { DB_KEY } = require('../../keys/keys.json')
+import log from '../helpers/logger'
 
 //DEFINE Database Stuff here
 const MongoClient = require('mongodb').MongoClient;
@@ -15,10 +16,10 @@ module.exports = {
             useCreateIndex: true
         })
             .then(() => {
-                console.log("Connected to MongoDB!")
+                log("MONGO", "connected to DB")
             })
             .catch(err => {
-                console.log(`DB Connection Error: ${err.message}`);
+                log("MONGO ERROR", err.message);
             })
     },
 }

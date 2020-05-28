@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
+import log from '../helpers/logger'
 
 module.exports = {
   completeRegistration: (userData) => {
@@ -7,9 +8,9 @@ module.exports = {
     User.findOne({ 'email': email },
       function (err, user) {
         if (err)
-          console.log(err)
+          log("MONGO ERROR", err)
         if (!user) {
-          console.log('User Not Found with email address ' + email);
+          log("USER ERROR", 'User Not Found with email address ' + email);
         }
 
         user.university = userData['university']

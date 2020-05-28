@@ -2,6 +2,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 var bCrypt = require('bcryptjs');
+import log from '../helpers/logger'
 
 var { sendConfirmationEmail } = require('../interactions/email-confirmation')
 
@@ -14,20 +15,17 @@ module.exports = function (passport) {
     function (req, email, password, done) {
 
       function findOrCreateUser() {
-        // find a user in Mongo with provided username
+        // find a user in Mongo with provided email address
         User.findOne({ 'email': email }, function (err, user) {
-          // In case of any error, return using the done method
           if (err) {
-            console.log('Error in SignUp: ' + err);
+            log('LOCAL SIGNUP ERROR', err);
             return done(err);
           }
-          // already exists
           if (user) {
-            console.log('User already exists with email address: ' + email);
+            log('LOCAL SIGNUP ERROR', `User already exists with email address: ${email}`);
             return done(null, false, { message: 'User Already Exists.' });
           } else {
-            // if there is no user with that email
-            // create the user
+            // if there is no user with that email, create new
             var newUser = new User();
 
             // set the user's required credentials
@@ -39,11 +37,11 @@ module.exports = function (passport) {
             // save the user
             newUser.save(function (err) {
               if (err) {
-                console.log('Error in Saving user: ' + err);
-                // throw err;
-                return done(err);
+                log('MONGO ERROR', `Error in Saving user: ${err}`);
+                return done(null, false);
               }
-              console.log('User Registration succesful');
+
+              log('LOCAL SIGNUP', 'User Registration succesful!');
               sendConfirmationEmail(email)
               return done(null, newUser);
             });

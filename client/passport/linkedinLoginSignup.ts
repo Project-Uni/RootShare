@@ -2,6 +2,7 @@ var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy
 const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json')
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
+import log from '../helpers/logger'
 
 module.exports = (passport) => {
   passport.use('linkedin-login', new LinkedInStrategy({
@@ -16,29 +17,26 @@ module.exports = (passport) => {
     let linkedinID = profile.id
     let firstName = profile.name.givenName
     let lastName = profile.name.familyName
-    console.log(email)
-    console.log(linkedinID)
 
     User.findOne({ 'email': email },
       function (err, user) {
         if (err)
           return done(err);
         if (!user) {
-          console.log('New email address, creating account with ' + email);
+          log('LINKEDIN REG', `New email address, creating account with ${email}`);
           let newUser = createNewUserLinkedIn(firstName, lastName, email, linkedinID)
-          console.log(newUser)
           return done(null, newUser)
         }
         if (user.linkedinID === undefined) {
-          console.log('Account has not been set up with LinkedIn');
+          log('LINKEDIN REG', 'Account has not been set up with LinkedIn');
           return done(null, false, { message: 'Account has not been set up with LinkedIn' });
         }
         if (!isValidLinkedInID(user, linkedinID)) {
-          console.log('Invalid LinkedIn Account');
+          log('LINKEDIN REG ERROR', 'Invalid LinkedIn Account');
           return done(null, false, { message: 'Invalid LinkedIn Account' }); // redirect back to login page
         }
 
-        console.log("Found user and sending back!")
+        log('LINKEDIN REG', 'Found user and sending back!')
         return done(null, user);
       }
     );
@@ -63,11 +61,11 @@ module.exports = (passport) => {
     // save the user
     newUser.save(function (err) {
       if (err) {
-        console.log('Error in Saving user: ' + err);
+        log('MONGO ERROR', `Error in Saving user: ${err}`);
         throw err
       }
 
-      console.log('User Registration succesful');
+      log('LINKEDIN REG', 'User Registration Succesful!');
       return newUser
     });
 

@@ -9,6 +9,7 @@ const cryptr = new Cryptr(CRYPT_SECRET)
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
 aws.config.loadFromPath('./../keys/aws_key.json')
+import log from '../helpers/logger'
 
 
 let transporter = nodemailer.createTransport({
@@ -24,7 +25,7 @@ module.exports = {
     try {
       currUser = await User.findOne({ 'email': emailAddress })
     } catch (error) {
-      console.log(error)
+      log("MONGO ERROR", error)
     }
 
     if (!currUser) {
@@ -40,7 +41,7 @@ module.exports = {
     let emailToken = module.exports.convertEmailToToken(emailAddress)
     let confirmationLink = `http://rootshare.io/confirmation/${emailToken}`
 
-    console.log(`Sending email to: ${emailAddress}`)
+    log("EMAIL", "Sending Confirmation Email")
     transporter.sendMail({
       from: 'rootshare.io@gmail.com',
       to: `${emailAddress}`,
@@ -48,7 +49,7 @@ module.exports = {
       text: `${confirmationLink}`,
     }, (err, info) => {
       if (err) {
-        console.log(err)
+        log("AWS SES ERROR", err)
       }
     })
   },

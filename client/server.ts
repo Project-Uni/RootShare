@@ -11,7 +11,7 @@ const fs = require('fs')
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
-  if (err) console.log(err);
+  if (err) log("MONGO ERROR", err);
 });
 
 // Load all files in models directory
