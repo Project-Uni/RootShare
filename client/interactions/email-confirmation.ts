@@ -46,7 +46,7 @@ module.exports = {
       from: 'rootshare.io@gmail.com',
       to: `${emailAddress}`,
       subject: 'RootShare Account Confirmation',
-      text: `${confirmationLink}`,
+      text: `Click the following link to confirm your email address with RootShare: ${confirmationLink}`,
     }, (err, info) => {
       if (err) {
         log("AWS SES ERROR", err)
