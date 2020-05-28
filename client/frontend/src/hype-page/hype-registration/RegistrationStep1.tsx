@@ -6,7 +6,7 @@ import {
   MenuItem,
   Select,
   InputLabel,
-  FormHelperText
+  FormHelperText,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((_: any) => ({
@@ -28,10 +28,10 @@ const useStyles = makeStyles((_: any) => ({
     fontfamily: "Ubuntu",
     textAlign: "left",
     marginLeft: "25px",
-    marginTop: '10px'
+    marginTop: "10px",
   },
   textField: {
-    width: "375px",
+    width: "325px",
     marginTop: "20px",
     marginBottom: "10px",
   },
@@ -48,15 +48,15 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  firstName: string,
-  handleFirstNameChange: (event: any)=>void,
-  firstNameErr: string
-  lastName: string,
-  handleLastNameChange: (event: any)=>void,
-  lastNameErr: string,
-  standing: string,
-  handleStandingChange: (event: any)=>void,
-  standingErr: string,
+  firstName: string;
+  handleFirstNameChange: (event: any) => void;
+  firstNameErr: string;
+  lastName: string;
+  handleLastNameChange: (event: any) => void;
+  lastNameErr: string;
+  standing: string;
+  handleStandingChange: (event: any) => void;
+  standingErr: string;
 };
 
 function RegistrationStep1(props: Props) {
@@ -70,7 +70,7 @@ function RegistrationStep1(props: Props) {
         className={styles.textField}
         value={props.firstName}
         onChange={props.handleFirstNameChange}
-        error={props.firstNameErr !== ''}
+        error={props.firstNameErr !== ""}
         helperText={props.firstNameErr}
       />
       <p className={styles.tabDesc}>Last Name:</p>
@@ -80,14 +80,20 @@ function RegistrationStep1(props: Props) {
         className={styles.textField}
         value={props.lastName}
         onChange={props.handleLastNameChange}
-        error={props.lastNameErr !== ''}
+        error={props.lastNameErr !== ""}
         helperText={props.lastNameErr}
       />
 
       <p className={styles.universityStanding}>University Standing:</p>
       <div className={styles.selectDiv}>
-        <FormControl variant="outlined" className={styles.statusField} error={props.standingErr !== ''}>
-          <InputLabel id="demo-simple-select-outlined-label">Standing</InputLabel>
+        <FormControl
+          variant="outlined"
+          className={styles.statusField}
+          error={props.standingErr !== ""}
+        >
+          <InputLabel id="demo-simple-select-outlined-label">
+            Standing
+          </InputLabel>
           <Select
             labelId="demo-simple-select-outlined-label"
             id="demo-simple-select-outlined"

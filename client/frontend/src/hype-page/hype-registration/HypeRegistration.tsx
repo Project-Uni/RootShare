@@ -28,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     // height: "100vh",
   },
   card: {
-    width: "450px",
+    width: "400px",
   },
   cardContent: {
     paddingTop: "30px",

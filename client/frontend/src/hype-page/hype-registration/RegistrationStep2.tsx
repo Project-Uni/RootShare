@@ -15,7 +15,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "25px",
   },
   textField: {
-    width: "375px",
+    width: "325px",
     marginTop: "20px",
     marginBottom: "10px",
   },

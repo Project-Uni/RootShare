@@ -10,35 +10,17 @@ import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
-  // background: {
-  //   width: "100vw",
-  //   backgroundImage: `url(${HypeBackground})`,
-  //   height: `51.34vw`,
-  //   backgroundRepeat: "no-repeat",
-  //   backgroundSize: "100vw auto",
-  // },
   buttonLink: {
     textDecoration: "none",
   },
-  // registerLink: {
-  //   background: "linear-gradient(45deg, rgb(20, 29, 156), rgb(73, 106, 252))",
-  //   borderRadius: 3,
-  //   border: 0,
-  //   color: "white",
-  //   fontSize: "18pt",
-  //   padding: "10px 60px",
-  //   boxShadow: "0 3px 5px 2px rgba(13, 89, 255, .3)",
-  //   // marginTop: "500px",
-  //   marginTop: "30vw",
-  // },
   headerTitle: {
     flexGrow: 1,
     textAlign: "left",
   },
   header: {
     marginBottom: "5px",
-    // background: "rgb(19, 52, 156)",
     background: "#3D66DE",
+    width: "100vw",
   },
   headerRegisterButton: {
     color: "white",
@@ -71,17 +53,16 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: "flex",
     justifyContent: "",
+    marginTop: "20px",
   },
   left: {
-    flexGrow: 1,
     textAlign: "left",
-    marginTop: "20px",
     marginLeft: "20px",
-    marginRight: "30px",
+    marginRight: "80px",
   },
   right: {
-    width: "500px",
-    marginTop: "20px",
+    flexGrow: 1,
+    marginRight: 30,
   },
   eventImage: {
     width: "700px",
@@ -96,11 +77,11 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 15,
   },
   footer: {
-    display: "block",
     background: "#3D66DE",
     paddingTop: "20px",
-    paddingBottom: "20px",
+    paddingBottom: "10px",
     marginTop: "50px",
+    width: "100vw",
   },
   footerLogo: {
     height: "40px",
@@ -120,6 +101,11 @@ const useStyles = makeStyles((_: any) => ({
   instagramLink: {
     marginTop: "20px",
   },
+  registerText: {
+    fontWeight: "bold",
+    fontFamily: "Ubuntu",
+    marginTop: "10px",
+  },
 }));
 
 type Props = {};
@@ -138,10 +124,6 @@ function HypeLanding(props: Props) {
               className={styles.headerLogo}
             />
           </div>
-
-          {/* <a href="/register" className={styles.buttonLink}>
-            <Button className={styles.headerRegisterButton}>Register</Button>
-          </a> */}
         </Toolbar>
       </AppBar>
 
@@ -174,19 +156,15 @@ function HypeLanding(props: Props) {
             will talk about their experience as Purdue athletes, and what life
             has been like for them post graduation.
           </Typography>
+          <Typography variant="h5" className={styles.registerText}>
+            Register for the event now!
+          </Typography>
         </div>
         <div className={styles.right}>
           <HypeRegistration />
         </div>
       </div>
 
-      {/* <div className={styles.background}>
-        <a href="/register" className={styles.buttonLink}>
-          <Button variant="outlined" className={styles.registerLink}>
-            Join Now
-          </Button>
-        </a>
-      </div> */}
       <div className={styles.footer}>
         <img
           src={RootShareLogoWhite}
