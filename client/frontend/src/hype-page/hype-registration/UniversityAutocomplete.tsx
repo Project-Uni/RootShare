@@ -25,19 +25,19 @@ type Props = {
   handleAutoCompleteChange: (_: any, newValue: any) => void;
   handleQueryChange: (event: any) => void;
   value: String;
-  universityErr: String
+  universityErr: String;
 };
 
 function UniversityAutocomplete(props: Props) {
   const styles = useStyles();
   const [options, setOptions] = useState([
     { school: "Purdue" },
-    { school: "Other" },
+    // { school: "Other" },
   ]);
 
   return (
     <Autocomplete
-      style={{ width: 375, marginBottom: "35px" }}
+      style={{ width: 325, marginBottom: "35px" }}
       options={options.map((option) => option.school)}
       onChange={props.handleAutoCompleteChange}
       value={props.value}
@@ -49,7 +49,7 @@ function UniversityAutocomplete(props: Props) {
           fullWidth
           value={props.value}
           // onChange={props.handleQueryChange}
-          error={props.universityErr !== ''}
+          error={props.universityErr !== ""}
           helperText={props.universityErr}
         />
       )}
@@ -61,7 +61,11 @@ function UniversityAutocomplete(props: Props) {
                 <FaPlus size={14} color="black" />
               </div>
             ) : (
-              <img src={PurdueLogo} className={styles.logoStyle} />
+              <img
+                src={PurdueLogo}
+                className={styles.logoStyle}
+                alt="Purdue P"
+              />
             )}
           </Grid>
           <Grid item xs>

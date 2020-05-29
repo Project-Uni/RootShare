@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
   googlePaper: {
     display: "flex",
     alignItems: "center",
-    width: "275px",
+    width: "250px",
     height: "50px",
     backgroundColor: "white",
     "&:hover": {

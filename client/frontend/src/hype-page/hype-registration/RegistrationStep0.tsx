@@ -14,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "25px",
   },
   emailField: {
-    width: "375px",
+    width: "325px",
     marginTop: "20px",
     marginBottom: "10px",
   },
@@ -31,7 +31,7 @@ type Props = {
   university: String;
   handleUniversityChange: (event: any) => void;
   handleUniversityAutocompleteChange: (_: any, newValue: any) => void;
-  universityErr: String,
+  universityErr: String;
 };
 
 function RegistrationStep0(props: Props) {
@@ -48,6 +48,7 @@ function RegistrationStep0(props: Props) {
         className={styles.emailField}
         onChange={props.handleUsernameChange}
         helperText={props.usernameErr}
+        autoComplete="email"
       />
 
       <p className={styles.tabDesc}>University:</p>

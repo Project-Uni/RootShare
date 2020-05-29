@@ -1,10 +1,10 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField } from "@material-ui/core";
+import { TextField, FormControlLabel, Checkbox } from "@material-ui/core";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    marginBottom: '20px'
+    marginBottom: "20px",
   },
   tabDesc: {
     fontSize: "13pt",
@@ -15,19 +15,32 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "25px",
   },
   textField: {
-    width: "375px",
+    width: "325px",
     marginTop: "20px",
     marginBottom: "10px",
+  },
+  ageValidationDiv: {
+    textAlign: "left",
+    marginLeft: 25,
+  },
+  ageErrText: {
+    color: "red",
+    fontFamily: "Ubuntu",
+    fontStyle: "italic",
+    margin: 0,
   },
 }));
 
 type Props = {
-  password: string,
-  handlePasswordChange: (event: any) => void,
-  passwordErr: string,
-  confirmPassword: string,
-  handleConfirmPasswordChange: (event: any) => void,
-  confirmErr: string
+  password: string;
+  handlePasswordChange: (event: any) => void;
+  passwordErr: string;
+  confirmPassword: string;
+  handleConfirmPasswordChange: (event: any) => void;
+  confirmErr: string;
+  ageValidation: boolean;
+  handleAgeValidationChange: (event: any) => void;
+  ageValidationErr: string;
 };
 
 function RegistrationStep2(props: Props) {
@@ -35,28 +48,46 @@ function RegistrationStep2(props: Props) {
   return (
     <div className={styles.wrapper}>
       <p className={styles.tabDesc}>Password:</p>
-      <TextField 
-        label="Password" 
-        variant="outlined" 
+      <TextField
+        label="Password"
+        variant="outlined"
         className={styles.textField}
         type="password"
         value={props.password}
         onChange={props.handlePasswordChange}
-        error={props.passwordErr !== ''}
+        error={props.passwordErr !== ""}
         helperText={props.passwordErr}
+        autoComplete="new-password"
       />
 
       <p className={styles.tabDesc}>Confirm Password:</p>
-      <TextField 
-        label="Confirm" 
-        variant="outlined" 
+      <TextField
+        label="Confirm"
+        variant="outlined"
         className={styles.textField}
         type="password"
         value={props.confirmPassword}
         onChange={props.handleConfirmPasswordChange}
-        error={props.confirmErr !== ''}
+        error={props.confirmErr !== ""}
         helperText={props.confirmErr}
       />
+
+      <div className={styles.ageValidationDiv}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={props.ageValidation}
+              onChange={props.handleAgeValidationChange}
+              name="checkedB"
+              color="primary"
+            />
+          }
+          label="I confirm am over the age of 16"
+        />
+        {props.ageValidationErr.length > 0 && (
+          <p className={styles.ageErrText}>{props.ageValidationErr}</p>
+        )}
+      </div>
     </div>
   );
 }
