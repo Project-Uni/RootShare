@@ -45,7 +45,7 @@ export default function LinkedInButton() {
 
   return (
     <Paper className={styles.googlePaper} elevation={3}>
-      <a href="/auth/google" className={styles.googleLink}>
+      <a href="/auth/login/linkedin" className={styles.googleLink}>
         <img
           src={linkedInLogo}
           alt="Google logo"
