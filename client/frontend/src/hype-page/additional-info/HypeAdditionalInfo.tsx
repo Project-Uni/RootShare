@@ -20,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
+    marginTop: "35px",
   },
   card: {
     width: 450,
@@ -99,10 +99,12 @@ function HypeAdditionalInfo(props: Props) {
       college:
         "Which college of Purdue did you graduate from (Krannert, Engineering, etc)?",
       interests: "What are your interests (use comma-separated list)?",
+      organizations:
+        "What organizations were you involved with on campus (use comma-separated list)?",
       graduateDegree: "Did you get a graduate degree?",
       graduateSchool:
         "What university did you obtain your graduate degree from?",
-      phoneNumber: "Phone Number:",
+      phoneNumber: "Add Your Number:",
     },
     demand: {
       major: "Major:",
@@ -165,7 +167,82 @@ function HypeAdditionalInfo(props: Props) {
                 helperText={optionalText}
                 type="number"
               />
+
+              <p className={styles.tabDesc}>{modePrompts[mode]["work"]}</p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Current Employer"
+                helperText={optionalText}
+              />
+
+              <p className={styles.tabDesc}>{modePrompts[mode]["position"]}</p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Current Role"
+                helperText={optionalText}
+              />
+
+              <p className={styles.tabDesc}>{modePrompts[mode]["college"]}</p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="College of Study"
+                helperText={optionalText}
+              />
+
+              <p className={styles.tabDesc}>{modePrompts[mode]["interests"]}</p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Interests"
+                helperText={optionalText}
+                multiline
+              />
+
+              <p className={styles.tabDesc}>
+                {modePrompts[mode]["organizations"]}
+              </p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Organization"
+                helperText={optionalText}
+                multiline
+              />
+
+              {/* <p className={styles.tabDesc}>
+                {modePrompts[mode]["graduateDegree"]}
+              </p> */}
+              {/* TODO - Add correct field here */}
+
+              <p className={styles.tabDesc}>
+                {modePrompts[mode]["graduateSchool"]}
+              </p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Graduate School"
+                helperText={optionalText}
+                multiline
+              />
+
+              <p className={styles.tabDesc}>
+                {modePrompts[mode]["phoneNumber"]}
+              </p>
+              <TextField
+                variant="outlined"
+                className={styles.textField}
+                label="Phone Number"
+                helperText={optionalText}
+                multiline
+              />
             </div>
+
+            <Button variant="contained" color="primary" disabled={loading}>
+              Finish
+            </Button>
           </CardContent>
         </Card>
       </div>
