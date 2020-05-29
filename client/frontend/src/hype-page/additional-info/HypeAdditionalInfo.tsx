@@ -133,6 +133,22 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState("");
 
+  const PurdueColleges = [
+    "College of Agriculture",
+    "College of Education",
+    "College of Engineering",
+    "Exploratory Studies",
+    "College of Health and Human Sciences",
+    "College of Liberal Arts",
+    "Krannert School of Management",
+    "College of Pharmacy",
+    "Purdue Polytechnic Institute",
+    "College of Science",
+    "College of Veterinary Medicine",
+    "Honors College",
+    "The Graduate School",
+  ];
+
   useEffect(() => {
     let currUser = localStorage.getItem("rootshare-current-user");
     console.log(`currUser: ${currUser}`);
@@ -345,17 +361,20 @@ function HypeAdditionalInfo(props: Props) {
                 onChange={handlePositionChange}
               />
 
-              {/* TODO - Change this to Dropdown pre-populated with Purdue colleges */}
               <p className={styles.tabDesc}>{modePrompts[mode]["college"]}</p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="College of Study"
-                helperText={optionalText}
-                value={college}
-                onChange={handleCollegeChange}
-              />
-
+              <FormControl variant="outlined" className={styles.textField}>
+                <InputLabel>College</InputLabel>
+                <Select
+                  value={college}
+                  onChange={handleCollegeChange}
+                  label="College"
+                >
+                  {PurdueColleges.map((singleCollege) => (
+                    <MenuItem value={singleCollege}>{singleCollege}</MenuItem>
+                  ))}
+                </Select>
+                <FormHelperText>{optionalText}</FormHelperText>
+              </FormControl>
               <p className={styles.tabDesc}>{modePrompts[mode]["interests"]}</p>
               <TextField
                 variant="outlined"
@@ -386,15 +405,11 @@ function HypeAdditionalInfo(props: Props) {
                 variant="outlined"
                 className={styles.gradDegreeSelect}
               >
-                <InputLabel id="demo-simple-select-outlined-label">
-                  Grad Degree
-                </InputLabel>
+                <InputLabel>Grad Degree</InputLabel>
                 <Select
-                  labelId="demo-simple-select-outlined-label"
-                  id="demo-simple-select-outlined"
                   value={hasGradDegree}
                   onChange={handleHasGradDegreeChange}
-                  label="Age"
+                  label="Grad Degree"
                 >
                   <MenuItem value="no">No</MenuItem>
                   <MenuItem value="yes">Yes</MenuItem>
