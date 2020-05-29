@@ -17,6 +17,7 @@ import { Redirect } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 
 import RootShareLogoFull from "../../images/RootShareLogoFull.png";
+import PurdueLogo from "../../images/purdueLogo.png";
 
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
@@ -112,6 +113,22 @@ const useStyles = makeStyles((_: any) => ({
     color: "red",
     textAlign: "left",
   },
+  completeText: {
+    fontSize: "13pt",
+    textAlign: "left",
+    margin: 0,
+    fontfamily: "Ubuntu",
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 10,
+  },
+  finishWrapper: {
+    marginTop: "20px",
+  },
+  logoStyle: {
+    height: "100px",
+    width: "100px",
+  },
 }));
 
 type Props = {};
@@ -137,7 +154,7 @@ function HypeAdditionalInfo(props: Props) {
   const [phoneNumErr, setPhoneNumErr] = useState("");
   const [updateErr, setUpdateErr] = useState(false);
 
-  const [regCompleted, setRegCompleted] = useState(false);
+  const [regCompleted, setRegCompleted] = useState(true);
 
   const [currentUser, setCurrentUser] = useState("");
 
@@ -318,162 +335,190 @@ function HypeAdditionalInfo(props: Props) {
               alt="RootShare"
             />
             <p className={styles.header}>Complete your profile</p>
+            {!regCompleted ? (
+              <>
+                <Typography className={styles.subheaderText}>
+                  All of this information is completely optional, adding it will
+                  help us curate the best information for you once our platform
+                  goes live!
+                </Typography>
+                <div className={styles.infoDiv}>
+                  <p className={styles.tabDesc}>{modePrompts[mode]["major"]}</p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Major"
+                    helperText={optionalText}
+                    value={major}
+                    onChange={handleMajorChange}
+                  />
 
-            <Typography className={styles.subheaderText}>
-              All of this information is completely optional, adding it will
-              help us curate the best information for you once our platform goes
-              live!
-            </Typography>
-
-            <div className={styles.infoDiv}>
-              <p className={styles.tabDesc}>{modePrompts[mode]["major"]}</p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Major"
-                helperText={optionalText}
-                value={major}
-                onChange={handleMajorChange}
-              />
-
-              <p className={styles.tabDesc}>
-                {modePrompts[mode]["graduation"]}
-              </p>
-              <TextField
-                variant="outlined"
-                className={styles.yearField}
-                label="Graduation Year"
-                helperText={gradYearErr === "" ? optionalText : gradYearErr}
-                type="number"
-                value={graduationYear}
-                onChange={handleGraduationYearChange}
-                error={gradYearErr !== ""}
-              />
-
-              <p className={styles.tabDesc}>{modePrompts[mode]["work"]}</p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Current Employer"
-                helperText={optionalText}
-                value={work}
-                onChange={handleWorkChange}
-              />
-
-              <p className={styles.tabDesc}>{modePrompts[mode]["position"]}</p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Current Role"
-                helperText={optionalText}
-                value={position}
-                onChange={handlePositionChange}
-              />
-
-              <p className={styles.tabDesc}>{modePrompts[mode]["college"]}</p>
-              <FormControl variant="outlined" className={styles.textField}>
-                <InputLabel>College</InputLabel>
-                <Select
-                  value={college}
-                  onChange={handleCollegeChange}
-                  label="College"
-                >
-                  {PurdueColleges.map((singleCollege) => (
-                    <MenuItem value={singleCollege}>{singleCollege}</MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText>{optionalText}</FormHelperText>
-              </FormControl>
-              <p className={styles.tabDesc}>{modePrompts[mode]["interests"]}</p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Interests"
-                helperText={optionalText}
-                multiline
-                value={interests}
-                onChange={handleInterestsChange}
-              />
-
-              <p className={styles.tabDesc}>
-                {modePrompts[mode]["organizations"]}
-              </p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Organization"
-                helperText={optionalText}
-                multiline
-                value={organizations}
-                onChange={handleOrganizationsChange}
-              />
-              <p className={styles.tabDesc}>
-                {modePrompts[mode]["graduateDegree"]}
-              </p>
-              <FormControl
-                variant="outlined"
-                className={styles.gradDegreeSelect}
-              >
-                <InputLabel>Grad Degree</InputLabel>
-                <Select
-                  value={hasGradDegree}
-                  onChange={handleHasGradDegreeChange}
-                  label="Grad Degree"
-                >
-                  <MenuItem value="no">No</MenuItem>
-                  <MenuItem value="yes">Yes</MenuItem>
-                </Select>
-                <FormHelperText>{optionalText}</FormHelperText>
-              </FormControl>
-
-              {hasGradDegree === "yes" && (
-                <>
                   <p className={styles.tabDesc}>
-                    {modePrompts[mode]["graduateSchool"]}
+                    {modePrompts[mode]["graduation"]}
+                  </p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.yearField}
+                    label="Graduation Year"
+                    helperText={gradYearErr === "" ? optionalText : gradYearErr}
+                    type="number"
+                    value={graduationYear}
+                    onChange={handleGraduationYearChange}
+                    error={gradYearErr !== ""}
+                  />
+
+                  <p className={styles.tabDesc}>{modePrompts[mode]["work"]}</p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Current Employer"
+                    helperText={optionalText}
+                    value={work}
+                    onChange={handleWorkChange}
+                  />
+
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["position"]}
                   </p>
                   <TextField
                     variant="outlined"
                     className={styles.textField}
-                    label="Graduate School"
+                    label="Current Role"
+                    helperText={optionalText}
+                    value={position}
+                    onChange={handlePositionChange}
+                  />
+
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["college"]}
+                  </p>
+                  <FormControl variant="outlined" className={styles.textField}>
+                    <InputLabel>College</InputLabel>
+                    <Select
+                      value={college}
+                      onChange={handleCollegeChange}
+                      label="College"
+                    >
+                      {PurdueColleges.map((singleCollege) => (
+                        <MenuItem value={singleCollege}>
+                          {singleCollege}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText>{optionalText}</FormHelperText>
+                  </FormControl>
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["interests"]}
+                  </p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Interests"
                     helperText={optionalText}
                     multiline
-                    value={graduateSchool}
-                    onChange={handleGraduateSchoolChange}
+                    value={interests}
+                    onChange={handleInterestsChange}
                   />
-                </>
-              )}
 
-              <p className={styles.tabDesc}>
-                {modePrompts[mode]["phoneNumber"]}
-              </p>
-              <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Phone Number"
-                helperText={phoneNumErr === "" ? optionalText : phoneNumErr}
-                multiline
-                value={phoneNumber}
-                onChange={handlePhoneNumberChange}
-                error={phoneNumErr !== ""}
-              />
-            </div>
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["organizations"]}
+                  </p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Organization"
+                    helperText={optionalText}
+                    multiline
+                    value={organizations}
+                    onChange={handleOrganizationsChange}
+                  />
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["graduateDegree"]}
+                  </p>
+                  <FormControl
+                    variant="outlined"
+                    className={styles.gradDegreeSelect}
+                  >
+                    <InputLabel>Grad Degree</InputLabel>
+                    <Select
+                      value={hasGradDegree}
+                      onChange={handleHasGradDegreeChange}
+                      label="Grad Degree"
+                    >
+                      <MenuItem value="no">No</MenuItem>
+                      <MenuItem value="yes">Yes</MenuItem>
+                    </Select>
+                    <FormHelperText>{optionalText}</FormHelperText>
+                  </FormControl>
+
+                  {hasGradDegree === "yes" && (
+                    <>
+                      <p className={styles.tabDesc}>
+                        {modePrompts[mode]["graduateSchool"]}
+                      </p>
+                      <TextField
+                        variant="outlined"
+                        className={styles.textField}
+                        label="Graduate School"
+                        helperText={optionalText}
+                        multiline
+                        value={graduateSchool}
+                        onChange={handleGraduateSchoolChange}
+                      />
+                    </>
+                  )}
+
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["phoneNumber"]}
+                  </p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Phone Number"
+                    helperText={phoneNumErr === "" ? optionalText : phoneNumErr}
+                    multiline
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    error={phoneNumErr !== ""}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className={styles.finishWrapper}>
+                <Typography className={styles.completeText}>
+                  <b>You are all set for the event!</b>
+                </Typography>
+                <Typography className={styles.completeText}>
+                  We look forward to seeing you on August 15th!
+                </Typography>
+                <Typography className={styles.completeText}>
+                  Once again, <b>Boiler Up!</b>
+                </Typography>
+                <img
+                  src={PurdueLogo}
+                  alt="Purdue Logo"
+                  className={styles.logoStyle}
+                />
+              </div>
+            )}
 
             {updateErr && (
               <p className={styles.submitError}>
                 There was an error processing your request.
               </p>
             )}
-
-            <div className={styles.buttonDiv}>
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={loading}
-                onClick={handleSubmit}
-              >
-                Finish
-              </Button>
-            </div>
+            {!regCompleted && (
+              <div className={styles.buttonDiv}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  disabled={loading}
+                  onClick={handleSubmit}
+                >
+                  Finish
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
