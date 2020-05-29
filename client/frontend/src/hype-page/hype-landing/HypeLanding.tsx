@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Typography, Button, Toolbar } from "@material-ui/core";
 import HypeBackground from "../../images/PurdueHypeAlt.png";
@@ -12,7 +12,7 @@ import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    minWidth: 1230,
+    // minWidth: 1230,
   },
   buttonLink: {
     textDecoration: "none",
@@ -113,6 +113,15 @@ type Props = {};
 
 function HypeLanding(props: Props) {
   const styles = useStyles();
+  const [desktopMode, setDesktopMode] = useState(window.innerWidth >= 1230);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateWindow);
+  }, []);
+
+  function updateWindow() {
+    setDesktopMode(window.innerWidth >= 1230);
+  }
 
   const eventDescription = `
     RootShare is proud to present a special event on August 15th 2020,
@@ -138,31 +147,9 @@ function HypeLanding(props: Props) {
       </AppBar>
 
       <div className={styles.body}>
-        {window.innerWidth > 1230 ? (
+        {desktopMode ? (
           <HypeDesktopBody eventDescription={eventDescription} />
         ) : null}
-        {/* <div className={styles.left}>
-          <Typography className={styles.missionStatement} variant="h4">
-            Every success story is rooted in the support from a community.
-          </Typography>
-          <img
-            src={HypeBackground}
-            className={styles.eventImage}
-            alt={`Robbie Hummel, JaJuan Johnson, and E${"'"}Twaun Moore`}
-          />
-          <Typography className={styles.eventDate} variant="h4">
-            AUGUST 15, 2020
-          </Typography>
-          <Typography variant="h5" className={styles.eventText}>
-            {eventDescription}
-          </Typography>
-          <Typography variant="h5" className={styles.registerText}>
-            Register for the event now!
-          </Typography>
-        </div>
-        <div className={styles.right}>
-          <HypeRegistration />
-        </div> */}
       </div>
 
       <div className={styles.footer}>
