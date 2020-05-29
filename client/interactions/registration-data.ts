@@ -27,6 +27,7 @@ module.exports = {
       user.work = userData["work"];
       user.position = userData["position"];
       user.interests = userData["interests"];
+      user.regComplete = true
 
       user.save((err) => {
         if (err) {

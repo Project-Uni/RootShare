@@ -178,16 +178,19 @@ function HypeAdditionalInfo(props: Props) {
   useEffect(() => {
     async function runEffect() {
       let currUser = localStorage.getItem("rootshare-current-user");
+      let regComplete = false
       if (currUser === null) {
-        await axios.get('/auth/curr-user/email')
+        await axios.get('/auth/curr-user/load')
           .then((response) => {
             currUser = response.data.content.email
+            regComplete = response.data.content.regComplete
           }).catch((error) => {
 
           })
 
       }
 
+      if (regComplete) setRegCompleted(true)
       if (currUser === null) setLandingRedirect(true);
       else setCurrentUser(currUser as string);
     }
@@ -278,7 +281,7 @@ function HypeAdditionalInfo(props: Props) {
         organizations: organizations.split(","),
         interests: interests.split(","),
         phoneNumber: phoneNumber,
-        graduateSchool: hasGradDegree ? graduateSchool : "",
+        graduateSchool: hasGradDegree ? graduateSchool : ""
       });
       if (data["success"] !== 1) {
         setUpdateErr(true);
