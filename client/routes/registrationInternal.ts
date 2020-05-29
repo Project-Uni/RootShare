@@ -1,4 +1,5 @@
 var passport = require('passport')
+import axios from 'axios'
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
 var isConfirmed = require('./middleware/isConfirmed')
@@ -11,8 +12,11 @@ module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
     passport.authenticate('local-login', (err, user, info) => {
       if (user) {
-        res.json(sendPacket(1, info.message))
-        log("info", `Successfully logged in ${user.email} locally`)
+        req.login(user, (err) => {
+          if (err) { log("error", `Failed serializing ${user.email}`) }
+          log("info", `Successfully logged in ${user.email} locally`)
+          return res.redirect('/secure-confirmed')
+        })
       } else if (info) {
         res.json(sendPacket(0, info.message))
         log("error", `User local login failed`)
@@ -26,8 +30,11 @@ module.exports = (app) => {
   app.post('/auth/signup/local', (req, res) => {
     passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
-        res.json(sendPacket(1, info.message))
-        log("info", `Successfully created account for ${user.email}`)
+        req.login(user, (err) => {
+          if (err) { log("error", `Failed serializing ${user.email}`) }
+          log("info", `Successfully created account for ${user.email}`)
+          return res.redirect('/secure-confirmed')
+        })
       } else if (info) {
         res.json(sendPacket(0, info.message))
         log("error", `User local signup failed`)
@@ -68,8 +75,11 @@ module.exports = (app) => {
     let user = await findUser(req.params.token)
 
     if (user) {
-      log("info", `Confirmed user ${user.email}`)
-      res.redirect('/secure-confirmed')
+      req.login(user, (err) => {
+        if (err) { log("error", `Failed serializing ${user.email}`) }
+        log("info", `Confirmed user ${user.email}`)
+        return res.redirect('/secure-confirmed')
+      })
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"))
       log("error", `Was not able to confirm user`)
@@ -99,8 +109,9 @@ module.exports = (app) => {
   })
 
   app.get('/logout', (req, res) => {
+    let email = req.user.email
     req.logout()
     res.json(sendPacket(1, 'Successfully logged out'))
-    log("info", `Successfully logged out ${req.user.email}`)
+    log("info", `Successfully logged out ${email}`)
   })
 }

@@ -260,10 +260,10 @@ function HypeRegistration(props: Props) {
           accountType: standing
         })
           .then(function (response) {
-            console.log(response);
+            // console.log(response);
           })
           .catch(function (error) {
-            console.log(error);
+            // console.log(error);
           });
 
         const newStep = currentStep + 1;
