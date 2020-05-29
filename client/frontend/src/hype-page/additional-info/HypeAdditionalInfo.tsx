@@ -117,6 +117,8 @@ function HypeAdditionalInfo(props: Props) {
   const [gradYearErr, setGradYearErr] = useState("");
   const [phoneNumErr, setPhoneNumErr] = useState("");
 
+  const [regCompleted, setRegCompleted] = useState(false);
+
   function handleMajorChange(event: any) {
     setMajor(event.target.value);
   }
@@ -184,6 +186,24 @@ function HypeAdditionalInfo(props: Props) {
         setPhoneNumErr("Invalid phone number");
         hasErr = true;
       } else setPhoneNumErr("");
+
+      if (hasErr) return;
+      const { data } = await axios.post("/auth/complete-registration", {
+        major: major,
+        graduationYear: graduationYear,
+        work: work,
+        position: position,
+        department: college,
+        organizations: organizations,
+        interests: interests,
+        phoneNumber: phoneNumber,
+        graduateSchool: graduateSchool,
+      });
+      if (data["success"] !== 1) {
+        console.log(data["message"]);
+      } else {
+        setRegCompleted(true);
+      }
     }, 1000);
   }
 
