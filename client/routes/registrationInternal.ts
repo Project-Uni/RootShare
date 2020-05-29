@@ -4,7 +4,7 @@ var isAuthenticated = require('../passport/middleware/isAuthenticated')
 var isConfirmed = require('./middleware/isConfirmed')
 import sendPacket from '../helpers/sendPacket'
 var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
-var { completeRegistration, userExists } = require('../interactions/registration-data')
+var { completeRegistrationDetails, completeRegistrationRequired, userExists } = require('../interactions/registration-data')
 
 module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
@@ -40,10 +40,16 @@ module.exports = (app) => {
     }
   })
 
-  app.post('/auth/complete-registration', (req, res) => {
-    completeRegistration(req.body)
+  app.post('/auth/complete-registration/required', (req, res) => {
+    completeRegistrationRequired(req.body)
 
-    res.json(sendPacket(1, "Completed Registration"))
+    res.json(sendPacket(1, "Completed Required Registration"))
+  })
+
+  app.post('/auth/complete-registration/details', (req, res) => {
+    completeRegistrationDetails(req.body)
+
+    res.json(sendPacket(1, "Completed Additional Details Registration"))
   })
 
   app.get('/confirmation/:token', async (req, res) => {
