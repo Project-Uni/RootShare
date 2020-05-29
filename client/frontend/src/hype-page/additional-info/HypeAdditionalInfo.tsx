@@ -154,7 +154,7 @@ function HypeAdditionalInfo(props: Props) {
   const [phoneNumErr, setPhoneNumErr] = useState("");
   const [updateErr, setUpdateErr] = useState(false);
 
-  const [regCompleted, setRegCompleted] = useState(true);
+  const [regCompleted, setRegCompleted] = useState(false);
 
   const [currentUser, setCurrentUser] = useState("");
 
@@ -176,7 +176,6 @@ function HypeAdditionalInfo(props: Props) {
 
   useEffect(() => {
     let currUser = localStorage.getItem("rootshare-current-user");
-    console.log(`currUser: ${currUser}`);
     if (currUser === null) setLandingRedirect(true);
     else setCurrentUser(currUser as string);
   }, []);
