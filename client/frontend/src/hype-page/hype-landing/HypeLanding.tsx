@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Typography, Button, Toolbar } from "@material-ui/core";
-import HypeBackground from "../../images/PurdueHypeAlt.png";
+import { AppBar, Toolbar } from "@material-ui/core";
 import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
-import RootShareLogoFull from "../../images/RootShareLogoFull.png";
-import HypeRegistration from "../hype-registration/HypeRegistration";
 
 import HypeDesktopBody from "./HypeDesktopBody";
+import HypeMobileBody from "./HypeMobileBody";
 
 import { FaInstagram } from "react-icons/fa";
 
@@ -30,51 +28,15 @@ const useStyles = makeStyles((_: any) => ({
   headerRegisterButton: {
     color: "white",
   },
-
   headerLogo: {
     color: "white",
     height: "38px",
     width: "190px",
   },
-  logoFull: {
-    height: "90px",
-  },
-  missionStatement: {
-    textAlign: "left",
-    margin: 0,
-    padding: 0,
-    height: "auto",
-    fontFamily: "Ubuntu",
-    width: 700,
-    marginBottom: "20px",
-    fontSize: 32,
-  },
   body: {
     display: "flex",
     justifyContent: "",
     marginTop: "20px",
-  },
-  left: {
-    textAlign: "left",
-    marginLeft: "20px",
-    marginRight: "80px",
-  },
-  right: {
-    flexGrow: 1,
-    marginRight: 30,
-  },
-  eventImage: {
-    width: "700px",
-  },
-  eventDate: {
-    fontFamily: "Ubuntu",
-    fontWeight: "bold",
-  },
-  eventText: {
-    width: 700,
-    fontFamily: "Ubuntu",
-    marginTop: 15,
-    fontSize: "13pt",
   },
   footer: {
     background: "#3D66DE",
@@ -101,11 +63,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   instagramLink: {
     marginTop: "20px",
-  },
-  registerText: {
-    fontWeight: "bold",
-    fontFamily: "Ubuntu",
-    marginTop: "10px",
   },
 }));
 
@@ -149,7 +106,9 @@ function HypeLanding(props: Props) {
       <div className={styles.body}>
         {desktopMode ? (
           <HypeDesktopBody eventDescription={eventDescription} />
-        ) : null}
+        ) : (
+          <HypeMobileBody eventDescription={eventDescription} />
+        )}
       </div>
 
       <div className={styles.footer}>
