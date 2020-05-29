@@ -110,6 +110,18 @@ module.exports = (app) => {
     });
   });
 
+  app.get('/auth/curr-user/email', async (req, res) => {
+    let email = req.user.email;
+    let check = await userExists(email);
+    if (check) {
+      res.json(sendPacket(1, "Sending back current user", { email: email }));
+      log("info", `Sent ${email} to frontend`);
+    } else {
+      res.json(sendPacket(0, "There is no user currently logged in"));
+      log("error", `There is no user currently logged in`);
+    }
+  })
+
   app.get("/confirmation/:token", async (req, res) => {
     let user = await findUser(req.params.token);
 

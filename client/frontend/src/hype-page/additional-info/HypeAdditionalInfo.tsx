@@ -176,9 +176,23 @@ function HypeAdditionalInfo(props: Props) {
   ];
 
   useEffect(() => {
-    let currUser = localStorage.getItem("rootshare-current-user");
-    if (currUser === null) setLandingRedirect(true);
-    else setCurrentUser(currUser as string);
+    async function runEffect() {
+      let currUser = localStorage.getItem("rootshare-current-user");
+      if (currUser === null) {
+        await axios.get('/auth/curr-user/email')
+          .then((response) => {
+            currUser = response.data.content.email
+          }).catch((error) => {
+
+          })
+
+      }
+
+      if (currUser === null) setLandingRedirect(true);
+      else setCurrentUser(currUser as string);
+    }
+
+    runEffect()
   }, []);
 
   function handleMajorChange(event: any) {
@@ -484,23 +498,23 @@ function HypeAdditionalInfo(props: Props) {
                 </div>
               </>
             ) : (
-              <div className={styles.finishWrapper}>
-                <Typography className={styles.completeText}>
-                  <b>You are all set for the event!</b>
+                <div className={styles.finishWrapper}>
+                  <Typography className={styles.completeText}>
+                    <b>You are all set for the event!</b>
+                  </Typography>
+                  <Typography className={styles.completeText}>
+                    We look forward to seeing you on August 15th!
                 </Typography>
-                <Typography className={styles.completeText}>
-                  We look forward to seeing you on August 15th!
-                </Typography>
-                <Typography className={styles.completeText}>
-                  Once again, <b>Boiler Up!</b>
-                </Typography>
-                <img
-                  src={PurdueLogo}
-                  alt="Purdue Logo"
-                  className={styles.logoStyle}
-                />
-              </div>
-            )}
+                  <Typography className={styles.completeText}>
+                    Once again, <b>Boiler Up!</b>
+                  </Typography>
+                  <img
+                    src={PurdueLogo}
+                    alt="Purdue Logo"
+                    className={styles.logoStyle}
+                  />
+                </div>
+              )}
 
             {updateErr && (
               <p className={styles.submitError}>
