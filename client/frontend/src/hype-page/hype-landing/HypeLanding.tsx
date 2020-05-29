@@ -6,6 +6,8 @@ import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
 import RootShareLogoFull from "../../images/RootShareLogoFull.png";
 import HypeRegistration from "../hype-registration/HypeRegistration";
 
+import HypeDesktopBody from "./HypeDesktopBody";
+
 import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
@@ -22,8 +24,8 @@ const useStyles = makeStyles((_: any) => ({
   header: {
     marginBottom: "5px",
     background: "#3D66DE",
-    // width: "100vw",
-    width: Math.max(window.innerWidth, 1230),
+    width: "100vw",
+    // width: Math.max(window.innerWidth, 1230),
   },
   headerRegisterButton: {
     color: "white",
@@ -79,8 +81,8 @@ const useStyles = makeStyles((_: any) => ({
     paddingTop: "20px",
     paddingBottom: "10px",
     marginTop: "50px",
-    // width: "100vw",
-    width: Math.max(window.innerWidth, 1230),
+    width: "100vw",
+    // width: Math.max(window.innerWidth, 1230),
   },
   footerLogo: {
     height: "40px",
@@ -136,7 +138,10 @@ function HypeLanding(props: Props) {
       </AppBar>
 
       <div className={styles.body}>
-        <div className={styles.left}>
+        {window.innerWidth > 1230 ? (
+          <HypeDesktopBody eventDescription={eventDescription} />
+        ) : null}
+        {/* <div className={styles.left}>
           <Typography className={styles.missionStatement} variant="h4">
             Every success story is rooted in the support from a community.
           </Typography>
@@ -157,7 +162,7 @@ function HypeLanding(props: Props) {
         </div>
         <div className={styles.right}>
           <HypeRegistration />
-        </div>
+        </div> */}
       </div>
 
       <div className={styles.footer}>
