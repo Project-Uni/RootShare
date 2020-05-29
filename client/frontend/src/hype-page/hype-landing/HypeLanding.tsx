@@ -9,7 +9,9 @@ import HypeRegistration from "../hype-registration/HypeRegistration";
 import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    minWidth: 1230,
+  },
   buttonLink: {
     textDecoration: "none",
   },
@@ -20,7 +22,8 @@ const useStyles = makeStyles((_: any) => ({
   header: {
     marginBottom: "5px",
     background: "#3D66DE",
-    width: "100vw",
+    // width: "100vw",
+    width: Math.max(window.innerWidth, 1230),
   },
   headerRegisterButton: {
     color: "white",
@@ -31,24 +34,18 @@ const useStyles = makeStyles((_: any) => ({
     height: "38px",
     width: "190px",
   },
-  top: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    verticalAlign: "center",
-    margin: "20px 20px",
-  },
   logoFull: {
     height: "90px",
   },
   missionStatement: {
-    flexGrow: 1,
     textAlign: "left",
     margin: 0,
     padding: 0,
     height: "auto",
     fontFamily: "Ubuntu",
-    marginLeft: "30px",
+    width: 700,
+    marginBottom: "20px",
+    fontSize: 32,
   },
   body: {
     display: "flex",
@@ -75,13 +72,15 @@ const useStyles = makeStyles((_: any) => ({
     width: 700,
     fontFamily: "Ubuntu",
     marginTop: 15,
+    fontSize: "13pt",
   },
   footer: {
     background: "#3D66DE",
     paddingTop: "20px",
     paddingBottom: "10px",
     marginTop: "50px",
-    width: "100vw",
+    // width: "100vw",
+    width: Math.max(window.innerWidth, 1230),
   },
   footerLogo: {
     height: "40px",
@@ -113,6 +112,15 @@ type Props = {};
 function HypeLanding(props: Props) {
   const styles = useStyles();
 
+  const eventDescription = `
+    RootShare is proud to present a special event on August 15th 2020,
+    where speakers will talk about their experience as Purdue athletes,
+    and what life has been like for them post graduation. RootShare is
+    proud to present a special event on August 15th 2020, where speakers
+    will talk about their experience as Purdue athletes, and what life
+    has been like for them post graduation.
+  `;
+
   return (
     <div className={styles.wrapper}>
       <AppBar position="static" className={styles.header}>
@@ -127,19 +135,11 @@ function HypeLanding(props: Props) {
         </Toolbar>
       </AppBar>
 
-      <div className={styles.top}>
-        <img
-          src={RootShareLogoFull}
-          className={styles.logoFull}
-          alt="RootShare"
-        />
-        <Typography className={styles.missionStatement} variant="h4">
-          Building stronger connections among universities by connecting alumni
-          and students (Replace)
-        </Typography>
-      </div>
       <div className={styles.body}>
         <div className={styles.left}>
+          <Typography className={styles.missionStatement} variant="h4">
+            Every success story is rooted in the support from a community.
+          </Typography>
           <img
             src={HypeBackground}
             className={styles.eventImage}
@@ -149,12 +149,7 @@ function HypeLanding(props: Props) {
             AUGUST 15, 2020
           </Typography>
           <Typography variant="h5" className={styles.eventText}>
-            RootShare is proud to present a special event on August 15th 2020,
-            where speakers will talk about their experience as Purdue athletes,
-            and what life has been like for them post graduation. RootShare is
-            proud to present a special event on August 15th 2020, where speakers
-            will talk about their experience as Purdue athletes, and what life
-            has been like for them post graduation.
+            {eventDescription}
           </Typography>
           <Typography variant="h5" className={styles.registerText}>
             Register for the event now!
@@ -172,7 +167,10 @@ function HypeLanding(props: Props) {
           alt="RootShare"
         />
         <br />
-        <a href="https://www.instagram.com" className={styles.instagramLink}>
+        <a
+          href="https://www.instagram.com/rootshare/"
+          className={styles.instagramLink}
+        >
           <FaInstagram className={styles.instagramIcon} />
         </a>
       </div>

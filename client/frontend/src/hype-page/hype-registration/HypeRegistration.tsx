@@ -51,7 +51,9 @@ const useStyles = makeStyles((_: any) => ({
   header: {
     fontSize: "14pt",
     fontWeight: "bold",
-    fontFamily: "Arial, Helvetica, sans-serif",
+    // fontFamily: "Arial, Helvetica, sans-serif",
+    fontFamily: "Ubuntu",
+    marginBottom: 0,
   },
   buttonDiv: {
     display: "flex",
@@ -65,7 +67,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "20px",
   },
   rootshareLogo: {
-    height: "50px",
+    height: "80px",
   },
 }));
 
@@ -289,7 +291,7 @@ function HypeRegistration(props: Props) {
             className={styles.rootshareLogo}
             alt="RootShare"
           />
-          <p className={styles.header}>Create Account</p>
+          <p className={styles.header}>Go find your community.</p>
 
           <Stepper activeStep={currentStep}>
             {steps.map((label) => {
