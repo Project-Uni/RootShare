@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -8,6 +8,7 @@ import {
   LinearProgress,
   Typography,
 } from "@material-ui/core";
+import { Redirect } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 
 import RootShareLogoFull from "../../images/RootShareLogoFull.png";
@@ -102,6 +103,8 @@ type Props = {};
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
+
+  const [landingRedirect, setLandingRedirect] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [major, setMajor] = useState("");
@@ -118,6 +121,15 @@ function HypeAdditionalInfo(props: Props) {
   const [phoneNumErr, setPhoneNumErr] = useState("");
 
   const [regCompleted, setRegCompleted] = useState(false);
+
+  const [currentUser, setCurrentUser] = useState("");
+
+  useEffect(() => {
+    let currUser = localStorage.getItem("rootshare-current-user");
+    console.log(`currUser: ${currUser}`);
+    if (currUser === null) setLandingRedirect(true);
+    else setCurrentUser(currUser as string);
+  }, []);
 
   function handleMajorChange(event: any) {
     setMajor(event.target.value);
@@ -244,6 +256,7 @@ function HypeAdditionalInfo(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {landingRedirect && <Redirect to="/" />}
       <HypeHeader />
       <div className={styles.body}>
         <Card raised className={styles.card}>

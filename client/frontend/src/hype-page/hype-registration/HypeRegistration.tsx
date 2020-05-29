@@ -264,6 +264,7 @@ function HypeRegistration(props: Props) {
           return;
         }
 
+        localStorage.setItem("rootshare-current-user", username);
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
