@@ -14,7 +14,7 @@ function App() {
             <Route exact path="/">
               <HypeLanding />
             </Route>
-            <Route exact path="/finishProfile">
+            <Route exact path="/profile/initialize">
               <HypeAdditionalInfo />
             </Route>
           </Switch>

@@ -158,6 +158,7 @@ function HypeRegistration(props: Props) {
     if (currentStep === 0) handleStep0NextButtonClick();
     else if (currentStep === 1) handleStep1NextButtonClick();
     else if (currentStep === 2) handleStep2NextButtonClick();
+    else if (currentStep === 3) handleStep3NextButtonClick();
     else {
       const newStep = currentStep + 1;
       setCurrentStep(newStep);
@@ -271,6 +272,10 @@ function HypeRegistration(props: Props) {
     }, 500);
   }
 
+  function handleStep3NextButtonClick() {
+    window.location.href = "/profile/initialize";
+  }
+
   function getStepContent(step: Number) {
     if (step === 0)
       return (
@@ -376,18 +381,14 @@ function HypeRegistration(props: Props) {
             ) : (
               <Button></Button>
             )}
-            {currentStep !== 3 ? (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleNextButtonClicked}
-                disabled={loading}
-              >
-                {currentStep < steps.length - 1 ? "Next" : "Submit"}
-              </Button>
-            ) : (
-              <Button></Button>
-            )}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNextButtonClicked}
+              disabled={loading}
+            >
+              {currentStep !== steps.length - 1 ? "Next" : "Submit"}
+            </Button>
           </div>
 
           {currentStep === 0 && (

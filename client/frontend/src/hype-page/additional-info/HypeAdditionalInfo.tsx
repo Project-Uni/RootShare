@@ -7,6 +7,11 @@ import {
   Button,
   LinearProgress,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from "@material-ui/core";
 import { Redirect } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
@@ -59,7 +64,6 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 0,
   },
   infoDiv: {
-    // marginLeft: "10px",
     paddingLeft: "25px",
     paddingRight: "10px",
     marginTop: "20px",
@@ -71,7 +75,6 @@ const useStyles = makeStyles((_: any) => ({
     fontWeight: "bold",
     fontfamily: "Ubuntu",
     textAlign: "left",
-    // marginLeft: "15px",
   },
   textField: {
     width: "375px",
@@ -97,6 +100,11 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "20px",
     marginRight: "20px",
   },
+  gradDegreeSelect: {
+    width: 144,
+    marginTop: "10px",
+    marginBottom: "10px",
+  },
 }));
 
 type Props = {};
@@ -116,6 +124,7 @@ function HypeAdditionalInfo(props: Props) {
   const [organizations, setOrganizations] = useState("");
   const [graduateSchool, setGraduateSchool] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [hasGradDegree, setHasGradDegree] = useState("No");
 
   const [gradYearErr, setGradYearErr] = useState("");
   const [phoneNumErr, setPhoneNumErr] = useState("");
@@ -157,6 +166,10 @@ function HypeAdditionalInfo(props: Props) {
 
   function handleOrganizationsChange(event: any) {
     setOrganizations(event.target.value);
+  }
+
+  function handleHasGradDegreeChange(event: any) {
+    setHasGradDegree(event.target.value);
   }
 
   function handleGraduateSchoolChange(event: any) {
@@ -201,6 +214,7 @@ function HypeAdditionalInfo(props: Props) {
 
       if (hasErr) return;
       const { data } = await axios.post("/auth/complete-registration", {
+        email: currentUser,
         major: major,
         graduationYear: graduationYear,
         work: work,
@@ -209,7 +223,7 @@ function HypeAdditionalInfo(props: Props) {
         organizations: organizations,
         interests: interests,
         phoneNumber: phoneNumber,
-        graduateSchool: graduateSchool,
+        graduateSchool: hasGradDegree ? graduateSchool : "",
       });
       if (data["success"] !== 1) {
         console.log(data["message"]);
@@ -365,23 +379,45 @@ function HypeAdditionalInfo(props: Props) {
                 value={organizations}
                 onChange={handleOrganizationsChange}
               />
-              {/* <p className={styles.tabDesc}>
-                {modePrompts[mode]["graduateDegree"]}
-              </p> */}
-              {/* TODO - Add correct field here */}
-
               <p className={styles.tabDesc}>
-                {modePrompts[mode]["graduateSchool"]}
+                {modePrompts[mode]["graduateDegree"]}
               </p>
-              <TextField
+              <FormControl
                 variant="outlined"
-                className={styles.textField}
-                label="Graduate School"
-                helperText={optionalText}
-                multiline
-                value={graduateSchool}
-                onChange={handleGraduateSchoolChange}
-              />
+                className={styles.gradDegreeSelect}
+              >
+                <InputLabel id="demo-simple-select-outlined-label">
+                  Grad Degree
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-outlined-label"
+                  id="demo-simple-select-outlined"
+                  value={hasGradDegree}
+                  onChange={handleHasGradDegreeChange}
+                  label="Age"
+                >
+                  <MenuItem value="no">No</MenuItem>
+                  <MenuItem value="yes">Yes</MenuItem>
+                </Select>
+                <FormHelperText>{optionalText}</FormHelperText>
+              </FormControl>
+
+              {hasGradDegree === "yes" && (
+                <>
+                  <p className={styles.tabDesc}>
+                    {modePrompts[mode]["graduateSchool"]}
+                  </p>
+                  <TextField
+                    variant="outlined"
+                    className={styles.textField}
+                    label="Graduate School"
+                    helperText={optionalText}
+                    multiline
+                    value={graduateSchool}
+                    onChange={handleGraduateSchoolChange}
+                  />
+                </>
+              )}
 
               <p className={styles.tabDesc}>
                 {modePrompts[mode]["phoneNumber"]}

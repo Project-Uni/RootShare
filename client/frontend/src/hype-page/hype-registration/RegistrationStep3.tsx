@@ -38,8 +38,10 @@ function RegistrationStep3(props: Props) {
         An account has been created with the email: <b>{props.email}</b>.
       </p>
       <p className={`${styles.allText} ${styles.confirmText}`}>
-        A confirmation email has been sent with next steps to finish setting up
-        your profile.
+        A confirmation email has been sent to verify your account.
+      </p>
+      <p className={`${styles.allText} ${styles.confirmText}`}>
+        Press next to finish setting up your profile.
       </p>
       <p className={`${styles.allText} ${styles.emailText}`}>
         We look forward to having you on our platform! <b>Boiler up!</b>
