@@ -48,6 +48,7 @@ function RegistrationStep0(props: Props) {
         className={styles.emailField}
         onChange={props.handleUsernameChange}
         helperText={props.usernameErr}
+        autoComplete="email"
       />
 
       <p className={styles.tabDesc}>University:</p>

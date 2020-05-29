@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Typography, Button, Toolbar } from "@material-ui/core";
-import HypeBackground from "../../images/PurdueHypeAlt.png";
+import { AppBar, Toolbar } from "@material-ui/core";
 import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
-import RootShareLogoFull from "../../images/RootShareLogoFull.png";
-import HypeRegistration from "../hype-registration/HypeRegistration";
+
+import HypeDesktopBody from "./HypeDesktopBody";
+import HypeMobileBody from "./HypeMobileBody";
 
 import { FaInstagram } from "react-icons/fa";
 
@@ -25,56 +25,10 @@ const useStyles = makeStyles((_: any) => ({
   headerRegisterButton: {
     color: "white",
   },
-
   headerLogo: {
     color: "white",
     height: "38px",
     width: "190px",
-  },
-  top: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    verticalAlign: "center",
-    margin: "20px 20px",
-  },
-  logoFull: {
-    height: "90px",
-  },
-  missionStatement: {
-    flexGrow: 1,
-    textAlign: "left",
-    margin: 0,
-    padding: 0,
-    height: "auto",
-    fontFamily: "Ubuntu",
-    marginLeft: "30px",
-  },
-  body: {
-    display: "flex",
-    justifyContent: "",
-    marginTop: "20px",
-  },
-  left: {
-    textAlign: "left",
-    marginLeft: "20px",
-    marginRight: "80px",
-  },
-  right: {
-    flexGrow: 1,
-    marginRight: 30,
-  },
-  eventImage: {
-    width: "700px",
-  },
-  eventDate: {
-    fontFamily: "Ubuntu",
-    fontWeight: "bold",
-  },
-  eventText: {
-    width: 700,
-    fontFamily: "Ubuntu",
-    marginTop: 15,
   },
   footer: {
     background: "#3D66DE",
@@ -101,17 +55,30 @@ const useStyles = makeStyles((_: any) => ({
   instagramLink: {
     marginTop: "20px",
   },
-  registerText: {
-    fontWeight: "bold",
-    fontFamily: "Ubuntu",
-    marginTop: "10px",
-  },
 }));
 
 type Props = {};
 
 function HypeLanding(props: Props) {
   const styles = useStyles();
+  const [desktopMode, setDesktopMode] = useState(window.innerWidth >= 1230);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateWindow);
+  }, []);
+
+  function updateWindow() {
+    setDesktopMode(window.innerWidth >= 1230);
+  }
+
+  const eventDescription = `
+    RootShare is proud to present a special event on August 15th 2020,
+    where speakers will talk about their experience as Purdue athletes,
+    and what life has been like for them post graduation. RootShare is
+    proud to present a special event on August 15th 2020, where speakers
+    will talk about their experience as Purdue athletes, and what life
+    has been like for them post graduation.
+  `;
 
   return (
     <div className={styles.wrapper}>
@@ -127,43 +94,11 @@ function HypeLanding(props: Props) {
         </Toolbar>
       </AppBar>
 
-      <div className={styles.top}>
-        <img
-          src={RootShareLogoFull}
-          className={styles.logoFull}
-          alt="RootShare"
-        />
-        <Typography className={styles.missionStatement} variant="h4">
-          Building stronger connections among universities by connecting alumni
-          and students (Replace)
-        </Typography>
-      </div>
-      <div className={styles.body}>
-        <div className={styles.left}>
-          <img
-            src={HypeBackground}
-            className={styles.eventImage}
-            alt={`Robbie Hummel, JaJuan Johnson, and E${"'"}Twaun Moore`}
-          />
-          <Typography className={styles.eventDate} variant="h4">
-            AUGUST 15, 2020
-          </Typography>
-          <Typography variant="h5" className={styles.eventText}>
-            RootShare is proud to present a special event on August 15th 2020,
-            where speakers will talk about their experience as Purdue athletes,
-            and what life has been like for them post graduation. RootShare is
-            proud to present a special event on August 15th 2020, where speakers
-            will talk about their experience as Purdue athletes, and what life
-            has been like for them post graduation.
-          </Typography>
-          <Typography variant="h5" className={styles.registerText}>
-            Register for the event now!
-          </Typography>
-        </div>
-        <div className={styles.right}>
-          <HypeRegistration />
-        </div>
-      </div>
+      {desktopMode ? (
+        <HypeDesktopBody eventDescription={eventDescription} />
+      ) : (
+        <HypeMobileBody eventDescription={eventDescription} />
+      )}
 
       <div className={styles.footer}>
         <img
@@ -172,7 +107,10 @@ function HypeLanding(props: Props) {
           alt="RootShare"
         />
         <br />
-        <a href="https://www.instagram.com" className={styles.instagramLink}>
+        <a
+          href="https://www.instagram.com/rootshare/"
+          className={styles.instagramLink}
+        >
           <FaInstagram className={styles.instagramIcon} />
         </a>
       </div>

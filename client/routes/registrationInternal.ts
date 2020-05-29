@@ -1,79 +1,98 @@
-var passport = require('passport')
+const passport = require("passport");
 
-var isAuthenticated = require('../passport/middleware/isAuthenticated')
-import sendPacket from '../helpers/sendPacket'
-var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
-var { completeRegistration, userExists } = require('../interactions/registration-data')
+const isAuthenticated = require("../passport/middleware/isAuthenticated");
+const isConfirmed = require("./middleware/isConfirmed");
+const {
+  findUser,
+  sendConfirmationEmail,
+} = require("../interactions/email-confirmation");
+const {
+  completeRegistration,
+  userExists,
+} = require("../interactions/registration-data");
+import sendPacket from "../helpers/sendPacket";
+import log from "../helpers/logger";
 
 module.exports = (app) => {
-  app.post('/auth/login/local', (req, res) => {
-    passport.authenticate('local-login', (err, user, info) => {
+  app.post("/auth/login/local", (req, res) => {
+    passport.authenticate("local-login", (err, user, info) => {
       if (user) {
-        res.json(sendPacket(1, info.message))
+        res.json(sendPacket(1, info.message));
       } else if (info) {
-        res.json(sendPacket(0, info.message))
+        res.json(sendPacket(0, info.message));
       } else {
-        res.json(sendPacket(-1, err))
+        res.json(sendPacket(-1, err));
       }
-    })(req, res)
+    })(req, res);
   });
 
-  app.post('/auth/signup/local', (req, res) => {
-    passport.authenticate('local-signup', (err, user, info) => {
+  app.post("/auth/signup/local", (req, res) => {
+    passport.authenticate("local-signup", (err, user, info) => {
       if (user) {
-        res.json(sendPacket(1, info.message))
+        res.json(sendPacket(1, info.message));
       } else if (info) {
-        res.json(sendPacket(0, info.message))
+        res.json(sendPacket(0, info.message));
       } else {
-        res.json(sendPacket(-1, err))
+        res.json(sendPacket(-1, err));
       }
-    })(req, res)
+    })(req, res);
   });
 
-  app.post('/auth/signup/user-exists', async (req, res) => {
-    let check = await userExists(req.body.email)
+  app.post("/auth/signup/user-exists", async (req, res) => {
+    log("info", "Received request for user exists validation");
+    let check = await userExists(req.body.email);
     if (check) {
-      res.json(sendPacket(0, "User with this email already exists"))
+      res.json(sendPacket(0, "User with this email already exists"));
     } else {
-      res.json(sendPacket(1, "New User"))
+      res.json(sendPacket(1, "New User"));
     }
-  })
+  });
 
-  app.post('/auth/complete-registration', (req, res) => {
-    completeRegistration(req.body)
+  app.post("/auth/complete-registration", (req, res) => {
+    completeRegistration(req.body);
 
-    res.json(sendPacket(1, "Completed Registration"))
-  })
+    res.json(sendPacket(1, "Completed Registration"));
+  });
 
-  app.get('/confirmation/:token', async (req, res) => {
-    let user = await findUser(req.params.token)
+  app.get("/confirmation/:token", async (req, res) => {
+    let user = await findUser(req.params.token);
 
     if (user) {
-      res.redirect('/secure-confirmed')
+      res.redirect("/secure-confirmed");
     } else {
-      res.json(sendPacket(-1, "There was an error processing your request"))
+      res.json(sendPacket(-1, "There was an error processing your request"));
     }
-  })
+  });
 
-  app.get('/confirmation-resend', isAuthenticated, (req, res) => {
+  app.get("/confirmation-resend", isAuthenticated, (req, res) => {
     if (req.user.email) {
-      sendConfirmationEmail(req.user.email)
-      res.json(sendPacket(1, "Confirmation email has been resent"))
+      sendConfirmationEmail(req.user.email);
+      res.json(sendPacket(1, "Confirmation email has been resent"));
     } else {
-      res.json(sendPacket(-1, "There was an error processing your request"))
+      res.json(sendPacket(-1, "There was an error processing your request"));
     }
-  })
+  });
 
-  app.get('/secure-unconfirmed', isAuthenticated, (req, res) => {
-    res.json(sendPacket(1, 'Successfully accessed secure endpoint! User needs to confirm account'))
-  })
+  app.get("/secure-unconfirmed", isAuthenticated, (req, res) => {
+    res.json(
+      sendPacket(
+        1,
+        "Successfully accessed secure endpoint! User needs to confirm account"
+      )
+    );
+  });
 
-  app.get('/secure-confirmed', isAuthenticated, (req, res) => {
-    res.json(sendPacket(1, 'Successfully accessed secure endpoint! Account has been confirmed'))
-  })
+  app.get("/secure-confirmed", isAuthenticated, (req, res) => {
+    res.json(
+      sendPacket(
+        1,
+        "Successfully accessed secure endpoint! Account has been confirmed"
+      )
+    );
+  });
 
-  app.get('/logout', (req, res) => {
-    req.logout()
-    res.json(sendPacket(1, 'Successfully logged out'))
-  })
-}
+  app.get("/logout", (req, res) => {
+    req.logout();
+    res.json(sendPacket(1, "Successfully logged out"));
+  });
+};

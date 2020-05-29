@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -48,11 +48,16 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "10px",
     verticalAlign: "center",
     marginTop: "13px",
+    "&:hover": {
+      cursor: "pointer",
+    },
   },
   header: {
     fontSize: "14pt",
     fontWeight: "bold",
-    fontFamily: "Arial, Helvetica, sans-serif",
+    // fontFamily: "Arial, Helvetica, sans-serif",
+    fontFamily: "Ubuntu",
+    marginBottom: 0,
   },
   buttonDiv: {
     display: "flex",
@@ -66,7 +71,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "20px",
   },
   rootshareLogo: {
-    height: "50px",
+    height: "80px",
   },
 }));
 
@@ -81,7 +86,7 @@ function HypeRegistration(props: Props) {
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
-  const [university, setUniversity] = useState("");
+  const [university, setUniversity] = useState("Purdue");
   const [universityErr, setUniversityErr] = useState("");
 
   const [firstName, setFirstName] = useState("");
@@ -95,6 +100,8 @@ function HypeRegistration(props: Props) {
   const [passwordErr, setPasswordErr] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
+  const [ageValidation, setAgeValidation] = useState(false);
+  const [ageValidationErr, setAgeValidationErr] = useState("");
 
   const steps = ["Email", "Basic Info", "Password"];
 
@@ -134,6 +141,12 @@ function HypeRegistration(props: Props) {
     setConfirmPassword(event.target.value as string);
   }
 
+  function handleAgeValidationChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setAgeValidation(event.target.checked);
+  }
+
   function handlePreviousButtonClicked() {
     if (currentStep > 0) {
       const newStep = currentStep - 1;
@@ -164,16 +177,13 @@ function HypeRegistration(props: Props) {
       } else setUsernameErr("");
 
       if (!hasErr) {
-        await axios.post('/auth/signup/user-exists', {
-          email: username
-        })
-          .then((response) => {
-            console.log(response)
-            if (response.data.success != 1) {
-              setUsernameErr("Account with email address already exists");
-              hasErr = true;
-            }
-          })
+        const { data } = await axios.post("/auth/signup/user-exists", {
+          email: username,
+        });
+        if (data["success"] !== 1) {
+          setUsernameErr("An account with that email address already exists");
+          hasErr = true;
+        } else setUsernameErr("");
       }
 
       if (university.length === 0) {
@@ -232,20 +242,30 @@ function HypeRegistration(props: Props) {
         hasErr = true;
       } else setConfirmErr("");
 
+      if (!ageValidation) {
+        setAgeValidationErr("You must be over the age of 16 to register.");
+        hasErr = true;
+      } else setAgeValidationErr("");
+
       if (!hasErr) {
-        axios.post('/auth/signup/local', {
+        const { data } = await axios.post("/auth/signup/local", {
           firstName: firstName,
           lastName: lastName,
           email: username,
-          password: password
-        })
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
+          password: password,
+        });
+        // .then(function (response) {
+        //   console.log(response);
+        // })
+        // .catch(function (error) {
+        //   console.log(error);
+        // });
+        if (data["success"] !== 1) {
+          setAgeValidationErr(
+            "There was an error while creating the account. Please try again later."
+          );
+          return;
+        }
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
@@ -290,6 +310,9 @@ function HypeRegistration(props: Props) {
           confirmPassword={confirmPassword}
           handleConfirmPasswordChange={handleConfirmPasswordChange}
           confirmErr={confirmErr}
+          ageValidation={ageValidation}
+          handleAgeValidationChange={handleAgeValidationChange}
+          ageValidationErr={ageValidationErr}
         />
       );
     else return <RegistrationStep3 email={username} />;
@@ -308,15 +331,24 @@ function HypeRegistration(props: Props) {
           value={100}
         />
         <CardContent className={styles.cardContent}>
-          <a href="/" className={styles.backArrow}>
-            <FaArrowLeft color={"rgb(30, 67, 201)"} size={24} />
+          <a
+            href={undefined}
+            className={styles.backArrow}
+            onClick={() => {
+              setCurrentStep(0);
+            }}
+          >
+            <FaArrowLeft
+              color={currentStep > 0 ? "rgb(30, 67, 201)" : "white"}
+              size={24}
+            />
           </a>
           <img
             src={RootShareLogoFull}
             className={styles.rootshareLogo}
             alt="RootShare"
           />
-          <p className={styles.header}>Create Account</p>
+          <p className={styles.header}>Go find your community.</p>
 
           <Stepper activeStep={currentStep}>
             {steps.map((label) => {
@@ -343,8 +375,8 @@ function HypeRegistration(props: Props) {
                 Back
               </Button>
             ) : (
-                <Button></Button>
-              )}
+              <Button></Button>
+            )}
             {currentStep !== 3 ? (
               <Button
                 variant="contained"
@@ -355,8 +387,8 @@ function HypeRegistration(props: Props) {
                 {currentStep < steps.length - 1 ? "Next" : "Submit"}
               </Button>
             ) : (
-                <Button></Button>
-              )}
+              <Button></Button>
+            )}
           </div>
 
           {currentStep === 0 && (
