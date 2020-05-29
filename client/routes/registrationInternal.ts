@@ -110,11 +110,17 @@ module.exports = (app) => {
     });
   });
 
-  app.get('/auth/curr-user/email', async (req, res) => {
+  app.get('/auth/curr-user/load', async (req, res) => {
     let email = req.user.email;
+    let regComplete = req.user.regComplete
+
     let check = await userExists(email);
     if (check) {
-      res.json(sendPacket(1, "Sending back current user", { email: email }));
+      res.json(sendPacket(1, "Sending back current user",
+        {
+          email: email,
+          regComplete: regComplete
+        }));
       log("info", `Sent ${email} to frontend`);
     } else {
       res.json(sendPacket(0, "There is no user currently logged in"));
@@ -131,7 +137,7 @@ module.exports = (app) => {
           log("error", `Failed serializing ${user.email}`);
         }
         log("info", `Confirmed user ${user.email}`);
-        return res.redirect("/secure-confirmed");
+        return res.redirect("/profile/initialize");
       });
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"));
