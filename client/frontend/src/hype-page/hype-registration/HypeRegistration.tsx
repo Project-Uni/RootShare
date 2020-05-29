@@ -47,6 +47,9 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "10px",
     verticalAlign: "center",
     marginTop: "13px",
+    "&:hover": {
+      cursor: "pointer",
+    },
   },
   header: {
     fontSize: "14pt",
@@ -77,7 +80,7 @@ function HypeRegistration(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
@@ -228,11 +231,10 @@ function HypeRegistration(props: Props) {
         hasErr = true;
       } else setConfirmErr("");
 
-      console.log("Age Validation:", ageValidation);
-
       if (!ageValidation) {
-        setAgeValidationErr("You must be over the age of 16 to use this app.");
-      }
+        setAgeValidationErr("You must be over the age of 16 to register.");
+        hasErr = true;
+      } else setAgeValidationErr("");
 
       if (!hasErr) {
         const newStep = currentStep + 1;
@@ -300,8 +302,17 @@ function HypeRegistration(props: Props) {
           value={100}
         />
         <CardContent className={styles.cardContent}>
-          <a href="/" className={styles.backArrow}>
-            <FaArrowLeft color={"rgb(30, 67, 201)"} size={24} />
+          <a
+            href={undefined}
+            className={styles.backArrow}
+            onClick={() => {
+              setCurrentStep(0);
+            }}
+          >
+            <FaArrowLeft
+              color={currentStep > 0 ? "rgb(30, 67, 201)" : "white"}
+              size={24}
+            />
           </a>
           <img
             src={RootShareLogoFull}

@@ -19,6 +19,16 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "20px",
     marginBottom: "10px",
   },
+  ageValidationDiv: {
+    textAlign: "left",
+    marginLeft: 25,
+  },
+  ageErrText: {
+    color: "red",
+    fontFamily: "Ubuntu",
+    fontStyle: "italic",
+    margin: 0,
+  },
 }));
 
 type Props = {
@@ -62,18 +72,22 @@ function RegistrationStep2(props: Props) {
         helperText={props.confirmErr}
       />
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={props.ageValidation}
-            onChange={props.handleAgeValidationChange}
-            name="checkedB"
-            color="primary"
-          />
-        }
-        label="I confirm am over the age of 16"
-      />
-      {props.ageValidationErr.length > 0 && <p>{props.ageValidationErr}</p>}
+      <div className={styles.ageValidationDiv}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={props.ageValidation}
+              onChange={props.handleAgeValidationChange}
+              name="checkedB"
+              color="primary"
+            />
+          }
+          label="I confirm am over the age of 16"
+        />
+        {props.ageValidationErr.length > 0 && (
+          <p className={styles.ageErrText}>{props.ageValidationErr}</p>
+        )}
+      </div>
     </div>
   );
 }
