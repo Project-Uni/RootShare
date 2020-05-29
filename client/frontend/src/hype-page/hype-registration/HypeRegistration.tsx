@@ -151,7 +151,7 @@ function HypeRegistration(props: Props) {
     }
   }
 
-  function handleStep0NextButtonClick() {
+  async function handleStep0NextButtonClick() {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setLoading(true);
     let hasErr = false;
@@ -162,6 +162,19 @@ function HypeRegistration(props: Props) {
         setUsernameErr("Email address not valid");
         hasErr = true;
       } else setUsernameErr("");
+
+      if (!hasErr) {
+        await axios.post('/auth/signup/user-exists', {
+          email: username
+        })
+          .then((response) => {
+            console.log(response)
+            if (response.data.success != 1) {
+              setUsernameErr("Account with email address already exists");
+              hasErr = true;
+            }
+          })
+      }
 
       if (university.length === 0) {
         setUniversityErr("University is required");

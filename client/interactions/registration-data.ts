@@ -1,9 +1,12 @@
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
+var University = mongoose.model('users')
 import log from '../helpers/logger'
 
 module.exports = {
-  completeRegistration: (userData) => {
+  completeRegistration: async (userData) => {
+    const university = await University.findOne({ 'universityName': userData['university'] });
+
     let email = userData['email']
     User.findOne({ 'email': email },
       function (err, user) {
@@ -13,7 +16,7 @@ module.exports = {
           log("USER ERROR", 'User Not Found with email address ' + email);
         }
 
-        user.university = userData['university']
+        user.university = university
         user.accountType = userData['accountType']
 
         // set the user's optional information
@@ -27,5 +30,15 @@ module.exports = {
         user.interests = userData['interests']
       }
     );
+  },
+
+  userExists: async (email) => {
+    let user = await User.findOne({ 'email': email })
+
+    if (user) {
+      return true
+    } else {
+      return false
+    }
   }
 }

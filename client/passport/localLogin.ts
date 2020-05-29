@@ -18,20 +18,16 @@ module.exports = function (passport) {
             if (err)
               return done(err);
             if (!user) {
-              log('LOCAL LOGIN ERROR', `User Not Found with email address ${email}`);
               return done(null, false, { message: 'User Not Found' });
             }
             if (user.hashedPassword === undefined) {
-              log('LOCAL LOGIN ERROR', 'User has not signed up locally')
               return done(null, false, { message: 'User has not signed up locally' });
             }
             if (!isValidPassword(user, password)) {
-              log('LOCAL LOGIN ERROR', 'Invalid Password');
-              return done(null, false, { message: 'Invalid Password.' }); // redirect back to login page
+              return done(null, false, { message: 'Invalid Password.' });
             }
 
-            log('LOCAL LOGIN', 'Found user and sending back!')
-            return done(null, user);
+            return done(null, user, { message: "Found user and logged in" });
           }
         );
       }
