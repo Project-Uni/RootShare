@@ -105,6 +105,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "10px",
     marginBottom: "10px",
   },
+  submitError: {
+    marginLeft: 25,
+    marginRight: 25,
+    fontSize: "11pt",
+    color: "red",
+    textAlign: "left",
+  },
 }));
 
 type Props = {};
@@ -128,6 +135,7 @@ function HypeAdditionalInfo(props: Props) {
 
   const [gradYearErr, setGradYearErr] = useState("");
   const [phoneNumErr, setPhoneNumErr] = useState("");
+  const [updateErr, setUpdateErr] = useState(false);
 
   const [regCompleted, setRegCompleted] = useState(false);
 
@@ -241,10 +249,10 @@ function HypeAdditionalInfo(props: Props) {
         phoneNumber: phoneNumber,
         graduateSchool: hasGradDegree ? graduateSchool : "",
       });
-      console.log("Data:", data);
       if (data["success"] !== 1) {
-        console.log(data["message"]);
+        setUpdateErr(true);
       } else {
+        setUpdateErr(false);
         setRegCompleted(true);
       }
     }, 1000);
@@ -449,6 +457,12 @@ function HypeAdditionalInfo(props: Props) {
                 error={phoneNumErr !== ""}
               />
             </div>
+
+            {updateErr && (
+              <p className={styles.submitError}>
+                There was an error processing your request.
+              </p>
+            )}
 
             <div className={styles.buttonDiv}>
               <Button
