@@ -1,6 +1,7 @@
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
+var University = mongoose.model('universities')
 var bCrypt = require('bcryptjs');
 import log from '../helpers/logger'
 
@@ -16,40 +17,42 @@ module.exports = function (passport) {
 
       function findOrCreateUser() {
         // find a user in Mongo with provided email address
-        User.findOne({ 'email': email }, function (err, user) {
+        User.findOne({ 'email': email }, async function (err, user) {
           if (err) {
-            log('LOCAL SIGNUP ERROR', err);
             return done(err);
           }
           if (user) {
-            log('LOCAL SIGNUP ERROR', `User already exists with email address: ${email}`);
             return done(null, false, { message: 'User Already Exists.' });
           } else {
             // if there is no user with that email, create new
             var newUser = new User();
 
             // set the user's required credentials
-            newUser.firstName = req.body['firstName']
-            newUser.lastName = req.body['lastName']
+            newUser.firstName = req.body.firstName
+            newUser.lastName = req.body.lastName
             newUser.email = email;
             newUser.hashedPassword = createHash(password);
+            newUser.accountType = req.body.accountType
+
+            let university = await University.findOne({ universityName: req.body.university })
+            if (university === null) {
+              return done(null, false, { message: "University Not Found" })
+            }
+            newUser.university = university
 
             // save the user
             newUser.save(function (err) {
               if (err) {
-                log('MONGO ERROR', `Error in Saving user: ${err}`);
-                return done(null, false);
+                return done(err);
               }
 
-              log('LOCAL SIGNUP', 'User Registration succesful!');
               sendConfirmationEmail(email)
-              return done(null, newUser);
+              return done(null, newUser, { message: 'User Registration Succesful!' });
             });
           }
         });
       };
-      // Delay the execution of findOrCreateUser and execute the method
-      // in the next tick of the event loop
+
       process.nextTick(findOrCreateUser);
     })
   );

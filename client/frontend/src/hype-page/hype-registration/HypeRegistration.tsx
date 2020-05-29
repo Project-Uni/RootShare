@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -163,7 +164,7 @@ function HypeRegistration(props: Props) {
     }
   }
 
-  function handleStep0NextButtonClick() {
+  async function handleStep0NextButtonClick() {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setLoading(true);
     let hasErr = false;
@@ -175,6 +176,16 @@ function HypeRegistration(props: Props) {
         hasErr = true;
       } else setUsernameErr("");
 
+      if (!hasErr) {
+        const { data } = await axios.post("/auth/signup/user-exists", {
+          email: username,
+        });
+        if (data["success"] !== 1) {
+          setUsernameErr("An account with that email address already exists");
+          hasErr = true;
+        } else setUsernameErr("");
+      }
+
       if (university.length === 0) {
         setUniversityErr("University is required");
         hasErr = true;
@@ -184,7 +195,7 @@ function HypeRegistration(props: Props) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function handleStep1NextButtonClick() {
@@ -212,7 +223,7 @@ function HypeRegistration(props: Props) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function handleStep2NextButtonClick() {
@@ -222,7 +233,7 @@ function HypeRegistration(props: Props) {
       setLoading(false);
 
       if (password.length < 8) {
-        setPasswordErr("Password must be atleast 8 characters");
+        setPasswordErr("Password must be at least 8 characters");
         hasErr = true;
       } else setPasswordErr("");
 
@@ -237,10 +248,26 @@ function HypeRegistration(props: Props) {
       } else setAgeValidationErr("");
 
       if (!hasErr) {
+        const { data } = await axios.post("/auth/signup/local", {
+          firstName: firstName,
+          lastName: lastName,
+          email: username,
+          password: password,
+          university: university,
+          accountType: standing,
+        });
+
+        if (data["success"] !== 1) {
+          setAgeValidationErr(
+            "There was an error while creating the account. Please try again later."
+          );
+          return;
+        }
+
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function getStepContent(step: Number) {
