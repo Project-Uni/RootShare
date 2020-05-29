@@ -2,19 +2,23 @@ var passport = require('passport')
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
 var isConfirmed = require('./middleware/isConfirmed')
-import sendPacket from '../helpers/sendPacket'
 var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
 var { completeRegistrationDetails, completeRegistrationRequired, userExists } = require('../interactions/registration-data')
+import sendPacket from '../helpers/sendPacket'
+import log from '../helpers/logger'
 
 module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
     passport.authenticate('local-login', (err, user, info) => {
       if (user) {
         res.json(sendPacket(1, info.message))
+        log("info", `Successfully logged in ${user.email} locally`)
       } else if (info) {
         res.json(sendPacket(0, info.message))
+        log("error", `User local login failed`)
       } else {
         res.json(sendPacket(-1, err))
+        log("error", `User local login errored`)
       }
     })(req, res)
   });
@@ -23,20 +27,26 @@ module.exports = (app) => {
     passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
         res.json(sendPacket(1, info.message))
+        log("info", `Successfully created account for ${user.email}`)
       } else if (info) {
         res.json(sendPacket(0, info.message))
+        log("error", `User local signup failed`)
       } else {
         res.json(sendPacket(-1, err))
+        log("error", `User local signup errored`)
       }
     })(req, res)
   });
 
   app.post('/auth/signup/user-exists', async (req, res) => {
-    let check = await userExists(req.body.email)
+    let email = req.body.email
+    let check = await userExists(email)
     if (check) {
       res.json(sendPacket(0, "User with this email already exists"))
+      log("error", `User tried creating a duplicate account with ${email}`)
     } else {
       res.json(sendPacket(1, "New User"))
+      log("info", `There is not yet an account for ${email}`)
     }
   })
 
@@ -44,43 +54,53 @@ module.exports = (app) => {
     completeRegistrationRequired(req.body)
 
     res.json(sendPacket(1, "Completed Required Registration"))
+    log("info", `Completed required registration for ${req.body.email}`)
   })
 
   app.post('/auth/complete-registration/details', (req, res) => {
     completeRegistrationDetails(req.body)
 
     res.json(sendPacket(1, "Completed Additional Details Registration"))
+    log("info", `Filled out additional details for ${req.body.email}`)
   })
 
   app.get('/confirmation/:token', async (req, res) => {
     let user = await findUser(req.params.token)
 
     if (user) {
+      log("info", `Confirmed user ${user.email}`)
       res.redirect('/secure-confirmed')
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"))
+      log("error", `Was not able to confirm user`)
     }
   })
 
   app.get('/confirmation-resend', isAuthenticated, (req, res) => {
-    if (req.user.email) {
-      sendConfirmationEmail(req.user.email)
+    let email = req.user.email
+    if (email) {
+      sendConfirmationEmail(email)
       res.json(sendPacket(1, "Confirmation email has been resent"))
+      log("info", `Resent a confirmation email to ${email}`)
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"))
+      log("error", `Resend confirmation email for ${email}`)
     }
   })
 
   app.get('/secure-unconfirmed', isAuthenticated, (req, res) => {
     res.json(sendPacket(1, 'Successfully accessed secure endpoint! User needs to confirm account'))
+    log("info", `User accessed secure-unconfirmed endpoint`)
   })
 
   app.get('/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
     res.json(sendPacket(1, 'Successfully accessed secure endpoint! Account has been confirmed'))
+    log("info", `User accessed secure-confirmed endpoint`)
   })
 
   app.get('/logout', (req, res) => {
     req.logout()
     res.json(sendPacket(1, 'Successfully logged out'))
+    log("info", `Successfully logged out ${req.user.email}`)
   })
 }

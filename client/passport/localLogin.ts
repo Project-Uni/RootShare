@@ -2,7 +2,6 @@ var LocalStrategy = require('passport-local').Strategy
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
 var bCrypt = require('bcryptjs')
-import log from '../helpers/logger'
 
 module.exports = function (passport) {
 
