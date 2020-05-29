@@ -8,6 +8,6 @@ module.exports = (app) => {
 
   app.get('/auth/callback/linkedin', passport.authenticate('linkedin-login', {
     successRedirect: '/profile/initialize',
-    failureRedirect: '/register'
+    failureRedirect: '/'
   }))
 }
