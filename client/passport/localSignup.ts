@@ -15,9 +15,9 @@ module.exports = function (passport) {
   },
     function (req, email, password, done) {
 
-      async function findOrCreateUser() {
+      function findOrCreateUser() {
         // find a user in Mongo with provided email address
-        User.findOne({ 'email': email }, function (err, user) {
+        User.findOne({ 'email': email }, async function (err, user) {
           if (err) {
             return done(err);
           }
@@ -34,8 +34,12 @@ module.exports = function (passport) {
             newUser.hashedPassword = createHash(password);
             newUser.accountType = req.body.accountType
 
-            let university = University.findOne({ universityName: req.body.university })
+            let university = await University.findOne({ universityName: req.body.university })
+            if (university === null) {
+              return done(null, false, { message: "University Not Found" })
+            }
             newUser.university = university
+
             // save the user
             newUser.save(function (err) {
               if (err) {
