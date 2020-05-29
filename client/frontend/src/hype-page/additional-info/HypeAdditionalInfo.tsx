@@ -229,7 +229,7 @@ function HypeAdditionalInfo(props: Props) {
       } else setPhoneNumErr("");
 
       if (hasErr) return;
-      const { data } = await axios.post("/auth/complete-registration", {
+      const { data } = await axios.post("/auth/complete-registration/details", {
         email: currentUser,
         major: major,
         graduationYear: graduationYear,
@@ -241,6 +241,7 @@ function HypeAdditionalInfo(props: Props) {
         phoneNumber: phoneNumber,
         graduateSchool: hasGradDegree ? graduateSchool : "",
       });
+      console.log("Data:", data);
       if (data["success"] !== 1) {
         console.log(data["message"]);
       } else {
