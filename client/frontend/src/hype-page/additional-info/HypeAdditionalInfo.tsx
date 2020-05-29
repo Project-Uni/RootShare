@@ -30,6 +30,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: "center",
     alignItems: "center",
     marginTop: "35px",
+    marginBottom: "35px",
   },
   card: {
     width: 450,
