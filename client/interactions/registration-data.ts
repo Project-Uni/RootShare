@@ -35,7 +35,6 @@ module.exports = {
         return sendPacket(1, "Successfully updated user profile");
       });
     });
-    // return sendPacket(1, "Success");
   },
 
   completeRegistrationRequired: (userData) => {

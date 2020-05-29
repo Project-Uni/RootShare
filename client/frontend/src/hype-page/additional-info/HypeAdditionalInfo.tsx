@@ -260,8 +260,8 @@ function HypeAdditionalInfo(props: Props) {
         work: work,
         position: position,
         department: college,
-        organizations: organizations,
-        interests: interests,
+        organizations: organizations.split(","),
+        interests: interests.split(","),
         phoneNumber: phoneNumber,
         graduateSchool: hasGradDegree ? graduateSchool : "",
       });
