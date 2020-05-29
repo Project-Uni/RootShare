@@ -5,6 +5,11 @@ import HypeBackground from "../../images/PurdueHypeAlt.png";
 import HypeRegistration from "../hype-registration/HypeRegistration";
 
 const useStyles = makeStyles((_: any) => ({
+  body: {
+    display: "flex",
+    justifyContent: "",
+    marginTop: "20px",
+  },
   missionStatement: {
     textAlign: "left",
     margin: 0,
@@ -51,7 +56,7 @@ type Props = {
 function HypeDesktopBody(props: Props) {
   const styles = useStyles();
   return (
-    <>
+    <div className={styles.body}>
       <div className={styles.left}>
         <Typography className={styles.missionStatement} variant="h4">
           Every success story is rooted in the support from a community.
@@ -74,7 +79,7 @@ function HypeDesktopBody(props: Props) {
       <div className={styles.right}>
         <HypeRegistration />
       </div>
-    </>
+    </div>
   );
 }
 

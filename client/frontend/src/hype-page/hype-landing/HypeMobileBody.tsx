@@ -11,28 +11,33 @@ const useStyles = makeStyles((_: any) => ({
     padding: 0,
     height: "auto",
     fontFamily: "Ubuntu",
-    width: 700,
+    width: Math.min(700, window.innerWidth - 40),
     marginBottom: "20px",
-    fontSize: 32,
+    fontSize: 28,
   },
-  left: {
+  top: {
+    display: "block",
     textAlign: "left",
     marginLeft: "20px",
-    marginRight: "80px",
   },
-  right: {
-    flexGrow: 1,
-    marginRight: 30,
+  bottom: {
+    // flexGrow: 1,
+    width: "100vw",
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 40,
+    // marginRight: 30,
   },
   eventImage: {
-    width: "700px",
+    // width: "700px",
+    width: Math.min(700, window.innerWidth - 40),
   },
   eventDate: {
     fontFamily: "Ubuntu",
     fontWeight: "bold",
   },
   eventText: {
-    width: 700,
+    width: Math.min(700, window.innerWidth - 40),
     fontFamily: "Ubuntu",
     marginTop: 15,
     fontSize: "13pt",
@@ -52,7 +57,7 @@ function HypeMobileBody(props: Props) {
   const styles = useStyles();
   return (
     <>
-      <div className={styles.left}>
+      <div className={styles.top}>
         <Typography className={styles.missionStatement} variant="h4">
           Every success story is rooted in the support from a community.
         </Typography>
@@ -71,7 +76,7 @@ function HypeMobileBody(props: Props) {
           Register for the event now!
         </Typography>
       </div>
-      <div className={styles.right}>
+      <div className={styles.bottom}>
         <HypeRegistration />
       </div>
     </>

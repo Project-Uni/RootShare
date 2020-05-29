@@ -33,11 +33,6 @@ const useStyles = makeStyles((_: any) => ({
     height: "38px",
     width: "190px",
   },
-  body: {
-    display: "flex",
-    justifyContent: "",
-    marginTop: "20px",
-  },
   footer: {
     background: "#3D66DE",
     paddingTop: "20px",
@@ -103,13 +98,11 @@ function HypeLanding(props: Props) {
         </Toolbar>
       </AppBar>
 
-      <div className={styles.body}>
-        {desktopMode ? (
-          <HypeDesktopBody eventDescription={eventDescription} />
-        ) : (
-          <HypeMobileBody eventDescription={eventDescription} />
-        )}
-      </div>
+      {desktopMode ? (
+        <HypeDesktopBody eventDescription={eventDescription} />
+      ) : (
+        <HypeMobileBody eventDescription={eventDescription} />
+      )}
 
       <div className={styles.footer}>
         <img
