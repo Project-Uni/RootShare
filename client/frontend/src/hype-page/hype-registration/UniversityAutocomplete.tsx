@@ -32,7 +32,7 @@ function UniversityAutocomplete(props: Props) {
   const styles = useStyles();
   const [options, setOptions] = useState([
     { school: "Purdue" },
-    { school: "Other" },
+    // { school: "Other" },
   ]);
 
   return (

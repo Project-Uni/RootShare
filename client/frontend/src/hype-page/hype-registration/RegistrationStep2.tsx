@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField } from "@material-ui/core";
+import { TextField, FormControlLabel, Checkbox } from "@material-ui/core";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -28,6 +28,9 @@ type Props = {
   confirmPassword: string;
   handleConfirmPasswordChange: (event: any) => void;
   confirmErr: string;
+  ageValidation: boolean;
+  handleAgeValidationChange: (event: any) => void;
+  ageValidationErr: string;
 };
 
 function RegistrationStep2(props: Props) {
@@ -44,6 +47,7 @@ function RegistrationStep2(props: Props) {
         onChange={props.handlePasswordChange}
         error={props.passwordErr !== ""}
         helperText={props.passwordErr}
+        autoComplete="new-password"
       />
 
       <p className={styles.tabDesc}>Confirm Password:</p>
@@ -57,6 +61,19 @@ function RegistrationStep2(props: Props) {
         error={props.confirmErr !== ""}
         helperText={props.confirmErr}
       />
+
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={props.ageValidation}
+            onChange={props.handleAgeValidationChange}
+            name="checkedB"
+            color="primary"
+          />
+        }
+        label="I confirm am over the age of 16"
+      />
+      {props.ageValidationErr.length > 0 && <p>{props.ageValidationErr}</p>}
     </div>
   );
 }

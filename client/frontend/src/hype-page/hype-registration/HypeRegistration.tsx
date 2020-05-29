@@ -77,12 +77,12 @@ function HypeRegistration(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(2);
 
   const [username, setUsername] = useState("");
   const [usernameErr, setUsernameErr] = useState("");
 
-  const [university, setUniversity] = useState("");
+  const [university, setUniversity] = useState("Purdue");
   const [universityErr, setUniversityErr] = useState("");
 
   const [firstName, setFirstName] = useState("");
@@ -96,6 +96,8 @@ function HypeRegistration(props: Props) {
   const [passwordErr, setPasswordErr] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
+  const [ageValidation, setAgeValidation] = useState(false);
+  const [ageValidationErr, setAgeValidationErr] = useState("");
 
   const steps = ["Email", "Basic Info", "Password"];
 
@@ -133,6 +135,12 @@ function HypeRegistration(props: Props) {
     event: React.ChangeEvent<{ value: unknown }>
   ) {
     setConfirmPassword(event.target.value as string);
+  }
+
+  function handleAgeValidationChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setAgeValidation(event.target.checked);
   }
 
   function handlePreviousButtonClicked() {
@@ -220,6 +228,12 @@ function HypeRegistration(props: Props) {
         hasErr = true;
       } else setConfirmErr("");
 
+      console.log("Age Validation:", ageValidation);
+
+      if (!ageValidation) {
+        setAgeValidationErr("You must be over the age of 16 to use this app.");
+      }
+
       if (!hasErr) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
@@ -265,6 +279,9 @@ function HypeRegistration(props: Props) {
           confirmPassword={confirmPassword}
           handleConfirmPasswordChange={handleConfirmPasswordChange}
           confirmErr={confirmErr}
+          ageValidation={ageValidation}
+          handleAgeValidationChange={handleAgeValidationChange}
+          ageValidationErr={ageValidationErr}
         />
       );
     else return <RegistrationStep3 email={username} />;

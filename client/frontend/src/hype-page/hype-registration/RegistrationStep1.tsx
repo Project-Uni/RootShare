@@ -72,6 +72,7 @@ function RegistrationStep1(props: Props) {
         onChange={props.handleFirstNameChange}
         error={props.firstNameErr !== ""}
         helperText={props.firstNameErr}
+        autoComplete="name"
       />
       <p className={styles.tabDesc}>Last Name:</p>
       <TextField
@@ -82,6 +83,7 @@ function RegistrationStep1(props: Props) {
         onChange={props.handleLastNameChange}
         error={props.lastNameErr !== ""}
         helperText={props.lastNameErr}
+        autoComplete="family-name"
       />
 
       <p className={styles.universityStanding}>University Standing:</p>
