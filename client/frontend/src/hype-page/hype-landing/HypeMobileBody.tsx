@@ -21,15 +21,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: "20px",
   },
   bottom: {
-    // flexGrow: 1,
     width: "100vw",
     display: "flex",
     justifyContent: "center",
     marginTop: 40,
-    // marginRight: 30,
   },
   eventImage: {
-    // width: "700px",
     width: Math.min(700, window.innerWidth - 40),
   },
   eventDate: {

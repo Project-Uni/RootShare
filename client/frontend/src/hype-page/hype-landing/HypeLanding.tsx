@@ -9,9 +9,7 @@ import HypeMobileBody from "./HypeMobileBody";
 import { FaInstagram } from "react-icons/fa";
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    // minWidth: 1230,
-  },
+  wrapper: {},
   buttonLink: {
     textDecoration: "none",
   },
@@ -23,7 +21,6 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: "5px",
     background: "#3D66DE",
     width: "100vw",
-    // width: Math.max(window.innerWidth, 1230),
   },
   headerRegisterButton: {
     color: "white",
@@ -39,7 +36,6 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: "10px",
     marginTop: "50px",
     width: "100vw",
-    // width: Math.max(window.innerWidth, 1230),
   },
   footerLogo: {
     height: "40px",
