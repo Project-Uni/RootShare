@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -177,16 +177,13 @@ function HypeRegistration(props: Props) {
       } else setUsernameErr("");
 
       if (!hasErr) {
-        await axios.post('/auth/signup/user-exists', {
-          email: username
-        })
-          .then((response) => {
-            console.log(response)
-            if (response.data.success != 1) {
-              setUsernameErr("Account with email address already exists");
-              hasErr = true;
-            }
-          })
+        const { data } = await axios.post("/auth/signup/user-exists", {
+          email: username,
+        });
+        if (data["success"] !== 1) {
+          setUsernameErr("An account with that email address already exists");
+          hasErr = true;
+        } else setUsernameErr("");
       }
 
       if (university.length === 0) {
@@ -198,7 +195,7 @@ function HypeRegistration(props: Props) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function handleStep1NextButtonClick() {
@@ -226,7 +223,7 @@ function HypeRegistration(props: Props) {
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function handleStep2NextButtonClick() {
@@ -251,25 +248,26 @@ function HypeRegistration(props: Props) {
       } else setAgeValidationErr("");
 
       if (!hasErr) {
-        axios.post('/auth/signup/local', {
+        const { data } = await axios.post("/auth/signup/local", {
           firstName: firstName,
           lastName: lastName,
           email: username,
           password: password,
           university: university,
-          accountType: standing
-        })
-          .then(function (response) {
-            // console.log(response);
-          })
-          .catch(function (error) {
-            // console.log(error);
-          });
+          accountType: standing,
+        });
+
+        if (data["success"] !== 1) {
+          setAgeValidationErr(
+            "There was an error while creating the account. Please try again later."
+          );
+          return;
+        }
 
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
-    }, 1000);
+    }, 500);
   }
 
   function getStepContent(step: Number) {
@@ -375,8 +373,8 @@ function HypeRegistration(props: Props) {
                 Back
               </Button>
             ) : (
-                <Button></Button>
-              )}
+              <Button></Button>
+            )}
             {currentStep !== 3 ? (
               <Button
                 variant="contained"
@@ -387,8 +385,8 @@ function HypeRegistration(props: Props) {
                 {currentStep < steps.length - 1 ? "Next" : "Submit"}
               </Button>
             ) : (
-                <Button></Button>
-              )}
+              <Button></Button>
+            )}
           </div>
 
           {currentStep === 0 && (
