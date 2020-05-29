@@ -2,27 +2,48 @@ var passport = require('passport')
 
 var isAuthenticated = require('../passport/middleware/isAuthenticated')
 var isConfirmed = require('./middleware/isConfirmed')
+import sendPacket from '../helpers/sendPacket'
 var { findUser, sendConfirmationEmail } = require('../interactions/email-confirmation')
-var { completeRegistration } = require('../interactions/registration-data')
+var { completeRegistration, userExists } = require('../interactions/registration-data')
 
 module.exports = (app) => {
-  // redirects should be handled by React
-  app.post('/auth/login/local', passport.authenticate('local-login'), (req, res) => {
-    res.json('Successfully logged in locally!')
-
-    // REACT: redirect to Pre-Confirmation Page if not confirmed
+  app.post('/auth/login/local', (req, res) => {
+    passport.authenticate('local-login', (err, user, info) => {
+      if (user) {
+        res.json(sendPacket(1, info.message))
+      } else if (info) {
+        res.json(sendPacket(0, info.message))
+      } else {
+        res.json(sendPacket(-1, err))
+      }
+    })(req, res)
   });
 
-  app.post('/auth/signup/local', passport.authenticate('local-signup'), (req, res) => {
-    res.json('Successfully signed up locally!')
-
-    // REACT: redirect to Pre-Confirmation Page if not confirmed
+  app.post('/auth/signup/local', (req, res) => {
+    passport.authenticate('local-signup', (err, user, info) => {
+      if (user) {
+        res.json(sendPacket(1, info.message))
+      } else if (info) {
+        res.json(sendPacket(0, info.message))
+      } else {
+        res.json(sendPacket(-1, err))
+      }
+    })(req, res)
   });
+
+  app.post('/auth/signup/user-exists', async (req, res) => {
+    let check = await userExists(req.body.email)
+    if (check) {
+      res.json(sendPacket(0, "User with this email already exists"))
+    } else {
+      res.json(sendPacket(1, "New User"))
+    }
+  })
 
   app.post('/auth/complete-registration', (req, res) => {
     completeRegistration(req.body)
 
-    res.json("Completed Registration")
+    res.json(sendPacket(1, "Completed Registration"))
   })
 
   app.get('/confirmation/:token', async (req, res) => {
@@ -31,30 +52,29 @@ module.exports = (app) => {
     if (user) {
       res.redirect('/secure-confirmed')
     } else {
-      res.json("There was an error processing your request")
+      res.json(sendPacket(-1, "There was an error processing your request"))
     }
-    // REACT: redirect to Post-Confirmation Page
   })
 
   app.get('/confirmation-resend', isAuthenticated, (req, res) => {
     if (req.user.email) {
-      sendConfirmationEmail(req.user.email) // Confirmation email
-      res.json("Confirmation email has been resent")
+      sendConfirmationEmail(req.user.email)
+      res.json(sendPacket(1, "Confirmation email has been resent"))
     } else {
-      res.json("There was an error processing your request")
+      res.json(sendPacket(-1, "There was an error processing your request"))
     }
   })
 
   app.get('/secure-unconfirmed', isAuthenticated, (req, res) => {
-    res.json('Successfully accessed secure endpoint! User needs to confirm account')
+    res.json(sendPacket(1, 'Successfully accessed secure endpoint! User needs to confirm account'))
   })
 
   app.get('/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
-    res.json('Successfully accessed secure endpoint! Account has been confirmed')
+    res.json(sendPacket(1, 'Successfully accessed secure endpoint! Account has been confirmed'))
   })
 
   app.get('/logout', (req, res) => {
     req.logout()
-    res.json('Successfully logged out')
+    res.json(sendPacket(1, 'Successfully logged out'))
   })
 }

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios'
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -163,7 +164,7 @@ function HypeRegistration(props: Props) {
     }
   }
 
-  function handleStep0NextButtonClick() {
+  async function handleStep0NextButtonClick() {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     setLoading(true);
     let hasErr = false;
@@ -174,6 +175,19 @@ function HypeRegistration(props: Props) {
         setUsernameErr("Email address not valid");
         hasErr = true;
       } else setUsernameErr("");
+
+      if (!hasErr) {
+        await axios.post('/auth/signup/user-exists', {
+          email: username
+        })
+          .then((response) => {
+            console.log(response)
+            if (response.data.success != 1) {
+              setUsernameErr("Account with email address already exists");
+              hasErr = true;
+            }
+          })
+      }
 
       if (university.length === 0) {
         setUniversityErr("University is required");
@@ -222,7 +236,7 @@ function HypeRegistration(props: Props) {
       setLoading(false);
 
       if (password.length < 8) {
-        setPasswordErr("Password must be atleast 8 characters");
+        setPasswordErr("Password must be at least 8 characters");
         hasErr = true;
       } else setPasswordErr("");
 
@@ -237,6 +251,19 @@ function HypeRegistration(props: Props) {
       } else setAgeValidationErr("");
 
       if (!hasErr) {
+        axios.post('/auth/signup/local', {
+          firstName: firstName,
+          lastName: lastName,
+          email: username,
+          password: password
+        })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
@@ -346,8 +373,8 @@ function HypeRegistration(props: Props) {
                 Back
               </Button>
             ) : (
-              <Button></Button>
-            )}
+                <Button></Button>
+              )}
             {currentStep !== 3 ? (
               <Button
                 variant="contained"
@@ -358,8 +385,8 @@ function HypeRegistration(props: Props) {
                 {currentStep < steps.length - 1 ? "Next" : "Submit"}
               </Button>
             ) : (
-              <Button></Button>
-            )}
+                <Button></Button>
+              )}
           </div>
 
           {currentStep === 0 && (
