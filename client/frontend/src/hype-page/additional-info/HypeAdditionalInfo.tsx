@@ -6,6 +6,7 @@ import {
   TextField,
   Button,
   LinearProgress,
+  Typography,
 } from "@material-ui/core";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -13,6 +14,7 @@ import RootShareLogoFull from "../../images/RootShareLogoFull.png";
 
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
+import axios from "axios";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -80,6 +82,20 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: "10px",
     marginBottom: "10px",
   },
+  subheaderText: {
+    fontFamily: "Ubuntu",
+    textAlign: "left",
+    marginLeft: "25px",
+    fontSize: "11pt",
+    marginTop: 10,
+    color: "rgb(100,100,100)",
+  },
+  buttonDiv: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginLeft: "20px",
+    marginRight: "20px",
+  },
 }));
 
 type Props = {};
@@ -87,6 +103,89 @@ type Props = {};
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
+
+  const [major, setMajor] = useState("");
+  const [graduationYear, setGraduationYear] = useState("");
+  const [work, setWork] = useState("");
+  const [position, setPosition] = useState("");
+  const [college, setCollege] = useState("");
+  const [interests, setInterests] = useState("");
+  const [organizations, setOrganizations] = useState("");
+  const [graduateSchool, setGraduateSchool] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  const [gradYearErr, setGradYearErr] = useState("");
+  const [phoneNumErr, setPhoneNumErr] = useState("");
+
+  function handleMajorChange(event: any) {
+    setMajor(event.target.value);
+  }
+
+  function handleGraduationYearChange(event: any) {
+    setGraduationYear(event.target.value);
+  }
+
+  function handleWorkChange(event: any) {
+    setWork(event.target.value);
+  }
+
+  function handlePositionChange(event: any) {
+    setPosition(event.target.value);
+  }
+
+  function handleCollegeChange(event: any) {
+    setCollege(event.target.value);
+  }
+
+  function handleInterestsChange(event: any) {
+    setInterests(event.target.value);
+  }
+
+  function handleOrganizationsChange(event: any) {
+    setOrganizations(event.target.value);
+  }
+
+  function handleGraduateSchoolChange(event: any) {
+    setGraduateSchool(event.target.value);
+  }
+
+  function handlePhoneNumberChange(event: any) {
+    setPhoneNumber(event.target.value);
+  }
+
+  function handleSubmit() {
+    console.log(`
+      Major: ${major},
+      Grad Year: ${graduationYear},
+      Work: ${work},
+      Position: ${position},
+      College: ${college}
+      Interests: ${interests},
+      Organizations: ${organizations},
+      Grad School: ${graduateSchool},
+      Phone Number: ${phoneNumber}
+    `);
+    setLoading(true);
+    setTimeout(async () => {
+      setLoading(false);
+      let hasErr = false;
+      if (
+        graduationYear !== "" &&
+        (Number(graduationYear) > 2050 || Number(graduationYear) < 1920)
+      ) {
+        setGradYearErr("Graduation year is invalid");
+        hasErr = true;
+      } else setGradYearErr("");
+
+      if (
+        phoneNumber.length !== 0 &&
+        (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber))
+      ) {
+        setPhoneNumErr("Invalid phone number");
+        hasErr = true;
+      } else setPhoneNumErr("");
+    }, 1000);
+  }
 
   const mode = "question";
 
@@ -104,7 +203,7 @@ function HypeAdditionalInfo(props: Props) {
       graduateDegree: "Did you get a graduate degree?",
       graduateSchool:
         "What university did you obtain your graduate degree from?",
-      phoneNumber: "Add Your Number:",
+      phoneNumber: "Add Your Phone Number (Digits Only):",
     },
     demand: {
       major: "Major:",
@@ -117,7 +216,7 @@ function HypeAdditionalInfo(props: Props) {
         "Organizations You Were Involved With (Comma Separated List):",
       graduateDegree: "Do you have a graduate degree?",
       graduateSchool: "Graduate University:",
-      phoneNumber: "Phone Number:",
+      phoneNumber: "Phone Number (Digits Only):",
     },
   };
 
@@ -148,6 +247,12 @@ function HypeAdditionalInfo(props: Props) {
             />
             <p className={styles.header}>Complete your profile</p>
 
+            <Typography className={styles.subheaderText}>
+              All of this information is completely optional, adding it will
+              help us curate the best information for you once our platform goes
+              live!
+            </Typography>
+
             <div className={styles.infoDiv}>
               <p className={styles.tabDesc}>{modePrompts[mode]["major"]}</p>
               <TextField
@@ -155,6 +260,8 @@ function HypeAdditionalInfo(props: Props) {
                 className={styles.textField}
                 label="Major"
                 helperText={optionalText}
+                value={major}
+                onChange={handleMajorChange}
               />
 
               <p className={styles.tabDesc}>
@@ -164,8 +271,11 @@ function HypeAdditionalInfo(props: Props) {
                 variant="outlined"
                 className={styles.yearField}
                 label="Graduation Year"
-                helperText={optionalText}
+                helperText={gradYearErr === "" ? optionalText : gradYearErr}
                 type="number"
+                value={graduationYear}
+                onChange={handleGraduationYearChange}
+                error={gradYearErr !== ""}
               />
 
               <p className={styles.tabDesc}>{modePrompts[mode]["work"]}</p>
@@ -174,6 +284,8 @@ function HypeAdditionalInfo(props: Props) {
                 className={styles.textField}
                 label="Current Employer"
                 helperText={optionalText}
+                value={work}
+                onChange={handleWorkChange}
               />
 
               <p className={styles.tabDesc}>{modePrompts[mode]["position"]}</p>
@@ -182,14 +294,19 @@ function HypeAdditionalInfo(props: Props) {
                 className={styles.textField}
                 label="Current Role"
                 helperText={optionalText}
+                value={position}
+                onChange={handlePositionChange}
               />
 
+              {/* TODO - Change this to Dropdown pre-populated with Purdue colleges */}
               <p className={styles.tabDesc}>{modePrompts[mode]["college"]}</p>
               <TextField
                 variant="outlined"
                 className={styles.textField}
                 label="College of Study"
                 helperText={optionalText}
+                value={college}
+                onChange={handleCollegeChange}
               />
 
               <p className={styles.tabDesc}>{modePrompts[mode]["interests"]}</p>
@@ -199,6 +316,8 @@ function HypeAdditionalInfo(props: Props) {
                 label="Interests"
                 helperText={optionalText}
                 multiline
+                value={interests}
+                onChange={handleInterestsChange}
               />
 
               <p className={styles.tabDesc}>
@@ -210,8 +329,9 @@ function HypeAdditionalInfo(props: Props) {
                 label="Organization"
                 helperText={optionalText}
                 multiline
+                value={organizations}
+                onChange={handleOrganizationsChange}
               />
-
               {/* <p className={styles.tabDesc}>
                 {modePrompts[mode]["graduateDegree"]}
               </p> */}
@@ -226,6 +346,8 @@ function HypeAdditionalInfo(props: Props) {
                 label="Graduate School"
                 helperText={optionalText}
                 multiline
+                value={graduateSchool}
+                onChange={handleGraduateSchoolChange}
               />
 
               <p className={styles.tabDesc}>
@@ -235,14 +357,24 @@ function HypeAdditionalInfo(props: Props) {
                 variant="outlined"
                 className={styles.textField}
                 label="Phone Number"
-                helperText={optionalText}
+                helperText={phoneNumErr === "" ? optionalText : phoneNumErr}
                 multiline
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                error={phoneNumErr !== ""}
               />
             </div>
 
-            <Button variant="contained" color="primary" disabled={loading}>
-              Finish
-            </Button>
+            <div className={styles.buttonDiv}>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                onClick={handleSubmit}
+              >
+                Finish
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
