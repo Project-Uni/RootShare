@@ -255,7 +255,9 @@ function HypeRegistration(props: Props) {
           firstName: firstName,
           lastName: lastName,
           email: username,
-          password: password
+          password: password,
+          university: university,
+          accountType: standing
         })
           .then(function (response) {
             console.log(response);

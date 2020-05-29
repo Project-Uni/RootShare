@@ -1,6 +1,7 @@
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose')
 var User = mongoose.model('users')
+var University = mongoose.model('universities')
 var bCrypt = require('bcryptjs');
 import log from '../helpers/logger'
 
@@ -14,7 +15,7 @@ module.exports = function (passport) {
   },
     function (req, email, password, done) {
 
-      function findOrCreateUser() {
+      async function findOrCreateUser() {
         // find a user in Mongo with provided email address
         User.findOne({ 'email': email }, function (err, user) {
           if (err) {
@@ -27,11 +28,14 @@ module.exports = function (passport) {
             var newUser = new User();
 
             // set the user's required credentials
-            newUser.firstName = req.body['firstName']
-            newUser.lastName = req.body['lastName']
+            newUser.firstName = req.body.firstName
+            newUser.lastName = req.body.lastName
             newUser.email = email;
             newUser.hashedPassword = createHash(password);
+            newUser.accountType = req.body.accountType
 
+            let university = University.findOne({ universityName: req.body.university })
+            newUser.university = university
             // save the user
             newUser.save(function (err) {
               if (err) {
