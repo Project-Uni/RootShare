@@ -100,6 +100,7 @@ module.exports = (app) => {
       user.work = userData["work"];
       user.position = userData["position"];
       user.interests = userData["interests"];
+      user.regComplete = true
 
       user.save((err) => {
         if (err) {
@@ -137,7 +138,7 @@ module.exports = (app) => {
           log("error", `Failed serializing ${user.email}`);
         }
         log("info", `Confirmed user ${user.email}`);
-        return res.redirect("/secure-confirmed");
+        return res.redirect("/profile/initialize");
       });
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"));

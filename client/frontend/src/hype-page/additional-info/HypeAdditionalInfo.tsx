@@ -281,8 +281,7 @@ function HypeAdditionalInfo(props: Props) {
         organizations: organizations.split(","),
         interests: interests.split(","),
         phoneNumber: phoneNumber,
-        graduateSchool: hasGradDegree ? graduateSchool : "",
-        regComplete: true
+        graduateSchool: hasGradDegree ? graduateSchool : ""
       });
       if (data["success"] !== 1) {
         setUpdateErr(true);
