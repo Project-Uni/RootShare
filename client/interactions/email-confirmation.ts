@@ -41,15 +41,20 @@ module.exports = {
     let emailToken = module.exports.convertEmailToToken(emailAddress)
     let confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
 
-    log("EMAIL", "Sending Confirmation Email")
     transporter.sendMail({
-      from: 'admin@rootshare.io',
+      from: {
+        name: 'RootShare',
+        address: 'admin@rootshare.io'
+      },
       to: `${emailAddress}`,
       subject: 'RootShare Account Confirmation',
       text: `Click the following link to confirm your email address with RootShare: ${confirmationLink}`,
     }, (err, info) => {
+      log('info', info)
       if (err) {
-        log("AWS SES ERROR", err)
+        log("error", err)
+      } else {
+        log("info", "Confirmation Email Sent")
       }
     })
   },
