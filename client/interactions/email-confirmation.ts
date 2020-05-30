@@ -43,7 +43,7 @@ module.exports = {
 
     log("EMAIL", "Sending Confirmation Email")
     transporter.sendMail({
-      from: 'rootshare.io@gmail.com',
+      from: 'admin@rootshare.io',
       to: `${emailAddress}`,
       subject: 'RootShare Account Confirmation',
       text: `Click the following link to confirm your email address with RootShare: ${confirmationLink}`,
