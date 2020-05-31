@@ -18,6 +18,10 @@ let transporter = nodemailer.createTransport({
   })
 })
 
+let ses = new aws.SES({
+  apiVersion: '2010-12-01'
+})
+
 module.exports = {
   findUser: async (emailToken) => {
     let emailAddress = module.exports.convertTokenToEmail(emailToken)
@@ -41,17 +45,22 @@ module.exports = {
     let emailToken = module.exports.convertEmailToToken(emailAddress)
     let confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
 
-    log("EMAIL", "Sending Confirmation Email")
-    transporter.sendMail({
-      from: 'rootshare.io@gmail.com',
-      to: `${emailAddress}`,
-      subject: 'RootShare Account Confirmation',
-      text: `Click the following link to confirm your email address with RootShare: ${confirmationLink}`,
-    }, (err, info) => {
-      if (err) {
-        log("AWS SES ERROR", err)
-      }
-    })
+    var params = {
+      Destination: {
+        ToAddresses: [`${emailAddress}`]
+      },
+      Source: `RootShare Team <admin@rootshare.io>`,
+      Template: 'confirmationTemplate',
+      TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\" }`,
+      ReplyToAddresses: []
+    };
+
+    ses.sendTemplatedEmail(params).promise()
+      .then((data) => {
+        // log('info', data)
+      }).catch((err) => {
+        log('error', err)
+      })
   },
 
   convertEmailToToken: (emailAddress) => {
