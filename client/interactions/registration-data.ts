@@ -38,9 +38,9 @@ module.exports = {
     });
   },
 
-  completeRegistrationRequired: async (userData) => {
-    let email = userData["email"];
+  completeRegistrationRequired: async (userData, email) => {
     const user = await User.findOne({ email: email });
+
     if (!user) {
       log("USER ERROR", "User Not Found with email address " + email);
       return sendPacket(0, "Unable to find user.");

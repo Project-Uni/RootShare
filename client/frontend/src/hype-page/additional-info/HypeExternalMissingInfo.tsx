@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   FormControl,
@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
@@ -69,10 +70,23 @@ type Props = {};
 function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
+  const [landingRedirect, setLandingRedirect] = useState(false);
+
   const [university, setUniversity] = useState("Purdue");
   const [standing, setStanding] = useState("");
   const [universityErr, setUniversityErr] = useState("");
   const [standingErr, setStandingErr] = useState("");
+
+  async function getCurrentUser() {
+    const { data } = await axios.get("/user/getCurrent");
+    if (data["success"] === 1)
+      localStorage.setItem("rootshare-current-user", data["content"]["email"]);
+    else setLandingRedirect(true);
+  }
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
 
   function handleUniversityChange(event: any) {
     setUniversity(event.target.value);
@@ -149,6 +163,7 @@ function HypeExternalMissingInfo(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {landingRedirect && <Redirect to="/" />}
       <HypeHeader />
       <div className={styles.body}>
         <HypeCard

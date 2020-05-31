@@ -67,7 +67,7 @@ function HypeDesktopBody(props: Props) {
           alt={`Robbie Hummel, JaJuan Johnson, and E${"'"}Twaun Moore`}
         />
         <Typography className={styles.eventDate} variant="h4">
-          AUGUST 15, 2020
+          AUGUST 14, 2020
         </Typography>
         <Typography variant="h5" className={styles.eventText}>
           {props.eventDescription}
