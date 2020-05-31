@@ -105,13 +105,17 @@ function HypeExternalMissingInfo(props: Props) {
 
       if (hasErr) return;
 
-      const { data } = await axios.post("/test", {
-        university: university,
-        standing: standing,
-      });
-      if (data.success === 1) {
-        window.location.href = "/profile/initialize";
-      }
+      const { data } = await axios.post(
+        "/auth/complete-registration/required",
+        {
+          university: university,
+          accountType: standing,
+        }
+      );
+      console.log("Data: ", data);
+      // if (data.success === 1) {
+      //   window.location.href = "/profile/initialize";
+      // }
     }, 1000);
   }
 

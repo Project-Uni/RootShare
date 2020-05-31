@@ -71,11 +71,10 @@ module.exports = (app) => {
     }
   });
 
-  app.post("/auth/complete-registration/required", (req, res) => {
-    completeRegistrationRequired(req.body);
-
-    res.json(sendPacket(1, "Completed Required Registration"));
+  app.post("/auth/complete-registration/required", async (req, res) => {
+    const result = await completeRegistrationRequired(req.body);
     log("info", `Completed required registration for ${req.body.email}`);
+    return res.json(result);
   });
 
   app.post("/auth/complete-registration/details", (req, res) => {
@@ -100,7 +99,7 @@ module.exports = (app) => {
       user.work = userData["work"];
       user.position = userData["position"];
       user.interests = userData["interests"];
-      user.regComplete = true
+      user.regComplete = true;
 
       user.save((err) => {
         if (err) {
@@ -111,23 +110,24 @@ module.exports = (app) => {
     });
   });
 
-  app.get('/auth/curr-user/load', async (req, res) => {
+  app.get("/auth/curr-user/load", async (req, res) => {
     let email = req.user.email;
-    let regComplete = req.user.regComplete
+    let regComplete = req.user.regComplete;
 
     let check = await userExists(email);
     if (check) {
-      res.json(sendPacket(1, "Sending back current user",
-        {
+      res.json(
+        sendPacket(1, "Sending back current user", {
           email: email,
-          regComplete: regComplete
-        }));
+          regComplete: regComplete,
+        })
+      );
       log("info", `Sent ${email} to frontend`);
     } else {
       res.json(sendPacket(0, "There is no user currently logged in"));
       log("error", `There is no user currently logged in`);
     }
-  })
+  });
 
   app.get("/confirmation/:token", async (req, res) => {
     let user = await findUser(req.params.token);
