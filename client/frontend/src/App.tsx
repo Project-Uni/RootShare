@@ -1,8 +1,9 @@
 import React from "react";
 import "./App.css";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
 
 function App() {
   return (
@@ -12,6 +13,9 @@ function App() {
           <Switch>
             <Route exact path="/">
               <HypeLanding />
+            </Route>
+            <Route exact path="/profile/initialize">
+              <HypeAdditionalInfo />
             </Route>
           </Switch>
         </div>

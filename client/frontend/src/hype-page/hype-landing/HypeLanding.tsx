@@ -1,59 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar } from "@material-ui/core";
-import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
 
 import HypeDesktopBody from "./HypeDesktopBody";
 import HypeMobileBody from "./HypeMobileBody";
-
-import { FaInstagram } from "react-icons/fa";
+import HypeHeader from "../headerFooter/HypeHeader";
+import HypeFooter from "../headerFooter/HypeFooter";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   buttonLink: {
     textDecoration: "none",
-  },
-  headerTitle: {
-    flexGrow: 1,
-    textAlign: "left",
-  },
-  header: {
-    marginBottom: "5px",
-    background: "#3D66DE",
-    width: "100vw",
-  },
-  headerRegisterButton: {
-    color: "white",
-  },
-  headerLogo: {
-    color: "white",
-    height: "38px",
-    width: "190px",
-  },
-  footer: {
-    background: "#3D66DE",
-    paddingTop: "20px",
-    paddingBottom: "10px",
-    marginTop: "50px",
-    width: "100vw",
-  },
-  footerLogo: {
-    height: "40px",
-  },
-  footerText: {
-    fontFamily: "Ubuntu",
-    color: "white",
-  },
-  instagramIcon: {
-    height: 50,
-    width: 50,
-    color: "white",
-    "&:hover": {
-      color: "rgb(220,220,220)",
-    },
-  },
-  instagramLink: {
-    marginTop: "20px",
   },
 }));
 
@@ -82,17 +38,7 @@ function HypeLanding(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <AppBar position="static" className={styles.header}>
-        <Toolbar>
-          <div className={styles.headerTitle}>
-            <img
-              src={RootShareLogoWhite}
-              alt="RootShare"
-              className={styles.headerLogo}
-            />
-          </div>
-        </Toolbar>
-      </AppBar>
+      <HypeHeader />
 
       {desktopMode ? (
         <HypeDesktopBody eventDescription={eventDescription} />
@@ -100,20 +46,7 @@ function HypeLanding(props: Props) {
         <HypeMobileBody eventDescription={eventDescription} />
       )}
 
-      <div className={styles.footer}>
-        <img
-          src={RootShareLogoWhite}
-          className={styles.footerLogo}
-          alt="RootShare"
-        />
-        <br />
-        <a
-          href="https://www.instagram.com/rootshare/"
-          className={styles.instagramLink}
-        >
-          <FaInstagram className={styles.instagramIcon} />
-        </a>
-      </div>
+      <HypeFooter />
     </div>
   );
 }
