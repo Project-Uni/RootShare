@@ -93,12 +93,8 @@ function RegistrationStep1(props: Props) {
           className={styles.statusField}
           error={props.standingErr !== ""}
         >
-          <InputLabel id="demo-simple-select-outlined-label">
-            Standing
-          </InputLabel>
+          <InputLabel>Standing</InputLabel>
           <Select
-            labelId="demo-simple-select-outlined-label"
-            id="demo-simple-select-outlined"
             value={props.standing}
             onChange={props.handleStandingChange}
             label="Age"

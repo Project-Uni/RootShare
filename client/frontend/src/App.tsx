@@ -18,7 +18,7 @@ function App() {
             <Route exact path="/profile/initialize">
               <HypeAdditionalInfo />
             </Route>
-            <Route exact path="/profile/externalLogin">
+            <Route exact path="/profile/externalRegister">
               <HypeExternalMissingInfo />
             </Route>
           </Switch>
