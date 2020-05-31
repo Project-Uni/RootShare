@@ -8,7 +8,7 @@ module.exports = (passport) => {
   passport.use('linkedin-login', new LinkedInStrategy({
     clientID: LINKEDIN_KEY,
     clientSecret: LINKEDIN_SECRET,
-    callbackURL: "/auth/callback/linkedin",
+    callbackURL: "https://rootshare.io/auth/callback/linkedin",
     scope: ['r_emailaddress', 'r_liteprofile'],
     state: true
   }, function (accessToken, refreshToken, profile, done) {
