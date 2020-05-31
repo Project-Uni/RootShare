@@ -178,24 +178,24 @@ function HypeAdditionalInfo(props: Props) {
   useEffect(() => {
     async function runEffect() {
       let currUser = localStorage.getItem("rootshare-current-user");
-      let regComplete = false
-      if (currUser === null) {
-        await axios.get('/auth/curr-user/load')
-          .then((response) => {
-            currUser = response.data.content.email
-            regComplete = response.data.content.regComplete
-          }).catch((error) => {
+      let regComplete = false;
+      // if (currUser === null) {
+      //   const { data } = await axios.get('/auth/curr-user/load')
+      //     .then((response) => {
+      //       currUser = response.data.content.email
+      //       regComplete = response.data.content.regComplete
+      //     }).catch((error) => {
 
-          })
+      //     })
 
-      }
+      // }
 
-      if (regComplete) setRegCompleted(true)
+      if (regComplete) setRegCompleted(true);
       if (currUser === null) setLandingRedirect(true);
       else setCurrentUser(currUser as string);
     }
 
-    runEffect()
+    runEffect();
   }, []);
 
   function handleMajorChange(event: any) {
@@ -281,7 +281,7 @@ function HypeAdditionalInfo(props: Props) {
         organizations: organizations.split(","),
         interests: interests.split(","),
         phoneNumber: phoneNumber,
-        graduateSchool: hasGradDegree ? graduateSchool : ""
+        graduateSchool: hasGradDegree ? graduateSchool : "",
       });
       if (data["success"] !== 1) {
         setUpdateErr(true);
@@ -501,23 +501,23 @@ function HypeAdditionalInfo(props: Props) {
                 </div>
               </>
             ) : (
-                <div className={styles.finishWrapper}>
-                  <Typography className={styles.completeText}>
-                    <b>You are all set for the event!</b>
-                  </Typography>
-                  <Typography className={styles.completeText}>
-                    We look forward to seeing you on August 15th!
+              <div className={styles.finishWrapper}>
+                <Typography className={styles.completeText}>
+                  <b>You are all set for the event!</b>
                 </Typography>
-                  <Typography className={styles.completeText}>
-                    Once again, <b>Boiler Up!</b>
-                  </Typography>
-                  <img
-                    src={PurdueLogo}
-                    alt="Purdue Logo"
-                    className={styles.logoStyle}
-                  />
-                </div>
-              )}
+                <Typography className={styles.completeText}>
+                  We look forward to seeing you on August 15th!
+                </Typography>
+                <Typography className={styles.completeText}>
+                  Once again, <b>Boiler Up!</b>
+                </Typography>
+                <img
+                  src={PurdueLogo}
+                  alt="Purdue Logo"
+                  className={styles.logoStyle}
+                />
+              </div>
+            )}
 
             {updateErr && (
               <p className={styles.submitError}>

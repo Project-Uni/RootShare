@@ -1,19 +1,35 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
+import HypeHeader from "../headerFooter/HypeHeader";
+import HypeFooter from "../headerFooter/HypeFooter";
+import HypeCard from "../hype-card/HypeCard";
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    // width: "100vw",
+  },
 }));
 
 type Props = {};
 
-function Template(props: Props) {
+function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
-      <p>I am a template</p>
+      <HypeHeader />
+      <HypeCard
+        headerText="Testing"
+        backArrow="link"
+        backArrowLink="/"
+        width={450}
+        loading={false}
+      >
+        <p>Hello world</p>
+      </HypeCard>
+      <HypeFooter />
     </div>
   );
 }
 
-export default Template;
+export default HypeExternalMissingInfo;
