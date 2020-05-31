@@ -1,25 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  LinearProgress,
-  Stepper,
-  Step,
-  StepLabel,
-} from "@material-ui/core";
-import { FaArrowLeft } from "react-icons/fa";
+import { Button, Stepper, Step, StepLabel } from "@material-ui/core";
 
 import RegistrationStep0 from "./RegistrationStep0";
 import RegistrationStep1 from "./RegistrationStep1";
 import RegistrationStep2 from "./RegistrationStep2";
 import RegistrationStep3 from "./RegistrationStep3";
+import HypeCard from "../hype-card/HypeCard";
 import GoogleButton from "./GoogleButton";
 import LinkedInButton from "./LinkedInButton";
-import RootShareLogoFull from "../../images/RootShareLogoFull.png";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -27,37 +17,6 @@ const useStyles = makeStyles((_: any) => ({
     // justifyContent: "center",
     // alignItems: "center",
     // height: "100vh",
-  },
-  card: {
-    width: "400px",
-  },
-  cardContent: {
-    paddingTop: "30px",
-  },
-  linearProgress: {
-    backgroundColor: "rgb(30, 67, 201)",
-  },
-  linearProgressBg: {
-    backgroundColor: "rgb(140, 165, 255)",
-  },
-  linearProgressRoot: {
-    height: 5,
-  },
-  backArrow: {
-    float: "left",
-    marginLeft: "10px",
-    verticalAlign: "center",
-    marginTop: "13px",
-    "&:hover": {
-      cursor: "pointer",
-    },
-  },
-  header: {
-    fontSize: "14pt",
-    fontWeight: "bold",
-    // fontFamily: "Arial, Helvetica, sans-serif",
-    fontFamily: "Ubuntu",
-    marginBottom: 0,
   },
   buttonDiv: {
     display: "flex",
@@ -324,85 +283,63 @@ function HypeRegistration(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <Card raised className={styles.card}>
-        <LinearProgress
-          classes={{
-            root: styles.linearProgressRoot,
-            barColorPrimary: styles.linearProgress,
-            colorPrimary: styles.linearProgressBg,
-          }}
-          variant={loading ? "indeterminate" : "determinate"}
-          value={100}
-        />
-        <CardContent className={styles.cardContent}>
-          <a
-            href={undefined}
-            className={styles.backArrow}
-            onClick={() => {
-              setCurrentStep(0);
-            }}
-          >
-            <FaArrowLeft
-              color={currentStep > 0 ? "rgb(30, 67, 201)" : "white"}
-              size={24}
-            />
-          </a>
-          <img
-            src={RootShareLogoFull}
-            className={styles.rootshareLogo}
-            alt="RootShare"
-          />
-          <p className={styles.header}>Go find your community.</p>
+      <HypeCard
+        width={400}
+        loading={loading}
+        headerText="Go find your community"
+        backArrow="action"
+        backArrowAction={() => {
+          setCurrentStep(0);
+        }}
+      >
+        <Stepper activeStep={currentStep}>
+          {steps.map((label) => {
+            const stepProps = {};
+            const labelProps = {};
 
-          <Stepper activeStep={currentStep}>
-            {steps.map((label) => {
-              const stepProps = {};
-              const labelProps = {};
+            return (
+              <Step key={label} {...stepProps}>
+                <StepLabel {...labelProps}>{label}</StepLabel>
+              </Step>
+            );
+          })}
+        </Stepper>
+        {getStepContent(currentStep)}
 
-              return (
-                <Step key={label} {...stepProps}>
-                  <StepLabel {...labelProps}>{label}</StepLabel>
-                </Step>
-              );
-            })}
-          </Stepper>
-          {getStepContent(currentStep)}
-
-          <div className={styles.buttonDiv}>
-            {currentStep > 0 && currentStep !== 3 ? (
-              <Button
-                variant="contained"
-                color="inherit"
-                onClick={handlePreviousButtonClicked}
-                disabled={loading}
-              >
-                Back
-              </Button>
-            ) : (
-                <Button></Button>
-              )}
+        <div className={styles.buttonDiv}>
+          {currentStep > 0 && currentStep !== 3 ? (
             <Button
               variant="contained"
-              color="primary"
-              onClick={handleNextButtonClicked}
+              color="inherit"
+              onClick={handlePreviousButtonClicked}
               disabled={loading}
             >
-              {currentStep !== steps.length - 1 ? "Next" : "Submit"}
+              Back
             </Button>
-          </div>
-
-          {currentStep === 0 && (
-            <>
-              <div className={styles.googleDiv}>
-                <GoogleButton />
-              </div>
-              <div className={styles.googleDiv}>
-                <LinkedInButton />
-              </div>
-            </>
+          ) : (
+            <Button></Button>
           )}
-        </CardContent>
-      </Card>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleNextButtonClicked}
+            disabled={loading}
+          >
+            {currentStep !== steps.length - 1 ? "Next" : "Submit"}
+          </Button>
+        </div>
+
+        {currentStep === 0 && (
+          <>
+            <div className={styles.googleDiv}>
+              <GoogleButton />
+            </div>
+            <div className={styles.googleDiv}>
+              <LinkedInButton />
+            </div>
+          </>
+        )}
+      </HypeCard>
     </div>
   );
 }
