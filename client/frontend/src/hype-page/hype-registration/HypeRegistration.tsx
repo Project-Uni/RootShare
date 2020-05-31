@@ -105,8 +105,6 @@ function HypeRegistration(props: Props) {
 
   const steps = ["Email", "Basic Info", "Password"];
 
-  localStorage.removeItem("rootshare-current-user")
-
   function handleUsernameChange(event: any) {
     setUsername(event.target.value);
   }
