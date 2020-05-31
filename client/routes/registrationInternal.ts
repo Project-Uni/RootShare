@@ -114,7 +114,7 @@ module.exports = (app) => {
 
   app.get("/auth/curr-user/load", async (req, res) => {
     let email = req.user.email;
-    let regComplete = req.user.regComplete;
+    let regComplete = (req.user.work !== undefined)
 
     let check = await userExists(email);
     if (check) {

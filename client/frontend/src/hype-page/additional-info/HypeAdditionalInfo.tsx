@@ -70,21 +70,11 @@ function HypeAdditionalInfo(props: Props) {
   const [currentUser, setCurrentUser] = useState("");
 
   async function getCurrentUser() {
-    let currUser = localStorage.getItem("rootshare-current-user");
-    if (!currUser) {
-      const { data } = await axios.get("/user/getCurrent");
-      if (data["success"] === 1) {
-        localStorage.setItem(
-          "rootshare-current-user",
-          data["content"]["email"]
-        );
-        setCurrentUser(
-          localStorage.getItem("rootshare-current-user") as string
-        );
-      } else setLandingRedirect(true);
-    } else {
-      setCurrentUser(currUser);
-    }
+    const { data } = await axios.get("/auth/curr-user/load");
+    if (data["success"] === 1) {
+      setRegCompleted(data["content"]["regComplete"])
+      return data["content"]["email"];
+    } else setLandingRedirect(true);
   }
 
   useEffect(() => {
@@ -254,8 +244,8 @@ function HypeAdditionalInfo(props: Props) {
               />
             </>
           ) : (
-            <HypeAdditionalComplete />
-          )}
+              <HypeAdditionalComplete />
+            )}
 
           {updateErr && (
             <p className={styles.submitError}>

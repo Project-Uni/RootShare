@@ -11,9 +11,9 @@ module.exports = (passport) => {
       {
         clientID: LINKEDIN_KEY,
         clientSecret: LINKEDIN_SECRET,
-        callbackURL: "https://rootshare.io/auth/callback/linkedin",
+        // callbackURL: "https://rootshare.io/auth/callback/linkedin",
         //TODO - Switch back before deployment,
-        // callbackURL: "http://localhost:8000/auth/callback/linkedin",
+        callbackURL: "http://127.0.0.1:8000/auth/callback/linkedin",
         scope: ["r_emailaddress", "r_liteprofile"],
         state: true,
       },

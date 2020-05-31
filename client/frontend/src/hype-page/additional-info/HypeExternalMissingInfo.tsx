@@ -78,9 +78,9 @@ function HypeExternalMissingInfo(props: Props) {
   const [standingErr, setStandingErr] = useState("");
 
   async function getCurrentUser() {
-    const { data } = await axios.get("/user/getCurrent");
+    const { data } = await axios.get("/auth/curr-user/load");
     if (data["success"] === 1)
-      localStorage.setItem("rootshare-current-user", data["content"]["email"]);
+      return data["content"]["email"];
     else setLandingRedirect(true);
   }
 
