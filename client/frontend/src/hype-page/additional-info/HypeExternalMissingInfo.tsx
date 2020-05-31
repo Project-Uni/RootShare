@@ -126,7 +126,6 @@ function HypeExternalMissingInfo(props: Props) {
           accountType: standing,
         }
       );
-      console.log("Data: ", data);
       if (data.success === 1) {
         window.location.href = "/profile/initialize";
       }

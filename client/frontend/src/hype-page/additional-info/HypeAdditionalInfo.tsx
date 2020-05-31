@@ -452,7 +452,7 @@ function HypeAdditionalInfo(props: Props) {
                 <b>You are all set for the event!</b>
               </Typography>
               <Typography className={styles.completeText}>
-                We look forward to seeing you on August 15th!
+                We look forward to seeing you on August 14th!
               </Typography>
               <Typography className={styles.completeText}>
                 Once again, <b>Boiler Up!</b>
