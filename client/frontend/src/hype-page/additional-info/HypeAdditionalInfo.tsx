@@ -4,12 +4,11 @@ import { Button, Typography } from "@material-ui/core";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 
-import PurdueLogo from "../../images/purdueLogo.png";
-
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
 import HypeCard from "../hype-card/HypeCard";
 import HypeInfoBody from "./HypeInfoBody";
+import HypeAdditionalComplete from "./HypeAdditionalComplete";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -40,22 +39,6 @@ const useStyles = makeStyles((_: any) => ({
     fontSize: "11pt",
     color: "red",
     textAlign: "left",
-  },
-  completeText: {
-    fontSize: "13pt",
-    textAlign: "left",
-    margin: 0,
-    fontfamily: "Ubuntu",
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 10,
-  },
-  finishWrapper: {
-    marginTop: "20px",
-  },
-  logoStyle: {
-    height: "100px",
-    width: "100px",
   },
 }));
 
@@ -271,22 +254,7 @@ function HypeAdditionalInfo(props: Props) {
               />
             </>
           ) : (
-            <div className={styles.finishWrapper}>
-              <Typography className={styles.completeText}>
-                <b>You are all set for the event!</b>
-              </Typography>
-              <Typography className={styles.completeText}>
-                We look forward to seeing you on August 14th!
-              </Typography>
-              <Typography className={styles.completeText}>
-                Once again, <b>Boiler Up!</b>
-              </Typography>
-              <img
-                src={PurdueLogo}
-                alt="Purdue Logo"
-                className={styles.logoStyle}
-              />
-            </div>
+            <HypeAdditionalComplete />
           )}
 
           {updateErr && (
