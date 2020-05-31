@@ -112,7 +112,7 @@ function HypeAdditionalInfo(props: Props) {
   const [organizations, setOrganizations] = useState("");
   const [graduateSchool, setGraduateSchool] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [hasGradDegree, setHasGradDegree] = useState("No");
+  const [hasGradDegree, setHasGradDegree] = useState("no");
 
   const [gradYearErr, setGradYearErr] = useState("");
   const [phoneNumErr, setPhoneNumErr] = useState("");
@@ -122,21 +122,21 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState("");
 
-  const PurdueColleges = [
-    "College of Agriculture",
-    "College of Education",
-    "College of Engineering",
-    "Exploratory Studies",
-    "College of Health and Human Sciences",
-    "College of Liberal Arts",
-    "Krannert School of Management",
-    "College of Pharmacy",
-    "Purdue Polytechnic Institute",
-    "College of Science",
-    "College of Veterinary Medicine",
-    "Honors College",
-    "The Graduate School",
-  ];
+  // const PurdueColleges = [
+  //   "College of Agriculture",
+  //   "College of Education",
+  //   "College of Engineering",
+  //   "Exploratory Studies",
+  //   "College of Health and Human Sciences",
+  //   "College of Liberal Arts",
+  //   "Krannert School of Management",
+  //   "College of Pharmacy",
+  //   "Purdue Polytechnic Institute",
+  //   "College of Science",
+  //   "College of Veterinary Medicine",
+  //   "Honors College",
+  //   "The Graduate School",
+  // ];
 
   async function getCurrentUser() {
     let currUser = localStorage.getItem("rootshare-current-user");
@@ -276,7 +276,7 @@ function HypeAdditionalInfo(props: Props) {
     },
   };
 
-  const optionalText = "This field is optional";
+  // const optionalText = "This field is optional";
 
   return (
     <div className={styles.wrapper}>
