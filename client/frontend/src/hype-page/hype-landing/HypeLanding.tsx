@@ -5,12 +5,11 @@ import HypeDesktopBody from "./HypeDesktopBody";
 import HypeMobileBody from "./HypeMobileBody";
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
+import HypeParticipatingOrganizations from "./HypeParticipatingOrganizations";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
-  buttonLink: {
-    textDecoration: "none",
-  },
+  bottom: {},
 }));
 
 type Props = {};
@@ -45,7 +44,9 @@ function HypeLanding(props: Props) {
       ) : (
         <HypeMobileBody eventDescription={eventDescription} />
       )}
-
+      <div className={styles.bottom}>
+        <HypeParticipatingOrganizations />
+      </div>
       <HypeFooter />
     </div>
   );

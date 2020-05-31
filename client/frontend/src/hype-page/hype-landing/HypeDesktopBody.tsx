@@ -18,6 +18,7 @@ const useStyles = makeStyles((_: any) => ({
     flexGrow: 1,
     marginRight: 30,
   },
+  bottom: {},
 }));
 
 type Props = {
