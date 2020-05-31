@@ -7,7 +7,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {};
 
-function HypeProfileCompletion(props: Props) {
+function Template(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
@@ -16,4 +16,4 @@ function HypeProfileCompletion(props: Props) {
   );
 }
 
-export default HypeProfileCompletion;
+export default Template;
