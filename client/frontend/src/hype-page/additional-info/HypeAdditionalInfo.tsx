@@ -138,27 +138,26 @@ function HypeAdditionalInfo(props: Props) {
     "The Graduate School",
   ];
 
-  useEffect(() => {
-    async function runEffect() {
-      let currUser = localStorage.getItem("rootshare-current-user");
-      let regComplete = false;
-      // if (currUser === null) {
-      //   const { data } = await axios.get('/auth/curr-user/load')
-      //     .then((response) => {
-      //       currUser = response.data.content.email
-      //       regComplete = response.data.content.regComplete
-      //     }).catch((error) => {
-
-      //     })
-
-      // }
-
-      if (regComplete) setRegCompleted(true);
-      if (currUser === null) setLandingRedirect(true);
-      else setCurrentUser(currUser as string);
+  async function getCurrentUser() {
+    let currUser = localStorage.getItem("rootshare-current-user");
+    if (!currUser) {
+      const { data } = await axios.get("/user/getCurrent");
+      if (data["success"] === 1) {
+        localStorage.setItem(
+          "rootshare-current-user",
+          data["content"]["email"]
+        );
+        setCurrentUser(
+          localStorage.getItem("rootshare-current-user") as string
+        );
+      } else setLandingRedirect(true);
+    } else {
+      setCurrentUser(currUser);
     }
+  }
 
-    runEffect();
+  useEffect(() => {
+    getCurrentUser();
   }, []);
 
   function handleMajorChange(event: any) {
@@ -202,17 +201,6 @@ function HypeAdditionalInfo(props: Props) {
   }
 
   function handleSubmit() {
-    console.log(`
-      Major: ${major},
-      Grad Year: ${graduationYear},
-      Work: ${work},
-      Position: ${position},
-      College: ${college}
-      Interests: ${interests},
-      Organizations: ${organizations},
-      Grad School: ${graduateSchool},
-      Phone Number: ${phoneNumber}
-    `);
     setLoading(true);
     setTimeout(async () => {
       setLoading(false);

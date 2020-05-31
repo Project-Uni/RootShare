@@ -106,6 +106,7 @@ module.exports = (app) => {
         if (err) {
           return res.json(sendPacket(0, "Unable to update user details"));
         }
+        log("info", `Successfully updated profile for ${email}`);
         return res.json(sendPacket(1, "Successfully updated user profile"));
       });
     });
