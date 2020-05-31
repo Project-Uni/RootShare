@@ -61,6 +61,8 @@ type Props = {
   handleGraduateSchoolChange: (event: any) => void;
   phoneNumber: string;
   handlePhoneNumberChange: (event: any) => void;
+  hasGradDegree: string;
+  handleHasGradDegreeChange: (event: any) => void;
   gradYearErr: string;
   phoneNumErr: string;
 };
@@ -68,7 +70,6 @@ type Props = {
 function HypeInfoBody(props: Props) {
   const styles = useStyles();
   const optionalText = "This field is optional";
-  const [hasGradDegree, setHasGradDegree] = useState("no");
 
   const { modePrompts, mode } = props;
   const {
@@ -90,6 +91,8 @@ function HypeInfoBody(props: Props) {
     handleGraduateSchoolChange,
     phoneNumber,
     handlePhoneNumberChange,
+    hasGradDegree,
+    handleHasGradDegreeChange,
     gradYearErr,
     phoneNumErr,
   } = props;
@@ -109,10 +112,6 @@ function HypeInfoBody(props: Props) {
     "Honors College",
     "The Graduate School",
   ];
-
-  function handleHasGradDegreeChange(event: any) {
-    setHasGradDegree(event.target.value);
-  }
 
   return (
     <div className={styles.infoDiv}>
