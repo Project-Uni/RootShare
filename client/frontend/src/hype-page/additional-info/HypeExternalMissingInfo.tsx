@@ -113,9 +113,9 @@ function HypeExternalMissingInfo(props: Props) {
         }
       );
       console.log("Data: ", data);
-      // if (data.success === 1) {
-      //   window.location.href = "/profile/initialize";
-      // }
+      if (data.success === 1) {
+        window.location.href = "/profile/initialize";
+      }
     }, 1000);
   }
 
