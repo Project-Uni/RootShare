@@ -37,14 +37,52 @@ type Props = {};
 function HypeParticipatingOrganizations(props: Props) {
   const styles = useStyles();
 
-  const organizations = ["Paint Crew", "Pi Kappa Alpha"];
+  const priorityOrgs = [
+    "Paint Crew",
+    "Beta Theta Pi",
+    "Kappa Delta Rho",
+    "Sigma Chi",
+  ];
+  const organizations = [
+    "Alpha Gamma Rho",
+    "Beta Chi Theta",
+    "Beta Sigma Psi",
+    "Beta Theta Pi",
+    "Delta Sigma Phi",
+    "Kappa Delta Rho",
+    "Phi Kappa Sigma",
+    "Phi Sigma Kappa",
+    "Pi Lambda Phi",
+    "Sigma Alpha Epsilon",
+    "Sigma Tau Gamma",
+    "Zeta Beta Tau",
+    "SMC",
+    "Theta Tau",
+    "Zeta Tau Alpha",
+    "Phi Kappa Psi",
+    "Delta Sigma Pi",
+    "AIMS",
+    "Paint Crew",
+    "Pi Kappa Alpha",
+    "Alpha Kappa Psi",
+    "Chi Omega",
+    "Operations and Supply Chain",
+  ].sort();
 
   function renderOrganizations() {
     const output = [];
-    for (let i = 0; i < 20; i++) {
+    let i;
+    for (i = 0; i < priorityOrgs.length; i++) {
       output.push(
         <Grid item xs={6} sm={4}>
-          <Typography className={styles.orgName}>Pi Kappa Alpha</Typography>
+          <Typography className={styles.orgName}>{priorityOrgs[i]}</Typography>
+        </Grid>
+      );
+    }
+    for (i = 0; i < organizations.length; i++) {
+      output.push(
+        <Grid item xs={6} sm={4}>
+          <Typography className={styles.orgName}>{organizations[i]}</Typography>
         </Grid>
       );
     }
