@@ -71,6 +71,7 @@ function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
   const [landingRedirect, setLandingRedirect] = useState(false);
+  const [additionalRedirect, setAdditionalRedirect] = useState(false);
 
   const [university, setUniversity] = useState("Purdue");
   const [standing, setStanding] = useState("");
@@ -79,9 +80,13 @@ function HypeExternalMissingInfo(props: Props) {
 
   async function getCurrentUser() {
     const { data } = await axios.get("/auth/curr-user/load");
-    if (data["success"] === 1)
-      return data["content"]["email"];
-    else setLandingRedirect(true);
+    if (data["success"] === 1) {
+      if (data["content"]["externalComplete"]) {
+        setAdditionalRedirect(true)
+      } else {
+        return data["content"]["email"];
+      }
+    } else setLandingRedirect(true);
   }
 
   useEffect(() => {
@@ -163,6 +168,7 @@ function HypeExternalMissingInfo(props: Props) {
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
+      {additionalRedirect && <Redirect to="/profile/initialize" />}
       <HypeHeader />
       <div className={styles.body}>
         <HypeCard

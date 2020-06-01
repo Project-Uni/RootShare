@@ -85,9 +85,10 @@ module.exports = (app) => {
     return res.json(result);
   });
 
-  app.get("/auth/curr-user/load", async (req, res) => {
-    let email = req.user.email;
-    let regComplete = (req.user.work !== undefined)
+  app.get("/auth/curr-user/load", isAuthenticated, async (req, res) => {
+    const email = req.user.email;
+    const regComplete = (req.user.work !== undefined)
+    const externalComplete = (req.user.university !== undefined)
 
     let check = await userExists(email);
     if (check) {
@@ -95,6 +96,7 @@ module.exports = (app) => {
         sendPacket(1, "Sending back current user", {
           email: email,
           regComplete: regComplete,
+          externalComplete: externalComplete
         })
       );
       log("info", `Sent ${email} to frontend`);
