@@ -23,7 +23,7 @@ let ses = new aws.SES({
 })
 
 module.exports = {
-  findUser: async (emailToken) => {
+  confirmUser: async (emailToken) => {
     let emailAddress = module.exports.convertTokenToEmail(emailToken)
     let currUser
     try {
@@ -37,21 +37,40 @@ module.exports = {
     }
 
     currUser.confirmed = true
-    currUser.save()
+    await currUser.save()
+    return currUser
+  },
+
+  unsubscribeUser: async (emailToken) => {
+    let emailAddress = module.exports.convertTokenToEmail(emailToken)
+    let currUser
+    try {
+      currUser = await User.findOne({ 'email': emailAddress })
+    } catch (error) {
+      log("MONGO ERROR", error)
+    }
+
+    if (!currUser) {
+      return null
+    }
+
+    currUser.sendEmails = false
+    await currUser.save()
     return currUser
   },
 
   sendConfirmationEmail: (emailAddress) => {
-    let emailToken = module.exports.convertEmailToToken(emailAddress)
-    let confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
+    const emailToken = module.exports.convertEmailToToken(emailAddress)
+    const confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
+    const unsubscribeLink = `https://rootshare.io/unsubscribe/${emailToken}`
 
     var params = {
       Destination: {
         ToAddresses: [`${emailAddress}`]
       },
       Source: `RootShare Team <admin@rootshare.io>`,
-      Template: 'confirmationTemplate',
-      TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\" }`,
+      Template: 'confirmationTemplate2',
+      TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\", \"unsubscribeLink\":\"${unsubscribeLink}\" }`,
       ReplyToAddresses: []
     };
 

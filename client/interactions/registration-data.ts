@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 var User = mongoose.model("users");
-var University = mongoose.model("users");
+var University = mongoose.model("universities");
 import log from "../helpers/logger";
 import sendPacket from "../helpers/sendPacket";
 
@@ -42,9 +42,17 @@ module.exports = {
       log("USER ERROR", `User Not Found with email address: ${email}`);
       return sendPacket(0, "Unable to find user.");
     }
+
+    const universityName = userData["university"]
     const university = await University.findOne({
-      universityName: userData["university"],
+      universityName: universityName
     });
+
+    if (!university) {
+      log("USER ERROR", `University Not Found: ${universityName}`);
+      return sendPacket(0, `Unable to find university: ${universityName}`);
+    }
+
     user.university = university;
     user.accountType = userData["accountType"];
 

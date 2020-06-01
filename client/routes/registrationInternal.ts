@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 var isAuthenticated = require("../passport/middleware/isAuthenticated");
 var isConfirmed = require("./middleware/isConfirmed");
 var {
-  findUser,
+  confirmUser,
+  unsubscribeUser,
   sendConfirmationEmail,
 } = require("../interactions/email-confirmation");
 var {
@@ -74,14 +75,18 @@ module.exports = (app) => {
   app.post("/auth/complete-registration/required", async (req, res) => {
     const result = await completeRegistrationRequired(req.body, req.user.email);
 
-    log("info", `Completed required registration for ${req.user.email}`);
+    if (result["success"] === 1) {
+      log("info", `Completed required registration for ${req.user.email}`);
+    }
     return res.json(result);
   });
 
   app.post("/auth/complete-registration/details", async (req, res) => {
     const result = await completeRegistrationDetails(req.body, req.user.email)
 
-    log("info", `Completed registration details for ${req.user.email}`);
+    if (result["success"] === 1) {
+      log("info", `Completed registration details for ${req.user.email}`);
+    }
     return res.json(result);
   });
 
@@ -107,7 +112,7 @@ module.exports = (app) => {
   });
 
   app.get("/confirmation/:token", async (req, res) => {
-    let user = await findUser(req.params.token);
+    let user = await confirmUser(req.params.token);
 
     if (user) {
       req.login(user, (err) => {
@@ -120,6 +125,18 @@ module.exports = (app) => {
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"));
       log("error", `Was not able to confirm user`);
+    }
+  });
+
+  app.get("/unsubscribe/:token", async (req, res) => {
+    let user = await unsubscribeUser(req.params.token);
+
+    if (user) {
+      res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`))
+      log("info", `Unsubscribed user: ${user.email}`);
+    } else {
+      res.json(sendPacket(-1, "There was an error processing your request"));
+      log("error", `Was not able to unsubscribe user, please try again`);
     }
   });
 
