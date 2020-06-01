@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   TextField,
@@ -63,6 +63,8 @@ type Props = {
   handlePhoneNumberChange: (event: any) => void;
   hasGradDegree: string;
   handleHasGradDegreeChange: (event: any) => void;
+  discoveryMethod: string;
+  handleDiscoveryMethodChange: (event: any) => void;
   gradYearErr: string;
   phoneNumErr: string;
 };
@@ -93,6 +95,8 @@ function HypeInfoBody(props: Props) {
     handlePhoneNumberChange,
     hasGradDegree,
     handleHasGradDegreeChange,
+    discoveryMethod,
+    handleDiscoveryMethodChange,
     gradYearErr,
     phoneNumErr,
   } = props;
@@ -225,10 +229,20 @@ function HypeInfoBody(props: Props) {
         className={styles.textField}
         label="Phone Number"
         helperText={phoneNumErr === "" ? optionalText : phoneNumErr}
-        multiline
         value={phoneNumber}
         onChange={handlePhoneNumberChange}
         error={phoneNumErr !== ""}
+      />
+
+      <p className={styles.tabDesc}>{modePrompts[mode]["discoveryMethod"]}</p>
+      <TextField
+        variant="outlined"
+        className={styles.textField}
+        label="Discovery Method"
+        helperText={optionalText}
+        multiline
+        value={discoveryMethod}
+        onChange={handleDiscoveryMethodChange}
       />
     </div>
   );

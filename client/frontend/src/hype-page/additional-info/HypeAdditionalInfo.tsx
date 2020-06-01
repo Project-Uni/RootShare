@@ -61,6 +61,7 @@ function HypeAdditionalInfo(props: Props) {
   const [graduateSchool, setGraduateSchool] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [hasGradDegree, setHasGradDegree] = useState("no");
+  const [discoveryMethod, setDiscoveryMethod] = useState("");
 
   const [gradYearErr, setGradYearErr] = useState("");
   const [phoneNumErr, setPhoneNumErr] = useState("");
@@ -127,8 +128,13 @@ function HypeAdditionalInfo(props: Props) {
     setPhoneNumber(event.target.value);
   }
 
+  function handleDiscoveryMethodChange(event: any) {
+    setDiscoveryMethod(event.target.value);
+  }
+
   function handleSubmit() {
     setLoading(true);
+
     setTimeout(async () => {
       setLoading(false);
       let hasErr = false;
@@ -160,6 +166,7 @@ function HypeAdditionalInfo(props: Props) {
         interests: interests.split(","),
         phoneNumber: phoneNumber,
         graduateSchool: hasGradDegree ? graduateSchool : "",
+        discoverMethod: discoveryMethod,
       });
       if (data["success"] !== 1) {
         setUpdateErr(true);
@@ -187,6 +194,7 @@ function HypeAdditionalInfo(props: Props) {
       graduateSchool:
         "What university did you obtain your graduate degree from?",
       phoneNumber: "Add Your Phone Number (Digits Only):",
+      discoveryMethod: "How did you hear about us?",
     },
     demand: {
       major: "Major:",
@@ -200,6 +208,7 @@ function HypeAdditionalInfo(props: Props) {
       graduateDegree: "Do you have a graduate degree?",
       graduateSchool: "Graduate University:",
       phoneNumber: "Phone Number (Digits Only):",
+      discoveryMethod: "How did you hear about us?",
     },
   };
 
@@ -247,6 +256,8 @@ function HypeAdditionalInfo(props: Props) {
                 handlePhoneNumberChange={handlePhoneNumberChange}
                 hasGradDegree={hasGradDegree}
                 handleHasGradDegreeChange={handleHasGradDegreeChange}
+                discoveryMethod={discoveryMethod}
+                handleDiscoveryMethodChange={handleDiscoveryMethodChange}
                 gradYearErr={gradYearErr}
                 phoneNumErr={phoneNumErr}
               />
