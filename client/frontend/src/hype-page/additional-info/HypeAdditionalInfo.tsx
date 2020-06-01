@@ -48,6 +48,7 @@ function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
 
   const [landingRedirect, setLandingRedirect] = useState(false);
+  const [externalRedirect, setExternalRedirect] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [major, setMajor] = useState("");
@@ -70,21 +71,16 @@ function HypeAdditionalInfo(props: Props) {
   const [currentUser, setCurrentUser] = useState("");
 
   async function getCurrentUser() {
-    let currUser = localStorage.getItem("rootshare-current-user");
-    if (!currUser) {
-      const { data } = await axios.get("/user/getCurrent");
-      if (data["success"] === 1) {
-        localStorage.setItem(
-          "rootshare-current-user",
-          data["content"]["email"]
-        );
-        setCurrentUser(
-          localStorage.getItem("rootshare-current-user") as string
-        );
-      } else setLandingRedirect(true);
-    } else {
-      setCurrentUser(currUser);
-    }
+    const { data } = await axios.get("/auth/curr-user/load");
+    if (data["success"] === 1) {
+      if (!data["content"]["externalComplete"]) {
+        setExternalRedirect(true)
+      } else {
+        setRegCompleted(data["content"]["regComplete"])
+        setCurrentUser(data["content"]["email"])
+        return data["content"]["email"];
+      }
+    } else setLandingRedirect(true);
   }
 
   useEffect(() => {
@@ -210,6 +206,8 @@ function HypeAdditionalInfo(props: Props) {
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
+      {externalRedirect && <Redirect to="/profile/externalRegister" />}
+
       <HypeHeader />
       <div className={styles.body}>
         <HypeCard
@@ -254,8 +252,8 @@ function HypeAdditionalInfo(props: Props) {
               />
             </>
           ) : (
-            <HypeAdditionalComplete />
-          )}
+              <HypeAdditionalComplete />
+            )}
 
           {updateErr && (
             <p className={styles.submitError}>

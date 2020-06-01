@@ -18,8 +18,9 @@ var userSchema = new Schema({
   work: String,
   position: String,
   interests: Array,
+  graduateSchool: String,
+  discoveryMethod: String,
   sendEmails: { type: Boolean, required: true, default: true },
-  regComplete: { type: Boolean, required: true, default: false },
   confirmed: { type: Boolean, required: true, default: false },
   verified: { type: Boolean, required: true, default: false },
 });
