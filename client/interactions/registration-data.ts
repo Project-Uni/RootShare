@@ -21,6 +21,7 @@ module.exports = {
     user.position = userData["position"];
     user.interests = userData["interests"];
     user.graduateSchool = userData["graduateSchool"]
+    user.discoveryMethod = userData["discoverMethod"]
 
     await user.save()
     if (!user) {
