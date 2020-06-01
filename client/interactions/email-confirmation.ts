@@ -42,16 +42,17 @@ module.exports = {
   },
 
   sendConfirmationEmail: (emailAddress) => {
-    let emailToken = module.exports.convertEmailToToken(emailAddress)
-    let confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
+    const emailToken = module.exports.convertEmailToToken(emailAddress)
+    const confirmationLink = `https://rootshare.io/confirmation/${emailToken}`
+    const unsubscribeLink = `https://rootshare.io/unsubscribe/${emailToken}`
 
     var params = {
       Destination: {
         ToAddresses: [`${emailAddress}`]
       },
       Source: `RootShare Team <admin@rootshare.io>`,
-      Template: 'confirmationTemplate',
-      TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\" }`,
+      Template: 'confirmationTemplate2',
+      TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\", \"unsubscribeLink\":\"${unsubscribeLink}\" }`,
       ReplyToAddresses: []
     };
 
