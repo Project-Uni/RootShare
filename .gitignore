@@ -7,3 +7,4 @@ keys/
 */__pycache__/
 balancer/helpers/__pycache__/
 ranker/helpers/__pycache__/
+.metals/
