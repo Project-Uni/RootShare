@@ -75,14 +75,18 @@ module.exports = (app) => {
   app.post("/auth/complete-registration/required", async (req, res) => {
     const result = await completeRegistrationRequired(req.body, req.user.email);
 
-    log("info", `Completed required registration for ${req.user.email}`);
+    if (result["success"] === 1) {
+      log("info", `Completed required registration for ${req.user.email}`);
+    }
     return res.json(result);
   });
 
   app.post("/auth/complete-registration/details", async (req, res) => {
     const result = await completeRegistrationDetails(req.body, req.user.email)
 
-    log("info", `Completed registration details for ${req.user.email}`);
+    if (result["success"] === 1) {
+      log("info", `Completed registration details for ${req.user.email}`);
+    }
     return res.json(result);
   });
 
