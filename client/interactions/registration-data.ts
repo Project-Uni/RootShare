@@ -21,7 +21,7 @@ module.exports = {
     user.position = userData["position"];
     user.interests = userData["interests"];
     user.graduateSchool = userData["graduateSchool"]
-    user.discoveryMethod = userData["discoverMethod"]
+    user.discoveryMethod = userData["discoveryMethod"]
 
     let outerErr = null
     await user.save((err) => {
