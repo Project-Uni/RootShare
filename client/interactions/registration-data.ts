@@ -5,44 +5,41 @@ import log from "../helpers/logger";
 import sendPacket from "../helpers/sendPacket";
 
 module.exports = {
-  completeRegistrationDetails: (userData) => {
-    let email = userData["email"];
+  completeRegistrationDetails: async (userData, email) => {
+    const user = await User.findOne({ email: email })
+    if (!user) {
+      log("USER ERROR", `User Not Found with email address: ${email}`);
+      return sendPacket(0, "Unable to find user.");
+    }
 
-    User.findOne({ email: email }, function (err, user) {
-      if (err) {
-        log("MONGO ERROR", err);
-        return sendPacket(-1, "Error with mongoDB");
-      }
-      if (!user) {
-        log("USER ERROR", "User Not Found with email address " + email);
-        return sendPacket(0, "Unable to find this user.");
-      }
+    user.graduationYear = userData["graduationYear"];
+    user.department = userData["department"];
+    user.major = userData["major"];
+    user.phoneNumber = userData["phoneNumber"];
+    user.organizations = userData["organizations"];
+    user.work = userData["work"];
+    user.position = userData["position"];
+    user.interests = userData["interests"];
+    user.graduateSchool = userData["graduateSchool"]
+    user.discoveryMethod = userData["discoverMethod"]
 
-      // set the user's optional information
-      user.graduationYear = userData["graduationYear"];
-      user.department = userData["department"];
-      user.major = userData["major"];
-      user.phoneNumber = userData["phoneNumber"];
-      user.organizations = userData["organizations"];
-      user.work = userData["work"];
-      user.position = userData["position"];
-      user.interests = userData["interests"];
-      user.regComplete = true;
+    let outerErr = null
+    await user.save((err) => {
+      if (err) outerErr = err
+    })
 
-      user.save((err) => {
-        if (err) {
-          return sendPacket(0, "Unable to update user details");
-        }
-        return sendPacket(1, "Successfully updated user profile");
-      });
-    });
+    if (outerErr) {
+      return sendPacket(0, outerErr);
+    } else {
+      return sendPacket(1, "Successfully updated user profile");
+    }
   },
 
   completeRegistrationRequired: async (userData, email) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      log("USER ERROR", "User Not Found with email address " + email);
+      log("USER ERROR", `User Not Found with email address: ${email}`);
       return sendPacket(0, "Unable to find user.");
     }
     const university = await University.findOne({
@@ -51,10 +48,16 @@ module.exports = {
     user.university = university;
     user.accountType = userData["accountType"];
 
+    let outerErr = null
     await user.save((err) => {
-      if (err) return sendPacket(0, "Unable to update user details");
-    });
-    return sendPacket(1, "Successfully updated user profile");
+      if (err) outerErr = err
+    })
+
+    if (outerErr) {
+      return sendPacket(0, outerErr);
+    } else {
+      return sendPacket(1, "Successfully updated user profile");
+    }
   },
 
   userExists: async (email) => {

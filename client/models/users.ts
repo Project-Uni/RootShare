@@ -18,7 +18,8 @@ var userSchema = new Schema({
   work: String,
   position: String,
   interests: Array,
-  regComplete: { type: Boolean, required: true, default: false },
+  graduateSchool: String,
+  discoveryMethod: String,
   confirmed: { type: Boolean, required: true, default: false },
   verified: { type: Boolean, required: true, default: false },
 });
