@@ -166,7 +166,7 @@ function HypeAdditionalInfo(props: Props) {
         interests: interests.split(","),
         phoneNumber: phoneNumber,
         graduateSchool: hasGradDegree ? graduateSchool : "",
-        discoverMethod: discoveryMethod,
+        discoveryMethod: discoveryMethod,
       });
       if (data["success"] !== 1) {
         setUpdateErr(true);
