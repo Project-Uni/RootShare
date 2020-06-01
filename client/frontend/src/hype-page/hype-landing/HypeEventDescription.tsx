@@ -19,7 +19,7 @@ const useStyles = (mode: string) =>
     eventImage: {
       width: Math.min(700, window.innerWidth - 40),
     },
-    eventDate: {
+    eventTitle: {
       fontFamily: "Ubuntu",
       fontWeight: "bold",
     },
@@ -33,6 +33,11 @@ const useStyles = (mode: string) =>
       fontWeight: "bold",
       fontFamily: "Ubuntu",
       marginTop: "10px",
+    },
+    eventDate: {
+      fontFamily: "Ubuntu",
+      fontWeight: "bold",
+      fontSize: "20pt",
     },
   }));
 
@@ -53,8 +58,11 @@ function HypeEventDescription(props: Props) {
         className={styles.eventImage}
         alt={`Robbie Hummel, JaJuan Johnson, and E${"'"}Twaun Moore`}
       />
+      <Typography className={styles.eventTitle} variant="h4">
+        THE BABY BOILERS ARE BACK
+      </Typography>
       <Typography className={styles.eventDate} variant="h4">
-        AUGUST 14, 2020
+        AUGUST 14, 2020 @ 7PM EST
       </Typography>
       <Typography variant="h5" className={styles.eventText}>
         {props.eventDescription}
