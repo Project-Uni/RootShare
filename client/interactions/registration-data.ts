@@ -52,8 +52,6 @@ module.exports = {
       log("USER ERROR", `University Not Found: ${universityName}`);
       return sendPacket(0, `Unable to find university: ${universityName}`);
     }
-    console.log(university)
-    console.log(userData["university"])
 
     user.university = university;
     user.accountType = userData["accountType"];
