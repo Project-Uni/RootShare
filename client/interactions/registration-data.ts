@@ -20,7 +20,7 @@ module.exports = {
     user.work = userData["work"];
     user.position = userData["position"];
     user.interests = userData["interests"];
-    user.regComplete = true;
+    user.graduateSchool = userData["graduateSchool"]
 
     await user.save()
     if (!user) {
