@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
+import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
             </Route>
             <Route exact path="/profile/initialize">
               <HypeAdditionalInfo />
+            </Route>
+            <Route exact path="/profile/externalRegister">
+              <HypeExternalMissingInfo />
             </Route>
           </Switch>
         </div>

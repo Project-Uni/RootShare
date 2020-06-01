@@ -27,7 +27,7 @@ module.exports = {
       user.work = userData["work"];
       user.position = userData["position"];
       user.interests = userData["interests"];
-      user.regComplete = true
+      user.regComplete = true;
 
       user.save((err) => {
         if (err) {
@@ -38,20 +38,23 @@ module.exports = {
     });
   },
 
-  completeRegistrationRequired: (userData) => {
-    let email = userData["email"];
-    User.findOne({ email: email }, async function (err, user) {
-      if (err) log("MONGO ERROR", err);
-      if (!user) {
-        log("USER ERROR", "User Not Found with email address " + email);
-      }
+  completeRegistrationRequired: async (userData, email) => {
+    const user = await User.findOne({ email: email });
 
-      const university = await University.findOne({
-        universityName: userData["university"],
-      });
-      user.university = university;
-      user.accountType = userData["accountType"];
+    if (!user) {
+      log("USER ERROR", "User Not Found with email address " + email);
+      return sendPacket(0, "Unable to find user.");
+    }
+    const university = await University.findOne({
+      universityName: userData["university"],
     });
+    user.university = university;
+    user.accountType = userData["accountType"];
+
+    await user.save((err) => {
+      if (err) return sendPacket(0, "Unable to update user details");
+    });
+    return sendPacket(1, "Successfully updated user profile");
   },
 
   userExists: async (email) => {
