@@ -24,6 +24,7 @@
     "mongoose": "^5.9.11",
     "nodemailer": "^6.4.6",
     "passport": "^0.4.1",
+    "passport-google-oauth2": "^0.2.0",
     "passport-linkedin-oauth2": "^2.0.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7"
