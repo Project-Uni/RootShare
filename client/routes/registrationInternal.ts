@@ -78,38 +78,11 @@ module.exports = (app) => {
     return res.json(result);
   });
 
-  app.post("/auth/complete-registration/details", (req, res) => {
-    const userData = req["body"];
-    const { email } = userData;
+  app.post("/auth/complete-registration/details", async (req, res) => {
+    const result = await completeRegistrationDetails(req.body, req.user.email)
 
-    User.findOne({ email: email }, function (err, user) {
-      if (err) {
-        log("MONGO ERROR", err);
-        return res.json(sendPacket(-1, "Error with mongoDB"));
-      }
-      if (!user) {
-        log("USER ERROR", "User Not Found with email address " + email);
-        return res.json(sendPacket(0, "Unable to find this user."));
-      }
-
-      user.graduationYear = userData["graduationYear"];
-      user.department = userData["department"];
-      user.major = userData["major"];
-      user.phoneNumber = userData["phoneNumber"];
-      user.organizations = userData["organizations"];
-      user.work = userData["work"];
-      user.position = userData["position"];
-      user.interests = userData["interests"];
-      user.regComplete = true;
-
-      user.save((err) => {
-        if (err) {
-          return res.json(sendPacket(0, "Unable to update user details"));
-        }
-        log("info", `Successfully updated profile for ${email}`);
-        return res.json(sendPacket(1, "Successfully updated user profile"));
-      });
-    });
+    log("info", `Completed registration details for ${req.user.email}`);
+    return res.json(result);
   });
 
   app.get("/auth/curr-user/load", async (req, res) => {
