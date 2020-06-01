@@ -23,11 +23,16 @@ module.exports = {
     user.graduateSchool = userData["graduateSchool"]
     user.discoveryMethod = userData["discoverMethod"]
 
-    await user.save()
-    if (!user) {
-      return sendPacket(0, "Unable to update user details");
+    let outerErr = null
+    await user.save((err) => {
+      if (err) outerErr = err
+    })
+
+    if (outerErr) {
+      return sendPacket(0, outerErr);
+    } else {
+      return sendPacket(1, "Successfully updated user profile");
     }
-    return sendPacket(1, "Successfully updated user profile");
   },
 
   completeRegistrationRequired: async (userData, email) => {
@@ -43,10 +48,16 @@ module.exports = {
     user.university = university;
     user.accountType = userData["accountType"];
 
+    let outerErr = null
     await user.save((err) => {
-      if (err) return sendPacket(0, "Unable to update user details");
-    });
-    return sendPacket(1, "Successfully updated user profile");
+      if (err) outerErr = err
+    })
+
+    if (outerErr) {
+      return sendPacket(0, outerErr);
+    } else {
+      return sendPacket(1, "Successfully updated user profile");
+    }
   },
 
   userExists: async (email) => {
