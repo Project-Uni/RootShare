@@ -67,6 +67,7 @@ function HypeParticipatingOrganizations(props: Props) {
     "Alpha Kappa Psi",
     "Chi Omega",
     "Operations and Supply Chain",
+    "Purdue Marketing Association",
   ].sort();
 
   function renderOrganizations() {
