@@ -172,7 +172,7 @@ module.exports = (app) => {
     log("info", `User accessed secure-confirmed endpoint`);
   });
 
-  app.get("/logout", (req, res) => {
+  app.get("/logout", isAuthenticated, (req, res) => {
     let email = req.user.email;
     req.logout();
     res.json(sendPacket(1, "Successfully logged out"));
