@@ -47,9 +47,9 @@ function HypeParticipatingOrganizations(props: Props) {
     "Alpha Gamma Rho",
     "Beta Chi Theta",
     "Beta Sigma Psi",
-    "Beta Theta Pi",
+    "Women in Business",
     "Delta Sigma Phi",
-    "Kappa Delta Rho",
+    "Phi Gamma Delta",
     "Phi Kappa Sigma",
     "Phi Sigma Kappa",
     "Pi Lambda Phi",
@@ -62,12 +62,13 @@ function HypeParticipatingOrganizations(props: Props) {
     "Phi Kappa Psi",
     "Delta Sigma Pi",
     "AIMS",
-    "Paint Crew",
+    "SMEF",
     "Pi Kappa Alpha",
     "Alpha Kappa Psi",
     "Chi Omega",
     "Operations and Supply Chain",
     "Purdue Marketing Association",
+    "Psi Upsilon",
   ].sort();
 
   function renderOrganizations() {
