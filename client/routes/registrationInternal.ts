@@ -7,12 +7,12 @@ var {
   confirmUser,
   unsubscribeUser,
   sendConfirmationEmail,
-} = require("../interactions/email-confirmation");
+} = require("../interactions/registration/email-confirmation");
 var {
   completeRegistrationDetails,
   completeRegistrationRequired,
   userExists,
-} = require("../interactions/registration-data");
+} = require("../interactions/registration/registration-data");
 
 var User = mongoose.model("users");
 

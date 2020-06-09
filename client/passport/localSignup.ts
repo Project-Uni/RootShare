@@ -5,7 +5,7 @@ var University = mongoose.model('universities')
 var bCrypt = require('bcryptjs');
 import log from '../helpers/logger'
 
-var { sendConfirmationEmail } = require('../interactions/email-confirmation')
+var { sendConfirmationEmail } = require('../interactions/registration/email-confirmation')
 
 module.exports = function (passport) {
 
