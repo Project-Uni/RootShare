@@ -67,7 +67,9 @@ function HypeParticipatingOrganizations(props: Props) {
     "Alpha Kappa Psi",
     "Chi Omega",
     "Operations and Supply Chain",
+    "Purdue Marketing Association",
     "Psi Upsilon",
+    "Purdue Engineering Student Foundation",
   ].sort();
 
   function renderOrganizations() {
