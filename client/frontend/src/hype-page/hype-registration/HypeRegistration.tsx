@@ -316,8 +316,8 @@ function HypeRegistration(props: Props) {
               Back
             </Button>
           ) : (
-              <Button></Button>
-            )}
+            <Button></Button>
+          )}
           <Button
             variant="contained"
             color="primary"
@@ -330,9 +330,9 @@ function HypeRegistration(props: Props) {
 
         {currentStep === 0 && (
           <>
-            <div className={styles.googleDiv}>
+            {/* <div className={styles.googleDiv}>
               <GoogleButton />
-            </div>
+            </div> */}
             <div className={styles.googleDiv}>
               <LinkedInButton />
             </div>
