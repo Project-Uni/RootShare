@@ -1,5 +1,6 @@
 client/node_modules/
-frontend/node_modules/
+client/frontend/node_modules/
+client/frontend/src/keys.json
 balancer/venv/
 ranker/venv/
 metrics/venv/
