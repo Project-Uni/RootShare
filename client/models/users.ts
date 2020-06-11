@@ -23,6 +23,7 @@ var userSchema = new Schema({
   sendEmails: { type: Boolean, required: true, default: true },
   confirmed: { type: Boolean, required: true, default: false },
   verified: { type: Boolean, required: true, default: false },
+  RSVPWebinars: [{ type: Schema.ObjectId, ref: "webinars" }]
 });
 
 mongoose.model("users", userSchema);

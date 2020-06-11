@@ -1,42 +1,56 @@
 const OpenTok = require('opentok')
-// const OT = require('@opentok/client')
 const { OPENTOK_API_KEY, OPENTOK_API_SECRET } = require('../../../keys/keys.json')
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET)
+
+var mongoose = require('mongoose')
+var Webinar = mongoose.model('webinars')
 
 import log from '../../helpers/logger'
 import sendPacket from '../../helpers/sendPacket'
 
 module.exports = {
-  createSession: async () => {
-    let sessionID
+  createSession: async (userID) => {
+    let webinarID
 
-    let session = await opentok.createSession({ mediaMode: "routed" }, function (error, session) {
+    await opentok.createSession({ mediaMode: "routed" }, async function (error, session) {
       if (error) {
         log('error', error)
       } else {
-        sessionID = session.sessionId;
-        log('info', `Session ID: ${sessionID}`);
+        log('info', `Session ID: ${session.sessionId}`);
+
+        let newSession = new Webinar();
+        newSession.opentokSessionID = session.sessionId;
+        newSession.host = userID
+
+        await newSession.save((err, webinar) => {
+          if (err) {
+            log('error', err)
+            return sendPacket(-1, err)
+          } else {
+            webinarID = webinar._id
+            log('info', 'Webinar creation successful!')
+            log('info', webinarID)
+          }
+        });
       }
     });
 
-    return sessionID
+    if (webinarID !== undefined) {
+      return sendPacket(1, "Successfully created new webinar", { webinarID })
+    }
   },
 
-  getToken: async (sessionID) => {
-    let token = await opentok.generateToken(sessionID, {
+  getOpenTokSessionID: async (webinarID) => {
+    let webinar = await Webinar.findById(webinarID)
+    if (webinar) {
+      return sendPacket(1, "Sending Webinar's OpenTok SessionID", { opentokSessionID: webinar.opentokSessionID })
+    }
+  },
+
+  getOpenTokToken: async (sessionID) => {
+    return await opentok.generateToken(sessionID, {
       role: 'publisher',
       data: 'username=johndoe'
     })
-
-    return token
-
-    // let session = OT.initSession(OPENTOK_API_KEY, sessionID)
-    // session.connect(token, function (error) {
-    //   if (error) {
-    //     log("error", error.name + error.message);
-    //   } else {
-    //     log('info', 'Connected to the session');
-    //   }
-    // });
   }
 }
