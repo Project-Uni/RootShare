@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
 import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
-import StreamHolder from './webinar-platform/stream-handling/StreamHolder'
+import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder'
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
               <HypeAdditionalInfo />
             </Route>
             <Route exact path="/webinar">
-              <StreamHolder />
+              <PublisherStreamHolder />
             </Route>
           </Switch>
         </div>

@@ -6,7 +6,7 @@ const { OPENTOK_API_KEY } = require('../../keys.json')
 
 type Props = {}
 
-function StreamHolder(props: Props) {
+function PublisherStreamHolder(props: Props) {
 
   function handleError(error: any) {
     if (error) {
@@ -52,6 +52,11 @@ function StreamHolder(props: Props) {
     }
 
     const session = OT.initSession(OPENTOK_API_KEY, sessionID)
+
+    session.on("streamCreated", function (event) {
+      session.subscribe(event.stream);
+    });
+
     session.connect(tokenData.content.token, function (error) {
       if (error) {
         console.log("Error connecting: ", error.name, error.message);
@@ -72,4 +77,4 @@ function StreamHolder(props: Props) {
   )
 }
 
-export default StreamHolder
+export default PublisherStreamHolder
