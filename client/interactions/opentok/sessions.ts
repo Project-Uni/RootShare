@@ -16,7 +16,7 @@ module.exports = {
       if (error) {
         log('error', error)
       } else {
-        log('info', `Session ID: ${session.sessionId}`);
+        // log('info', `Session ID: ${session.sessionId}`);
 
         let newSession = new Webinar();
         newSession.opentokSessionID = session.sessionId;
@@ -29,7 +29,6 @@ module.exports = {
           } else {
             webinarID = webinar._id
             log('info', 'Webinar creation successful!')
-            log('info', webinarID)
           }
         });
       }
@@ -48,9 +47,11 @@ module.exports = {
   },
 
   getOpenTokToken: async (sessionID) => {
-    return await opentok.generateToken(sessionID, {
+    let token = await opentok.generateToken(sessionID, {
       role: 'publisher',
       data: 'username=johndoe'
-    })
+    });
+
+    return sendPacket(1, "Sending Token", { token })
   }
 }
