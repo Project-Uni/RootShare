@@ -70,6 +70,9 @@ function HypeParticipatingOrganizations(props: Props) {
     "Purdue Marketing Association",
     "Psi Upsilon",
     "Purdue Engineering Student Foundation",
+    "Purdue Engineering Student Council",
+    "Purdue Women's Volleyball Club",
+    "Women in Aerospace",
   ].sort();
 
   function renderOrganizations() {
