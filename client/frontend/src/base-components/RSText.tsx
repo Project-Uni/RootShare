@@ -22,7 +22,7 @@ type Props = {
   bold?: boolean;
   italic?: boolean;
   size?: number;
-  style?: string;
+  className?: string;
   children: React.ReactNode;
 };
 
@@ -37,7 +37,7 @@ function RSText(props: Props) {
         type === "head" ? styles.title : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
-        props.style ? props.style : null,
+        props.className ? props.className : null,
       ].join(" ")}
       style={{ fontSize: props.size ? `${props.size}pt` : "12pt" }}
     >

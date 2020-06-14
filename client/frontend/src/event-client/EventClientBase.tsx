@@ -2,9 +2,9 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import EventClientHeader from "./EventClientHeader";
-import EventClientVideoPlayer from "./EventClientVideoPlayer";
+import EventClientVideoPlayer from "./event-video/EventClientVideoPlayer";
 import EventClientAdvertisement from "./EventClientAdvertisement";
-import EventClientMessageContainer from "./EventMessageContainer";
+import EventClientMessageContainer from "./event-messages/EventMessageContainer";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -12,7 +12,11 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "space-between",
   },
-  left: {},
+  left: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
   right: {},
 }));
 
@@ -25,8 +29,8 @@ function EventClientBase(props: Props) {
       <EventClientHeader />
       <div className={styles.body}>
         <div className={styles.left}>
-          <EventClientVideoPlayer />
-          <EventClientAdvertisement />
+          <EventClientVideoPlayer height={505} width={720} />
+          <EventClientAdvertisement height={100} width={720} />
         </div>
         <div className={styles.right}>
           <EventClientMessageContainer />

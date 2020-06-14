@@ -4,20 +4,24 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   videoContent: {
-    width: 640,
-    height: 480,
     background: "black",
   },
 }));
 
-type Props = {};
+type Props = {
+  height: number;
+  width: number;
+};
 
 function EventClientVideoPlayer(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
       {/* TODO-Remove this tag (videoContent) and replace it with the actual video player code */}
-      <div className={styles.videoContent}></div>
+      <div
+        className={styles.videoContent}
+        style={{ height: props.height, width: props.width }}
+      ></div>
     </div>
   );
 }

@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   adbox: {
-    width: 640,
-    height: 180,
+    height: "100%",
+    width: "100%",
     background: "lightblue",
     display: "flex",
     flexDirection: "column",
@@ -13,12 +13,18 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  height: number;
+  width: number;
+};
 
 function EventClientAdvertisement(props: Props) {
   const styles = useStyles();
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{ height: props.height, width: props.width }}
+    >
       {/* TODO - Remove this adbox and replace with actual ad content */}
       <div className={styles.adbox}>
         <p style={{ margin: 0 }}>
