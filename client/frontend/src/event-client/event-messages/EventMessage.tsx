@@ -25,6 +25,8 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "space-between",
     margin: 0,
+    //Questionable decision by me here below, but lets go with it for now
+    marginTop: -10,
   },
   likeCount: {
     margin: 0,
