@@ -1,12 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, IconButton } from "@material-ui/core";
 import RootShareLogoWhite from "../images/RootShareLogoWhite.png";
-// import GroupAddIcon from "@material-ui/icons/GroupAdd";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+
 import { MdGroupAdd, MdAccountCircle } from "react-icons/md";
 import { IoMdText } from "react-icons/io";
 import { FaRegCalendarAlt } from "react-icons/fa";
+
+import EventDrawer from "./EventDrawer";
+import {
+  CalendarDrawer,
+  ConnectionsDrawer,
+  MessagesDrawer,
+  ProfileDrawer,
+} from "./drawer-components";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -31,21 +38,41 @@ type Props = {};
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
+  const [drawerContent, setDrawerContent] = useState("");
+
+  function handleDrawerClose() {
+    setDrawerContent("");
+  }
 
   function handleConnectionsClick() {
-    console.log("Connections icon clicked");
+    setDrawerContent("connections");
   }
 
   function handleMessagesClick() {
-    console.log("Messages clicked");
+    setDrawerContent("messages");
   }
 
   function handleCalendarClick() {
-    console.log("Calendar clicked");
+    setDrawerContent("calendar");
   }
 
   function handleProfileClick() {
-    console.log("Profile clicked");
+    setDrawerContent("profile");
+  }
+
+  function getDrawerContent() {
+    switch (drawerContent) {
+      case "connections":
+        return <ConnectionsDrawer />;
+      case "calendar":
+        return <CalendarDrawer />;
+      case "messages":
+        return <MessagesDrawer />;
+      case "profile":
+        return <ProfileDrawer />;
+      default:
+        return null;
+    }
   }
 
   function renderIcons() {
@@ -84,6 +111,12 @@ function EventClientHeader(props: Props) {
 
           <div className={styles.icons}>{renderIcons()}</div>
         </Toolbar>
+        <EventDrawer
+          open={Boolean(drawerContent)}
+          handleClose={handleDrawerClose}
+        >
+          {getDrawerContent()}
+        </EventDrawer>
       </AppBar>
     </div>
   );
