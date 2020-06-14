@@ -5,7 +5,8 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
 import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
-import HypeAdditionalComplete from "./hype-page/additional-info/HypeAdditionalComplete"
+
+import EventClientBase from "./event-client/EventClientBase";
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
             </Route>
             <Route exact path="/profile/initialize">
               <HypeAdditionalInfo />
+            </Route>
+            <Route exact path="/event/:eventid">
+              <EventClientBase />
             </Route>
           </Switch>
         </div>
