@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextField, IconButton } from "@material-ui/core";
 import { MdSend } from "react-icons/md";
+import { FaRegSmile } from "react-icons/fa";
 import RSText from "../../base-components/RSText";
 
 import EventMessage from "./EventMessage";
@@ -52,6 +53,10 @@ function EventMessageContainer(props: Props) {
     setMessage("");
   }
 
+  function handleEmojiClick() {
+    console.log("Clicked on emoji button");
+  }
+
   function testRenderMessages() {
     const output = [];
     for (let i = 0; i <= 20; i++) {
@@ -84,8 +89,11 @@ function EventMessageContainer(props: Props) {
           onChange={handleMessageChange}
           value={message}
         />
+        <IconButton onClick={handleEmojiClick}>
+          <FaRegSmile size={18} color="gray" />
+        </IconButton>
         <IconButton onClick={handleSendMessage}>
-          <MdSend color="#3D66DE" />
+          <MdSend color="#3D66DE" size={20} />
         </IconButton>
       </div>
     </div>
