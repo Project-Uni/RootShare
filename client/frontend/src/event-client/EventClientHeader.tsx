@@ -84,6 +84,8 @@ function EventClientHeader(props: Props) {
         >
           <MdGroupAdd size={32} color="white" />
         </IconButton>
+        {/* TODO - Discuss if we want to keep messages drawer on the event platform initially.
+        Reason - Increase dev time */}
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
           <IoMdText size={32} color="white" />
         </IconButton>

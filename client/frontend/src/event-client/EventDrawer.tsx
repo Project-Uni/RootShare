@@ -2,10 +2,22 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Drawer } from "@material-ui/core";
 
+import RootShareLogoFullWhite from "../images/RootShareLogoFullWhite.png";
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
   drawerPaper: {
     background: "#3D66DE",
+  },
+  logoDiv: {
+    marginTop: 20,
+    textAlign: "center",
+  },
+  logo: {
+    height: "75px",
+  },
+  drawerWrapper: {
+    marginLeft: 20,
+    marginRight: 20,
   },
 }));
 
@@ -26,7 +38,17 @@ function EventDrawer(props: Props) {
       onClose={props.handleClose}
       classes={{ paper: styles.drawerPaper }}
     >
-      {props.children}
+      <div className={styles.drawerWrapper}>
+        <div className={styles.logoDiv}>
+          <img
+            src={RootShareLogoFullWhite}
+            alt="RootShare"
+            className={styles.logo}
+          />
+        </div>
+
+        {props.children}
+      </div>
     </Drawer>
   );
 }
