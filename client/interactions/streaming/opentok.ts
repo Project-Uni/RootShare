@@ -4,7 +4,7 @@ var Webinar = mongoose.model('webinars')
 import axios from 'axios'
 const jwt = require('njwt')
 
-const { OPENTOK_API_KEY, OPENTOK_API_SECRET, JWT_KEY } = require('../../../keys/keys.json')
+const { OPENTOK_API_KEY, OPENTOK_API_SECRET, BASE_64_MUX } = require('../../../keys/keys.json')
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET)
 
 import log from '../../helpers/logger'
@@ -73,26 +73,23 @@ module.exports = {
   },
 
   createMuxStream: () => {
-    // const muxReqBody = {
-    //   "reconnect_window": 60,
-    //   "playback_policy": [
-    //     "public"
-    //   ],
-    //   "new_asset_settings": {
-    //     "playback_policy": [
-    //       "public"
-    //     ],
-    //     "input": []
-    //   },
-    //   "passthrough": "You shall pass!",
-    //   "reduced_latency": true,
-    //   "simulcast_targets": [],
-    //   "test": true
-    // }
-    // const options = {
-    //   user: { 'X-OPENTOK-AUTH': JWT }
-    // }
-    // axios.post('https://api.mux.com/video/v1/live-streams')
+    const muxReqBody = {
+      "playback_policy": ["public"],
+      "new_asset_settings": {
+        "playback_policy": ["public"]
+      }
+    }
+    const options = {
+      headers: { "Authorization": BASE_64_MUX }
+    }
+    axios.post('https://api.mux.com/video/v1/live-streams',
+      muxReqBody,
+      options
+    ).then((response) => {
+      console.log(response.data)
+    }).catch((err) => {
+      log('error', err)
+    })
   },
 
   createOpenTokStream: async (sessionID) => {
