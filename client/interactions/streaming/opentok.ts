@@ -73,7 +73,7 @@ module.exports = {
   },
 
   createMuxStream: () => {
-    const muxOptions = {
+    const muxReqBody = {
       "reconnect_window": 60,
       "playback_policy": [
         "public"
@@ -88,6 +88,9 @@ module.exports = {
       "reduced_latency": true,
       "simulcast_targets": [],
       "test": true
+    }
+    const options = {
+      user: { 'X-OPENTOK-AUTH': JWT }
     }
     axios.post('https://api.mux.com/video/v1/live-streams')
   },
