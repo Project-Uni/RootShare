@@ -6,6 +6,7 @@ import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
 import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
 import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder'
+import ViewerStreamHolder from './webinar-platform/stream-handling/ViewerStreamHolder'
 
 function App() {
   return (
@@ -22,8 +23,11 @@ function App() {
             <Route exact path="/profile/initialize">
               <HypeAdditionalInfo />
             </Route>
-            <Route exact path="/webinar">
+            <Route exact path="/webinar/publisher">
               <PublisherStreamHolder />
+            </Route>
+            <Route exact path="/webinar/viewer">
+              <ViewerStreamHolder />
             </Route>
           </Switch>
         </div>

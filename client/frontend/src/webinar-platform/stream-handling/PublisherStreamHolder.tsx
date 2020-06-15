@@ -1,8 +1,14 @@
 import React from 'react'
 import OT from '@opentok/client'
 import axios from 'axios'
+import { makeStyles } from "@material-ui/core/styles"
+import log from '../../helpers/logger'
+
 const { OPENTOK_API_KEY } = require('../../keys.json')
 
+const useStyles = makeStyles((_: any) => ({
+  wrapper: {},
+}));
 
 type Props = {}
 
@@ -28,6 +34,7 @@ function PublisherStreamHolder(props: Props) {
     if (OT.checkSystemRequirements() !== 1) {
       // The client does not support WebRTC.
       // You can display your own message.
+      // console.log('error', "This device does not support WebRTC")
       return
     }
 
@@ -59,9 +66,9 @@ function PublisherStreamHolder(props: Props) {
 
     session.connect(tokenData.content.token, function (error) {
       if (error) {
-        console.log("Error connecting: ", error.name, error.message);
+        log(error.name, error.message);
       } else {
-        console.log("Connected to the session.");
+        log('info', 'Connected to the session.');
         session.publish(publisher, handleError)
       }
     });
@@ -69,7 +76,7 @@ function PublisherStreamHolder(props: Props) {
 
 
 
-  connectStream("5ee29b4b919e621712d22bee")
+  connectStream("5ee5359e8cb14523a07d136a")
   return (
     <div>
       This is the stream page
