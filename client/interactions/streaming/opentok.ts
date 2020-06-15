@@ -74,6 +74,7 @@ module.exports = {
 
   createMuxStream: () => {
     const muxReqBody = {
+      "test": true,
       "playback_policy": ["public"],
       "new_asset_settings": {
         "playback_policy": ["public"]
