@@ -73,26 +73,26 @@ module.exports = {
   },
 
   createMuxStream: () => {
-    const muxReqBody = {
-      "reconnect_window": 60,
-      "playback_policy": [
-        "public"
-      ],
-      "new_asset_settings": {
-        "playback_policy": [
-          "public"
-        ],
-        "input": []
-      },
-      "passthrough": "You shall pass!",
-      "reduced_latency": true,
-      "simulcast_targets": [],
-      "test": true
-    }
-    const options = {
-      user: { 'X-OPENTOK-AUTH': JWT }
-    }
-    axios.post('https://api.mux.com/video/v1/live-streams')
+    // const muxReqBody = {
+    //   "reconnect_window": 60,
+    //   "playback_policy": [
+    //     "public"
+    //   ],
+    //   "new_asset_settings": {
+    //     "playback_policy": [
+    //       "public"
+    //     ],
+    //     "input": []
+    //   },
+    //   "passthrough": "You shall pass!",
+    //   "reduced_latency": true,
+    //   "simulcast_targets": [],
+    //   "test": true
+    // }
+    // const options = {
+    //   user: { 'X-OPENTOK-AUTH': JWT }
+    // }
+    // axios.post('https://api.mux.com/video/v1/live-streams')
   },
 
   createOpenTokStream: async (sessionID) => {
