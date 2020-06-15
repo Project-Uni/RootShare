@@ -69,7 +69,8 @@ module.exports = {
   },
 
   startStreaming: (webinarID) => {
-    const muxStreamKey = module.exports.createMuxStream()
+    // const muxStreamKey = module.exports.createMuxStream()
+    module.exports.createOpenTokStream(webinarID)
   },
 
   createMuxStream: () => {
@@ -102,14 +103,7 @@ module.exports = {
       "jti": "jwt_nonce"
     }
     const JWT = jwt.create(claims, OPENTOK_API_SECRET).compact()
-    log("jwt", JWT)
-    jwt.verify(JWT, OPENTOK_API_SECRET, (err, verifiedJwt) => {
-      if (err) {
-        console.log(err.message)
-      } else {
-        console.log(verifiedJwt)
-      }
-    })
+    console.log(JWT)
     const options = {
       headers: { 'X-OPENTOK-AUTH': JWT }
     }
@@ -120,11 +114,10 @@ module.exports = {
       },
       "maxDuration": 5400,
       "outputs": {
-        "hls": {},
-        "rtmp": [{
-          "serverUrl": "rtmp://global-live.mux.com:5222/app",
-          "streamName": "RootShareWebinarStream"
-        }]
+        "rtmp": {
+          "serverUrl": "rtmps://global-live.mux.com:443/app",
+          "streamName": "1ab28d31-bfca-9762-4745-346b4cda8d83"
+        }
       },
       "resolution": "1280x720"
     }
@@ -134,7 +127,8 @@ module.exports = {
       openTokReqBody,
       options
     ).then((response) => {
-      log('info', response.data)
+      // log('info', response.data)
+      console.log(response.data)
     }).catch((err) => {
       log('error', err)
     })
