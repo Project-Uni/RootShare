@@ -1,6 +1,7 @@
 const OpenTok = require('opentok')
 var mongoose = require('mongoose')
 var Webinar = mongoose.model('webinars')
+var User = mongoose.model('users')
 import axios from 'axios'
 const jwt = require('njwt')
 
@@ -12,6 +13,9 @@ import sendPacket from '../../helpers/sendPacket'
 import { resolve } from 'dns'
 
 module.exports = {
+  // Create Webinar and Opentok Session
+  // Set creating User as the Event Host
+
   createSession: async (userID) => {
     let webinarID
 
@@ -43,13 +47,36 @@ module.exports = {
     }
 
     await createHelper()
-    if (webinarID !== undefined) {
-      return sendPacket(1, "Successfully created new webinar", { webinarID })
-    } else {
-      return sendPacket(-1, "Could not create new webinar")
+    if (webinarID === undefined) {
+      log('error', 'There was an error creating a new webinar')
+      return sendPacket(-1, "There was an error creating a new webinar")
     }
+
+    // Add Webinar to User's List of Events
+    let currUser = await User.findById(userID)
+    currUser.RSVPWebinars.push(webinarID)
+    console.log('appended to list')
+    currUser.save()
+    log('info', "Successfully created new webinar")
+    return sendPacket(1, "Successfully created new webinar", { webinarID })
   },
 
+  getLatestWebinarID: async (userID) => {
+    const currUser = await User.findById(userID)
+
+    if (!currUser) {
+      return sendPacket(-1, 'Could not find User')
+    }
+    const RSVPCount = currUser.RSVPWebinars.length
+    if (RSVPCount == 0) {
+      return sendPacket(0, 'User Has no Webinars')
+    }
+
+    const webinarID = currUser.RSVPWebinars[RSVPCount - 1]
+    return sendPacket(1, "Sending Latest Webinar ID", { webinarID })
+  },
+
+  // Retrive Session ID from DB 
   getOpenTokSessionID: async (webinarID) => {
     let webinar = await Webinar.findById(webinarID)
     if (webinar) {
@@ -59,6 +86,7 @@ module.exports = {
     }
   },
 
+  // Generate Token for each Viewer/Publisher/Host client
   getOpenTokToken: async (sessionID) => {
     let token = await opentok.generateToken(sessionID, {
       role: 'publisher',
@@ -68,12 +96,69 @@ module.exports = {
     return sendPacket(1, "Sending Token", { token })
   },
 
-  startStreaming: (webinarID) => {
-    // const muxStreamKey = module.exports.createMuxStream()
-    module.exports.createOpenTokStream(webinarID)
+  stopStreaming: async (webinarID) => {
+    let currWebinar = await Webinar.findById(webinarID)
+    const { opentokBroadCastID, muxLiveStreamID } = currWebinar
+    currWebinar.opentokBroadCastID = ""
+    currWebinar.muxStreamKey = ""
+    currWebinar.muxLiveStreamID = ""
+    currWebinar.save()
+
+    // Stop OpenTok Broadcast
+    const JWT = module.exports.createOpenTokJWT()
+    axios.post(
+      `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/broadcast/${opentokBroadCastID}/stop`,
+      {},
+      {
+        headers: { 'X-OPENTOK-AUTH': JWT }
+      }
+    ).then((response) => {
+      log('info', `OpenTok Broadcast Successfully Ended`)
+    }).catch((err) => {
+      log('error', err)
+    })
+
+    return sendPacket(1, "Successfully Stopped Streaming", { webinarID })
+    // Mux Live Stream will go IDLE after reconnect window ends (60 seconds)
   },
 
-  createMuxStream: () => {
+  startStreaming: async (webinarID) => {
+    module.exports.stopStreaming(webinarID)
+
+    const sessionPacket = await module.exports.getOpenTokSessionID(webinarID)
+    if (sessionPacket.success !== 1) {
+      return sessionPacket
+    }
+    const { opentokSessionID } = sessionPacket.content
+
+    const muxPacket = await module.exports.createMuxStream()
+    if (muxPacket.success !== 1) {
+      return muxPacket
+    }
+    const { muxStreamKey, muxLiveStreamID } = muxPacket.content
+
+    const broadcastPacket = await module.exports.createOpenTokStream(opentokSessionID)
+    if (broadcastPacket.success !== 1) {
+      return broadcastPacket
+    }
+    const { opentokBroadCastID } = muxPacket.content
+
+    let currWebinar = await Webinar.findById(webinarID)
+    currWebinar.muxStreamKey = muxStreamKey
+    currWebinar.muxLiveStreamID = muxLiveStreamID
+    currWebinar.opentokBroadcastID = opentokBroadCastID
+    currWebinar.save()
+
+    log('info', 'Successfully Started Streaming on Our Platform')
+    return sendPacket(
+      1,
+      "Successfully Started Streaming on Our Platform",
+      { webinarID }
+    )
+  },
+
+  createMuxStream: async () => {
+    let muxStreamKey, muxLiveStreamID
     const muxReqBody = {
       "test": true,
       "playback_policy": ["public"],
@@ -84,26 +169,28 @@ module.exports = {
     const options = {
       headers: { "Authorization": BASE_64_MUX }
     }
-    axios.post('https://api.mux.com/video/v1/live-streams',
+    await axios.post('https://api.mux.com/video/v1/live-streams',
       muxReqBody,
       options
     ).then((response) => {
-      console.log(response.data)
+      muxStreamKey = response.data.data.stream_key
+      muxLiveStreamID = response.data.data.id
     }).catch((err) => {
       log('error', err)
     })
+
+    if (muxStreamKey !== undefined) {
+      log('info', 'Sending Mux Live Stream Keys')
+      return sendPacket(1, "Sending Mux Live Stream Keys", { muxStreamKey, muxLiveStreamID })
+    } else {
+      log('error', 'Error Creating Mux Live Stream')
+      return sendPacket(-1, "Error Creating Mux Live Stream")
+    }
   },
 
-  createOpenTokStream: async (sessionID) => {
-    const claims = {
-      "iss": OPENTOK_API_KEY,
-      "ist": "project",
-      "iat": Math.floor(Date.now() / 1000),
-      "exp": Math.floor(Date.now() / 1000) + 300,
-      "jti": "jwt_nonce"
-    }
-    const JWT = jwt.create(claims, OPENTOK_API_SECRET).compact()
-    console.log(JWT)
+  createOpenTokStream: async (sessionID, muxStreamKey) => {
+    let opentokBroadCastID
+    const JWT = module.exports.createOpenTokJWT()
     const options = {
       headers: { 'X-OPENTOK-AUTH': JWT }
     }
@@ -116,22 +203,41 @@ module.exports = {
       "outputs": {
         "rtmp": {
           "serverUrl": "rtmps://global-live.mux.com:443/app",
-          "streamName": "1ab28d31-bfca-9762-4745-346b4cda8d83"
+          "streamName": muxStreamKey
         }
       },
       "resolution": "1280x720"
     }
 
-    axios.post(
+    await axios.post(
       `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/broadcast`,
       openTokReqBody,
       options
     ).then((response) => {
-      // log('info', response.data)
-      console.log(response.data)
+      opentokBroadCastID = response.data.id
     }).catch((err) => {
       log('error', err)
     })
+
+    if (opentokBroadCastID !== undefined) {
+      log('info', 'Sending OpenTok Broadcast ID')
+      return sendPacket(1, "Sending OpenTok Broadcast ID", { opentokBroadCastID })
+    } else {
+      log('error', 'Error Creating OpenTok Broadcast')
+      return sendPacket(-1, "Error Creating OpenTok Broadcast")
+    }
+  },
+
+  createOpenTokJWT: () => {
+    const claims = {
+      "iss": OPENTOK_API_KEY,
+      "ist": "project",
+      "iat": Math.floor(Date.now() / 1000),
+      "exp": Math.floor(Date.now() / 1000) + 300,
+      "jti": "jwt_nonce"
+    }
+
+    return jwt.create(claims, OPENTOK_API_SECRET).compact()
   }
 
 }

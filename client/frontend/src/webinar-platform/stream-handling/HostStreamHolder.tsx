@@ -74,8 +74,27 @@ function PublisherStreamHolder(props: Props) {
     });
   }
 
-  function connectToLatestWebinar() {
-    axios.get('/webinar/latestWebinarID')
+  async function getLatestWebinarID() {
+    return await axios.get('/webinar/latestWebinarID')
+      .then((response) => {
+        return response.data.content.webinarID
+      }).catch((err) => {
+        log('error', err)
+      })
+  }
+
+  async function startLiveStreaming() {
+    const webinarID = await getLatestWebinarID()
+    axios.post('/webinar/startStreaming', { webinarID })
+  }
+
+  async function stopLiveStreaming() {
+    const webinarID = await getLatestWebinarID()
+    axios.post('/webinar/stopStreaming', { webinarID })
+  }
+
+  async function createSession() {
+    await axios.get('/webinar/createSession')
       .then((response) => {
         connectStream(response.data.content.webinarID)
       }).catch((err) => {
@@ -83,11 +102,12 @@ function PublisherStreamHolder(props: Props) {
       })
   }
 
-
-  connectToLatestWebinar()
   return (
     <div>
-      This is the Publisher page
+      This is the Host page
+      <button onClick={createSession}>Create New Session</button>
+      <button onClick={startLiveStreaming}>Start Live Streaming</button>
+      <button onClick={stopLiveStreaming}>Stop Live Streaming</button>
     </div>
   )
 }
