@@ -65,7 +65,7 @@ function EventMessageContainer(props: Props) {
           <EventMessage
             senderName="Billy Joel"
             senderId="1001"
-            message="Hello world! I akjsndkja kajsdka kjansdka kajska dakjasnajjs Sending One two three four five!"
+            message="Hello world! I'm Sending One two three four five!"
             likes={Math.floor(Math.random() * 1000 + 1)}
           />
         </div>

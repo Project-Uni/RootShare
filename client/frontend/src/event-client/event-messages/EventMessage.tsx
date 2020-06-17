@@ -20,6 +20,7 @@ const useStyles = makeStyles((_: any) => ({
   message: {
     margin: 0,
     textAlign: "left",
+    wordBreak: "break-all",
   },
   bottom: {
     display: "flex",
