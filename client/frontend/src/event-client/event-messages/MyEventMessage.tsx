@@ -8,9 +8,8 @@ import RSText from "../../base-components/RSText";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: "#202020",
-    paddingBottom: 4
-  },
+    background: "#333333",
+    paddingBottom: 4},
   top: {
     display: "flex",
     justifyContent: "space-between",
@@ -88,10 +87,8 @@ function EventMessage(props: Props) {
           <IconButton onClick={handleLikeClicked}>
             {liked ? (
               <FaStar color="#6699ff" size={14} />
-              //faHeart #800000
             ) : (
               <FaRegStar color="grey" size={14} />
-              //faRegHeart #800000
             )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>

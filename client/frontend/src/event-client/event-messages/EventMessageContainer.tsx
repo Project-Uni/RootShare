@@ -6,6 +6,7 @@ import { FaRegSmile } from "react-icons/fa";
 import RSText from "../../base-components/RSText";
 
 import EventMessage from "./EventMessage";
+import MyEventMessage from "./MyEventMessage"
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -19,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     display: "block",
   },
   messageTest: {
-    marginBottom: 7,
+  //  marginBottom: 4,
   },
   textFieldContainer: {
     display: "flex",
@@ -28,17 +29,24 @@ const useStyles = makeStyles((_: any) => ({
     borderTop: "1px solid #3D66DE",
   },
   textField: {
-    width: 225,
+    width: 200,
   },
   messageContainer: {
     flex: 1,
     justifyContent: "flex-end",
-    background: "lightgray",
+    background: "white",
     overflow: "scroll",
-  },
+  }
 }));
 
 type Props = {};
+
+function GetDate() {
+  var tempDate = new Date();
+  var date = tempDate.getHours()+':'+ tempDate.getMinutes();
+  const currDate = ""+date;
+  return currDate;
+}
 
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
@@ -59,14 +67,36 @@ function EventMessageContainer(props: Props) {
 
   function testRenderMessages() {
     const output = [];
-    for (let i = 0; i <= 20; i++) {
+    for (let i = 0; i <= 10; i++) {
       output.push(
         <div className={styles.messageTest}>
           <EventMessage
-            senderName="Billy Joel"
+            senderName="Henny C."
             senderId="1001"
-            message="Hello world! I akjsndkja kajsdka kjansdka kajska dakjasnajjs Sending One two three four five!"
+            message="Who do you know here?"
             likes={Math.floor(Math.random() * 1000 + 1)}
+            time={GetDate()}
+          />
+          <EventMessage
+            senderName="Nat E. Lite"
+            senderId="1001"
+            message="Who do you know here?"
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={GetDate()}
+          />
+          <EventMessage
+            senderName="Kapt N. Morgan"
+            senderId="1001"
+            message="Rush Rho Sigma!! (Root Share)"
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={GetDate()}
+          />
+          <MyEventMessage
+            senderName="Nick O'teen"
+            senderId="1002"
+            message="We have a strict no hazing policy."
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={GetDate()}
           />
         </div>
       );
@@ -75,9 +105,6 @@ function EventMessageContainer(props: Props) {
   }
   return (
     <div className={styles.wrapper}>
-      <RSText type="head" bold italic size={24} className={styles.headerText}>
-        Messages
-      </RSText>
       <div className={styles.messageContainer}>{testRenderMessages()}</div>
 
       <div className={styles.textFieldContainer}>

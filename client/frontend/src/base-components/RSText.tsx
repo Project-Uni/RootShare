@@ -3,10 +3,12 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((_: any) => ({
   title: {
-    fontFamily: "Ubuntu",
+    fontFamily: "Raleway",
+    color: "white"
   },
   normal: {
-    fontFamily: "Lora",
+    fontFamily: "Lato",
+    color: "white"
   },
   bold: {
     fontWeight: "bold",
