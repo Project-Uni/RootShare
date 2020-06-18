@@ -7,7 +7,9 @@ var webinarSchema = new Schema({
   attendees: [{ type: Schema.ObjectId, ref: "users" }],
   opentokSessionID: String,
   opentokBroadcastID: String,
-  muxStreamKEy: String
+  muxStreamKey: String,
+  muxLiveStreamID: String,
+  muxPlaybackID: String
 })
 
 mongoose.model('webinars', webinarSchema)

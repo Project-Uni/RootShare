@@ -36,7 +36,6 @@ module.exports = {
                 log('error', err)
                 return reject(err)
               } else {
-                log('info', `Webinar creation successful!`)
                 webinarID = webinar._id
                 return resolve(session)
               }
@@ -55,7 +54,6 @@ module.exports = {
     // Add Webinar to User's List of Events
     let currUser = await User.findById(userID)
     currUser.RSVPWebinars.push(webinarID)
-    console.log('appended to list')
     currUser.save()
     log('info', "Successfully created new webinar")
     return sendPacket(1, "Successfully created new webinar", { webinarID })
@@ -96,34 +94,51 @@ module.exports = {
     return sendPacket(1, "Sending Token", { token })
   },
 
+  getMuxPlaybackID: async (webinarID) => {
+    const currWebinar = await Webinar.findById(webinarID)
+
+    if (!currWebinar) {
+      return sendPacket(-1, "No Webinar exists with this ID")
+    }
+    if (!currWebinar.muxPlaybackID || currWebinar.muxPlaybackID.localeCompare("") === 0) {
+      return sendPacket(-1, "Mux Live Stream has not started yet")
+    }
+
+    const { muxPlaybackID } = currWebinar
+    return sendPacket(1, "Sending Mux Playback ID", { muxPlaybackID })
+  },
+
   stopStreaming: async (webinarID) => {
     let currWebinar = await Webinar.findById(webinarID)
-    const { opentokBroadCastID, muxLiveStreamID } = currWebinar
-    currWebinar.opentokBroadCastID = ""
+    const { opentokBroadcastID } = currWebinar
+    currWebinar.opentokBroadcastID = ""
     currWebinar.muxStreamKey = ""
     currWebinar.muxLiveStreamID = ""
+    currWebinar.muxPlaybackID = ""
     currWebinar.save()
 
     // Stop OpenTok Broadcast
     const JWT = module.exports.createOpenTokJWT()
-    axios.post(
-      `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/broadcast/${opentokBroadCastID}/stop`,
-      {},
-      {
-        headers: { 'X-OPENTOK-AUTH': JWT }
-      }
-    ).then((response) => {
-      log('info', `OpenTok Broadcast Successfully Ended`)
-    }).catch((err) => {
-      log('error', err)
-    })
+    if (opentokBroadcastID !== undefined) {
+      axios.post(
+        `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/broadcast/${opentokBroadcastID}/stop`,
+        {},
+        {
+          headers: { 'X-OPENTOK-AUTH': JWT }
+        }
+      ).then((response) => {
+        log('info', `OpenTok Broadcast Successfully Ended`)
+      }).catch((err) => {
+        log('end_broadcast_error', err)
+      })
+    }
 
     return sendPacket(1, "Successfully Stopped Streaming", { webinarID })
     // Mux Live Stream will go IDLE after reconnect window ends (60 seconds)
   },
 
   startStreaming: async (webinarID) => {
-    module.exports.stopStreaming(webinarID)
+    await module.exports.stopStreaming(webinarID)
 
     const sessionPacket = await module.exports.getOpenTokSessionID(webinarID)
     if (sessionPacket.success !== 1) {
@@ -135,17 +150,18 @@ module.exports = {
     if (muxPacket.success !== 1) {
       return muxPacket
     }
-    const { muxStreamKey, muxLiveStreamID } = muxPacket.content
+    const { muxStreamKey, muxLiveStreamID, muxPlaybackID } = muxPacket.content
 
-    const broadcastPacket = await module.exports.createOpenTokStream(opentokSessionID)
+    const broadcastPacket = await module.exports.createOpenTokStream(opentokSessionID, muxStreamKey)
     if (broadcastPacket.success !== 1) {
       return broadcastPacket
     }
-    const { opentokBroadCastID } = muxPacket.content
+    const { opentokBroadCastID } = broadcastPacket.content
 
     let currWebinar = await Webinar.findById(webinarID)
     currWebinar.muxStreamKey = muxStreamKey
     currWebinar.muxLiveStreamID = muxLiveStreamID
+    currWebinar.muxPlaybackID = muxPlaybackID
     currWebinar.opentokBroadcastID = opentokBroadCastID
     currWebinar.save()
 
@@ -158,7 +174,7 @@ module.exports = {
   },
 
   createMuxStream: async () => {
-    let muxStreamKey, muxLiveStreamID
+    let muxStreamKey, muxLiveStreamID, muxPlaybackID
     const muxReqBody = {
       "test": true,
       "playback_policy": ["public"],
@@ -175,13 +191,14 @@ module.exports = {
     ).then((response) => {
       muxStreamKey = response.data.data.stream_key
       muxLiveStreamID = response.data.data.id
+      muxPlaybackID = response.data.data.playback_ids[0].id
     }).catch((err) => {
-      log('error', err)
+      log('mux_error', err)
     })
 
     if (muxStreamKey !== undefined) {
       log('info', 'Sending Mux Live Stream Keys')
-      return sendPacket(1, "Sending Mux Live Stream Keys", { muxStreamKey, muxLiveStreamID })
+      return sendPacket(1, "Sending Mux Live Stream Keys", { muxStreamKey, muxLiveStreamID, muxPlaybackID })
     } else {
       log('error', 'Error Creating Mux Live Stream')
       return sendPacket(-1, "Error Creating Mux Live Stream")
@@ -202,7 +219,7 @@ module.exports = {
       "maxDuration": 5400,
       "outputs": {
         "rtmp": {
-          "serverUrl": "rtmps://global-live.mux.com:443/app",
+          "serverUrl": "rtmp://global-live.mux.com:5222/app",
           "streamName": muxStreamKey
         }
       },
@@ -216,7 +233,7 @@ module.exports = {
     ).then((response) => {
       opentokBroadCastID = response.data.id
     }).catch((err) => {
-      log('error', err)
+      log('opentok_error', err)
     })
 
     if (opentokBroadCastID !== undefined) {

@@ -1,7 +1,7 @@
 import sendPacket from "../helpers/sendPacket";
 import log from "../helpers/logger";
 const isAuthenticated = require('../passport/middleware/isAuthenticated')
-const { createSession, getOpenTokSessionID, getOpenTokToken, startStreaming, stopStreaming, getLatestWebinarID } = require('../interactions/streaming/opentok')
+const { createSession, getOpenTokSessionID, getOpenTokToken, getMuxPlaybackID, startStreaming, stopStreaming, getLatestWebinarID } = require('../interactions/streaming/opentok')
 
 module.exports = (app) => {
   app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
@@ -25,6 +25,12 @@ module.exports = (app) => {
   app.post('/webinar/getOpenTokToken', isAuthenticated, async (req, res) => {
     const { opentokSessionID } = req.body
     const packet = await getOpenTokToken(opentokSessionID)
+    res.json(packet)
+  })
+
+  app.post('/webinar/getMuxPlaybackID', isAuthenticated, async (req, res) => {
+    const { webinarID } = req.body
+    const packet = await getMuxPlaybackID(webinarID)
     res.json(packet)
   })
 
