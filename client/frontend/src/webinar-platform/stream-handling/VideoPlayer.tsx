@@ -3,10 +3,7 @@ import videojs from 'video.js'
 import '../../../node_modules/video.js/dist/video-js.css'
 
 interface Props {
-  autoplay: boolean
-  controls: boolean
   src: string
-  type: string
 }
 
 export default class VideoPlayer extends React.Component<Props> {
@@ -16,39 +13,27 @@ export default class VideoPlayer extends React.Component<Props> {
   player: any;
   videoNode: any;
 
-  // componentDidUpdate() {
-  //   console.log("PLAYER IS UPDATING")
-  //   if (this.player) {
-  //     this.player.dispose()
-  //   }
-
-  //   const videoPlayerOptions = {
-  //     autoplay: this.props.autoplay,
-  //     controls: this.props.controls,
-  //     sources: [{
-  //       src: this.props.src,
-  //       type: this.props.type
-  //     }]
-  //   }
-  //   this.player = videojs(this.videoNode, videoPlayerOptions, function onPlayerReady(this: any) {
-  //     // console.log('onPlayerReady', this)
-  //   });
-  // }
-
   componentDidMount() {
-    // instantiate Video.js
-    console.log("COMPONENT MOUNTING")
-
     const videoPlayerOptions = {
-      autoplay: this.props.autoplay,
-      controls: this.props.controls,
+      autoplay: true,
+      controls: true,
       sources: [{
         src: this.props.src,
-        type: this.props.type
+        type: 'application/x-mpegURL'
       }]
     }
-    this.player = videojs(this.videoNode, videoPlayerOptions, function onPlayerReady(this: any) {
-      // console.log('onPlayerReady', this)
+
+    try {
+      this.player = videojs(this.videoNode, videoPlayerOptions, function onPlayerReady(this: any) {
+        // console.log('onPlayerReady', this)
+      })
+    } catch (err) {
+      // console.log(err)
+      console.log('There has been an error')
+    }
+
+    this.player.on('error', function () {
+      // Catch further errors here
     });
   }
 

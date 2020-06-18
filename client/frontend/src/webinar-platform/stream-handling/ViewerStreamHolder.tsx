@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { makeStyles } from "@material-ui/core/styles"
 import axios from 'axios'
 
@@ -14,10 +14,7 @@ type Props = {}
 
 function ViewerStreamHolder(props: Props) {
   const styles = useStyles()
-  const autoplay = true
-  const controls = true
-  let src = 'http://www.streambox.fr/playlists/test_001/stream.m3u8'
-  const type = 'application/x-mpegURL'
+  const [src, setSrc] = useState('')
 
   async function setSourceToLatestWebinarID() {
     const webinarID = await axios.get('/webinar/latestWebinarID')
@@ -28,11 +25,15 @@ function ViewerStreamHolder(props: Props) {
       })
 
     axios.post('/webinar/getMuxPlaybackID', { webinarID })
-      .then((response) => {
+      .then(async (response) => {
         const { success, message } = response.data
         if (success === 1) {
           const { muxPlaybackID } = response.data.content
-          src = `https://stream.mux.com/${muxPlaybackID}.m3u8`
+          const source = `https://stream.mux.com/${muxPlaybackID}.m3u8`
+          const streamExists = await checkStreamExists(source)
+          if (streamExists) {
+            setSrc(source)
+          }
         } else {
           log('error', message)
         }
@@ -41,22 +42,24 @@ function ViewerStreamHolder(props: Props) {
       })
   }
 
-  function testFunction() {
-    src = `http://www.streambox.fr/playlists/test_001/stream.m3u8`
+  async function checkStreamExists(source: string) {
+    return await axios.get(source)
+      .then((response) => {
+        return true
+      }).catch((err) => {
+        return false
+      })
   }
-
 
   setSourceToLatestWebinarID()
   return (
-    <div className={styles.wrapper}>
-      <VideoPlayer
-        autoplay={autoplay}
-        controls={controls}
-        src={src}
-        type={type}
-      />
-      <button onClick={testFunction}>TEST</button>
-    </div>
+    (src.localeCompare('') === 0) ?
+      <div></div> :
+      <div className={styles.wrapper}>
+        <VideoPlayer
+          src={src}
+        />
+      </div>
   )
 }
 

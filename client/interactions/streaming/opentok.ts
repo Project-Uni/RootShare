@@ -84,7 +84,7 @@ module.exports = {
     }
   },
 
-  // Generate Token for each Viewer/Publisher/Host client
+  // Generate Token for each Publisher/Host client
   getOpenTokToken: async (sessionID) => {
     let token = await opentok.generateToken(sessionID, {
       role: 'publisher',
@@ -119,7 +119,7 @@ module.exports = {
 
     // Stop OpenTok Broadcast
     const JWT = module.exports.createOpenTokJWT()
-    if (opentokBroadcastID !== undefined) {
+    if (opentokBroadcastID !== undefined && opentokBroadcastID.localeCompare("") !== 0) {
       axios.post(
         `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/broadcast/${opentokBroadcastID}/stop`,
         {},
@@ -200,7 +200,7 @@ module.exports = {
       log('info', 'Sending Mux Live Stream Keys')
       return sendPacket(1, "Sending Mux Live Stream Keys", { muxStreamKey, muxLiveStreamID, muxPlaybackID })
     } else {
-      log('error', 'Error Creating Mux Live Stream')
+      log('mux_error', 'Error Creating Mux Live Stream')
       return sendPacket(-1, "Error Creating Mux Live Stream")
     }
   },
@@ -234,6 +234,7 @@ module.exports = {
       opentokBroadCastID = response.data.id
     }).catch((err) => {
       log('opentok_error', err)
+      console.log('context', openTokReqBody, options, OPENTOK_API_KEY)
     })
 
     if (opentokBroadCastID !== undefined) {
