@@ -8,12 +8,13 @@ import RSText from "../../base-components/RSText";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: "#202020",
+    background: "#333333",
     paddingBottom: 4,
   },
   top: {
     display: "flex",
     justifyContent: "space-between",
+    paddingTop: 5,
   },
   left: {},
   right: {},
@@ -33,8 +34,8 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "space-between",
     margin: 0,
-    //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
+    paddingBottom: 5,
   },
   likeCount: {
     marginTop: -5,
@@ -59,7 +60,7 @@ type Props = {
 };
 
 //TODO ADD likes to messages
-function EventMessage(props: Props) {
+function MyEventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
 
@@ -93,9 +94,7 @@ function EventMessage(props: Props) {
             {liked ? (
               <FaStar color="#6699ff" size={14} />
             ) : (
-              //faHeart #800000
               <FaRegStar color="grey" size={14} />
-              //faRegHeart #800000
             )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>
@@ -107,4 +106,4 @@ function EventMessage(props: Props) {
   );
 }
 
-export default EventMessage;
+export default MyEventMessage;

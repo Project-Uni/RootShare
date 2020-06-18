@@ -2,11 +2,14 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((_: any) => ({
+  base: {
+    margin: 0,
+  },
   title: {
-    fontFamily: "Ubuntu",
+    fontFamily: "Raleway",
   },
   normal: {
-    fontFamily: "Lora",
+    fontFamily: "Lato",
   },
   bold: {
     fontWeight: "bold",
@@ -17,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  type?: "head" | "subhead" | "body";
+  type?: "head" | "subhead" | "body" | "other";
   bold?: boolean;
   italic?: boolean;
   size?: number;
@@ -33,7 +36,12 @@ function RSText(props: Props) {
   return (
     <p
       className={[
-        type === "head" ? styles.title : styles.normal,
+        styles.base,
+        type === "head"
+          ? styles.title
+          : type === "other"
+          ? null
+          : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
         props.className ? props.className : null,
