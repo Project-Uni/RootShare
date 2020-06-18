@@ -78,6 +78,12 @@ function HypeParticipatingOrganizations(props: Props) {
     "Doster Leadership Conference",
     "Fashion and Retail Organization",
     "Consult Your Community",
+    "Purdue Club Sports",
+    "Alpha Xi Delta",
+    "Purdue Chicks",
+    "Purdue Student Governemnt",
+    "Purdue American Association of University Women",
+    "Purdue Think",
   ].sort();
 
   function renderOrganizations() {
