@@ -27,7 +27,6 @@ function PublisherStreamHolder(props: Props) {
       height: '200px'
     }, handleError);
 
-    console.log("publishing webcam")
     session.publish(publisher, handleError)
     return publisher
   }
@@ -158,7 +157,6 @@ function PublisherStreamHolder(props: Props) {
         return new Publisher()
       }
 
-      console.log(prevState.session)
       if (prevState.session === undefined) {
         return recordScreen()
       } else if (prevState.session === null) {
