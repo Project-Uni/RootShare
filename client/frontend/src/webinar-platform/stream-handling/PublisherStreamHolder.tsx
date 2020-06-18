@@ -60,11 +60,11 @@ function PublisherStreamHolder(props: Props) {
 
     const session = OT.initSession(OPENTOK_API_KEY, sessionID)
 
-    session.on("streamCreated", function (event) {
+    session.on("streamCreated", function (event: any) {
       session.subscribe(event.stream);
     });
 
-    session.connect(tokenData.content.token, function (error) {
+    session.connect(tokenData.content.token, function (error: any) {
       if (error) {
         log(error.name, error.message);
       } else {

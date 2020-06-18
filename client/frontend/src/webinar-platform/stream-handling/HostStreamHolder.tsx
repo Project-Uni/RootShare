@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import OT from '@opentok/client'
 import axios from 'axios'
 import { makeStyles } from "@material-ui/core/styles"
@@ -38,6 +38,14 @@ function PublisherStreamHolder(props: Props) {
       return
     }
 
+    OT.checkScreenSharingCapability(function (response: any) {
+      if (!response.supported || response.extensionRegistered === false) {
+        // This browser does not support screen sharing
+      } else {
+        setCanScreenShare(true)
+      }
+    });
+
     const publisher = recordScreen()
     const { data: sessionData } = await axios.post(
       '/webinar/getOpenTokSessionID', {
@@ -60,11 +68,11 @@ function PublisherStreamHolder(props: Props) {
 
     const session = OT.initSession(OPENTOK_API_KEY, sessionID)
 
-    session.on("streamCreated", function (event) {
+    session.on("streamCreated", function (event: any) {
       session.subscribe(event.stream);
     });
 
-    session.connect(tokenData.content.token, function (error) {
+    session.connect(tokenData.content.token, function (error: any) {
       if (error) {
         log(error.name, error.message);
       } else {
@@ -102,12 +110,15 @@ function PublisherStreamHolder(props: Props) {
       })
   }
 
+  const [canScreenShare, setCanScreenShare] = useState(false)
+
   return (
     <div>
       This is the Host page
       <button onClick={createSession}>Create New Session</button>
       <button onClick={startLiveStreaming}>Start Live Streaming</button>
       <button onClick={stopLiveStreaming}>Stop Live Streaming</button>
+      {canScreenShare ? <button>Share Screen</button> : <div></div>}
     </div>
   )
 }

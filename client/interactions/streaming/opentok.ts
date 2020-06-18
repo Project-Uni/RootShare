@@ -219,7 +219,7 @@ module.exports = {
       "maxDuration": 5400,
       "outputs": {
         "rtmp": {
-          "serverUrl": "rtmp://global-live.mux.com:5222/app",
+          "serverUrl": "rtmps://global-live.mux.com:443/app",
           "streamName": muxStreamKey
         }
       },
