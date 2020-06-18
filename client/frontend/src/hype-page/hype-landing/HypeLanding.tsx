@@ -6,6 +6,7 @@ import HypeMobileBody from "./HypeMobileBody";
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
 import HypeParticipatingOrganizations from "./HypeParticipatingOrganizations";
+import HypeEventCountdown from "./HypeEventCountdown";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -18,6 +19,13 @@ function HypeLanding(props: Props) {
   const styles = useStyles();
   const [desktopMode, setDesktopMode] = useState(window.innerWidth >= 1230);
 
+  const event = {
+    eventMonth: 7,
+    eventDay: 14,
+    eventYear: 2020,
+    eventHour: 16, //P
+    eventMinute: 0,
+  };
   useEffect(() => {
     window.addEventListener("resize", updateWindow);
   }, []);
@@ -46,6 +54,9 @@ function HypeLanding(props: Props) {
       ) : (
         <HypeMobileBody eventDescription={eventDescription} />
       )}
+      <div>
+        <HypeEventCountdown {...event} />
+      </div>
       <div className={styles.bottom}>
         <HypeParticipatingOrganizations />
       </div>
