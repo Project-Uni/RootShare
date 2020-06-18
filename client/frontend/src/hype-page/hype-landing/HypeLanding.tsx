@@ -23,7 +23,7 @@ function HypeLanding(props: Props) {
     eventMonth: 7,
     eventDay: 14,
     eventYear: 2020,
-    eventHour: 16, //P
+    eventHour: 16, //Pacific Time
     eventMinute: 0,
   };
   useEffect(() => {
