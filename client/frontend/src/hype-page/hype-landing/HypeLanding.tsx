@@ -50,13 +50,16 @@ function HypeLanding(props: Props) {
       <HypeHeader />
 
       {desktopMode ? (
-        <HypeDesktopBody eventDescription={eventDescription} />
+        <>
+          <HypeDesktopBody eventDescription={eventDescription} />
+          <HypeEventCountdown {...event} mode="desktop" />
+        </>
       ) : (
-        <HypeMobileBody eventDescription={eventDescription} />
+        <>
+          <HypeMobileBody eventDescription={eventDescription} />
+          <HypeEventCountdown {...event} mode="mobile" />
+        </>
       )}
-      <div>
-        <HypeEventCountdown {...event} />
-      </div>
       <div className={styles.bottom}>
         <HypeParticipatingOrganizations />
       </div>

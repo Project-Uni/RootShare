@@ -2,6 +2,9 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((_: any) => ({
+  base: {
+    margin: 0,
+  },
   title: {
     fontFamily: "Ubuntu",
   },
@@ -33,6 +36,7 @@ function RSText(props: Props) {
   return (
     <p
       className={[
+        styles.base,
         type === "head" ? styles.title : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
