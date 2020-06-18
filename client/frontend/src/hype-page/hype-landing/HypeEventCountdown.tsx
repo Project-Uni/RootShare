@@ -11,9 +11,6 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "center",
   },
-  days: {
-    marginRight: 60,
-  },
 }));
 
 type Props = {
@@ -33,6 +30,11 @@ function HypeEventCountdown(props: Props) {
     minutes: 0,
     seconds: 0,
   });
+
+  const bigTextSize = props.mode === "desktop" ? 80 : 36;
+  const smallTextSize = props.mode === "desktop" ? 32 : 16;
+  const dayTimeMargin = props.mode === "desktop" ? 30 : 15;
+
   const eventDate = new Date(
     props.eventYear,
     props.eventMonth,
@@ -84,11 +86,16 @@ function HypeEventCountdown(props: Props) {
       value = "0" + value;
     }
     return (
-      <div className={name === "days" ? styles.days : undefined}>
-        <RSText bold type="head" size={80}>
+      <div
+        style={{
+          marginRight: name === "days" ? dayTimeMargin : 0,
+          marginLeft: name === "hours" ? dayTimeMargin : 0,
+        }}
+      >
+        <RSText bold type="head" size={bigTextSize}>
           {value}
         </RSText>
-        <RSText bold type="head" size={32}>
+        <RSText bold type="head" size={smallTextSize}>
           {name}
         </RSText>
       </div>
@@ -97,17 +104,17 @@ function HypeEventCountdown(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <RSText bold type="head" size={32}>
+      <RSText bold type="head" size={smallTextSize}>
         COUNTDOWN TO LAUNCH
       </RSText>
       <div className={styles.body}>
         {renderSingleTimeObject("days")}
         {renderSingleTimeObject("hours")}
-        <RSText bold type="head" size={80}>
+        <RSText bold type="head" size={bigTextSize}>
           :
         </RSText>
         {renderSingleTimeObject("minutes")}
-        <RSText bold type="head" size={80}>
+        <RSText bold type="head" size={bigTextSize}>
           :
         </RSText>
         {renderSingleTimeObject("seconds")}
