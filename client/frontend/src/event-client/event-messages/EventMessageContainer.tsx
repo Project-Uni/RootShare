@@ -13,39 +13,89 @@ const useStyles = makeStyles((_: any) => ({
     width: "300px",
     display: "flex",
     flexDirection: "column",
-    height: window.innerHeight - 100,
+    height: window.innerHeight,
   },
   headerText: {
     margin: 0,
     display: "block",
   },
-  messageTest: {
-  //  marginBottom: 4,
-  },
+  messageTest: {},
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
-    background: "white",
-    borderTop: "1px solid #3D66DE",
+    background: "#333333",
+    borderTop: "1px solid #333333",
+    color: "#f2f2f2",
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 5,
   },
   textField: {
     width: 200,
+    background: "#333333",
+    color: "#f2f2f2",
+    label: "#f2f2f2"
   },
   messageContainer: {
     flex: 1,
     justifyContent: "flex-end",
     background: "white",
     overflow: "scroll",
-  }
+    label: "#f2f2f2",
+  },
+  input: {
+    color: "#f2f2f2",
+    label: "#f2f2f2",
+    borderWidth: "1px",
+    borderColor: "#6699ff !important",
+  },
+  cssLabel: {
+    color : "#f2f2f2",
+    label: "#f2f2f2",
+  },
+  cssFocused: {
+    color: "#f2f2f2",
+    label: "#f2f2f2",
+    borderWidth: '2px',
+    borderColor: '#f2f2f2 !important',
+  },
+  cssOutlinedInput: {
+    '&$cssFocused $notchedOutline': {
+      color: "#f2f2f2 !important",
+      label: "#f2f2f2 !important",
+      borderWidth: '2px',
+      borderColor: '#f2f2f2 !important',
+    }
+  },
+  notchedOutline: {
+    borderWidth: '2px',
+    label: "#f2f2f2",
+    borderColor: '#f2f2f2 !important',
+    color: "#f2f2f2 !important",
+  },
 }));
 
 type Props = {};
 
-function GetDate() {
-  var tempDate = new Date();
-  var date = tempDate.getHours()+':'+ tempDate.getMinutes();
-  const currDate = ""+date;
-  return currDate;
+function getDate() {
+  let tempDate = new Date();
+
+
+  let ampm = "AM";
+  let hours = tempDate.getHours() === 0
+    ? 12
+    : tempDate.getHours();
+
+  if (tempDate.getHours() > 12) {
+    ampm = "PM";
+    hours = hours - 12;
+  }
+
+  let minutes = tempDate.getMinutes() < 10
+    ? "0" + tempDate.getMinutes()
+    : tempDate.getMinutes();
+
+  return hours + ":" + minutes + " " + ampm;
 }
 
 function EventMessageContainer(props: Props) {
@@ -75,28 +125,28 @@ function EventMessageContainer(props: Props) {
             senderId="1001"
             message="Who do you know here?"
             likes={Math.floor(Math.random() * 1000 + 1)}
-            time={GetDate()}
+            time={getDate()}
           />
           <EventMessage
             senderName="Nat E. Lite"
             senderId="1001"
             message="Who do you know here?"
             likes={Math.floor(Math.random() * 1000 + 1)}
-            time={GetDate()}
+            time={getDate()}
           />
           <EventMessage
             senderName="Kapt N. Morgan"
             senderId="1001"
             message="Rush Rho Sigma!! (Root Share)"
             likes={Math.floor(Math.random() * 1000 + 1)}
-            time={GetDate()}
+            time={getDate()}
           />
           <MyEventMessage
             senderName="Nick O'teen"
             senderId="1002"
             message="We have a strict no hazing policy."
             likes={Math.floor(Math.random() * 1000 + 1)}
-            time={GetDate()}
+            time={getDate()}
           />
         </div>
       );
@@ -110,17 +160,32 @@ function EventMessageContainer(props: Props) {
       <div className={styles.textFieldContainer}>
         <TextField
           multiline
+          type='search'
           label="Aa"
           variant="outlined"
           className={styles.textField}
           onChange={handleMessageChange}
           value={message}
+          InputLabelProps={{
+            classes: {
+              root: styles.cssLabel,
+              focused: styles.cssFocused,
+            },
+          }}
+          InputProps={{
+            classes: {
+              root: styles.cssOutlinedInput,
+              focused: styles.cssFocused,
+              // notchedOutline: styles.notchedOutline,
+            },
+            inputMode: "numeric"
+          }}
         />
         <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color="gray" />
+          <FaRegSmile size={18} color="#f2f2f2" />
         </IconButton>
         <IconButton onClick={handleSendMessage}>
-          <MdSend color="#3D66DE" size={20} />
+          <MdSend color="#f2f2f2" size={20} />
         </IconButton>
       </div>
     </div>

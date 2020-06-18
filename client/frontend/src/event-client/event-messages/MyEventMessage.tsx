@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
 
-import { FaEllipsisH, FaRegStar, FaStar, FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaEllipsisH, FaRegStar, FaStar } from "react-icons/fa";
 
 import RSText from "../../base-components/RSText";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: "#333333",
-    paddingBottom: 4},
+    paddingBottom: 4
+  },
   top: {
     display: "flex",
     justifyContent: "space-between",
@@ -31,7 +32,6 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "space-between",
     margin: 0,
-    //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
   },
   likeCount: {
@@ -42,6 +42,9 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 0,
     display: "inline-block",
     color: "grey"
+  },
+  ellipsis: {
+    margin: 1.5
   }
 }));
 
@@ -54,7 +57,7 @@ type Props = {
 };
 
 //TODO ADD likes to messages
-function EventMessage(props: Props) {
+function MyEventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
 
@@ -75,8 +78,8 @@ function EventMessage(props: Props) {
           </RSText>
         </div>
 
-        <IconButton>
-          <FaEllipsisH size={12} color="grey" style={{ margin: 1.5 }}/>
+        <IconButton className={styles.ellipsis}>
+          <FaEllipsisH size={12} color="grey"/>
         </IconButton>
       </div>
       <div className={styles.bottom}>
@@ -100,4 +103,4 @@ function EventMessage(props: Props) {
   );
 }
 
-export default EventMessage;
+export default MyEventMessage;

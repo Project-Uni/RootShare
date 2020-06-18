@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
 
-import { FaEllipsisH, FaRegStar, FaStar, FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaEllipsisH, FaRegStar, FaStar } from "react-icons/fa";
 
 import RSText from "../../base-components/RSText";
 
@@ -43,6 +43,9 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 0,
     display: "inline-block",
     color: "grey"
+  },
+  ellipsis: {
+    margin: 1.5
   }
 }));
 
@@ -76,8 +79,8 @@ function EventMessage(props: Props) {
           </RSText>
         </div>
 
-        <IconButton>
-          <FaEllipsisH size={12} color="grey" style={{ margin: 1.5 }}/>
+        <IconButton className={styles.ellipsis}>
+          <FaEllipsisH size={12} color="grey"/>
         </IconButton>
       </div>
       <div className={styles.bottom}>
