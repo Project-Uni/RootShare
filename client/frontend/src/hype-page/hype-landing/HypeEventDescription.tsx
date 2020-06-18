@@ -63,7 +63,8 @@ function HypeEventDescription(props: Props) {
         THE BABY BOILERS ARE BACK
       </Typography>
       <Typography className={styles.eventDate} variant="h4">
-        AUGUST 14, 2020 {props.mode === "mobile" && <br />}@ 7PM EST
+        AUGUST 14, 2020{" "}
+        {props.mode === "mobile" && window.innerWidth < 700 && <br />}@ 7PM EST
       </Typography>
       <Typography variant="h5" className={styles.eventText}>
         {props.eventDescription}
