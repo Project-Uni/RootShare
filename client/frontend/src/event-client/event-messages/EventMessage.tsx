@@ -9,7 +9,7 @@ import RSText from "../../base-components/RSText";
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: "#202020",
-    paddingBottom: 4
+    paddingBottom: 4,
   },
   top: {
     display: "flex",
@@ -20,13 +20,14 @@ const useStyles = makeStyles((_: any) => ({
   senderName: {
     margin: 10,
     display: "inline-block",
-    color: "#f2f2f2"
+    color: "#f2f2f2",
   },
   message: {
     marginLeft: 10,
     textAlign: "left",
     wordBreak: "break-all",
-    color: "#f2f2f2"
+    color: "#f2f2f2",
+    marginTop: 15,
   },
   bottom: {
     display: "flex",
@@ -37,16 +38,16 @@ const useStyles = makeStyles((_: any) => ({
   },
   likeCount: {
     marginTop: -5,
-    color: "#f2f2f2"
+    color: "#f2f2f2",
   },
   time: {
     marginLeft: 0,
     display: "inline-block",
-    color: "grey"
+    color: "grey",
   },
   ellipsis: {
-    margin: 1.5
-  }
+    margin: 1.5,
+  },
 }));
 
 type Props = {
@@ -80,7 +81,7 @@ function EventMessage(props: Props) {
         </div>
 
         <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color="grey"/>
+          <FaEllipsisH size={12} color="grey" />
         </IconButton>
       </div>
       <div className={styles.bottom}>
@@ -91,8 +92,8 @@ function EventMessage(props: Props) {
           <IconButton onClick={handleLikeClicked}>
             {liked ? (
               <FaStar color="#6699ff" size={14} />
-              //faHeart #800000
             ) : (
+              //faHeart #800000
               <FaRegStar color="grey" size={14} />
               //faRegHeart #800000
             )}

@@ -6,10 +6,10 @@ const useStyles = makeStyles((_: any) => ({
     margin: 0,
   },
   title: {
-    fontFamily: "Raleway"
+    fontFamily: "Raleway",
   },
   normal: {
-    fontFamily: "Lato"
+    fontFamily: "Lato",
   },
   bold: {
     fontWeight: "bold",
@@ -20,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  type?: "head" | "subhead" | "body";
+  type?: "head" | "subhead" | "body" | "other";
   bold?: boolean;
   italic?: boolean;
   size?: number;
@@ -37,7 +37,11 @@ function RSText(props: Props) {
     <p
       className={[
         styles.base,
-        type === "head" ? styles.title : styles.normal,
+        type === "head"
+          ? styles.title
+          : type === "other"
+          ? null
+          : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
         props.className ? props.className : null,

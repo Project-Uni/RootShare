@@ -11,6 +11,9 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "center",
   },
+  text: {
+    fontFamily: "Ubuntu",
+  },
 }));
 
 type Props = {
@@ -92,10 +95,10 @@ function HypeEventCountdown(props: Props) {
           marginLeft: name === "hours" ? dayTimeMargin : 0,
         }}
       >
-        <RSText bold type="head" size={bigTextSize}>
+        <RSText bold type="other" size={bigTextSize} className={styles.text}>
           {value}
         </RSText>
-        <RSText bold type="head" size={smallTextSize}>
+        <RSText bold type="other" size={smallTextSize} className={styles.text}>
           {name}
         </RSText>
       </div>
@@ -104,17 +107,17 @@ function HypeEventCountdown(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <RSText bold type="head" size={smallTextSize}>
+      <RSText bold type="other" size={smallTextSize} className={styles.text}>
         COUNTDOWN TO LAUNCH
       </RSText>
       <div className={styles.body}>
         {renderSingleTimeObject("days")}
         {renderSingleTimeObject("hours")}
-        <RSText bold type="head" size={bigTextSize}>
+        <RSText bold type="other" size={bigTextSize} className={styles.text}>
           :
         </RSText>
         {renderSingleTimeObject("minutes")}
-        <RSText bold type="head" size={bigTextSize}>
+        <RSText bold type="other" size={bigTextSize} className={styles.text}>
           :
         </RSText>
         {renderSingleTimeObject("seconds")}

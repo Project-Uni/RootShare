@@ -9,43 +9,46 @@ import RSText from "../../base-components/RSText";
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: "#333333",
-    paddingBottom: 4
+    paddingBottom: 4,
   },
   top: {
     display: "flex",
     justifyContent: "space-between",
+    paddingTop: 5,
   },
   left: {},
   right: {},
   senderName: {
     margin: 10,
     display: "inline-block",
-    color: "#f2f2f2"
+    color: "#f2f2f2",
   },
   message: {
     marginLeft: 10,
     textAlign: "left",
     wordBreak: "break-all",
-    color: "#f2f2f2"
+    color: "#f2f2f2",
+    marginTop: 15,
   },
   bottom: {
     display: "flex",
     justifyContent: "space-between",
     margin: 0,
     marginTop: -20,
+    paddingBottom: 5,
   },
   likeCount: {
     marginTop: -5,
-    color: "#f2f2f2"
+    color: "#f2f2f2",
   },
   time: {
     marginLeft: 0,
     display: "inline-block",
-    color: "grey"
+    color: "grey",
   },
   ellipsis: {
-    margin: 1.5
-  }
+    margin: 1.5,
+  },
 }));
 
 type Props = {
@@ -79,7 +82,7 @@ function MyEventMessage(props: Props) {
         </div>
 
         <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color="grey"/>
+          <FaEllipsisH size={12} color="grey" />
         </IconButton>
       </div>
       <div className={styles.bottom}>
