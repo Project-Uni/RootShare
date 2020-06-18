@@ -25,11 +25,10 @@ export default class VideoPlayer extends React.Component<Props> {
 
     try {
       this.player = videojs(this.videoNode, videoPlayerOptions, function onPlayerReady(this: any) {
-        // console.log('onPlayerReady', this)
+        // Handle on player ready here
       })
     } catch (err) {
-      // console.log(err)
-      console.log('There has been an error')
+      // Handle error here
     }
 
     this.player.on('error', function () {

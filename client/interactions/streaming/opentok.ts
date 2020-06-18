@@ -234,7 +234,6 @@ module.exports = {
       opentokBroadCastID = response.data.id
     }).catch((err) => {
       log('opentok_error', err)
-      console.log('context', openTokReqBody, options, OPENTOK_API_KEY)
     })
 
     if (opentokBroadCastID !== undefined) {

@@ -34,7 +34,7 @@ function PublisherStreamHolder(props: Props) {
     if (OT.checkSystemRequirements() !== 1) {
       // The client does not support WebRTC.
       // You can display your own message.
-      // console.log('error', "This device does not support WebRTC")
+      // log('error', "This device does not support WebRTC")
       return
     }
 
