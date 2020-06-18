@@ -13,6 +13,8 @@ import EventClientBase from "./event-client/EventClientBase";
 
 import PageNotFound from "./not-found-page/PageNotFound";
 
+import UserCount from "./admin-utility/UserCount";
+
 const analyticsTrackingID = "UA-169916177-1";
 ReactGA.initialize(analyticsTrackingID);
 ReactGA.pageview("/");
@@ -40,6 +42,11 @@ function App() {
             </Route>
             <Route exact path="/event/:eventid">
               <EventClientBase />
+            </Route>
+
+            {/* REMOVE THIS BEFORE FINAL PRODUCT */}
+            <Route exact path="/admin/count">
+              <UserCount />
             </Route>
             <Route>
               <PageNotFound />
