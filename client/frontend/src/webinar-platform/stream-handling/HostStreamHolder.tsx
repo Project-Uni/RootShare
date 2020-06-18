@@ -33,14 +33,23 @@ function PublisherStreamHolder(props: Props) {
   }
 
   function recordScreen() {
-    const publisher = OT.initPublisher('window', {
-      insertMode: 'append',
-      width: '10%',
-      height: '200px'
-    }, handleError);
+    const publisher = OT.initPublisher('screen-preview',
+      { videoSource: 'screen' },
+      function (error) {
+        if (error) {
+          // Look at error.message to see what went wrong.
+          return new Publisher()
+        } else {
+          session.publish(publisher, function (error) {
+            if (error) {
+              // Look error.message to see what went wrong.
+              return new Publisher()
+            }
+          });
+        }
+      }
+    );
 
-    console.log("publishing screen")
-    session.publish(publisher, handleError)
     return publisher
   }
 
@@ -149,8 +158,11 @@ function PublisherStreamHolder(props: Props) {
         return new Publisher()
       }
 
+      console.log(prevState.session)
       if (prevState.session === undefined) {
         return recordScreen()
+      } else if (prevState.session === null) {
+        return new Publisher()
       } else {
         session.unpublish(screenPublisher)
         return new Publisher()
