@@ -28,7 +28,6 @@ function EventClientAdvertisement(props: Props) {
   useEffect(() => {
     setTimeout(() => {
       const newAdIndex = (currentAdIndex + 1) % props.advertisements.length;
-      console.log("New Ad Index:", newAdIndex);
       setCurrentAdIndex(newAdIndex);
     }, 1000 * AD_CYCLE_TIME);
   }, [currentAdIndex]);
