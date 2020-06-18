@@ -8,6 +8,8 @@ import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
 
 import EventClientBase from "./event-client/EventClientBase";
 
+import PageNotFound from "./not-found-page/PageNotFound";
+
 function App() {
   return (
     <div className="App">
@@ -25,6 +27,9 @@ function App() {
             </Route>
             <Route exact path="/event/:eventid">
               <EventClientBase />
+            </Route>
+            <Route>
+              <PageNotFound />
             </Route>
           </Switch>
         </div>
