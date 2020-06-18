@@ -1,5 +1,5 @@
-import React from 'react'
-import OT from '@opentok/client'
+import React, { useState } from 'react'
+import OT, { Session, Publisher } from '@opentok/client'
 import axios from 'axios'
 import { makeStyles } from "@material-ui/core/styles"
 import log from '../../helpers/logger'
@@ -20,25 +20,52 @@ function PublisherStreamHolder(props: Props) {
     }
   }
 
-  function recordScreen() {
+  function recordWebcam() {
     const publisher = OT.initPublisher('publisher', {
       insertMode: 'append',
       width: '10%',
       height: '200px'
     }, handleError);
 
+    session.publish(publisher, handleError)
+    return publisher
+  }
+
+  function recordScreen() {
+    const publisher = OT.initPublisher('screen-preview',
+      { videoSource: 'screen' },
+      function (error) {
+        if (error) {
+          // Look at error.message to see what went wrong.
+          return new Publisher()
+        } else {
+          session.publish(publisher, function (error) {
+            if (error) {
+              // Look error.message to see what went wrong.
+              return new Publisher()
+            }
+          });
+        }
+      }
+    );
+
     return publisher
   }
 
   async function connectStream(webinarID: string) {
     if (OT.checkSystemRequirements() !== 1) {
-      // The client does not support WebRTC.
-      // You can display your own message.
-      // log('error', "This device does not support WebRTC")
+      // The client does not support WebRTC
       return
     }
 
-    const publisher = recordScreen()
+    OT.checkScreenSharingCapability(function (response: any) {
+      if (!response.supported || response.extensionRegistered === false) {
+        // This browser does not support screen sharing
+      } else {
+        setCanScreenShare(true)
+      }
+    });
+
     const { data: sessionData } = await axios.post(
       '/webinar/getOpenTokSessionID', {
       webinarID
@@ -58,18 +85,19 @@ function PublisherStreamHolder(props: Props) {
       return
     }
 
-    const session = OT.initSession(OPENTOK_API_KEY, sessionID)
 
-    session.on("streamCreated", function (event: any) {
-      session.subscribe(event.stream);
+    const newSession = OT.initSession(OPENTOK_API_KEY, sessionID)
+
+    newSession.on("streamCreated", function (event: any) {
+      newSession.subscribe(event.stream);
     });
 
-    session.connect(tokenData.content.token, function (error: any) {
+    newSession.connect(tokenData.content.token, function (error: any) {
       if (error) {
         log(error.name, error.message);
       } else {
         log('info', 'Connected to the session.');
-        session.publish(publisher, handleError)
+        setSession(newSession)
       }
     });
   }
@@ -84,10 +112,54 @@ function PublisherStreamHolder(props: Props) {
   }
 
 
-  connectToLatestWebinar()
+  const [canScreenShare, setCanScreenShare] = useState(false)
+  const [webcamPublisher, setWebcamPublisher] = useState(new Publisher())
+  const [screenPublisher, setScreenPublisher] = useState(new Publisher())
+  const [session, setSession] = useState(new Session())
+
+  function toggleWebcam() {
+    setWebcamPublisher((prevState) => {
+      if (session.sessionId === undefined) {
+        return new Publisher()
+      }
+
+      if (prevState.session === undefined) {
+        return recordWebcam()
+      } else {
+        session.unpublish(webcamPublisher)
+        return new Publisher()
+      }
+    })
+  }
+
+  function toggleScreen() {
+    setScreenPublisher((prevState) => {
+      if (session.sessionId === undefined) {
+        return new Publisher()
+      }
+
+      if (prevState.session === undefined) {
+        return recordScreen()
+      } else if (prevState.session === null) {
+        return new Publisher()
+      } else {
+        session.unpublish(screenPublisher)
+        return new Publisher()
+      }
+    })
+  }
+
   return (
     <div>
       This is the Publisher page
+      <button onClick={connectToLatestWebinar}>Connect to Webinar</button>
+      {session.sessionId !== undefined ?
+        <button onClick={toggleWebcam}>Toggle Webcam</button> :
+        <div></div>}
+
+      {(canScreenShare && session.sessionId !== undefined) ?
+        <button onClick={toggleScreen}>Toggle Screen</button> :
+        <div></div>}
     </div>
   )
 }
