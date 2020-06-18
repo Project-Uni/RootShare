@@ -6,10 +6,10 @@ const useStyles = makeStyles((_: any) => ({
     margin: 0,
   },
   title: {
-    fontFamily: "Ubuntu",
+    fontFamily: "Raleway"
   },
   normal: {
-    fontFamily: "Lora",
+    fontFamily: "Lato"
   },
   bold: {
     fontWeight: "bold",
