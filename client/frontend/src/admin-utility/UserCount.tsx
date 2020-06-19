@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { TextField } from "@material-ui/core";
 
 import axios from "axios";
 
@@ -18,14 +19,22 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
     marginBottom: 20,
   },
+  textField: {
+    width: 300,
+    marginTop: 30,
+  },
 }));
 
 type Props = {};
 
 function UserCount(props: Props) {
   const styles = useStyles();
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [users, setUsers] = useState([
+    { firstName: "", lastName: "", createdAt: "" },
+  ]);
   const [joinedToday, setJoinedToday] = useState(0);
+  const [searched, setSearched] = useState("");
 
   useEffect(() => {
     const password = prompt("Enter password:");
@@ -39,6 +48,7 @@ function UserCount(props: Props) {
   async function fetchUsers() {
     const { data } = await axios.get("/api/adminCount");
     if (data.success === 1) {
+      setAllUsers(data["content"]["users"]);
       setUsers(data["content"]["users"]);
       calculateJoinedToday(data["content"]["users"]);
     }
@@ -65,6 +75,24 @@ function UserCount(props: Props) {
       }
     }
     setJoinedToday(newUserCount);
+  }
+
+  function handleSearchChange(event: any) {
+    const searchQuery = event.target.value.toLowerCase();
+    setSearched(event.target.value);
+    const output: any[] = [];
+    for (let i = 0; i < allUsers.length; i++) {
+      const username = (
+        allUsers[i]["firstName"] +
+        " " +
+        allUsers[i]["lastName"]
+      ).toLowerCase();
+      if (username.includes(searchQuery)) {
+        console.log("Found user: ", username);
+        output.push(allUsers[i]);
+      }
+    }
+    setUsers(output);
   }
 
   function renderUsers() {
@@ -98,7 +126,14 @@ function UserCount(props: Props) {
           {joinedToday} joined today
         </RSText>
       </div>
-
+      <TextField
+        variant="outlined"
+        type="search"
+        label="Search"
+        className={styles.textField}
+        value={searched}
+        onChange={handleSearchChange}
+      />
       <div style={{ marginTop: 30 }}>{renderUsers()}</div>
     </div>
   );
