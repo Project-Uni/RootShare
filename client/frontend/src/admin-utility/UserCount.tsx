@@ -133,8 +133,14 @@ function UserCount(props: Props) {
         alt="RootShare"
       />
       <RSText type="head" className={styles.textStyle} size={32}>
-        {allUsers.length} Users | {numStudents} Students | {numAlumni} Alumni | {numFaculty} Faculty | {numFans} Fans
+        {allUsers.length} Users
       </RSText>
+
+      <div style={{ marginTop: 20 }}>
+        <RSText type="head" className={styles.textStyle} size={24}>
+          {numStudents} Students | {numAlumni} Alumni | {numFaculty} Faculty | {numFans} Fans
+        </RSText>
+      </div>
       <div style={{ marginTop: 20 }}>
         <RSText type="head" className={styles.textStyle} size={24}>
           {joinedToday} joined today
