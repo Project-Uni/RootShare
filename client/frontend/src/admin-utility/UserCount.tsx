@@ -17,7 +17,7 @@ const useStyles = makeStyles((_: any) => ({
   rootshareLogo: {
     height: "90px",
     marginLeft: 30,
-    marginBottom: 20,
+    marginBottom: 10,
     marginTop: 20,
   },
   textField: {
