@@ -95,7 +95,6 @@ function UserCount(props: Props) {
         allUsers[i]["lastName"]
       ).toLowerCase();
       if (username.includes(searchQuery)) {
-        console.log("Found user: ", username);
         output.push(allUsers[i]);
       }
     }
