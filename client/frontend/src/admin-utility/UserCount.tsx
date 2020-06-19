@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField } from "@material-ui/core";
+import { TextField, Grid } from "@material-ui/core";
 
 import axios from "axios";
 
@@ -15,13 +15,20 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: "center",
   },
   rootshareLogo: {
-    height: "80px",
-    marginLeft: 10,
+    height: "90px",
+    marginLeft: 30,
     marginBottom: 20,
+    marginTop: 20,
   },
   textField: {
     width: 300,
     marginTop: 30,
+  },
+  grid: {
+    marginTop: 30,
+  },
+  gridItem: {
+    marginTop: 15,
   },
 }));
 
@@ -100,11 +107,11 @@ function UserCount(props: Props) {
 
     for (let i = 0; i < users.length; i++) {
       output.push(
-        <div style={{ marginTop: 15 }}>
+        <Grid item xs={6} sm={3} className={styles.gridItem}>
           <RSText type="subhead" className={styles.textStyle} size={15}>
-            {users[i]["firstName"]} {users[i]["lastName"]}
+            {i + 1}. {users[i]["firstName"]} {users[i]["lastName"]}
           </RSText>
-        </div>
+        </Grid>
       );
     }
     return output;
@@ -119,7 +126,7 @@ function UserCount(props: Props) {
         alt="RootShare"
       />
       <RSText type="head" className={styles.textStyle} size={32}>
-        {users.length} Users
+        {allUsers.length} Users
       </RSText>
       <div style={{ marginTop: 20 }}>
         <RSText type="head" className={styles.textStyle} size={24}>
@@ -129,12 +136,14 @@ function UserCount(props: Props) {
       <TextField
         variant="outlined"
         type="search"
-        label="Search"
+        label="Find a User"
         className={styles.textField}
         value={searched}
         onChange={handleSearchChange}
       />
-      <div style={{ marginTop: 30 }}>{renderUsers()}</div>
+      <Grid container spacing={3} className={styles.grid}>
+        {renderUsers()}
+      </Grid>
     </div>
   );
 }
