@@ -41,6 +41,10 @@ function UserCount(props: Props) {
     { firstName: "", lastName: "", createdAt: "" },
   ]);
   const [joinedToday, setJoinedToday] = useState(0);
+  const [numStudents, setNumStudents] = useState(0);
+  const [numAlumni, setNumAlumni] = useState(0);
+  const [numFaculty, setNumFaculty] = useState(0);
+  const [numFans, setNumFans] = useState(0);
   const [searched, setSearched] = useState("");
 
   useEffect(() => {
@@ -57,6 +61,10 @@ function UserCount(props: Props) {
     if (data.success === 1) {
       setAllUsers(data["content"]["users"]);
       setUsers(data["content"]["users"]);
+      setNumStudents(data["content"]["numStudents"]);
+      setNumAlumni(data["content"]["numAlumni"]);
+      setNumFaculty(data["content"]["numFaculty"]);
+      setNumFans(data["content"]["numFans"]);
       calculateJoinedToday(data["content"]["users"]);
     }
   }
@@ -125,7 +133,7 @@ function UserCount(props: Props) {
         alt="RootShare"
       />
       <RSText type="head" className={styles.textStyle} size={32}>
-        {allUsers.length} Users
+        {allUsers.length} Users | {numStudents} Students | {numAlumni} Alumni | {numFaculty} Faculty | {numFans} Fans
       </RSText>
       <div style={{ marginTop: 20 }}>
         <RSText type="head" className={styles.textStyle} size={24}>
