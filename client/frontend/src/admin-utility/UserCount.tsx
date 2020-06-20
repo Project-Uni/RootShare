@@ -41,6 +41,10 @@ function UserCount(props: Props) {
     { firstName: "", lastName: "", createdAt: "" },
   ]);
   const [joinedToday, setJoinedToday] = useState(0);
+  const [studentCount, setStudentCount] = useState(0);
+  const [alumniCount, setAlumniCount] = useState(0);
+  const [facultyCount, setFacultyCount] = useState(0);
+  const [fanCount, setFanCount] = useState(0);
   const [searched, setSearched] = useState("");
 
   useEffect(() => {
@@ -57,6 +61,10 @@ function UserCount(props: Props) {
     if (data.success === 1) {
       setAllUsers(data["content"]["users"]);
       setUsers(data["content"]["users"]);
+      setStudentCount(data["content"]["studentCount"]);
+      setAlumniCount(data["content"]["alumniCount"]);
+      setFacultyCount(data["content"]["facultyCount"]);
+      setFanCount(data["content"]["fanCount"]);
       calculateJoinedToday(data["content"]["users"]);
     }
   }
@@ -127,6 +135,12 @@ function UserCount(props: Props) {
       <RSText type="head" className={styles.textStyle} size={32}>
         {allUsers.length} Users
       </RSText>
+
+      <div style={{ marginTop: 20 }}>
+        <RSText type="head" className={styles.textStyle} size={24}>
+          {studentCount} Students | {alumniCount} Alumni | {facultyCount} Faculty | {fanCount} Fans
+        </RSText>
+      </div>
       <div style={{ marginTop: 20 }}>
         <RSText type="head" className={styles.textStyle} size={24}>
           {joinedToday} joined today
