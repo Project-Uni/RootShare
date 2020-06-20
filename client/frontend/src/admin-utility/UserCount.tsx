@@ -8,6 +8,7 @@ import RootShareLogoFull from "../images/RootShareLogoFull.png";
 
 import HypeHeader from "../hype-page/headerFooter/HypeHeader";
 import RSText from "../base-components/RSText";
+import AccountTypePieChart from "./AccountTypePieChart";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -30,6 +31,14 @@ const useStyles = makeStyles((_: any) => ({
   gridItem: {
     marginTop: 15,
   },
+  chart: {
+    width: 300,
+  },
+  chartContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20,
+  },
 }));
 
 type Props = {};
@@ -41,10 +50,12 @@ function UserCount(props: Props) {
     { firstName: "", lastName: "", createdAt: "" },
   ]);
   const [joinedToday, setJoinedToday] = useState(0);
-  const [studentCount, setStudentCount] = useState(0);
-  const [alumniCount, setAlumniCount] = useState(0);
-  const [facultyCount, setFacultyCount] = useState(0);
-  const [fanCount, setFanCount] = useState(0);
+  const [typeCount, setTypeCount] = useState({
+    student: 0,
+    alumni: 0,
+    faculty: 0,
+    fan: 0,
+  });
   const [searched, setSearched] = useState("");
 
   useEffect(() => {
@@ -61,10 +72,12 @@ function UserCount(props: Props) {
     if (data.success === 1) {
       setAllUsers(data["content"]["users"]);
       setUsers(data["content"]["users"]);
-      setStudentCount(data["content"]["studentCount"]);
-      setAlumniCount(data["content"]["alumniCount"]);
-      setFacultyCount(data["content"]["facultyCount"]);
-      setFanCount(data["content"]["fanCount"]);
+      setTypeCount({
+        student: data["content"]["studentCount"],
+        alumni: data["content"]["alumniCount"],
+        faculty: data["content"]["facultyCount"],
+        fan: data["content"]["fanCount"],
+      });
       calculateJoinedToday(data["content"]["users"]);
     }
   }
@@ -138,14 +151,24 @@ function UserCount(props: Props) {
 
       <div style={{ marginTop: 20 }}>
         <RSText type="head" className={styles.textStyle} size={24}>
-          {studentCount} Students | {alumniCount} Alumni | {facultyCount} Faculty | {fanCount} Fans
-        </RSText>
-      </div>
-      <div style={{ marginTop: 20 }}>
-        <RSText type="head" className={styles.textStyle} size={24}>
           {joinedToday} joined today
         </RSText>
       </div>
+
+      <div className={styles.chartContainer}>
+        <div className={styles.chart}>
+          <AccountTypePieChart mode="doughnut" data={typeCount} />
+        </div>
+      </div>
+      <div style={{ marginTop: 20 }}>
+        <RSText type="subhead" className={styles.textStyle} size={14}>
+          {typeCount["student"]} Students | {typeCount["alumni"]} Alumni
+        </RSText>
+        <RSText type="subhead" className={styles.textStyle} size={14}>
+          {typeCount["faculty"]} Faculty | {typeCount["fan"]} Fans
+        </RSText>
+      </div>
+
       <TextField
         variant="outlined"
         type="search"
