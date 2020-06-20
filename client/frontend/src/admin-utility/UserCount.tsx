@@ -8,6 +8,7 @@ import RootShareLogoFull from "../images/RootShareLogoFull.png";
 
 import HypeHeader from "../hype-page/headerFooter/HypeHeader";
 import RSText from "../base-components/RSText";
+import AccountTypePieChart from "./AccountTypePieChart";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -29,6 +30,14 @@ const useStyles = makeStyles((_: any) => ({
   },
   gridItem: {
     marginTop: 15,
+  },
+  chart: {
+    width: 300,
+  },
+  chartContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20,
   },
 }));
 
@@ -132,6 +141,12 @@ function UserCount(props: Props) {
           {joinedToday} joined today
         </RSText>
       </div>
+      <div className={styles.chartContainer}>
+        <div className={styles.chart}>
+          <AccountTypePieChart mode="doughnut" />
+        </div>
+      </div>
+
       <TextField
         variant="outlined"
         type="search"
