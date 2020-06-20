@@ -20,7 +20,12 @@ function AccountTypePieChart(props: Props) {
         label: "Count",
         backgroundColor: ["maroon", "navy", "darkgreen", "gold"],
         hoverBackgroundColor: ["red", "lightblue", "lightgreen", "yellow"],
-        data: [59, 40, 11, 22],
+        data: [
+          props.data!["student"],
+          props.data!["alumni"],
+          props.data!["faculty"],
+          props.data!["fan"],
+        ],
       },
     ],
   };
