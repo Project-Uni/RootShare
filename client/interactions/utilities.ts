@@ -10,30 +10,44 @@ module.exports = {
         return callback(sendPacket(-1, "Could not find users"))
       }
 
-      const numStudents = module.exports.countAccountType(users, 'student')
-      const numAlumni = module.exports.countAccountType(users, 'alumni')
-      const numFaculty = module.exports.countAccountType(users, 'faculty')
-      const numFans = module.exports.countAccountType(users, 'fan')
+      const {
+        studentCount,
+        alumniCount,
+        facultyCount,
+        fanCount
+      } = module.exports.countAccountType(users)
       return callback(sendPacket(1, "Found users",
         {
           users,
-          numStudents,
-          numAlumni,
-          numFaculty,
-          numFans
+          studentCount,
+          alumniCount,
+          facultyCount,
+          fanCount
         }))
     });
   },
 
-  countAccountType: (users, accountType) => {
-    let count = 0
+  countAccountType: (users) => {
+    const accountTypes = ['student', 'alumni', 'faculty', 'fan']
+    let accountCounts = [0, 0, 0, 0]
+    const numTypes = accountTypes.length
+
     for (let i = 0; i < users.length; i++) {
       const userAccountType = users[i].accountType
-      if (accountType.localeCompare(userAccountType) === 0) {
-        count++
+      for (let j = 0; j < numTypes; j++) {
+        const checkAccountType = accountTypes[j]
+        if (checkAccountType.localeCompare(userAccountType) === 0) {
+          accountCounts[j]++
+        }
       }
     }
 
-    return count
+    let retCounts = {}
+    for (let i = 0; i < numTypes; i++) {
+      retCounts[`${accountTypes[i]}Count`] = accountCounts[i]
+    }
+
+    console.log(retCounts)
+    return retCounts
   }
 }
