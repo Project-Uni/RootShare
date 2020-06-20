@@ -47,7 +47,6 @@ module.exports = {
       retCounts[`${accountTypes[i]}Count`] = accountCounts[i]
     }
 
-    console.log(retCounts)
     return retCounts
   }
 }
