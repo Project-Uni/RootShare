@@ -4,7 +4,17 @@ import { Typography, Grid } from "@material-ui/core";
 
 import RSText from "../../base-components/RSText";
 
-import AshwinHeadshot from "../../images/team/ashwin.jpeg";
+import {
+  AshwinHeadshot,
+  SmitHeadshot,
+  CaiteHeadshot,
+  ChrisHeadshot,
+  DhruvHeadshot,
+  LaurenHeadshot,
+  EmilyHeadshot,
+  ReniHeadshot,
+  JacksonHeadshot,
+} from "../../images/team";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -48,50 +58,65 @@ function HypeTeamInfo(props: Props) {
     {
       name: "Chris Hartley",
       title: "Chief Executive Officer",
-      headshot: AshwinHeadshot,
-      major: "Industrial Management, Purdue 2010",
+      headshot: ChrisHeadshot,
+      major: "Industrial Management",
+      university: "Purdue 2006",
     },
     {
       name: "Dhruv Patel",
-      title: "Chief Operations Officer",
-      headshot: AshwinHeadshot,
-      major: "Finance, Purdue 2020",
+      title: "Chief Operating Officer",
+      headshot: DhruvHeadshot,
+      major: "Finance",
+      university: "Purdue 2020",
     },
     {
       name: "Ashwin Mahesh",
       title: "Head of Product & Technology",
       headshot: AshwinHeadshot,
-      major: "Computer Science, Purdue 2020",
+      major: "Computer Science",
+      university: "Purdue 2020",
     },
     {
       name: "Smit Desai",
       title: "Head of Architecture & Technology",
-      headshot: AshwinHeadshot,
+      headshot: SmitHeadshot,
+      major: "Computer Science",
+      university: "Illinois 2020",
     },
     {
       name: "Jackson McCluskey",
       title: "Head of Digital Strategy",
-      headshot: AshwinHeadshot,
+      headshot: JacksonHeadshot,
+      major: "Computer Science",
+      university: "Purdue 2021",
     },
     {
       name: "Reni Patel",
       title: "Business Development Executive",
-      headshot: AshwinHeadshot,
+      headshot: ReniHeadshot,
+      major: "Aerospace Engineering",
+      university: "Purdue 2020",
     },
     {
       name: "Caite Capezzuto",
       title: "Business Development Executive",
-      headshot: AshwinHeadshot,
+      headshot: CaiteHeadshot,
+      major: "Construction Management & Technology",
+      university: "Purdue 2022",
     },
     {
       name: "Emily D'Alessandro",
       title: "Head of Digital Marketing",
-      headshot: AshwinHeadshot,
+      headshot: EmilyHeadshot,
+      major: "Marketing",
+      university: "Purdue 2021",
     },
     {
       name: "Lauren Odle",
       title: "Head of Social Media & Branding",
-      headshot: AshwinHeadshot,
+      headshot: LaurenHeadshot,
+      major: "Marketing",
+      university: "Purdue 2020",
     },
   ];
 
@@ -117,10 +142,10 @@ function HypeTeamInfo(props: Props) {
           </div>
           <div>
             <RSText type="subhead" size={11} italic>
-              Computer Science,
+              {currMember["major"]},
             </RSText>
             <RSText type="subhead" size={11} italic>
-              Purdue 2020
+              {currMember["university"]}
             </RSText>
           </div>
         </Grid>
