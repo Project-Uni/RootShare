@@ -7,6 +7,7 @@ import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
 import HypeParticipatingOrganizations from "./HypeParticipatingOrganizations";
 import HypeEventCountdown from "./HypeEventCountdown";
+import HypeTeamInfo from "./HypeTeamInfo";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -60,6 +61,7 @@ function HypeLanding(props: Props) {
       />
       <div className={styles.bottom}>
         <HypeParticipatingOrganizations />
+        <HypeTeamInfo />
       </div>
       <HypeFooter />
     </div>
