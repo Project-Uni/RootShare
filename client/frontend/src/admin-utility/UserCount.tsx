@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField, Grid } from "@material-ui/core";
+import { TextField, Grid, CircularProgress } from "@material-ui/core";
 
 import axios from "axios";
 
@@ -39,12 +39,18 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: "center",
     marginTop: 20,
   },
+  loadingIndicator: {
+    // color: "blue",
+  },
 }));
 
 type Props = {};
 
 function UserCount(props: Props) {
   const styles = useStyles();
+  const [loading, setLoading] = useState(true);
+  const [showInvalid, setShowInvalid] = useState(false);
+
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([
     { firstName: "", lastName: "", createdAt: "" },
@@ -62,8 +68,11 @@ function UserCount(props: Props) {
     const password = prompt("Enter password:");
     if (password === "SmitMachine") {
       fetchUsers();
+      setLoading(false);
     } else {
       alert("Invalid password");
+      setShowInvalid(true);
+      setLoading(false);
     }
   }, []);
 
@@ -137,6 +146,56 @@ function UserCount(props: Props) {
     return output;
   }
 
+  function renderPageContent() {
+    return (
+      <>
+        <RSText type="head" className={styles.textStyle} size={32}>
+          {allUsers.length} Users
+        </RSText>
+
+        <div style={{ marginTop: 20 }}>
+          <RSText type="head" className={styles.textStyle} size={24}>
+            {joinedToday} joined today
+          </RSText>
+        </div>
+
+        <div className={styles.chartContainer}>
+          <div className={styles.chart}>
+            <AccountTypePieChart mode="doughnut" data={typeCount} />
+          </div>
+        </div>
+        <div style={{ marginTop: 20 }}>
+          <RSText type="subhead" className={styles.textStyle} size={14}>
+            {typeCount["student"]} Students | {typeCount["alumni"]} Alumni
+          </RSText>
+          <RSText type="subhead" className={styles.textStyle} size={14}>
+            {typeCount["faculty"]} Faculty | {typeCount["fan"]} Fans
+          </RSText>
+        </div>
+
+        <TextField
+          variant="outlined"
+          type="search"
+          label="Find a User"
+          className={styles.textField}
+          value={searched}
+          onChange={handleSearchChange}
+        />
+        <Grid container spacing={3} className={styles.grid}>
+          {renderUsers()}
+        </Grid>
+      </>
+    );
+  }
+
+  function renderInvalid() {
+    return (
+      <RSText type="subhead" size={32} bold>
+        Permission not granted to view page
+      </RSText>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <HypeHeader />
@@ -145,41 +204,17 @@ function UserCount(props: Props) {
         className={styles.rootshareLogo}
         alt="RootShare"
       />
-      <RSText type="head" className={styles.textStyle} size={32}>
-        {allUsers.length} Users
-      </RSText>
-
-      <div style={{ marginTop: 20 }}>
-        <RSText type="head" className={styles.textStyle} size={24}>
-          {joinedToday} joined today
-        </RSText>
-      </div>
-
-      <div className={styles.chartContainer}>
-        <div className={styles.chart}>
-          <AccountTypePieChart mode="doughnut" data={typeCount} />
-        </div>
-      </div>
-      <div style={{ marginTop: 20 }}>
-        <RSText type="subhead" className={styles.textStyle} size={14}>
-          {typeCount["student"]} Students | {typeCount["alumni"]} Alumni
-        </RSText>
-        <RSText type="subhead" className={styles.textStyle} size={14}>
-          {typeCount["faculty"]} Faculty | {typeCount["fan"]} Fans
-        </RSText>
-      </div>
-
-      <TextField
-        variant="outlined"
-        type="search"
-        label="Find a User"
-        className={styles.textField}
-        value={searched}
-        onChange={handleSearchChange}
-      />
-      <Grid container spacing={3} className={styles.grid}>
-        {renderUsers()}
-      </Grid>
+      {loading ? (
+        <CircularProgress
+          className={styles.loadingIndicator}
+          size={100}
+          color="primary"
+        />
+      ) : showInvalid ? (
+        renderInvalid()
+      ) : (
+        renderPageContent()
+      )}
     </div>
   );
 }
