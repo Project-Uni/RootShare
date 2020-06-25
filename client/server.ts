@@ -41,6 +41,7 @@ app.use(passport.session());
 require("./routes/user")(app);
 require("./routes/registrationInternal")(app);
 require("./routes/registrationExternal")(app);
+require("./routes/messaging")(app);
 require("./routes/utilities")(app);
 
 require("./config/setup")(passport);
