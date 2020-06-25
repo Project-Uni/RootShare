@@ -32,8 +32,10 @@ module.exports = {
 
   sendMessage: (userID, conversationID, message, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
-      if (err || conversationID === undefined)
+      if (err || conversationID === undefined) {
+        log("error", err);
         return callback(sendPacket(-1, "Could not find conversation"));
+      }
 
       let newMessage = new Message();
       newMessage.conversationID = conversationID;
@@ -50,10 +52,13 @@ module.exports = {
 
         currConversation.lastMessage = newMessage._id;
         currConversation.save((err) => {
-          if (err)
+          if (err) {
+            log("error", err);
             return callback(
               sendPacket(1, "There was an error updating the conversation")
             );
+          }
+
           return callback(sendPacket(1, "Message sent"));
         });
       });
@@ -74,7 +79,41 @@ module.exports = {
       participants: userID,
     }).populate("lastMessage");
 
+    if (userConversations === undefined)
+      return callback(
+        sendPacket(-1, "There was an error retrieving the Conversations")
+      );
+
     userConversations.sort(timeStampCompare);
-    callback(userConversations);
+    callback(
+      sendPacket(1, "Sending User's Conversations", { userConversations })
+    );
+  },
+
+  getLatestMessages: async (userID, conversationID, callback) => {
+    Conversation.findById(conversationID, (err, conversation) => {
+      if (err) {
+        log("error", err);
+        return callback(sendPacket(-1, "Could not find Conversation"));
+      }
+
+      Message.find(
+        { conversationID },
+        ["sender", "content", "timeCreated"],
+        (err, messages) => {
+          if (err) {
+            log("error", err);
+            return callback(sendPacket(-1, "Could not find Messages"));
+          }
+
+          return callback(
+            sendPacket(1, "Sending Conversation and Messages", {
+              conversation,
+              messages,
+            })
+          );
+        }
+      );
+    });
   },
 };

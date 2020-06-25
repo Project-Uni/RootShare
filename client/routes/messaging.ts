@@ -5,6 +5,7 @@ const {
   createThread,
   sendMessage,
   getLatestThreads,
+  getLatestMessages,
 } = require("../interactions/messaging");
 
 module.exports = (app) => {
@@ -27,6 +28,12 @@ module.exports = (app) => {
 
   app.get("/api/messaging/getLatestThreads", isAuthenticated, (req, res) => {
     getLatestThreads(req.user._id, (packet) => {
+      res.send(packet);
+    });
+  });
+
+  app.get("/api/messaging/getLatestMessages", isAuthenticated, (req, res) => {
+    getLatestMessages(req.user._id, req.body.conversationID, (packet) => {
       res.send(packet);
     });
   });
