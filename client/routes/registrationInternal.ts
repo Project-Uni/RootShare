@@ -28,7 +28,7 @@ module.exports = (app) => {
             log("error", `Failed serializing ${user.email}`);
           }
           log("info", `Successfully logged in ${user.email} locally`);
-          return res.redirect("/secure-confirmed");
+          return res.redirect("/auth/secure-confirmed");
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -48,7 +48,7 @@ module.exports = (app) => {
             log("error", `Failed serializing ${user.email}`);
           }
           log("info", `Successfully created account for ${user.email}`);
-          return res.redirect("/secure-confirmed");
+          return res.redirect("/auth/secure-confirmed");
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -82,7 +82,7 @@ module.exports = (app) => {
   });
 
   app.post("/auth/complete-registration/details", async (req, res) => {
-    const result = await completeRegistrationDetails(req.body, req.user.email)
+    const result = await completeRegistrationDetails(req.body, req.user.email);
 
     if (result["success"] === 1) {
       log("info", `Completed registration details for ${req.user.email}`);
@@ -92,8 +92,8 @@ module.exports = (app) => {
 
   app.get("/auth/curr-user/load", isAuthenticated, async (req, res) => {
     const email = req.user.email;
-    const regComplete = (req.user.work !== undefined)
-    const externalComplete = (req.user.university !== undefined)
+    const regComplete = req.user.work !== undefined;
+    const externalComplete = req.user.university !== undefined;
 
     let check = await userExists(email);
     if (check) {
@@ -101,7 +101,7 @@ module.exports = (app) => {
         sendPacket(1, "Sending back current user", {
           email: email,
           regComplete: regComplete,
-          externalComplete: externalComplete
+          externalComplete: externalComplete,
         })
       );
       log("info", `Sent ${email} to frontend`);
@@ -111,7 +111,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/confirmation/:token", async (req, res) => {
+  app.get("/auth/confirmation/:token", async (req, res) => {
     let user = await confirmUser(req.params.token);
 
     if (user) {
@@ -128,11 +128,11 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/unsubscribe/:token", async (req, res) => {
+  app.get("/auth/unsubscribe/:token", async (req, res) => {
     let user = await unsubscribeUser(req.params.token);
 
     if (user) {
-      res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`))
+      res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`));
       log("info", `Unsubscribed user: ${user.email}`);
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"));
@@ -140,7 +140,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/confirmation-resend", isAuthenticated, (req, res) => {
+  app.get("/auth/confirmation-resend", isAuthenticated, (req, res) => {
     let email = req.user.email;
     if (email) {
       sendConfirmationEmail(email);
@@ -152,7 +152,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/secure-unconfirmed", isAuthenticated, (req, res) => {
+  app.get("/auth/secure-unconfirmed", isAuthenticated, (req, res) => {
     res.json(
       sendPacket(
         1,
@@ -162,17 +162,22 @@ module.exports = (app) => {
     log("info", `User accessed secure-unconfirmed endpoint`);
   });
 
-  app.get("/secure-confirmed", isAuthenticated, isConfirmed, (req, res) => {
-    res.json(
-      sendPacket(
-        1,
-        "Successfully accessed secure endpoint! Account has been confirmed"
-      )
-    );
-    log("info", `User accessed secure-confirmed endpoint`);
-  });
+  app.get(
+    "/auth/secure-confirmed",
+    isAuthenticated,
+    isConfirmed,
+    (req, res) => {
+      res.json(
+        sendPacket(
+          1,
+          "Successfully accessed secure endpoint! Account has been confirmed"
+        )
+      );
+      log("info", `User accessed secure-confirmed endpoint`);
+    }
+  );
 
-  app.get("/logout", (req, res) => {
+  app.get("/auth/logout", (req, res) => {
     let email = req.user.email;
     req.logout();
     res.json(sendPacket(1, "Successfully logged out"));
