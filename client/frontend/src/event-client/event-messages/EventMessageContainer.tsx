@@ -10,7 +10,7 @@ import MyEventMessage from "./MyEventMessage"
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "300px",
+    width: "350px",
     display: "flex",
     flexDirection: "column",
     height: window.innerHeight - 60,
@@ -50,7 +50,7 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: "#6699ff !important",
   },
   cssLabel: {
-    color : "#f2f2f2",
+    color: "#f2f2f2",
     label: "#f2f2f2",
   },
   cssFocused: {

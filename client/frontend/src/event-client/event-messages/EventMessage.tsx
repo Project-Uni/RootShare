@@ -93,10 +93,10 @@ function EventMessage(props: Props) {
             {liked ? (
               <FaStar color="#6699ff" size={14} />
             ) : (
-              //faHeart #800000
-              <FaRegStar color="grey" size={14} />
-              //faRegHeart #800000
-            )}
+                //faHeart #800000
+                <FaRegStar color="grey" size={14} />
+                //faRegHeart #800000
+              )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>
             {props.likes}

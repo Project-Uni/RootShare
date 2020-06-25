@@ -2,11 +2,11 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Drawer } from "@material-ui/core";
 
-import RootShareLogoFullWhite from "../images/RootShareLogoFullWhite.png";
+import MyConnections from "../images/MyConnections.png";
 
 const useStyles = makeStyles((_: any) => ({
   drawerPaper: {
-    background: "#3D66DE",
+    background: "#202020",
   },
   logoDiv: {
     marginTop: 20,
@@ -41,12 +41,11 @@ function EventDrawer(props: Props) {
       <div className={styles.drawerWrapper}>
         <div className={styles.logoDiv}>
           <img
-            src={RootShareLogoFullWhite}
-            alt="RootShare"
+            src={MyConnections}
+            alt="MyConnections"
             className={styles.logo}
           />
         </div>
-
         {props.children}
       </div>
     </Drawer>

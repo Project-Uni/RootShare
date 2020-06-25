@@ -8,9 +8,11 @@ import { IoMdText } from "react-icons/io";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
 import EventDrawer from "./EventDrawer";
+
+import ConnectionsDrawerContainer from "./drawer-components/ConnectionsDrawerContainer"
+
 import {
   CalendarDrawer,
-  ConnectionsDrawer,
   MessagesDrawer,
   ProfileDrawer,
 } from "./drawer-components";
@@ -20,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     flexGrow: 1,
   },
   header: {
-    background: "#3D66DE",
+    background: "#333333",
   },
   headerLogo: {
     height: "38px",
@@ -63,7 +65,7 @@ function EventClientHeader(props: Props) {
   function getDrawerContent() {
     switch (drawerContent) {
       case "connections":
-        return <ConnectionsDrawer />;
+        return <ConnectionsDrawerContainer />;
       case "calendar":
         return <CalendarDrawer />;
       case "messages":
