@@ -113,7 +113,7 @@ module.exports = {
             })
           );
         }
-      );
+      ).sort({ timeCreated: "descending" });
     });
   },
 };
