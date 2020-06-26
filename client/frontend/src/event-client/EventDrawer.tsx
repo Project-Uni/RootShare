@@ -4,9 +4,11 @@ import { Drawer } from "@material-ui/core";
 
 import MyConnections from "../images/MyConnections.png";
 
+
+
 const useStyles = makeStyles((_: any) => ({
   drawerPaper: {
-    background: "#202020",
+    background: "#242d56",
   },
   logoDiv: {
     marginTop: 20,
@@ -16,8 +18,8 @@ const useStyles = makeStyles((_: any) => ({
     height: "75px",
   },
   drawerWrapper: {
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 15,
+    marginRight: 15,
   },
 }));
 

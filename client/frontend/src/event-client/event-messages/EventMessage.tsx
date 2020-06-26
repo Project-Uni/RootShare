@@ -8,7 +8,7 @@ import RSText from "../../base-components/RSText";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: "#202020",
+    background: "#242d56",
     paddingBottom: 4,
   },
   top: {

@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TextField, IconButton } from "@material-ui/core";
-import RSText from "../../base-components/RSText";
 
 import ConnectionsDrawer from "./ConnectionsDrawer";
+import PendingConnectionsDrawer from "./PendingConnectionsDrawer";
+
+import { colors } from "../../theme/Colors";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "325px",
+    width: "400px",
     display: "flex",
     flexDirection: "column",
-    height: window.innerHeight - 100,
+    height: window.innerHeight - 60,
   },
   headerText: {
     margin: 0,
@@ -20,55 +21,50 @@ const useStyles = makeStyles((_: any) => ({
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
-    background: "#202020",
-    borderTop: "2px solid #ffffff",
-    color: "#f2f2f2",
+    background: colors().primary,
+    borderTop: "2px solid " + colors().primaryText,
+    color: colors().primaryText,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
   textField: {
     width: 200,
-    background: "#333333",
-    color: "#f2f2f2",
-    label: "#f2f2f2"
+    background: colors().secondary,
+    color: colors().primaryText,
+    label: colors().primaryText
   },
   messageContainer: {
     flex: 1,
     justifyContent: "flex-end",
-    background: "#202020",
+    background: colors().secondary,
     overflow: "scroll",
-    label: "#f2f2f2",
+    label: colors().primaryText,
   },
   input: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
-    borderWidth: "1px",
-    borderColor: "#6699ff !important",
+    color: colors().primaryText,
+    label: colors().primaryText,
   },
   cssLabel: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
+    color: colors().primaryText,
+    label: colors().primaryText,
   },
   cssFocused: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
-    borderWidth: '2px',
-    borderColor: '#f2f2f2 !important',
+    color: colors().primaryText,
+    label: colors().primaryText,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: "#f2f2f2 !important",
-      label: "#f2f2f2 !important",
+      color: colors().primaryText,
+      label: colors().primaryText,
       borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
+      borderColor: colors().primaryText,
     }
   },
   notchedOutline: {
     borderWidth: '2px',
-    label: "#f2f2f2",
-    borderColor: '#f2f2f2 !important',
-    color: "#f2f2f2 !important",
+    label: colors().primaryText,
+    color: colors().primaryText,
   },
 }));
 
@@ -80,17 +76,89 @@ function ConnectionsDrawerContainer(props: Props) {
 
   function testRenderMessages() {
     const output = [];
-    for (let i = 0; i <= 20; i++) {
+    for (let i = 0; i < 1; i++) {
+      output.push(
+        <div className={styles.messageTest}>
+          <PendingConnectionsDrawer
+            name="Ashwin Mahesh"
+            nameId="1002"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <PendingConnectionsDrawer
+            name="Dhruv Patel"
+            nameId="1003"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <PendingConnectionsDrawer
+            name="Lauren Odle"
+            nameId="1004"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <PendingConnectionsDrawer
+            name="Chris Hartley"
+            nameId="1004"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+    }
+    for (let i = 0; i <= 10; i++) {
       output.push(
         <div className={styles.messageTest}>
           <ConnectionsDrawer
             name="Jackson McCluskey"
-            nameId="1001"
+            nameId="2001"
             organization="RootShare"
             picture="jacksonsprofile.png"
           />
         </div>
       );
+      output.push(
+        <div className={styles.messageTest}>
+          <ConnectionsDrawer
+            name="Smit Desai"
+            nameId="2002"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <ConnectionsDrawer
+            name="Caite Capezzuto"
+            nameId="2003"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <ConnectionsDrawer
+            name="Caite Capezzuto"
+            nameId="2004"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
     }
     return output;
   }

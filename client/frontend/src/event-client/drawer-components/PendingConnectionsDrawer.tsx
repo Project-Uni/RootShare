@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from "@material-ui/core/styles";
+
 import { IconButton } from "@material-ui/core";
-import { FaEllipsisH } from "react-icons/fa";
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import RSText from "../../base-components/RSText";
 import { colors } from "../../theme/Colors";
 
 const useStyles = makeStyles((_: any) => ({
-
   wrapper: {
     background: colors().secondary,
     paddingBottom: 4,
@@ -36,6 +35,7 @@ const useStyles = makeStyles((_: any) => ({
     display: "flex",
     justifyContent: "space-between",
     margin: 0,
+    //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
   },
   name: {
@@ -53,8 +53,10 @@ const useStyles = makeStyles((_: any) => ({
     fontStyle: "italic",
   },
   ellipsis: {
-    margin: 1.5,
-    marginBottom: -7,
+    marginRight: -5,
+    marginTop: -2,
+    color: colors().primaryText,
+    marginBottom: -13,
   },
 }));
 
@@ -65,7 +67,7 @@ type Props = {
   picture: string,
 };
 
-function ConnectionsDrawer(props: Props) {
+function PendingConnectionsDrawer(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
 
@@ -82,9 +84,12 @@ function ConnectionsDrawer(props: Props) {
           <RSText bold size={12} className={styles.name}>
             {props.name}
           </RSText>
+          <RSText size={12} className={styles.message}>
+            Pending Request
+          </RSText>
         </div>
-        <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color={colors().secondaryText} />
+        <IconButton>
+          <AddCircleOutlineIcon className={styles.ellipsis} />
         </IconButton>
       </div>
       <div className={styles.bottom}>
@@ -98,4 +103,4 @@ function ConnectionsDrawer(props: Props) {
   );
 }
 
-export default ConnectionsDrawer;
+export default PendingConnectionsDrawer;
