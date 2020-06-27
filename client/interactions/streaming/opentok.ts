@@ -62,13 +62,10 @@ module.exports = {
   getLatestWebinarID: async (userID) => {
     const currUser = await User.findById(userID)
 
-    if (!currUser) {
-      return sendPacket(-1, 'Could not find User')
-    }
+    if (!currUser) return sendPacket(-1, 'Could not find User')
+    
     const RSVPCount = currUser.RSVPWebinars.length
-    if (RSVPCount == 0) {
-      return sendPacket(0, 'User Has no Webinars')
-    }
+    if (RSVPCount == 0) return sendPacket(0, 'User Has no Webinars')
 
     const webinarID = currUser.RSVPWebinars[RSVPCount - 1]
     return sendPacket(1, "Sending Latest Webinar ID", { webinarID })

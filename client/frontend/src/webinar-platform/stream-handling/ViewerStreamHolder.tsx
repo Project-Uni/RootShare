@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { makeStyles } from "@material-ui/core/styles"
 import axios from 'axios'
 
@@ -14,7 +14,11 @@ type Props = {}
 
 function ViewerStreamHolder(props: Props) {
   const styles = useStyles()
-  const [src, setSrc] = useState('')
+  const [videoData, setVideoData] = useState('')
+
+  useEffect(()=>{
+    setSourceToLatestWebinarID()
+  }, [])
 
   async function setSourceToLatestWebinarID() {
     const webinarID = await axios.get('/webinar/latestWebinarID')
@@ -32,7 +36,7 @@ function ViewerStreamHolder(props: Props) {
           const source = `https://stream.mux.com/${muxPlaybackID}.m3u8`
           const streamExists = await checkStreamExists(source)
           if (streamExists) {
-            setSrc(source)
+            setVideoData(source)
           }
         } else {
           log('error', message)
@@ -51,15 +55,17 @@ function ViewerStreamHolder(props: Props) {
       })
   }
 
-  setSourceToLatestWebinarID()
+
   return (
-    (src.localeCompare('') === 0) ?
-      <div></div> :
       <div className={styles.wrapper}>
-        <VideoPlayer
-          src={src}
-        />
+        {videoData !== '' ?  <VideoPlayer
+          src={videoData}
+        /> : <></>
+        
+      }
+       
       </div>
+  }
   )
 }
 

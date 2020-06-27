@@ -55,12 +55,14 @@ function PublisherStreamHolder(props: Props) {
   async function connectStream(webinarID: string) {
     if (OT.checkSystemRequirements() !== 1) {
       // The client does not support WebRTC
+      console.log("No WebRTC Error")
       return
     }
 
     OT.checkScreenSharingCapability(function (response: any) {
       if (!response.supported || response.extensionRegistered === false) {
         // This browser does not support screen sharing
+        console.log("Browser not supporting screen sharing")
       } else {
         setCanScreenShare(true)
       }
