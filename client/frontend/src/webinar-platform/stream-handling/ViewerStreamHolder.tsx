@@ -22,15 +22,8 @@ function ViewerStreamHolder(props: Props) {
 
   async function setSourceToLatestWebinarID() {
     const { data } = await axios.get('/webinar/latestWebinarID');
-    let webinarID = '';
-    if (data['success'] === 1) {
-      webinarID = data.content['webinarID'];
-    }
-    else {
-      log('error', data['message']);
-      return;
-    }
-    getVideoData(webinarID);
+    if (data['success'] === 1) getVideoData(data.content['webinarID']);
+    else log('error', data['message']);
   }
 
   async function getVideoData(webinarID: string) {
