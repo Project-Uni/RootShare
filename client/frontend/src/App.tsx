@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 
 import { Router, Route, Switch } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import ReactGA from "react-ga";
+import { connect } from 'react-redux';
+import { updateUser } from './redux/actions/user';
 
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
@@ -11,11 +13,8 @@ import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
 import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder';
 import ViewerStreamHolder from './webinar-platform/stream-handling/ViewerStreamHolder';
 import HostStreamHolder from './webinar-platform/stream-handling/HostStreamHolder';
-
 import EventClientBase from "./event-client/EventClientBase";
-
 import PageNotFound from "./not-found-page/PageNotFound";
-
 import UserCount from "./admin-utility/UserCount";
 
 const analyticsTrackingID = "UA-169916177-1";
@@ -28,7 +27,16 @@ history.listen((location) => {
   ReactGA.pageview(location.pathname); // Record a pageview for the given page
 });
 
-function App() {
+type Props = {
+  user: { [key: string]: any; };
+  onUpdateUser: (userInfo: { [key: string]: any; }) => void;
+};
+function App(props: Props) {
+  //ASHWIN - Remove this after testing
+  useEffect(() => {
+    props.onUpdateUser({ userid: '101test' });
+  }, []);
+
   return (
     <div className="App">
       <Router history={history}>
@@ -51,4 +59,18 @@ function App() {
   );
 }
 
-export default App;
+const mapStateToProps = (state: { [key: string]: any; }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    onUpdateUser: (userInfo: { [key: string]: any; }) => {
+      dispatch(updateUser(userInfo));
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
