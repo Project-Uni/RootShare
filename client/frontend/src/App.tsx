@@ -8,9 +8,9 @@ import ReactGA from "react-ga";
 import HypeLanding from "./hype-page/hype-landing/HypeLanding";
 import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
 import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
-import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder'
-import ViewerStreamHolder from './webinar-platform/stream-handling/ViewerStreamHolder'
-import HostStreamHolder from './webinar-platform/stream-handling/HostStreamHolder'
+import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder';
+import ViewerStreamHolder from './webinar-platform/stream-handling/ViewerStreamHolder';
+import HostStreamHolder from './webinar-platform/stream-handling/HostStreamHolder';
 
 import EventClientBase from "./event-client/EventClientBase";
 
@@ -34,39 +34,20 @@ function App() {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
-            <Route exact path="/">
-              <HypeLanding />
-            </Route>
-            <Route exact path="/profile/externalRegister">
-              <HypeExternalMissingInfo />
-            </Route>
-            <Route exact path="/profile/initialize">
-              <HypeAdditionalInfo />
-            </Route>
-            <Route exact path="/webinar/host">
-              <HostStreamHolder />
-            </Route>
-            <Route exact path="/webinar/publisher">
-              <PublisherStreamHolder />
-            </Route>
-            <Route exact path="/webinar/viewer">
-              <ViewerStreamHolder />
-            </Route>
-            <Route exact path="/event/:eventid">
-              <EventClientBase />
-            </Route>
-
+            <Route exact path="/" component={HypeLanding} />
+            <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
+            <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
+            <Route exact path="/webinar/host" component={HostStreamHolder} />
+            <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
+            <Route exact path="/webinar/viewer" component={ViewerStreamHolder} />
+            <Route exact path="/event/:eventid" component={EventClientBase} />
             {/* REMOVE THIS BEFORE FINAL PRODUCT */}
-            <Route exact path="/admin/count">
-              <UserCount />
-            </Route>
-            <Route>
-              <PageNotFound />
-            </Route>
+            <Route exact path="/admin/count" component={UserCount} />
+            <Route component={PageNotFound} />
           </Switch>
         </div>
       </Router>
-    </div>
+    </div >
   );
 }
 
