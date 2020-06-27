@@ -16,7 +16,7 @@ function ViewerStreamHolder(props: Props) {
   const styles = useStyles()
   const [videoData, setVideoData] = useState('')
 
-  useEffect(()=>{
+  useEffect(() => {
     setSourceToLatestWebinarID()
   }, [])
 
@@ -57,15 +57,9 @@ function ViewerStreamHolder(props: Props) {
 
 
   return (
-      <div className={styles.wrapper}>
-        {videoData !== '' ?  <VideoPlayer
-          src={videoData}
-        /> : <></>
-        
-      }
-       
-      </div>
-  }
+    <div className={styles.wrapper}>
+      {videoData !== '' ? <VideoPlayer src={videoData} /> : <></>}
+    </div>
   )
 }
 

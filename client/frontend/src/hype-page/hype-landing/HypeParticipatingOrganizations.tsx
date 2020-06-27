@@ -67,7 +67,23 @@ function HypeParticipatingOrganizations(props: Props) {
     "Alpha Kappa Psi",
     "Chi Omega",
     "Operations and Supply Chain",
+    "Purdue Marketing Association",
     "Psi Upsilon",
+    "Purdue Student Engineering Foundation",
+    "Purdue Engineering Student Council",
+    "Purdue Women's Volleyball Club",
+    "Women in Aerospace",
+    "Web Dev Club",
+    "Purdue Solutions",
+    "Doster Leadership Conference",
+    "Fashion and Retail Organization",
+    "Consult Your Community",
+    "Purdue Club Sports",
+    "Alpha Xi Delta",
+    "Purdue Chicks",
+    "Purdue Student Governemnt",
+    "Purdue American Association of University Women",
+    "Purdue Think",
   ].sort();
 
   function renderOrganizations() {

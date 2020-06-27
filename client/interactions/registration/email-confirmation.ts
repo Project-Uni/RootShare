@@ -68,7 +68,7 @@ module.exports = {
       Destination: {
         ToAddresses: [`${emailAddress}`]
       },
-      Source: `RootShare Team <dev@rootshare.io>`,
+      Source: `RootShare Team <support@rootshare.io>`,
       Template: 'confirmationTemplate2',
       TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\", \"unsubscribeLink\":\"${unsubscribeLink}\" }`,
       ReplyToAddresses: []
