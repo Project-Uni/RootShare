@@ -79,7 +79,11 @@ function EventWatcherVideoContainer(props: Props) {
   return (
     <div className={styles.wrapper}>
       {videoData !== ''
-        ? <VideoPlayer src={videoData} className={styles.videoPlayer} />
+        ? <VideoPlayer
+          src={videoData}
+          height={playerHeight}
+          width={playerWidth}
+        />
         : <EventClientEmptyVideoPlayer
           height={playerHeight}
           width={playerWidth}
