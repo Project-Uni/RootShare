@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from 'react-device-detect';
 
+import RSText from '../base-components/RSText';
+
 import EventClientHeader from "./EventClientHeader";
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
+
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
+import EventSpeakerContainer from './event-video/event-speaker/EventSpeakerContainer';
+import EventAdminContainer from './event-video/event-admin/EventAdminContainer';
+
 import EventClientAdvertisement from "./EventClientAdvertisement";
 import EventClientMessageContainer from "./event-messages/EventMessageContainer";
-import RSText from '../base-components/RSText';
+
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -79,8 +85,8 @@ function EventClientBase(props: Props) {
 
   function renderVideoArea() {
     if (eventMode === 'viewer') return <EventWatcherVideoContainer />;
-    else if (eventMode === 'speaker') return <p>Speaker video area</p>;
-    else if (eventMode === 'admin') return <p>Admin video area</p>;
+    else if (eventMode === 'speaker') return <EventSpeakerContainer />;
+    else if (eventMode === 'admin') return <EventAdminContainer />;
   }
 
   function getHeaderMinWidth() {
