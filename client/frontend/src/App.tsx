@@ -16,6 +16,7 @@ import HostStreamHolder from './webinar-platform/stream-handling/HostStreamHolde
 import EventClientBase from "./event-client/EventClientBase";
 import PageNotFound from "./not-found-page/PageNotFound";
 import UserCount from "./admin-utility/UserCount";
+import axios from "axios";
 
 const analyticsTrackingID = "UA-169916177-1";
 ReactGA.initialize(analyticsTrackingID);
@@ -29,34 +30,42 @@ history.listen((location) => {
 
 type Props = {
   user: { [key: string]: any; };
-  onUpdateUser: (userInfo: { [key: string]: any; }) => void;
+  updateUser: (userInfo: { [key: string]: any; }) => void;
 };
+
 function App(props: Props) {
-  //ASHWIN - Remove this after testing
   useEffect(() => {
-    props.onUpdateUser({ userid: '101test' });
+    mockLogin();
   }, []);
 
-  return (
-    <div className="App">
-      <Router history={history}>
-        <div className="wrapper">
-          <Switch>
-            <Route exact path="/" component={HypeLanding} />
-            <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
-            <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
-            <Route exact path="/webinar/host" component={HostStreamHolder} />
-            <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
-            <Route exact path="/webinar/viewer" component={ViewerStreamHolder} />
-            <Route exact path="/event/:eventid" component={EventClientBase} />
-            {/* REMOVE THIS BEFORE FINAL PRODUCT */}
-            <Route exact path="/admin/count" component={UserCount} />
-            <Route component={PageNotFound} />
-          </Switch>
-        </div>
-      </Router>
-    </div >
-  );
+  async function mockLogin() {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+      const { data } = await axios.get('/api/mockLogin');
+      if (data['success'] === 1) props.updateUser({ ...data['content'] });
+    }
+  }
+}
+
+return (
+  <div className="App">
+    <Router history={history}>
+      <div className="wrapper">
+        <Switch>
+          <Route exact path="/" component={HypeLanding} />
+          <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
+          <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
+          <Route exact path="/webinar/host" component={HostStreamHolder} />
+          <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
+          <Route exact path="/webinar/viewer" component={ViewerStreamHolder} />
+          <Route exact path="/event/:eventid" component={EventClientBase} />
+          {/* REMOVE THIS BEFORE FINAL PRODUCT */}
+          <Route exact path="/admin/count" component={UserCount} />
+          <Route component={PageNotFound} />
+        </Switch>
+      </div>
+    </Router>
+  </div >
+);
 }
 
 const mapStateToProps = (state: { [key: string]: any; }) => {
@@ -67,7 +76,7 @@ const mapStateToProps = (state: { [key: string]: any; }) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    onUpdateUser: (userInfo: { [key: string]: any; }) => {
+    updateUser: (userInfo: { [key: string]: any; }) => {
       dispatch(updateUser(userInfo));
     }
   };

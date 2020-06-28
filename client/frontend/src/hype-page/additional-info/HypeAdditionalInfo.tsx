@@ -10,9 +10,6 @@ import HypeCard from "../hype-card/HypeCard";
 import HypeInfoBody from "./HypeInfoBody";
 import HypeAdditionalComplete from "./HypeAdditionalComplete";
 
-import { connect } from 'react-redux';
-import { updateUser } from '../../redux/actions/user';
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {
@@ -45,10 +42,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: { [key: string]: any; };
-  updateUser: (userInfo: { [key: string]: any; }) => void;
-};
+type Props = {};
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
@@ -83,9 +77,6 @@ function HypeAdditionalInfo(props: Props) {
       if (!data["content"]["externalComplete"]) {
         setExternalRedirect(true);
       } else {
-        const { firstName, lastName, _id, email } = data['content'];
-        props.updateUser({ firstName: firstName, lastName: lastName, email: email, _id: _id });
-
         setRegCompleted(data["content"]["regComplete"]);
         setCurrentUser(data["content"]["email"]);
       }
@@ -299,18 +290,4 @@ function HypeAdditionalInfo(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any; }) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any; }) => {
-      dispatch(updateUser(userInfo));
-    }
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HypeAdditionalInfo);
+export default HypeAdditionalInfo;
