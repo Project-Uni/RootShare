@@ -10,8 +10,6 @@ const useStyles = makeStyles((_: any) => ({
     background: "#3D66DE",
     paddingTop: "20px",
     paddingBottom: "10px",
-    // marginTop: "50px",
-    // width: "100vw",
   },
   footerLogo: {
     height: "40px",
