@@ -9,6 +9,9 @@ import EventClientAdvertisement from "./EventClientAdvertisement";
 import EventClientMessageContainer from "./event-messages/EventMessageContainer";
 import RSText from '../base-components/RSText';
 
+import SampleEventAd from '../images/sample_event_ad.png';
+import SampleAd2 from '../images/sampleAd2.png';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {
@@ -53,7 +56,8 @@ function EventClientBase(props: Props) {
   }, []);
 
   function fetchAds() {
-    const ads = ["lightpink", "lightgreen", "lightblue"];
+    const ads = [SampleEventAd, SampleAd2];
+    // const ads = ["lightpink", "lightgreen", "lightblue"];
     setAdvertisements(ads);
     setAdLoaded(true);
   }

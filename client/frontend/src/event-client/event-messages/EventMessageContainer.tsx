@@ -14,7 +14,6 @@ const useStyles = makeStyles((_: any) => ({
     width: "300px",
     display: "flex",
     flexDirection: "column",
-    // height: window.innerHeight - 60,
   },
   headerText: {
     margin: 0,
