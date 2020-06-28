@@ -7,11 +7,15 @@ import VideoPlayer from '../VideoPlayer';
 
 import log from '../../../helpers/logger';
 
+const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
+const AD_CONTAINER_HEIGHT = 125;
+const HEADER_HEIGHT = 60;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   videoPlayer: {
-    width: 600,
-    height: 600
+    width: window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH,
+    height: window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
   }
 }));
 
@@ -58,7 +62,13 @@ function EventWatcherVideoContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {videoData !== '' ? <VideoPlayer src={videoData} className={styles.videoPlayer} /> : <EventClientEmptyVideoPlayer height={505} width={720} />}
+      {videoData !== ''
+        ? <VideoPlayer src={videoData} className={styles.videoPlayer} />
+        : <EventClientEmptyVideoPlayer
+          height={window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT}
+          width={window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH}
+        />
+      }
     </div>
   );
 }

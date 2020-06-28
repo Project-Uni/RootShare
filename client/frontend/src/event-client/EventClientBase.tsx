@@ -19,6 +19,11 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: "space-between",
   },
   right: {},
+  adContainer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center'
+  }
 }));
 
 type Props = {
@@ -80,13 +85,16 @@ function EventClientBase(props: Props) {
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}
-          {adLoaded && (
-            <EventClientAdvertisement
-              height={100}
-              width={720}
-              advertisements={advertisements}
-            />
-          )}
+          <div className={styles.adContainer}>
+            {adLoaded && (
+              <EventClientAdvertisement
+                height={125}
+                width={800}
+                advertisements={advertisements}
+              />
+            )}
+          </div>
+
         </div>
         <div className={styles.right}>
           <EventClientMessageContainer />
