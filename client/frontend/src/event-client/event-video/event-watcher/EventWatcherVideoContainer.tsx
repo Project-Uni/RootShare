@@ -9,6 +9,10 @@ import log from '../../../helpers/logger';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
+  videoPlayer: {
+    width: 600,
+    height: 600
+  }
 }));
 
 type Props = {};
@@ -44,9 +48,9 @@ function EventWatcherVideoContainer(props: Props) {
 
   async function checkStreamExists(source: string) {
     return await axios.get(source)
-      .then((response) => {
+      .then((_) => {
         return true;
-      }).catch((err) => {
+      }).catch((_) => {
         return false;
       });
   }
@@ -54,7 +58,7 @@ function EventWatcherVideoContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {videoData !== '' ? <VideoPlayer src={videoData} /> : <EventClientEmptyVideoPlayer height={505} width={720} />}
+      {videoData !== '' ? <VideoPlayer src={videoData} className={styles.videoPlayer} /> : <EventClientEmptyVideoPlayer height={505} width={720} />}
     </div>
   );
 }

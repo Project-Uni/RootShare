@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { isMobile } from 'react-device-detect';
 
 import EventClientHeader from "./EventClientHeader";
-// import EventClientEmptyVideoPlayer from "./event-video/EventClientEmptyVideoPlayer";
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventClientAdvertisement from "./EventClientAdvertisement";
 import EventClientMessageContainer from "./event-messages/EventMessageContainer";
@@ -71,6 +71,9 @@ function EventClientBase(props: Props) {
     else if (eventMode === 'admin') return <p>Admin video area</p>;
   }
 
+  if (isMobile) {
+    return <p>This feature is currently not available on mobile. Please switch to a desktop.</p>;
+  }
   return (
     <div className={styles.wrapper}>
       <EventClientHeader />

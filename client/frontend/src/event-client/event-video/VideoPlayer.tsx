@@ -4,6 +4,7 @@ import '../../../node_modules/video.js/dist/video-js.css';
 
 interface Props {
   src: string;
+  className?: any;
 }
 
 export default class VideoPlayer extends React.Component<Props> {
@@ -50,7 +51,7 @@ export default class VideoPlayer extends React.Component<Props> {
     return (
       <div>
         <div data-vjs-player>
-          <video ref={node => this.videoNode = node} className="video-js"></video>
+          <video ref={node => this.videoNode = node} className={["video-js", this.props.className].join(' ')}></video>
         </div>
       </div>
     );
