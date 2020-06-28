@@ -10,6 +10,9 @@ import HypeCard from "../hype-card/HypeCard";
 import HypeInfoBody from "./HypeInfoBody";
 import HypeAdditionalComplete from "./HypeAdditionalComplete";
 
+import { connect } from 'react-redux';
+import { updateUser } from '../../redux/actions/user';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {
@@ -42,7 +45,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any; };
+  updateUser: (userInfo: { [key: string]: any; }) => void;
+};
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
@@ -75,11 +81,13 @@ function HypeAdditionalInfo(props: Props) {
     const { data } = await axios.get("/auth/curr-user/load");
     if (data["success"] === 1) {
       if (!data["content"]["externalComplete"]) {
-        setExternalRedirect(true)
+        setExternalRedirect(true);
       } else {
-        setRegCompleted(data["content"]["regComplete"])
-        setCurrentUser(data["content"]["email"])
-        return data["content"]["email"];
+        const { firstName, lastName, _id, email } = data['content'];
+        props.updateUser({ firstName: firstName, lastName: lastName, email: email, _id: _id });
+
+        setRegCompleted(data["content"]["regComplete"]);
+        setCurrentUser(data["content"]["email"]);
       }
     } else setLandingRedirect(true);
   }
@@ -291,4 +299,18 @@ function HypeAdditionalInfo(props: Props) {
   );
 }
 
-export default HypeAdditionalInfo;
+const mapStateToProps = (state: { [key: string]: any; }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any; }) => {
+      dispatch(updateUser(userInfo));
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeAdditionalInfo);

@@ -1,3 +1,4 @@
+import log from '../../helpers/logger';
 const STATE_NAME = 'RootShare:state';
 
 const initializeState = () => ({
@@ -9,7 +10,7 @@ const saveState = (state: { [key: string]: any; }) => {
     let serializedState = JSON.stringify(state);
     localStorage.setItem(STATE_NAME, serializedState);
   } catch (err) {
-    console.log('There was an unexpected error while trying to save state.');
+    log('error', 'There was an unexpected error while trying to save state.');
   }
 };
 
@@ -21,7 +22,7 @@ const loadState = () => {
     }
     return JSON.parse(serializedState);
   } catch (err) {
-    console.log('There was an unexpected error while trying to load state');
+    log('error', 'There was an unexpected error while trying to load state');
   }
 };
 

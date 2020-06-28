@@ -12,6 +12,9 @@ import {
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
+import { connect } from 'react-redux';
+import { updateUser } from '../../redux/actions/user';
+
 import HypeHeader from "../headerFooter/HypeHeader";
 import HypeFooter from "../headerFooter/HypeFooter";
 import HypeCard from "../hype-card/HypeCard";
@@ -65,7 +68,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any; };
+  updateUser: (userInfo: { [key: string]: any; }) => void;
+};
 
 function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
@@ -81,11 +87,7 @@ function HypeExternalMissingInfo(props: Props) {
   async function getCurrentUser() {
     const { data } = await axios.get("/auth/curr-user/load");
     if (data["success"] === 1) {
-      if (data["content"]["externalComplete"]) {
-        setAdditionalRedirect(true)
-      } else {
-        return data["content"]["email"];
-      }
+      if (data["content"]["externalComplete"]) setAdditionalRedirect(true);
     } else setLandingRedirect(true);
   }
 
@@ -205,4 +207,18 @@ function HypeExternalMissingInfo(props: Props) {
   );
 }
 
-export default HypeExternalMissingInfo;
+const mapStateToProps = (state: { [key: string]: any; }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any; }) => {
+      dispatch(updateUser(userInfo));
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeExternalMissingInfo);
