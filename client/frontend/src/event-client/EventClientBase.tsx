@@ -106,7 +106,8 @@ function EventClientBase(props: Props) {
       <div className={styles.wrapper}>
         <HypeHeader />
         <RSText type='subhead' size={16}>The live event feature is currently not available on mobile. Please switch to a desktop.</RSText>
-      </div>);
+      </div>
+    );
   }
 
   return (

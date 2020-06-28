@@ -38,6 +38,7 @@ function App(props: Props) {
   }, []);
 
   async function mockLogin() {
+    console.log("ENV:", process.env);
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       const { data } = await axios.get('/api/mockLogin');
       if (data['success'] === 1) props.updateUser({ ...data['content'] });
