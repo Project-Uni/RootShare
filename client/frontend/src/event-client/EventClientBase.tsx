@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import EventClientHeader from "./EventClientHeader";
-import EventClientVideoPlayer from "./event-video/EventClientVideoPlayer";
+import EventClientEmptyVideoPlayer from "./event-video/EventClientEmptyVideoPlayer";
 import EventClientAdvertisement from "./EventClientAdvertisement";
 import EventClientMessageContainer from "./event-messages/EventMessageContainer";
 
@@ -43,7 +43,7 @@ function EventClientBase(props: Props) {
       <EventClientHeader />
       <div className={styles.body}>
         <div className={styles.left}>
-          <EventClientVideoPlayer height={505} width={720} />
+          <EventClientEmptyVideoPlayer height={505} width={720} />
           {adLoaded && (
             <EventClientAdvertisement
               height={100}

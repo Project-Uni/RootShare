@@ -1,11 +1,22 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
+// import RSText from '../../'
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   videoContent: {
     background: "black",
+    verticalAlign: 'center',
+    padding: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
+  text: {
+    color: 'white',
+    textAlign: 'center'
+  }
 }));
 
 type Props = {
@@ -13,17 +24,18 @@ type Props = {
   width: number;
 };
 
-function EventClientVideoPlayer(props: Props) {
+function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
-      {/* TODO-Remove this tag (videoContent) and replace it with the actual video player code */}
       <div
         className={styles.videoContent}
         style={{ height: props.height, width: props.width }}
-      ></div>
+      >
+        <p className={styles.text}>The event has not started yet</p>
+      </div>
     </div>
   );
 }
 
-export default EventClientVideoPlayer;
+export default EventClientEmptyVideoPlayer;
