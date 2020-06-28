@@ -28,6 +28,6 @@ var userSchema = new Schema({
     required: true,
     default: []
   }
-});
+}, { timestamps: true });
 
 mongoose.model("users", userSchema);
