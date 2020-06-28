@@ -44,6 +44,7 @@ function EventClientBase(props: Props) {
   const [advertisements, setAdvertisements] = useState(["black"]);
   const [adLoaded, setAdLoaded] = useState(false);
   const [eventMode, setEventMode] = useState('viewer');
+  const minHeaderWidth = getHeaderMinWidth();
 
 
   useEffect(() => {
@@ -78,16 +79,21 @@ function EventClientBase(props: Props) {
     else if (eventMode === 'admin') return <p>Admin video area</p>;
   }
 
-  if (isMobile) {
-    return (
-      <div className={styles.wrapper}>
-        <HypeHeader />
-        <RSText type='subhead' size={16}>The live event feature is currently not available on mobile. Please switch to a desktop.</RSText>
-      </div>);
+  function getHeaderMinWidth() {
+    if (eventMode === 'viewer') return 1100;
+    else return 1100;
   }
+
+  // if (isMobile) {
+  //   return (
+  //     <div className={styles.wrapper}>
+  //       <HypeHeader />
+  //       <RSText type='subhead' size={16}>The live event feature is currently not available on mobile. Please switch to a desktop.</RSText>
+  //     </div>);
+  // }
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader />
+      <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}

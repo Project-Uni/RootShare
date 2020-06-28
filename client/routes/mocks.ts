@@ -10,7 +10,14 @@ module.exports = (app) => {
       const user = await User.findOne({ email: MOCK_LOGIN_EMAIL });
       req.login(user, (err) => {
         if (err) return res.json(sendPacket(-1, 'Failed to login mock user'));
-        return res.json(sendPacket(1, 'Successfully logged in to mock user', { firstName: user.firstName, lastName: user.lastName, email: user.email, _id: user._id }));
+        return res.json(sendPacket(
+          1, 'Successfully logged in to mock user',
+          {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            _id: user._id
+          }));
       });
     }
     else return res.json(sendPacket(-1, 'Program not in dev'));

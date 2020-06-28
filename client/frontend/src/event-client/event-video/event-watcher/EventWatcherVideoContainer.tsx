@@ -12,7 +12,9 @@ const AD_CONTAINER_HEIGHT = 125;
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    minWidth: 1100 - EVENT_MESSAGES_CONTAINER_WIDTH
+  },
   videoPlayer: {
     width: window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH,
     height: window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
@@ -24,10 +26,24 @@ type Props = {};
 function EventWatcherVideoContainer(props: Props) {
   const styles = useStyles();
   const [videoData, setVideoData] = useState('');
+  const [playerWidth, setPlayerWidth] = useState(
+    window.innerWidth > 1100
+      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
+      : 1100 - EVENT_MESSAGES_CONTAINER_WIDTH
+  );
+  const [playerHeight, setPlayerHeight] = useState(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
 
   useEffect(() => {
     setSourceToLatestWebinarID();
+    window.addEventListener("resize", handleResize);
   }, []);
+
+  function handleResize() {
+    if (window.innerWidth >= 1100) {
+      setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
+    }
+    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
+  }
 
   async function setSourceToLatestWebinarID() {
     const { data } = await axios.get('/webinar/latestWebinarID');
@@ -65,8 +81,8 @@ function EventWatcherVideoContainer(props: Props) {
       {videoData !== ''
         ? <VideoPlayer src={videoData} className={styles.videoPlayer} />
         : <EventClientEmptyVideoPlayer
-          height={window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT}
-          width={window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH}
+          height={playerHeight}
+          width={playerWidth}
         />
       }
     </div>
