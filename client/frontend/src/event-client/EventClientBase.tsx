@@ -3,9 +3,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { isMobile } from 'react-device-detect';
 
 import EventClientHeader from "./EventClientHeader";
+import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventClientAdvertisement from "./EventClientAdvertisement";
 import EventClientMessageContainer from "./event-messages/EventMessageContainer";
+import RSText from '../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -77,7 +79,11 @@ function EventClientBase(props: Props) {
   }
 
   if (isMobile) {
-    return <p>This feature is currently not available on mobile. Please switch to a desktop.</p>;
+    return (
+      <div className={styles.wrapper}>
+        <HypeHeader />
+        <RSText type='subhead' size={16}>The live event feature is currently not available on mobile. Please switch to a desktop.</RSText>
+      </div>);
   }
   return (
     <div className={styles.wrapper}>
