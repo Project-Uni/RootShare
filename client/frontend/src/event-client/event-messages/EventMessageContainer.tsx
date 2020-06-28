@@ -8,7 +8,7 @@ import RSText from "../../base-components/RSText";
 import EventMessage from "./EventMessage";
 import MyEventMessage from "./MyEventMessage";
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 58;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: "300px",

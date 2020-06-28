@@ -2,7 +2,7 @@ import log from '../../helpers/logger';
 const STATE_NAME = 'RootShare:state';
 
 const initializeState = () => ({
-  user: { name: 'Ashwin' }
+  user: {}
 });
 
 const saveState = (state: { [key: string]: any; }) => {

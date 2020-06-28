@@ -6,6 +6,7 @@ import RSText from '../base-components/RSText';
 
 import EventClientHeader from "./EventClientHeader";
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
+import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventSpeakerContainer from './event-video/event-speaker/EventSpeakerContainer';
@@ -49,10 +50,11 @@ type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 function EventClientBase(props: Props) {
   const styles = useStyles();
 
-  const eventID = props.match.params['eventid'];
   const [advertisements, setAdvertisements] = useState(["black"]);
   const [adLoaded, setAdLoaded] = useState(false);
   const [eventMode, setEventMode] = useState('viewer');
+
+  const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
 
 
@@ -90,8 +92,8 @@ function EventClientBase(props: Props) {
   }
 
   function getHeaderMinWidth() {
-    if (eventMode === 'viewer') return 1100;
-    else return 1100;
+    if (eventMode === 'viewer') return 1102;
+    else return 1102;
   }
 
   // if (isMobile) {
@@ -122,6 +124,7 @@ function EventClientBase(props: Props) {
           <EventClientMessageContainer />
         </div>
       </div>
+      <HypeFooter minWidth={minHeaderWidth} />
     </div>
   );
 }
