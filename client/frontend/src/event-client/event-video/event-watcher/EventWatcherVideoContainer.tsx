@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from 'axios';
 
+import EventClientEmptyVideoPlayer from '../EventClientEmptyVideoPlayer';
 import VideoPlayer from '../VideoPlayer';
 
 import log from '../../../helpers/logger';
@@ -53,7 +54,7 @@ function EventWatcherVideoContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {videoData !== '' ? <VideoPlayer src={videoData} /> : <></>}
+      {videoData !== '' ? <VideoPlayer src={videoData} /> : <EventClientEmptyVideoPlayer height={505} width={720} />}
     </div>
   );
 }
