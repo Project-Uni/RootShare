@@ -44,28 +44,27 @@ function App(props: Props) {
       if (data['success'] === 1) props.updateUser({ ...data['content'] });
     }
   }
-}
 
-return (
-  <div className="App">
-    <Router history={history}>
-      <div className="wrapper">
-        <Switch>
-          <Route exact path="/" component={HypeLanding} />
-          <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
-          <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
-          <Route exact path="/webinar/host" component={HostStreamHolder} />
-          <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
-          <Route exact path="/webinar/viewer" component={ViewerStreamHolder} />
-          <Route exact path="/event/:eventid" component={EventClientBase} />
-          {/* REMOVE THIS BEFORE FINAL PRODUCT */}
-          <Route exact path="/admin/count" component={UserCount} />
-          <Route component={PageNotFound} />
-        </Switch>
-      </div>
-    </Router>
-  </div >
-);
+  return (
+    <div className="App">
+      <Router history={history}>
+        <div className="wrapper">
+          <Switch>
+            <Route exact path="/" component={HypeLanding} />
+            <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
+            <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
+            <Route exact path="/webinar/host" component={HostStreamHolder} />
+            <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
+            <Route exact path="/webinar/viewer" component={ViewerStreamHolder} />
+            <Route exact path="/event/:eventid" component={EventClientBase} />
+            {/* REMOVE THIS BEFORE FINAL PRODUCT */}
+            <Route exact path="/admin/count" component={UserCount} />
+            <Route component={PageNotFound} />
+          </Switch>
+        </div>
+      </Router>
+    </div >
+  );
 }
 
 const mapStateToProps = (state: { [key: string]: any; }) => {
