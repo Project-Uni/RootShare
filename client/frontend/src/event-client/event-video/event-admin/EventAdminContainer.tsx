@@ -147,6 +147,7 @@ function EventAdminContainer(props: Props) {
     <div className={styles.wrapper}>
       <div
         className={styles.videoContainer}
+        id="videoContainer"
         style={{ height: videoHeight, width: videoWidth }}
       ></div>
       <EventAdminButtonContainer

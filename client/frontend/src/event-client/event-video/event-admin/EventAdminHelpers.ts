@@ -90,7 +90,7 @@ export async function stopLiveStream() {
 
 export function createNewWebcamPublisher() {
   const publisher = OT.initPublisher(
-    'publisher',
+    'videoContainer',
     {
       insertMode: 'append',
       width: '10%',
@@ -105,8 +105,8 @@ export function createNewWebcamPublisher() {
 
 export function createNewScreensharePublisher() {
   const publisher = OT.initPublisher(
-    'screen-preview',
-    { videoSource: 'screen' },
+    'videoContainer',
+    { videoSource: 'screen', insertMode: 'append', width: '10%', height: '200px' },
     (err) => {
       if (err) alert(err.message);
     }
