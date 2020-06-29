@@ -11,6 +11,8 @@ import {
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
 
+import EventAdminButtonContainer from './EventAdminButtonContainer';
+
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
 const HEADER_HEIGHT = 60;
@@ -24,24 +26,6 @@ const useStyles = makeStyles((_: any) => ({
     background: 'black',
     marginBottom: 0,
   },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'flex-start',
-    padding: 1,
-    paddingTop: 5,
-    paddingBottom: 5,
-  },
-  buttonDefault: {
-    marginLeft: 8,
-    //TODO - Change once color scheme is updated
-    backgroundColor: '#3D66DE',
-    color: 'white',
-    '&:hover': {
-      //TODO - Change once color scheme is updated
-      backgroundColor: '#4272E6',
-    },
-  },
-  cameraIcon: {},
 }));
 
 type Props = {};
@@ -93,53 +77,24 @@ function EventAdminContainer(props: Props) {
     setShowWebcam(!showWebcam);
   }
 
+  // Ashwin - ALL WEBCAM AND SCREEN RECORDING FUNCTIONALITY BELOW THIS POINT
+
+  // Ashwin - END OF WEBCAM AND SCREEN RECORDING FUNCTIONALITY
+
   return (
     <div className={styles.wrapper}>
       <div
         className={styles.videoContainer}
         style={{ height: videoHeight, width: videoWidth }}
       ></div>
-      <div className={styles.buttonContainer}>
-        <Button
-          variant="contained"
-          onClick={handleStreamStatusChange}
-          className={[styles.buttonDefault].join(' ')}
-        >
-          {!isStreaming ? 'Begin Live Stream' : 'End Live Stream'}
-        </Button>
-        <Button
-          className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          onClick={toggleWebcam}
-        >
-          {showWebcam ? (
-            <Video size={28} color="white" />
-          ) : (
-            <VideoOff size={28} color="white" />
-          )}
-        </Button>
-        <Button
-          className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          onClick={toggleMute}
-        >
-          {!muted ? (
-            <Microphone color="white" size={26} />
-          ) : (
-            <MicrophoneOff color="white" size={26} />
-          )}
-        </Button>
-        <Button
-          variant="contained"
-          className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-        >
-          Share Screen
-        </Button>
-        <Button
-          variant="contained"
-          className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-        >
-          Manage Speakers
-        </Button>
-      </div>
+      <EventAdminButtonContainer
+        isStreaming={isStreaming}
+        showWebcam={showWebcam}
+        muted={muted}
+        handleStreamStatusChange={handleStreamStatusChange}
+        toggleWebcam={toggleWebcam}
+        toggleMute={toggleMute}
+      />
     </div>
   );
 }
