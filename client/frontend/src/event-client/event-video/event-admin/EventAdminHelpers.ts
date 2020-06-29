@@ -1,5 +1,5 @@
 import axios from 'axios';
-import OT, { Session, Publisher } from '@opentok/client';
+import OT from '@opentok/client';
 import log from '../../../helpers/logger';
 
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
@@ -89,13 +89,19 @@ export async function stopLiveStream() {
 }
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
-export function createNewWebcamPublisher() {
+
+const videoUISettings = {
+  width: '100%',
+  height: '100%',
+};
+
+export function createNewWebcamPublisher(name: string) {
   const publisher = OT.initPublisher(
-    'videoContainer',
+    'pos1',
     {
-      insertMode: 'append',
-      width: '10%',
-      height: '200px',
+      insertMode: 'replace',
+      name: name,
+      ...videoUISettings,
     },
     (err) => {
       if (err) alert(err.message);
@@ -104,10 +110,10 @@ export function createNewWebcamPublisher() {
   return publisher;
 }
 
-export function createNewScreensharePublisher() {
+export function createNewScreensharePublisher(name: string) {
   const publisher = OT.initPublisher(
-    'videoContainer',
-    { videoSource: 'screen', insertMode: 'append', width: '10%', height: '200px' },
+    'pos1',
+    { videoSource: 'screen', insertMode: 'replace', name: name, ...videoUISettings },
     (err) => {
       if (err) alert(err.message);
     }

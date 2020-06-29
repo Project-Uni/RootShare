@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Grid } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 
 import axios from 'axios';
+import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
 
 import EventAdminButtonContainer from './EventAdminButtonContainer';
@@ -45,15 +46,21 @@ const useStyles = makeStyles((_: any) => ({
     color: 'white',
   },
   videoQuadrant: {
-    border: '1px solid red',
-    flexGrow: 1,
+    width: '50%',
   },
   row: {
-    border: '1px solid green',
+    display: 'flex',
+    height: '50%',
+  },
+  videoGridItem: {
+    width: '100%',
+    height: '100%',
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+};
 
 function EventAdminContainer(props: Props) {
   const styles = useStyles();
@@ -80,8 +87,7 @@ function EventAdminContainer(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    //ONLY DO THIS FOR DEV, it should be fetch session for release
-    createNewSession();
+    initializeSession();
   }, []);
 
   function handleResize() {
@@ -114,19 +120,19 @@ function EventAdminContainer(props: Props) {
       return (
         <>
           <div className={styles.row} id="top">
-            <div className={styles.videoQuadrant} id="pos1">
-              <p>Hello</p>
+            <div className={styles.videoQuadrant}>
+              <div id="pos1"></div>
             </div>
-            <div className={styles.videoQuadrant} id="pos2">
-              <p>Hello</p>
+            <div className={styles.videoQuadrant}>
+              <div id="pos2"></div>
             </div>
           </div>
           <div className={styles.row} id="bottom">
-            <div className={styles.videoQuadrant} id="pos3">
-              <p>Hello</p>
+            <div className={styles.videoQuadrant}>
+              <div id="pos4"></div>
             </div>
-            <div className={styles.videoQuadrant} id="pos4">
-              <p>Hello</p>
+            <div className={styles.videoQuadrant}>
+              <div id="pos4"></div>
             </div>
           </div>
         </>
@@ -156,7 +162,9 @@ function EventAdminContainer(props: Props) {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
       if (prevState.session === undefined) {
-        const publisher = createNewWebcamPublisher();
+        const publisher = createNewWebcamPublisher(
+          props.user['firstName'] + ' ' + props.user['lastName']
+        );
         session.publish(publisher, (err) => {
           if (err) alert(err.message);
         });
@@ -177,7 +185,9 @@ function EventAdminContainer(props: Props) {
       setScreenPublisher((prevState) => {
         if (session.sessionId === undefined) return new Publisher();
         if (prevState.session === undefined) {
-          const publisher = createNewScreensharePublisher();
+          const publisher = createNewScreensharePublisher(
+            props.user['firstName'] + ' ' + props.user['lastName']
+          );
           session.publish(publisher, (err) => {
             if (err) alert(err.message);
           });
@@ -192,8 +202,8 @@ function EventAdminContainer(props: Props) {
     }
   }
 
-  async function createNewSession() {
-    //This API call should be fetching the correct one for the event in prod
+  async function initializeSession() {
+    // TODO- This API call should be fetching the correct one for the event in prod
     const { data } = await axios.get('/webinar/createSession');
 
     if (data['success'] === 1) {
@@ -222,22 +232,6 @@ function EventAdminContainer(props: Props) {
       >
         {renderLoadingAndError()}
         {renderVideoSections()}
-        {/* <div className={styles.row} id="top">
-          <div className={styles.videoQuadrant} id="pos1">
-            <p>Hello</p>
-          </div>
-          <div className={styles.videoQuadrant} id="pos2">
-            <p>Hello</p>
-          </div>
-        </div>
-        <div className={styles.row} id="bottom">
-          <div className={styles.videoQuadrant} id="pos3">
-            <p>Hello</p>
-          </div>
-          <div className={styles.videoQuadrant} id="pos4">
-            <p>Hello</p>
-          </div>
-        </div> */}
       </div>
       <EventAdminButtonContainer
         isStreaming={isStreaming}
@@ -254,4 +248,16 @@ function EventAdminContainer(props: Props) {
   );
 }
 
-export default EventAdminContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventAdminContainer);
+
+// export default EventAdminContainer;
