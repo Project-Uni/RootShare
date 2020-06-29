@@ -13,6 +13,7 @@ import {
   startLiveStream,
   stopLiveStream,
   createNewWebcamPublisher,
+  createNewScreensharePublisher,
 } from './EventAdminHelpers';
 
 const MIN_WINDOW_WIDTH = 1100;
@@ -82,6 +83,7 @@ function EventAdminContainer(props: Props) {
   function toggleMute() {
     setMuted(!muted);
   }
+
   function toggleWebcam() {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
@@ -100,6 +102,23 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleScreenshare() {
+    // if (!screenshareCapable) {
+    //   return alert('This device is not compatible with Screen Sharing');
+    // }
+    setScreenPublisher((prevState) => {
+      if (session.sessionId === undefined) return new Publisher();
+      if (prevState.session === undefined) {
+        const publisher = createNewScreensharePublisher();
+        session.publish(publisher, (err) => {
+          if (err) alert(err.message);
+        });
+        return publisher;
+      } else if (prevState.session === null) return new Publisher();
+      else {
+        session.unpublish(screenPublisher);
+        return new Publisher();
+      }
+    });
     setSharingScreen(!sharingScreen);
   }
 

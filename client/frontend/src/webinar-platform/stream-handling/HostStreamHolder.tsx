@@ -19,6 +19,7 @@ function PublisherStreamHolder(props: Props) {
     }
   }
 
+  //Implemented
   function recordWebcam() {
     const publisher = OT.initPublisher(
       'publisher',
@@ -34,6 +35,7 @@ function PublisherStreamHolder(props: Props) {
     return publisher;
   }
 
+  //Implemented
   function recordScreen() {
     const publisher = OT.initPublisher(
       'screen-preview',
@@ -104,6 +106,7 @@ function PublisherStreamHolder(props: Props) {
     });
   }
 
+  //Implemented
   async function getLatestWebinarID() {
     return await axios
       .get('/webinar/latestWebinarID')
@@ -144,6 +147,7 @@ function PublisherStreamHolder(props: Props) {
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
 
+  //Implemented
   function toggleWebcam() {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) {
@@ -159,6 +163,7 @@ function PublisherStreamHolder(props: Props) {
     });
   }
 
+  //IMplemented
   function toggleScreen() {
     setScreenPublisher((prevState) => {
       if (session.sessionId === undefined) {

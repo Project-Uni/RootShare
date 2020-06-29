@@ -102,3 +102,14 @@ export function createNewWebcamPublisher() {
   );
   return publisher;
 }
+
+export function createNewScreensharePublisher() {
+  const publisher = OT.initPublisher(
+    'screen-preview',
+    { videoSource: 'screen' },
+    (err) => {
+      if (err) alert(err.message);
+    }
+  );
+  return publisher;
+}
