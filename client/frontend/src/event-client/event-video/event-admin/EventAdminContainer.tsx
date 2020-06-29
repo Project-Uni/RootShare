@@ -99,7 +99,7 @@ function EventAdminContainer(props: Props) {
         return;
       }
       setSession((eventSession as unknown) as OT.Session);
-    } else log('error', data['message']);
+    } else log('error', 'Error connecting to session');
   }
   // Ashwin - END OF WEBCAM AND SCREEN RECORDING FUNCTIONALITY
 

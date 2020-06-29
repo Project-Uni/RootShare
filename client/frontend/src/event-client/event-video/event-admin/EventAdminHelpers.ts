@@ -12,9 +12,7 @@ export async function connectStream(webinarID: string) {
     return { screenshare: canScreenshare, eventSessin: false };
   }
   OT.checkScreenSharingCapability((response: any) => {
-    if (response.supported && response.extensionRegistered)
-      // setScreenshareCapable(true);
-      canScreenshare = true;
+    if (response.supported && response.extensionRegistered) canScreenshare = true;
   });
 
   const sessionID = await validateSession(webinarID);
@@ -24,13 +22,14 @@ export async function connectStream(webinarID: string) {
   if (!eventToken) return { screenshare: canScreenshare, eventSession: false };
 
   const eventSession = await createEventSession(sessionID, eventToken);
-  if (!eventSession) return { screenshare: canScreenshare, eventSession: false };
+
+  if (!((eventSession as unknown) as boolean))
+    return { screenshare: canScreenshare, eventSession: false };
 
   return { screenshare: canScreenshare, eventSession: eventSession };
 }
 
 export async function validateSession(webinarID: string) {
-  //const {data: sessionData} =
   const { data } = await axios.post('/webinar/getOpenTokSessionID', {
     webinarID,
   });
@@ -58,14 +57,14 @@ export async function createEventSession(sessionID: string, eventToken: string) 
     eventSession.subscribe(event.stream);
   });
 
-  await eventSession.connect(eventToken, (err: any) => {
+  const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
-      log('error', err.message);
+      log(err.name, err.message);
       return false;
     } else {
       log('info', 'Connected to event session');
       return eventSession;
     }
   });
-  return false;
+  return connection;
 }
