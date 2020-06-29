@@ -16,10 +16,6 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     minWidth: MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH,
   },
-  videoPlayer: {
-    width: window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH,
-    height: window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT,
-  },
 }));
 
 type Props = {};

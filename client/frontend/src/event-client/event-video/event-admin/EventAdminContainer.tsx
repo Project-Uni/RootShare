@@ -11,17 +11,25 @@ import {
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
 
+const MIN_WINDOW_WIDTH = 1100;
+const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
+const HEADER_HEIGHT = 60;
+const BUTTON_CONTAINER_HEIGHT = 50;
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    minWidth: MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH,
+  },
   videoContainer: {
-    width: 900,
-    height: 630,
     background: 'black',
+    marginBottom: 0,
   },
   buttonContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginTop: 10,
+    padding: 1,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   buttonDefault: {
     marginLeft: 8,
@@ -49,6 +57,24 @@ function EventAdminContainer(props: Props) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
+  const [videoWidth, setVideoWidth] = useState(
+    window.innerWidth >= MIN_WINDOW_WIDTH
+      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
+      : MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH
+  );
+  const [videoHeight, setVideoHeight] = useState(
+    window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT
+  );
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    if (window.innerWidth >= MIN_WINDOW_WIDTH)
+      setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
+    setVideoHeight(window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT);
+  }
 
   function handleStreamStatusChange() {
     if (isStreaming) {
@@ -69,7 +95,10 @@ function EventAdminContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.videoContainer}></div>
+      <div
+        className={styles.videoContainer}
+        style={{ height: videoHeight, width: videoWidth }}
+      ></div>
       <div className={styles.buttonContainer}>
         <Button
           variant="contained"
@@ -82,7 +111,6 @@ function EventAdminContainer(props: Props) {
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           onClick={toggleWebcam}
         >
-          {/* <BsCameraVideoFill color="white" size={24} /> */}
           {showWebcam ? (
             <Video size={28} color="white" />
           ) : (
