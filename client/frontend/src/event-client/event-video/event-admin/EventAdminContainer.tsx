@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import axios from 'axios';
 import OT, { Session, Publisher } from '@opentok/client';
@@ -7,6 +8,7 @@ import OT, { Session, Publisher } from '@opentok/client';
 import EventAdminButtonContainer from './EventAdminButtonContainer';
 
 import log from '../../../helpers/logger';
+import RSText from '../../../base-components/RSText';
 
 import {
   connectStream,
@@ -29,6 +31,19 @@ const useStyles = makeStyles((_: any) => ({
     background: 'black',
     marginBottom: 0,
   },
+  loadingIndicator: {
+    color: 'white',
+  },
+  loadingDiv: {
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'white',
+  },
 }));
 
 type Props = {};
@@ -42,6 +57,7 @@ function EventAdminContainer(props: Props) {
   const [session, setSession] = useState(new Session());
 
   const [loading, setLoading] = useState(true);
+  const [loadingErr, setLoadingErr] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
@@ -140,7 +156,10 @@ function EventAdminContainer(props: Props) {
       }
       setSession((eventSession as unknown) as OT.Session);
       setLoading(false);
-    } else log('error', 'Error connecting to session');
+    } else {
+      log('error', 'Error connecting to session');
+      setLoadingErr(true);
+    }
   }
 
   return (
@@ -149,7 +168,20 @@ function EventAdminContainer(props: Props) {
         className={styles.videoContainer}
         id="videoContainer"
         style={{ height: videoHeight, width: videoWidth }}
-      ></div>
+      >
+        {loading && !loadingErr && (
+          <div className={styles.loadingDiv}>
+            <CircularProgress size={100} className={styles.loadingIndicator} />
+          </div>
+        )}
+        {loadingErr && (
+          <div className={styles.loadingDiv}>
+            <RSText type="subhead" className={styles.errorText} size={16}>
+              There was an error loading this stream.
+            </RSText>
+          </div>
+        )}
+      </div>
       <EventAdminButtonContainer
         isStreaming={isStreaming}
         showWebcam={showWebcam}
