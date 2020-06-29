@@ -102,24 +102,26 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleScreenshare() {
-    // if (!screenshareCapable) {
-    //   return alert('This device is not compatible with Screen Sharing');
-    // }
-    setScreenPublisher((prevState) => {
-      if (session.sessionId === undefined) return new Publisher();
-      if (prevState.session === undefined) {
-        const publisher = createNewScreensharePublisher();
-        session.publish(publisher, (err) => {
-          if (err) alert(err.message);
-        });
-        return publisher;
-      } else if (prevState.session === null) return new Publisher();
-      else {
-        session.unpublish(screenPublisher);
-        return new Publisher();
-      }
-    });
-    setSharingScreen(!sharingScreen);
+    const prompt = `Are you sure you want to ${
+      sharingScreen ? 'stop' : 'start'
+    } sharing your screen`;
+    if (window.confirm(prompt)) {
+      setScreenPublisher((prevState) => {
+        if (session.sessionId === undefined) return new Publisher();
+        if (prevState.session === undefined) {
+          const publisher = createNewScreensharePublisher();
+          session.publish(publisher, (err) => {
+            if (err) alert(err.message);
+          });
+          return publisher;
+        } else if (prevState.session === null) return new Publisher();
+        else {
+          session.unpublish(screenPublisher);
+          return new Publisher();
+        }
+      });
+      setSharingScreen(!sharingScreen);
+    }
   }
 
   async function createNewSession() {

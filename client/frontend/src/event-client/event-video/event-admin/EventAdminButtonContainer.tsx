@@ -77,7 +77,7 @@ function EventAdminButtonContainer(props: Props) {
         className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
         onClick={props.toggleScreenshare}
       >
-        Share Screen
+        {!props.sharingScreen ? 'Share Screen' : 'Sharing Screen'}
       </Button>
       <Button
         variant="contained"
