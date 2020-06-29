@@ -41,6 +41,7 @@ function EventAdminContainer(props: Props) {
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
 
+  const [loading, setLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
@@ -138,6 +139,7 @@ function EventAdminContainer(props: Props) {
         return;
       }
       setSession((eventSession as unknown) as OT.Session);
+      setLoading(false);
     } else log('error', 'Error connecting to session');
   }
 
@@ -156,6 +158,7 @@ function EventAdminContainer(props: Props) {
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
+        loading={loading}
       />
     </div>
   );

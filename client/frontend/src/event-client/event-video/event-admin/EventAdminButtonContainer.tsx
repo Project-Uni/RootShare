@@ -28,6 +28,9 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   cameraIcon: {},
+  disabledButton: {
+    background: 'lightgray',
+  },
 }));
 
 type Props = {
@@ -39,6 +42,7 @@ type Props = {
   toggleWebcam: () => void;
   toggleMute: () => void;
   toggleScreenshare: () => void;
+  loading: boolean;
 };
 
 function EventAdminButtonContainer(props: Props) {
@@ -49,12 +53,18 @@ function EventAdminButtonContainer(props: Props) {
         variant="contained"
         onClick={props.handleStreamStatusChange}
         className={[styles.buttonDefault].join(' ')}
+        disabled={props.loading}
       >
         {!props.isStreaming ? 'Begin Live Stream' : 'End Live Stream'}
       </Button>
       <Button
-        className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
+        className={[
+          styles.buttonDefault,
+          styles.cameraIcon,
+          props.loading ? styles.disabledButton : null,
+        ].join(' ')}
         onClick={props.toggleWebcam}
+        disabled={props.loading}
       >
         {props.showWebcam ? (
           <Video size={28} color="white" />
@@ -63,8 +73,13 @@ function EventAdminButtonContainer(props: Props) {
         )}
       </Button>
       <Button
-        className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
+        className={[
+          styles.buttonDefault,
+          styles.cameraIcon,
+          props.loading ? styles.disabledButton : null,
+        ].join(' ')}
         onClick={props.toggleMute}
+        disabled={props.loading}
       >
         {!props.muted ? (
           <Microphone color="white" size={26} />
@@ -76,12 +91,14 @@ function EventAdminButtonContainer(props: Props) {
         variant="contained"
         className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
         onClick={props.toggleScreenshare}
+        disabled={props.loading}
       >
         {!props.sharingScreen ? 'Share Screen' : 'Sharing Screen'}
       </Button>
       <Button
         variant="contained"
         className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
+        disabled={props.loading}
       >
         Manage Speakers
       </Button>
