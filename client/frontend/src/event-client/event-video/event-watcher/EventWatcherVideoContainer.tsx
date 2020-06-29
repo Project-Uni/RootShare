@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 
 import EventClientEmptyVideoPlayer from '../EventClientEmptyVideoPlayer';
@@ -7,18 +7,19 @@ import VideoPlayer from '../VideoPlayer';
 
 import log from '../../../helpers/logger';
 
+const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
 const AD_CONTAINER_HEIGHT = 125;
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    minWidth: 1100 - EVENT_MESSAGES_CONTAINER_WIDTH
+    minWidth: MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH,
   },
   videoPlayer: {
     width: window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH,
-    height: window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
-  }
+    height: window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT,
+  },
 }));
 
 type Props = {};
@@ -27,19 +28,21 @@ function EventWatcherVideoContainer(props: Props) {
   const styles = useStyles();
   const [videoData, setVideoData] = useState('');
   const [playerWidth, setPlayerWidth] = useState(
-    window.innerWidth > 1100
+    window.innerWidth > MIN_WINDOW_WIDTH
       ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
-      : 1100 - EVENT_MESSAGES_CONTAINER_WIDTH
+      : MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH
   );
-  const [playerHeight, setPlayerHeight] = useState(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
+  const [playerHeight, setPlayerHeight] = useState(
+    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
+  );
 
   useEffect(() => {
     setSourceToLatestWebinarID();
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
   }, []);
 
   function handleResize() {
-    if (window.innerWidth >= 1100) {
+    if (window.innerWidth >= MIN_WINDOW_WIDTH) {
       setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
     }
     setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
@@ -60,35 +63,29 @@ function EventWatcherVideoContainer(props: Props) {
 
       if (streamExists) setVideoData(source);
       else log('error', data['message']);
-    }
-    else {
+    } else {
       log('error', data['message']);
     }
   }
 
   async function checkStreamExists(source: string) {
-    return await axios.get(source)
+    return await axios
+      .get(source)
       .then((_) => {
         return true;
-      }).catch((_) => {
+      })
+      .catch((_) => {
         return false;
       });
   }
 
-
   return (
     <div className={styles.wrapper}>
-      {videoData !== ''
-        ? <VideoPlayer
-          src={videoData}
-          height={playerHeight}
-          width={playerWidth}
-        />
-        : <EventClientEmptyVideoPlayer
-          height={playerHeight}
-          width={playerWidth}
-        />
-      }
+      {videoData !== '' ? (
+        <VideoPlayer src={videoData} height={playerHeight} width={playerWidth} />
+      ) : (
+        <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />
+      )}
     </div>
   );
 }
