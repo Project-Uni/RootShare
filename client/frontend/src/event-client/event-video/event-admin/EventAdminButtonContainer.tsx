@@ -34,9 +34,11 @@ type Props = {
   isStreaming: boolean;
   showWebcam: boolean;
   muted: boolean;
+  sharingScreen: boolean;
   handleStreamStatusChange: () => void;
   toggleWebcam: () => void;
   toggleMute: () => void;
+  toggleScreenshare: () => void;
 };
 
 function EventAdminButtonContainer(props: Props) {
@@ -73,8 +75,9 @@ function EventAdminButtonContainer(props: Props) {
       <Button
         variant="contained"
         className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
+        onClick={props.toggleScreenshare}
       >
-        Share Screen
+        {!props.sharingScreen ? 'Share Screen' : 'Stop Screenshare'}
       </Button>
       <Button
         variant="contained"

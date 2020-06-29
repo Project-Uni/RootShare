@@ -9,14 +9,11 @@ import EventAdminButtonContainer from './EventAdminButtonContainer';
 import log from '../../../helpers/logger';
 
 import {
-  validateSession,
-  getOpenTokToken,
-  createEventSession,
   connectStream,
+  startLiveStream,
+  stopLiveStream,
+  createNewWebcamPublisher,
 } from './EventAdminHelpers';
-
-//Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
-const { OPENTOK_API_KEY } = require('../../../keys.json');
 
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
@@ -46,6 +43,7 @@ function EventAdminContainer(props: Props) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
+  const [sharingScreen, setSharingScreen] = useState(false);
   const [videoWidth, setVideoWidth] = useState(
     window.innerWidth >= MIN_WINDOW_WIDTH
       ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
@@ -69,11 +67,15 @@ function EventAdminContainer(props: Props) {
 
   function handleStreamStatusChange() {
     if (isStreaming) {
-      if (window.confirm('Are you sure you want to end the live stream?'))
+      if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
+        stopLiveStream();
+      }
     } else {
-      if (window.confirm('Are you sure you want to begin the live stream?'))
+      if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
+        startLiveStream();
+      }
     }
   }
 
@@ -81,10 +83,26 @@ function EventAdminContainer(props: Props) {
     setMuted(!muted);
   }
   function toggleWebcam() {
+    setWebcamPublisher((prevState) => {
+      if (session.sessionId === undefined) return new Publisher();
+      if (prevState.session === undefined) {
+        const publisher = createNewWebcamPublisher();
+        session.publish(publisher, (err) => {
+          if (err) alert(err.message);
+        });
+        return publisher;
+      } else {
+        session.unpublish(webcamPublisher);
+        return new Publisher();
+      }
+    });
     setShowWebcam(!showWebcam);
   }
 
-  // Ashwin - ALL WEBCAM AND SCREEN RECORDING FUNCTIONALITY BELOW THIS POINT
+  function toggleScreenshare() {
+    setSharingScreen(!sharingScreen);
+  }
+
   async function createNewSession() {
     //This API call should be fetching the correct one for the event in prod
     const { data } = await axios.get('/webinar/createSession');
@@ -101,7 +119,6 @@ function EventAdminContainer(props: Props) {
       setSession((eventSession as unknown) as OT.Session);
     } else log('error', 'Error connecting to session');
   }
-  // Ashwin - END OF WEBCAM AND SCREEN RECORDING FUNCTIONALITY
 
   return (
     <div className={styles.wrapper}>
@@ -113,9 +130,11 @@ function EventAdminContainer(props: Props) {
         isStreaming={isStreaming}
         showWebcam={showWebcam}
         muted={muted}
+        sharingScreen={sharingScreen}
         handleStreamStatusChange={handleStreamStatusChange}
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
+        toggleScreenshare={toggleScreenshare}
       />
     </div>
   );
