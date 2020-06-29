@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
 
+import axios from 'axios';
 import OT, { Session, Publisher } from '@opentok/client';
 
-import {
-  Video,
-  VideoOff,
-  Microphone,
-  MicrophoneOff,
-} from '@styled-icons/boxicons-solid';
-
 import EventAdminButtonContainer from './EventAdminButtonContainer';
+
+import log from '../../../helpers/logger';
+
+import {
+  validateSession,
+  getOpenTokToken,
+  createEventSession,
+  connectStream,
+} from './EventAdminHelpers';
+
+//Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
+const { OPENTOK_API_KEY } = require('../../../keys.json');
 
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
@@ -33,7 +38,7 @@ type Props = {};
 function EventAdminContainer(props: Props) {
   const styles = useStyles();
 
-  const [canScreenShare, setCanScreenShare] = useState(false);
+  const [screenshareCapable, setScreenshareCapable] = useState(false);
   const [webcamPublisher, setWebcamPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
@@ -52,6 +57,8 @@ function EventAdminContainer(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    //ONLY DO THIS FOR DEV, it should be fetch session for release
+    createNewSession();
   }, []);
 
   function handleResize() {
@@ -78,7 +85,22 @@ function EventAdminContainer(props: Props) {
   }
 
   // Ashwin - ALL WEBCAM AND SCREEN RECORDING FUNCTIONALITY BELOW THIS POINT
+  async function createNewSession() {
+    //This API call should be fetching the correct one for the event in prod
+    const { data } = await axios.get('/webinar/createSession');
 
+    if (data['success'] === 1) {
+      const { screenshare, eventSession } = await connectStream(
+        data['content']['webinarID']
+      );
+      setScreenshareCapable(screenshare);
+      if (!eventSession) {
+        alert('DEV: INVALID CONNECTION. Redirect to other page');
+        return;
+      }
+      setSession((eventSession as unknown) as OT.Session);
+    } else log('error', data['message']);
+  }
   // Ashwin - END OF WEBCAM AND SCREEN RECORDING FUNCTIONALITY
 
   return (
