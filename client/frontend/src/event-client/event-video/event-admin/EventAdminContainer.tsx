@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Grid } from '@material-ui/core';
 
 import axios from 'axios';
 import OT, { Session, Publisher } from '@opentok/client';
@@ -44,6 +44,13 @@ const useStyles = makeStyles((_: any) => ({
   errorText: {
     color: 'white',
   },
+  videoQuadrant: {
+    border: '1px solid red',
+    flexGrow: 1,
+  },
+  row: {
+    border: '1px solid green',
+  },
 }));
 
 type Props = {};
@@ -81,6 +88,50 @@ function EventAdminContainer(props: Props) {
     if (window.innerWidth >= MIN_WINDOW_WIDTH)
       setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
     setVideoHeight(window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT);
+  }
+
+  function renderLoadingAndError() {
+    return (
+      <>
+        {loading && !loadingErr && (
+          <div className={styles.loadingDiv}>
+            <CircularProgress size={100} className={styles.loadingIndicator} />
+          </div>
+        )}
+        {loadingErr && (
+          <div className={styles.loadingDiv}>
+            <RSText type="subhead" className={styles.errorText} size={16}>
+              There was an error loading this stream.
+            </RSText>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  function renderVideoSections() {
+    if (!loading && !loadingErr)
+      return (
+        <>
+          <div className={styles.row} id="top">
+            <div className={styles.videoQuadrant} id="pos1">
+              <p>Hello</p>
+            </div>
+            <div className={styles.videoQuadrant} id="pos2">
+              <p>Hello</p>
+            </div>
+          </div>
+          <div className={styles.row} id="bottom">
+            <div className={styles.videoQuadrant} id="pos3">
+              <p>Hello</p>
+            </div>
+            <div className={styles.videoQuadrant} id="pos4">
+              <p>Hello</p>
+            </div>
+          </div>
+        </>
+      );
+    return null;
   }
 
   function handleStreamStatusChange() {
@@ -169,18 +220,24 @@ function EventAdminContainer(props: Props) {
         id="videoContainer"
         style={{ height: videoHeight, width: videoWidth }}
       >
-        {loading && !loadingErr && (
-          <div className={styles.loadingDiv}>
-            <CircularProgress size={100} className={styles.loadingIndicator} />
+        {renderLoadingAndError()}
+        {renderVideoSections()}
+        {/* <div className={styles.row} id="top">
+          <div className={styles.videoQuadrant} id="pos1">
+            <p>Hello</p>
           </div>
-        )}
-        {loadingErr && (
-          <div className={styles.loadingDiv}>
-            <RSText type="subhead" className={styles.errorText} size={16}>
-              There was an error loading this stream.
-            </RSText>
+          <div className={styles.videoQuadrant} id="pos2">
+            <p>Hello</p>
           </div>
-        )}
+        </div>
+        <div className={styles.row} id="bottom">
+          <div className={styles.videoQuadrant} id="pos3">
+            <p>Hello</p>
+          </div>
+          <div className={styles.videoQuadrant} id="pos4">
+            <p>Hello</p>
+          </div>
+        </div> */}
       </div>
       <EventAdminButtonContainer
         isStreaming={isStreaming}

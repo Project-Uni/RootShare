@@ -88,6 +88,7 @@ export async function stopLiveStream() {
   axios.post('/webinar/stopStreaming', { webinarID });
 }
 
+// For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
 export function createNewWebcamPublisher() {
   const publisher = OT.initPublisher(
     'videoContainer',
