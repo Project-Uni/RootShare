@@ -50,7 +50,10 @@ io.on("connection", (socket) => {
   if (interval) {
     clearInterval(interval);
   }
-  interval = setInterval(() => getApiAndEmit(socket), 10000);
+  interval = setInterval(() => getApiAndEmit(socket), 5000);
+  socket.on("metadata", (packet) => {
+    // TODO: Link to conversations
+  });
 
   socket.on("disconnect", () => {
     log("info", "Client disconnected");
@@ -59,8 +62,7 @@ io.on("connection", (socket) => {
 
 const getApiAndEmit = (socket) => {
   try {
-    const response = new Date();
-    socket.emit("FromAPI", response);
+    socket.emit("rerender", null);
   } catch (error) {
     log("error", error);
   }
