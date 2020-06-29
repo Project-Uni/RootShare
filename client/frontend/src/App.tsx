@@ -1,25 +1,25 @@
-import React, { useEffect } from "react";
-import "./App.css";
+import React, { useEffect } from 'react';
+import './App.css';
 
-import { Router, Route, Switch } from "react-router-dom";
-import { createBrowserHistory } from "history";
-import ReactGA from "react-ga";
+import { Router, Route, Switch } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
+import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { updateUser } from './redux/actions/user';
 
-import HypeLanding from "./hype-page/hype-landing/HypeLanding";
-import HypeExternalMissingInfo from "./hype-page/additional-info/HypeExternalMissingInfo";
-import HypeAdditionalInfo from "./hype-page/additional-info/HypeAdditionalInfo";
+import HypeLanding from './hype-page/hype-landing/HypeLanding';
+import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
+import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder';
 import HostStreamHolder from './webinar-platform/stream-handling/HostStreamHolder';
-import EventClientBase from "./event-client/EventClientBase";
-import PageNotFound from "./not-found-page/PageNotFound";
-import UserCount from "./admin-utility/UserCount";
-import axios from "axios";
+import EventClientBase from './event-client/EventClientBase';
+import PageNotFound from './not-found-page/PageNotFound';
+import UserCount from './admin-utility/UserCount';
+import axios from 'axios';
 
-const analyticsTrackingID = "UA-169916177-1";
+const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
-ReactGA.pageview("/");
+ReactGA.pageview('/');
 
 const history = createBrowserHistory();
 history.listen((location) => {
@@ -28,8 +28,8 @@ history.listen((location) => {
 });
 
 type Props = {
-  user: { [key: string]: any; };
-  updateUser: (userInfo: { [key: string]: any; }) => void;
+  user: { [key: string]: any };
+  updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
 function App(props: Props) {
@@ -38,7 +38,7 @@ function App(props: Props) {
   }, []);
 
   async function mockLogin() {
-    console.log("ENV:", process.env);
+    console.log('ENV:', process.env);
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       const { data } = await axios.get('/api/mockLogin');
       if (data['success'] === 1) props.updateUser({ ...data['content'] });
@@ -51,10 +51,18 @@ function App(props: Props) {
         <div className="wrapper">
           <Switch>
             <Route exact path="/" component={HypeLanding} />
-            <Route exact path="/profile/externalRegister" component={HypeExternalMissingInfo} />
+            <Route
+              exact
+              path="/profile/externalRegister"
+              component={HypeExternalMissingInfo}
+            />
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
             <Route exact path="/webinar/host" component={HostStreamHolder} />
-            <Route exact path="/webinar/publisher" component={PublisherStreamHolder} />
+            <Route
+              exact
+              path="/webinar/publisher"
+              component={PublisherStreamHolder}
+            />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             {/* REMOVE THIS BEFORE FINAL PRODUCT */}
             <Route exact path="/admin/count" component={UserCount} />
@@ -62,11 +70,11 @@ function App(props: Props) {
           </Switch>
         </div>
       </Router>
-    </div >
+    </div>
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any; }) => {
+const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
   };
@@ -74,9 +82,9 @@ const mapStateToProps = (state: { [key: string]: any; }) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    updateUser: (userInfo: { [key: string]: any; }) => {
+    updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
-    }
+    },
   };
 };
 

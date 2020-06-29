@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
 import OT, { Session, Publisher } from '@opentok/client';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
+  buttonContainer: {},
 }));
 
 type Props = {};
@@ -19,7 +20,8 @@ function EventAdminContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <p>I am the event admin container</p>
+      <div className="videoContainer"></div>
+      <div className={styles.buttonContainer}></div>
     </div>
   );
 }
