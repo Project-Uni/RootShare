@@ -118,9 +118,11 @@ function EventAdminContainer(props: Props) {
   }
 
   function renderVideoSections() {
-    if (!loading && !loadingErr)
-      // return <VideosOnlyLayout numSpeakers={numSpeakers} />;
-      return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
+    if (!loading && !loadingErr) {
+      if (sharingScreen)
+        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
+      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+    }
     return null;
   }
 
@@ -166,26 +168,34 @@ function EventAdminContainer(props: Props) {
     const prompt = `Are you sure you want to ${
       sharingScreen ? 'stop' : 'start'
     } sharing your screen`;
+
+    const oldScreenShare = sharingScreen;
+
     if (window.confirm(prompt)) {
-      setScreenPublisher((prevState) => {
-        if (session.sessionId === undefined) return new Publisher();
-        if (prevState.session === undefined) {
-          const publisher = createNewScreensharePublisher(
-            props.user['firstName'] + ' ' + props.user['lastName'],
-            eventPos
-          );
-          session.publish(publisher, (err) => {
-            if (err) alert(err.message);
-          });
-          return publisher;
-        } else if (prevState.session === null) return new Publisher();
-        else {
-          session.unpublish(screenPublisher);
-          return new Publisher();
-        }
-      });
-      setSharingScreen(!sharingScreen);
-    }
+      if (!sharingScreen) setSharingScreen(!sharingScreen);
+
+      setTimeout(() => {
+        setScreenPublisher((prevState) => {
+          if (session.sessionId === undefined) return new Publisher();
+          if (prevState.session === undefined) {
+            const publisher = createNewScreensharePublisher(
+              props.user['firstName'] + ' ' + props.user['lastName'],
+              eventPos
+            );
+            session.publish(publisher, (err) => {
+              if (err) alert(err.message);
+            });
+            return publisher;
+          } else if (prevState.session === null) return new Publisher();
+          else {
+            session.unpublish(screenPublisher);
+            return new Publisher();
+          }
+        });
+
+        if (oldScreenShare) setSharingScreen(false);
+      }, 1000);
+    } else setSharingScreen(oldScreenShare);
   }
 
   async function initializeSession() {

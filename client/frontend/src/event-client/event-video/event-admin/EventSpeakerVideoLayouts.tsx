@@ -77,7 +77,6 @@ type ScreenshareProps = {
 
 export function ScreenshareLayout(props: ScreenshareProps) {
   const styles = useStyles();
-
   return (
     <>
       <div className={styles.screenshareContainer}>
