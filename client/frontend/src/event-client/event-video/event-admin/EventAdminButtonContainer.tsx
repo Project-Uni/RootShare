@@ -61,10 +61,10 @@ function EventAdminButtonContainer(props: Props) {
         className={[
           styles.buttonDefault,
           styles.cameraIcon,
-          props.loading ? styles.disabledButton : null,
+          props.loading || props.sharingScreen ? styles.disabledButton : null,
         ].join(' ')}
         onClick={props.toggleWebcam}
-        disabled={props.loading}
+        disabled={props.loading || props.sharingScreen}
       >
         {props.showWebcam ? (
           <Video size={28} color="white" />
