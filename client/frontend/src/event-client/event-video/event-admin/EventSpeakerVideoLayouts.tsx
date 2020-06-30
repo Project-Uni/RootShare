@@ -11,9 +11,21 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'center',
   },
+  screenView: {
+    flexGrow: 1,
+    height: '100%',
+  },
+  screenshareContainer: {
+    display: 'flex',
+    height: '100%',
+  },
+  screenshareWebcamContainer: {
+    width: 250,
+    height: '100%',
+  },
 }));
 
-type Props = {
+type VideoLayoutProps = {
   numSpeakers: SINGLE_DIGIT;
 };
 
@@ -23,7 +35,7 @@ function calculateNumPerRow(numSpeakers: SINGLE_DIGIT) {
   else return 3;
 }
 
-export function VideosOnlyLayout(props: Props) {
+export function VideosOnlyLayout(props: VideoLayoutProps) {
   const styles = useStyles();
   const numRows = Math.ceil(props.numSpeakers / 3);
   const numPerRow = calculateNumPerRow(props.numSpeakers);
@@ -58,6 +70,33 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
   return output;
 }
 
-export function renderScreenshareLayout(props: any) {
-  return {};
+type ScreenshareProps = {
+  numSpeakers: SINGLE_DIGIT;
+  sharingPos: SINGLE_DIGIT;
+};
+
+export function ScreenshareLayout(props: ScreenshareProps) {
+  const styles = useStyles();
+
+  return (
+    <>
+      <div className={styles.screenshareContainer}>
+        <div id={`pos${props.sharingPos}`} className={styles.screenView}></div>
+        <div className={styles.screenshareWebcamContainer}>
+          {renderScreenshareRest({ ...props })}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function renderScreenshareRest({ numSpeakers, sharingPos }: ScreenshareProps) {
+  const output = [];
+  for (let i = 1; i <= numSpeakers; i++) {
+    if (i != sharingPos)
+      output.push(
+        <div id={`pos${i}`} style={{ width: '100%', height: `${100 / 3}%` }}></div>
+      );
+  }
+  return output;
 }

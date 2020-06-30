@@ -10,7 +10,7 @@ import EventAdminButtonContainer from './EventAdminButtonContainer';
 
 import log from '../../../helpers/logger';
 import RSText from '../../../base-components/RSText';
-import { VideosOnlyLayout } from './EventSpeakerVideoLayouts';
+import { VideosOnlyLayout, ScreenshareLayout } from './EventSpeakerVideoLayouts';
 
 import {
   connectStream,
@@ -119,7 +119,8 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr)
-      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+      // return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+      return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
     return null;
   }
 
