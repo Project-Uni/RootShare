@@ -63,7 +63,6 @@ function App(props: Props) {
               component={PublisherStreamHolder}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
-            {/* REMOVE THIS BEFORE FINAL PRODUCT */}
             <Route exact path="/admin/count" component={UserCount} />
             <Route component={PageNotFound} />
           </Switch>

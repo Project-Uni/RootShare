@@ -2,6 +2,8 @@ import axios from 'axios';
 import OT from '@opentok/client';
 import log from '../../../helpers/logger';
 
+import { SINGLE_DIGIT } from '../../../types/types';
+
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
@@ -90,18 +92,18 @@ export async function stopLiveStream() {
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
 
-const videoUISettings = {
+const VIDEO_UI_SETTINGS = {
   width: '100%',
   height: '100%',
 };
 
-export function createNewWebcamPublisher(name: string) {
+export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
-    'pos1',
+    `pos${eventPos}`,
     {
-      insertMode: 'replace',
+      insertMode: 'append',
       name: name,
-      ...videoUISettings,
+      ...VIDEO_UI_SETTINGS,
     },
     (err) => {
       if (err) alert(err.message);
@@ -110,10 +112,15 @@ export function createNewWebcamPublisher(name: string) {
   return publisher;
 }
 
-export function createNewScreensharePublisher(name: string) {
+export function createNewScreensharePublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
-    'pos1',
-    { videoSource: 'screen', insertMode: 'replace', name: name, ...videoUISettings },
+    `pos${eventPos}`,
+    {
+      videoSource: 'screen',
+      insertMode: 'append',
+      name: name,
+      ...VIDEO_UI_SETTINGS,
+    },
     (err) => {
       if (err) alert(err.message);
     }

@@ -10,6 +10,7 @@ import EventAdminButtonContainer from './EventAdminButtonContainer';
 
 import log from '../../../helpers/logger';
 import RSText from '../../../base-components/RSText';
+import { VideosOnlyLayout } from './EventSpeakerVideoLayouts';
 
 import {
   connectStream,
@@ -18,6 +19,8 @@ import {
   createNewWebcamPublisher,
   createNewScreensharePublisher,
 } from './EventAdminHelpers';
+
+import { SINGLE_DIGIT } from '../../../types/types';
 
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
@@ -45,17 +48,6 @@ const useStyles = makeStyles((_: any) => ({
   errorText: {
     color: 'white',
   },
-  videoQuadrant: {
-    width: '50%',
-  },
-  row: {
-    display: 'flex',
-    height: '50%',
-  },
-  videoGridItem: {
-    width: '100%',
-    height: '100%',
-  },
 }));
 
 type Props = {
@@ -76,6 +68,10 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
+
+  const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
+  const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
+
   const [videoWidth, setVideoWidth] = useState(
     window.innerWidth >= MIN_WINDOW_WIDTH
       ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
@@ -87,6 +83,7 @@ function EventAdminContainer(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    fetchEventInfo();
     initializeSession();
   }, []);
 
@@ -94,6 +91,11 @@ function EventAdminContainer(props: Props) {
     if (window.innerWidth >= MIN_WINDOW_WIDTH)
       setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
     setVideoHeight(window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT);
+  }
+
+  async function fetchEventInfo() {
+    setNumSpeakers(4);
+    setEventPos(3);
   }
 
   function renderLoadingAndError() {
@@ -117,26 +119,7 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr)
-      return (
-        <>
-          <div className={styles.row} id="top">
-            <div className={styles.videoQuadrant}>
-              <div id="pos1"></div>
-            </div>
-            <div className={styles.videoQuadrant}>
-              <div id="pos2"></div>
-            </div>
-          </div>
-          <div className={styles.row} id="bottom">
-            <div className={styles.videoQuadrant}>
-              <div id="pos4"></div>
-            </div>
-            <div className={styles.videoQuadrant}>
-              <div id="pos4"></div>
-            </div>
-          </div>
-        </>
-      );
+      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
     return null;
   }
 
@@ -163,7 +146,8 @@ function EventAdminContainer(props: Props) {
       if (session.sessionId === undefined) return new Publisher();
       if (prevState.session === undefined) {
         const publisher = createNewWebcamPublisher(
-          props.user['firstName'] + ' ' + props.user['lastName']
+          props.user['firstName'] + ' ' + props.user['lastName'],
+          eventPos
         );
         session.publish(publisher, (err) => {
           if (err) alert(err.message);
@@ -186,7 +170,8 @@ function EventAdminContainer(props: Props) {
         if (session.sessionId === undefined) return new Publisher();
         if (prevState.session === undefined) {
           const publisher = createNewScreensharePublisher(
-            props.user['firstName'] + ' ' + props.user['lastName']
+            props.user['firstName'] + ' ' + props.user['lastName'],
+            eventPos
           );
           session.publish(publisher, (err) => {
             if (err) alert(err.message);
@@ -216,7 +201,10 @@ function EventAdminContainer(props: Props) {
         return;
       }
       setSession((eventSession as unknown) as OT.Session);
-      setLoading(false);
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     } else {
       log('error', 'Error connecting to session');
       setLoadingErr(true);
