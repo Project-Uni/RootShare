@@ -69,7 +69,7 @@ function EventAdminContainer(props: Props) {
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
 
-  const [webcamActive, setWebcamActive] = useState(false);
+  const [frozenWebcam, setFrozenWebcam] = useState(false);
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
@@ -163,8 +163,7 @@ function EventAdminContainer(props: Props) {
         return new Publisher();
       }
     });
-    const isWebcamActive = showWebcam;
-    setWebcamActive(isWebcamActive);
+
     setShowWebcam(!showWebcam);
   }
 
@@ -176,7 +175,12 @@ function EventAdminContainer(props: Props) {
     const oldScreenShare = sharingScreen;
 
     if (window.confirm(prompt)) {
-      if (webcamActive) toggleWebcam();
+      if (!showWebcam) {
+        setFrozenWebcam(true);
+        toggleWebcam();
+      } else {
+        setFrozenWebcam(false);
+      }
       if (!sharingScreen) setSharingScreen(true);
 
       setTimeout(() => {
@@ -198,14 +202,12 @@ function EventAdminContainer(props: Props) {
           }
         });
 
-        // const endingScreenShare = sharingScreen;
-        // if (frozenWebcamState && frozenSharingScreen)
-        //   setTimeout(() => {
-        //     toggleWebcam();
-        //   }, 1000);
-        // if (webcamActive && oldScreenShare) toggleWebcam();
         if (oldScreenShare) setSharingScreen(false);
-      }, 1000);
+        if (frozenWebcam && oldScreenShare) {
+          setFrozenWebcam(false);
+          toggleWebcam();
+        }
+      }, 500);
     } else setSharingScreen(oldScreenShare);
   }
 
