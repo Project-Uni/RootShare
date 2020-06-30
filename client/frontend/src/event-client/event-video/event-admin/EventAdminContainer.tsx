@@ -115,6 +115,8 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleMute() {
+    if (muted) webcamPublisher.publishAudio(true);
+    else webcamPublisher.publishAudio(false);
     setMuted(!muted);
   }
 
@@ -131,8 +133,15 @@ function EventAdminContainer(props: Props) {
         });
         return publisher;
       } else {
+        //OLD CODE
         session.unpublish(webcamPublisher);
         return new Publisher();
+
+        //New attempt
+        //const webcamActive = webcamShowing
+        // if (webcameActive) webcamPublisher.publishVideo(false);
+        // else webcamPublisher.publishVideo(true);
+        // return prevState;
       }
     });
 
