@@ -100,34 +100,6 @@ function EventAdminContainer(props: Props) {
     setEventPos(1);
   }
 
-  function renderLoadingAndError() {
-    return (
-      <>
-        {loading && !loadingErr && (
-          <div className={styles.loadingDiv}>
-            <CircularProgress size={100} className={styles.loadingIndicator} />
-          </div>
-        )}
-        {loadingErr && (
-          <div className={styles.loadingDiv}>
-            <RSText type="subhead" className={styles.errorText} size={16}>
-              There was an error loading this stream.
-            </RSText>
-          </div>
-        )}
-      </>
-    );
-  }
-
-  function renderVideoSections() {
-    if (!loading && !loadingErr) {
-      if (sharingScreen)
-        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
-      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
-    }
-    return null;
-  }
-
   function handleStreamStatusChange() {
     if (isStreaming) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
@@ -233,6 +205,34 @@ function EventAdminContainer(props: Props) {
       log('error', 'Error connecting to session');
       setLoadingErr(true);
     }
+  }
+
+  function renderLoadingAndError() {
+    return (
+      <>
+        {loading && !loadingErr && (
+          <div className={styles.loadingDiv}>
+            <CircularProgress size={100} className={styles.loadingIndicator} />
+          </div>
+        )}
+        {loadingErr && (
+          <div className={styles.loadingDiv}>
+            <RSText type="subhead" className={styles.errorText} size={16}>
+              There was an error loading this stream.
+            </RSText>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  function renderVideoSections() {
+    if (!loading && !loadingErr) {
+      if (sharingScreen)
+        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
+      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+    }
+    return null;
   }
 
   return (
