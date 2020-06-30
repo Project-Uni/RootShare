@@ -5,14 +5,17 @@ const User = mongoose.model("users");
 import log from "../helpers/logger";
 
 module.exports = (passport) => {
+  // const callbackURL =
+  //   process.env.NODE_ENV && process.env.NODE_ENV === "dev"
+  //     ? "/auth/callback/linkedin"
+  //     : "https://rootshare.io/auth/callback/linkedin";
   passport.use(
     "linkedin-login",
     new LinkedInStrategy(
       {
         clientID: LINKEDIN_KEY,
         clientSecret: LINKEDIN_SECRET,
-        // callbackURL: "https://rootshare.io/auth/callback/linkedin",
-        callbackURL: "/auth/callback/linkedin",
+        callbackURL: "https://rootshare.io/auth/callback/linkedin",
         scope: ["r_emailaddress", "r_liteprofile"],
         state: true,
       },
