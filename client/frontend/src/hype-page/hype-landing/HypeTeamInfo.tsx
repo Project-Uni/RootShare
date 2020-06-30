@@ -14,6 +14,7 @@ import {
   // EmilyHeadshot,
   ReniHeadshot,
   JacksonHeadshot,
+  WillHeadshot
 } from "../../images/team";
 
 const useStyles = makeStyles((_: any) => ({
@@ -104,6 +105,13 @@ function HypeTeamInfo(props: Props) {
       major: "Construction Management & Technology",
       university: "Purdue 2022",
     },
+    {
+      name: 'William Feeks', 
+      title:'Head of Business Engagement', 
+      headshot: WillHeadshot,
+      major:'Management & Marketing', 
+      university:'Purdue 2021'
+    },
     // {
     //   name: "Emily D'Alessandro",
     //   title: "Head of Digital Marketing",
@@ -126,7 +134,7 @@ function HypeTeamInfo(props: Props) {
     for (let i = 0; i < members.length; i++) {
       currMember = members[i];
       output.push(
-        <Grid item xs={6} sm={3}>
+        <Grid item xs={6} sm={4} md={3} lg={2}>
           <img
             src={currMember["headshot"]}
             alt={`${currMember["name"]} Headshot`}
