@@ -176,6 +176,7 @@ function EventAdminContainer(props: Props) {
     const oldScreenShare = sharingScreen;
 
     if (window.confirm(prompt)) {
+      if (!showWebcam) toggleWebcam();
       if (!sharingScreen) setSharingScreen(true);
       // if (showWebcam) setTimeout(toggleWebcam, 1000);
 
