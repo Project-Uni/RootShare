@@ -25,52 +25,52 @@ const useStyles = makeStyles((_: any) => ({
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
-    background: colors().secondary,
-    color: colors().primaryText,
+    background: colors.secondary,
+    color: colors.primaryText,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
   textField: {
     width: 200,
-    background: colors().ternary,
-    color: colors().primaryText,
-    label: colors().primaryText
+    background: colors.ternary,
+    color: colors.primaryText,
+    label: colors.primaryText
   },
   messageContainer: {
     flex: 1,
     justifyContent: "flex-end",
     background: "white",
     overflow: "scroll",
-    label: colors().primaryText,
+    label: colors.primaryText,
   },
   input: {
-    color: colors().primaryText,
-    label: colors().primaryText,
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssLabel: {
-    color: colors().primaryText,
-    label: colors().primaryText,
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssFocused: {
-    color: colors().primaryText,
-    label: colors().primaryText,
+    color: colors.primaryText,
+    label: colors.primaryText,
     borderWidth: '2px',
-    borderColor: colors().primaryText,
+    borderColor: colors.primaryText,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: colors().primaryText,
-      label: colors().primaryText,
+      color: colors.primaryText,
+      label: colors.primaryText,
       borderWidth: '2px',
-      borderColor: colors().primaryText,
+      borderColor: colors.primaryText,
     }
   },
   notchedOutline: {
     borderWidth: '2px',
-    label: colors().primaryText,
-    borderColor: colors().primaryText,
-    color: colors().primaryText,
+    label: colors.primaryText,
+    borderColor: colors.primaryText,
+    color: colors.primaryText,
   },
 }));
 
@@ -216,10 +216,10 @@ function EventMessageContainer(props: Props) {
           }}
         />
         <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color={colors().primaryText} />
+          <FaRegSmile size={18} color={colors.primaryText} />
         </IconButton>
         <IconButton onClick={handleSendMessage}>
-          <MdSend color={colors().primaryText} size={20} />
+          <MdSend color={colors.primaryText} size={20} />
         </IconButton>
       </div>
     </div>

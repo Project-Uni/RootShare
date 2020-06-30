@@ -1,99 +1,170 @@
 import React, { useState } from "react";
-
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton } from "@material-ui/core";
-import { FaEllipsisH } from "react-icons/fa";
 
-import RSText from "../../base-components/RSText";
+import SingleConnection from "./SingleConnection";
+import SinglePendingConnection from "./SinglePendingConnection";
+
 import { colors } from "../../theme/Colors";
 
 const useStyles = makeStyles((_: any) => ({
-
   wrapper: {
-    background: colors().secondary,
-    paddingBottom: 4,
-  },
-  top: {
+    width: "400px",
     display: "flex",
-    justifyContent: "space-between",
+    flexDirection: "column",
+    height: window.innerHeight - 60,
   },
-  left: {},
-  right: {},
-  picture: {
-    margin: 10,
-    marginTop: 18,
-    marginBottom: -7,
-    display: "inline-block",
-    color: colors().primaryText,
-  },
-  organization: {
-    marginLeft: 54,
-    color: colors().primaryText,
-    marginTop: 10,
-  },
-  bottom: {
-    display: "flex",
-    justifyContent: "space-between",
+  headerText: {
     margin: 0,
-    marginTop: -20,
+    display: "block",
   },
-  name: {
-    marginRight: 4,
-    marginBottom: 10,
-    marginTop: -50,
-    marginLeft: 10,
-    display: "inline-block",
-    color: colors().primaryText,
+  messageTest: {},
+  textFieldContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    background: colors.primary,
+    borderTop: "2px solid " + colors.primaryText,
+    color: colors.primaryText,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 5,
   },
-  message: {
-    marginRight: 3,
-    display: "inline-block",
-    color: colors().secondaryText,
-    fontStyle: "italic",
+  textField: {
+    width: 200,
+    background: colors.secondary,
+    color: colors.primaryText,
+    label: colors.primaryText
   },
-  ellipsis: {
-    margin: 1.5,
-    marginBottom: -7,
+  messageContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    background: colors.secondary,
+    overflow: "scroll",
+    label: colors.primaryText,
+  },
+  input: {
+    color: colors.primaryText,
+    label: colors.primaryText,
+  },
+  cssLabel: {
+    color: colors.primaryText,
+    label: colors.primaryText,
+  },
+  cssFocused: {
+    color: colors.primaryText,
+    label: colors.primaryText,
+  },
+  cssOutlinedInput: {
+    '&$cssFocused $notchedOutline': {
+      color: colors.primaryText,
+      label: colors.primaryText,
+      borderWidth: '2px',
+      borderColor: colors.primaryText,
+    }
+  },
+  notchedOutline: {
+    borderWidth: '2px',
+    label: colors.primaryText,
+    color: colors.primaryText,
   },
 }));
 
-type Props = {
-  name: string,
-  nameId: string,
-  organization: string,
-  picture: string,
-};
+type Props = {};
 
 function ConnectionsDrawer(props: Props) {
   const styles = useStyles();
-  const [liked, setLiked] = useState(false);
+  const [message, setMessage] = useState("");
 
-  function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
+  function testRenderMessages() {
+    const output = [];
+    for (let i = 0; i < 1; i++) {
+      output.push(
+        <div className={styles.messageTest}>
+          <SinglePendingConnection
+            name="Ashwin Mahesh"
+            nameId="1002"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <SinglePendingConnection
+            name="Dhruv Patel"
+            nameId="1003"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <SinglePendingConnection
+            name="Lauren Odle"
+            nameId="1004"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <SinglePendingConnection
+            name="Chris Hartley"
+            nameId="1004"
+            organization="RootShare"
+            picture="jeffsprofile.png"
+          />
+        </div>
+      )
+    }
+    for (let i = 0; i <= 10; i++) {
+      output.push(
+        <div className={styles.messageTest}>
+          <SingleConnection
+            name="Jackson McCluskey"
+            nameId="2001"
+            organization="RootShare"
+            picture="jacksonsprofile.png"
+          />
+        </div>
+      );
+      output.push(
+        <div className={styles.messageTest}>
+          <SingleConnection
+            name="Smit Desai"
+            nameId="2002"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <SingleConnection
+            name="Caite Capezzuto"
+            nameId="2003"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
+      output.push(
+        <div className={styles.messageTest}>
+          <SingleConnection
+            name="Caite Capezzuto"
+            nameId="2004"
+            organization="RootShare"
+            picture="elonsprofile.png"
+          />
+        </div>
+      )
+    }
+    return output;
   }
-
   return (
     <div className={styles.wrapper}>
-      <div className={styles.top}>
-        <div>
-          <EmojiEmotionsIcon className={styles.picture} />
-          <RSText bold size={12} className={styles.name}>
-            {props.name}
-          </RSText>
-        </div>
-        <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color={colors().secondaryText} />
-        </IconButton>
-      </div>
-      <div className={styles.bottom}>
-        <div className={styles.left}>
-          <RSText size={12} className={styles.organization}>
-            from {props.organization}
-          </RSText>
-        </div>
-      </div>
+      <div className={styles.messageContainer}>{testRenderMessages()}</div>
     </div>
   );
 }

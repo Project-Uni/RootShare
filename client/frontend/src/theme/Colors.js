@@ -1,6 +1,5 @@
 
-export function colors() {
-  return { 
+let colors = {
     "primary" : "#0C1644", // Dark Blue
     "secondary" : "#242D56", // Semi-Dark Blue
     "ternary" : "#3C4469", // Highlight Blue
@@ -8,5 +7,6 @@ export function colors() {
     "primaryText" : "#F8F8FF", // Ghost White
     "secondaryText" : "#858AA1", // Grey
     "error" : "#440C16" // Dark Red
-  };
-}
+};
+
+export { colors };

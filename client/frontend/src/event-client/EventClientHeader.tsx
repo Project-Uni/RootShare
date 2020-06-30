@@ -9,7 +9,7 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 
 import EventDrawer from "./EventDrawer";
 
-import ConnectionsDrawerContainer from "./drawer-components/ConnectionsDrawerContainer"
+import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer"
 
 import {
   CalendarDrawer,
@@ -65,7 +65,7 @@ function EventClientHeader(props: Props) {
   function getDrawerContent() {
     switch (drawerContent) {
       case "connections":
-        return <ConnectionsDrawerContainer />;
+        return <ConnectionsDrawer />;
       case "calendar":
         return <CalendarDrawer />;
       case "messages":
