@@ -57,3 +57,7 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
   }
   return output;
 }
+
+export function renderScreenshareLayout(props: any) {
+  return {};
+}

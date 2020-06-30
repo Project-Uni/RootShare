@@ -95,7 +95,7 @@ function EventAdminContainer(props: Props) {
 
   async function fetchEventInfo() {
     setNumSpeakers(4);
-    setEventPos(3);
+    setEventPos(1);
   }
 
   function renderLoadingAndError() {
