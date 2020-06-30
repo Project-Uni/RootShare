@@ -63,6 +63,7 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
         id={`pos${i}`}
         style={{
           width: `${100 / maxElements}%`,
+          border: '1px solid red',
         }}
       ></div>
     );
@@ -94,7 +95,10 @@ function renderScreenshareRest({ numSpeakers, sharingPos }: ScreenshareProps) {
   for (let i = 1; i <= numSpeakers; i++) {
     if (i != sharingPos)
       output.push(
-        <div id={`pos${i}`} style={{ width: '100%', height: `${100 / 3}%` }}></div>
+        <div
+          id={`pos${i}`}
+          style={{ width: '100%', height: `${100 / 3}%`, border: '1px solid red' }}
+        ></div>
       );
   }
   return output;
