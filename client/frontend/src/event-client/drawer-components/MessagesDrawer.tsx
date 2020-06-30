@@ -20,7 +20,7 @@ function MessagesDrawer(props: Props) {
     setSetup(true);
 
     connectSocket();
-  });
+  }, []);
 
   function connectSocket() {
     const endpoint = "http://localhost:8080";
