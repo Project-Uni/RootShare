@@ -7,7 +7,7 @@ import { SINGLE_DIGIT } from '../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
-export async function connectStream(webinarID: string) {
+export async function connectStream(webinarID: string, setCanShareStream: any) {
   let canScreenshare = false;
 
   if (OT.checkSystemRequirements() !== 1) {
@@ -24,7 +24,11 @@ export async function connectStream(webinarID: string) {
   const eventToken = await getOpenTokToken(sessionID);
   if (!eventToken) return { screenshare: canScreenshare, eventSession: false };
 
-  const eventSession = await createEventSession(sessionID, eventToken);
+  const eventSession = await createEventSession(
+    sessionID,
+    eventToken,
+    setCanShareStream
+  );
 
   if (!((eventSession as unknown) as boolean))
     return { screenshare: canScreenshare, eventSession: false };
@@ -54,7 +58,11 @@ async function getOpenTokToken(sessionID: string) {
   return data['content']['token'];
 }
 
-async function createEventSession(sessionID: string, eventToken: string) {
+async function createEventSession(
+  sessionID: string,
+  eventToken: string,
+  setCanShareStream: any
+) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   eventSession.on('streamCreated', (event: any) => {
     eventSession.subscribe(event.stream);

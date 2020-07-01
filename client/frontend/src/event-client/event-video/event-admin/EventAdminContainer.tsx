@@ -69,6 +69,7 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
+  const [canShareScreen, setCanShareScreen] = useState(true);
 
   const [frozenWebcam, setFrozenWebcam] = useState(false);
 
@@ -150,6 +151,11 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleScreenshare() {
+    if (!sharingScreen && !canShareScreen) {
+      window.alert(`Can't share screen while someone else is`);
+      return;
+    }
+
     const prompt = `Are you sure you want to ${
       sharingScreen ? 'stop' : 'start'
     } sharing your screen`;
