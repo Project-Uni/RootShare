@@ -7,7 +7,10 @@ import { SINGLE_DIGIT } from '../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
-export async function connectStream(webinarID: string, setCanShareStream: any) {
+export async function connectStream(
+  webinarID: string,
+  setSomeoneSharingScreen: any
+) {
   let canScreenshare = false;
 
   if (OT.checkSystemRequirements() !== 1) {
@@ -27,7 +30,7 @@ export async function connectStream(webinarID: string, setCanShareStream: any) {
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
-    setCanShareStream
+    setSomeoneSharingScreen
   );
 
   if (!((eventSession as unknown) as boolean))
@@ -61,11 +64,19 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  setCanShareStream: any
+  setSomeoneSharingScreen: any
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   eventSession.on('streamCreated', (event: any) => {
     eventSession.subscribe(event.stream);
+    if (event.stream.videoType === 'screen') {
+      setSomeoneSharingScreen(true);
+      alert('Someone is sharing their screen');
+    }
+  });
+
+  eventSession.on('streamDestroyed', (event: any) => {
+    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
   });
 
   const connection = await eventSession.connect(eventToken, (err: any) => {

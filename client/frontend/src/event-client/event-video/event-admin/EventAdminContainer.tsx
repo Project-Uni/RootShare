@@ -69,7 +69,7 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
-  const [canShareScreen, setCanShareScreen] = useState(true);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState(false);
 
   const [frozenWebcam, setFrozenWebcam] = useState(false);
 
@@ -151,7 +151,7 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleScreenshare() {
-    if (!sharingScreen && !canShareScreen) {
+    if (!sharingScreen && someoneSharingScreen) {
       window.alert(`Can't share screen while someone else is`);
       return;
     }
@@ -216,7 +216,8 @@ function EventAdminContainer(props: Props) {
     if (data['success'] === 1) {
       setWebinarID(data['content']['webinarID']);
       const { screenshare, eventSession } = await connectStream(
-        data['content']['webinarID']
+        data['content']['webinarID'],
+        setSomeoneSharingScreen
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {
