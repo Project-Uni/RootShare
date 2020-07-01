@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar, IconButton, colors } from "@material-ui/core";
+import { AppBar, Toolbar, IconButton } from "@material-ui/core";
 import RootShareLogoWhite from "../images/RootShareLogoWhite.png";
 
 import { MdGroupAdd, MdAccountCircle } from "react-icons/md";
@@ -9,12 +9,13 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 
 import EventDrawer from "./EventDrawer";
 
-import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer"
+// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
 
 import {
   CalendarDrawer,
   MessagesDrawer,
   ProfileDrawer,
+  ConnectionsDrawer,
 } from "./drawer-components";
 
 const useStyles = makeStyles((_: any) => ({

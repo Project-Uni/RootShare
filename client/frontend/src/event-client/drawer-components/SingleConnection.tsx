@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import EmojiEmotionsIcon from "@material-ui/icons/EmojiEmotions";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
 import { FaEllipsisH } from "react-icons/fa";
@@ -9,7 +9,6 @@ import RSText from "../../base-components/RSText";
 import { colors } from "../../theme/Colors";
 
 const useStyles = makeStyles((_: any) => ({
-
   wrapper: {
     background: colors.secondary,
     paddingBottom: 4,
@@ -46,12 +45,6 @@ const useStyles = makeStyles((_: any) => ({
     display: "inline-block",
     color: colors.primaryText,
   },
-  message: {
-    marginRight: 3,
-    display: "inline-block",
-    color: colors.secondaryText,
-    fontStyle: "italic",
-  },
   ellipsis: {
     margin: 1.5,
     marginBottom: -7,
@@ -59,20 +52,14 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  name: string,
-  nameId: string,
-  organization: string,
-  picture: string,
+  name: string;
+  nameId: string;
+  organization: string;
+  picture: string;
 };
 
 function SingleConnection(props: Props) {
   const styles = useStyles();
-  const [liked, setLiked] = useState(false);
-
-  function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
-  }
 
   return (
     <div className={styles.wrapper}>
