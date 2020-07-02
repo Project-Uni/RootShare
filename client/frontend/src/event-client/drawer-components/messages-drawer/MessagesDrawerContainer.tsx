@@ -4,12 +4,24 @@ import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    width: "300px",
+    display: "flex",
+    flexDirection: "column",
+    height: window.innerHeight - 60,
+  },
+  messageContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    background: "white",
+    overflow: "scroll",
+    label: "#f2f2f2",
+  },
 }));
 
 type Props = {};
 
-function MessagesDrawer(props: Props) {
+function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
   const [response, setResponse] = useState(false);
@@ -39,11 +51,16 @@ function MessagesDrawer(props: Props) {
     });
   }
 
+  function renderLatestMesasages() {
+    return <div></div>;
+  }
+
   return (
     <div className={styles.wrapper}>
-      {response ? <p>The current date is: {response}</p> : <p>Loading...</p>}
+      <p>HELLO</p>
+      <div className={styles.messageContainer}>{renderLatestMesasages()}</div>
     </div>
   );
 }
 
-export default MessagesDrawer;
+export default MessagesDrawerContainer;

@@ -11,7 +11,7 @@ import EventDrawer from "./EventDrawer";
 import {
   CalendarDrawer,
   ConnectionsDrawer,
-  MessagesDrawer,
+  MessagesDrawerContainer,
   ProfileDrawer,
 } from "./drawer-components";
 
@@ -67,7 +67,7 @@ function EventClientHeader(props: Props) {
       case "calendar":
         return <CalendarDrawer />;
       case "messages":
-        return <MessagesDrawer />;
+        return <MessagesDrawerContainer />;
       case "profile":
         return <ProfileDrawer />;
       default:
