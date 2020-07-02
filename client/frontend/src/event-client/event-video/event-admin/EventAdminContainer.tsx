@@ -17,7 +17,7 @@ import {
   startLiveStream,
   stopLiveStream,
   createNewScreensharePublisher,
-  initializeWebcam,
+  createNewWebcamPublisher,
 } from './EventAdminHelpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
@@ -135,8 +135,19 @@ function EventAdminContainer(props: Props) {
   function toggleWebcam() {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
-      webcamPublisher.publishVideo(showWebcam);
-      return prevState;
+      if (prevState.session === undefined) {
+        const publisher = createNewWebcamPublisher(
+          props.user['firstName'] + ' ' + props.user['lastName'],
+          eventPos
+        );
+        session.publish(publisher, (err) => {
+          if (err) alert(err.message);
+        });
+        return publisher;
+      } else {
+        session.unpublish(webcamPublisher);
+        return new Publisher();
+      }
     });
 
     setShowWebcam(!showWebcam);
@@ -222,12 +233,6 @@ function EventAdminContainer(props: Props) {
 
       setTimeout(() => {
         setLoading(false);
-        const defaultPublisher = initializeWebcam(
-          (eventSession as unknown) as OT.Session,
-          props.user['firstName'] + ' ' + props.user['lastName'],
-          eventPos
-        );
-        setWebcamPublisher(defaultPublisher);
       }, 500);
     } else {
       log('error', 'Error connecting to session');
@@ -256,15 +261,8 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      if (sharingScreen || someoneSharingScreen)
-        return (
-          <ScreenshareLayout
-            numSpeakers={numSpeakers}
-            sharingPos={
-              sharingScreen ? eventPos : (someoneSharingScreen as SINGLE_DIGIT)
-            }
-          />
-        );
+      if (sharingScreen)
+        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
       return <VideosOnlyLayout numSpeakers={numSpeakers} />;
     }
     return null;

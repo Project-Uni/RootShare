@@ -142,7 +142,8 @@ export async function stopLiveStream() {
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
 
-export function initializeWebcam(
+//TODO - If we decide not to use this function in the future, delete it
+function initializeWebcam(
   eventSession: OT.Session,
   name: string,
   eventPos: SINGLE_DIGIT
@@ -158,14 +159,14 @@ export function initializeWebcam(
   return publisher;
 }
 
-function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
+export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
     `pos${eventPos}`,
     {
       insertMode: 'append',
       name: name,
-      publishAudio: false,
-      publishVideo: false,
+      // publishAudio: false,
+      // publishVideo: false,
       ...VIDEO_UI_SETTINGS,
     },
     (err) => {
