@@ -16,8 +16,8 @@ import {
   connectStream,
   startLiveStream,
   stopLiveStream,
-  createNewWebcamPublisher,
   createNewScreensharePublisher,
+  initializeWebcam,
 } from './EventAdminHelpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
@@ -131,26 +131,8 @@ function EventAdminContainer(props: Props) {
   function toggleWebcam() {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
-      if (prevState.session === undefined) {
-        const publisher = createNewWebcamPublisher(
-          props.user['firstName'] + ' ' + props.user['lastName'],
-          eventPos
-        );
-        session.publish(publisher, (err) => {
-          if (err) alert(err.message);
-        });
-        return publisher;
-      } else {
-        //OLD CODE
-        session.unpublish(webcamPublisher);
-        return new Publisher();
-
-        //New attempt
-        //const webcamActive = webcamShowing
-        // if (webcameActive) webcamPublisher.publishVideo(false);
-        // else webcamPublisher.publishVideo(true);
-        // return prevState;
-      }
+      webcamPublisher.publishVideo(showWebcam);
+      return prevState;
     });
 
     setShowWebcam(!showWebcam);
@@ -219,6 +201,12 @@ function EventAdminContainer(props: Props) {
 
       setTimeout(() => {
         setLoading(false);
+        const defaultPublisher = initializeWebcam(
+          (eventSession as unknown) as OT.Session,
+          props.user['firstName'] + ' ' + props.user['lastName'],
+          eventPos
+        );
+        setWebcamPublisher(defaultPublisher);
       }, 500);
     } else {
       log('error', 'Error connecting to session');

@@ -130,12 +130,30 @@ export async function stopLiveStream() {
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
 
-export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
+export function initializeWebcam(
+  eventSession: OT.Session,
+  name: string,
+  eventPos: SINGLE_DIGIT
+) {
+  const publisher = createNewWebcamPublisher(name, eventPos);
+  eventSession.publish(publisher, (err) => {
+    if (err) alert(err.message);
+  });
+  setTimeout(() => {
+    publisher.publishAudio(true);
+  }, 500);
+
+  return publisher;
+}
+
+function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
     `pos${eventPos}`,
     {
       insertMode: 'append',
       name: name,
+      publishAudio: false,
+      publishVideo: false,
       ...VIDEO_UI_SETTINGS,
     },
     (err) => {
