@@ -14,7 +14,7 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
-  setSomeoneSharingScreen: (newState: boolean) => any,
+  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
@@ -73,7 +73,7 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  setSomeoneSharingScreen: (newState: boolean) => any,
+  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
@@ -101,11 +101,12 @@ function addEventSessionListeners(
   eventSession: any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
-  setSomeoneSharingScreen: (newState: boolean) => any
+  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any
 ) {
   eventSession.on('streamCreated', (event: any) => {
-    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(true);
     const pos = availablePositions.pop();
+    if (event.stream.videoType === 'screen')
+      setSomeoneSharingScreen(pos as SINGLE_DIGIT);
     eventSession.subscribe(event.stream, `pos${pos}`, {
       insertMode: 'append',
       ...VIDEO_UI_SETTINGS,

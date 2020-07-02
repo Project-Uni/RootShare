@@ -69,7 +69,9 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
-  const [someoneSharingScreen, setSomeoneSharingScreen] = useState(false);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState<
+    SINGLE_DIGIT | false
+  >(false);
 
   const [frozenWebcam, setFrozenWebcam] = useState(false);
 
@@ -254,8 +256,15 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      if (sharingScreen)
-        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
+      if (sharingScreen || someoneSharingScreen)
+        return (
+          <ScreenshareLayout
+            numSpeakers={numSpeakers}
+            sharingPos={
+              sharingScreen ? eventPos : (someoneSharingScreen as SINGLE_DIGIT)
+            }
+          />
+        );
       return <VideosOnlyLayout numSpeakers={numSpeakers} />;
     }
     return null;
