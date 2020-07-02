@@ -107,7 +107,6 @@ function EventSpeakerContainer(props: Props) {
     for (let i = initialNumSpeakers; i >= 2; i--) {
       availablePositions.push(i as SINGLE_DIGIT);
     }
-    console.log('Available positions:', availablePositions);
     setEventPos(1);
   }
 
