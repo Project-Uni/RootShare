@@ -99,9 +99,9 @@ function EventAdminContainer(props: Props) {
   }
 
   async function fetchEventInfo() {
-    const numSpeakersFromServer = 4;
-    setNumSpeakers(numSpeakersFromServer);
-    for (let i = numSpeakersFromServer; i >= 2; i--) {
+    const initialNumSpeakers = 4;
+    setNumSpeakers(4);
+    for (let i = initialNumSpeakers; i >= 2; i--) {
       availablePositions.push(i as SINGLE_DIGIT);
     }
     console.log('Available positions:', availablePositions);

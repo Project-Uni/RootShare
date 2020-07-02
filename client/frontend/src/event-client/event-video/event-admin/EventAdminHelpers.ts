@@ -14,7 +14,7 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
-  availablePositions: [SINGLE_DIGIT],
+  availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   let canScreenshare = false;
@@ -71,25 +71,11 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  availablePositions: [SINGLE_DIGIT],
+  availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   addEventSessionListeners(eventSession, availablePositions, eventStreamMap);
-  // eventSession.on('streamCreated', (event: any) => {
-  //   const pos = availablePositions.pop();
-  //   eventSession.subscribe(event.stream, `pos${pos}`, {
-  //     insertMode: 'append',
-  //     ...VIDEO_UI_SETTINGS,
-  //   });
-  //   eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
-  // });
-
-  // eventSession.on('streamDestroyed', (event: any) => {
-  //   const pos = eventStreamMap[JSON.stringify(event.target)];
-  //   delete eventStreamMap[JSON.stringify(event.target)];
-  //   availablePositions.push(pos);
-  // });
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -105,7 +91,7 @@ async function createEventSession(
 
 function addEventSessionListeners(
   eventSession: any,
-  availablePositions: [SINGLE_DIGIT],
+  availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   eventSession.on('streamCreated', (event: any) => {
