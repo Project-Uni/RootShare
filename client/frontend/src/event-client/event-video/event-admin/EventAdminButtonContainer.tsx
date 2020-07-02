@@ -93,7 +93,7 @@ function EventAdminButtonContainer(props: Props) {
         onClick={props.toggleScreenshare}
         disabled={props.loading}
       >
-        {!props.sharingScreen ? 'Share Screen' : 'Sharing Screen'}
+        {!props.sharingScreen ? 'Share Screen' : 'Stop Sharing Screen'}
       </Button>
       <Button
         variant="contained"
