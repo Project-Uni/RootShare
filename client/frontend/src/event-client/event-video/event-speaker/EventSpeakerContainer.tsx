@@ -8,6 +8,7 @@ import OT, { Session, Publisher } from '@opentok/client';
 
 import log from '../../../helpers/logger';
 import RSText from '../../../base-components/RSText';
+import EventSpeakerButtonContainer from './EventSpeakerButtonContainer';
 import {
   VideosOnlyLayout,
   ScreenshareLayout,
@@ -263,7 +264,15 @@ function EventSpeakerContainer(props: Props) {
         {renderLoadingAndError()}
         {renderVideoSections()}
       </div>
-      <p>Buttons</p>
+      <EventSpeakerButtonContainer
+        showWebcam={showWebcam}
+        muted={muted}
+        sharingScreen={sharingScreen}
+        toggleWebcam={toggleWebcam}
+        toggleMute={toggleMute}
+        toggleScreenshare={toggleScreenshare}
+        loading={loading}
+      />
     </div>
   );
 }
