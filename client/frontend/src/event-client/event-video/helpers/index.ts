@@ -1,10 +1,11 @@
+// import { startLiveStream, stopLiveStream } from '../EventOpenTokHelpers';
+
 import {
-  connectStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-  startLiveStream,
-  stopLiveStream,
-} from '../EventOpenTokHelpers';
+} from './createPublishers';
+import { connectStream } from './connectStream';
+import { startLiveStream, stopLiveStream } from './OpenToktoMux';
 
 export {
   connectStream,
