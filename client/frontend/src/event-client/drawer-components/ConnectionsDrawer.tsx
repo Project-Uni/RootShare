@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import SingleConnection from "./SingleConnection";
 import SinglePendingConnection from "./SinglePendingConnection";
+import MyConnections from "../images/MyConnections.png";
 
 import { colors } from "../../theme/Colors";
 
@@ -13,11 +14,6 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: "column",
     height: window.innerHeight - 60,
   },
-  headerText: {
-    margin: 0,
-    display: "block",
-  },
-  messageTest: {},
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
@@ -28,43 +24,12 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 5,
     paddingLeft: 5,
   },
-  textField: {
-    width: 200,
-    background: colors.secondary,
-    color: colors.primaryText,
-    label: colors.primaryText
-  },
-  messageContainer: {
+  connectionContainer: {
     flex: 1,
     justifyContent: "flex-end",
     background: colors.secondary,
     overflow: "scroll",
     label: colors.primaryText,
-  },
-  input: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssLabel: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssFocused: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      color: colors.primaryText,
-      label: colors.primaryText,
-      borderWidth: '2px',
-      borderColor: colors.primaryText,
-    }
-  },
-  notchedOutline: {
-    borderWidth: '2px',
-    label: colors.primaryText,
-    color: colors.primaryText,
   },
 }));
 
@@ -74,11 +39,11 @@ function ConnectionsDrawer(props: Props) {
   const styles = useStyles();
   const [message, setMessage] = useState("");
 
-  function testRenderMessages() {
+  function testRenderConnections() {
     const output = [];
     for (let i = 0; i < 1; i++) {
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SinglePendingConnection
             name="Ashwin Mahesh"
             nameId="1002"
@@ -88,7 +53,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       )
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SinglePendingConnection
             name="Dhruv Patel"
             nameId="1003"
@@ -98,7 +63,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       )
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SinglePendingConnection
             name="Lauren Odle"
             nameId="1004"
@@ -108,7 +73,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       )
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SinglePendingConnection
             name="Chris Hartley"
             nameId="1004"
@@ -120,7 +85,7 @@ function ConnectionsDrawer(props: Props) {
     }
     for (let i = 0; i <= 10; i++) {
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SingleConnection
             name="Jackson McCluskey"
             nameId="2001"
@@ -130,7 +95,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       );
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SingleConnection
             name="Smit Desai"
             nameId="2002"
@@ -140,7 +105,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       )
       output.push(
-        <div className={styles.messageTest}>
+        <div >
           <SingleConnection
             name="Caite Capezzuto"
             nameId="2003"
@@ -150,7 +115,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       )
       output.push(
-        <div className={styles.messageTest}>
+        <div>
           <SingleConnection
             name="Caite Capezzuto"
             nameId="2004"
@@ -164,7 +129,7 @@ function ConnectionsDrawer(props: Props) {
   }
   return (
     <div className={styles.wrapper}>
-      <div className={styles.messageContainer}>{testRenderMessages()}</div>
+      <div className={styles.connectionContainer}>{testRenderConnections()}</div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 
-let colors = {
+const colors = {
     "primary" : "#0C1644", // Dark Blue
     "secondary" : "#242D56", // Semi-Dark Blue
     "ternary" : "#3C4469", // Highlight Blue
