@@ -186,7 +186,9 @@ export function createNewScreensharePublisher(name: string, eventPos: SINGLE_DIG
       ...VIDEO_UI_SETTINGS,
     },
     (err) => {
-      if (err) alert(err.message);
+      if (err) {
+        log('error', err.message);
+      }
     }
   );
   return publisher;

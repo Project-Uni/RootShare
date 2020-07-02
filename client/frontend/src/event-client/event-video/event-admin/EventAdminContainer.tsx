@@ -172,7 +172,6 @@ function EventAdminContainer(props: Props) {
       } else {
         setFrozenWebcam(false);
       }
-      if (!sharingScreen) setSharingScreen(true);
 
       setTimeout(() => {
         setScreenPublisher((prevState) => {
@@ -182,6 +181,7 @@ function EventAdminContainer(props: Props) {
               props.user['firstName'] + ' ' + props.user['lastName'],
               eventPos
             );
+            if (!publisher.accessAllowed) return new Publisher();
             session.publish(publisher, (err) => {
               if (err) return alert(err.message);
 
@@ -191,6 +191,7 @@ function EventAdminContainer(props: Props) {
                 streamID: publisher.stream?.streamId,
               });
             });
+            setSharingScreen(true);
             return publisher;
           } else if (prevState.session === null) return new Publisher();
           else {
