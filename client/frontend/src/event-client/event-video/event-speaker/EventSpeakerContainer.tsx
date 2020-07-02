@@ -199,8 +199,7 @@ function EventSpeakerContainer(props: Props) {
   async function initializeSession() {
     // TODO- This API call should be fetching the correct one for the event in prod
 
-    //This function doesnt need to be called
-    const { data } = await axios.get('/webinar/createSession');
+    const { data } = await axios.get('/webinar/latestWebinarID');
 
     if (data['success'] === 1) {
       setWebinarID(data['content']['webinarID']);
