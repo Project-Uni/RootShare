@@ -7,7 +7,15 @@ import { SINGLE_DIGIT } from '../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
-export async function connectStream(webinarID: string) {
+const VIDEO_UI_SETTINGS = {
+  width: '100%',
+  height: '100%',
+};
+
+export async function connectStream(
+  webinarID: string,
+  availablePositions: [SINGLE_DIGIT]
+) {
   let canScreenshare = false;
 
   if (OT.checkSystemRequirements() !== 1) {
@@ -24,7 +32,11 @@ export async function connectStream(webinarID: string) {
   const eventToken = await getOpenTokToken(sessionID);
   if (!eventToken) return { screenshare: canScreenshare, eventSession: false };
 
-  const eventSession = await createEventSession(sessionID, eventToken);
+  const eventSession = await createEventSession(
+    sessionID,
+    eventToken,
+    availablePositions
+  );
 
   if (!((eventSession as unknown) as boolean))
     return { screenshare: canScreenshare, eventSession: false };
@@ -54,10 +66,17 @@ async function getOpenTokToken(sessionID: string) {
   return data['content']['token'];
 }
 
-async function createEventSession(sessionID: string, eventToken: string) {
+async function createEventSession(
+  sessionID: string,
+  eventToken: string,
+  availablePositions: [SINGLE_DIGIT]
+) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   eventSession.on('streamCreated', (event: any) => {
-    eventSession.subscribe(event.stream);
+    eventSession.subscribe(event.stream, `pos${availablePositions.pop()}`, {
+      insertMode: 'append',
+      ...VIDEO_UI_SETTINGS,
+    });
   });
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
@@ -91,11 +110,6 @@ export async function stopLiveStream() {
 }
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
-
-const VIDEO_UI_SETTINGS = {
-  width: '100%',
-  height: '100%',
-};
 
 export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
