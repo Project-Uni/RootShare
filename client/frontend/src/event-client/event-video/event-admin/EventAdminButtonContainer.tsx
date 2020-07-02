@@ -66,7 +66,7 @@ function EventAdminButtonContainer(props: Props) {
         onClick={props.toggleWebcam}
         disabled={props.loading || props.sharingScreen}
       >
-        {props.showWebcam ? (
+        {!props.showWebcam ? (
           <Video size={28} color="white" />
         ) : (
           <VideoOff size={28} color="white" />

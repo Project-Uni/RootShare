@@ -29,16 +29,10 @@ type VideoLayoutProps = {
   numSpeakers: SINGLE_DIGIT;
 };
 
-function calculateNumPerRow(numSpeakers: SINGLE_DIGIT) {
-  if (numSpeakers <= 2) return 1;
-  else if (numSpeakers <= 4) return 2;
-  else return 3;
-}
-
 export function VideosOnlyLayout(props: VideoLayoutProps) {
   const styles = useStyles();
   const numRows = Math.ceil(props.numSpeakers / 3);
-  const numPerRow = calculateNumPerRow(props.numSpeakers);
+  const numPerRow = Math.ceil(Math.sqrt(props.numSpeakers));
 
   const output = [];
   for (let i = 1; i <= props.numSpeakers; i += numPerRow) {

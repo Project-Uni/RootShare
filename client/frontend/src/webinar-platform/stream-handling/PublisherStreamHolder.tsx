@@ -24,8 +24,8 @@ function PublisherStreamHolder(props: Props) {
       'pos2',
       {
         insertMode: 'append',
-        width: '10%',
-        height: '200px',
+        width: '100%',
+        height: '100%',
       },
       handleError
     );

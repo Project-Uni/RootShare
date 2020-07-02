@@ -7,9 +7,16 @@ import { SINGLE_DIGIT } from '../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
+const VIDEO_UI_SETTINGS = {
+  width: '100%',
+  height: '100%',
+};
+
 export async function connectStream(
   webinarID: string,
-  setSomeoneSharingScreen: any
+  setSomeoneSharingScreen: any,
+  availablePositions: SINGLE_DIGIT[],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   let canScreenshare = false;
 
@@ -30,7 +37,9 @@ export async function connectStream(
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
-    setSomeoneSharingScreen
+    setSomeoneSharingScreen,
+    availablePositions,
+    eventStreamMap
   );
 
   if (!((eventSession as unknown) as boolean))
@@ -64,20 +73,17 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  setSomeoneSharingScreen: any
+  setSomeoneSharingScreen: any,
+  availablePositions: SINGLE_DIGIT[],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  eventSession.on('streamCreated', (event: any) => {
-    eventSession.subscribe(event.stream);
-    if (event.stream.videoType === 'screen') {
-      setSomeoneSharingScreen(true);
-      alert('Someone is sharing their screen');
-    }
-  });
-
-  eventSession.on('streamDestroyed', (event: any) => {
-    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
-  });
+  addEventSessionListeners(
+    eventSession,
+    availablePositions,
+    eventStreamMap,
+    setSomeoneSharingScreen
+  );
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -89,6 +95,30 @@ async function createEventSession(
     }
   });
   return connection;
+}
+
+function addEventSessionListeners(
+  eventSession: any,
+  availablePositions: SINGLE_DIGIT[],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT },
+  setSomeoneSharingScreen: any
+) {
+  eventSession.on('streamCreated', (event: any) => {
+    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(true);
+    const pos = availablePositions.pop();
+    eventSession.subscribe(event.stream, `pos${pos}`, {
+      insertMode: 'append',
+      ...VIDEO_UI_SETTINGS,
+    });
+    eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
+  });
+
+  eventSession.on('streamDestroyed', (event: any) => {
+    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
+    const pos = eventStreamMap[JSON.stringify(event.target)];
+    delete eventStreamMap[JSON.stringify(event.target)];
+    availablePositions.push(pos);
+  });
 }
 
 async function getLatestWebinarID() {
@@ -111,17 +141,30 @@ export async function stopLiveStream() {
 
 // For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
 
-const VIDEO_UI_SETTINGS = {
-  width: '100%',
-  height: '100%',
-};
+export function initializeWebcam(
+  eventSession: OT.Session,
+  name: string,
+  eventPos: SINGLE_DIGIT
+) {
+  const publisher = createNewWebcamPublisher(name, eventPos);
+  eventSession.publish(publisher, (err) => {
+    if (err) alert(err.message);
+  });
+  setTimeout(() => {
+    publisher.publishAudio(true);
+  }, 500);
 
-export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
+  return publisher;
+}
+
+function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
   const publisher = OT.initPublisher(
     `pos${eventPos}`,
     {
       insertMode: 'append',
       name: name,
+      publishAudio: false,
+      publishVideo: false,
       ...VIDEO_UI_SETTINGS,
     },
     (err) => {
