@@ -10,7 +10,10 @@ import EventAdminButtonContainer from './EventAdminButtonContainer';
 
 import log from '../../../helpers/logger';
 import RSText from '../../../base-components/RSText';
-import { VideosOnlyLayout, ScreenshareLayout } from './EventSpeakerVideoLayouts';
+import {
+  VideosOnlyLayout,
+  ScreenshareLayout,
+} from '../video/EventOpenTokVideoLayout';
 
 import {
   connectStream,
@@ -18,7 +21,7 @@ import {
   stopLiveStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-} from './EventAdminHelpers';
+} from '../EventOpenTokHelpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
 

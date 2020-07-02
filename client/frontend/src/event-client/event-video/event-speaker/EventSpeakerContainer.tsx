@@ -12,13 +12,13 @@ import EventSpeakerButtonContainer from './EventSpeakerButtonContainer';
 import {
   VideosOnlyLayout,
   ScreenshareLayout,
-} from '../event-admin/EventSpeakerVideoLayouts';
+} from '../video/EventOpenTokVideoLayout';
 
 import {
   connectStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-} from '../event-admin/EventAdminHelpers';
+} from '../EventOpenTokHelpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
 
