@@ -84,6 +84,19 @@ function HypeParticipatingOrganizations(props: Props) {
     "Purdue Student Governemnt",
     "Purdue American Association of University Women",
     "Purdue Think",
+    "Blacksheep Purdue",
+    "Larsen Leaders Academy Executive Board",
+    "Krannert Hub",
+    "Purdue Engineering Outreach",
+    "Purdue MIND",
+    "Computer Science Graduate Student Association",
+    "Old Masters",
+    "Theta Chi",
+    "PESC",
+    "PSEF",
+    "PEPC",
+    "Financial Management Association",
+    "ATO",
   ].sort();
 
   function renderOrganizations() {
