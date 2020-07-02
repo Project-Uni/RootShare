@@ -14,6 +14,7 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
+  setSomeoneSharingScreen: (newState: boolean) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
@@ -36,6 +37,7 @@ export async function connectStream(
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
+    setSomeoneSharingScreen,
     availablePositions,
     eventStreamMap
   );
@@ -71,11 +73,17 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
+  setSomeoneSharingScreen: (newState: boolean) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  addEventSessionListeners(eventSession, availablePositions, eventStreamMap);
+  addEventSessionListeners(
+    eventSession,
+    availablePositions,
+    eventStreamMap,
+    setSomeoneSharingScreen
+  );
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -92,9 +100,11 @@ async function createEventSession(
 function addEventSessionListeners(
   eventSession: any,
   availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT }
+  eventStreamMap: { [key: string]: SINGLE_DIGIT },
+  setSomeoneSharingScreen: (newState: boolean) => any
 ) {
   eventSession.on('streamCreated', (event: any) => {
+    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(true);
     const pos = availablePositions.pop();
     eventSession.subscribe(event.stream, `pos${pos}`, {
       insertMode: 'append',
@@ -104,6 +114,7 @@ function addEventSessionListeners(
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
+    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
     const pos = eventStreamMap[JSON.stringify(event.target)];
     delete eventStreamMap[JSON.stringify(event.target)];
     availablePositions.push(pos);

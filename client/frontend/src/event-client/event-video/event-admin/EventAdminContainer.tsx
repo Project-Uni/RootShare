@@ -61,6 +61,7 @@ function EventAdminContainer(props: Props) {
   const [webcamPublisher, setWebcamPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
+  const [webinarID, setWebinarID] = useState(-1);
 
   const [loading, setLoading] = useState(true);
   const [loadingErr, setLoadingErr] = useState(false);
@@ -68,6 +69,7 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState(false);
 
   const [frozenWebcam, setFrozenWebcam] = useState(false);
 
@@ -139,6 +141,11 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleScreenshare() {
+    if (!sharingScreen && someoneSharingScreen) {
+      window.alert(`Can't share screen while someone else is`);
+      return;
+    }
+
     const prompt = `Are you sure you want to ${
       sharingScreen ? 'stop' : 'start'
     } sharing your screen`;
@@ -163,11 +170,21 @@ function EventAdminContainer(props: Props) {
               eventPos
             );
             session.publish(publisher, (err) => {
-              if (err) alert(err.message);
+              if (err) return alert(err.message);
+
+              axios.post('/webinar/changeBroadcastLayout', {
+                webinarID,
+                type: 'horizontalPresentation',
+                streamID: publisher.stream?.streamId,
+              });
             });
             return publisher;
           } else if (prevState.session === null) return new Publisher();
           else {
+            axios.post('/webinar/changeBroadcastLayout', {
+              webinarID,
+              type: 'bestFit',
+            });
             session.unpublish(screenPublisher);
             return new Publisher();
           }
@@ -187,8 +204,10 @@ function EventAdminContainer(props: Props) {
     const { data } = await axios.get('/webinar/createSession');
 
     if (data['success'] === 1) {
+      setWebinarID(data['content']['webinarID']);
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
+        setSomeoneSharingScreen,
         availablePositions,
         eventStreamMap
       );
