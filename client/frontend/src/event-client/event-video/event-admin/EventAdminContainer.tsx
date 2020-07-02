@@ -74,7 +74,7 @@ function EventAdminContainer(props: Props) {
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
 
-  const availablePositions: [SINGLE_DIGIT] = [1];
+  const availablePositions: SINGLE_DIGIT[] = [];
   const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
 
   const [videoWidth, setVideoWidth] = useState(
