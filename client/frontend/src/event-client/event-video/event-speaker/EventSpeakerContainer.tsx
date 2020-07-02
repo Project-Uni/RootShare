@@ -18,7 +18,7 @@ import {
   connectStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-} from '../EventOpenTokHelpers';
+} from '../helpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
 
