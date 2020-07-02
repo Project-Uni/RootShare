@@ -75,6 +75,7 @@ function EventAdminContainer(props: Props) {
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
 
   const availablePositions: [SINGLE_DIGIT] = [1];
+  const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
 
   const [videoWidth, setVideoWidth] = useState(
     window.innerWidth >= MIN_WINDOW_WIDTH
@@ -103,6 +104,7 @@ function EventAdminContainer(props: Props) {
     for (let i = numSpeakersFromServer; i >= 2; i--) {
       availablePositions.push(i as SINGLE_DIGIT);
     }
+    console.log('Available positions:', availablePositions);
     setEventPos(1);
   }
 
@@ -205,7 +207,8 @@ function EventAdminContainer(props: Props) {
     if (data['success'] === 1) {
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
-        availablePositions
+        availablePositions,
+        eventStreamMap
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {

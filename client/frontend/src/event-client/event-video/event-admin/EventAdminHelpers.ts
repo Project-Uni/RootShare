@@ -14,7 +14,8 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
-  availablePositions: [SINGLE_DIGIT]
+  availablePositions: [SINGLE_DIGIT],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   let canScreenshare = false;
 
@@ -35,7 +36,8 @@ export async function connectStream(
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
-    availablePositions
+    availablePositions,
+    eventStreamMap
   );
 
   if (!((eventSession as unknown) as boolean))
@@ -69,15 +71,25 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  availablePositions: [SINGLE_DIGIT]
+  availablePositions: [SINGLE_DIGIT],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT }
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  eventSession.on('streamCreated', (event: any) => {
-    eventSession.subscribe(event.stream, `pos${availablePositions.pop()}`, {
-      insertMode: 'append',
-      ...VIDEO_UI_SETTINGS,
-    });
-  });
+  addEventSessionListeners(eventSession, availablePositions, eventStreamMap);
+  // eventSession.on('streamCreated', (event: any) => {
+  //   const pos = availablePositions.pop();
+  //   eventSession.subscribe(event.stream, `pos${pos}`, {
+  //     insertMode: 'append',
+  //     ...VIDEO_UI_SETTINGS,
+  //   });
+  //   eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
+  // });
+
+  // eventSession.on('streamDestroyed', (event: any) => {
+  //   const pos = eventStreamMap[JSON.stringify(event.target)];
+  //   delete eventStreamMap[JSON.stringify(event.target)];
+  //   availablePositions.push(pos);
+  // });
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -89,6 +101,27 @@ async function createEventSession(
     }
   });
   return connection;
+}
+
+function addEventSessionListeners(
+  eventSession: any,
+  availablePositions: [SINGLE_DIGIT],
+  eventStreamMap: { [key: string]: SINGLE_DIGIT }
+) {
+  eventSession.on('streamCreated', (event: any) => {
+    const pos = availablePositions.pop();
+    eventSession.subscribe(event.stream, `pos${pos}`, {
+      insertMode: 'append',
+      ...VIDEO_UI_SETTINGS,
+    });
+    eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
+  });
+
+  eventSession.on('streamDestroyed', (event: any) => {
+    const pos = eventStreamMap[JSON.stringify(event.target)];
+    delete eventStreamMap[JSON.stringify(event.target)];
+    availablePositions.push(pos);
+  });
 }
 
 async function getLatestWebinarID() {
