@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { IconButton } from "@material-ui/core";
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import EmojiEmotionsIcon from "@material-ui/icons/EmojiEmotions";
+import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 
 import RSText from "../../base-components/RSText";
 import { colors } from "../../theme/Colors";
@@ -61,20 +61,14 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  name: string,
-  nameId: string,
-  organization: string,
-  picture: string,
+  name: string;
+  nameId: string;
+  organization: string;
+  picture: string;
 };
 
 function SinglePendingConnection(props: Props) {
   const styles = useStyles();
-  const [liked, setLiked] = useState(false);
-
-  function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
-  }
 
   return (
     <div className={styles.wrapper}>

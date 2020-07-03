@@ -9,7 +9,7 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 
 import EventDrawer from "./EventDrawer";
 
-import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer"
+// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
 
 import { colors } from "../theme/Colors"
 
@@ -17,6 +17,7 @@ import {
   CalendarDrawer,
   MessagesDrawer,
   ProfileDrawer,
+  ConnectionsDrawer,
 } from "./drawer-components";
 
 const useStyles = makeStyles((_: any) => ({
