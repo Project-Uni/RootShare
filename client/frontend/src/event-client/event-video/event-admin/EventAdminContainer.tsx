@@ -69,9 +69,7 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
-  const [someoneSharingScreen, setSomeoneSharingScreen] = useState(false);
-
-  const [frozenWebcam, setFrozenWebcam] = useState(false);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
@@ -142,13 +140,17 @@ function EventAdminContainer(props: Props) {
     videoType: 'camera' | 'screen',
     otherID: string
   ) {
-    if (videoType === 'screen') setSomeoneSharingScreen(true);
-
     setVideoData((prevVideoData) => {
       if (otherID === '') {
         const nextID = prevVideoData.nextID;
         const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
         element.setAttribute('elementid', `${nextID}`);
+
+        if (videoType === 'screen') {
+          setSomeoneSharingScreen(`${nextID}`);
+          setSharingScreen(true);
+        }
+
         return {
           videoElements: prevVideoData.videoElements.concat(element),
           cameraElementID:
@@ -159,6 +161,9 @@ function EventAdminContainer(props: Props) {
         };
       } else {
         element.setAttribute('elementid', otherID);
+
+        if (videoType === 'screen') setSomeoneSharingScreen(otherID);
+
         return {
           videoElements: prevVideoData.videoElements.concat(element),
           cameraElementID: prevVideoData.cameraElementID,
@@ -174,9 +179,14 @@ function EventAdminContainer(props: Props) {
     videoType: 'camera' | 'screen',
     self: boolean
   ) {
+    if (videoType === 'screen') {
+      setSomeoneSharingScreen('');
+      if (self) setSharingScreen(false);
+    }
+
     setVideoData((prevVideoData) => {
       const listLength = prevVideoData.videoElements.length;
-      let elementIndex = 0;
+      let elementIndex = -1;
       for (let i = 0; i < listLength; i++) {
         const currElement = prevVideoData.videoElements[i];
         if (currElement.getAttribute('elementid') === elementID) {
@@ -184,10 +194,17 @@ function EventAdminContainer(props: Props) {
         }
       }
 
+      const newVideoElements =
+        elementIndex === -1
+          ? prevVideoData.videoElements
+          : prevVideoData.videoElements
+              .slice(0, elementIndex)
+              .concat(
+                prevVideoData.videoElements.slice(elementIndex + 1, listLength)
+              );
+
       return {
-        videoElements: prevVideoData.videoElements
-          .slice(0, elementIndex)
-          .concat(prevVideoData.videoElements.slice(elementIndex + 1, listLength)),
+        videoElements: newVideoElements,
         cameraElementID:
           self && videoType === 'camera' ? '' : prevVideoData.cameraElementID,
         screenElementID:
@@ -230,16 +247,7 @@ function EventAdminContainer(props: Props) {
       sharingScreen ? 'stop' : 'start'
     } sharing your screen`;
 
-    const oldScreenShare = sharingScreen;
-
     if (window.confirm(prompt)) {
-      if (!showWebcam) {
-        setFrozenWebcam(true);
-        toggleWebcam();
-      } else {
-        setFrozenWebcam(false);
-      }
-
       setTimeout(() => {
         setScreenPublisher((prevState) => {
           if (session.sessionId === undefined) return new Publisher();
@@ -259,8 +267,6 @@ function EventAdminContainer(props: Props) {
                 streamID: publisher.stream?.streamId,
               });
 
-              setSharingScreen(true);
-              setSomeoneSharingScreen(true);
               setScreenPublisher(publisher);
             });
 
@@ -277,17 +283,8 @@ function EventAdminContainer(props: Props) {
             return new Publisher();
           }
         });
-
-        if (oldScreenShare) {
-          setSharingScreen(false);
-          setSomeoneSharingScreen(false);
-        }
-        if (frozenWebcam && oldScreenShare) {
-          setFrozenWebcam(false);
-          toggleWebcam();
-        }
       }, 500);
-    } else setSharingScreen(oldScreenShare);
+    }
   }
 
   async function initializeSession() {
@@ -340,16 +337,16 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      return someoneSharingScreen ? (
-        <ScreenshareLayout
-          numSpeakers={numSpeakers}
-          videoElements={videoData.videoElements}
-          sharingPos={videoData.screenElementID}
-        />
-      ) : (
+      return someoneSharingScreen === '' ? (
         <VideosOnlyLayout
           numSpeakers={numSpeakers}
           videoElements={videoData.videoElements}
+        />
+      ) : (
+        <ScreenshareLayout
+          numSpeakers={numSpeakers}
+          videoElements={videoData.videoElements}
+          sharingPos={someoneSharingScreen}
         />
       );
     }

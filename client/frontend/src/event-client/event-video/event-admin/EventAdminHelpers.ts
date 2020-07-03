@@ -150,7 +150,6 @@ function addEventSessionListeners(
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
-    // if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
     removeVideoElement(event.stream.streamId, event.stream.videoType, false);
 
     const pos = eventStreamMap[JSON.stringify(event.target)];
