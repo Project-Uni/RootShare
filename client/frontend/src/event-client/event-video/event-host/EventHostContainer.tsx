@@ -21,7 +21,7 @@ import {
   stopLiveStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-} from '../helpers';
+} from './helpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
 

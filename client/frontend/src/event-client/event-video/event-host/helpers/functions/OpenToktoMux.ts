@@ -1,5 +1,5 @@
 import axios from 'axios';
-import log from '../../../helpers/logger';
+import log from '../../../../../helpers/logger';
 
 async function getLatestWebinarID() {
   const { data } = await axios.get('/webinar/latestWebinarID');

@@ -1,4 +1,4 @@
-import { SINGLE_DIGIT } from '../../../types/types';
+import { SINGLE_DIGIT } from '../../../../../types/types';
 
 const VIDEO_UI_SETTINGS = {
   width: '100%',

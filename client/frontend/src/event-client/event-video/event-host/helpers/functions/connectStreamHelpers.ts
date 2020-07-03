@@ -1,10 +1,10 @@
 import axios from 'axios';
 import OT from '@opentok/client';
-import log from '../../../helpers/logger';
+import log from '../../../../../helpers/logger';
 
-import { SINGLE_DIGIT } from '../../../types/types';
+import { SINGLE_DIGIT } from '../../../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
-const { OPENTOK_API_KEY } = require('../../../keys.json');
+const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
 const VIDEO_UI_SETTINGS = {
   width: '100%',
