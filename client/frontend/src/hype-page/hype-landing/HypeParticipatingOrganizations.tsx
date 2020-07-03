@@ -58,7 +58,6 @@ function HypeParticipatingOrganizations(props: Props) {
     "Zeta Beta Tau",
     "SMC",
     "Theta Tau",
-    "Zeta Tau Alpha",
     "Phi Kappa Psi",
     "Delta Sigma Pi",
     "AIMS",
