@@ -1,10 +1,10 @@
 import React from 'react';
 import videojs from 'video.js';
-import '../../../node_modules/video.js/dist/video-js.css';
+import '../../../../node_modules/video.js/dist/video-js.css';
 
 interface Props {
   src: string;
-  width: number,
+  width: number;
   height: number;
 }
 
@@ -19,21 +19,27 @@ export default class VideoPlayer extends React.Component<Props> {
     const videoPlayerOptions = {
       autoplay: true,
       controls: true,
-      sources: [{
-        src: this.props.src,
-        type: 'application/x-mpegURL'
-      }]
+      sources: [
+        {
+          src: this.props.src,
+          type: 'application/x-mpegURL',
+        },
+      ],
     };
 
     try {
-      this.player = videojs(this.videoNode, videoPlayerOptions, function onPlayerReady(this: any) {
-        // Handle on player ready here
-      });
+      this.player = videojs(
+        this.videoNode,
+        videoPlayerOptions,
+        function onPlayerReady(this: any) {
+          // Handle on player ready here
+        }
+      );
     } catch (err) {
       // Handle error here
     }
 
-    this.player.on('error', function () {
+    this.player.on('error', function() {
       // Catch further errors here
     });
   }
@@ -52,9 +58,13 @@ export default class VideoPlayer extends React.Component<Props> {
     return (
       <div>
         <div data-vjs-player>
-          <video ref={node => this.videoNode = node} className="video-js" style={{ width: this.props.width, height: this.props.height }}></video>
+          <video
+            ref={(node) => (this.videoNode = node)}
+            className="video-js"
+            style={{ width: this.props.width, height: this.props.height }}
+          ></video>
         </div>
-      </div >
+      </div>
     );
   }
 }

@@ -6,11 +6,14 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
 
-import EventAdminButtonContainer from './EventAdminButtonContainer';
+import EventHostButtonContainer from './EventHostButtonContainer';
 
 import log from '../../../helpers/logger';
 import RSText from '../../../base-components/RSText';
-import { VideosOnlyLayout, ScreenshareLayout } from './EventSpeakerVideoLayouts';
+import {
+  VideosOnlyLayout,
+  ScreenshareLayout,
+} from '../video/EventOpenTokVideoLayout';
 
 import {
   connectStream,
@@ -18,7 +21,7 @@ import {
   stopLiveStream,
   createNewScreensharePublisher,
   createNewWebcamPublisher,
-} from './EventAdminHelpers';
+} from './helpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
 
@@ -52,9 +55,10 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  mode: 'speaker' | 'admin';
 };
 
-function EventAdminContainer(props: Props) {
+function EventHostContainer(props: Props) {
   const styles = useStyles();
 
   const [screenshareCapable, setScreenshareCapable] = useState(false);
@@ -108,7 +112,6 @@ function EventAdminContainer(props: Props) {
     for (let i = initialNumSpeakers; i >= 2; i--) {
       availablePositions.push(i as SINGLE_DIGIT);
     }
-    console.log('Available positions:', availablePositions);
     setEventPos(1);
   }
 
@@ -214,7 +217,10 @@ function EventAdminContainer(props: Props) {
 
   async function initializeSession() {
     // TODO- This API call should be fetching the correct one for the event in prod
-    const { data } = await axios.get('/webinar/createSession');
+    const { data } =
+      props.mode === 'admin'
+        ? await axios.get('/webinar/createSession')
+        : await axios.get('/webinar/latestWebinarID');
 
     if (data['success'] === 1) {
       setWebinarID(data['content']['webinarID']);
@@ -278,7 +284,8 @@ function EventAdminContainer(props: Props) {
         {renderLoadingAndError()}
         {renderVideoSections()}
       </div>
-      <EventAdminButtonContainer
+      <EventHostButtonContainer
+        mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}
         muted={muted}
@@ -303,4 +310,4 @@ const mapDispatchToProps = (dispatch: any) => {
   return {};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventAdminContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(EventHostContainer);
