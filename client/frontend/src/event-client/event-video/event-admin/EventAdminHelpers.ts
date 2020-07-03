@@ -146,9 +146,10 @@ export async function stopLiveStream() {
 function initializeWebcam(
   eventSession: OT.Session,
   name: string,
-  eventPos: SINGLE_DIGIT
+  eventPos: SINGLE_DIGIT,
+  updateVideoElements: (arg0: HTMLVideoElement | HTMLObjectElement) => void
 ) {
-  const publisher = createNewWebcamPublisher(name, eventPos);
+  const publisher = createNewWebcamPublisher(name, eventPos, updateVideoElements);
   eventSession.publish(publisher, (err) => {
     if (err) alert(err.message);
   });
@@ -159,10 +160,15 @@ function initializeWebcam(
   return publisher;
 }
 
-export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
+export function createNewWebcamPublisher(
+  name: string,
+  eventPos: SINGLE_DIGIT,
+  updateVideoElements: (arg0: HTMLVideoElement | HTMLObjectElement) => void
+) {
   const publisher = OT.initPublisher(
-    `pos${eventPos}`,
+    ``,
     {
+      insertDefaultUI: false,
       insertMode: 'append',
       name: name,
       // publishAudio: false,
@@ -173,13 +179,38 @@ export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
       if (err) alert(err.message);
     }
   );
+
+  publisher.on('videoElementCreated', function(event) {
+    updateVideoElements(event.element);
+  });
+
   return publisher;
 }
 
-export function createNewScreensharePublisher(name: string, eventPos: SINGLE_DIGIT) {
+export function createNewScreensharePublisher(
+  name: string,
+  eventPos: SINGLE_DIGIT,
+  updateVideoElements: (arg0: HTMLVideoElement | HTMLObjectElement) => void
+) {
+  // const publisher = OT.initPublisher(
+  //   `pos${eventPos}`,
+  //   {
+  //     videoSource: 'screen',
+  //     insertMode: 'append',
+  //     name: name,
+  //     ...VIDEO_UI_SETTINGS,
+  //   },
+  //   (err) => {
+  //     if (err) {
+  //       log('error', err.message);
+  //     }
+  //   }
+  // );
+
   const publisher = OT.initPublisher(
-    `pos${eventPos}`,
+    ``,
     {
+      insertDefaultUI: false,
       videoSource: 'screen',
       insertMode: 'append',
       name: name,
@@ -191,5 +222,10 @@ export function createNewScreensharePublisher(name: string, eventPos: SINGLE_DIG
       }
     }
   );
+
+  publisher.on('videoElementCreated', function(event) {
+    updateVideoElements(event.element);
+  });
+
   return publisher;
 }

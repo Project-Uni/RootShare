@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
@@ -77,6 +77,9 @@ function EventAdminContainer(props: Props) {
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
+  const [videoElements, setVideoElements] = useState<
+    (HTMLVideoElement | HTMLObjectElement)[]
+  >([]);
 
   const availablePositions: SINGLE_DIGIT[] = [];
   const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
@@ -138,7 +141,12 @@ function EventAdminContainer(props: Props) {
       if (prevState.session === undefined) {
         const publisher = createNewWebcamPublisher(
           props.user['firstName'] + ' ' + props.user['lastName'],
-          eventPos
+          eventPos,
+          (element: HTMLVideoElement | HTMLObjectElement) => {
+            setVideoElements((prevVideoElements) =>
+              prevVideoElements.concat(element)
+            );
+          }
         );
         session.publish(publisher, (err) => {
           if (err) alert(err.message);
@@ -151,6 +159,14 @@ function EventAdminContainer(props: Props) {
     });
 
     setShowWebcam(!showWebcam);
+  }
+
+  function usePrevious(value: any) {
+    const ref = useRef(value);
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
   }
 
   function toggleScreenshare() {
@@ -174,25 +190,65 @@ function EventAdminContainer(props: Props) {
       }
 
       setTimeout(() => {
+        // const prevPublisher = usePrevious(screenPublisher);
+        // if (session.sessionId === undefined)
+        //   return setScreenPublisher(new Publisher());
+        // if (screenPublisher.session === undefined) {
+        //   const publisher = createNewScreensharePublisher(
+        //     props.user['firstName'] + ' ' + props.user['lastName'],
+        //     eventPos
+        //   );
+
+        //   session.publish(publisher, (err) => {
+        //     if (err) return log('error', err.message);
+
+        //     axios.post('/webinar/changeBroadcastLayout', {
+        //       webinarID,
+        //       type: 'horizontalPresentation',
+        //       streamID: publisher.stream?.streamId,
+        //     });
+
+        //     setSharingScreen(true);
+        //     setScreenPublisher(publisher);
+        //   });
+        // } else if (screenPublisher.session === null)
+        //   return setScreenPublisher(new Publisher());
+        // else {
+        //   axios.post('/webinar/changeBroadcastLayout', {
+        //     webinarID,
+        //     type: 'bestFit',
+        //   });
+        //   session.unpublish(screenPublisher);
+        //   return setScreenPublisher(new Publisher());
+        // }
+
         setScreenPublisher((prevState) => {
           if (session.sessionId === undefined) return new Publisher();
           if (prevState.session === undefined) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
-              eventPos
+              eventPos,
+              (element: HTMLVideoElement | HTMLObjectElement) => {
+                setVideoElements((prevVideoElements) =>
+                  prevVideoElements.concat(element)
+                );
+              }
             );
-            if (!publisher.accessAllowed) return new Publisher();
+
             session.publish(publisher, (err) => {
-              if (err) return alert(err.message);
+              if (err) return log('error', err.message);
 
               axios.post('/webinar/changeBroadcastLayout', {
                 webinarID,
                 type: 'horizontalPresentation',
                 streamID: publisher.stream?.streamId,
               });
+
+              setSharingScreen(true);
+              setScreenPublisher(publisher);
             });
-            setSharingScreen(true);
-            return publisher;
+
+            return new Publisher();
           } else if (prevState.session === null) return new Publisher();
           else {
             axios.post('/webinar/changeBroadcastLayout', {
@@ -262,9 +318,15 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      if (sharingScreen)
-        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
-      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+      return sharingScreen ? (
+        <ScreenshareLayout
+          numSpeakers={numSpeakers}
+          videoElements={videoElements}
+          sharingPos={eventPos}
+        />
+      ) : (
+        <VideosOnlyLayout numSpeakers={numSpeakers} videoElements={videoElements} />
+      );
     }
     return null;
   }

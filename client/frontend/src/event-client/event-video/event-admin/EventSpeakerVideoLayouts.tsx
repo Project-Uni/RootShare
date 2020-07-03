@@ -27,6 +27,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type VideoLayoutProps = {
   numSpeakers: SINGLE_DIGIT;
+  videoElements: (HTMLVideoElement | HTMLObjectElement)[];
 };
 
 export function VideosOnlyLayout(props: VideoLayoutProps) {
@@ -41,15 +42,30 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
         {renderRow(
           i,
           props.numSpeakers - i >= numPerRow ? numPerRow : props.numSpeakers - i + 1,
-          numPerRow
+          numPerRow,
+          props.videoElements
         )}
       </div>
     );
   }
+
+  for (let i = 0; i < props.videoElements.length; i++) {
+    let currVideo = props.videoElements[i];
+    if (currVideo) {
+      document.getElementById(`pos${i + 1}`)?.appendChild(currVideo);
+    }
+  }
+
   return <>{output}</>;
 }
 
-function renderRow(startIndex: number, numElements: number, maxElements: number) {
+function renderRow(
+  startIndex: number,
+  numElements: number,
+  maxElements: number,
+  videoElements: (HTMLVideoElement | HTMLObjectElement)[]
+) {
+  // console.log(videoElements);
   const output = [];
   for (let i = startIndex; i < startIndex + numElements; i++) {
     output.push(
@@ -67,6 +83,7 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
 
 type ScreenshareProps = {
   numSpeakers: SINGLE_DIGIT;
+  videoElements: (HTMLVideoElement | HTMLObjectElement)[];
   sharingPos: SINGLE_DIGIT;
 };
 
