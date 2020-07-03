@@ -43,20 +43,24 @@ type Props = {
   toggleMute: () => void;
   toggleScreenshare: () => void;
   loading: boolean;
+  mode: 'admin' | 'speaker';
 };
 
-function EventAdminButtonContainer(props: Props) {
+function EventHostButtonContainer(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
-      <Button
-        variant="contained"
-        onClick={props.handleStreamStatusChange}
-        className={[styles.buttonDefault].join(' ')}
-        disabled={props.loading}
-      >
-        {!props.isStreaming ? 'Begin Live Stream' : 'End Live Stream'}
-      </Button>
+      {props.mode === 'admin' && (
+        <Button
+          variant="contained"
+          onClick={props.handleStreamStatusChange}
+          className={[styles.buttonDefault].join(' ')}
+          disabled={props.loading}
+        >
+          {!props.isStreaming ? 'Begin Live Stream' : 'End Live Stream'}
+        </Button>
+      )}
+
       <Button
         className={[
           styles.buttonDefault,
@@ -95,15 +99,17 @@ function EventAdminButtonContainer(props: Props) {
       >
         {!props.sharingScreen ? 'Share Screen' : 'Sharing Screen'}
       </Button>
-      <Button
-        variant="contained"
-        className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-        disabled={props.loading}
-      >
-        Manage Speakers
-      </Button>
+      {props.mode === 'admin' && (
+        <Button
+          variant="contained"
+          className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
+          disabled={props.loading}
+        >
+          Manage Speakers
+        </Button>
+      )}
     </div>
   );
 }
 
-export default EventAdminButtonContainer;
+export default EventHostButtonContainer;
