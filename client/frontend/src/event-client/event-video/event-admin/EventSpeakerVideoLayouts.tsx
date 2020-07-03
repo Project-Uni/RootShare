@@ -56,6 +56,7 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
       currVideo.style.width = '100%';
       currVideo.style['objectFit'] = 'cover';
       document.getElementById(`pos${i + 1}`)?.appendChild(currVideo);
+      // console.log(currVideo);
     }
   }
 

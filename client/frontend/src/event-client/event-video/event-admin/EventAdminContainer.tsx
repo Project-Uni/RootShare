@@ -77,9 +77,19 @@ function EventAdminContainer(props: Props) {
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
-  const [videoElements, setVideoElements] = useState<
-    (HTMLVideoElement | HTMLObjectElement)[]
-  >([]);
+  // const [webcamElementID, setWebcamElementID] = useState('');
+  // const [screenElementID, setScreenElementID] = useState('');
+  // const [nextID, setNextID] = useState(0);
+  // const [videoElements, setVideoElements] = useState<
+  //   (HTMLVideoElement | HTMLObjectElement)[]
+  // >([]);
+
+  const [videoData, setVideoData] = useState({
+    videoElements: new Array<HTMLVideoElement | HTMLObjectElement>(),
+    webcamElementID: '',
+    screenElementID: '',
+    nextID: 0,
+  });
 
   const availablePositions: SINGLE_DIGIT[] = [];
   const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
@@ -111,7 +121,7 @@ function EventAdminContainer(props: Props) {
     for (let i = initialNumSpeakers; i >= 2; i--) {
       availablePositions.push(i as SINGLE_DIGIT);
     }
-    console.log('Available positions:', availablePositions);
+    // console.log('Available positions:', availablePositions);
     setEventPos(1);
   }
 
@@ -135,6 +145,56 @@ function EventAdminContainer(props: Props) {
     setMuted(!muted);
   }
 
+  function updateVideoElements(
+    element: HTMLVideoElement | HTMLObjectElement,
+    type: 'webcam' | 'screen'
+  ) {
+    setVideoData((prevVideoData) => {
+      console.log(prevVideoData);
+      const nextID = prevVideoData.nextID;
+      const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
+      element.setAttribute('elementid', `${nextID}`);
+
+      if (type === 'webcam')
+        return {
+          videoElements: prevVideoData.videoElements.concat(element),
+          webcamElementID: `${nextID}`,
+          screenElementID: prevVideoData.screenElementID,
+          nextID: updateNextID,
+        };
+      else if (type === 'screen')
+        return {
+          videoElements: prevVideoData.videoElements.concat(element),
+          webcamElementID: prevVideoData.webcamElementID,
+          screenElementID: `${nextID}`,
+          nextID: updateNextID,
+        };
+      else return prevVideoData;
+    });
+  }
+
+  function removeVideoElement(elementID: string, type: 'webcam' | 'screen') {
+    setVideoData((prevVideoData) => {
+      const listLength = prevVideoData.videoElements.length;
+      let elementIndex = 0;
+      for (let i = 0; i < listLength; i++) {
+        const currElement = prevVideoData.videoElements[i];
+        if (currElement.getAttribute('elementid') === elementID) {
+          elementIndex = i;
+        }
+      }
+
+      return {
+        videoElements: prevVideoData.videoElements
+          .slice(0, elementIndex)
+          .concat(prevVideoData.videoElements.slice(elementIndex + 1, listLength)),
+        webcamElementID: type === 'webcam' ? '' : prevVideoData.webcamElementID,
+        screenElementID: type === 'screen' ? '' : prevVideoData.screenElementID,
+        nextID: prevVideoData.nextID,
+      };
+    });
+  }
+
   function toggleWebcam() {
     setWebcamPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
@@ -142,17 +202,15 @@ function EventAdminContainer(props: Props) {
         const publisher = createNewWebcamPublisher(
           props.user['firstName'] + ' ' + props.user['lastName'],
           eventPos,
-          (element: HTMLVideoElement | HTMLObjectElement) => {
-            setVideoElements((prevVideoElements) =>
-              prevVideoElements.concat(element)
-            );
-          }
+          updateVideoElements
         );
         session.publish(publisher, (err) => {
           if (err) alert(err.message);
         });
         return publisher;
       } else {
+        removeVideoElement(videoData.webcamElementID, 'webcam');
+
         session.unpublish(webcamPublisher);
         return new Publisher();
       }
@@ -228,11 +286,7 @@ function EventAdminContainer(props: Props) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
               eventPos,
-              (element: HTMLVideoElement | HTMLObjectElement) => {
-                setVideoElements((prevVideoElements) =>
-                  prevVideoElements.concat(element)
-                );
-              }
+              updateVideoElements
             );
 
             session.publish(publisher, (err) => {
@@ -279,7 +333,8 @@ function EventAdminContainer(props: Props) {
         data['content']['webinarID'],
         setSomeoneSharingScreen,
         availablePositions,
-        eventStreamMap
+        eventStreamMap,
+        updateVideoElements
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {
@@ -321,11 +376,14 @@ function EventAdminContainer(props: Props) {
       return sharingScreen ? (
         <ScreenshareLayout
           numSpeakers={numSpeakers}
-          videoElements={videoElements}
+          videoElements={videoData.videoElements}
           sharingPos={eventPos}
         />
       ) : (
-        <VideosOnlyLayout numSpeakers={numSpeakers} videoElements={videoElements} />
+        <VideosOnlyLayout
+          numSpeakers={numSpeakers}
+          videoElements={videoData.videoElements}
+        />
       );
     }
     return null;
