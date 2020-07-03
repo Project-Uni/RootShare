@@ -42,8 +42,7 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
         {renderRow(
           i,
           props.numSpeakers - i >= numPerRow ? numPerRow : props.numSpeakers - i + 1,
-          numPerRow,
-          props.videoElements
+          numPerRow
         )}
       </div>
     );
@@ -56,20 +55,13 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
       currVideo.style.width = '100%';
       currVideo.style['objectFit'] = 'cover';
       document.getElementById(`pos${i + 1}`)?.appendChild(currVideo);
-      // console.log(currVideo);
     }
   }
 
   return <>{output}</>;
 }
 
-function renderRow(
-  startIndex: number,
-  numElements: number,
-  maxElements: number,
-  videoElements: (HTMLVideoElement | HTMLObjectElement)[]
-) {
-  // console.log(videoElements);
+function renderRow(startIndex: number, numElements: number, maxElements: number) {
   const output = [];
   for (let i = startIndex; i < startIndex + numElements; i++) {
     output.push(
@@ -88,15 +80,34 @@ function renderRow(
 type ScreenshareProps = {
   numSpeakers: SINGLE_DIGIT;
   videoElements: (HTMLVideoElement | HTMLObjectElement)[];
-  sharingPos: SINGLE_DIGIT;
+  sharingPos: string;
 };
 
 export function ScreenshareLayout(props: ScreenshareProps) {
   const styles = useStyles();
+
+  let containerCount = 1;
+  for (let i = 0; i < props.videoElements.length; i++) {
+    let currVideo = props.videoElements[i];
+    if (currVideo) {
+      currVideo.style.height = '100%';
+      currVideo.style.width = '100%';
+
+      if (currVideo.getAttribute('elementid') === props.sharingPos) {
+        currVideo.style['objectFit'] = 'contain';
+        document.getElementById(`pos0`)?.appendChild(currVideo);
+      } else {
+        currVideo.style['objectFit'] = 'cover';
+        document.getElementById(`pos${containerCount}`)?.appendChild(currVideo);
+        containerCount++;
+      }
+    }
+  }
+
   return (
     <>
       <div className={styles.screenshareContainer}>
-        <div id={`pos${props.sharingPos}`} className={styles.screenView}></div>
+        <div id={`pos0`} className={styles.screenView}></div>
         <div className={styles.screenshareWebcamContainer}>
           {renderScreenshareRest({ ...props })}
         </div>
@@ -108,13 +119,12 @@ export function ScreenshareLayout(props: ScreenshareProps) {
 function renderScreenshareRest({ numSpeakers, sharingPos }: ScreenshareProps) {
   const output = [];
   for (let i = 1; i <= numSpeakers; i++) {
-    if (i != sharingPos)
-      output.push(
-        <div
-          id={`pos${i}`}
-          style={{ width: '100%', height: `${100 / 3}%`, border: '1px solid red' }}
-        ></div>
-      );
+    output.push(
+      <div
+        id={`pos${i}`}
+        style={{ width: '100%', height: `${100 / 3}%`, border: '1px solid red' }}
+      ></div>
+    );
   }
   return output;
 }

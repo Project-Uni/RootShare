@@ -210,7 +210,6 @@ function EventAdminContainer(props: Props) {
         return publisher;
       } else {
         removeVideoElement(videoData.webcamElementID, 'webcam');
-
         session.unpublish(webcamPublisher);
         return new Publisher();
       }
@@ -309,6 +308,8 @@ function EventAdminContainer(props: Props) {
               webinarID,
               type: 'bestFit',
             });
+
+            removeVideoElement(videoData.screenElementID, 'screen');
             session.unpublish(screenPublisher);
             return new Publisher();
           }
@@ -377,7 +378,7 @@ function EventAdminContainer(props: Props) {
         <ScreenshareLayout
           numSpeakers={numSpeakers}
           videoElements={videoData.videoElements}
-          sharingPos={eventPos}
+          sharingPos={videoData.screenElementID}
         />
       ) : (
         <VideosOnlyLayout
