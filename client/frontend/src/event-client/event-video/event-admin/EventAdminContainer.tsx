@@ -69,9 +69,7 @@ function EventAdminContainer(props: Props) {
   const [muted, setMuted] = useState(false);
   const [showWebcam, setShowWebcam] = useState(true);
   const [sharingScreen, setSharingScreen] = useState(false);
-  const [someoneSharingScreen, setSomeoneSharingScreen] = useState<
-    SINGLE_DIGIT | false
-  >(false);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState(false);
 
   const [frozenWebcam, setFrozenWebcam] = useState(false);
 
@@ -144,6 +142,8 @@ function EventAdminContainer(props: Props) {
     videoType: 'camera' | 'screen',
     otherID: string
   ) {
+    if (videoType === 'screen') setSomeoneSharingScreen(true);
+
     setVideoData((prevVideoData) => {
       if (otherID === '') {
         const nextID = prevVideoData.nextID;
@@ -260,6 +260,7 @@ function EventAdminContainer(props: Props) {
               });
 
               setSharingScreen(true);
+              setSomeoneSharingScreen(true);
               setScreenPublisher(publisher);
             });
 
@@ -277,7 +278,10 @@ function EventAdminContainer(props: Props) {
           }
         });
 
-        if (oldScreenShare) setSharingScreen(false);
+        if (oldScreenShare) {
+          setSharingScreen(false);
+          setSomeoneSharingScreen(false);
+        }
         if (frozenWebcam && oldScreenShare) {
           setFrozenWebcam(false);
           toggleWebcam();
@@ -294,7 +298,6 @@ function EventAdminContainer(props: Props) {
       setWebinarID(data['content']['webinarID']);
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
-        setSomeoneSharingScreen,
         availablePositions,
         eventStreamMap,
         updateVideoElements,
@@ -337,7 +340,7 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      return sharingScreen ? (
+      return someoneSharingScreen ? (
         <ScreenshareLayout
           numSpeakers={numSpeakers}
           videoElements={videoData.videoElements}

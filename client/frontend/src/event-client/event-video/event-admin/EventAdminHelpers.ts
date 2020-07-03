@@ -14,7 +14,6 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
-  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
@@ -47,7 +46,6 @@ export async function connectStream(
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
-    setSomeoneSharingScreen,
     availablePositions,
     eventStreamMap,
     updateVideoElements,
@@ -85,7 +83,6 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
@@ -104,7 +101,6 @@ async function createEventSession(
     eventSession,
     availablePositions,
     eventStreamMap,
-    setSomeoneSharingScreen,
     updateVideoElements,
     removeVideoElement
   );
@@ -125,7 +121,6 @@ function addEventSessionListeners(
   eventSession: any,
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
-  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -139,8 +134,7 @@ function addEventSessionListeners(
 ) {
   eventSession.on('streamCreated', (streamEvent: any) => {
     const pos = availablePositions.pop();
-    if (streamEvent.stream.videoType === 'screen')
-      setSomeoneSharingScreen(pos as SINGLE_DIGIT);
+
     let subscriber = eventSession.subscribe(streamEvent.stream, {
       insertDefaultUI: false,
     });
@@ -156,7 +150,7 @@ function addEventSessionListeners(
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
-    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
+    // if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
     removeVideoElement(event.stream.streamId, event.stream.videoType, false);
 
     const pos = eventStreamMap[JSON.stringify(event.target)];
