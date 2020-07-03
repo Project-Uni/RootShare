@@ -141,34 +141,39 @@ function EventAdminContainer(props: Props) {
 
   function updateVideoElements(
     element: HTMLVideoElement | HTMLObjectElement,
-    type: 'camera' | 'screen',
-    self: boolean
+    videoType: 'camera' | 'screen',
+    otherID: string
   ) {
     setVideoData((prevVideoData) => {
-      console.log(prevVideoData);
-      const nextID = prevVideoData.nextID;
-      const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
-      element.setAttribute('elementid', `${nextID}`);
-
-      if (type === 'camera')
+      if (otherID === '') {
+        const nextID = prevVideoData.nextID;
+        const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
+        element.setAttribute('elementid', `${nextID}`);
         return {
           videoElements: prevVideoData.videoElements.concat(element),
-          cameraElementID: self ? `${nextID}` : prevVideoData.cameraElementID,
-          screenElementID: prevVideoData.screenElementID,
+          cameraElementID:
+            videoType === 'camera' ? `${nextID}` : prevVideoData.cameraElementID,
+          screenElementID:
+            videoType === 'screen' ? `${nextID}` : prevVideoData.screenElementID,
           nextID: updateNextID,
         };
-      else if (type === 'screen')
+      } else {
+        element.setAttribute('elementid', otherID);
         return {
           videoElements: prevVideoData.videoElements.concat(element),
           cameraElementID: prevVideoData.cameraElementID,
-          screenElementID: self ? `${nextID}` : prevVideoData.screenElementID,
-          nextID: updateNextID,
+          screenElementID: prevVideoData.screenElementID,
+          nextID: prevVideoData.nextID,
         };
-      else return prevVideoData;
+      }
     });
   }
 
-  function removeVideoElement(elementID: string, type: 'camera' | 'screen') {
+  function removeVideoElement(
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
+  ) {
     setVideoData((prevVideoData) => {
       const listLength = prevVideoData.videoElements.length;
       let elementIndex = 0;
@@ -183,8 +188,10 @@ function EventAdminContainer(props: Props) {
         videoElements: prevVideoData.videoElements
           .slice(0, elementIndex)
           .concat(prevVideoData.videoElements.slice(elementIndex + 1, listLength)),
-        cameraElementID: type === 'camera' ? '' : prevVideoData.cameraElementID,
-        screenElementID: type === 'screen' ? '' : prevVideoData.screenElementID,
+        cameraElementID:
+          self && videoType === 'camera' ? '' : prevVideoData.cameraElementID,
+        screenElementID:
+          self && videoType === 'screen' ? '' : prevVideoData.screenElementID,
         nextID: prevVideoData.nextID,
       };
     });
@@ -204,7 +211,7 @@ function EventAdminContainer(props: Props) {
         });
         return publisher;
       } else {
-        removeVideoElement(videoData.cameraElementID, 'camera');
+        removeVideoElement(videoData.cameraElementID, 'camera', true);
         session.unpublish(cameraPublisher);
         return new Publisher();
       }
@@ -264,7 +271,7 @@ function EventAdminContainer(props: Props) {
               type: 'bestFit',
             });
 
-            removeVideoElement(videoData.screenElementID, 'screen');
+            removeVideoElement(videoData.screenElementID, 'screen', true);
             session.unpublish(screenPublisher);
             return new Publisher();
           }
@@ -290,7 +297,8 @@ function EventAdminContainer(props: Props) {
         setSomeoneSharingScreen,
         availablePositions,
         eventStreamMap,
-        updateVideoElements
+        updateVideoElements,
+        removeVideoElement
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {

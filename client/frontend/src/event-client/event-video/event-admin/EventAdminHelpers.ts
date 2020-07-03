@@ -18,16 +18,21 @@ export async function connectStream(
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
-    arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'camera' | 'screen',
-    arg2: boolean
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string
+  ) => void,
+  removeVideoElement: (
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
   ) => void
 ) {
   let canScreenshare = false;
 
   if (OT.checkSystemRequirements() !== 1) {
     alert('This browser is not yet supported.');
-    return { screenshare: canScreenshare, eventSessin: false };
+    return { screenshare: canScreenshare, eventSession: false };
   }
   OT.checkScreenSharingCapability((response: any) => {
     if (response.supported && response.extensionRegistered) canScreenshare = true;
@@ -45,7 +50,8 @@ export async function connectStream(
     setSomeoneSharingScreen,
     availablePositions,
     eventStreamMap,
-    updateVideoElements
+    updateVideoElements,
+    removeVideoElement
   );
 
   if (!((eventSession as unknown) as boolean))
@@ -83,9 +89,14 @@ async function createEventSession(
   availablePositions: SINGLE_DIGIT[],
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
-    arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'camera' | 'screen',
-    arg2: boolean
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string
+  ) => void,
+  removeVideoElement: (
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
   ) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
@@ -94,7 +105,8 @@ async function createEventSession(
     availablePositions,
     eventStreamMap,
     setSomeoneSharingScreen,
-    updateVideoElements
+    updateVideoElements,
+    removeVideoElement
   );
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
@@ -115,14 +127,18 @@ function addEventSessionListeners(
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   updateVideoElements: (
-    arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'camera' | 'screen',
-    arg2: boolean
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string
+  ) => void,
+  removeVideoElement: (
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
   ) => void
 ) {
   eventSession.on('streamCreated', (streamEvent: any) => {
     const pos = availablePositions.pop();
-    console.log(streamEvent.stream.videoType);
     if (streamEvent.stream.videoType === 'screen')
       setSomeoneSharingScreen(pos as SINGLE_DIGIT);
     let subscriber = eventSession.subscribe(streamEvent.stream, {
@@ -130,14 +146,19 @@ function addEventSessionListeners(
     });
 
     subscriber.on('videoElementCreated', function(event: any) {
-      updateVideoElements(event.element, streamEvent.stream.videoType, false);
-      console.log(`User number ${pos} Started Streaming`);
+      updateVideoElements(
+        event.element,
+        streamEvent.stream.videoType,
+        streamEvent.stream.streamId
+      );
     });
     eventStreamMap[JSON.stringify(streamEvent.target)] = pos as SINGLE_DIGIT;
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
     if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
+    removeVideoElement(event.stream.streamId, event.stream.videoType, false);
+
     const pos = eventStreamMap[JSON.stringify(event.target)];
     delete eventStreamMap[JSON.stringify(event.target)];
     availablePositions.push(pos);
@@ -169,7 +190,7 @@ export async function stopLiveStream() {
 //   eventSession: OT.Session,
 //   name: string,
 //   eventPos: SINGLE_DIGIT,
-//   updateVideoElements: (arg0: HTMLVideoElement | HTMLObjectElement) => void
+//   updateVideoElements: (videoElement: HTMLVideoElement | HTMLObjectElement) => void
 // ) {
 //   const publisher = createNewWebcamPublisher(name, eventPos, updateVideoElements);
 //   eventSession.publish(publisher, (err) => {
@@ -186,9 +207,9 @@ export function createNewWebcamPublisher(
   name: string,
   eventPos: SINGLE_DIGIT,
   updateVideoElements: (
-    arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'camera' | 'screen',
-    arg2: boolean
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -208,7 +229,7 @@ export function createNewWebcamPublisher(
 
   // TODO: this should be getting the user's own videoElement, so fix it to be mirrored
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'camera', true);
+    updateVideoElements(event.element, 'camera', '');
   });
 
   return publisher;
@@ -218,9 +239,9 @@ export function createNewScreensharePublisher(
   name: string,
   eventPos: SINGLE_DIGIT,
   updateVideoElements: (
-    arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'camera' | 'screen',
-    arg2: boolean
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -240,7 +261,7 @@ export function createNewScreensharePublisher(
   );
 
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'screen', true);
+    updateVideoElements(event.element, 'screen', '');
   });
 
   return publisher;
