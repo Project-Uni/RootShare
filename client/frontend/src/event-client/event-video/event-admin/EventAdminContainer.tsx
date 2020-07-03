@@ -58,7 +58,7 @@ function EventAdminContainer(props: Props) {
   const styles = useStyles();
 
   const [screenshareCapable, setScreenshareCapable] = useState(false);
-  const [webcamPublisher, setWebcamPublisher] = useState(new Publisher());
+  const [cameraPublisher, setCameraPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
   const [webinarID, setWebinarID] = useState(-1);
@@ -77,16 +77,10 @@ function EventAdminContainer(props: Props) {
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
   const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
-  // const [webcamElementID, setWebcamElementID] = useState('');
-  // const [screenElementID, setScreenElementID] = useState('');
-  // const [nextID, setNextID] = useState(0);
-  // const [videoElements, setVideoElements] = useState<
-  //   (HTMLVideoElement | HTMLObjectElement)[]
-  // >([]);
 
   const [videoData, setVideoData] = useState({
     videoElements: new Array<HTMLVideoElement | HTMLObjectElement>(),
-    webcamElementID: '',
+    cameraElementID: '',
     screenElementID: '',
     nextID: 0,
   });
@@ -140,14 +134,15 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleMute() {
-    if (muted) webcamPublisher.publishAudio(true);
-    else webcamPublisher.publishAudio(false);
+    if (muted) cameraPublisher.publishAudio(true);
+    else cameraPublisher.publishAudio(false);
     setMuted(!muted);
   }
 
   function updateVideoElements(
     element: HTMLVideoElement | HTMLObjectElement,
-    type: 'webcam' | 'screen'
+    type: 'camera' | 'screen',
+    self: boolean
   ) {
     setVideoData((prevVideoData) => {
       console.log(prevVideoData);
@@ -155,25 +150,25 @@ function EventAdminContainer(props: Props) {
       const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
       element.setAttribute('elementid', `${nextID}`);
 
-      if (type === 'webcam')
+      if (type === 'camera')
         return {
           videoElements: prevVideoData.videoElements.concat(element),
-          webcamElementID: `${nextID}`,
+          cameraElementID: self ? `${nextID}` : prevVideoData.cameraElementID,
           screenElementID: prevVideoData.screenElementID,
           nextID: updateNextID,
         };
       else if (type === 'screen')
         return {
           videoElements: prevVideoData.videoElements.concat(element),
-          webcamElementID: prevVideoData.webcamElementID,
-          screenElementID: `${nextID}`,
+          cameraElementID: prevVideoData.cameraElementID,
+          screenElementID: self ? `${nextID}` : prevVideoData.screenElementID,
           nextID: updateNextID,
         };
       else return prevVideoData;
     });
   }
 
-  function removeVideoElement(elementID: string, type: 'webcam' | 'screen') {
+  function removeVideoElement(elementID: string, type: 'camera' | 'screen') {
     setVideoData((prevVideoData) => {
       const listLength = prevVideoData.videoElements.length;
       let elementIndex = 0;
@@ -188,7 +183,7 @@ function EventAdminContainer(props: Props) {
         videoElements: prevVideoData.videoElements
           .slice(0, elementIndex)
           .concat(prevVideoData.videoElements.slice(elementIndex + 1, listLength)),
-        webcamElementID: type === 'webcam' ? '' : prevVideoData.webcamElementID,
+        cameraElementID: type === 'camera' ? '' : prevVideoData.cameraElementID,
         screenElementID: type === 'screen' ? '' : prevVideoData.screenElementID,
         nextID: prevVideoData.nextID,
       };
@@ -196,7 +191,7 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleWebcam() {
-    setWebcamPublisher((prevState) => {
+    setCameraPublisher((prevState) => {
       if (session.sessionId === undefined) return new Publisher();
       if (prevState.session === undefined) {
         const publisher = createNewWebcamPublisher(
@@ -209,21 +204,13 @@ function EventAdminContainer(props: Props) {
         });
         return publisher;
       } else {
-        removeVideoElement(videoData.webcamElementID, 'webcam');
-        session.unpublish(webcamPublisher);
+        removeVideoElement(videoData.cameraElementID, 'camera');
+        session.unpublish(cameraPublisher);
         return new Publisher();
       }
     });
 
     setShowWebcam(!showWebcam);
-  }
-
-  function usePrevious(value: any) {
-    const ref = useRef(value);
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
   }
 
   function toggleScreenshare() {
@@ -247,38 +234,6 @@ function EventAdminContainer(props: Props) {
       }
 
       setTimeout(() => {
-        // const prevPublisher = usePrevious(screenPublisher);
-        // if (session.sessionId === undefined)
-        //   return setScreenPublisher(new Publisher());
-        // if (screenPublisher.session === undefined) {
-        //   const publisher = createNewScreensharePublisher(
-        //     props.user['firstName'] + ' ' + props.user['lastName'],
-        //     eventPos
-        //   );
-
-        //   session.publish(publisher, (err) => {
-        //     if (err) return log('error', err.message);
-
-        //     axios.post('/webinar/changeBroadcastLayout', {
-        //       webinarID,
-        //       type: 'horizontalPresentation',
-        //       streamID: publisher.stream?.streamId,
-        //     });
-
-        //     setSharingScreen(true);
-        //     setScreenPublisher(publisher);
-        //   });
-        // } else if (screenPublisher.session === null)
-        //   return setScreenPublisher(new Publisher());
-        // else {
-        //   axios.post('/webinar/changeBroadcastLayout', {
-        //     webinarID,
-        //     type: 'bestFit',
-        //   });
-        //   session.unpublish(screenPublisher);
-        //   return setScreenPublisher(new Publisher());
-        // }
-
         setScreenPublisher((prevState) => {
           if (session.sessionId === undefined) return new Publisher();
           if (prevState.session === undefined) {

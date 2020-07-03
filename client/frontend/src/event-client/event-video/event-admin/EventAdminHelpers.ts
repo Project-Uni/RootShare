@@ -19,7 +19,8 @@ export async function connectStream(
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
     arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'webcam' | 'screen'
+    arg1: 'camera' | 'screen',
+    arg2: boolean
   ) => void
 ) {
   let canScreenshare = false;
@@ -83,7 +84,8 @@ async function createEventSession(
   eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
     arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'webcam' | 'screen'
+    arg1: 'camera' | 'screen',
+    arg2: boolean
   ) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
@@ -114,22 +116,24 @@ function addEventSessionListeners(
   setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
   updateVideoElements: (
     arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'webcam' | 'screen'
+    arg1: 'camera' | 'screen',
+    arg2: boolean
   ) => void
 ) {
-  eventSession.on('streamCreated', (event: any) => {
+  eventSession.on('streamCreated', (streamEvent: any) => {
     const pos = availablePositions.pop();
-    if (event.stream.videoType === 'screen')
+    console.log(streamEvent.stream.videoType);
+    if (streamEvent.stream.videoType === 'screen')
       setSomeoneSharingScreen(pos as SINGLE_DIGIT);
-    let subscriber = eventSession.subscribe(event.stream, {
+    let subscriber = eventSession.subscribe(streamEvent.stream, {
       insertDefaultUI: false,
     });
 
     subscriber.on('videoElementCreated', function(event: any) {
-      // updateVideoElements(event.element);
+      updateVideoElements(event.element, streamEvent.stream.videoType, false);
       console.log(`User number ${pos} Started Streaming`);
     });
-    eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
+    eventStreamMap[JSON.stringify(streamEvent.target)] = pos as SINGLE_DIGIT;
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
@@ -183,7 +187,8 @@ export function createNewWebcamPublisher(
   eventPos: SINGLE_DIGIT,
   updateVideoElements: (
     arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'webcam' | 'screen'
+    arg1: 'camera' | 'screen',
+    arg2: boolean
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -201,8 +206,9 @@ export function createNewWebcamPublisher(
     }
   );
 
+  // TODO: this should be getting the user's own videoElement, so fix it to be mirrored
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'webcam');
+    updateVideoElements(event.element, 'camera', true);
   });
 
   return publisher;
@@ -213,7 +219,8 @@ export function createNewScreensharePublisher(
   eventPos: SINGLE_DIGIT,
   updateVideoElements: (
     arg0: HTMLVideoElement | HTMLObjectElement,
-    arg1: 'webcam' | 'screen'
+    arg1: 'camera' | 'screen',
+    arg2: boolean
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -232,9 +239,8 @@ export function createNewScreensharePublisher(
     }
   );
 
-  // TODO: this should be getting the user's own videoElement, so fix it to be mirrored
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'screen');
+    updateVideoElements(event.element, 'screen', true);
   });
 
   return publisher;
