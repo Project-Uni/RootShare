@@ -12,17 +12,14 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
   },
   screenView: {
-    height: '75%',
-    width: '100%',
-  },
-  screenshareContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+    height: '80%',
     width: '100%',
   },
   screenshareWebcamContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: '20%',
     width: '100%',
-    height: '25%',
   },
 }));
 
@@ -108,10 +105,9 @@ export function ScreenshareLayout(props: ScreenshareProps) {
   return (
     <>
       <div id={`pos0`} className={styles.screenView}></div>
-      <div className={styles.screenshareContainer}>
-        <div className={styles.screenshareWebcamContainer}>
-          {renderScreenshareRest({ ...props })}
-        </div>
+
+      <div className={styles.screenshareWebcamContainer}>
+        {renderScreenshareRest({ ...props })}
       </div>
     </>
   );
