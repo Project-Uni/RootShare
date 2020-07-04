@@ -126,12 +126,17 @@ function EventAdminContainer(props: Props) {
     setMuted(!muted);
   }
 
-  function updateVideoElements(
+  async function updateVideoElements(
     element: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (
+      screenElementID: string,
+      session: Session,
+      screenPublisher: Publisher
+    ) => void
   ) {
-    setVideoData((prevVideoData) => {
+    await setVideoData((prevVideoData) => {
       if (otherID === '') {
         const nextID = prevVideoData.nextID;
         const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
@@ -141,6 +146,9 @@ function EventAdminContainer(props: Props) {
           setSomeoneSharingScreen(`${nextID}`);
           setSharingScreen(true);
         }
+
+        if (videoType === 'screen')
+          updateStateInHelper(`${nextID}`, session, screenPublisher);
 
         return {
           videoElements: prevVideoData.videoElements.concat(element),
@@ -180,6 +188,8 @@ function EventAdminContainer(props: Props) {
       let elementIndex = -1;
       for (let i = 0; i < listLength; i++) {
         const currElement = prevVideoData.videoElements[i];
+        console.log(currElement.getAttribute('elementid'));
+        console.log(elementID);
         if (currElement.getAttribute('elementid') === elementID) {
           elementIndex = i;
         }
@@ -240,11 +250,16 @@ function EventAdminContainer(props: Props) {
     if (window.confirm(prompt)) {
       setTimeout(() => {
         setScreenPublisher((prevState) => {
-          if (session.sessionId === undefined) return new Publisher();
-          if (prevState.session === undefined) {
+          if (session.sessionId === undefined) {
+            console.log('TEST 1');
+            return new Publisher();
+          }
+          if (prevState.session === undefined || prevState.session === null) {
+            console.log('TEST 2');
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
-              updateVideoElements
+              updateVideoElements,
+              screenShareTearDown
             );
 
             session.publish(publisher, (err) => {
@@ -260,20 +275,37 @@ function EventAdminContainer(props: Props) {
             });
 
             return new Publisher();
-          } else if (prevState.session === null) return new Publisher();
-          else {
-            axios.post('/webinar/changeBroadcastLayout', {
-              webinarID,
-              type: 'bestFit',
-            });
-
-            removeVideoElement(videoData.screenElementID, 'screen', true);
-            session.unpublish(screenPublisher);
-            return new Publisher();
+          } else {
+            console.log('TEST 4');
+            return screenShareTearDown(
+              videoData.screenElementID,
+              session,
+              screenPublisher
+            );
           }
         });
       }, 500);
     }
+  }
+
+  function screenShareTearDown(
+    screenElementID: string,
+    session: Session,
+    screenPublisher: Publisher
+  ) {
+    setTimeout(() => {
+      axios.post('/webinar/changeBroadcastLayout', {
+        webinarID,
+        type: 'bestFit',
+      });
+
+      console.log(session);
+      console.log(screenPublisher);
+      removeVideoElement(screenElementID, 'screen', true);
+      session.unpublish(screenPublisher);
+      console.log();
+    }, 500);
+    return new Publisher();
   }
 
   async function initializeSession() {

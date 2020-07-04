@@ -17,7 +17,8 @@ export async function connectStream(
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
   ) => void,
   removeVideoElement: (
     elementID: string,
@@ -82,7 +83,8 @@ async function createEventSession(
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
   ) => void,
   removeVideoElement: (
     elementID: string,
@@ -110,7 +112,8 @@ function addEventSessionListeners(
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
   ) => void,
   removeVideoElement: (
     elementID: string,
@@ -127,7 +130,8 @@ function addEventSessionListeners(
       updateVideoElements(
         event.element,
         streamEvent.stream.videoType,
-        streamEvent.stream.streamId
+        streamEvent.stream.streamId,
+        () => {}
       );
     });
   });
@@ -180,7 +184,8 @@ export function createNewWebcamPublisher(
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -200,7 +205,7 @@ export function createNewWebcamPublisher(
 
   // TODO: this should be getting the user's own videoElement, so fix it to be mirrored
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'camera', '');
+    updateVideoElements(event.element, 'camera', '', () => {});
   });
 
   return publisher;
@@ -211,7 +216,17 @@ export function createNewScreensharePublisher(
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
-    otherID: string
+    otherID: string,
+    updateStateInHelper: (
+      screenElementID: string,
+      session: OT.Session,
+      screenPublisher: OT.Publisher
+    ) => void
+  ) => void,
+  screenShareTearDown: (
+    screenElementID: string,
+    session: OT.Session,
+    screenPublisher: OT.Publisher
   ) => void
 ) {
   const publisher = OT.initPublisher(
@@ -231,7 +246,16 @@ export function createNewScreensharePublisher(
   );
 
   publisher.on('videoElementCreated', function(event) {
-    updateVideoElements(event.element, 'screen', '');
+    updateVideoElements(
+      event.element,
+      'screen',
+      '',
+      (screenElementID, session, screenPublisher) => {
+        publisher.on('streamDestroyed', function(event) {
+          screenShareTearDown(screenElementID, session, screenPublisher);
+        });
+      }
+    );
   });
 
   return publisher;
