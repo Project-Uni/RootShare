@@ -14,8 +14,6 @@ const VIDEO_UI_SETTINGS = {
 
 export async function connectStream(
   webinarID: string,
-  availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -46,8 +44,6 @@ export async function connectStream(
   const eventSession = await createEventSession(
     sessionID,
     eventToken,
-    availablePositions,
-    eventStreamMap,
     updateVideoElements,
     removeVideoElement
   );
@@ -83,8 +79,6 @@ async function getOpenTokToken(sessionID: string) {
 async function createEventSession(
   sessionID: string,
   eventToken: string,
-  availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -97,13 +91,7 @@ async function createEventSession(
   ) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  addEventSessionListeners(
-    eventSession,
-    availablePositions,
-    eventStreamMap,
-    updateVideoElements,
-    removeVideoElement
-  );
+  addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
 
   const connection = await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -119,8 +107,6 @@ async function createEventSession(
 
 function addEventSessionListeners(
   eventSession: any,
-  availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT },
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -133,8 +119,6 @@ function addEventSessionListeners(
   ) => void
 ) {
   eventSession.on('streamCreated', (streamEvent: any) => {
-    const pos = availablePositions.pop();
-
     let subscriber = eventSession.subscribe(streamEvent.stream, {
       insertDefaultUI: false,
     });
@@ -146,15 +130,10 @@ function addEventSessionListeners(
         streamEvent.stream.streamId
       );
     });
-    eventStreamMap[JSON.stringify(streamEvent.target)] = pos as SINGLE_DIGIT;
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
     removeVideoElement(event.stream.streamId, event.stream.videoType, false);
-
-    const pos = eventStreamMap[JSON.stringify(event.target)];
-    delete eventStreamMap[JSON.stringify(event.target)];
-    availablePositions.push(pos);
   });
 }
 
@@ -198,7 +177,6 @@ export async function stopLiveStream() {
 
 export function createNewWebcamPublisher(
   name: string,
-  eventPos: SINGLE_DIGIT,
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -230,7 +208,6 @@ export function createNewWebcamPublisher(
 
 export function createNewScreensharePublisher(
   name: string,
-  eventPos: SINGLE_DIGIT,
   updateVideoElements: (
     videoElement: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',

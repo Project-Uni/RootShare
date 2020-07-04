@@ -72,7 +72,6 @@ function EventAdminContainer(props: Props) {
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
-  const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
 
   const [videoData, setVideoData] = useState({
     videoElements: new Array<HTMLVideoElement | HTMLObjectElement>(),
@@ -80,9 +79,6 @@ function EventAdminContainer(props: Props) {
     screenElementID: '',
     nextID: 0,
   });
-
-  const availablePositions: SINGLE_DIGIT[] = [];
-  const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
 
   const [videoWidth, setVideoWidth] = useState(
     window.innerWidth >= MIN_WINDOW_WIDTH
@@ -108,11 +104,6 @@ function EventAdminContainer(props: Props) {
   async function fetchEventInfo() {
     const initialNumSpeakers = 4;
     setNumSpeakers(4);
-    for (let i = initialNumSpeakers; i >= 2; i--) {
-      availablePositions.push(i as SINGLE_DIGIT);
-    }
-    // console.log('Available positions:', availablePositions);
-    setEventPos(1);
   }
 
   function handleStreamStatusChange() {
@@ -220,7 +211,6 @@ function EventAdminContainer(props: Props) {
       if (prevState.session === undefined) {
         const publisher = createNewWebcamPublisher(
           props.user['firstName'] + ' ' + props.user['lastName'],
-          eventPos,
           updateVideoElements
         );
         session.publish(publisher, (err) => {
@@ -254,7 +244,6 @@ function EventAdminContainer(props: Props) {
           if (prevState.session === undefined) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
-              eventPos,
               updateVideoElements
             );
 
@@ -295,8 +284,6 @@ function EventAdminContainer(props: Props) {
       setWebinarID(data['content']['webinarID']);
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
-        availablePositions,
-        eventStreamMap,
         updateVideoElements,
         removeVideoElement
       );

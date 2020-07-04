@@ -107,13 +107,13 @@ export function ScreenshareLayout(props: ScreenshareProps) {
       <div id={`pos0`} className={styles.screenView}></div>
 
       <div className={styles.screenshareWebcamContainer}>
-        {renderScreenshareRest({ ...props })}
+        {renderScreenshareRest(props.numSpeakers)}
       </div>
     </>
   );
 }
 
-function renderScreenshareRest({ numSpeakers, sharingPos }: ScreenshareProps) {
+function renderScreenshareRest(numSpeakers: number) {
   const output = [];
   for (let i = 1; i <= numSpeakers; i++) {
     output.push(
