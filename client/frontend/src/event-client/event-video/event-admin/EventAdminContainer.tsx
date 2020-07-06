@@ -188,8 +188,6 @@ function EventAdminContainer(props: Props) {
       let elementIndex = -1;
       for (let i = 0; i < listLength; i++) {
         const currElement = prevVideoData.videoElements[i];
-        console.log(currElement.getAttribute('elementid'));
-        console.log(elementID);
         if (currElement.getAttribute('elementid') === elementID) {
           elementIndex = i;
         }
@@ -251,11 +249,9 @@ function EventAdminContainer(props: Props) {
       setTimeout(() => {
         setScreenPublisher((prevState) => {
           if (session.sessionId === undefined) {
-            console.log('TEST 1');
             return new Publisher();
           }
           if (prevState.session === undefined || prevState.session === null) {
-            console.log('TEST 2');
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
               updateVideoElements,
@@ -276,7 +272,6 @@ function EventAdminContainer(props: Props) {
 
             return new Publisher();
           } else {
-            console.log('TEST 4');
             return screenShareTearDown(
               videoData.screenElementID,
               session,
@@ -299,11 +294,8 @@ function EventAdminContainer(props: Props) {
         type: 'bestFit',
       });
 
-      console.log(session);
-      console.log(screenPublisher);
       removeVideoElement(screenElementID, 'screen', true);
       session.unpublish(screenPublisher);
-      console.log();
     }, 500);
     return new Publisher();
   }
@@ -356,8 +348,6 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      console.log(someoneSharingScreen);
-      console.log(videoData.videoElements);
       return someoneSharingScreen === '' ? (
         <VideosOnlyLayout
           numSpeakers={numSpeakers}

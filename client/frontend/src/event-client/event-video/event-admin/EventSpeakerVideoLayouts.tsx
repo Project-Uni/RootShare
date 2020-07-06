@@ -98,9 +98,7 @@ export function ScreenshareLayout(props: ScreenshareProps) {
         currVideo.style.width = '100%';
 
         if (currVideo.getAttribute('elementid') === props.sharingPos) {
-          console.log(`Screensharing: ${props.sharingPos}`);
           currVideo.style['objectFit'] = 'contain';
-          console.log(document.getElementById('pos0'));
           document.getElementById(`pos0`)?.appendChild(currVideo);
         } else {
           currVideo.style['objectFit'] = 'cover';
