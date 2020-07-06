@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { SINGLE_DIGIT } from '../../../types/types';
@@ -36,7 +36,11 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
   const output = [];
   for (let i = 1; i <= props.numSpeakers; i += numPerRow) {
     output.push(
-      <div className={styles.row} style={{ height: `${100 / numRows}%` }}>
+      <div
+        className={styles.row}
+        style={{ height: `${100 / numRows}%` }}
+        key={`row${i}`}
+      >
         {renderRow(
           i,
           props.numSpeakers - i >= numPerRow ? numPerRow : props.numSpeakers - i + 1,
@@ -64,6 +68,7 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
   for (let i = startIndex; i < startIndex + numElements; i++) {
     output.push(
       <div
+        key={`pos${i}`}
         id={`pos${i}`}
         style={{
           width: `${100 / maxElements}%`,
@@ -84,23 +89,27 @@ type ScreenshareProps = {
 export function ScreenshareLayout(props: ScreenshareProps) {
   const styles = useStyles();
 
-  let containerCount = 1;
-  for (let i = 0; i < props.videoElements.length; i++) {
-    let currVideo = props.videoElements[i];
-    if (currVideo) {
-      currVideo.style.height = '100%';
-      currVideo.style.width = '100%';
+  useEffect(() => {
+    let containerCount = 1;
+    for (let i = 0; i < props.videoElements.length; i++) {
+      let currVideo = props.videoElements[i];
+      if (currVideo) {
+        currVideo.style.height = '100%';
+        currVideo.style.width = '100%';
 
-      if (currVideo.getAttribute('elementid') === props.sharingPos) {
-        currVideo.style['objectFit'] = 'contain';
-        document.getElementById(`pos0`)?.appendChild(currVideo);
-      } else {
-        currVideo.style['objectFit'] = 'cover';
-        document.getElementById(`pos${containerCount}`)?.appendChild(currVideo);
-        containerCount++;
+        if (currVideo.getAttribute('elementid') === props.sharingPos) {
+          console.log(`Screensharing: ${props.sharingPos}`);
+          currVideo.style['objectFit'] = 'contain';
+          console.log(document.getElementById('pos0'));
+          document.getElementById(`pos0`)?.appendChild(currVideo);
+        } else {
+          currVideo.style['objectFit'] = 'cover';
+          document.getElementById(`pos${containerCount}`)?.append(currVideo);
+          containerCount++;
+        }
       }
     }
-  }
+  });
 
   return (
     <>
@@ -118,6 +127,7 @@ function renderScreenshareRest(numSpeakers: number) {
   for (let i = 1; i <= numSpeakers; i++) {
     output.push(
       <div
+        key={`pos${i}`}
         id={`pos${i}`}
         style={{ width: `${100 / 4}%`, height: '100%', border: '1px solid red' }}
       ></div>

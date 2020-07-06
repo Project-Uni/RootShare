@@ -356,6 +356,8 @@ function EventAdminContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
+      console.log(someoneSharingScreen);
+      console.log(videoData.videoElements);
       return someoneSharingScreen === '' ? (
         <VideosOnlyLayout
           numSpeakers={numSpeakers}

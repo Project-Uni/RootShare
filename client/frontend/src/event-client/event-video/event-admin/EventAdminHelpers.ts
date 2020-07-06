@@ -7,11 +7,6 @@ import { SINGLE_DIGIT } from '../../../types/types';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../keys.json');
 
-const VIDEO_UI_SETTINGS = {
-  width: '100%',
-  height: '100%',
-};
-
 export async function connectStream(
   webinarID: string,
   updateVideoElements: (
@@ -189,21 +184,15 @@ export function createNewWebcamPublisher(
   ) => void
 ) {
   const publisher = OT.initPublisher(
-    ``,
+    '',
     {
       insertDefaultUI: false,
-      insertMode: 'append',
-      name: name,
-      // publishAudio: false,
-      // publishVideo: false,
-      ...VIDEO_UI_SETTINGS,
     },
     (err) => {
       if (err) alert(err.message);
     }
   );
 
-  // TODO: this should be getting the user's own videoElement, so fix it to be mirrored
   publisher.on('videoElementCreated', function(event) {
     updateVideoElements(event.element, 'camera', '', () => {});
   });
@@ -234,9 +223,7 @@ export function createNewScreensharePublisher(
     {
       insertDefaultUI: false,
       videoSource: 'screen',
-      insertMode: 'append',
-      name: name,
-      ...VIDEO_UI_SETTINGS,
+      resolution: '1280x720',
     },
     (err) => {
       if (err) {
