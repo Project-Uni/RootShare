@@ -61,12 +61,12 @@ function EventAdminButtonContainer(props: Props) {
         className={[
           styles.buttonDefault,
           styles.cameraIcon,
-          props.loading || props.sharingScreen ? styles.disabledButton : null,
+          props.loading ? styles.disabledButton : null,
         ].join(' ')}
         onClick={props.toggleWebcam}
-        disabled={props.loading || props.sharingScreen}
+        disabled={props.loading}
       >
-        {!props.showWebcam ? (
+        {props.showWebcam ? (
           <Video size={28} color="white" />
         ) : (
           <VideoOff size={28} color="white" />
@@ -76,10 +76,10 @@ function EventAdminButtonContainer(props: Props) {
         className={[
           styles.buttonDefault,
           styles.cameraIcon,
-          props.loading ? styles.disabledButton : null,
+          props.loading || !props.showWebcam ? styles.disabledButton : null,
         ].join(' ')}
         onClick={props.toggleMute}
-        disabled={props.loading}
+        disabled={props.loading || !props.showWebcam}
       >
         {!props.muted ? (
           <Microphone color="white" size={26} />

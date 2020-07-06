@@ -67,7 +67,7 @@ function EventAdminContainer(props: Props) {
   const [loadingErr, setLoadingErr] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [showWebcam, setShowWebcam] = useState(true);
+  const [showWebcam, setShowWebcam] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
 
