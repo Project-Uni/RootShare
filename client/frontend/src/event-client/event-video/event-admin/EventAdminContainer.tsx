@@ -66,7 +66,7 @@ function EventAdminContainer(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loadingErr, setLoadingErr] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [showWebcam, setShowWebcam] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
@@ -121,9 +121,11 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleMute() {
-    if (muted) cameraPublisher.publishAudio(true);
-    else cameraPublisher.publishAudio(false);
-    setMuted(!muted);
+    setMuted((prevMuted) => {
+      if (prevMuted) cameraPublisher.publishAudio(true);
+      else cameraPublisher.publishAudio(false);
+      return !prevMuted;
+    });
   }
 
   async function updateVideoElements(
@@ -214,25 +216,11 @@ function EventAdminContainer(props: Props) {
   }
 
   function toggleWebcam() {
-    setCameraPublisher((prevState) => {
-      if (session.sessionId === undefined) return new Publisher();
-      if (prevState.session === undefined) {
-        const publisher = createNewWebcamPublisher(
-          props.user['firstName'] + ' ' + props.user['lastName'],
-          updateVideoElements
-        );
-        session.publish(publisher, (err) => {
-          if (err) alert(err.message);
-        });
-        return publisher;
-      } else {
-        removeVideoElement(videoData.cameraElementID, 'camera', true);
-        session.unpublish(cameraPublisher);
-        return new Publisher();
-      }
+    setShowWebcam((prevWebcam) => {
+      if (prevWebcam) cameraPublisher.publishVideo(false);
+      else cameraPublisher.publishVideo(true);
+      return !prevWebcam;
     });
-
-    setShowWebcam(!showWebcam);
   }
 
   function toggleScreenshare() {
@@ -309,7 +297,8 @@ function EventAdminContainer(props: Props) {
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
         updateVideoElements,
-        removeVideoElement
+        removeVideoElement,
+        setCameraPublisher
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {

@@ -76,10 +76,10 @@ function EventAdminButtonContainer(props: Props) {
         className={[
           styles.buttonDefault,
           styles.cameraIcon,
-          props.loading || !props.showWebcam ? styles.disabledButton : null,
+          props.loading ? styles.disabledButton : null,
         ].join(' ')}
         onClick={props.toggleMute}
-        disabled={props.loading || !props.showWebcam}
+        disabled={props.loading}
       >
         {!props.muted ? (
           <Microphone color="white" size={26} />

@@ -19,7 +19,8 @@ export async function connectStream(
     elementID: string,
     videoType: 'camera' | 'screen',
     self: boolean
-  ) => void
+  ) => void,
+  setCameraPublisher: (newPublisher: OT.Publisher) => void
 ) {
   let canScreenshare = false;
 
@@ -41,7 +42,8 @@ export async function connectStream(
     sessionID,
     eventToken,
     updateVideoElements,
-    removeVideoElement
+    removeVideoElement,
+    setCameraPublisher
   );
 
   if (!((eventSession as unknown) as boolean))
@@ -85,21 +87,31 @@ async function createEventSession(
     elementID: string,
     videoType: 'camera' | 'screen',
     self: boolean
-  ) => void
+  ) => void,
+  setCameraPublisher: (newPublisher: OT.Publisher) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
 
-  const connection = await eventSession.connect(eventToken, (err: any) => {
+  await eventSession.connect(eventToken, (err: any) => {
     if (err) {
       log(err.name, err.message);
       return false;
     } else {
       log('info', 'Connected to event session');
+      const publisher = createNewWebcamPublisher(
+        'TODO: name does not insert here',
+        updateVideoElements
+      );
+
+      eventSession.publish(publisher, (err) => {
+        if (err) alert(err.message);
+      });
+      setCameraPublisher(publisher);
       return eventSession;
     }
   });
-  return connection;
+  return eventSession;
 }
 
 function addEventSessionListeners(
@@ -154,26 +166,6 @@ export async function stopLiveStream() {
   axios.post('/webinar/stopStreaming', { webinarID });
 }
 
-// For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
-
-//TODO - If we decide not to use this function in the future, delete it
-// function initializeWebcam(
-//   eventSession: OT.Session,
-//   name: string,
-//   eventPos: SINGLE_DIGIT,
-//   updateVideoElements: (videoElement: HTMLVideoElement | HTMLObjectElement) => void
-// ) {
-//   const publisher = createNewWebcamPublisher(name, eventPos, updateVideoElements);
-//   eventSession.publish(publisher, (err) => {
-//     if (err) alert(err.message);
-//   });
-//   setTimeout(() => {
-//     publisher.publishAudio(true);
-//   }, 500);
-
-//   return publisher;
-// }
-
 export function createNewWebcamPublisher(
   name: string,
   updateVideoElements: (
@@ -186,6 +178,8 @@ export function createNewWebcamPublisher(
   const publisher = OT.initPublisher(
     '',
     {
+      publishVideo: false,
+      publishAudio: false,
       insertDefaultUI: false,
     },
     (err) => {
