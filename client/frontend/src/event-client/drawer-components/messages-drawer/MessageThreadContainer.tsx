@@ -87,7 +87,10 @@ function MessageThreadContainer(props: Props) {
   }
 
   function handleSendMessage() {
-    console.log(`Sending message: ${newMessage}`);
+    axios.post("/api/messaging/sendMessage", {
+      conversationID: props.conversationID,
+      message: newMessage,
+    });
     setNewMessage("");
   }
 
