@@ -1,15 +1,9 @@
 import axios from 'axios';
 import OT from '@opentok/client';
 import log from '../../../../../helpers/logger';
-
-import { SINGLE_DIGIT } from '../../../../../types/types';
+import { createNewWebcamPublisher } from './createPublishers';
 //Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
-
-const VIDEO_UI_SETTINGS = {
-  width: '100%',
-  height: '100%',
-};
 
 export async function validateSession(webinarID: string) {
   const { data } = await axios.post('/webinar/getOpenTokSessionID', {
@@ -36,51 +30,73 @@ export async function getOpenTokToken(sessionID: string) {
 export async function createEventSession(
   sessionID: string,
   eventToken: string,
-  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any,
-  availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT }
+  updateVideoElements: (
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
+  ) => void,
+  removeVideoElement: (
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
+  ) => void,
+  setCameraPublisher: (newPublisher: OT.Publisher) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  addEventSessionListeners(
-    eventSession,
-    availablePositions,
-    eventStreamMap,
-    setSomeoneSharingScreen
-  );
+  addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
 
-  const connection = await eventSession.connect(eventToken, (err: any) => {
+  await eventSession.connect(eventToken, (err: any) => {
     if (err) {
       log(err.name, err.message);
       return false;
     } else {
       log('info', 'Connected to event session');
+      const publisher = createNewWebcamPublisher(
+        'TODO: name does not insert here',
+        updateVideoElements
+      );
+
+      eventSession.publish(publisher, (err) => {
+        if (err) alert(err.message);
+      });
+      setCameraPublisher(publisher);
       return eventSession;
     }
   });
-  return connection;
+  return eventSession;
 }
 
 function addEventSessionListeners(
   eventSession: any,
-  availablePositions: SINGLE_DIGIT[],
-  eventStreamMap: { [key: string]: SINGLE_DIGIT },
-  setSomeoneSharingScreen: (newState: false | SINGLE_DIGIT) => any
+  updateVideoElements: (
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
+  ) => void,
+  removeVideoElement: (
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
+  ) => void
 ) {
-  eventSession.on('streamCreated', (event: any) => {
-    const pos = availablePositions.pop();
-    if (event.stream.videoType === 'screen')
-      setSomeoneSharingScreen(pos as SINGLE_DIGIT);
-    eventSession.subscribe(event.stream, `pos${pos}`, {
-      insertMode: 'append',
-      ...VIDEO_UI_SETTINGS,
+  eventSession.on('streamCreated', (streamEvent: any) => {
+    let subscriber = eventSession.subscribe(streamEvent.stream, {
+      insertDefaultUI: false,
     });
-    eventStreamMap[JSON.stringify(event.target)] = pos as SINGLE_DIGIT;
+
+    subscriber.on('videoElementCreated', function(event: any) {
+      updateVideoElements(
+        event.element,
+        streamEvent.stream.videoType,
+        streamEvent.stream.streamId,
+        () => {}
+      );
+    });
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
-    if (event.stream.videoType === 'screen') setSomeoneSharingScreen(false);
-    const pos = eventStreamMap[JSON.stringify(event.target)];
-    delete eventStreamMap[JSON.stringify(event.target)];
-    availablePositions.push(pos);
+    removeVideoElement(event.stream.streamId, event.stream.videoType, false);
   });
 }

@@ -1,58 +1,77 @@
-import { SINGLE_DIGIT } from '../../../../../types/types';
+import log from '../../../../../helpers/logger';
 
-const VIDEO_UI_SETTINGS = {
-  width: '100%',
-  height: '100%',
-};
-
-// For styling guide refer to https://tokbox.com/developer/guides/customize-ui/js/
-
-//TODO - If we decide not to use this function in the future, delete it
-function initializeWebcam(
-  eventSession: OT.Session,
+export function createNewWebcamPublisher(
   name: string,
-  eventPos: SINGLE_DIGIT
+  updateVideoElements: (
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string,
+    updateStateInHelper: (screenElementID: string) => void
+  ) => void
 ) {
-  const publisher = createNewWebcamPublisher(name, eventPos);
-  eventSession.publish(publisher, (err) => {
-    if (err) alert(err.message);
+  const publisher = OT.initPublisher(
+    '',
+    {
+      publishVideo: false,
+      publishAudio: false,
+      insertDefaultUI: false,
+    },
+    (err) => {
+      if (err) alert(err.message);
+    }
+  );
+
+  publisher.on('videoElementCreated', function(event) {
+    updateVideoElements(event.element, 'camera', '', () => {});
   });
-  setTimeout(() => {
-    publisher.publishAudio(true);
-  }, 500);
 
   return publisher;
 }
 
-export function createNewWebcamPublisher(name: string, eventPos: SINGLE_DIGIT) {
+export function createNewScreensharePublisher(
+  name: string,
+  updateVideoElements: (
+    videoElement: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string,
+    updateStateInHelper: (
+      screenElementID: string,
+      session: OT.Session,
+      screenPublisher: OT.Publisher
+    ) => void
+  ) => void,
+  screenShareTearDown: (
+    screenElementID: string,
+    session: OT.Session,
+    screenPublisher: OT.Publisher
+  ) => void
+) {
   const publisher = OT.initPublisher(
-    `pos${eventPos}`,
+    ``,
     {
-      insertMode: 'append',
-      name: name,
-      // publishAudio: false,
-      // publishVideo: false,
-      ...VIDEO_UI_SETTINGS,
-    },
-    (err) => {
-      if (err) alert(err.message);
-    }
-  );
-  return publisher;
-}
-
-export function createNewScreensharePublisher(name: string, eventPos: SINGLE_DIGIT) {
-  const publisher = OT.initPublisher(
-    `pos${eventPos}`,
-    {
+      insertDefaultUI: false,
       videoSource: 'screen',
-      insertMode: 'append',
-      name: name,
-      ...VIDEO_UI_SETTINGS,
+      resolution: '1280x720',
     },
     (err) => {
-      if (err) alert(err.message);
+      if (err) {
+        log('error', err.message);
+      }
     }
   );
+
+  publisher.on('videoElementCreated', function(event) {
+    updateVideoElements(
+      event.element,
+      'screen',
+      '',
+      (screenElementID, session, screenPublisher) => {
+        publisher.on('streamDestroyed', function(event) {
+          screenShareTearDown(screenElementID, session, screenPublisher);
+        });
+      }
+    );
+  });
+
   return publisher;
 }

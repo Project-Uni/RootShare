@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
@@ -20,7 +20,6 @@ import {
   startLiveStream,
   stopLiveStream,
   createNewScreensharePublisher,
-  createNewWebcamPublisher,
 } from './helpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
@@ -62,7 +61,7 @@ function EventHostContainer(props: Props) {
   const styles = useStyles();
 
   const [screenshareCapable, setScreenshareCapable] = useState(false);
-  const [webcamPublisher, setWebcamPublisher] = useState(new Publisher());
+  const [cameraPublisher, setCameraPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
   const [webinarID, setWebinarID] = useState(-1);
@@ -70,20 +69,19 @@ function EventHostContainer(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loadingErr, setLoadingErr] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [showWebcam, setShowWebcam] = useState(true);
+  const [muted, setMuted] = useState(true);
+  const [showWebcam, setShowWebcam] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
-  const [someoneSharingScreen, setSomeoneSharingScreen] = useState<
-    SINGLE_DIGIT | false
-  >(false);
-
-  const [frozenWebcam, setFrozenWebcam] = useState(false);
+  const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
-  const [eventPos, setEventPos] = useState<SINGLE_DIGIT>(1);
 
-  const availablePositions: SINGLE_DIGIT[] = [];
-  const eventStreamMap: { [key: string]: SINGLE_DIGIT } = {};
+  const [videoData, setVideoData] = useState({
+    videoElements: new Array<HTMLVideoElement | HTMLObjectElement>(),
+    cameraElementID: '',
+    screenElementID: '',
+    nextID: 0,
+  });
 
   const [videoWidth, setVideoWidth] = useState(
     window.innerWidth >= MIN_WINDOW_WIDTH
@@ -109,10 +107,6 @@ function EventHostContainer(props: Props) {
   async function fetchEventInfo() {
     const initialNumSpeakers = 4;
     setNumSpeakers(4);
-    for (let i = initialNumSpeakers; i >= 2; i--) {
-      availablePositions.push(i as SINGLE_DIGIT);
-    }
-    setEventPos(1);
   }
 
   function handleStreamStatusChange() {
@@ -130,30 +124,106 @@ function EventHostContainer(props: Props) {
   }
 
   function toggleMute() {
-    if (muted) webcamPublisher.publishAudio(true);
-    else webcamPublisher.publishAudio(false);
-    setMuted(!muted);
+    setMuted((prevMuted) => {
+      if (prevMuted) cameraPublisher.publishAudio(true);
+      else cameraPublisher.publishAudio(false);
+      return !prevMuted;
+    });
+  }
+
+  async function updateVideoElements(
+    element: HTMLVideoElement | HTMLObjectElement,
+    videoType: 'camera' | 'screen',
+    otherID: string,
+    updateStateInHelper: (
+      screenElementID: string,
+      session: Session,
+      screenPublisher: Publisher
+    ) => void
+  ) {
+    await setVideoData((prevVideoData) => {
+      if (otherID === '') {
+        const nextID = prevVideoData.nextID;
+        const updateNextID = nextID < Number.MAX_SAFE_INTEGER ? nextID + 1 : 0;
+        element.setAttribute('elementid', `${nextID}`);
+
+        if (videoType === 'screen') {
+          setSomeoneSharingScreen(`${nextID}`);
+          setSharingScreen(true);
+        }
+
+        if (videoType === 'screen')
+          updateStateInHelper(`${nextID}`, session, screenPublisher);
+
+        return {
+          videoElements: prevVideoData.videoElements.concat(element),
+          cameraElementID:
+            videoType === 'camera' ? `${nextID}` : prevVideoData.cameraElementID,
+          screenElementID:
+            videoType === 'screen' ? `${nextID}` : prevVideoData.screenElementID,
+          nextID: updateNextID,
+        };
+      } else {
+        element.setAttribute('elementid', otherID);
+
+        if (videoType === 'screen') setSomeoneSharingScreen(otherID);
+
+        return {
+          videoElements: prevVideoData.videoElements.concat(element),
+          cameraElementID: prevVideoData.cameraElementID,
+          screenElementID: prevVideoData.screenElementID,
+          nextID: prevVideoData.nextID,
+        };
+      }
+    });
+  }
+
+  function removeVideoElement(
+    elementID: string,
+    videoType: 'camera' | 'screen',
+    self: boolean
+  ) {
+    if (videoType === 'screen') {
+      setSomeoneSharingScreen('');
+      if (self) setSharingScreen(false);
+    }
+
+    setVideoData((prevVideoData) => {
+      const listLength = prevVideoData.videoElements.length;
+      let elementIndex = -1;
+      for (let i = 0; i < listLength; i++) {
+        const currElement = prevVideoData.videoElements[i];
+        if (currElement.getAttribute('elementid') === elementID) {
+          elementIndex = i;
+        }
+      }
+
+      const newVideoElements =
+        elementIndex === -1
+          ? prevVideoData.videoElements
+          : prevVideoData.videoElements
+              .slice(0, elementIndex)
+              .concat(
+                prevVideoData.videoElements.slice(elementIndex + 1, listLength)
+              );
+
+      return {
+        videoElements: newVideoElements,
+        cameraElementID:
+          self && videoType === 'camera' ? '' : prevVideoData.cameraElementID,
+        screenElementID:
+          self && videoType === 'screen' ? '' : prevVideoData.screenElementID,
+        nextID: prevVideoData.nextID,
+      };
+    });
   }
 
   function toggleWebcam() {
-    setWebcamPublisher((prevState) => {
-      if (session.sessionId === undefined) return new Publisher();
-      if (prevState.session === undefined) {
-        const publisher = createNewWebcamPublisher(
-          props.user['firstName'] + ' ' + props.user['lastName'],
-          eventPos
-        );
-        session.publish(publisher, (err) => {
-          if (err) alert(err.message);
-        });
-        return publisher;
-      } else {
-        session.unpublish(webcamPublisher);
-        return new Publisher();
-      }
+    setShowWebcam((prevWebcam) => {
+      if (prevWebcam) cameraPublisher.publishVideo(false);
+      else cameraPublisher.publishVideo(true);
+      return !prevWebcam;
     });
-
-    setShowWebcam(!showWebcam);
   }
 
   function toggleScreenshare() {
@@ -166,53 +236,59 @@ function EventHostContainer(props: Props) {
       sharingScreen ? 'stop' : 'start'
     } sharing your screen`;
 
-    const oldScreenShare = sharingScreen;
-
     if (window.confirm(prompt)) {
-      if (!showWebcam) {
-        setFrozenWebcam(true);
-        toggleWebcam();
-      } else {
-        setFrozenWebcam(false);
-      }
-      if (!sharingScreen) setSharingScreen(true);
-
       setTimeout(() => {
         setScreenPublisher((prevState) => {
-          if (session.sessionId === undefined) return new Publisher();
-          if (prevState.session === undefined) {
+          if (session.sessionId === undefined) {
+            return new Publisher();
+          }
+          if (prevState.session === undefined || prevState.session === null) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
-              eventPos
+              updateVideoElements,
+              screenShareTearDown
             );
+
             session.publish(publisher, (err) => {
-              if (err) return alert(err.message);
+              if (err) return log('error', err.message);
 
               axios.post('/webinar/changeBroadcastLayout', {
                 webinarID,
                 type: 'horizontalPresentation',
                 streamID: publisher.stream?.streamId,
               });
+
+              setScreenPublisher(publisher);
             });
-            return publisher;
-          } else if (prevState.session === null) return new Publisher();
-          else {
-            axios.post('/webinar/changeBroadcastLayout', {
-              webinarID,
-              type: 'bestFit',
-            });
-            session.unpublish(screenPublisher);
+
             return new Publisher();
+          } else {
+            return screenShareTearDown(
+              videoData.screenElementID,
+              session,
+              screenPublisher
+            );
           }
         });
-
-        if (oldScreenShare) setSharingScreen(false);
-        if (frozenWebcam && oldScreenShare) {
-          setFrozenWebcam(false);
-          toggleWebcam();
-        }
       }, 500);
-    } else setSharingScreen(oldScreenShare);
+    }
+  }
+
+  function screenShareTearDown(
+    screenElementID: string,
+    session: Session,
+    screenPublisher: Publisher
+  ) {
+    setTimeout(() => {
+      axios.post('/webinar/changeBroadcastLayout', {
+        webinarID,
+        type: 'bestFit',
+      });
+
+      removeVideoElement(screenElementID, 'screen', true);
+      session.unpublish(screenPublisher);
+    }, 500);
+    return new Publisher();
   }
 
   async function initializeSession() {
@@ -226,9 +302,9 @@ function EventHostContainer(props: Props) {
       setWebinarID(data['content']['webinarID']);
       const { screenshare, eventSession } = await connectStream(
         data['content']['webinarID'],
-        setSomeoneSharingScreen,
-        availablePositions,
-        eventStreamMap
+        updateVideoElements,
+        removeVideoElement,
+        setCameraPublisher
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {
@@ -267,9 +343,18 @@ function EventHostContainer(props: Props) {
 
   function renderVideoSections() {
     if (!loading && !loadingErr) {
-      if (sharingScreen)
-        return <ScreenshareLayout numSpeakers={numSpeakers} sharingPos={eventPos} />;
-      return <VideosOnlyLayout numSpeakers={numSpeakers} />;
+      return someoneSharingScreen === '' ? (
+        <VideosOnlyLayout
+          numSpeakers={numSpeakers}
+          videoElements={videoData.videoElements}
+        />
+      ) : (
+        <ScreenshareLayout
+          numSpeakers={numSpeakers}
+          videoElements={videoData.videoElements}
+          sharingPos={someoneSharingScreen}
+        />
+      );
     }
     return null;
   }

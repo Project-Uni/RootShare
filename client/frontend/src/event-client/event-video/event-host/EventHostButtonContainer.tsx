@@ -65,12 +65,12 @@ function EventHostButtonContainer(props: Props) {
         className={[
           styles.buttonDefault,
           styles.cameraIcon,
-          props.loading || props.sharingScreen ? styles.disabledButton : null,
+          props.loading ? styles.disabledButton : null,
         ].join(' ')}
         onClick={props.toggleWebcam}
-        disabled={props.loading || props.sharingScreen}
+        disabled={props.loading}
       >
-        {!props.showWebcam ? (
+        {props.showWebcam ? (
           <Video size={28} color="white" />
         ) : (
           <VideoOff size={28} color="white" />
@@ -97,7 +97,7 @@ function EventHostButtonContainer(props: Props) {
         onClick={props.toggleScreenshare}
         disabled={props.loading}
       >
-        {!props.sharingScreen ? 'Share Screen' : 'Sharing Screen'}
+        {!props.sharingScreen ? 'Share Screen' : 'Stop Sharing Screen'}
       </Button>
       {props.mode === 'admin' && (
         <Button
