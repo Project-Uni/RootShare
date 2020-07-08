@@ -7,12 +7,12 @@ var {
   confirmUser,
   unsubscribeUser,
   sendConfirmationEmail,
-} = require("../interactions/email-confirmation");
+} = require("../interactions/registration/email-confirmation");
 var {
   completeRegistrationDetails,
   completeRegistrationRequired,
   userExists,
-} = require("../interactions/registration-data");
+} = require("../interactions/registration/registration-data");
 
 var User = mongoose.model("users");
 
@@ -82,7 +82,7 @@ module.exports = (app) => {
   });
 
   app.post("/auth/complete-registration/details", async (req, res) => {
-    const result = await completeRegistrationDetails(req.body, req.user.email)
+    const result = await completeRegistrationDetails(req.body, req.user.email);
 
     if (result["success"] === 1) {
       log("info", `Completed registration details for ${req.user.email}`);
@@ -92,8 +92,8 @@ module.exports = (app) => {
 
   app.get("/auth/curr-user/load", isAuthenticated, async (req, res) => {
     const email = req.user.email;
-    const regComplete = (req.user.work !== undefined)
-    const externalComplete = (req.user.university !== undefined)
+    const regComplete = (req.user.work !== undefined);
+    const externalComplete = (req.user.university !== undefined);
 
     let check = await userExists(email);
     if (check) {
@@ -101,7 +101,10 @@ module.exports = (app) => {
         sendPacket(1, "Sending back current user", {
           email: email,
           regComplete: regComplete,
-          externalComplete: externalComplete
+          externalComplete: externalComplete,
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
+          _id: req.user._id
         })
       );
       log("info", `Sent ${email} to frontend`);
@@ -132,7 +135,7 @@ module.exports = (app) => {
     let user = await unsubscribeUser(req.params.token);
 
     if (user) {
-      res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`))
+      res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`));
       log("info", `Unsubscribed user: ${user.email}`);
     } else {
       res.json(sendPacket(-1, "There was an error processing your request"));
@@ -172,7 +175,7 @@ module.exports = (app) => {
     log("info", `User accessed secure-confirmed endpoint`);
   });
 
-  app.get("/logout", (req, res) => {
+  app.get("/logout", isAuthenticated, (req, res) => {
     let email = req.user.email;
     req.logout();
     res.json(sendPacket(1, "Successfully logged out"));

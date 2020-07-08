@@ -81,11 +81,7 @@ function HypeExternalMissingInfo(props: Props) {
   async function getCurrentUser() {
     const { data } = await axios.get("/auth/curr-user/load");
     if (data["success"] === 1) {
-      if (data["content"]["externalComplete"]) {
-        setAdditionalRedirect(true)
-      } else {
-        return data["content"]["email"];
-      }
+      if (data["content"]["externalComplete"]) setAdditionalRedirect(true);
     } else setLandingRedirect(true);
   }
 

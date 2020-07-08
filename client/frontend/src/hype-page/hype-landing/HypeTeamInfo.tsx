@@ -22,6 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 5,
     marginRight: 5,
     marginTop: 50,
+    marginBottom: 50
   },
   registerText: {
     fontWeight: "bold",
@@ -130,7 +131,7 @@ function HypeTeamInfo(props: Props) {
 
   function renderMembers() {
     const output = [];
-    let currMember: { [key: string]: any } = {};
+    let currMember: { [key: string]: any; } = {};
     for (let i = 0; i < members.length; i++) {
       currMember = members[i];
       output.push(

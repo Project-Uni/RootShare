@@ -48,8 +48,8 @@ function HypeLanding(props: Props) {
       {desktopMode ? (
         <HypeDesktopBody eventDescription={eventDescription} />
       ) : (
-        <HypeMobileBody eventDescription={eventDescription} />
-      )}
+          <HypeMobileBody eventDescription={eventDescription} />
+        )}
       <HypeEventCountdown
         {...event}
         mode={desktopMode ? "desktop" : "mobile"}
