@@ -39,7 +39,7 @@ function MessagesDrawerContainer(props: Props) {
     setSetup(true);
 
     connectSocket();
-    updateConversations();
+    // updateConversations();
   }, []);
 
   function connectSocket() {
@@ -47,7 +47,7 @@ function MessagesDrawerContainer(props: Props) {
     setSocket(socket);
 
     socket.on("connect", (data: React.SetStateAction<boolean>) => {
-      // socket.emit("metadata", conversations);
+      updateConversations(socket);
     });
 
     socket.on("newMessage", (data: any) => {
@@ -65,14 +65,18 @@ function MessagesDrawerContainer(props: Props) {
     });
   }
 
-  function updateConversations() {
+  function updateConversations(currSocket: SocketIOClient.Socket) {
+    if (currSocket === undefined && socket !== undefined) currSocket = socket;
     axios
       .get("/api/messaging/getLatestThreads")
       .then((response) => {
         if (response.data.success !== 1) return;
 
         const userConversations = response.data.content.userConversations;
-        if (socket !== undefined) socket.emit("metadata", userConversations);
+        if (currSocket !== undefined) {
+          console.log("emitting metadata");
+          currSocket.emit("metadata", userConversations);
+        }
         console.log(userConversations);
         setConversations(userConversations);
       })
