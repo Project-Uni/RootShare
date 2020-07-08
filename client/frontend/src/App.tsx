@@ -10,7 +10,6 @@ import { updateUser } from './redux/actions/user';
 import HypeLanding from './hype-page/hype-landing/HypeLanding';
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
-import PublisherStreamHolder from './webinar-platform/stream-handling/PublisherStreamHolder';
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import UserCount from './admin-utility/UserCount';
@@ -55,11 +54,6 @@ function App(props: Props) {
               component={HypeExternalMissingInfo}
             />
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
-            <Route
-              exact
-              path="/webinar/publisher"
-              component={PublisherStreamHolder}
-            />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/admin/count" component={UserCount} />
             <Route component={PageNotFound} />

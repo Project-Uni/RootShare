@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 
-import EventClientEmptyVideoPlayer from '../EventClientEmptyVideoPlayer';
-import VideoPlayer from '../VideoPlayer';
+import EventClientEmptyVideoPlayer from '../video/EventClientEmptyVideoPlayer';
+import VideoPlayer from '../video/VideoPlayer';
 
 import log from '../../../helpers/logger';
 

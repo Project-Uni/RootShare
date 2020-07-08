@@ -8,8 +8,7 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
-import EventSpeakerContainer from './event-video/event-speaker/EventSpeakerContainer';
-import EventAdminContainer from './event-video/event-admin/EventAdminContainer';
+import EventHostContainer from './event-video/event-host/EventHostContainer';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventClientMessageContainer from './event-messages/EventMessageContainer';
@@ -84,8 +83,7 @@ function EventClientBase(props: Props) {
 
   function renderVideoArea() {
     if (eventMode === 'viewer') return <EventWatcherVideoContainer />;
-    else if (eventMode === 'speaker') return <EventSpeakerContainer />;
-    else if (eventMode === 'admin') return <EventAdminContainer />;
+    else return <EventHostContainer mode={eventMode as 'admin' | 'speaker'} />;
   }
 
   function getHeaderMinWidth() {
