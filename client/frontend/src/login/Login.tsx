@@ -60,12 +60,11 @@ function Login(props: Props) {
 
   function handleEmailChange(event: any) {
     setEmail(event.target.value);
-    //TODO change to keycode
-    if (event.key === 'Enter') handleLogin();
   }
   function handlePasswordChange(event: any) {
     setPassword(event.target.value);
-    //TODO change to keycode
+  }
+  function handleEnterCheck(event: any) {
     if (event.key === 'Enter') handleLogin();
   }
   async function handleLogin() {
@@ -94,6 +93,7 @@ function Login(props: Props) {
           label="Email"
           autoComplete="email"
           onChange={handleEmailChange}
+          onKeyDown={handleEnterCheck}
           value={email}
           className={styles.textField}
           helperText={error ? 'Invalid login credentials' : ''}
@@ -104,6 +104,7 @@ function Login(props: Props) {
           label="Password"
           autoComplete="password"
           onChange={handlePasswordChange}
+          onKeyDown={handleEnterCheck}
           value={password}
           type="password"
           className={styles.textField}
