@@ -27,7 +27,7 @@ type Props = {};
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
-  const [socket, setSocket] = useState({});
+  const [socket, setSocket] = useState<SocketIOClient.Socket>();
   const [setup, setSetup] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currConversationID, setCurrConversationID] = useState("");
@@ -47,7 +47,7 @@ function MessagesDrawerContainer(props: Props) {
     setSocket(socket);
 
     socket.on("connect", (data: React.SetStateAction<boolean>) => {
-      socket.emit("metadata", conversations);
+      // socket.emit("metadata", conversations);
     });
 
     socket.on("newMessage", (data: any) => {
@@ -72,7 +72,8 @@ function MessagesDrawerContainer(props: Props) {
         if (response.data.success !== 1) return;
 
         const userConversations = response.data.content.userConversations;
-        (socket as Socket).emit("metadata", userConversations);
+        if (socket !== undefined) socket.emit("metadata", userConversations);
+        console.log(userConversations);
         setConversations(userConversations);
       })
       .catch((err) => {
