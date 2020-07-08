@@ -52,7 +52,6 @@ function Login(props: Props) {
 
   async function checkAuth() {
     const { data } = await axios.get('/user/getCurrent');
-    console.log('Data:', data);
     if (data['success'] === 1) {
       props.updateUser({ ...data['content'] });
       setRedirectHome(true);
