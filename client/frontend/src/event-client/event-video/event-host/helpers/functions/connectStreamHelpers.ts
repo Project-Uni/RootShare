@@ -3,6 +3,8 @@ import OT from '@opentok/client';
 import log from '../../../../../helpers/logger';
 import { createNewWebcamPublisher } from './createPublishers';
 
+const { OPENTOK_API_KEY } = require('../../../../../keys.json');
+
 export async function validateSession(webinarID: string) {
   const { data } = await axios.post('/webinar/getOpenTokSessionID', {
     webinarID,
@@ -41,10 +43,7 @@ export async function createEventSession(
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void
 ) {
-  let eventSession: OT.Session;
-  if (process.env.REACT_APP_OPENTOK_API_KEY) {
-    eventSession = OT.initSession(process.env.REACT_APP_OPENTOK_API_KEY, sessionID);
-  } else return;
+  const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
 
   await eventSession.connect(eventToken, (err: any) => {
