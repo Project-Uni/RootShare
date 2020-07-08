@@ -1,6 +1,6 @@
 client/node_modules/
 client/frontend/node_modules/
-client/frontend/src/keys.json
+client/frontend/.env
 balancer/venv/
 .DS_Store
 ranker/venv/

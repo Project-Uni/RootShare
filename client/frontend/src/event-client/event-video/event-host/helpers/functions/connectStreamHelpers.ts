@@ -2,8 +2,6 @@ import axios from 'axios';
 import OT from '@opentok/client';
 import log from '../../../../../helpers/logger';
 import { createNewWebcamPublisher } from './createPublishers';
-//Ashwin - We should be storing this on the frontend I believe, I might be wrong. Not a good idea to pass it from outside of the frontend repo
-const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
 export async function validateSession(webinarID: string) {
   const { data } = await axios.post('/webinar/getOpenTokSessionID', {
@@ -43,7 +41,10 @@ export async function createEventSession(
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void
 ) {
-  const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
+  let eventSession: OT.Session;
+  if (process.env.REACT_APP_OPENTOK_API_KEY) {
+    eventSession = OT.initSession(process.env.REACT_APP_OPENTOK_API_KEY, sessionID);
+  } else return;
   addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
 
   await eventSession.connect(eventToken, (err: any) => {
