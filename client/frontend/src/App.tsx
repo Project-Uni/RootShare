@@ -13,6 +13,8 @@ import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import UserCount from './admin-utility/UserCount';
+import Login from './login/Login';
+
 import axios from 'axios';
 
 const analyticsTrackingID = 'UA-169916177-1';
@@ -32,7 +34,7 @@ type Props = {
 
 function App(props: Props) {
   useEffect(() => {
-    mockLogin();
+    // mockLogin();
   }, []);
 
   async function mockLogin() {
@@ -56,6 +58,7 @@ function App(props: Props) {
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/admin/count" component={UserCount} />
+            <Route exact path="/login" component={Login} />
             <Route component={PageNotFound} />
           </Switch>
         </div>
