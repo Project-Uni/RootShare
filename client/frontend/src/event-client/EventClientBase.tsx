@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
+import { Redirect } from 'react-router-dom';
+
+import { connect } from 'react-redux';
+import { updateUser } from '../redux/actions/user';
 
 import RSText from '../base-components/RSText';
 
@@ -40,6 +45,8 @@ type Props = {
     params: { [key: string]: any };
     [key: string]: any;
   };
+  user: { [key: string]: any };
+  updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
@@ -49,19 +56,44 @@ function EventClientBase(props: Props) {
 
   const [advertisements, setAdvertisements] = useState(['black']);
   const [adLoaded, setAdLoaded] = useState(false);
-  const [eventMode, setEventMode] = useState('viewer');
+  const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
+  const [loginRedirect, setLoginRedirect] = useState(false);
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
 
   useEffect(() => {
-    fetchAds();
-    setDevPageMode();
+    if (checkAuth()) {
+      checkDevAuth();
+      fetchAds();
+      setDevPageMode();
+    }
   }, []);
+
+  async function checkAuth() {
+    const { data } = await axios.get('/user/getCurrent');
+    if (data['success'] !== 1) {
+      setLoginRedirect(true);
+      return false;
+    }
+    return true;
+  }
+
+  //TODO - Remove after actual auth implemented
+  function checkDevAuth() {
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+      const { email } = props.user;
+      const validTestEmails = [
+        'smitdesai422@gmail.com',
+        'mahesh.ashwin1998@gmail.com',
+        'mahesh2@purdue.edu',
+      ];
+      if (!validTestEmails.includes(email)) setLoginRedirect(true);
+    }
+  }
 
   function fetchAds() {
     const ads = [SampleEventAd, SampleAd2];
-    // const ads = ["lightpink", "lightgreen", "lightblue"];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
@@ -110,6 +142,7 @@ function EventClientBase(props: Props) {
   if (checkMobile()) {
     return (
       <div className={styles.wrapper}>
+        {loginRedirect && <Redirect to="/login" />}
         <HypeHeader />
         <RSText type="subhead" size={16}>
           The live event feature is currently not available on mobile. Please switch
@@ -121,6 +154,7 @@ function EventClientBase(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {loginRedirect && <Redirect to="/login" />}
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>
@@ -146,4 +180,18 @@ function EventClientBase(props: Props) {
   );
 }
 
-export default EventClientBase;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventClientBase);
