@@ -27,7 +27,7 @@ type Props = {};
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
-  const [response, setResponse] = useState(false);
+  const [socket, setSocket] = useState({});
   const [setup, setSetup] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currConversationID, setCurrConversationID] = useState("");
@@ -38,22 +38,26 @@ function MessagesDrawerContainer(props: Props) {
     if (setup) return;
     setSetup(true);
 
-    // connectSocket();
+    connectSocket();
     updateConversations();
   }, []);
 
   function connectSocket() {
-    const endpoint = "http://localhost:8080";
-    const socket = io(endpoint);
+    const socket = io("http://localhost:8080");
+    setSocket(socket);
 
     socket.on("connect", (data: React.SetStateAction<boolean>) => {
-      // socket.emit("metadata", sendPacket()); // TODO: get data on conversation
+      socket.emit("metadata", conversations);
+    });
+
+    socket.on("newMessage", (data: any) => {
+      console.log("NEW MESSAGE!", data);
     });
 
     socket.on("rerender", (data: React.SetStateAction<boolean>) => {
-      console.log("rerendering");
-      updateConversations();
-      updateMessages();
+      // console.log("rerendering");
+      // updateConversations();
+      // updateMessages();
     });
 
     socket.on("error", function(err: any) {
@@ -68,6 +72,7 @@ function MessagesDrawerContainer(props: Props) {
         if (response.data.success !== 1) return;
 
         const userConversations = response.data.content.userConversations;
+        (socket as Socket).emit("metadata", userConversations);
         setConversations(userConversations);
       })
       .catch((err) => {
@@ -108,7 +113,7 @@ function MessagesDrawerContainer(props: Props) {
   axios.get("/api/mockLogin");
   return (
     <div className={styles.wrapper}>
-      <p>HELLO</p>
+      <p>Messages</p>
       <div className={styles.messageContainer}>
         {currConversationID === "" ? (
           <AllConversationsContainer

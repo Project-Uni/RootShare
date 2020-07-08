@@ -30,7 +30,7 @@ module.exports = {
     });
   },
 
-  sendMessage: (userID, conversationID, message, callback) => {
+  sendMessage: (userID, conversationID, message, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
       if (err || conversationID === undefined) {
         log("error", err);
@@ -59,6 +59,7 @@ module.exports = {
             );
           }
 
+          io.in(newMessage.conversationID).emit("newMessage", newMessage);
           return callback(sendPacket(1, "Message sent"));
         });
       });
@@ -114,6 +115,11 @@ module.exports = {
           );
         }
       ).sort({ timeCreated: "descending" });
+    });
+  },
+  connectSocketToConversations: (socket, conversations) => {
+    conversations.forEach((conversation) => {
+      socket.join(conversation._id);
     });
   },
 };

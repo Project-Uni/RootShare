@@ -1,6 +1,7 @@
 import sendPacket from "../helpers/sendPacket";
 var mongoose = require("mongoose");
 var User = mongoose.model("users");
+import log from "../helpers/logger";
 
 const isAuthenticated = require("../passport/middleware/isAuthenticated");
 const {
@@ -8,14 +9,36 @@ const {
   sendMessage,
   getLatestThreads,
   getLatestMessages,
+  connectSocketToConversations,
 } = require("../interactions/messaging");
 
-module.exports = (app) => {
+module.exports = (app, io) => {
+  io.on("connection", (socket) => {
+    log("info", "New client connected");
+
+    socket.on("metadata", (conversations) => {
+      connectSocketToConversations(socket, conversations);
+    });
+
+    socket.on("disconnect", () => {
+      log("info", "Client disconnected");
+    });
+  });
+
+  const getApiAndEmit = (socket) => {
+    try {
+      socket.emit("rerender", null);
+    } catch (error) {
+      log("error", error);
+    }
+  };
+
   app.post("/api/messaging/sendMessage", isAuthenticated, (req, res) => {
     sendMessage(
       req.user._id,
       req.body.conversationID,
       req.body.message,
+      io,
       (packet) => {
         res.send(packet);
       }

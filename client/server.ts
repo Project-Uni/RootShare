@@ -44,34 +44,10 @@ const server = http.createServer(app);
 const io = socketIO(server);
 server.listen(8080, "127.0.0.1");
 
-let interval;
-io.on("connection", (socket) => {
-  log("info", "New client connected");
-  if (interval) {
-    clearInterval(interval);
-  }
-  interval = setInterval(() => getApiAndEmit(socket), 5000);
-  socket.on("metadata", (packet) => {
-    // TODO: Link to conversations
-  });
-
-  socket.on("disconnect", () => {
-    log("info", "Client disconnected");
-  });
-});
-
-const getApiAndEmit = (socket) => {
-  try {
-    socket.emit("rerender", null);
-  } catch (error) {
-    log("error", error);
-  }
-};
-
 require("./routes/user")(app);
 require("./routes/registrationInternal")(app);
 require("./routes/registrationExternal")(app);
-require("./routes/messaging")(app);
+require("./routes/messaging")(app, io);
 require("./routes/utilities")(app);
 
 require("./config/setup")(passport);
