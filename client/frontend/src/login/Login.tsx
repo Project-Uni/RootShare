@@ -52,17 +52,22 @@ function Login(props: Props) {
 
   async function checkAuth() {
     const { data } = await axios.get('/user/getCurrent');
+    console.log('Data:', data);
     if (data['success'] === 1) {
-      updateUser({ ...data['content'] });
+      props.updateUser({ ...data['content'] });
       setRedirectHome(true);
     }
   }
 
   function handleEmailChange(event: any) {
     setEmail(event.target.value);
+    //TODO change to keycode
+    if (event.key === 'Enter') handleLogin();
   }
   function handlePasswordChange(event: any) {
     setPassword(event.target.value);
+    //TODO change to keycode
+    if (event.key === 'Enter') handleLogin();
   }
   async function handleLogin() {
     setLoading(true);
@@ -72,7 +77,7 @@ function Login(props: Props) {
     });
     if (data['success'] === 1) {
       setError(false);
-      updateUser({ ...data['content'] });
+      props.updateUser({ ...data['content'] });
       setRedirectHome(true);
     } else {
       setError(true);
