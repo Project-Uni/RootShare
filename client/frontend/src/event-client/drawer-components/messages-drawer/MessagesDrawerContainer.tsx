@@ -29,7 +29,7 @@ function MessagesDrawerContainer(props: Props) {
 
   const [socket, setSocket] = useState<SocketIOClient.Socket>();
   const [setup, setSetup] = useState(false);
-  const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState<any>([]);
   const [currConversationID, setCurrConversationID] = useState("");
   const [currConversation, setCurrConversation] = useState({});
   const [messages, setMessages] = useState([]);
@@ -56,7 +56,6 @@ function MessagesDrawerContainer(props: Props) {
     });
 
     socket.on("newMessage", (data: any) => {
-      console.log("NEW MESSAGE!", data);
       setNewMessage(data);
     });
 
@@ -66,6 +65,16 @@ function MessagesDrawerContainer(props: Props) {
   }
 
   function addMessage(newMessage: any) {
+    setConversations((prevConversations: any[]) => {
+      let newConversations = prevConversations;
+      newConversations.forEach((conversation) => {
+        if (conversation._id === newMessage.conversationID)
+          conversation.lastMessage = newMessage;
+      });
+
+      return newConversations;
+    });
+
     if (currConversationID !== "")
       setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
