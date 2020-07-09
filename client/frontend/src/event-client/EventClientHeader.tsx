@@ -121,6 +121,7 @@ function EventClientHeader(props: Props) {
         <EventDrawer
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
+          backgroundColor={drawerContent==="calendar" ? colors.secondary : colors.secondary}
         >
           {getDrawerContent()}
         </EventDrawer>

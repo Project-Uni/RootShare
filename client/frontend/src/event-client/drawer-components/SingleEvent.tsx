@@ -12,15 +12,19 @@ import { colors } from "../../theme/Colors";
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.ternary,
+    background: colors.primaryText,
     // not final color
-    borderRadius: 10,
+    borderRadius: 5,
     paddingBottom: 4,
     margin: 10
   },
   top: {
     display: "flex",
     justifyContent: "space-between",
+    background: colors.bright,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    //borderRadius: 10,
   },
   left: {},
   right: {},
@@ -29,12 +33,12 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 18,
     marginBottom: -7,
     display: "inline-block",
-    color: colors.primaryText,
+    color: colors.secondary,
   },
   organization: {
     marginLeft: 54,
-    color: colors.primaryText,
-    marginTop: 10,
+    color: colors.secondary,
+    marginTop: 30,
   },
   bottom: {
     display: "flex",
@@ -51,16 +55,16 @@ const useStyles = makeStyles((_: any) => ({
     display: "inline-block",
     color: colors.primaryText,
   },
-  message: {
+  date: {
+    marginLeft: 10,
     marginRight: 3,
     display: "inline-block",
-    color: colors.secondaryText,
+    color: colors.primaryText,
   },
   ellipsis: {
     marginRight: -5,
-    marginTop: -2,
     color: colors.primaryText,
-    marginBottom: -13,
+    marginBottom: 0,
   },
   banner: {
     display: "flex",
@@ -68,7 +72,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   description: {
-    marginTop: 5,
+    marginTop: -15,
+    marginBottom: 5,
   }
 }));
 
@@ -105,7 +110,7 @@ function SingleEvent(props: Props) {
           <RSText bold size={12} className={styles.name}>
             {props.eventName}
           </RSText>
-          <RSText size={12} className={styles.message}>
+          <RSText size={12} className={styles.date}>
             {props.month} {props.day} @ {props.time}{props.ampm}
           </RSText>
         </div>
@@ -117,16 +122,10 @@ function SingleEvent(props: Props) {
           </RSText>
         </div>
       </div>
-      <div className={styles.banner}>
-        <div>
-          <img src={RootShareLogoFullWhite} width="300" height="100" />
-          // used as sample "banner" for event
-        </div>
-      </div>
       <div className={styles.description}>
         <div>
           <RSText size={12} className={styles.organization}>
-            {props.eventDescription} people registered.
+            {props.eventDescription} people registered
           </RSText>
         </div>
       </div>

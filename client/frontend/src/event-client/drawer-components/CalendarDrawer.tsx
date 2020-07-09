@@ -14,9 +14,9 @@ const useStyles = makeStyles((_: any) => ({
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
-    background: colors.primary,
+    background: colors.primaryText,
     borderTop: "2px solid " + colors.primaryText,
-    color: colors.primaryText,
+    color: colors.secondary,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
@@ -24,7 +24,7 @@ const useStyles = makeStyles((_: any) => ({
   connectionContainer: {
     flex: 1,
     justifyContent: "flex-end",
-    background: colors.secondary,
+    //background: colors.secondary,
     overflow: "scroll",
     label: colors.primaryText,
   },

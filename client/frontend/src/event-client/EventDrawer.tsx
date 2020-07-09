@@ -5,9 +5,9 @@ import { Drawer } from "@material-ui/core";
 import { colors } from "../theme/Colors"
 
 
-const useStyles = makeStyles((_: any) => ({
+const useStyles = (backgroundColor: string) => (makeStyles((_: any) => ({
   drawerPaper: {
-    background: colors.secondary,
+    background: backgroundColor,
   },
   logoDiv: {
     marginTop: 20,
@@ -20,16 +20,17 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 15,
     marginRight: 15,
   },
-}));
+})));
 
 type Props = {
   open: boolean;
   children: React.ReactNode;
   handleClose: () => void;
+  backgroundColor: string;
 };
 
 function EventDrawer(props: Props) {
-  const styles = useStyles();
+  const styles = useStyles(props.backgroundColor)();
   const anchor = "right";
 
   return (

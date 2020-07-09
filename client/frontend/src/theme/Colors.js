@@ -6,7 +6,8 @@ const colors = {
     "background" :  "#FFFFFF", // White
     "primaryText" : "#F8F8FF", // Ghost White
     "secondaryText" : "#858AA1", // Grey
-    "error" : "#440C16" // Dark Red
+    "error" : "#440C16", // Dark Red
+    "bright" : "#6699ff",
 };
 
 export { colors };
