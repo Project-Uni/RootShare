@@ -74,7 +74,7 @@ function MessageThreadContainer(props: Props) {
     props.messages.forEach((message: any) => {
       output.push(
         <div key={message._id} id={message._id}>
-          {message.content}
+          {message.senderName}:{message.content}
         </div>
       );
     });

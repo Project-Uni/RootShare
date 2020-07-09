@@ -30,7 +30,7 @@ module.exports = {
     });
   },
 
-  sendMessage: (userID, conversationID, message, io, callback) => {
+  sendMessage: (userID, userName, conversationID, message, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
       if (err || conversationID === undefined) {
         log("error", err);
@@ -40,6 +40,7 @@ module.exports = {
       let newMessage = new Message();
       newMessage.conversationID = conversationID;
       newMessage.sender = userID;
+      newMessage.senderName = userName;
       newMessage.content = message;
       newMessage.timeCreated = new Date();
       newMessage.save((err) => {
@@ -100,7 +101,7 @@ module.exports = {
 
       Message.find(
         { conversationID },
-        ["sender", "content", "timeCreated"],
+        ["sender", "senderName", "content", "timeCreated"],
         (err, messages) => {
           if (err) {
             log("error", err);
@@ -114,7 +115,7 @@ module.exports = {
             })
           );
         }
-      ).sort({ timeCreated: "descending" });
+      ).sort({ timeCreated: "ascending" });
     });
   },
   connectSocketToConversations: (socket, conversations) => {

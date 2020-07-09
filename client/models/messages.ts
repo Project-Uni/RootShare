@@ -7,6 +7,7 @@ var messageSchema = new Schema({
     ref: "conversations",
     required: true,
   },
+  senderName: { type: String, required: true },
   sender: { type: Schema.ObjectId, ref: "users", required: true },
   content: { type: String, required: true },
   timeCreated: { type: Date, required: true },

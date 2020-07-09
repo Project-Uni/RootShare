@@ -36,6 +36,7 @@ module.exports = (app, io) => {
   app.post("/api/messaging/sendMessage", isAuthenticated, (req, res) => {
     sendMessage(
       req.user._id,
+      req.user.firstName,
       req.body.conversationID,
       req.body.message,
       io,

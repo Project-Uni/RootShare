@@ -108,6 +108,7 @@ function MessagesDrawerContainer(props: Props) {
         if (response.data.success !== 1) return;
 
         const messages = response.data.content.messages;
+        console.log(messages);
         setMessages(messages);
       })
       .catch((err) => {
