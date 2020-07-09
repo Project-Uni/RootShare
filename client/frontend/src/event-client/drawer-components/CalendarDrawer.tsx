@@ -56,6 +56,40 @@ function CalendarDrawer(props: Props) {
           />
         </div>
       )
+      output.push(
+        <div >
+          <SingleEvent
+            eventID="1001"
+            eventName="Ashwin Is Really Cool"
+            eventDescription="14"
+            organization="Definitely Not Ashwin"
+            day="15"
+            month="Aug"
+            year="2020"
+            time="6"
+            ampm="PM"
+            timezone="EST"
+            picture="babyboilers.png"
+          />
+        </div>
+      )
+      output.push(
+        <div >
+          <SingleEvent
+            eventID="1001"
+            eventName="Jackson Is VERY Cool"
+            eventDescription="14"
+            organization="Jackson McCluskey"
+            day="23"
+            month="Sep"
+            year="2020"
+            time="4"
+            ampm="PM"
+            timezone="EST"
+            picture="babyboilers.png"
+          />
+        </div>
+      )
     }
     return output;
   }
