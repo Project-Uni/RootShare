@@ -33,6 +33,7 @@ function MessagesDrawerContainer(props: Props) {
   const [currConversationID, setCurrConversationID] = useState("");
   const [currConversation, setCurrConversation] = useState({});
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState({});
 
   useEffect(() => {
     if (setup) return;
@@ -41,6 +42,10 @@ function MessagesDrawerContainer(props: Props) {
     connectSocket();
     // updateConversations();
   }, []);
+
+  useEffect(() => {
+    addMessage(newMessage);
+  }, [newMessage]);
 
   function connectSocket() {
     const socket = io("http://localhost:8080");
@@ -52,17 +57,17 @@ function MessagesDrawerContainer(props: Props) {
 
     socket.on("newMessage", (data: any) => {
       console.log("NEW MESSAGE!", data);
-    });
-
-    socket.on("rerender", (data: React.SetStateAction<boolean>) => {
-      // console.log("rerendering");
-      // updateConversations();
-      // updateMessages();
+      setNewMessage(data);
     });
 
     socket.on("error", function(err: any) {
       console.log(`Received socket error: ${err}`);
     });
+  }
+
+  function addMessage(newMessage: any) {
+    if (currConversationID !== "")
+      setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
   function updateConversations(currSocket: SocketIOClient.Socket) {
@@ -74,10 +79,8 @@ function MessagesDrawerContainer(props: Props) {
 
         const userConversations = response.data.content.userConversations;
         if (currSocket !== undefined) {
-          console.log("emitting metadata");
           currSocket.emit("metadata", userConversations);
         }
-        console.log(userConversations);
         setConversations(userConversations);
       })
       .catch((err) => {
