@@ -8,6 +8,11 @@ import { IoMdText } from "react-icons/io";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
 import EventDrawer from "./EventDrawer";
+
+// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
+
+import { colors } from "../theme/Colors";
+
 import {
   CalendarDrawer,
   ConnectionsDrawer,
@@ -20,7 +25,7 @@ const useStyles = makeStyles((_: any) => ({
     flexGrow: 1,
   },
   header: {
-    background: "#3D66DE",
+    background: colors.secondary,
   },
   headerLogo: {
     height: "38px",
@@ -82,18 +87,18 @@ function EventClientHeader(props: Props) {
           className={styles.iconStyle}
           onClick={handleConnectionsClick}
         >
-          <MdGroupAdd size={32} color="white" />
+          <MdGroupAdd size={32} color={colors.primaryText} />
         </IconButton>
         {/* TODO - Discuss if we want to keep messages drawer on the event platform initially.
         Reason - Increase dev time */}
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
-          <IoMdText size={32} color="white" />
+          <IoMdText size={32} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleCalendarClick}>
-          <FaRegCalendarAlt size={27} color="white" />
+          <FaRegCalendarAlt size={27} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleProfileClick}>
-          <MdAccountCircle color="white" size={32} />
+          <MdAccountCircle color={colors.primaryText} size={32} />
         </IconButton>
       </>
     );
@@ -116,6 +121,9 @@ function EventClientHeader(props: Props) {
         <EventDrawer
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
+          backgroundColor={
+            drawerContent === "calendar" ? colors.secondary : colors.secondary
+          }
         >
           {getDrawerContent()}
         </EventDrawer>
