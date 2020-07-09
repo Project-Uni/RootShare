@@ -6,9 +6,11 @@ import axios from "axios";
 import AllConversationsContainer from "./AllConversationsContainer";
 import MessageThreadContainer from "./MessageThreadContainer";
 
+import { colors } from "../../../theme/Colors";
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "300px",
+    width: "400px",
     display: "flex",
     flexDirection: "column",
     height: window.innerHeight - 60,
@@ -19,6 +21,23 @@ const useStyles = makeStyles((_: any) => ({
     // background: "white",
     overflow: "scroll",
     label: "#f2f2f2",
+  },
+  textFieldContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    background: colors.primary,
+    borderTop: "2px solid " + colors.primaryText,
+    color: colors.primaryText,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 5,
+  },
+  connectionContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    background: colors.secondary,
+    overflow: "scroll",
+    label: colors.primaryText,
   },
 }));
 
@@ -40,7 +59,6 @@ function MessagesDrawerContainer(props: Props) {
     setSetup(true);
 
     connectSocket();
-    // updateConversations();
   }, []);
 
   useEffect(() => {
@@ -131,21 +149,18 @@ function MessagesDrawerContainer(props: Props) {
   axios.get("/api/mockLogin");
   return (
     <div className={styles.wrapper}>
-      <p>Messages</p>
-      <div className={styles.messageContainer}>
-        {currConversationID === "" ? (
-          <AllConversationsContainer
-            conversations={conversations}
-            selectConversation={selectConversation}
-          />
-        ) : (
-          <MessageThreadContainer
-            conversationID={currConversationID}
-            messages={messages}
-            returnToConversations={returnToConversations}
-          />
-        )}
-      </div>
+      {currConversationID === "" ? (
+        <AllConversationsContainer
+          conversations={conversations}
+          selectConversation={selectConversation}
+        />
+      ) : (
+        <MessageThreadContainer
+          conversationID={currConversationID}
+          messages={messages}
+          returnToConversations={returnToConversations}
+        />
+      )}
     </div>
   );
 }

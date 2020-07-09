@@ -25,14 +25,6 @@ module.exports = (app, io) => {
     });
   });
 
-  const getApiAndEmit = (socket) => {
-    try {
-      socket.emit("rerender", null);
-    } catch (error) {
-      log("error", error);
-    }
-  };
-
   app.post("/api/messaging/sendMessage", isAuthenticated, (req, res) => {
     sendMessage(
       req.user._id,

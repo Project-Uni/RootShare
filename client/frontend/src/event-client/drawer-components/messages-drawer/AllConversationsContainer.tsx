@@ -3,19 +3,34 @@ import io from "socket.io-client";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
 
+import RSText from "../../../base-components/RSText";
+import { colors } from "../../../theme/Colors";
+
+import SingleConversation from "./SingleConversation";
+import { Autocomplete } from "@material-ui/lab";
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "300px",
+    width: "100%",
     display: "flex",
     flexDirection: "column",
     height: window.innerHeight - 60,
   },
-  messageContainer: {
+  conversationsHeader: {
+    height: "25px",
+    marginBottom: 20,
+    marginTop: 0,
+    margin: "auto",
+    display: "inline-block",
+    color: colors.primaryText,
+  },
+  conversationsContainer: {
     flex: 1,
     justifyContent: "flex-end",
-    // background: "white",
+    background: colors.secondary,
     overflow: "scroll",
-    label: "#f2f2f2",
+    label: colors.primaryText,
+    paddingTop: "10px",
   },
 }));
 
@@ -32,15 +47,13 @@ function AllConversationsContainer(props: Props) {
   function renderLatestConversations() {
     let output: any[] = [];
     props.conversations.forEach((conversation: any) => {
-      const currID = conversation._id;
       output.push(
-        <div
-          key={currID}
-          id={currID}
-          onClick={() => props.selectConversation(conversation)}
-        >
-          {conversation.lastMessage.content}
-        </div>
+        <SingleConversation
+          key={conversation._id}
+          conversation={conversation}
+          userName={"John"}
+          selectConversation={props.selectConversation}
+        />
       );
     });
 
@@ -49,8 +62,10 @@ function AllConversationsContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <p>Current Conversations</p>
-      <div className={styles.messageContainer}>
+      <RSText bold size={16} className={styles.conversationsHeader}>
+        Messages
+      </RSText>
+      <div className={styles.conversationsContainer}>
         {renderLatestConversations()}
       </div>
     </div>

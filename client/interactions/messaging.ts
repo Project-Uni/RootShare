@@ -79,7 +79,9 @@ module.exports = {
 
     let userConversations = await Conversation.find({
       participants: userID,
-    }).populate("lastMessage");
+    })
+      .populate("lastMessage")
+      .populate("participants");
 
     if (userConversations === undefined)
       return callback(
