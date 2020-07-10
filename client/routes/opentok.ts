@@ -76,7 +76,6 @@ module.exports = (app) => {
   });
   app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
     const { eventID } = req.params;
-    console.log('eventID:', eventID);
     await getWebinarDetails(eventID, (packet) => {
       res.json(packet);
     });
