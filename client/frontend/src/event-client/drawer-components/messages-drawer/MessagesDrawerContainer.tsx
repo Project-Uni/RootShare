@@ -167,7 +167,7 @@ function MessagesDrawerContainer(props: Props) {
     return joinedString;
   }
 
-  axios.get('/api/mockLogin');
+  // axios.get('/api/mockLogin');
   return (
     <div className={styles.wrapper}>
       {currConversationID === '' ? (
