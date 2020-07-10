@@ -74,8 +74,12 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  speakerName: {
-    // border: '1px solid red',
+  speakerName: {},
+  green: {
+    color: 'green',
+  },
+  red: {
+    color: 'red',
   },
 }));
 
@@ -99,6 +103,7 @@ function AdminEventCreator(props: Props) {
   const [eventDate, setEventDate] = useState(new Date());
   const [eventTime, setEventTime] = useState(new Date());
   const [hostID, setHostID] = useState('');
+  const [hostEmail, setHostEmail] = useState('');
   const [speakers, setSpeakers] = useState([]);
   const [currentSpeaker, setCurrentSpeakear] = useState('');
 
@@ -107,6 +112,7 @@ function AdminEventCreator(props: Props) {
   const [titleErr, setTitleErr] = useState('');
   const [briefDescErr, setBriefDescErr] = useState('');
   const [fullDescErr, setFullDescErr] = useState('');
+  const [topMessage, setTopMessage] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -156,7 +162,11 @@ function AdminEventCreator(props: Props) {
   function handleHostChange(_: any, newValue: any) {
     if (newValue === null) {
       setHostID('');
-    } else setHostID(newValue['_id']);
+      setHostEmail('');
+    } else {
+      setHostID(newValue['_id']);
+      setHostEmail(newValue['email']);
+    }
   }
 
   const containsSpeaker = (newSpeaker: { [key: string]: string }) => {
@@ -185,7 +195,7 @@ function AdminEventCreator(props: Props) {
 
   async function handleSubmit() {
     const date = dateFns.format(eventDate, `MM/dd/yyy`);
-    const time = dateFns.format(eventTime, 'hh:mm:ss aa');
+    const time = dateFns.format(eventTime, 'hh:mm aa');
 
     let hasErr = false;
     if (title.length === 0) {
@@ -208,22 +218,48 @@ function AdminEventCreator(props: Props) {
       hasErr = true;
       setSpeakerErr('Atleast one speaker is required');
     } else setSpeakerErr('');
+
+    //TODO - Add validation for date to check that its not before current day
+
     if (hasErr) return;
 
     const speakerIDs: string[] = speakers.map((speaker) => speaker['_id']);
+    const speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
 
     const API_DATA = {
       title: title,
       brief_description: briefDesc,
       full_description: fullDesc,
       host: hostID,
+      hostEmail: hostEmail,
       speakers: speakerIDs,
       date: date,
       time: time,
+      speakerEmails: speakerEmails,
     };
-    console.log('API_DATA:', API_DATA);
     const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
-    console.log('Data:', data);
+    if (data['success'] === 1) {
+      setTopMessage('s: Successfully created webinar.');
+      resetData();
+    } else setTopMessage('f: There was an error creating the webinar.');
+  }
+
+  function resetData() {
+    setTitle('');
+    setBriefDesc('');
+    setFullDesc('');
+    setEventDate(new Date());
+    setEventTime(new Date());
+    setHostID('');
+    setSpeakers([]);
+    setCurrentSpeakear('');
+    setHostEmail('');
+
+    setHostErr('');
+    setSpeakerErr('');
+    setTitleErr('');
+    setBriefDescErr('');
+    setFullDescErr('');
   }
 
   function removeSpeaker(index: number) {
@@ -366,6 +402,14 @@ function AdminEventCreator(props: Props) {
         />
         <RSText type="head" size={32} className={styles.pageTitle}>
           Create New Event
+        </RSText>
+        <RSText
+          type="subhead"
+          size={14}
+          italic
+          className={topMessage[0] === 's' ? styles.green : styles.red}
+        >
+          {topMessage.substr(3, topMessage.length - 3)}
         </RSText>
         {renderFields()}
         <Button
