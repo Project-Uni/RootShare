@@ -26,7 +26,11 @@ const useStyles = makeStyles((_: any) => ({
     borderTopRightRadius: 5,
     //borderRadius: 10,
   },
-  left: {},
+  left: {
+    color: colors.secondary,
+    marginTop: 30,
+    marginRight: 10,
+  },
   right: {},
   picture: {
     margin: 10,
@@ -56,8 +60,9 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   date: {
-    marginLeft: 10,
-    marginRight: 3,
+    alignRight: 5,
+    marginTop: 12,
+    marginRight: 10,
     display: "inline-block",
     color: colors.primaryText,
   },
@@ -110,16 +115,23 @@ function SingleEvent(props: Props) {
           <RSText bold size={12} className={styles.name}>
             {props.eventName}
           </RSText>
+        </div>
+        <div>
           <RSText size={12} className={styles.date}>
-            {props.month} {props.day} @ {props.time}{props.ampm}
+            {props.month} {props.day}
           </RSText>
         </div>
       </div>
       <div className={styles.bottom}>
-        <div className={styles.left}>
+        <div >
           <RSText size={12} className={styles.organization}>
             Hosted by {props.organization}
           </RSText>
+        </div>
+        <div>
+        <RSText size={12} className={styles.left}>
+          {props.time}{props.ampm}
+        </RSText>
         </div>
       </div>
       <div className={styles.description}>
