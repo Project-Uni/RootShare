@@ -424,7 +424,7 @@ function AdminEventCreator(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login" />}
+      {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
       {homepageRedirect && <Redirect to="/" />}
       <HypeHeader />
       {loading ? (
