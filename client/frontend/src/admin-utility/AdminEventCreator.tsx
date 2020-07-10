@@ -34,7 +34,6 @@ const useStyles = makeStyles((_: any) => ({
     margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
-    // textAlign: 'left',
   },
   rootshareLogo: {
     height: '90px',
@@ -101,7 +100,11 @@ function AdminEventCreator(props: Props) {
   const [speakers, setSpeakers] = useState([]);
   const [currentSpeaker, setCurrentSpeakear] = useState('');
 
+  const [hostErr, setHostErr] = useState('');
   const [speakerErr, setSpeakerErr] = useState('');
+  const [titleErr, setTitleErr] = useState('');
+  const [briefDescErr, setBriefDescErr] = useState('');
+  const [fullDescErr, setFullDescErr] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -178,12 +181,47 @@ function AdminEventCreator(props: Props) {
     }
   }
 
-  function handleSubmit() {
-    console.log(`Title: ${title}\nBrief: ${briefDesc}\nFull: ${fullDesc}`);
+  async function handleSubmit() {
     const date = dateFns.format(eventDate, `MM/dd/yyy`);
     const time = dateFns.format(eventTime, 'hh:mm:ss aa');
-    console.log(`Date: ${date}, Time: ${time}`);
-    console.log('Host:', hostID);
+
+    let hasErr = false;
+    if (title.length === 0) {
+      hasErr = true;
+      setTitleErr('Title is required');
+    } else setTitleErr('');
+    if (briefDesc.length === 0 || briefDesc.length > 100) {
+      hasErr = true;
+      setBriefDescErr('Brief invalid');
+    } else setBriefDescErr('');
+    if (fullDesc.length === 0) {
+      hasErr = true;
+      setFullDescErr('Description is required');
+    } else setFullDescErr('');
+    if (hostID === '') {
+      hasErr = true;
+      setHostErr('Host is required');
+    } else setHostErr('');
+    if (speakers.length === 0) {
+      hasErr = true;
+      setSpeakerErr('Atleast one speaker is required');
+    } else setSpeakerErr('');
+    if (hasErr) return;
+
+    const speakerIDs: string[] = speakers.map((speaker) => speaker['_id']);
+
+    const API_DATA = {
+      title: title,
+      brief_description: briefDesc,
+      full_description: fullDesc,
+      host: hostID,
+      speakers: speakerIDs,
+      date: date,
+      time: time,
+    };
+    console.log('API_DATA:', API_DATA);
+    const { data } = await axios.post('/api/createEvent', API_DATA);
+    console.log('Data:', data);
   }
 
   function removeSpeaker(index: number) {
@@ -229,6 +267,7 @@ function AdminEventCreator(props: Props) {
           value={title}
           onChange={handleTitleChange}
           required
+          error={titleErr !== ''}
         />
 
         <RSText type="subhead" bold className={styles.textFieldTitle}>
@@ -245,6 +284,7 @@ function AdminEventCreator(props: Props) {
           rowsMax={3}
           rows={1}
           required
+          error={briefDescErr !== ''}
         />
 
         <RSText type="subhead" bold className={styles.textFieldTitle}>
@@ -260,6 +300,7 @@ function AdminEventCreator(props: Props) {
           onChange={handleFullDescChange}
           rows={2}
           required
+          error={fullDescErr !== ''}
         />
 
         <RSText type="subhead" bold className={styles.textFieldTitle}>
@@ -295,7 +336,7 @@ function AdminEventCreator(props: Props) {
         <UserAutocomplete
           handleAutoCompleteChange={handleHostChange}
           value={hostID}
-          err={''}
+          err={hostErr}
           label="Host"
         />
 
