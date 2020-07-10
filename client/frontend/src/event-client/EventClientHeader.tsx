@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, IconButton } from "@material-ui/core";
 import RootShareLogoWhite from "../images/RootShareLogoWhite.png";
@@ -22,7 +22,7 @@ import {
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    flexGrow: 1,
+    // flexGrow: 1,
   },
   header: {
     background: colors.secondary,
@@ -39,11 +39,25 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  minWidth: number;
+};
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
   const [drawerContent, setDrawerContent] = useState("");
+  const [width, setWidth] = useState(window.innerWidth >= props.minWidth
+    ? window.innerWidth
+    : props.minWidth
+  );
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    if (window.innerWidth >= props.minWidth) setWidth(window.innerWidth);
+  }
 
   function handleDrawerClose() {
     setDrawerContent("");
@@ -89,8 +103,6 @@ function EventClientHeader(props: Props) {
         >
           <MdGroupAdd size={32} color={colors.primaryText} />
         </IconButton>
-        {/* TODO - Discuss if we want to keep messages drawer on the event platform initially.
-        Reason - Increase dev time */}
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
           <IoMdText size={32} color={colors.primaryText} />
         </IconButton>
@@ -105,7 +117,7 @@ function EventClientHeader(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} style={{ width: width, minWidth: props.minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <a href="/">

@@ -213,8 +213,8 @@ function UserCount(props: Props) {
       ) : showInvalid ? (
         renderInvalid()
       ) : (
-        renderPageContent()
-      )}
+            renderPageContent()
+          )}
     </div>
   );
 }

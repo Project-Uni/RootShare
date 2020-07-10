@@ -37,10 +37,9 @@ function EventClientAdvertisement(props: Props) {
       className={styles.wrapper}
       style={{ height: props.height, width: props.width }}
     >
-      {/* TODO - Remove this adbox and replace with actual ad content */}
       <div
         className={styles.adbox}
-        style={{ background: props.advertisements[currentAdIndex] }}
+        style={{ backgroundImage: `url(${props.advertisements[currentAdIndex]})` }}
       >
         <p style={{ margin: 0 }}>
           <b>Advertisement</b>

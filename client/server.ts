@@ -6,6 +6,7 @@ import passport = require("passport");
 import log from "./helpers/logger";
 import * as path from "path";
 
+
 const mongoConfig = require("./config/mongoConfig");
 const fs = require("fs");
 
@@ -41,7 +42,9 @@ app.use(passport.session());
 require("./routes/user")(app);
 require("./routes/registrationInternal")(app);
 require("./routes/registrationExternal")(app);
+require("./routes/opentok")(app);
 require("./routes/utilities")(app);
+require("./routes/mocks")(app);
 
 require("./config/setup")(passport);
 
