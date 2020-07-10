@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, TextField, Button } from '@material-ui/core';
+import { CircularProgress, TextField, Button, IconButton } from '@material-ui/core';
 
 import {
   MuiPickersUtilsProvider,
@@ -68,6 +68,14 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
     marginRight: 20,
   },
+  singleSpeaker: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  speakerName: {
+    // border: '1px solid red',
+  },
 }));
 
 type Props = {
@@ -90,6 +98,10 @@ function AdminEventCreator(props: Props) {
   const [eventDate, setEventDate] = useState(new Date());
   const [eventTime, setEventTime] = useState(new Date());
   const [hostID, setHostID] = useState('');
+  const [speakers, setSpeakers] = useState([]);
+  const [currentSpeaker, setCurrentSpeakear] = useState('');
+
+  const [speakerErr, setSpeakerErr] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -142,12 +154,58 @@ function AdminEventCreator(props: Props) {
     } else setHostID(newValue['_id']);
   }
 
+  const containsSpeaker = (newSpeaker: { [key: string]: string }) => {
+    for (let i = 0; i < speakers.length; i++) {
+      if (speakers[i]['email'] === newSpeaker['email']) {
+        setSpeakerErr('Speaker has already been added');
+        return true;
+      }
+    }
+    setSpeakerErr('');
+    return false;
+  };
+
+  function handleSpeakerChange(_: any, newSpeaker: any) {
+    if (newSpeaker !== null) {
+      if (speakers.length < 9) {
+        if (!containsSpeaker(newSpeaker)) {
+          setSpeakers(speakers.concat(newSpeaker));
+          setSpeakerErr('');
+        }
+      } else {
+        setSpeakerErr('Maximum event speakers is 9');
+      }
+    }
+  }
+
   function handleSubmit() {
     console.log(`Title: ${title}\nBrief: ${briefDesc}\nFull: ${fullDesc}`);
     const date = dateFns.format(eventDate, `MM/dd/yyy`);
     const time = dateFns.format(eventTime, 'hh:mm:ss aa');
     console.log(`Date: ${date}, Time: ${time}`);
     console.log('Host:', hostID);
+  }
+
+  function removeSpeaker(speakerID: string) {}
+
+  function renderSpeakers() {
+    const output = [];
+    for (let i = 0; i < speakers.length; i++) {
+      output.push(
+        <div className={styles.singleSpeaker}>
+          <RSText type="subhead" className={styles.speakerName} size={14}>
+            {speakers[i]['firstName'] + ' ' + speakers[i]['lastName']}{' '}
+          </RSText>
+          <RSText type="subhead" italic size={11}>
+            {speakers[i]['email']}
+          </RSText>
+          <IconButton>
+            <RSText type="subhead">X</RSText>
+          </IconButton>
+        </div>
+      );
+    }
+    return output;
   }
 
   function renderFields() {
@@ -229,8 +287,19 @@ function AdminEventCreator(props: Props) {
         <UserAutocomplete
           handleAutoCompleteChange={handleHostChange}
           value={hostID}
-          hostErr={''}
+          err={''}
           label="Host"
+        />
+
+        <RSText type="subhead" bold className={styles.textFieldTitle}>
+          Speakers
+        </RSText>
+        {renderSpeakers()}
+        <UserAutocomplete
+          handleAutoCompleteChange={handleSpeakerChange}
+          value={currentSpeaker}
+          err={speakerErr}
+          label="Speakers"
         />
       </>
     );

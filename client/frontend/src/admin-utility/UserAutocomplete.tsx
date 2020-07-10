@@ -23,7 +23,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   handleAutoCompleteChange: (_: any, newValue: any) => void;
   value: String;
-  hostErr: String;
+  err: String;
   label: string;
 };
 
@@ -62,8 +62,8 @@ function UserAutocomplete(props: Props) {
           variant="outlined"
           fullWidth
           value={props.value}
-          error={props.hostErr !== ''}
-          helperText={props.hostErr}
+          error={props.err !== ''}
+          helperText={props.err}
           onChange={handleQueryChange}
         />
       )}
