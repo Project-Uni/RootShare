@@ -17,7 +17,8 @@ const useStyles = makeStyles((_: any) => ({
   message: {
     marginRight: 54,
     color: colors.primaryText,
-    marginTop: 10,
+    marginTop: 2,
+    marginBottom: 5,
     padding: 5,
     float: 'left',
     background: colors.primary,
@@ -33,7 +34,7 @@ const useStyles = makeStyles((_: any) => ({
     color: 'gray',
     marginLeft: 10,
     marginTop: -5,
-    marginBottom: -7,
+    marginBottom: 2,
   },
   timeStamp: {
     textAlign: 'right',

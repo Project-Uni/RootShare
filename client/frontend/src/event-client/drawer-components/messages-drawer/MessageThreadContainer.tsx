@@ -37,7 +37,7 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
-    // paddingTop: '10px',
+    paddingTop: '10px',
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
     bortderTopWidth: '2px',
@@ -89,6 +89,12 @@ const useStyles = makeStyles((_: any) => ({
       borderColor: '#f2f2f2 !important',
     },
   },
+  notchedOutline: {
+    borderWidth: '2px',
+    label: colors.primaryText,
+    borderColor: colors.primaryText,
+    color: colors.primaryText,
+  },
 }));
 
 type Props = {
@@ -103,7 +109,9 @@ function MessageThreadContainer(props: Props) {
 
   const [newMessage, setNewMessage] = useState('');
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    scrollToBottom();
+  }, [props.messages]);
 
   function renderLatestMessages() {
     let output: any[] = [];
@@ -166,6 +174,11 @@ function MessageThreadContainer(props: Props) {
     return joinedString;
   }
 
+  function scrollToBottom() {
+    const messageContainer = document.getElementById('messageContainer');
+    messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -177,7 +190,9 @@ function MessageThreadContainer(props: Props) {
         </RSText>
         <div className={styles.filler}>SAVE</div>
       </div>
-      <div className={styles.messagesContainer}>{renderLatestMessages()}</div>
+      <div id="messageContainer" className={styles.messagesContainer}>
+        {renderLatestMessages()}
+      </div>
 
       <div className={styles.textFieldContainer}>
         <TextField

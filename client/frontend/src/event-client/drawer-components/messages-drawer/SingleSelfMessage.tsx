@@ -17,7 +17,8 @@ const useStyles = makeStyles((_: any) => ({
   message: {
     marginLeft: 54,
     color: colors.primaryText,
-    marginTop: 10,
+    marginTop: 2,
+    marginBottom: 5,
     padding: 5,
     float: 'right',
     background: colors.primary,

@@ -93,7 +93,6 @@ function MessagesDrawerContainer(props: Props) {
           conversation.lastMessage = newMessage;
       });
 
-      console.log(Object.is(newConversations, prevConversations));
       return newConversations;
     });
 
