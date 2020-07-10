@@ -6,6 +6,7 @@ import { TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
+import { IoIosArrowBack } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -19,12 +20,15 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     height: '100%',
   },
-  messagesHeader: {
+  headerParticipants: {
+    display: 'flex',
+    justifyContent: 'center',
     height: '25px',
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',
-    display: 'inline-block',
+    // paddingRight: '50%',
+    // paddingLeft: '10px',
     color: colors.primaryText,
   },
   messagesContainer: {
@@ -38,6 +42,17 @@ const useStyles = makeStyles((_: any) => ({
     borderTopColor: colors.primaryText,
     bortderTopWidth: '2px',
     marginTop: '-2px',
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  arrow: {
+    marginLeft: -10,
+  },
+  filler: {
+    color: colors.secondary,
   },
   textFieldContainer: {
     display: 'flex',
@@ -145,10 +160,15 @@ function MessageThreadContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {/* <button onClick={props.returnToConversations}>Back</button> */}
-      <RSText bold size={16} className={styles.messagesHeader}>
-        {joinUserNames(props.conversation.participants, ', ')}
-      </RSText>
+      <div className={styles.header}>
+        <IconButton className={styles.arrow} onClick={props.returnToConversations}>
+          <IoIosArrowBack size={32} color={colors.secondaryText} />
+        </IconButton>
+        <RSText bold size={16} className={styles.headerParticipants}>
+          {joinUserNames(props.conversation.participants, ', ')}
+        </RSText>
+        <div className={styles.filler}>Stuffs</div>
+      </div>
       <div className={styles.messagesContainer}>{renderLatestMessages()}</div>
 
       <div className={styles.textFieldContainer}>

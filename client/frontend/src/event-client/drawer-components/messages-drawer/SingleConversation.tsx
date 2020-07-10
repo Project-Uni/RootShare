@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton } from '@material-ui/core';
 import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
