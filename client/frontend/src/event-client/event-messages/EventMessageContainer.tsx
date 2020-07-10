@@ -8,10 +8,12 @@ import RSText from "../../base-components/RSText";
 import EventMessage from "./EventMessage";
 import MyEventMessage from "./MyEventMessage";
 
+import { colors } from "../../theme/Colors";
 const HEADER_HEIGHT = 58;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "300px",
+    width: "350px",
     display: "flex",
     flexDirection: "column",
   },
@@ -23,55 +25,52 @@ const useStyles = makeStyles((_: any) => ({
   textFieldContainer: {
     display: "flex",
     justifyContent: "space-between",
-    background: "#333333",
-    borderTop: "1px solid #333333",
-    color: "#f2f2f2",
+    background: colors.secondary,
+    color: colors.primaryText,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
   textField: {
     width: 200,
-    background: "#333333",
-    color: "#f2f2f2",
-    label: "#f2f2f2"
+    background: colors.ternary,
+    color: colors.primaryText,
+    label: colors.primaryText
   },
   messageContainer: {
     flex: 1,
     justifyContent: "flex-end",
     background: "white",
     overflow: "scroll",
-    label: "#f2f2f2",
+    label: colors.primaryText,
   },
   input: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
-    borderWidth: "1px",
-    borderColor: "#6699ff !important",
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssLabel: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssFocused: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
+    color: colors.primaryText,
+    label: colors.primaryText,
     borderWidth: '2px',
-    borderColor: '#f2f2f2 !important',
+    borderColor: colors.primaryText,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: "#f2f2f2 !important",
-      label: "#f2f2f2 !important",
+      color: colors.primaryText,
+      label: colors.primaryText,
       borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
+      borderColor: colors.primaryText,
     }
   },
   notchedOutline: {
     borderWidth: '2px',
-    label: "#f2f2f2",
-    borderColor: '#f2f2f2 !important',
-    color: "#f2f2f2 !important",
+    label: colors.primaryText,
+    borderColor: colors.primaryText,
+    color: colors.primaryText,
   },
 }));
 
@@ -126,35 +125,70 @@ function EventMessageContainer(props: Props) {
 
   function testRenderMessages() {
     const output = [];
-    for (let i = 0; i <= 10; i++) {
+    for (let i = 0; i < 3; i++) {
       output.push(
         <div className={styles.messageTest}>
           <EventMessage
-            senderName="Henny C."
+            senderName="Chris Hartley"
             senderId="1001"
-            message="Who do you know here?"
+            message="What is RootShare????"
             likes={Math.floor(Math.random() * 1000 + 1)}
             time={getDate()}
           />
           <EventMessage
-            senderName="Nat E. Lite"
-            senderId="1001"
-            message="Who do you know here?"
+            senderName="Dhruv Patel"
+            senderId="1002"
+            message="Stay hungry."
             likes={Math.floor(Math.random() * 1000 + 1)}
             time={getDate()}
           />
           <EventMessage
-            senderName="Kapt N. Morgan"
-            senderId="1001"
-            message="Rush Rho Sigma!! (Root Share)"
+            senderName="Ashwin Mahesh"
+            senderId="1003"
+            message="THE BABY BOILERS ARE BACK!!! #GottaGrow"
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={getDate()}
+          />
+          <EventMessage
+            senderName="Smit Desai"
+            senderId="1004"
+            message="When is the event?"
             likes={Math.floor(Math.random() * 1000 + 1)}
             time={getDate()}
           />
           <MyEventMessage
-            senderName="Nick O'teen"
-            senderId="1002"
-            message="We have a strict no hazing policy."
+            senderName="Jackson McCluskey"
+            senderId="1005"
+            message="AUGUST 14, 2020 @ 7PM EST YESSIR!!!"
+            likes={999}
+            time={getDate()}
+          />
+          <EventMessage
+            senderName="Reni Patel"
+            senderId="1006"
+            message="Who's going to present?!?!"
             likes={Math.floor(Math.random() * 1000 + 1)}
+            time={getDate()}
+          />
+          <EventMessage
+            senderName="Caite Capezzuto"
+            senderId="1007"
+            message="Robbie Hummel, Jajuan Johnson, and E’twaun Moore! It's gonna be hype!"
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={getDate()}
+          />
+          <EventMessage
+            senderName="Lauren Odle"
+            senderId="1008"
+            message="Register for the event today on rootshare.io and follow the Instagram! ;)"
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            time={getDate()}
+          />
+          <EventMessage
+            senderName="Nick O'Teen"
+            senderId="1003"
+            message="has left the chat."
+            likes={193}
             time={getDate()}
           />
         </div>
@@ -191,10 +225,10 @@ function EventMessageContainer(props: Props) {
           }}
         />
         <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color="#f2f2f2" />
+          <FaRegSmile size={18} color={colors.primaryText} />
         </IconButton>
         <IconButton onClick={handleSendMessage}>
-          <MdSend color="#f2f2f2" size={20} />
+          <MdSend color={colors.primaryText} size={20} />
         </IconButton>
       </div>
     </div>
