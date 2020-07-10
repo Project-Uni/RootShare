@@ -31,9 +31,11 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     width: 400,
     border: '1px solid black',
+    borderRadius: 10,
     margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
+    paddingBottom: 20,
   },
   rootshareLogo: {
     height: '90px',
@@ -170,7 +172,7 @@ function AdminEventCreator(props: Props) {
 
   function handleSpeakerChange(_: any, newSpeaker: any) {
     if (newSpeaker !== null) {
-      if (speakers.length < 9) {
+      if (speakers.length < 8) {
         if (!containsSpeaker(newSpeaker)) {
           setSpeakers(speakers.concat(newSpeaker));
           setSpeakerErr('');
@@ -220,7 +222,7 @@ function AdminEventCreator(props: Props) {
       time: time,
     };
     console.log('API_DATA:', API_DATA);
-    const { data } = await axios.post('/api/createEvent', API_DATA);
+    const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
     console.log('Data:', data);
   }
 

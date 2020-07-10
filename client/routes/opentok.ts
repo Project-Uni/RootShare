@@ -12,6 +12,8 @@ const {
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
+import { createEvent } from '../interactions/streaming/event';
+
 module.exports = (app) => {
   app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
     const { id } = req.user;
@@ -60,5 +62,13 @@ module.exports = (app) => {
     await changeBroadcastLayout(webinarID, type, streamID, (packet) => {
       res.json(packet);
     });
+  });
+
+  app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
+    if (req.user.privilegeLevel < 8)
+      return res.json(
+        sendPacket(0, 'User is not authorized to perform this action')
+      );
+    await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 };

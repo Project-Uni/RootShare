@@ -34,11 +34,9 @@ module.exports = (app) => {
     //TODO - email search doesn't work like this. Leaving this as is for now
     searchParams.push({ email: firstRegex });
 
-    console.log('First regex:', firstRegex);
     if (queryTerms.length > 1) {
       const secondRegex = new RegExp(queryTerms[1], 'g');
       searchParams.push({ lastName: secondRegex });
-      console.log('secondRegex:', secondRegex);
     } else searchParams.push({ lastName: firstRegex });
 
     User.find({ $or: searchParams }, (err, users) => {
