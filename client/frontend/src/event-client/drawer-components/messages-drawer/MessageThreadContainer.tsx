@@ -143,13 +143,13 @@ function MessageThreadContainer(props: Props) {
   function joinUserNames(users: any, delimiter: string) {
     let joinedString = '';
 
+    let firstFlag = false;
     for (let i = 0; i < users.length; i++) {
       const currUser = users[i];
       const currName = currUser.firstName;
 
-      let firstFlag = false;
-      if (firstFlag) joinedString += delimiter;
       if (currUser._id !== props.user._id) {
+        if (firstFlag) joinedString += delimiter;
         joinedString += currName;
         firstFlag = true;
       }

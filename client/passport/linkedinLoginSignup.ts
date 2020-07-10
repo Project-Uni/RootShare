@@ -26,7 +26,7 @@ module.exports = (passport) => {
         let lastName = profile.name.familyName;
 
         const user = await User.findOne({ email: email });
-        if (!user) {
+        if (!user || user === undefined || user === null) {
           log('LINKEDIN REG', `New email address, creating account with ${email}`);
           let newUser = await createNewUserLinkedIn(
             firstName,

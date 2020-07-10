@@ -32,7 +32,7 @@ module.exports = {
 
   sendMessage: (userID, userName, conversationID, message, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
-      if (err || conversationID === undefined) {
+      if (err || conversationID === undefined || currConversation === null) {
         log('error', err);
         return callback(sendPacket(-1, 'Could not find conversation'));
       }
@@ -81,7 +81,7 @@ module.exports = {
       .populate('lastMessage')
       .populate('participants');
 
-    if (userConversations === undefined)
+    if (userConversations === undefined || userConversations === null)
       return callback(
         sendPacket(-1, 'There was an error retrieving the Conversations')
       );
@@ -92,7 +92,7 @@ module.exports = {
 
   getLatestMessages: async (userID, conversationID, callback) => {
     Conversation.findById(conversationID, (err, conversation) => {
-      if (err) {
+      if (err || conversation === undefined || conversation === null) {
         log('error', err);
         return callback(sendPacket(-1, 'Could not find Conversation'));
       }
@@ -101,7 +101,7 @@ module.exports = {
         { conversationID },
         ['sender', 'senderName', 'content', 'timeCreated'],
         (err, messages) => {
-          if (err) {
+          if (err || messages === undefined || messages === null) {
             log('error', err);
             return callback(sendPacket(-1, 'Could not find Messages'));
           }
