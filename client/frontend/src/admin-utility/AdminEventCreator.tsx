@@ -18,6 +18,7 @@ import { updateUser } from '../redux/actions/user';
 import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
+import UserAutocomplete from './UserAutocomplete';
 
 const MIN_ACCESS_LEVEL = 8;
 const MAX_BRIEF_LEN = 100;
@@ -62,6 +63,11 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
     marginBottom: 5,
   },
+  dateBox: {
+    width: 150,
+    marginLeft: 20,
+    marginRight: 20,
+  },
 }));
 
 type Props = {
@@ -83,6 +89,7 @@ function AdminEventCreator(props: Props) {
   const [fullDesc, setFullDesc] = useState('');
   const [eventDate, setEventDate] = useState(new Date());
   const [eventTime, setEventTime] = useState(new Date());
+  const [hostID, setHostID] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -129,11 +136,18 @@ function AdminEventCreator(props: Props) {
     setEventTime(time);
   }
 
+  function handleHostChange(_: any, newValue: any) {
+    if (newValue === null) {
+      setHostID('');
+    } else setHostID(newValue['_id']);
+  }
+
   function handleSubmit() {
     console.log(`Title: ${title}\nBrief: ${briefDesc}\nFull: ${fullDesc}`);
     const date = dateFns.format(eventDate, `MM/dd/yyy`);
     const time = dateFns.format(eventTime, 'hh:mm:ss aa');
     console.log(`Date: ${date}, Time: ${time}`);
+    console.log('Host:', hostID);
   }
 
   function renderFields() {
@@ -188,25 +202,36 @@ function AdminEventCreator(props: Props) {
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
             margin="normal"
-            label="Date"
+            label="Event Date"
             format="MM/dd/yyyy"
             value={eventDate}
             onChange={handleDateChange}
             KeyboardButtonProps={{
               'aria-label': 'change date',
             }}
+            className={styles.dateBox}
           />
           <KeyboardTimePicker
             margin="normal"
-            id="time-picker"
-            label="Time picker"
+            label="Event Time"
             value={eventTime}
             onChange={handleTimeChange}
             KeyboardButtonProps={{
               'aria-label': 'change time',
             }}
+            className={styles.dateBox}
           />
         </MuiPickersUtilsProvider>
+
+        <RSText type="subhead" bold className={styles.textFieldTitle}>
+          Host
+        </RSText>
+        <UserAutocomplete
+          handleAutoCompleteChange={handleHostChange}
+          value={hostID}
+          hostErr={''}
+          label="Host"
+        />
       </>
     );
   }
