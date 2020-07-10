@@ -99,6 +99,7 @@ function EventClientBase(props: Props) {
   }
 
   function setDevPageMode() {
+    //TODO - Set this mode based on the webinar data. Pass it in from the server and continue.
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       switch (eventID.charAt(eventID.length - 1)) {
         case '0':
