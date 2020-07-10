@@ -149,6 +149,24 @@ function MessagesDrawerContainer(props: Props) {
     setMessages([]);
   }
 
+  function joinUserNames(users: any, delimiter: string) {
+    let joinedString = '';
+
+    for (let i = 0; i < users.length; i++) {
+      const currUser = users[i];
+      const currName = currUser.firstName;
+
+      let firstFlag = false;
+      if (firstFlag) joinedString += delimiter;
+      if (currUser._id !== props.user._id) {
+        joinedString += currName;
+        firstFlag = true;
+      }
+    }
+
+    return joinedString;
+  }
+
   axios.get('/api/mockLogin');
   return (
     <div className={styles.wrapper}>
@@ -161,7 +179,7 @@ function MessagesDrawerContainer(props: Props) {
       ) : (
         <MessageThreadContainer
           user={props.user}
-          conversationID={currConversationID}
+          conversation={currConversation}
           messages={messages}
           returnToConversations={returnToConversations}
         />

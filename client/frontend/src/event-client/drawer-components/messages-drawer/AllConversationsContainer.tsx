@@ -7,7 +7,6 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 import SingleConversation from './SingleConversation';
-import { Autocomplete } from '@material-ui/lab';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,7 +52,6 @@ function AllConversationsContainer(props: Props) {
           key={conversation._id}
           user={props.user}
           conversation={conversation}
-          userName={'John'}
           selectConversation={props.selectConversation}
         />
       );

@@ -1,24 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import axios from 'axios';
+
 import { TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
-import axios from 'axios';
+
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
+import SingleSelfMessage from './SingleSelfMessage';
+import SingleOtherMessage from './SingleOtherMessage';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: '300px',
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     height: window.innerHeight - 60,
   },
-  messageContainer: {
+  messagesHeader: {
+    height: '25px',
+    marginBottom: 20,
+    marginTop: 0,
+    margin: 'auto',
+    display: 'inline-block',
+    color: colors.primaryText,
+  },
+  messagesContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    // background: "white",
+    background: colors.secondary,
     overflow: 'scroll',
-    label: '#f2f2f2',
+    label: colors.primaryText,
+    paddingTop: '10px',
   },
   textFieldContainer: {
     display: 'flex',
@@ -58,7 +73,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: any;
-  conversationID: string;
+  conversation: any;
   messages: any[];
   returnToConversations: () => void;
 };
@@ -74,9 +89,15 @@ function MessageThreadContainer(props: Props) {
     let output: any[] = [];
     props.messages.forEach((message: any) => {
       output.push(
-        <div key={message._id} id={message._id}>
-          {message.senderName}:{message.content}
-        </div>
+        props.user._id === message.sender ? (
+          <SingleSelfMessage key={message._id} user={props.user} message={message} />
+        ) : (
+          <SingleOtherMessage
+            key={message._id}
+            user={props.user}
+            message={message}
+          />
+        )
       );
     });
 
@@ -89,7 +110,7 @@ function MessageThreadContainer(props: Props) {
 
   function handleSendMessage() {
     axios.post('/api/messaging/sendMessage', {
-      conversationID: props.conversationID,
+      conversationID: props.conversation._id,
       message: newMessage,
     });
     setNewMessage('');
@@ -99,11 +120,31 @@ function MessageThreadContainer(props: Props) {
     console.log('Clicked on emoji button');
   }
 
+  function joinUserNames(users: any, delimiter: string) {
+    let joinedString = '';
+
+    for (let i = 0; i < users.length; i++) {
+      const currUser = users[i];
+      const currName = currUser.firstName;
+
+      let firstFlag = false;
+      if (firstFlag) joinedString += delimiter;
+      if (currUser._id !== props.user._id) {
+        joinedString += currName;
+        firstFlag = true;
+      }
+    }
+
+    return joinedString;
+  }
+
   return (
     <div className={styles.wrapper}>
-      <button onClick={props.returnToConversations}>Back</button>
-      <p>Current Messages</p>
-      <div className={styles.messageContainer}>{renderLatestMessages()}</div>
+      {/* <button onClick={props.returnToConversations}>Back</button> */}
+      <RSText bold size={16} className={styles.messagesHeader}>
+        {joinUserNames(props.conversation.participants, ', ')}
+      </RSText>
+      <div className={styles.messagesContainer}>{renderLatestMessages()}</div>
 
       <div className={styles.textFieldContainer}>
         <TextField

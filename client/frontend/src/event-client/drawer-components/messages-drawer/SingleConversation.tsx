@@ -93,7 +93,6 @@ const weekDict = [
 type Props = {
   user: any;
   conversation: any;
-  userName: string;
   selectConversation: (conversation: any) => void;
 };
 
