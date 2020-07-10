@@ -103,10 +103,7 @@ function EventClientBase(props: Props) {
       setTimeout(() => {
         setDevPageMode(webinar);
       }, 500);
-
-      // for(let i=0; i<eve)
     }
-    console.log('Data:', data);
   }
 
   function fetchAds() {
