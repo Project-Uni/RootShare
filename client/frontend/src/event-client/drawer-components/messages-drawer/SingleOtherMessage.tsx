@@ -27,6 +27,14 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 7,
     borderWidth: '2px',
   },
+  senderName: {
+    display: 'inline-block',
+    // borderStyle: 'solid',
+    color: 'gray',
+    marginLeft: 10,
+    marginTop: -5,
+    marginBottom: -7,
+  },
   timeStamp: {
     textAlign: 'right',
     marginTop: 10,
@@ -63,6 +71,7 @@ const weekDict = [
 type Props = {
   user: any;
   message: any;
+  senderName: string;
 };
 
 function SingleOtherMessage(props: Props) {
@@ -96,6 +105,12 @@ function SingleOtherMessage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {props.senderName !== '' ? (
+        <RSText size={10} className={styles.senderName}>
+          {props.senderName}
+        </RSText>
+      ) : null}
+      {props.senderName !== '' ? <br /> : null}
       <RSText size={12} className={styles.message}>
         {props.message.content}
       </RSText>

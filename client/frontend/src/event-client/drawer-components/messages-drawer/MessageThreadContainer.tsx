@@ -107,7 +107,14 @@ function MessageThreadContainer(props: Props) {
 
   function renderLatestMessages() {
     let output: any[] = [];
+    let lastSender = '';
     props.messages.forEach((message: any) => {
+      let currSender = '';
+      if (message.sender !== lastSender) {
+        currSender = message.senderName;
+        lastSender = message.sender;
+      }
+
       output.push(
         props.user._id === message.sender ? (
           <SingleSelfMessage key={message._id} user={props.user} message={message} />
@@ -116,6 +123,7 @@ function MessageThreadContainer(props: Props) {
             key={message._id}
             user={props.user}
             message={message}
+            senderName={currSender}
           />
         )
       );
@@ -167,7 +175,7 @@ function MessageThreadContainer(props: Props) {
         <RSText bold size={16} className={styles.headerParticipants}>
           {joinUserNames(props.conversation.participants, ', ')}
         </RSText>
-        <div className={styles.filler}>Stuffs</div>
+        <div className={styles.filler}>SAVE</div>
       </div>
       <div className={styles.messagesContainer}>{renderLatestMessages()}</div>
 
