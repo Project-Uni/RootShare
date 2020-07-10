@@ -34,6 +34,10 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 54,
     color: 'gray',
     marginTop: 10,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '250px',
   },
   bottom: {
     display: 'flex',
