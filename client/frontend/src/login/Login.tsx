@@ -49,7 +49,7 @@ function Login(props: Props) {
   const [redirectHome, setRedirectHome] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const [redirectUrl, setRedirectUrl] = useState(query[1]);
+  const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
 
   useEffect(() => {
     checkAuth();

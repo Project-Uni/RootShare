@@ -106,8 +106,7 @@ function EventHostContainer(props: Props) {
   }
 
   async function fetchEventInfo() {
-    const initialNumSpeakers = 4;
-    setNumSpeakers(4);
+    setNumSpeakers(props.webinar['speakers'].length + 1);
   }
 
   function handleStreamStatusChange() {
