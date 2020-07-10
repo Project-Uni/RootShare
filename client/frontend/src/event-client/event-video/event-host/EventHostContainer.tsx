@@ -25,7 +25,7 @@ import {
 import { SINGLE_DIGIT } from '../../../types/types';
 
 const MIN_WINDOW_WIDTH = 1100;
-const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
+const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
 

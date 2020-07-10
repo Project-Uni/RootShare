@@ -180,7 +180,6 @@ function EventClientBase(props: Props) {
           <EventClientMessageContainer />
         </div>
       </div>
-      <HypeFooter minWidth={minHeaderWidth} />
     </div>
   );
 }
