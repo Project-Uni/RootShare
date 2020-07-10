@@ -3,6 +3,7 @@ const Webinar = mongoose.model('webinars');
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
+import { USER_LEVEL } from '../types/types';
 const isAuthenticated = require('../passport/middleware/isAuthenticated');
 const {
   createSession,
@@ -68,7 +69,7 @@ module.exports = (app) => {
   });
 
   app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
-    if (req.user.privilegeLevel < 8)
+    if (req.user.privilegeLevel < USER_LEVEL.admin)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
       );

@@ -20,7 +20,7 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 
-const MIN_ACCESS_LEVEL = 8;
+const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
 
 const useStyles = makeStyles((_: any) => ({
