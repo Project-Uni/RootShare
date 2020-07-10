@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const Webinar = mongoose.model('webinars');
+
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 const isAuthenticated = require('../passport/middleware/isAuthenticated');
@@ -12,7 +15,7 @@ const {
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
-import { createEvent } from '../interactions/streaming/event';
+import { createEvent, getWebinarDetails } from '../interactions/streaming/event';
 
 module.exports = (app) => {
   app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
@@ -70,5 +73,13 @@ module.exports = (app) => {
         sendPacket(0, 'User is not authorized to perform this action')
       );
     await createEvent(req.body, req.user, (packet) => res.json(packet));
+  });
+  app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
+    //ISSUE - This value is undefined
+    const { eventID } = req.query;
+    console.log('eventID:', eventID);
+    await getWebinarDetails(eventID, (packet) => {
+      res.json(packet);
+    });
   });
 };

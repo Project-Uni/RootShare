@@ -36,6 +36,18 @@ export async function createEvent(
   });
 }
 
+export async function getWebinarDetails(webinarID, callback) {
+  Webinar.findOne({ _id: webinarID }, (err, webinar) => {
+    if (err) {
+      log('error', err);
+      return callback(sendPacket(-1, 'There was an error finding webinar'));
+    } else if (!webinar) {
+      return callback(sendPacket(0, 'No webinar exists with this ID'));
+    }
+    return sendPacket(1, 'Succesfully found webinar details', { webinar: webinar });
+  });
+}
+
 //TODO - Replace this with a better email later on
 //For guide, refer to https://blog.mailtrap.io/sending-emails-with-nodemailer/
 

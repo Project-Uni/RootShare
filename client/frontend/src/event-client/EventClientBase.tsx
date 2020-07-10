@@ -64,8 +64,9 @@ function EventClientBase(props: Props) {
 
   useEffect(() => {
     if (checkAuth()) {
-      checkDevAuth();
+      // checkDevAuth();
       fetchAds();
+      fetchEventInfo();
       setDevPageMode();
     }
   }, []);
@@ -90,6 +91,11 @@ function EventClientBase(props: Props) {
       ];
       if (!validTestEmails.includes(email)) setLoginRedirect(true);
     }
+  }
+
+  async function fetchEventInfo() {
+    const { data } = await axios.get(`/api/webinar/getDetails/${eventID}`);
+    console.log('Data:', data);
   }
 
   function fetchAds() {
