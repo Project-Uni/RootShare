@@ -7,3 +7,4 @@ export { default as LaurenHeadshot } from "./lauren.jpeg";
 // export { default as EmilyHeadshot } from "./emily.jpeg";
 export { default as ReniHeadshot } from "./reni.jpeg";
 export { default as JacksonHeadshot } from "./jackson.jpeg";
+export { default as WillHeadshot } from './will.jpeg';

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextField, IconButton } from "@material-ui/core";
 import { MdSend } from "react-icons/md";
@@ -6,16 +6,19 @@ import { FaRegSmile } from "react-icons/fa";
 import RSText from "../../base-components/RSText";
 
 import EventMessage from "./EventMessage";
-import MyEventMessage from "./MyEventMessage"
+import MyEventMessage from "./MyEventMessage";
 
+<<<<<<< HEAD
 import { colors } from "../../theme/Colors";
 
+=======
+const HEADER_HEIGHT = 58;
+>>>>>>> master
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: "350px",
     display: "flex",
     flexDirection: "column",
-    height: window.innerHeight - 60,
   },
   headerText: {
     margin: 0,
@@ -100,6 +103,15 @@ function getDate() {
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
   const [message, setMessage] = useState("");
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
+  }
 
   function handleMessageChange(event: any) {
     setMessage(event.target.value);
@@ -188,7 +200,7 @@ function EventMessageContainer(props: Props) {
     return output;
   }
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} style={{ height: height }}>
       <div className={styles.messageContainer}>{testRenderMessages()}</div>
 
       <div className={styles.textFieldContainer}>

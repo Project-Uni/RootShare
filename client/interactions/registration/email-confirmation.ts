@@ -1,24 +1,24 @@
-import { userInfo } from "os";
+import { userInfo } from 'os';
 
-var mongoose = require("mongoose");
-var User = mongoose.model("users");
-const Cryptr = require("cryptr");
+var mongoose = require('mongoose');
+var User = mongoose.model('users');
+const Cryptr = require('cryptr');
 
-const { CRYPT_SECRET } = require("../../keys/keys.json");
+const { CRYPT_SECRET } = require('../../../keys/keys.json');
 const cryptr = new Cryptr(CRYPT_SECRET);
-const nodemailer = require("nodemailer");
-const aws = require("aws-sdk");
-aws.config.loadFromPath("./../keys/aws_key.json");
-import log from "../helpers/logger";
+const nodemailer = require('nodemailer');
+const aws = require('aws-sdk');
+aws.config.loadFromPath('../keys/aws_key.json');
+import log from '../../helpers/logger';
 
 let transporter = nodemailer.createTransport({
   SES: new aws.SES({
-    apiVersion: "2010-12-01",
+    apiVersion: '2010-12-01',
   }),
 });
 
 let ses = new aws.SES({
-  apiVersion: "2010-12-01",
+  apiVersion: '2010-12-01',
 });
 
 module.exports = {
@@ -28,7 +28,7 @@ module.exports = {
     try {
       currUser = await User.findOne({ email: emailAddress });
     } catch (error) {
-      log("MONGO ERROR", error);
+      log('MONGO ERROR', error);
     }
 
     if (!currUser) {
@@ -46,7 +46,7 @@ module.exports = {
     try {
       currUser = await User.findOne({ email: emailAddress });
     } catch (error) {
-      log("MONGO ERROR", error);
+      log('MONGO ERROR', error);
     }
 
     if (!currUser) {
@@ -60,15 +60,15 @@ module.exports = {
 
   sendConfirmationEmail: (emailAddress) => {
     const emailToken = module.exports.convertEmailToToken(emailAddress);
-    const confirmationLink = `https://rootshare.io/auth/confirmation/${emailToken}`;
-    const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
+    const confirmationLink = `https://rootshare.io/confirmation/${emailToken}`;
+    const unsubscribeLink = `https://rootshare.io/unsubscribe/${emailToken}`;
 
     var params = {
       Destination: {
         ToAddresses: [`${emailAddress}`],
       },
-      Source: `RootShare Team <support@rootshare.io>`,
-      Template: "confirmationTemplate2",
+      Source: `RootShare Team <dev@rootshare.io>`,
+      Template: 'confirmationTemplate2',
       TemplateData: `{ \"confirmationLink\":\"${confirmationLink}\", \"unsubscribeLink\":\"${unsubscribeLink}\" }`,
       ReplyToAddresses: [],
     };
@@ -80,7 +80,7 @@ module.exports = {
         // log('info', data)
       })
       .catch((err) => {
-        log("error", err);
+        log('error', err);
       });
   },
 

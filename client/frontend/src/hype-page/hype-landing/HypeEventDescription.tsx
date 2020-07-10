@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
 import HypeBackground from "../../images/PurdueHypeAlt.png";
@@ -49,11 +49,23 @@ type Props = {
 
 function HypeEventDescription(props: Props) {
   const styles = useStyles(props.mode)();
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    window.addEventListener("resize", checkWidth);
+  }, []);
+
+  function checkWidth() {
+    setWidth(window.innerWidth);
+  }
   return (
     <div className={styles.wrapper}>
-      <Typography className={styles.missionStatement} variant="h4">
-        Every success story is rooted in the support from a community.
-      </Typography>
+      {width >= 700 && (
+        <Typography className={styles.missionStatement} variant="h4">
+          Every success story is rooted in the support from a community.
+        </Typography>
+      )}
+
       <img
         src={HypeBackground}
         className={styles.eventImage}

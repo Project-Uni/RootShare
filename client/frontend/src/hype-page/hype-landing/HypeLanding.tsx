@@ -38,12 +38,7 @@ function HypeLanding(props: Props) {
   const eventDescription = `
     Robbie Hummel, Jajuan Johnson, and E’twaun Moore are reuniting on a RootShare virtual 
     event to share their Purdue story and how this has shaped them into the people they are 
-    today. With the first hour broken up into three sections, our guests will share their 
-    college life memories, expand on their post grad experiences, and end with advice they 
-    would have given to their younger selves. The remaining forty-five minutes of the event 
-    will be open to our viewers and their questions they have for the Baby Boilers. 
-    We are excited to bring these outstanding alumni back in touch with their Purdue roots 
-    and hear first hand what it means to be a boilermaker.
+    today. 
   `;
 
   return (
@@ -53,8 +48,8 @@ function HypeLanding(props: Props) {
       {desktopMode ? (
         <HypeDesktopBody eventDescription={eventDescription} />
       ) : (
-        <HypeMobileBody eventDescription={eventDescription} />
-      )}
+          <HypeMobileBody eventDescription={eventDescription} />
+        )}
       <HypeEventCountdown
         {...event}
         mode={desktopMode ? "desktop" : "mobile"}

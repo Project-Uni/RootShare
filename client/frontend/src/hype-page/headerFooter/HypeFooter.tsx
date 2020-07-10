@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
@@ -10,8 +10,6 @@ const useStyles = makeStyles((_: any) => ({
     background: "#3D66DE",
     paddingTop: "20px",
     paddingBottom: "10px",
-    marginTop: "50px",
-    width: "100vw",
   },
   footerLogo: {
     height: "40px",
@@ -33,12 +31,31 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  minWidth?: number;
+};
 
 function HypeFooter(props: Props) {
   const styles = useStyles();
+  const [width, setWidth] = useState(props.minWidth
+    ? (window.innerWidth >= props.minWidth
+      ? window.innerWidth
+      : props.minWidth)
+    : window.innerWidth
+  );
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    if (props.minWidth) {
+      if (window.innerWidth >= props.minWidth) setWidth(window.innerWidth);
+    }
+    else setWidth(window.innerWidth);
+  }
   return (
-    <div className={styles.footer}>
+    <div className={styles.footer} style={{ width: width }}>
       <img
         src={RootShareLogoWhite}
         className={styles.footerLogo}

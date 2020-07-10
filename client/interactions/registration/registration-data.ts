@@ -1,8 +1,8 @@
 var mongoose = require("mongoose");
 var User = mongoose.model("users");
 var University = mongoose.model("universities");
-import log from "../helpers/logger";
-import sendPacket from "../helpers/sendPacket";
+import log from "../../helpers/logger";
+import sendPacket from "../../helpers/sendPacket";
 
 module.exports = {
   completeRegistrationDetails: async (userData, email) => {

@@ -75,11 +75,10 @@ function HypeAdditionalInfo(props: Props) {
     const { data } = await axios.get("/auth/curr-user/load");
     if (data["success"] === 1) {
       if (!data["content"]["externalComplete"]) {
-        setExternalRedirect(true)
+        setExternalRedirect(true);
       } else {
-        setRegCompleted(data["content"]["regComplete"])
-        setCurrentUser(data["content"]["email"])
-        return data["content"]["email"];
+        setRegCompleted(data["content"]["regComplete"]);
+        setCurrentUser(data["content"]["email"]);
       }
     } else setLandingRedirect(true);
   }

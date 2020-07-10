@@ -1,96 +1,113 @@
-var passport = require("passport");
-const mongoose = require("mongoose");
+var passport = require('passport');
+const mongoose = require('mongoose');
 
-var isAuthenticated = require("../passport/middleware/isAuthenticated");
-var isConfirmed = require("./middleware/isConfirmed");
+var isAuthenticated = require('../passport/middleware/isAuthenticated');
+var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
   unsubscribeUser,
   sendConfirmationEmail,
-} = require("../interactions/email-confirmation");
+} = require('../interactions/registration/email-confirmation');
 var {
   completeRegistrationDetails,
   completeRegistrationRequired,
   userExists,
-} = require("../interactions/registration-data");
+} = require('../interactions/registration/registration-data');
 
-var User = mongoose.model("users");
+var User = mongoose.model('users');
 
-import sendPacket from "../helpers/sendPacket";
-import log from "../helpers/logger";
+import sendPacket from '../helpers/sendPacket';
+import log from '../helpers/logger';
 
 module.exports = (app) => {
-  app.post("/auth/login/local", (req, res) => {
-    passport.authenticate("local-login", (err, user, info) => {
+  app.post('/auth/login/local', (req, res) => {
+    passport.authenticate('local-login', (err, user, info) => {
       if (user) {
         req.login(user, (err) => {
           if (err) {
-            log("error", `Failed serializing ${user.email}`);
+            log('error', `Failed serializing ${user.email}`);
+            return res.json(sendPacket(-1, 'Failed to serialize user'));
           }
-          log("info", `Successfully logged in ${user.email} locally`);
-          return res.redirect("/auth/secure-confirmed");
+          log('info', `Successfully logged in ${user.email} locally`);
+          return res.json(
+            sendPacket(1, 'Successfully logged in', {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              _id: user._id,
+            })
+          );
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
-        log("error", `User local login failed`);
+        log('error', `User local login failed`);
       } else {
         res.json(sendPacket(-1, err));
-        log("error", `User local login errored`);
+        log('error', `User local login errored`);
       }
     })(req, res);
   });
 
-  app.post("/auth/signup/local", (req, res) => {
-    passport.authenticate("local-signup", (err, user, info) => {
+  app.post('/auth/signup/local', (req, res) => {
+    passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
         req.login(user, (err) => {
           if (err) {
-            log("error", `Failed serializing ${user.email}`);
+            log('error', `Failed serializing ${user.email}`);
           }
+<<<<<<< HEAD
           log("info", `Successfully created account for ${user.email}`);
           return res.redirect("/auth/secure-confirmed");
+=======
+          log('info', `Successfully created account for ${user.email}`);
+          return res.redirect('/secure-confirmed');
+>>>>>>> master
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
-        log("error", `User local signup failed`);
+        log('error', `User local signup failed`);
       } else {
         res.json(sendPacket(-1, err));
-        log("error", `User local signup errored`);
+        log('error', `User local signup errored`);
       }
     })(req, res);
   });
 
-  app.post("/auth/signup/user-exists", async (req, res) => {
+  app.post('/auth/signup/user-exists', async (req, res) => {
     let email = req.body.email;
     let check = await userExists(email);
     if (check) {
-      res.json(sendPacket(0, "User with this email already exists"));
-      log("error", `User tried creating a duplicate account with ${email}`);
+      res.json(sendPacket(0, 'User with this email already exists'));
+      log('error', `User tried creating a duplicate account with ${email}`);
     } else {
-      res.json(sendPacket(1, "New User"));
-      log("info", `There is not yet an account for ${email}`);
+      res.json(sendPacket(1, 'New User'));
+      log('info', `There is not yet an account for ${email}`);
     }
   });
 
-  app.post("/auth/complete-registration/required", async (req, res) => {
+  app.post('/auth/complete-registration/required', async (req, res) => {
     const result = await completeRegistrationRequired(req.body, req.user.email);
 
-    if (result["success"] === 1) {
-      log("info", `Completed required registration for ${req.user.email}`);
+    if (result['success'] === 1) {
+      log('info', `Completed required registration for ${req.user.email}`);
     }
     return res.json(result);
   });
 
+<<<<<<< HEAD
   app.post("/auth/complete-registration/details", async (req, res) => {
+=======
+  app.post('/auth/complete-registration/details', async (req, res) => {
+>>>>>>> master
     const result = await completeRegistrationDetails(req.body, req.user.email);
 
-    if (result["success"] === 1) {
-      log("info", `Completed registration details for ${req.user.email}`);
+    if (result['success'] === 1) {
+      log('info', `Completed registration details for ${req.user.email}`);
     }
     return res.json(result);
   });
 
-  app.get("/auth/curr-user/load", isAuthenticated, async (req, res) => {
+  app.get('/auth/curr-user/load', isAuthenticated, async (req, res) => {
     const email = req.user.email;
     const regComplete = req.user.work !== undefined;
     const externalComplete = req.user.university !== undefined;
@@ -98,70 +115,97 @@ module.exports = (app) => {
     let check = await userExists(email);
     if (check) {
       res.json(
-        sendPacket(1, "Sending back current user", {
+        sendPacket(1, 'Sending back current user', {
           email: email,
           regComplete: regComplete,
           externalComplete: externalComplete,
+<<<<<<< HEAD
+=======
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
+          _id: req.user._id,
+>>>>>>> master
         })
       );
-      log("info", `Sent ${email} to frontend`);
+      log('info', `Sent ${email} to frontend`);
     } else {
-      res.json(sendPacket(0, "There is no user currently logged in"));
-      log("error", `There is no user currently logged in`);
+      res.json(sendPacket(0, 'There is no user currently logged in'));
+      log('error', `There is no user currently logged in`);
     }
   });
 
+<<<<<<< HEAD
   app.get("/auth/confirmation/:token", async (req, res) => {
+=======
+  app.get('/confirmation/:token', async (req, res) => {
+>>>>>>> master
     let user = await confirmUser(req.params.token);
 
     if (user) {
       req.login(user, (err) => {
         if (err) {
-          log("error", `Failed serializing ${user.email}`);
+          log('error', `Failed serializing ${user.email}`);
         }
-        log("info", `Confirmed user ${user.email}`);
-        return res.redirect("/profile/initialize");
+        log('info', `Confirmed user ${user.email}`);
+        return res.redirect('/profile/initialize');
       });
     } else {
-      res.json(sendPacket(-1, "There was an error processing your request"));
-      log("error", `Was not able to confirm user`);
+      res.json(sendPacket(-1, 'There was an error processing your request'));
+      log('error', `Was not able to confirm user`);
     }
   });
 
+<<<<<<< HEAD
   app.get("/auth/unsubscribe/:token", async (req, res) => {
+=======
+  app.get('/unsubscribe/:token', async (req, res) => {
+>>>>>>> master
     let user = await unsubscribeUser(req.params.token);
 
     if (user) {
       res.json(sendPacket(1, `Successfully Unsubscribed user: ${user.email}`));
+<<<<<<< HEAD
       log("info", `Unsubscribed user: ${user.email}`);
+=======
+      log('info', `Unsubscribed user: ${user.email}`);
+>>>>>>> master
     } else {
-      res.json(sendPacket(-1, "There was an error processing your request"));
-      log("error", `Was not able to unsubscribe user, please try again`);
+      res.json(sendPacket(-1, 'There was an error processing your request'));
+      log('error', `Was not able to unsubscribe user, please try again`);
     }
   });
 
+<<<<<<< HEAD
   app.get("/auth/confirmation-resend", isAuthenticated, (req, res) => {
+=======
+  app.get('/confirmation-resend', isAuthenticated, (req, res) => {
+>>>>>>> master
     let email = req.user.email;
     if (email) {
       sendConfirmationEmail(email);
-      res.json(sendPacket(1, "Confirmation email has been resent"));
-      log("info", `Resent a confirmation email to ${email}`);
+      res.json(sendPacket(1, 'Confirmation email has been resent'));
+      log('info', `Resent a confirmation email to ${email}`);
     } else {
-      res.json(sendPacket(-1, "There was an error processing your request"));
-      log("error", `Resend confirmation email for ${email}`);
+      res.json(sendPacket(-1, 'There was an error processing your request'));
+      log('error', `Resend confirmation email for ${email}`);
     }
   });
 
+<<<<<<< HEAD
   app.get("/auth/secure-unconfirmed", isAuthenticated, (req, res) => {
+=======
+  app.get('/secure-unconfirmed', isAuthenticated, (req, res) => {
+>>>>>>> master
     res.json(
       sendPacket(
         1,
-        "Successfully accessed secure endpoint! User needs to confirm account"
+        'Successfully accessed secure endpoint! User needs to confirm account'
       )
     );
-    log("info", `User accessed secure-unconfirmed endpoint`);
+    log('info', `User accessed secure-unconfirmed endpoint`);
   });
 
+<<<<<<< HEAD
   app.get(
     "/auth/secure-confirmed",
     isAuthenticated,
@@ -178,9 +222,22 @@ module.exports = (app) => {
   );
 
   app.get("/auth/logout", (req, res) => {
+=======
+  app.get('/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
+    res.json(
+      sendPacket(
+        1,
+        'Successfully accessed secure endpoint! Account has been confirmed'
+      )
+    );
+    log('info', `User accessed secure-confirmed endpoint`);
+  });
+
+  app.get('/logout', isAuthenticated, (req, res) => {
+>>>>>>> master
     let email = req.user.email;
     req.logout();
-    res.json(sendPacket(1, "Successfully logged out"));
-    log("info", `Successfully logged out ${email}`);
+    res.json(sendPacket(1, 'Successfully logged out'));
+    log('info', `Successfully logged out ${email}`);
   });
 };
