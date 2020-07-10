@@ -66,10 +66,8 @@ function EventClientBase(props: Props) {
 
   useEffect(() => {
     if (checkAuth()) {
-      // checkDevAuth();
       fetchAds();
       fetchEventInfo();
-      // setDevPageMode();
     }
   }, []);
 
@@ -82,26 +80,13 @@ function EventClientBase(props: Props) {
     return true;
   }
 
-  //TODO - Remove after actual auth implemented
-  function checkDevAuth() {
-    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-      const { email } = props.user;
-      const validTestEmails = [
-        'smitdesai422@gmail.com',
-        'mahesh.ashwin1998@gmail.com',
-        'mahesh2@purdue.edu',
-      ];
-      if (!validTestEmails.includes(email)) setLoginRedirect(true);
-    }
-  }
-
   async function fetchEventInfo() {
     const { data } = await axios.get(`/api/webinar/getDetails/${eventID}`);
     if (data['success'] === 1) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
       setTimeout(() => {
-        setDevPageMode(webinar);
+        setPageMode(webinar);
       }, 500);
     }
   }
@@ -112,23 +97,10 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setDevPageMode(webinar: { [key: string]: any }) {
-    //TODO - Set this mode based on the webinar data. Pass it in from the server and continue.
-    // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-    //   switch (eventID.charAt(eventID.length - 1)) {
-    //     case '0':
-    //       return setEventMode('viewer');
-    //     case '1':
-    //       return setEventMode('speaker');
-    //     case '2':
-    //       return setEventMode('admin');
-    //     default:
-    //       return setEventMode('viewer');
-    //   }
-    // }
-
+  function setPageMode(webinar: { [key: string]: any }) {
     if (props.user._id === webinar['host']) {
       setEventMode('admin');
+      return;
     } else {
       for (let i = 0; i < webinar['speakers'].length; i++) {
         if (props.user._id === webinar['speakers'][i]) {
