@@ -59,8 +59,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   timeStamp: {
     textAlign: "right",
-    marginTop: -20,
-    marginRight: -120,
+    marginTop: 10,
+    marginRight: 25,
     color: "gray",
   },
 }));
@@ -139,8 +139,9 @@ function SingleConversation(props: Props) {
     else return formatTime(date);
   }
 
-  const date = new Date(props.conversation.lastMessage.timeCreated);
-  const time = getConversationTime(date);
+  const messageTimeStamp = getConversationTime(
+    new Date(props.conversation.lastMessage.timeCreated)
+  );
   return (
     <div
       className={styles.wrapper}
@@ -165,10 +166,11 @@ function SingleConversation(props: Props) {
           <RSText size={12} className={styles.message}>
             {props.conversation.lastMessage.content}
           </RSText>
-          <RSText size={10} className={styles.timeStamp}>
-            {time}
-          </RSText>
         </div>
+
+        <RSText size={10} className={styles.timeStamp}>
+          {messageTimeStamp}
+        </RSText>
       </div>
     </div>
   );
