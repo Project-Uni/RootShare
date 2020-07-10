@@ -5,6 +5,7 @@ const User = mongoose.model('users');
 const nodemailer = require('nodemailer');
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
+const { createNewOpenTokSession } = require('./opentok');
 
 export async function createEvent(
   eventBody: { [key: string]: any },
@@ -23,12 +24,15 @@ export async function createEvent(
 
   newWebinar.save((err, webinar) => {
     if (err) return callback(sendPacket(0, 'Failed to create webinar'));
-    callback(sendPacket(1, 'Successfully created webinar', newWebinar));
-    sendEventEmailConfirmation(
-      webinar,
-      eventBody['speakerEmails'],
-      eventBody['hostEmail']
-    );
+    const createdOpenTokSession = createNewOpenTokSession(webinar);
+    if (createdOpenTokSession) {
+      callback(sendPacket(1, 'Successfully created webinar', webinar));
+      sendEventEmailConfirmation(
+        webinar,
+        eventBody['speakerEmails'],
+        eventBody['hostEmail']
+      );
+    } else callback(sendPacket(1, 'Failed to create OpenTok Session'));
   });
 }
 
