@@ -19,53 +19,6 @@ import { resolve } from 'dns';
 module.exports = {
   // Create Webinar and Opentok Session
   // Set creating User as the Event Host
-
-  //TODO - Remove this function. It has been migrated to createNewOpenTokSession
-  createSession: async (userID) => {
-    let webinarID;
-
-    function createHelper() {
-      return new Promise((resolve, reject) => {
-        opentok.createSession({ mediaMode: 'routed' }, async function (
-          error,
-          session
-        ) {
-          if (error) {
-            log('error', error);
-            return reject(error);
-          } else {
-            let newSession = new Webinar();
-            newSession.opentokSessionID = session.sessionId;
-            newSession.host = userID;
-
-            await newSession.save((err, webinar) => {
-              if (err) {
-                log('error', err);
-                return reject(err);
-              } else {
-                webinarID = webinar._id;
-                return resolve(session);
-              }
-            });
-          }
-        });
-      });
-    }
-
-    await createHelper();
-    if (webinarID === undefined) {
-      log('error', 'There was an error creating a new webinar');
-      return sendPacket(-1, 'There was an error creating a new webinar');
-    }
-
-    // Add Webinar to User's List of Events
-    let currUser = await User.findById(userID);
-    currUser.RSVPWebinars.push(webinarID);
-    currUser.save();
-    log('info', 'Successfully created new webinar');
-    return sendPacket(1, 'Successfully created new webinar', { webinarID });
-  },
-
   createNewOpenTokSession: async (webinar) => {
     function createHelper() {
       return new Promise((resolve, reject) => {
