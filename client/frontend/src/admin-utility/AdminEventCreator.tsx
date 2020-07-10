@@ -336,7 +336,6 @@ function AdminEventCreator(props: Props) {
           helperText={`This is a full description of the event`}
           value={fullDesc}
           onChange={handleFullDescChange}
-          rows={2}
           required
           error={fullDescErr !== ''}
         />
