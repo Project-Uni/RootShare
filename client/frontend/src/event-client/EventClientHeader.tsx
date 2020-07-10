@@ -23,7 +23,6 @@ import {
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     // flexGrow: 1,
-    width: '1000px',
   },
   header: {
     background: colors.secondary,
