@@ -87,12 +87,13 @@ function MessagesDrawerContainer(props: Props) {
 
   function addMessage(newMessage: any) {
     setConversations((prevConversations: any[]) => {
-      let newConversations = prevConversations;
+      let newConversations = prevConversations.slice();
       newConversations.forEach((conversation) => {
         if (conversation._id === newMessage.conversationID)
           conversation.lastMessage = newMessage;
       });
 
+      console.log(Object.is(newConversations, prevConversations));
       return newConversations;
     });
 
@@ -119,8 +120,6 @@ function MessagesDrawerContainer(props: Props) {
   }
 
   function updateMessages(currID: string = currConversationID) {
-    console.log(`currID: ${currID}`);
-
     axios
       .post('/api/messaging/getLatestMessages', {
         conversationID: currID,
@@ -129,7 +128,6 @@ function MessagesDrawerContainer(props: Props) {
         if (response.data.success !== 1) return;
 
         const messages = response.data.content.messages;
-        console.log(messages);
         setMessages(messages);
       })
       .catch((err) => {

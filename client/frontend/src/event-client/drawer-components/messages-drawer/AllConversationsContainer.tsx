@@ -64,6 +64,7 @@ function AllConversationsContainer(props: Props) {
     return output;
   }
 
+  console.log('rerendering!');
   return (
     <div className={styles.wrapper}>
       <RSText bold size={16} className={styles.conversationsHeader}>
