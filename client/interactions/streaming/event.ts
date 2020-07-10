@@ -2,10 +2,16 @@ const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
 const User = mongoose.model('users');
 
-const nodemailer = require('nodemailer');
+const aws = require('aws-sdk');
+aws.config.loadFromPath('../keys/aws_key.json');
+
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 const { createNewOpenTokSession } = require('./opentok');
+
+let ses = new aws.SES({
+  apiVersion: '2010-12-01',
+});
 
 export async function createEvent(
   eventBody: { [key: string]: any },
@@ -50,25 +56,11 @@ export async function getWebinarDetails(webinarID, callback) {
   });
 }
 
-//TODO - Replace this with a better email later on
-//For guide, refer to https://blog.mailtrap.io/sending-emails-with-nodemailer/
-
 function sendEventEmailConfirmation(
   webinarData: { [key: string]: any },
   speakerEmails: string[],
   hostEmail: string
 ) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: true,
-    auth: {
-      user: 'dhrdesai20@gmail.com',
-      pass: 'fortMinor1',
-    },
-  });
-
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
 
@@ -85,14 +77,33 @@ function sendEventEmailConfirmation(
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>-The RootShare Team</p>
 
   `;
-  const mailOptions = {
-    from: 'dev@rootshare.io',
-    to: [...speakerEmails, hostEmail],
-    subject: 'RootShare Virtual Event Speaking Invite',
-    html: body,
+
+  var params = {
+    Destination: {
+      ToAddresses: [...speakerEmails, hostEmail],
+    },
+    Source: `RootShare Team <dev@rootshare.io>`,
+    ReplyToAddresses: [],
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: body,
+        },
+      },
+      Subject: {
+        Data: 'RootShare Virtual Event Speaking Invite',
+      },
+    },
   };
-  transporter.sendMail(mailOptions, function (err, info) {
-    if (err) console.log(err);
-    else console.log(info);
-  });
+
+  ses
+    .sendEmail(params)
+    .promise()
+    .then((data) => {
+      // log('info', data)
+    })
+    .catch((err) => {
+      log('error', err);
+    });
 }
