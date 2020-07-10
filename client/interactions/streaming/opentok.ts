@@ -20,6 +20,7 @@ module.exports = {
   // Create Webinar and Opentok Session
   // Set creating User as the Event Host
 
+  //TODO - Remove this function. It has been migrated to createNewOpenTokSession
   createSession: async (userID) => {
     let webinarID;
 
@@ -63,6 +64,37 @@ module.exports = {
     currUser.save();
     log('info', 'Successfully created new webinar');
     return sendPacket(1, 'Successfully created new webinar', { webinarID });
+  },
+
+  createNewOpenTokSession: async (webinar) => {
+    function createHelper() {
+      return new Promise((resolve, reject) => {
+        opentok.createSession({ mediaMode: 'routed' }, async (error, session) => {
+          if (error) {
+            log('error', error);
+            return reject(error);
+          } else {
+            webinar.opentokSessionID = session.sessionId;
+            await webinar.save((err, webinar) => {
+              if (err) {
+                log('error', err);
+                return reject(err);
+              } else {
+                return resolve(session);
+              }
+            });
+          }
+        });
+      });
+    }
+
+    return createHelper()
+      .then((session) => {
+        return true;
+      })
+      .catch((err) => {
+        return false;
+      });
   },
 
   getLatestWebinarID: async (userID) => {

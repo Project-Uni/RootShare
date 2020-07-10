@@ -9,6 +9,8 @@ import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 
+import { Link, useLocation, BrowserRouter as Router } from 'react-router-dom';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     height: window.innerHeight,
@@ -45,6 +47,9 @@ function Login(props: Props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [redirectHome, setRedirectHome] = useState(false);
+
+  const [query, setQuery] = useQuery();
+  const [redirectUrl, setRedirectUrl] = useState(query[1]);
 
   useEffect(() => {
     checkAuth();
@@ -85,7 +90,7 @@ function Login(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to="/event/rootshare1" />}
+      {redirectHome && <Redirect to={redirectUrl} />}
       <HypeCard width={375} loading={loading} headerText="Login">
         <TextField
           variant="outlined"
@@ -120,6 +125,10 @@ function Login(props: Props) {
       </HypeCard>
     </div>
   );
+}
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
 }
 
 const mapStateToProps = (state: { [key: string]: any }) => {
