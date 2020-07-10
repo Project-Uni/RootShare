@@ -14,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
     width: '400px',
     display: 'flex',
     flexDirection: 'column',
-    height: window.innerHeight - 60,
+    height: window.innerHeight,
   },
   messageContainer: {
     flex: 1,

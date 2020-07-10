@@ -1,26 +1,26 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Drawer } from "@material-ui/core";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Drawer } from '@material-ui/core';
 
-import { colors } from "../theme/Colors"
+import { colors } from '../theme/Colors';
 
-
-const useStyles = (backgroundColor: string) => (makeStyles((_: any) => ({
-  drawerPaper: {
-    background: backgroundColor,
-  },
-  logoDiv: {
-    marginTop: 20,
-    textAlign: "center",
-  },
-  logo: {
-    height: "75px",
-  },
-  drawerWrapper: {
-    marginLeft: 15,
-    marginRight: 15,
-  },
-})));
+const useStyles = (backgroundColor: string) =>
+  makeStyles((_: any) => ({
+    drawerPaper: {
+      background: backgroundColor,
+    },
+    logoDiv: {
+      marginTop: 20,
+      textAlign: 'center',
+    },
+    logo: {
+      height: '75px',
+    },
+    drawerWrapper: {
+      marginLeft: 15,
+      marginRight: 15,
+    },
+  }));
 
 type Props = {
   open: boolean;
@@ -31,7 +31,7 @@ type Props = {
 
 function EventDrawer(props: Props) {
   const styles = useStyles(props.backgroundColor)();
-  const anchor = "right";
+  const anchor = 'right';
 
   return (
     <Drawer
@@ -40,11 +40,7 @@ function EventDrawer(props: Props) {
       onClose={props.handleClose}
       classes={{ paper: styles.drawerPaper }}
     >
-      <div className={styles.drawerWrapper}>
-        <div className={styles.logoDiv}>
-        </div>
-        {props.children}
-      </div>
+      <div className={styles.drawerWrapper}>{props.children}</div>
     </Drawer>
   );
 }

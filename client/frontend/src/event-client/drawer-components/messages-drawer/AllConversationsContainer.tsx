@@ -13,12 +13,12 @@ const useStyles = makeStyles((_: any) => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    height: window.innerHeight - 60,
+    height: '100%',
   },
   conversationsHeader: {
     height: '25px',
     marginBottom: 20,
-    marginTop: 0,
+    marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
     color: colors.primaryText,
@@ -29,7 +29,11 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
-    paddingTop: '10px',
+    // paddingTop: '10px',
+    borderTopStyle: 'solid',
+    borderTopColor: colors.primaryText,
+    bortderTopWidth: '0px',
+    marginTop: '-2px',
   },
 }));
 

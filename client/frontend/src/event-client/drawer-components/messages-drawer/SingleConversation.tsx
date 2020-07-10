@@ -10,16 +10,13 @@ import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: '98%',
+    width: '100%',
     height: '70px',
     background: colors.secondary,
     paddingBottom: 4,
-    borderTopStyle: 'solid',
-    borderTopWidth: '2px',
     borderBottomStyle: 'solid',
     borderBottomWidth: '2px',
-    borderColor: 'white',
-    marginTop: '-2px',
+    borderColor: colors.primaryText,
   },
   top: {
     display: 'flex',
