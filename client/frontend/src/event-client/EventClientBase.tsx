@@ -175,7 +175,7 @@ function EventClientBase(props: Props) {
   if (checkMobile()) {
     return (
       <div className={styles.wrapper}>
-        {loginRedirect && <Redirect to="/login" />}
+        {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
         <HypeHeader />
         <RSText type="subhead" size={16}>
           The live event feature is currently not available on mobile. Please switch
