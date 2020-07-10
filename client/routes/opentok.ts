@@ -75,8 +75,7 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
   app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
-    //ISSUE - This value is undefined
-    const { eventID } = req.query;
+    const { eventID } = req.params;
     console.log('eventID:', eventID);
     await getWebinarDetails(eventID, (packet) => {
       res.json(packet);

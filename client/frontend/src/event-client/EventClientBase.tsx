@@ -59,6 +59,8 @@ function EventClientBase(props: Props) {
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
 
+  const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
 
@@ -67,7 +69,7 @@ function EventClientBase(props: Props) {
       // checkDevAuth();
       fetchAds();
       fetchEventInfo();
-      setDevPageMode();
+      // setDevPageMode();
     }
   }, []);
 
@@ -95,6 +97,15 @@ function EventClientBase(props: Props) {
 
   async function fetchEventInfo() {
     const { data } = await axios.get(`/api/webinar/getDetails/${eventID}`);
+    if (data['success'] === 1) {
+      const { webinar } = data['content'];
+      setWebinarData(webinar);
+      setTimeout(() => {
+        setDevPageMode(webinar);
+      }, 500);
+
+      // for(let i=0; i<eve)
+    }
     console.log('Data:', data);
   }
 
@@ -104,25 +115,43 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setDevPageMode() {
+  function setDevPageMode(webinar: { [key: string]: any }) {
     //TODO - Set this mode based on the webinar data. Pass it in from the server and continue.
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-      switch (eventID.charAt(eventID.length - 1)) {
-        case '0':
-          return setEventMode('viewer');
-        case '1':
-          return setEventMode('speaker');
-        case '2':
-          return setEventMode('admin');
-        default:
-          return setEventMode('viewer');
+    // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    //   switch (eventID.charAt(eventID.length - 1)) {
+    //     case '0':
+    //       return setEventMode('viewer');
+    //     case '1':
+    //       return setEventMode('speaker');
+    //     case '2':
+    //       return setEventMode('admin');
+    //     default:
+    //       return setEventMode('viewer');
+    //   }
+    // }
+
+    if (props.user._id === webinar['host']) {
+      setEventMode('admin');
+    } else {
+      for (let i = 0; i < webinar['speakers'].length; i++) {
+        if (props.user._id === webinar['speakers'][i]) {
+          setEventMode('speaker');
+          return;
+        }
       }
     }
+    setEventMode('viewer');
   }
 
   function renderVideoArea() {
     if (eventMode === 'viewer') return <EventWatcherVideoContainer />;
-    else return <EventHostContainer mode={eventMode as 'admin' | 'speaker'} />;
+    else
+      return (
+        <EventHostContainer
+          mode={eventMode as 'admin' | 'speaker'}
+          webinar={webinarData}
+        />
+      );
   }
 
   function getHeaderMinWidth() {

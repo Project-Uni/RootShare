@@ -44,7 +44,9 @@ export async function getWebinarDetails(webinarID, callback) {
     } else if (!webinar) {
       return callback(sendPacket(0, 'No webinar exists with this ID'));
     }
-    return sendPacket(1, 'Succesfully found webinar details', { webinar: webinar });
+    return callback(
+      sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
+    );
   });
 }
 

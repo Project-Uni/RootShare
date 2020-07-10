@@ -55,6 +55,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   user: { [key: string]: any };
   mode: 'speaker' | 'admin';
+  webinar: { [key: string]: any };
 };
 
 function EventHostContainer(props: Props) {
@@ -292,18 +293,10 @@ function EventHostContainer(props: Props) {
   }
 
   async function initializeSession() {
-    // TODO- This API call should be fetching the correct one for the event in prod.
-    //TODO - Create a new route that returns the open tok session id for the webinar id in the browser.
-    // Actually, it should come from the base component if the user is a speaker.
-    const { data } =
-      props.mode === 'admin'
-        ? await axios.get('/webinar/createSession')
-        : await axios.get('/webinar/latestWebinarID');
-
-    if (data['success'] === 1) {
-      setWebinarID(data['content']['webinarID']);
+    if (props.webinar) {
+      setWebinarID(props.webinar['_id']);
       const { screenshare, eventSession } = await connectStream(
-        data['content']['webinarID'],
+        props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher
