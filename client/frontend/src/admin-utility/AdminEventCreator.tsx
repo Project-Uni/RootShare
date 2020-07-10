@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, TextField, Button } from '@material-ui/core';
 
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -74,6 +81,10 @@ function AdminEventCreator(props: Props) {
   const [title, setTitle] = useState('');
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
+  const [eventDate, setEventDate] = useState(new Date());
+  const [eventTime, setEventTime] = useState(new Date());
+
+  const dateFns = new DateFnsUtils();
 
   useEffect(() => {
     setLoading(true);
@@ -106,10 +117,23 @@ function AdminEventCreator(props: Props) {
     setBriefCharsRemaining(MAX_BRIEF_LEN - event.target.value.length);
   }
 
-  function handleFullDescChange(event: any) {}
+  function handleFullDescChange(event: any) {
+    setFullDesc(event.target.value);
+  }
+
+  function handleDateChange(date: any) {
+    setEventDate(date);
+  }
+
+  function handleTimeChange(time: any) {
+    setEventTime(time);
+  }
 
   function handleSubmit() {
     console.log(`Title: ${title}\nBrief: ${briefDesc}\nFull: ${fullDesc}`);
+    const date = dateFns.format(eventDate, `MM/dd/yyy`);
+    const time = dateFns.format(eventTime, 'hh:mm:ss aa');
+    console.log(`Date: ${date}, Time: ${time}`);
   }
 
   function renderFields() {
@@ -157,6 +181,32 @@ function AdminEventCreator(props: Props) {
           rows={2}
           required
         />
+
+        <RSText type="subhead" bold className={styles.textFieldTitle}>
+          Event Date {'&'} Time
+        </RSText>
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <KeyboardDatePicker
+            margin="normal"
+            label="Date"
+            format="MM/dd/yyyy"
+            value={eventDate}
+            onChange={handleDateChange}
+            KeyboardButtonProps={{
+              'aria-label': 'change date',
+            }}
+          />
+          <KeyboardTimePicker
+            margin="normal"
+            id="time-picker"
+            label="Time picker"
+            value={eventTime}
+            onChange={handleTimeChange}
+            KeyboardButtonProps={{
+              'aria-label': 'change time',
+            }}
+          />
+        </MuiPickersUtilsProvider>
       </>
     );
   }
