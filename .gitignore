@@ -2,9 +2,7 @@ client/node_modules/
 client/package-lock.json
 
 client/frontend/node_modules/
-client/frontend/src/keys.json
 client/frontend/package-lock.json
-
 
 balancer/venv/
 .DS_Store
