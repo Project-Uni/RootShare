@@ -1,57 +1,57 @@
-import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
-import { TextField, IconButton } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { MdSend } from "react-icons/md";
-import { FaRegSmile } from "react-icons/fa";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+import { TextField, IconButton } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { MdSend } from 'react-icons/md';
+import { FaRegSmile } from 'react-icons/fa';
+import axios from 'axios';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "300px",
-    display: "flex",
-    flexDirection: "column",
+    width: '300px',
+    display: 'flex',
+    flexDirection: 'column',
     height: window.innerHeight - 60,
   },
   messageContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     // background: "white",
-    overflow: "scroll",
-    label: "#f2f2f2",
+    overflow: 'scroll',
+    label: '#f2f2f2',
   },
   textFieldContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    background: "#333333",
-    borderTop: "1px solid #333333",
-    color: "#f2f2f2",
+    display: 'flex',
+    justifyContent: 'space-between',
+    background: '#333333',
+    borderTop: '1px solid #333333',
+    color: '#f2f2f2',
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
   textField: {
     width: 200,
-    background: "#333333",
-    color: "#f2f2f2",
-    label: "#f2f2f2",
+    background: '#333333',
+    color: '#f2f2f2',
+    label: '#f2f2f2',
   },
   cssLabel: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
+    color: '#f2f2f2',
+    label: '#f2f2f2',
   },
   cssFocused: {
-    color: "#f2f2f2",
-    label: "#f2f2f2",
-    borderWidth: "2px",
-    borderColor: "#f2f2f2 !important",
+    color: '#f2f2f2',
+    label: '#f2f2f2',
+    borderWidth: '2px',
+    borderColor: '#f2f2f2 !important',
   },
   cssOutlinedInput: {
-    "&$cssFocused $notchedOutline": {
-      color: "#f2f2f2 !important",
-      label: "#f2f2f2 !important",
-      borderWidth: "2px",
-      borderColor: "#f2f2f2 !important",
+    '&$cssFocused $notchedOutline': {
+      color: '#f2f2f2 !important',
+      label: '#f2f2f2 !important',
+      borderWidth: '2px',
+      borderColor: '#f2f2f2 !important',
     },
   },
 }));
@@ -65,7 +65,7 @@ type Props = {
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
 
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {}, []);
 
@@ -87,15 +87,15 @@ function MessageThreadContainer(props: Props) {
   }
 
   function handleSendMessage() {
-    axios.post("/api/messaging/sendMessage", {
+    axios.post('/api/messaging/sendMessage', {
       conversationID: props.conversationID,
       message: newMessage,
     });
-    setNewMessage("");
+    setNewMessage('');
   }
 
   function handleEmojiClick() {
-    console.log("Clicked on emoji button");
+    console.log('Clicked on emoji button');
   }
 
   return (
@@ -125,7 +125,7 @@ function MessageThreadContainer(props: Props) {
               focused: styles.cssFocused,
               // notchedOutline: styles.notchedOutline,
             },
-            inputMode: "numeric",
+            inputMode: 'numeric',
           }}
         />
         <IconButton onClick={handleEmojiClick}>

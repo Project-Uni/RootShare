@@ -1,10 +1,10 @@
-import sendPacket from "../helpers/sendPacket";
-import log from "../helpers/logger";
+import sendPacket from '../helpers/sendPacket';
+import log from '../helpers/logger';
 
-const mongoose = require("mongoose");
-const User = mongoose.model("users");
-const Conversation = mongoose.model("conversations");
-const Message = mongoose.model("messages");
+const mongoose = require('mongoose');
+const User = mongoose.model('users');
+const Conversation = mongoose.model('conversations');
+const Message = mongoose.model('messages');
 
 module.exports = {
   createThread: (req, callback) => {
@@ -12,16 +12,16 @@ module.exports = {
     const { _id: userID } = req.user;
 
     if (recipients === undefined)
-      return callback(sendPacket(-1, "Could not find conversation"));
+      return callback(sendPacket(-1, 'Could not find conversation'));
 
     let newConversation = new Conversation();
     newConversation.participants = recipients;
     newConversation.participants.push(userID);
     newConversation.save((err, conversation) => {
       if (err) {
-        log("error", err);
+        log('error', err);
         return callback(
-          sendPacket(-1, "There was an error saving the conversation")
+          sendPacket(-1, 'There was an error saving the conversation')
         );
       }
 
@@ -33,8 +33,8 @@ module.exports = {
   sendMessage: (userID, userName, conversationID, message, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
       if (err || conversationID === undefined) {
-        log("error", err);
-        return callback(sendPacket(-1, "Could not find conversation"));
+        log('error', err);
+        return callback(sendPacket(-1, 'Could not find conversation'));
       }
 
       let newMessage = new Message();
@@ -45,23 +45,21 @@ module.exports = {
       newMessage.timeCreated = new Date();
       newMessage.save((err) => {
         if (err) {
-          log("error", err);
-          return callback(
-            sendPacket(-1, "There was an error saving the message")
-          );
+          log('error', err);
+          return callback(sendPacket(-1, 'There was an error saving the message'));
         }
 
         currConversation.lastMessage = newMessage._id;
         currConversation.save((err) => {
           if (err) {
-            log("error", err);
+            log('error', err);
             return callback(
-              sendPacket(1, "There was an error updating the conversation")
+              sendPacket(1, 'There was an error updating the conversation')
             );
           }
 
-          io.in(newMessage.conversationID).emit("newMessage", newMessage);
-          return callback(sendPacket(1, "Message sent"));
+          io.in(newMessage.conversationID).emit('newMessage', newMessage);
+          return callback(sendPacket(1, 'Message sent'));
         });
       });
     });
@@ -80,44 +78,42 @@ module.exports = {
     let userConversations = await Conversation.find({
       participants: userID,
     })
-      .populate("lastMessage")
-      .populate("participants");
+      .populate('lastMessage')
+      .populate('participants');
 
     if (userConversations === undefined)
       return callback(
-        sendPacket(-1, "There was an error retrieving the Conversations")
+        sendPacket(-1, 'There was an error retrieving the Conversations')
       );
 
     userConversations.sort(timeStampCompare);
-    callback(
-      sendPacket(1, "Sending User's Conversations", { userConversations })
-    );
+    callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
   },
 
   getLatestMessages: async (userID, conversationID, callback) => {
     Conversation.findById(conversationID, (err, conversation) => {
       if (err) {
-        log("error", err);
-        return callback(sendPacket(-1, "Could not find Conversation"));
+        log('error', err);
+        return callback(sendPacket(-1, 'Could not find Conversation'));
       }
 
       Message.find(
         { conversationID },
-        ["sender", "senderName", "content", "timeCreated"],
+        ['sender', 'senderName', 'content', 'timeCreated'],
         (err, messages) => {
           if (err) {
-            log("error", err);
-            return callback(sendPacket(-1, "Could not find Messages"));
+            log('error', err);
+            return callback(sendPacket(-1, 'Could not find Messages'));
           }
 
           return callback(
-            sendPacket(1, "Sending Conversation and Messages", {
+            sendPacket(1, 'Sending Conversation and Messages', {
               conversation,
               messages,
             })
           );
         }
-      ).sort({ timeCreated: "ascending" });
+      ).sort({ timeCreated: 'ascending' });
     });
   },
   connectSocketToConversations: (socket, conversations) => {

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import EmojiEmotionsIcon from "@material-ui/icons/EmojiEmotions";
-import { makeStyles } from "@material-ui/core/styles";
-import { IconButton } from "@material-ui/core";
-import { FaEllipsisH } from "react-icons/fa";
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import { makeStyles } from '@material-ui/core/styles';
+import { IconButton } from '@material-ui/core';
+import { FaEllipsisH } from 'react-icons/fa';
 
-import RSText from "../../base-components/RSText";
-import { colors } from "../../theme/Colors";
+import RSText from '../../base-components/RSText';
+import { colors } from '../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -14,8 +14,8 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 4,
   },
   top: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   left: {},
   right: {},
@@ -23,7 +23,7 @@ const useStyles = makeStyles((_: any) => ({
     margin: 10,
     marginTop: 18,
     marginBottom: -7,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   organization: {
@@ -32,8 +32,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   bottom: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     margin: 0,
     marginTop: -20,
   },
@@ -42,7 +42,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 10,
     marginTop: -50,
     marginLeft: 10,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   ellipsis: {

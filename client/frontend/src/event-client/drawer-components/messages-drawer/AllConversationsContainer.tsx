@@ -1,36 +1,36 @@
-import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
-import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
 
-import RSText from "../../../base-components/RSText";
-import { colors } from "../../../theme/Colors";
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
-import SingleConversation from "./SingleConversation";
-import { Autocomplete } from "@material-ui/lab";
+import SingleConversation from './SingleConversation';
+import { Autocomplete } from '@material-ui/lab';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
     height: window.innerHeight - 60,
   },
   conversationsHeader: {
-    height: "25px",
+    height: '25px',
     marginBottom: 20,
     marginTop: 0,
-    margin: "auto",
-    display: "inline-block",
+    margin: 'auto',
+    display: 'inline-block',
     color: colors.primaryText,
   },
   conversationsContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     background: colors.secondary,
-    overflow: "scroll",
+    overflow: 'scroll',
     label: colors.primaryText,
-    paddingTop: "10px",
+    paddingTop: '10px',
   },
 }));
 
@@ -51,7 +51,7 @@ function AllConversationsContainer(props: Props) {
         <SingleConversation
           key={conversation._id}
           conversation={conversation}
-          userName={"John"}
+          userName={'John'}
           selectConversation={props.selectConversation}
         />
       );

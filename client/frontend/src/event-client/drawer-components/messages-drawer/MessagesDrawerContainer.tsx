@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
-import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
 
-import AllConversationsContainer from "./AllConversationsContainer";
-import MessageThreadContainer from "./MessageThreadContainer";
+import AllConversationsContainer from './AllConversationsContainer';
+import MessageThreadContainer from './MessageThreadContainer';
 
-import { colors } from "../../../theme/Colors";
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "400px",
-    display: "flex",
-    flexDirection: "column",
+    width: '400px',
+    display: 'flex',
+    flexDirection: 'column',
     height: window.innerHeight - 60,
   },
   messageContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     // background: "white",
-    overflow: "scroll",
-    label: "#f2f2f2",
+    overflow: 'scroll',
+    label: '#f2f2f2',
   },
   textFieldContainer: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     background: colors.primary,
-    borderTop: "2px solid " + colors.primaryText,
+    borderTop: '2px solid ' + colors.primaryText,
     color: colors.primaryText,
     paddingTop: 5,
     paddingBottom: 5,
@@ -34,9 +34,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectionContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     background: colors.secondary,
-    overflow: "scroll",
+    overflow: 'scroll',
     label: colors.primaryText,
   },
 }));
@@ -49,7 +49,7 @@ function MessagesDrawerContainer(props: Props) {
   const [socket, setSocket] = useState<SocketIOClient.Socket>();
   const [setup, setSetup] = useState(false);
   const [conversations, setConversations] = useState<any>([]);
-  const [currConversationID, setCurrConversationID] = useState("");
+  const [currConversationID, setCurrConversationID] = useState('');
   const [currConversation, setCurrConversation] = useState({});
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState({});
@@ -66,18 +66,18 @@ function MessagesDrawerContainer(props: Props) {
   }, [newMessage]);
 
   function connectSocket() {
-    const socket = io("http://localhost:8080");
+    const socket = io('http://localhost:8080');
     setSocket(socket);
 
-    socket.on("connect", (data: React.SetStateAction<boolean>) => {
+    socket.on('connect', (data: React.SetStateAction<boolean>) => {
       updateConversations(socket);
     });
 
-    socket.on("newMessage", (data: any) => {
+    socket.on('newMessage', (data: any) => {
       setNewMessage(data);
     });
 
-    socket.on("error", function(err: any) {
+    socket.on('error', function(err: any) {
       console.log(`Received socket error: ${err}`);
     });
   }
@@ -93,25 +93,25 @@ function MessagesDrawerContainer(props: Props) {
       return newConversations;
     });
 
-    if (currConversationID !== "")
+    if (currConversationID !== '')
       setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
   function updateConversations(currSocket: SocketIOClient.Socket) {
     if (currSocket === undefined && socket !== undefined) currSocket = socket;
     axios
-      .get("/api/messaging/getLatestThreads")
+      .get('/api/messaging/getLatestThreads')
       .then((response) => {
         if (response.data.success !== 1) return;
 
         const userConversations = response.data.content.userConversations;
         if (currSocket !== undefined) {
-          currSocket.emit("metadata", userConversations);
+          currSocket.emit('metadata', userConversations);
         }
         setConversations(userConversations);
       })
       .catch((err) => {
-        console.log("error", "Failed to get Conversations");
+        console.log('error', 'Failed to get Conversations');
       });
   }
 
@@ -119,7 +119,7 @@ function MessagesDrawerContainer(props: Props) {
     console.log(`currID: ${currID}`);
 
     axios
-      .post("/api/messaging/getLatestMessages", {
+      .post('/api/messaging/getLatestMessages', {
         conversationID: currID,
       })
       .then((response) => {
@@ -130,7 +130,7 @@ function MessagesDrawerContainer(props: Props) {
         setMessages(messages);
       })
       .catch((err) => {
-        console.log("error", "Failed to get Messages");
+        console.log('error', 'Failed to get Messages');
       });
   }
 
@@ -141,15 +141,15 @@ function MessagesDrawerContainer(props: Props) {
   }
 
   function returnToConversations() {
-    setCurrConversationID("");
+    setCurrConversationID('');
     setCurrConversation({});
     setMessages([]);
   }
 
-  axios.get("/api/mockLogin");
+  axios.get('/api/mockLogin');
   return (
     <div className={styles.wrapper}>
-      {currConversationID === "" ? (
+      {currConversationID === '' ? (
         <AllConversationsContainer
           conversations={conversations}
           selectConversation={selectConversation}

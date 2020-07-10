@@ -1,29 +1,29 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import EmojiEmotionsIcon from "@material-ui/icons/EmojiEmotions";
-import { makeStyles } from "@material-ui/core/styles";
-import { IconButton } from "@material-ui/core";
-import { IoIosArrowForward } from "react-icons/io";
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import { makeStyles } from '@material-ui/core/styles';
+import { IconButton } from '@material-ui/core';
+import { IoIosArrowForward } from 'react-icons/io';
 
-import RSText from "../../../base-components/RSText";
-import { colors } from "../../../theme/Colors";
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "98%",
-    height: "70px",
+    width: '98%',
+    height: '70px',
     background: colors.secondary,
     paddingBottom: 4,
-    borderTopStyle: "solid",
-    borderTopWidth: "2px",
-    borderBottomStyle: "solid",
-    borderBottomWidth: "2px",
-    borderColor: "white",
-    marginTop: "-2px",
+    borderTopStyle: 'solid',
+    borderTopWidth: '2px',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '2px',
+    borderColor: 'white',
+    marginTop: '-2px',
   },
   top: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   left: {},
   right: {},
@@ -31,17 +31,17 @@ const useStyles = makeStyles((_: any) => ({
     margin: 10,
     marginTop: 18,
     marginBottom: -7,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   message: {
     marginLeft: 54,
-    color: "gray",
+    color: 'gray',
     marginTop: 10,
   },
   bottom: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     margin: 0,
     marginTop: -20,
   },
@@ -50,7 +50,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 10,
     marginTop: -50,
     marginLeft: 10,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   arrow: {
@@ -58,36 +58,36 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 27,
   },
   timeStamp: {
-    textAlign: "right",
+    textAlign: 'right',
     marginTop: 10,
     marginRight: 25,
-    color: "gray",
+    color: 'gray',
   },
 }));
 
 const monthDict = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 const weekDict = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
 ];
 
 type Props = {
@@ -100,7 +100,7 @@ function SingleConversation(props: Props) {
   const styles = useStyles();
 
   function joinUserNames(users: any, delimiter: string) {
-    let joinedString = "";
+    let joinedString = '';
 
     for (let i = 0; i < users.length; i++) {
       const currName = users[i].firstName;
@@ -115,11 +115,11 @@ function SingleConversation(props: Props) {
   function formatTime(date: Date) {
     var hours = date.getHours();
     var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? "PM" : "AM";
+    var ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
-    let minutesString = minutes < 10 ? "0" + minutes : minutes;
-    var strTime = hours + ":" + minutesString + " " + ampm;
+    let minutesString = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutesString + ' ' + ampm;
 
     return strTime;
   }
@@ -132,10 +132,9 @@ function SingleConversation(props: Props) {
     const currDate = now.getDate();
     if (messageYear !== now.getFullYear()) return messageYear;
     else if (messageMonth !== now.getMonth()) return monthDict[messageMonth];
-    else if (currDate - messageDate >= 7)
-      return `${messageMonth}/${messageDate}`;
+    else if (currDate - messageDate >= 7) return `${messageMonth}/${messageDate}`;
     else if (currDate - messageDate > 1) return weekDict[date.getDay()];
-    else if (messageDate !== currDate) return "Yesterday";
+    else if (messageDate !== currDate) return 'Yesterday';
     else return formatTime(date);
   }
 
@@ -151,7 +150,7 @@ function SingleConversation(props: Props) {
         <div>
           <EmojiEmotionsIcon className={styles.picture} />
           <RSText bold size={12} className={styles.name}>
-            {joinUserNames(props.conversation.participants, ", ")}
+            {joinUserNames(props.conversation.participants, ', ')}
           </RSText>
         </div>
 
