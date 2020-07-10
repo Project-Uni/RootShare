@@ -186,7 +186,11 @@ function AdminEventCreator(props: Props) {
     console.log('Host:', hostID);
   }
 
-  function removeSpeaker(speakerID: string) {}
+  function removeSpeaker(index: number) {
+    const newSpeakers = [...speakers];
+    newSpeakers.splice(index, 1);
+    setSpeakers(newSpeakers);
+  }
 
   function renderSpeakers() {
     const output = [];
@@ -199,7 +203,11 @@ function AdminEventCreator(props: Props) {
           <RSText type="subhead" italic size={11}>
             {speakers[i]['email']}
           </RSText>
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              removeSpeaker(i);
+            }}
+          >
             <RSText type="subhead">X</RSText>
           </IconButton>
         </div>
