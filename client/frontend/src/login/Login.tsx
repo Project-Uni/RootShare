@@ -85,6 +85,7 @@ function Login(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {/* TODO - Add a redirect URL to login page and redirect to that on successful login */}
       {redirectHome && <Redirect to="/event/rootshare1" />}
       <HypeCard width={375} loading={loading} headerText="Login">
         <TextField
