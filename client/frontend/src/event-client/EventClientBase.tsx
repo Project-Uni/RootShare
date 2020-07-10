@@ -155,7 +155,7 @@ function EventClientBase(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login" />}
+      {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>
