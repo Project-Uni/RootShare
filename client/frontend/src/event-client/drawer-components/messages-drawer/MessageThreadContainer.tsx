@@ -57,6 +57,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: any;
   conversationID: string;
   messages: any[];
   returnToConversations: () => void;

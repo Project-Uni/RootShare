@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
+import { connect } from 'react-redux';
 
 import AllConversationsContainer from './AllConversationsContainer';
 import MessageThreadContainer from './MessageThreadContainer';
@@ -41,7 +42,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+};
 
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
@@ -151,11 +154,13 @@ function MessagesDrawerContainer(props: Props) {
     <div className={styles.wrapper}>
       {currConversationID === '' ? (
         <AllConversationsContainer
+          user={props.user}
           conversations={conversations}
           selectConversation={selectConversation}
         />
       ) : (
         <MessageThreadContainer
+          user={props.user}
           conversationID={currConversationID}
           messages={messages}
           returnToConversations={returnToConversations}
@@ -165,4 +170,14 @@ function MessagesDrawerContainer(props: Props) {
   );
 }
 
-export default MessagesDrawerContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MessagesDrawerContainer);

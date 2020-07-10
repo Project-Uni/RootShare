@@ -35,6 +35,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: any;
   conversations: any[];
   selectConversation: (conversation: any) => void;
 };
@@ -50,6 +51,7 @@ function AllConversationsContainer(props: Props) {
       output.push(
         <SingleConversation
           key={conversation._id}
+          user={props.user}
           conversation={conversation}
           userName={'John'}
           selectConversation={props.selectConversation}

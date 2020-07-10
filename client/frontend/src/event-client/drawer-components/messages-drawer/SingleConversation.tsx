@@ -91,6 +91,7 @@ const weekDict = [
 ];
 
 type Props = {
+  user: any;
   conversation: any;
   userName: string;
   selectConversation: (conversation: any) => void;
@@ -103,10 +104,15 @@ function SingleConversation(props: Props) {
     let joinedString = '';
 
     for (let i = 0; i < users.length; i++) {
-      const currName = users[i].firstName;
+      const currUser = users[i];
+      const currName = currUser.firstName;
 
-      joinedString += currName;
-      if (i !== users.length - 1) joinedString += delimiter;
+      let firstFlag = false;
+      if (firstFlag) joinedString += delimiter;
+      if (currUser._id !== props.user._id) {
+        joinedString += currName;
+        firstFlag = true;
+      }
     }
 
     return joinedString;
