@@ -25,7 +25,7 @@ import {
 import { SINGLE_DIGIT } from '../../../types/types';
 
 const MIN_WINDOW_WIDTH = 1100;
-const EVENT_MESSAGES_CONTAINER_WIDTH = 300;
+const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
 
@@ -55,6 +55,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   user: { [key: string]: any };
   mode: 'speaker' | 'admin';
+  webinar: { [key: string]: any };
 };
 
 function EventHostContainer(props: Props) {
@@ -105,8 +106,7 @@ function EventHostContainer(props: Props) {
   }
 
   async function fetchEventInfo() {
-    const initialNumSpeakers = 4;
-    setNumSpeakers(4);
+    setNumSpeakers(props.webinar['speakers'].length + 1);
   }
 
   function handleStreamStatusChange() {
@@ -292,16 +292,10 @@ function EventHostContainer(props: Props) {
   }
 
   async function initializeSession() {
-    // TODO- This API call should be fetching the correct one for the event in prod
-    const { data } =
-      props.mode === 'admin'
-        ? await axios.get('/webinar/createSession')
-        : await axios.get('/webinar/latestWebinarID');
-
-    if (data['success'] === 1) {
-      setWebinarID(data['content']['webinarID']);
+    if (props.webinar) {
+      setWebinarID(props.webinar['_id']);
       const { screenshare, eventSession } = await connectStream(
-        data['content']['webinarID'],
+        props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher

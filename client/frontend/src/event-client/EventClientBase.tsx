@@ -21,8 +21,12 @@ import EventClientMessageContainer from './event-messages/EventMessageContainer'
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
 
+import { colors } from '../theme/Colors';
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    background: colors.secondaryText,
+  },
   body: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -59,14 +63,15 @@ function EventClientBase(props: Props) {
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
 
+  const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
 
   useEffect(() => {
     if (checkAuth()) {
-      checkDevAuth();
       fetchAds();
-      setDevPageMode();
+      fetchEventInfo();
     }
   }, []);
 
@@ -79,16 +84,14 @@ function EventClientBase(props: Props) {
     return true;
   }
 
-  //TODO - Remove after actual auth implemented
-  function checkDevAuth() {
-    if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-      const { email } = props.user;
-      const validTestEmails = [
-        'smitdesai422@gmail.com',
-        'mahesh.ashwin1998@gmail.com',
-        'mahesh2@purdue.edu',
-      ];
-      if (!validTestEmails.includes(email)) setLoginRedirect(true);
+  async function fetchEventInfo() {
+    const { data } = await axios.get(`/api/webinar/getDetails/${eventID}`);
+    if (data['success'] === 1) {
+      const { webinar } = data['content'];
+      setWebinarData(webinar);
+      setTimeout(() => {
+        setPageMode(webinar);
+      }, 500);
     }
   }
 
@@ -98,24 +101,30 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setDevPageMode() {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-      switch (eventID.charAt(eventID.length - 1)) {
-        case '0':
-          return setEventMode('viewer');
-        case '1':
-          return setEventMode('speaker');
-        case '2':
-          return setEventMode('admin');
-        default:
-          return setEventMode('viewer');
+  function setPageMode(webinar: { [key: string]: any }) {
+    if (props.user._id === webinar['host']) {
+      setEventMode('admin');
+      return;
+    } else {
+      for (let i = 0; i < webinar['speakers'].length; i++) {
+        if (props.user._id === webinar['speakers'][i]) {
+          setEventMode('speaker');
+          return;
+        }
       }
     }
+    setEventMode('viewer');
   }
 
   function renderVideoArea() {
     if (eventMode === 'viewer') return <EventWatcherVideoContainer />;
-    else return <EventHostContainer mode={eventMode as 'admin' | 'speaker'} />;
+    else
+      return (
+        <EventHostContainer
+          mode={eventMode as 'admin' | 'speaker'}
+          webinar={webinarData}
+        />
+      );
   }
 
   function getHeaderMinWidth() {
@@ -142,7 +151,7 @@ function EventClientBase(props: Props) {
   if (checkMobile()) {
     return (
       <div className={styles.wrapper}>
-        {loginRedirect && <Redirect to="/login" />}
+        {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
         <HypeHeader />
         <RSText type="subhead" size={16}>
           The live event feature is currently not available on mobile. Please switch
@@ -154,7 +163,7 @@ function EventClientBase(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login" />}
+      {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>
@@ -175,7 +184,6 @@ function EventClientBase(props: Props) {
           <EventClientMessageContainer />
         </div>
       </div>
-      <HypeFooter minWidth={minHeaderWidth} />
     </div>
   );
 }

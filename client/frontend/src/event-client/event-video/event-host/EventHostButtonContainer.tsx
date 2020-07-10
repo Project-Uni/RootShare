@@ -9,6 +9,8 @@ import {
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
 
+import { colors } from '../../../theme/Colors';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -19,12 +21,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonDefault: {
     marginLeft: 8,
-    //TODO - Change once color scheme is updated
-    backgroundColor: '#3D66DE',
+    backgroundColor: colors.secondary,
     color: 'white',
     '&:hover': {
-      //TODO - Change once color scheme is updated
-      backgroundColor: '#4272E6',
+      backgroundColor: colors.ternary,
     },
   },
   cameraIcon: {},

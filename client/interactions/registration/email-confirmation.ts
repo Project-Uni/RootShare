@@ -6,16 +6,9 @@ const Cryptr = require('cryptr');
 
 const { CRYPT_SECRET } = require('../../../keys/keys.json');
 const cryptr = new Cryptr(CRYPT_SECRET);
-const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
 import log from '../../helpers/logger';
-
-let transporter = nodemailer.createTransport({
-  SES: new aws.SES({
-    apiVersion: '2010-12-01',
-  }),
-});
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
