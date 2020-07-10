@@ -1,33 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { TextField, IconButton } from "@material-ui/core";
-import { MdSend } from "react-icons/md";
-import { FaRegSmile } from "react-icons/fa";
-import RSText from "../../base-components/RSText";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { TextField, IconButton } from '@material-ui/core';
+import { MdSend } from 'react-icons/md';
+import { FaRegSmile } from 'react-icons/fa';
+import RSText from '../../base-components/RSText';
 
-import EventMessage from "./EventMessage";
-import MyEventMessage from "./MyEventMessage";
+import EventMessage from './EventMessage';
+import MyEventMessage from './MyEventMessage';
 
-<<<<<<< HEAD
-import { colors } from "../../theme/Colors";
+import { colors } from '../../theme/Colors';
 
-=======
 const HEADER_HEIGHT = 58;
->>>>>>> master
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "350px",
-    display: "flex",
-    flexDirection: "column",
+    width: '350px',
+    display: 'flex',
+    flexDirection: 'column',
   },
   headerText: {
     margin: 0,
-    display: "block",
+    display: 'block',
   },
   messageTest: {},
   textFieldContainer: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     background: colors.secondary,
     color: colors.primaryText,
     paddingTop: 5,
@@ -38,13 +35,13 @@ const useStyles = makeStyles((_: any) => ({
     width: 200,
     background: colors.ternary,
     color: colors.primaryText,
-    label: colors.primaryText
+    label: colors.primaryText,
   },
   messageContainer: {
     flex: 1,
-    justifyContent: "flex-end",
-    background: "white",
-    overflow: "scroll",
+    justifyContent: 'flex-end',
+    background: 'white',
+    overflow: 'scroll',
     label: colors.primaryText,
   },
   input: {
@@ -67,7 +64,7 @@ const useStyles = makeStyles((_: any) => ({
       label: colors.primaryText,
       borderWidth: '2px',
       borderColor: colors.primaryText,
-    }
+    },
   },
   notchedOutline: {
     borderWidth: '2px',
@@ -82,27 +79,23 @@ type Props = {};
 function getDate() {
   let tempDate = new Date();
 
-
-  let ampm = "AM";
-  let hours = tempDate.getHours() === 0
-    ? 12
-    : tempDate.getHours();
+  let ampm = 'AM';
+  let hours = tempDate.getHours() === 0 ? 12 : tempDate.getHours();
 
   if (tempDate.getHours() > 12) {
-    ampm = "PM";
+    ampm = 'PM';
     hours = hours - 12;
   }
 
-  let minutes = tempDate.getMinutes() < 10
-    ? "0" + tempDate.getMinutes()
-    : tempDate.getMinutes();
+  let minutes =
+    tempDate.getMinutes() < 10 ? '0' + tempDate.getMinutes() : tempDate.getMinutes();
 
-  return hours + ":" + minutes + " " + ampm;
+  return hours + ':' + minutes + ' ' + ampm;
 }
 
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   useEffect(() => {
@@ -119,11 +112,11 @@ function EventMessageContainer(props: Props) {
 
   function handleSendMessage() {
     console.log(`Sending message: ${message}`);
-    setMessage("");
+    setMessage('');
   }
 
   function handleEmojiClick() {
-    console.log("Clicked on emoji button");
+    console.log('Clicked on emoji button');
   }
 
   function testRenderMessages() {
@@ -206,7 +199,7 @@ function EventMessageContainer(props: Props) {
       <div className={styles.textFieldContainer}>
         <TextField
           multiline
-          type='search'
+          type="search"
           label="Aa"
           variant="outlined"
           className={styles.textField}
@@ -224,7 +217,7 @@ function EventMessageContainer(props: Props) {
               focused: styles.cssFocused,
               // notchedOutline: styles.notchedOutline,
             },
-            inputMode: "numeric"
+            inputMode: 'numeric',
           }}
         />
         <IconButton onClick={handleEmojiClick}>
