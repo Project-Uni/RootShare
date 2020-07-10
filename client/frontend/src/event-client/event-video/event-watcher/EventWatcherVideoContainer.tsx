@@ -7,7 +7,7 @@ import VideoPlayer from '../video/VideoPlayer';
 
 import log from '../../../helpers/logger';
 
-const MIN_WINDOW_WIDTH = 1100;
+const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const AD_CONTAINER_HEIGHT = 125;
 const HEADER_HEIGHT = 60;
