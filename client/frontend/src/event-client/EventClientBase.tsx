@@ -21,8 +21,12 @@ import EventClientMessageContainer from './event-messages/EventMessageContainer'
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
 
+import { colors } from '../theme/Colors';
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    background: colors.secondaryText,
+  },
   body: {
     display: 'flex',
     justifyContent: 'space-between',
