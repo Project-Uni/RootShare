@@ -69,7 +69,7 @@ module.exports = (app) => {
   });
 
   app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.admin)
+    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
       );
