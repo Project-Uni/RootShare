@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 
 import RSText from '../../../base-components/RSText';
+import { BsPencilSquare } from 'react-icons/bs';
+import { IconButton } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 
 import SingleConversation from './SingleConversation';
+import CreateNewConversation from './CreateNewConversation';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -15,13 +16,25 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     height: '100%',
   },
-  conversationsHeader: {
+  conversationsTitle: {
     height: '25px',
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
     color: colors.primaryText,
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  createNewButton: {},
+  createNewIcon: {
+    color: colors.primaryText,
+  },
+  filler: {
+    color: colors.secondary,
   },
   conversationsContainer: {
     flex: 1,
@@ -32,7 +45,7 @@ const useStyles = makeStyles((_: any) => ({
     // paddingTop: '10px',
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
-    bortderTopWidth: '0px',
+    borderTopWidth: '1px',
     marginTop: '-2px',
   },
 }));
@@ -45,6 +58,8 @@ type Props = {
 
 function AllConversationsContainer(props: Props) {
   const styles = useStyles();
+
+  const [newConversation, setNewConversation] = useState(false);
 
   useEffect(() => {}, []);
 
@@ -64,11 +79,33 @@ function AllConversationsContainer(props: Props) {
     return output;
   }
 
-  return (
+  function createNewThread() {}
+
+  return newConversation ? (
+    <CreateNewConversation
+      user={props.user}
+      selectConversation={props.selectConversation}
+      setNewConversation={setNewConversation}
+    />
+  ) : (
     <div className={styles.wrapper}>
-      <RSText bold size={16} className={styles.conversationsHeader}>
-        Messages
-      </RSText>
+      <div className={styles.header}>
+        <div className={styles.filler}>*SAVE*</div>
+
+        <RSText bold size={16} className={styles.conversationsTitle}>
+          Messages
+        </RSText>
+        <IconButton
+          className={styles.createNewButton}
+          onClick={() => setNewConversation(true)}
+        >
+          <BsPencilSquare
+            size={24}
+            className={styles.createNewIcon}
+          ></BsPencilSquare>
+        </IconButton>
+      </div>
+
       <div className={styles.conversationsContainer}>
         {renderLatestConversations()}
       </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
 import axios from 'axios';
 
 import { TextField, IconButton } from '@material-ui/core';
@@ -27,8 +26,6 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',
-    // paddingRight: '50%',
-    // paddingLeft: '10px',
     color: colors.primaryText,
   },
   messagesContainer: {
@@ -36,11 +33,13 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     background: colors.secondary,
     overflow: 'scroll',
+    // scrollbarWidth: 'thin', // don't work in most browsers
+    // scrollbarColor: 'red',  // need to find workaround
     label: colors.primaryText,
     paddingTop: '10px',
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
-    bortderTopWidth: '2px',
+    borderTopWidth: '1px',
     marginTop: '-2px',
   },
   header: {

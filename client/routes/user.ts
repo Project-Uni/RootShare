@@ -1,16 +1,11 @@
-import sendPacket from '../helpers/sendPacket';
+import { getCurrentUser, getConnections } from '../interactions/user';
 
 module.exports = (app) => {
   app.get('/user/getCurrent', (req, res) => {
-    const user = req.user;
-    if (!user) return res.json(sendPacket(0, 'User not found'));
-    return res.json(
-      sendPacket(1, 'Found currentUser', {
-        email: user.email,
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      })
-    );
+    getCurrentUser(req.user, (packet) => res.send(packet));
+  });
+
+  app.get('/user/getConnections', (req, res) => {
+    getConnections(req.user, (packet) => res.send(packet));
   });
 };
