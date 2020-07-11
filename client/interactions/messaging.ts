@@ -1,5 +1,6 @@
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
+import axios from 'axios';
 
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
@@ -64,6 +65,9 @@ module.exports = {
           return callback(sendPacket(-1, 'There was an error saving the message'));
         }
 
+        let isNewConversation = false;
+        if (currConversation.lastMessage === undefined) isNewConversation = true;
+
         currConversation.lastMessage = newMessage._id;
         currConversation.save(async (err) => {
           if (err) {
@@ -78,7 +82,12 @@ module.exports = {
             .populate('participants')
             .execPopulate();
 
-          io.in(newMessage.conversationID).emit('newMessage', newMessage);
+          if (isNewConversation)
+            io.in(`USER_${userID}`).emit('newConversation', currConversation);
+          io.in(`CONVERSATION_${newMessage.conversationID}`).emit(
+            'newMessage',
+            newMessage
+          );
           return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
       });
@@ -144,7 +153,7 @@ module.exports = {
   },
   connectSocketToConversations: (socket, conversations) => {
     conversations.forEach((conversation) => {
-      socket.join(conversation._id);
+      socket.join(`CONVERSATION_${conversation._id}`);
     });
   },
 };

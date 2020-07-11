@@ -9,15 +9,22 @@ const {
   sendMessage,
   getLatestThreads,
   getLatestMessages,
+  connectSocketToConversation,
   connectSocketToConversations,
+  connectSocketToUser,
 } = require('../interactions/messaging');
 
 module.exports = (app, io) => {
   io.on('connection', (socket) => {
     log('info', 'New client connected');
 
-    socket.on('metadata', (conversations) => {
+    socket.on('metadata', (conversations, userID) => {
       connectSocketToConversations(socket, conversations);
+      socket.join(`USER_${userID}`);
+    });
+
+    socket.on('connectToConversation', (conversationID) => {
+      socket.join(`CONVERSATION_${conversationID}`);
     });
 
     socket.on('disconnect', () => {

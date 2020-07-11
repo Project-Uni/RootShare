@@ -56,6 +56,7 @@ function MessagesDrawerContainer(props: Props) {
   const [currConversation, setCurrConversation] = useState({});
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState({});
+  const [newConversation, setNewConversation] = useState({});
 
   useEffect(() => {
     if (setup) return;
@@ -68,16 +69,24 @@ function MessagesDrawerContainer(props: Props) {
     addMessage(newMessage);
   }, [newMessage]);
 
+  useEffect(() => {
+    updateConversations(newConversation);
+  }, [newConversation]);
+
   function connectSocket() {
     const socket = io('http://localhost:8080');
     setSocket(socket);
 
     socket.on('connect', (data: React.SetStateAction<boolean>) => {
-      updateConversations(socket);
+      fetchConversations(socket);
     });
 
-    socket.on('newMessage', (data: any) => {
-      setNewMessage(data);
+    socket.on('newMessage', (message: any) => {
+      setNewMessage(message);
+    });
+
+    socket.on('newConversation', (conversation: any) => {
+      addConversation(socket, conversation);
     });
 
     socket.on('error', function(err: any) {
@@ -100,7 +109,25 @@ function MessagesDrawerContainer(props: Props) {
       setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
-  function updateConversations(currSocket: SocketIOClient.Socket) {
+  function addConversation(currSocket: SocketIOClient.Socket, newConversation: any) {
+    currSocket.emit('connectToConversation', newConversation._id);
+    setNewConversation(newConversation);
+  }
+
+  function updateConversations(newConversation: any) {
+    if (
+      Object.keys(newConversation).length === 0 ||
+      newConversation === undefined ||
+      newConversation === null
+    )
+      return;
+
+    setConversations((prevConversations: any[]) =>
+      [newConversation].concat(prevConversations)
+    );
+  }
+
+  function fetchConversations(currSocket: SocketIOClient.Socket) {
     if (currSocket === undefined && socket !== undefined) currSocket = socket;
     axios
       .get('/api/messaging/getLatestThreads')
@@ -109,7 +136,7 @@ function MessagesDrawerContainer(props: Props) {
 
         const userConversations = response.data.content.userConversations;
         if (currSocket !== undefined) {
-          currSocket.emit('metadata', userConversations);
+          currSocket.emit('metadata', userConversations, props.user._id);
         }
         setConversations(userConversations);
       })
