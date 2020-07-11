@@ -174,6 +174,7 @@ function MessageThreadContainer(props: Props) {
     messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
   }
 
+  console.log(props.conversation);
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -189,7 +190,10 @@ function MessageThreadContainer(props: Props) {
         {renderLatestMessages()}
       </div>
 
-      <MessageTextField handleSendMessage={handleSendMessage} />
+      <MessageTextField
+        handleSendMessage={handleSendMessage}
+        sendingDisabled={false}
+      />
     </div>
   );
 }

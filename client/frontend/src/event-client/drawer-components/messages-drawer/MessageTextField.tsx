@@ -40,8 +40,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: '#f2f2f2 !important',
-      label: '#f2f2f2 !important',
+      // color: '#f2f2f2 !important',
+      // label: '#f2f2f2 !important',
       borderWidth: '2px',
       borderColor: '#f2f2f2 !important',
     },
@@ -56,6 +56,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   handleSendMessage: (message: string) => void;
+  sendingDisabled: boolean;
 };
 
 function MessageTextField(props: Props) {
@@ -75,6 +76,15 @@ function MessageTextField(props: Props) {
   }
 
   function handleEmojiClick() {}
+
+  function getSendingDisabled() {
+    return (
+      props.sendingDisabled ||
+      newMessage === undefined ||
+      newMessage === null ||
+      newMessage === ''
+    );
+  }
 
   return (
     <div className={styles.textFieldContainer}>
@@ -105,8 +115,11 @@ function MessageTextField(props: Props) {
       <IconButton onClick={handleEmojiClick}>
         <FaRegSmile size={18} color="#f2f2f2" />
       </IconButton>
-      <IconButton onClick={() => handleSendMessage()}>
-        <MdSend color="#f2f2f2" size={20} />
+      <IconButton
+        disabled={getSendingDisabled()}
+        onClick={() => handleSendMessage()}
+      >
+        <MdSend color={getSendingDisabled() ? '#555555' : '#f2f2f2'} size={20} />
       </IconButton>
     </div>
   );

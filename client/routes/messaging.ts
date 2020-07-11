@@ -39,7 +39,7 @@ module.exports = (app, io) => {
   });
 
   app.post('/api/messaging/createThread', isAuthenticated, (req, res) => {
-    createThread(req, (packet) => {
+    createThread(req, io, (packet) => {
       res.send(packet);
     });
   });

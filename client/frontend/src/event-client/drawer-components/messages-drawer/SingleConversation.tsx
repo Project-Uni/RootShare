@@ -143,9 +143,14 @@ function SingleConversation(props: Props) {
     else return formatTime(date);
   }
 
-  const messageTimeStamp = getConversationTime(
-    new Date(props.conversation.lastMessage.timeCreated)
+  const conversationTimeStamp = getConversationTime(
+    new Date(
+      props.conversation.lastMessage !== undefined
+        ? props.conversation.lastMessage.timeCreated
+        : props.conversation.timeCreated
+    )
   );
+
   return (
     <div
       className={styles.wrapper}
@@ -168,12 +173,12 @@ function SingleConversation(props: Props) {
       <div className={styles.bottom}>
         <div className={styles.left}>
           <RSText size={12} className={styles.message}>
-            {props.conversation.lastMessage.content}
+            {props.conversation.lastMessage?.content}
           </RSText>
         </div>
 
         <RSText size={10} className={styles.timeStamp}>
-          {messageTimeStamp}
+          {conversationTimeStamp}
         </RSText>
       </div>
     </div>

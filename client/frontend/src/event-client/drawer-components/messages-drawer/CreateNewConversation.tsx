@@ -89,6 +89,7 @@ function CreateNewConversation(props: Props) {
   const styles = useStyles();
 
   const [connections, setConnections] = useState<any>([]);
+  const [newRecipients, setNewRecipients] = useState<any>([]);
 
   useEffect(() => {
     getConnections();
@@ -100,16 +101,35 @@ function CreateNewConversation(props: Props) {
     // setNewMessage(event.target.value);
   }
 
-  function handleSendMessage() {
-    axios.post('/api/messaging/sendMessage', {
-      // conversationID: props.conversation._id,
-      // message: newMessage,
+  function handleSendMessage(message: string) {
+    setNewRecipients((prevRecipients: any) => {
+      if (prevRecipients.length === 0 || message === '') return [];
+
+      axios
+        .post('/api/messaging/createThread', {
+          recipients: prevRecipients,
+          message: message,
+        })
+        .then((response) => {
+          if (response.data.success === 1)
+            props.selectConversation(response.data.content.currConversation);
+        });
+
+      return [];
     });
-    // setNewMessage('');
   }
 
   function handleEmojiClick() {
     console.log('Clicked on emoji button');
+  }
+
+  function handleRecipientChange(event: any, newValue: any[]) {
+    let newList: any[] = [];
+    newValue.forEach((user: any) => {
+      newList.push(user._id);
+    });
+
+    setNewRecipients(newList);
   }
 
   // change this to get users' actual connections
@@ -155,6 +175,7 @@ function CreateNewConversation(props: Props) {
           multiple
           id="connectionAutoComplete"
           options={connections}
+          onChange={handleRecipientChange}
           getOptionLabel={(option: any) => `${option.firstName} ${option.lastName}`}
           className={styles.autoComplete}
           ListboxProps={listBoxProps}
@@ -187,7 +208,10 @@ function CreateNewConversation(props: Props) {
         />
       </div>
 
-      <MessageTextField handleSendMessage={handleSendMessage} />
+      <MessageTextField
+        handleSendMessage={handleSendMessage}
+        sendingDisabled={newRecipients.length === 0}
+      />
     </div>
   );
 }

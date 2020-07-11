@@ -7,9 +7,9 @@ const Conversation = mongoose.model('conversations');
 const Message = mongoose.model('messages');
 
 module.exports = {
-  createThread: (req, callback) => {
+  createThread: (req, io, callback) => {
     const { message, recipients } = req.body;
-    const { _id: userID } = req.user;
+    const { _id: userID, firstName } = req.user;
 
     if (recipients === undefined)
       return callback(sendPacket(-1, 'Could not find conversation'));
@@ -17,6 +17,7 @@ module.exports = {
     let newConversation = new Conversation();
     newConversation.participants = recipients;
     newConversation.participants.push(userID);
+    newConversation.timeCreated = new Date();
     newConversation.save((err, conversation) => {
       if (err) {
         log('error', err);
@@ -26,7 +27,21 @@ module.exports = {
       }
 
       const { _id: conversationID } = conversation;
-      module.exports.sendMessage(userID, conversationID, message, callback);
+      module.exports.sendMessage(
+        userID,
+        firstName,
+        conversationID,
+        message,
+        io,
+        callback
+      );
+    });
+  },
+
+  removeConversation: (conversationID, callback) => {
+    Conversation.deleteOne({ _id: conversationID }, (err) => {
+      if (err) return callback(-1, 'Failed to delete conversation');
+      return callback(1, 'Deleted conversation');
     });
   },
 
@@ -50,7 +65,7 @@ module.exports = {
         }
 
         currConversation.lastMessage = newMessage._id;
-        currConversation.save((err) => {
+        currConversation.save(async (err) => {
           if (err) {
             log('error', err);
             return callback(
@@ -58,8 +73,13 @@ module.exports = {
             );
           }
 
+          await currConversation
+            .populate('lastMessage')
+            .populate('participants')
+            .execPopulate();
+
           io.in(newMessage.conversationID).emit('newMessage', newMessage);
-          return callback(sendPacket(1, 'Message sent'));
+          return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
       });
     });
@@ -67,8 +87,14 @@ module.exports = {
 
   getLatestThreads: async (userID, callback) => {
     function timeStampCompare(ObjectA, ObjectB) {
-      const a = ObjectA.lastMessage.timeCreated;
-      const b = ObjectB.lastMessage.timeCreated;
+      const a =
+        ObjectA.lastMessage !== undefined
+          ? ObjectA.lastMessage.timeCreated
+          : ObjectA.timeCreated;
+      const b =
+        ObjectB.lastMessage !== undefined
+          ? ObjectB.lastMessage.timeCreated
+          : ObjectB.timeCreated;
 
       if (a < b) return 1;
       if (b < a) return -1;

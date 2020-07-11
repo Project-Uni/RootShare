@@ -135,9 +135,9 @@ function MessagesDrawerContainer(props: Props) {
   }
 
   function selectConversation(conversation: any) {
+    setCurrConversation(conversation);
     updateMessages(conversation._id);
     setCurrConversationID(conversation._id);
-    setCurrConversation(conversation);
   }
 
   function returnToConversations() {
