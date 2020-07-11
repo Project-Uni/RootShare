@@ -11,6 +11,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
+import MessageTextField from './MessageTextField';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,9 +38,13 @@ const useStyles = makeStyles((_: any) => ({
     // scrollbarColor: 'red',  // need to find workaround
     label: colors.primaryText,
     paddingTop: '10px',
+    paddingBottom: 5,
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
     borderTopWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors.primaryText,
+    borderBottomWidth: '1px',
     marginTop: '-2px',
   },
   header: {
@@ -139,20 +144,11 @@ function MessageThreadContainer(props: Props) {
     return output;
   }
 
-  function handleMessageChange(event: any) {
-    setNewMessage(event.target.value);
-  }
-
-  function handleSendMessage() {
+  function handleSendMessage(message: string) {
     axios.post('/api/messaging/sendMessage', {
       conversationID: props.conversation._id,
-      message: newMessage,
+      message: message,
     });
-    setNewMessage('');
-  }
-
-  function handleEmojiClick() {
-    console.log('Clicked on emoji button');
   }
 
   function joinUserNames(users: any, delimiter: string) {
@@ -193,37 +189,7 @@ function MessageThreadContainer(props: Props) {
         {renderLatestMessages()}
       </div>
 
-      <div className={styles.textFieldContainer}>
-        <TextField
-          multiline
-          type="search"
-          label="Aa"
-          variant="outlined"
-          className={styles.textField}
-          onChange={handleMessageChange}
-          value={newMessage}
-          InputLabelProps={{
-            classes: {
-              root: styles.cssLabel,
-              focused: styles.cssFocused,
-            },
-          }}
-          InputProps={{
-            classes: {
-              root: styles.cssOutlinedInput,
-              focused: styles.cssFocused,
-              // notchedOutline: styles.notchedOutline,
-            },
-            inputMode: 'numeric',
-          }}
-        />
-        <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color="#f2f2f2" />
-        </IconButton>
-        <IconButton onClick={handleSendMessage}>
-          <MdSend color="#f2f2f2" size={20} />
-        </IconButton>
-      </div>
+      <MessageTextField handleSendMessage={handleSendMessage} />
     </div>
   );
 }

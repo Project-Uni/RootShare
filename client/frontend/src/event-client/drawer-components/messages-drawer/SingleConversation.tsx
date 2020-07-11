@@ -14,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
     paddingBottom: 4,
     borderBottomStyle: 'solid',
-    borderBottomWidth: '2px',
+    borderBottomWidth: '1px',
     borderColor: colors.primaryText,
   },
   top: {

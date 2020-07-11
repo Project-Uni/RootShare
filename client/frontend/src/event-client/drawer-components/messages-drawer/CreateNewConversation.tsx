@@ -7,13 +7,17 @@ import { TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 import { Autocomplete } from '@material-ui/lab';
+import { MdSend } from 'react-icons/md';
+import { FaRegSmile } from 'react-icons/fa';
 
 import log from '../../../helpers/logger';
+import MessageTextField from './MessageTextField';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
     display: 'flex',
+    overflow: 'hidden',
     flexDirection: 'column',
     height: '100%',
   },
@@ -46,24 +50,22 @@ const useStyles = makeStyles((_: any) => ({
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
     borderTopWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: colors.primaryText,
+    borderBottomWidth: '1px',
     marginTop: '-2px',
+    paddingTop: 10,
   },
   autoComplete: {},
+  option: {},
   textField: {
     [`& fieldset`]: {
       borderRadius: 40,
     },
-    '& input::-webkit-clear-button': {
-      display: 'none',
-    },
     width: '100%',
-    marginTop: 10,
-    background: '#444444',
     color: '#f2f2f2',
     label: '#f2f2f2',
-    borderStyle: 'solid',
     borderRadius: 40,
-    height: 40,
   },
   cssLabel: {
     color: '#f2f2f2',
@@ -72,22 +74,8 @@ const useStyles = makeStyles((_: any) => ({
   cssFocused: {
     color: '#f2f2f2',
     label: '#f2f2f2',
-    borderWidth: '2px',
+    borderWidth: '1px',
     borderColor: '#f2f2f2 !important',
-  },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      color: '#f2f2f2 !important',
-      label: '#f2f2f2 !important',
-      borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
-    },
-  },
-  notchedOutline: {
-    borderWidth: '2px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
   },
 }));
 
@@ -108,6 +96,22 @@ function CreateNewConversation(props: Props) {
 
   function createNewThread() {}
 
+  function handleMessageChange(event: any) {
+    // setNewMessage(event.target.value);
+  }
+
+  function handleSendMessage() {
+    axios.post('/api/messaging/sendMessage', {
+      // conversationID: props.conversation._id,
+      // message: newMessage,
+    });
+    // setNewMessage('');
+  }
+
+  function handleEmojiClick() {
+    console.log('Clicked on emoji button');
+  }
+
   // change this to get users' actual connections
   function getConnections() {
     axios
@@ -121,31 +125,13 @@ function CreateNewConversation(props: Props) {
       });
   }
 
-  const CustomTextField = (
-    <TextField
-      type="search"
-      label="Aa"
-      variant="outlined"
-      size="small"
-      className={styles.textField}
-      // onChange={handleMessageChange}
-      // value={newMessage}
-      InputLabelProps={{
-        classes: {
-          root: styles.cssLabel,
-          focused: styles.cssFocused,
-        },
-      }}
-      InputProps={{
-        classes: {
-          root: styles.cssOutlinedInput,
-          focused: styles.cssFocused,
-        },
-        inputMode: 'numeric',
-      }}
-    />
-  );
+  function renderOption(option: any) {
+    return (
+      <div className={styles.option}>{`${option.firstName} ${option.lastName}`}</div>
+    );
+  }
 
+  const listBoxProps = {};
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -166,15 +152,18 @@ function CreateNewConversation(props: Props) {
 
       <div className={styles.searchBarContainer}>
         <Autocomplete
+          multiple
           id="connectionAutoComplete"
           options={connections}
           getOptionLabel={(option: any) => `${option.firstName} ${option.lastName}`}
           className={styles.autoComplete}
+          ListboxProps={listBoxProps}
+          renderOption={renderOption}
           renderInput={(params) => (
             <TextField
               {...params}
               type="search"
-              label="Aa"
+              label="Search Connections"
               variant="outlined"
               size="small"
               className={styles.textField}
@@ -197,6 +186,8 @@ function CreateNewConversation(props: Props) {
           )}
         />
       </div>
+
+      <MessageTextField handleSendMessage={handleSendMessage} />
     </div>
   );
 }
