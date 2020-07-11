@@ -86,6 +86,7 @@ function MessagesDrawerContainer(props: Props) {
     });
 
     socket.on('newConversation', (conversation: any) => {
+      console.log('NEW CONVERSATION');
       addConversation(socket, conversation);
     });
 
