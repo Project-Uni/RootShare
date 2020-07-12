@@ -83,7 +83,6 @@ module.exports = {
             .execPopulate();
 
           if (isNewConversation) {
-            io.in(`USER_${userID}`).emit('newConversation', currConversation);
             currConversation.participants.forEach((recipient) => {
               io.in(`USER_${recipient._id}`).emit(
                 'newConversation',
