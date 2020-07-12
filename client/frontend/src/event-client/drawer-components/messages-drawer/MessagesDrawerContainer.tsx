@@ -96,13 +96,19 @@ function MessagesDrawerContainer(props: Props) {
 
   function addMessage(newMessage: any) {
     setConversations((prevConversations: any[]) => {
-      let newConversations = prevConversations.slice();
-      newConversations.forEach((conversation) => {
-        if (conversation._id === newMessage.conversationID)
-          conversation.lastMessage = newMessage;
-      });
+      for (let i = 0; i < prevConversations.length; i++) {
+        if (prevConversations[i]._id === newMessage.conversationID) {
+          const updatedConversation = prevConversations[i];
+          updatedConversation.lastMessage = newMessage;
+          return [updatedConversation].concat(
+            prevConversations
+              .slice(0, i)
+              .concat(prevConversations.slice(i + 1, prevConversations.length))
+          );
+        }
+      }
 
-      return newConversations;
+      return prevConversations;
     });
 
     if (currConversationID !== '')
