@@ -62,21 +62,4 @@ module.exports = (app, io) => {
       res.send(packet);
     });
   });
-
-  app.get('/api/mockLogin', async (req, res) => {
-    const user = await User.findOne({ email: 'smitdesai422@gmail.com' });
-    if (!user || user === undefined || user === null)
-      res.json(sendPacket(-1, 'Could not find user'));
-    req.login(user, (err) => {
-      if (err) return res.json(sendPacket(-1, 'Failed to login mock user'));
-      return res.json(
-        sendPacket(1, 'Successfully logged in to mock user', {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          _id: user._id,
-        })
-      );
-    });
-  });
 };
