@@ -12,8 +12,10 @@ import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMis
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
-import UserCount from './admin-utility/UserCount';
 import Login from './login/Login';
+
+import UserCount from './admin-utility/UserCount';
+import AdminEventCreator from './admin-utility/AdminEventCreator';
 
 import axios from 'axios';
 
@@ -50,8 +52,10 @@ function App(props: Props) {
             />
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
             <Route exact path="/event/:eventid" component={EventClientBase} />
-            <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/login" component={Login} />
+
+            <Route exact path="/admin/count" component={UserCount} />
+            <Route exact path="/admin/createEvent" component={AdminEventCreator} />
             <Route component={PageNotFound} />
           </Switch>
         </div>

@@ -72,7 +72,6 @@ function renderRow(startIndex: number, numElements: number, maxElements: number)
         id={`pos${i}`}
         style={{
           width: `${100 / maxElements}%`,
-          border: '1px solid red',
         }}
       ></div>
     );
@@ -127,7 +126,7 @@ function renderScreenshareRest(numSpeakers: number) {
       <div
         key={`pos${i}`}
         id={`pos${i}`}
-        style={{ width: `${100 / 4}%`, height: '100%', border: '1px solid red' }}
+        style={{ width: `${100 / 4}%`, height: '100%' }}
       ></div>
     );
   }
