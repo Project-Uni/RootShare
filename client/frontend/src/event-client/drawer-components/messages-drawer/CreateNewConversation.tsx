@@ -79,6 +79,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+// TODO - Make autocomplete dropdown look nicer
+// TODO - If user creates duplicate conversation, use that one (like iMessage)
+// TODO - ? Preload all connections into redux, so searches don't have to
+//          query db every time
 type Props = {
   user: any;
   selectConversation: (conversation: any) => void;

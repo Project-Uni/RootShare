@@ -42,6 +42,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+// TODO - Add loading indicator to messages
+// TODO - Make self messages and conversations update without socket notification
 type Props = {
   user: { [key: string]: any };
 };
