@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
+import RSText from '../base-components/RSText';
+import { colors } from '../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -31,6 +33,10 @@ const useStyles = makeStyles((_: any) => ({
       background: 'lightblue',
     },
   },
+  confirmation: {
+    marginTop: 15,
+    color: colors.secondaryText,
+  },
 }));
 
 type Props = {
@@ -46,7 +52,7 @@ function ResetPassword(props: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [landingRedirect, setLandingRedirect] = useState(false);
-  const [homeRedirect, setHomeRedirect] = useState(false);
+  const [passwordReset, setPasswordReset] = useState('');
 
   useEffect(() => {
     getCurrentUser();
@@ -83,7 +89,9 @@ function ResetPassword(props: Props) {
     });
     if (data['success'] === 1) {
       setError(false);
-      setHomeRedirect(true);
+      setPasswordReset('Password was successfully changed!');
+      setNewPassword('');
+      setConfirmPassword('');
     } else {
       setError(true);
     }
@@ -93,7 +101,6 @@ function ResetPassword(props: Props) {
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
-      {homeRedirect && <Redirect to="/" />}
       <HypeCard width={375} loading={loading} headerText="Reset Password">
         <TextField
           variant="outlined"
@@ -126,6 +133,13 @@ function ResetPassword(props: Props) {
         >
           Login
         </Button>
+        {passwordReset === '' ? (
+          <span />
+        ) : (
+          <RSText size={12} className={styles.confirmation}>
+            {passwordReset}
+          </RSText>
+        )}
       </HypeCard>
     </div>
   );
