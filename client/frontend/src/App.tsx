@@ -13,6 +13,7 @@ import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import Login from './login/Login';
+import ResetPassword from './login/ResetPassword';
 
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
@@ -58,6 +59,7 @@ function App(props: Props) {
               component={HypeExternalMissingInfo}
             />
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
+            <Route exact path="/profile/resetPassword" component={ResetPassword} />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
 

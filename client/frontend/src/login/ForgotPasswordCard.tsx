@@ -46,91 +46,61 @@ function Login(props: Props) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
-  const [redirectHome, setRedirectHome] = useState(false);
+  const [error, setError] = useState('');
+  const [linkSent, setLinkSent] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
   const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
-    }
-  }
+  useEffect(() => {}, []);
 
   function handleEmailChange(event: any) {
     setEmail(event.target.value);
   }
-  function handlePasswordChange(event: any) {
-    setPassword(event.target.value);
-  }
   function handleEnterCheck(event: any) {
-    if (event.key === 'Enter') handleLogin();
+    if (event.key === 'Enter') handleForgotPassword();
   }
 
-  async function handleLogin() {
+  async function handleForgotPassword() {
     setLoading(true);
-    const { data } = await axios.post('/auth/login/local', {
+    const { data } = await axios.post('/auth/sendPasswordReset', {
       email: email,
-      password: password,
     });
     if (data['success'] === 1) {
-      setError(false);
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
+      setError('');
+      setLinkSent('Password reset link was sent to your email');
     } else {
-      setError(true);
+      setError(`Can't reset password for this email`);
     }
     setLoading(false);
   }
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to={redirectUrl} />}
       {forgotPassword ? (
         <ForgotPasswordCard />
       ) : (
-        <HypeCard width={375} loading={loading} headerText="Login">
+        <HypeCard width={375} loading={loading} headerText="Reset Password">
           <TextField
             variant="outlined"
-            error={error}
+            error={error !== ''}
             label="Email"
             autoComplete="email"
             onChange={handleEmailChange}
             onKeyDown={handleEnterCheck}
             value={email}
             className={styles.textField}
-            helperText={error ? 'Invalid login credentials' : ''}
-          />
-          <TextField
-            variant="outlined"
-            error={error}
-            label="Password"
-            autoComplete="password"
-            onChange={handlePasswordChange}
-            onKeyDown={handleEnterCheck}
-            value={password}
-            type="password"
-            className={styles.textField}
+            helperText={error !== '' ? error : linkSent !== '' ? linkSent : ''}
           />
           <Button
             variant="contained"
-            onClick={handleLogin}
+            onClick={handleForgotPassword}
             className={styles.button}
             disabled={loading}
           >
-            Login
+            Send Reset Link
           </Button>
-          <Link href="#" onClick={() => setForgotPassword(true)}>
-            Forgot Password?
-          </Link>
         </HypeCard>
       )}
     </div>

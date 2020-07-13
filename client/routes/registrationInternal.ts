@@ -9,6 +9,11 @@ var {
   sendConfirmationEmail,
 } = require('../interactions/registration/email-confirmation');
 var {
+  sendPasswordResetLink,
+  resetPassword,
+  updatePassword,
+} = require('../interactions/registration/reset-password');
+var {
   completeRegistrationDetails,
   completeRegistrationRequired,
   userExists,
@@ -181,6 +186,37 @@ module.exports = (app) => {
       )
     );
     log('info', `User accessed secure-confirmed endpoint`);
+  });
+
+  app.post('/auth/sendPasswordReset', (req, res) => {
+    if (!req.body.email) return res.send(sendPacket(-1, 'No email to send link to'));
+
+    sendPasswordResetLink(req.body.email, (packet) => {
+      res.send(packet);
+    });
+  });
+
+  app.get('/auth/resetPassword/:token', (req, res) => {
+    resetPassword(req.params.token, (packet) => {
+      if (packet.success === 1) {
+        const { currUser } = packet.content;
+        req.login(currUser, (err) => {
+          if (err) {
+            log('error', `Failed serializing ${currUser.email}`);
+            return res.send(-1, 'Failed serializing user');
+          }
+          return res.redirect('/profile/resetPassword');
+        });
+      } else {
+        res.send(packet);
+      }
+    });
+  });
+
+  app.post('/auth/updatePassword', isAuthenticated, (req, res) => {
+    updatePassword(req.user._id, req.body.newPassword, (packet) => {
+      res.send(packet);
+    });
   });
 
   app.get('/logout', isAuthenticated, (req, res) => {
