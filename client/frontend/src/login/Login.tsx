@@ -95,7 +95,7 @@ function Login(props: Props) {
     <div className={styles.wrapper}>
       {redirectHome && <Redirect to={redirectUrl} />}
       {forgotPassword ? (
-        <ForgotPasswordCard />
+        <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
       ) : (
         <HypeCard width={375} loading={loading} headerText="Login">
           <TextField

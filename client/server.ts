@@ -1,23 +1,22 @@
-import express = require("express");
-import pino = require("express-pino-logger");
-import bodyParser = require("body-parser");
-import expressSession = require("express-session");
-import passport = require("passport");
-import log from "./helpers/logger";
-import * as path from "path";
+import express = require('express');
+import pino = require('express-pino-logger');
+import bodyParser = require('body-parser');
+import expressSession = require('express-session');
+import passport = require('passport');
+import log from './helpers/logger';
+import * as path from 'path';
 
-
-const mongoConfig = require("./config/mongoConfig");
-const fs = require("fs");
+const mongoConfig = require('./config/mongoConfig');
+const fs = require('fs');
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
-  if (err) log("MONGO ERROR", err);
+  if (err) log('MONGO ERROR', err);
 });
 
 // Load all files in models directory
 fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
-  if (~fileName.indexOf("ts")) require(`${__dirname}/models/${fileName}`);
+  if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
 
 const app = express();
@@ -28,7 +27,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   expressSession({
-    secret: "TBD",
+    secret: 'TBD',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -39,20 +38,20 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-require("./routes/user")(app);
-require("./routes/registrationInternal")(app);
-require("./routes/registrationExternal")(app);
-require("./routes/opentok")(app);
-require("./routes/utilities")(app);
-require("./routes/mocks")(app);
+require('./routes/user')(app);
+require('./routes/registrationInternal')(app);
+require('./routes/registrationExternal')(app);
+require('./routes/opentok')(app);
+require('./routes/utilities')(app);
+require('./routes/mocks')(app);
 
-require("./config/setup")(passport);
+require('./config/setup')(passport);
 
-app.use(express.static(path.join("./", "/frontend/build")));
-app.get("*", (_, response) => {
-  response.sendFile(path.join(__dirname, "/frontend/build/index.html"));
+app.use(express.static(path.join('./', '/frontend/build')));
+app.get('*', (_, response) => {
+  response.sendFile(path.join(__dirname, '/frontend/build/index.html'));
 });
 
 app.listen(port, () => {
-  log("info", `Listening on port ${port}`);
+  log('info', `Listening on port ${port}`);
 });

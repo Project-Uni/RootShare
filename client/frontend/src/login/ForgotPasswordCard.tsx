@@ -39,19 +39,15 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   user: { [key: string]: any };
   updateUser: (userInfo: { [key: string]: any }) => void;
+  goBackToLogin: () => void;
 };
 
 function Login(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [linkSent, setLinkSent] = useState('');
-  const [forgotPassword, setForgotPassword] = useState(false);
-
-  const [query, setQuery] = useQuery();
-  const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
 
   useEffect(() => {}, []);
 
@@ -78,31 +74,33 @@ function Login(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {forgotPassword ? (
-        <ForgotPasswordCard />
-      ) : (
-        <HypeCard width={375} loading={loading} headerText="Reset Password">
-          <TextField
-            variant="outlined"
-            error={error !== ''}
-            label="Email"
-            autoComplete="email"
-            onChange={handleEmailChange}
-            onKeyDown={handleEnterCheck}
-            value={email}
-            className={styles.textField}
-            helperText={error !== '' ? error : linkSent !== '' ? linkSent : ''}
-          />
-          <Button
-            variant="contained"
-            onClick={handleForgotPassword}
-            className={styles.button}
-            disabled={loading}
-          >
-            Send Reset Link
-          </Button>
-        </HypeCard>
-      )}
+      <HypeCard
+        width={375}
+        loading={loading}
+        headerText="Reset Password"
+        backArrow="action"
+        backArrowAction={() => props.goBackToLogin()}
+      >
+        <TextField
+          variant="outlined"
+          error={error !== ''}
+          label="Email"
+          autoComplete="email"
+          onChange={handleEmailChange}
+          onKeyDown={handleEnterCheck}
+          value={email}
+          className={styles.textField}
+          helperText={error !== '' ? error : linkSent !== '' ? linkSent : ''}
+        />
+        <Button
+          variant="contained"
+          onClick={handleForgotPassword}
+          className={styles.button}
+          disabled={loading}
+        >
+          Send Reset Link
+        </Button>
+      </HypeCard>
     </div>
   );
 }

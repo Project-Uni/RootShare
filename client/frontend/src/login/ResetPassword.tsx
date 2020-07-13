@@ -117,7 +117,7 @@ function ResetPassword(props: Props) {
           variant="outlined"
           error={error}
           label="Confirm Password"
-          autoComplete="confirm-password"
+          autoComplete="new-password"
           onChange={handleConfirmPasswordChange}
           onKeyDown={handleEnterCheck}
           value={confirmPassword}
