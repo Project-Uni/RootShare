@@ -41,6 +41,7 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
+// TODO - Set up login, signup and reset password to work with chrome’s credential standards
 function Login(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
