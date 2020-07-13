@@ -53,8 +53,8 @@ module.exports = {
 
   sendConfirmationEmail: (emailAddress) => {
     const emailToken = module.exports.convertEmailToToken(emailAddress);
-    const confirmationLink = `https://rootshare.io/confirmation/${emailToken}`;
-    const unsubscribeLink = `https://rootshare.io/unsubscribe/${emailToken}`;
+    const confirmationLink = `https://rootshare.io/auth/confirmation/${emailToken}`;
+    const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
 
     var params = {
       Destination: {
