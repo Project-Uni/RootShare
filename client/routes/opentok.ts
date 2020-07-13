@@ -12,7 +12,6 @@ const {
   getMuxPlaybackID,
   startStreaming,
   stopStreaming,
-  getLatestWebinarID,
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
@@ -22,12 +21,6 @@ module.exports = (app) => {
   app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
     const { id } = req.user;
     const packet = await createSession(id);
-    res.json(packet);
-  });
-
-  app.get('/webinar/latestWebinarID', isAuthenticated, async (req, res) => {
-    const { id } = req.user;
-    const packet = await getLatestWebinarID(id);
     res.json(packet);
   });
 
@@ -51,6 +44,7 @@ module.exports = (app) => {
 
   app.post('/webinar/startStreaming', isAuthenticated, async (req, res) => {
     const { webinarID } = req.body;
+    console.log(webinarID);
     const packet = await startStreaming(webinarID);
     res.json(packet);
   });
@@ -78,7 +72,7 @@ module.exports = (app) => {
 
   app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
     const { eventID } = req.params;
-    await getWebinarDetails(eventID, (packet) => {
+    await getWebinarDetails(req.user._id, eventID, (packet) => {
       res.json(packet);
     });
   });

@@ -113,12 +113,12 @@ function EventHostContainer(props: Props) {
     if (isStreaming) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
-        stopLiveStream();
+        stopLiveStream(props.webinar['_id']);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
-        startLiveStream();
+        startLiveStream(props.webinar['_id']);
       }
     }
   }
