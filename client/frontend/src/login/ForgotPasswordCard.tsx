@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
-import { useLocation, Redirect } from 'react-router-dom';
 
-import { connect } from 'react-redux';
-import { updateUser } from '../redux/actions/user';
 import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
-import RSText from '../base-components/RSText';
-import ForgotPasswordCard from './ForgotPasswordCard';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,12 +32,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
   goBackToLogin: () => void;
 };
 
-function Login(props: Props) {
+function ForgotPasswordCard(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -105,22 +98,4 @@ function Login(props: Props) {
   );
 }
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default ForgotPasswordCard;

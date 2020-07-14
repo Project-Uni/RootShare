@@ -34,6 +34,11 @@ const useStyles = makeStyles((_: any) => ({
       background: 'lightblue',
     },
   },
+  forgotPassword: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
@@ -129,7 +134,11 @@ function Login(props: Props) {
           >
             Login
           </Button>
-          <Link href="#" onClick={() => setForgotPassword(true)}>
+          <Link
+            href={undefined}
+            className={styles.forgotPassword}
+            onClick={() => setForgotPassword(true)}
+          >
             Forgot Password?
           </Link>
         </HypeCard>
