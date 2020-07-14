@@ -8,8 +8,11 @@ const jwt = require('njwt');
 const {
   OPENTOK_API_KEY,
   OPENTOK_API_SECRET,
-  BASE_64_MUX,
+  DEV_BASE_64_MUX,
+  PROD_BASE_64_MUX,
 } = require('../../../keys/keys.json');
+const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
+const BASE_64_MUX = IN_DEV ? PROD_BASE_64_MUX : DEV_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 
 import log from '../../helpers/logger';
@@ -163,7 +166,7 @@ module.exports = {
   createMuxStream: async () => {
     let muxStreamKey, muxLiveStreamID, muxPlaybackID;
     const muxReqBody = {
-      test: true,
+      test: IN_DEV,
       playback_policy: ['public'],
       new_asset_settings: {
         playback_policy: ['public'],
