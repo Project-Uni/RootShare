@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import { TextField, Button, Link } from '@material-ui/core';
+import { useLocation, Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
-
-import { Link, useLocation, BrowserRouter as Router } from 'react-router-dom';
+import RSText from '../base-components/RSText';
+import ForgotPasswordCard from './ForgotPasswordCard';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -26,11 +26,17 @@ const useStyles = makeStyles((_: any) => ({
   button: {
     width: 300,
     marginTop: 20,
+    marginBottom: 20,
     height: 40,
     background: 'rgb(30, 67, 201)',
     color: 'white',
     '&:hover': {
       background: 'lightblue',
+    },
+  },
+  forgotPassword: {
+    '&:hover': {
+      cursor: 'pointer',
     },
   },
 }));
@@ -40,6 +46,7 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
+// TODO - Set up login, signup and reset password to work with chrome’s credential standards
 function Login(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(false);
@@ -47,6 +54,7 @@ function Login(props: Props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [redirectHome, setRedirectHome] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
   const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
@@ -72,6 +80,7 @@ function Login(props: Props) {
   function handleEnterCheck(event: any) {
     if (event.key === 'Enter') handleLogin();
   }
+
   async function handleLogin() {
     setLoading(true);
     const { data } = await axios.post('/auth/login/local', {
@@ -91,38 +100,49 @@ function Login(props: Props) {
   return (
     <div className={styles.wrapper}>
       {redirectHome && <Redirect to={redirectUrl} />}
-      <HypeCard width={375} loading={loading} headerText="Login">
-        <TextField
-          variant="outlined"
-          error={error}
-          label="Email"
-          autoComplete="email"
-          onChange={handleEmailChange}
-          onKeyDown={handleEnterCheck}
-          value={email}
-          className={styles.textField}
-          helperText={error ? 'Invalid login credentials' : ''}
-        />
-        <TextField
-          variant="outlined"
-          error={error}
-          label="Password"
-          autoComplete="password"
-          onChange={handlePasswordChange}
-          onKeyDown={handleEnterCheck}
-          value={password}
-          type="password"
-          className={styles.textField}
-        />
-        <Button
-          variant="contained"
-          onClick={handleLogin}
-          className={styles.button}
-          disabled={loading}
-        >
-          Login
-        </Button>
-      </HypeCard>
+      {forgotPassword ? (
+        <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
+      ) : (
+        <HypeCard width={375} loading={loading} headerText="Login">
+          <TextField
+            variant="outlined"
+            error={error}
+            label="Email"
+            autoComplete="email"
+            onChange={handleEmailChange}
+            onKeyDown={handleEnterCheck}
+            value={email}
+            className={styles.textField}
+            helperText={error ? 'Invalid login credentials' : ''}
+          />
+          <TextField
+            variant="outlined"
+            error={error}
+            label="Password"
+            autoComplete="password"
+            onChange={handlePasswordChange}
+            onKeyDown={handleEnterCheck}
+            value={password}
+            type="password"
+            className={styles.textField}
+          />
+          <Button
+            variant="contained"
+            onClick={handleLogin}
+            className={styles.button}
+            disabled={loading}
+          >
+            Login
+          </Button>
+          <Link
+            href={undefined}
+            className={styles.forgotPassword}
+            onClick={() => setForgotPassword(true)}
+          >
+            Forgot Password?
+          </Link>
+        </HypeCard>
+      )}
     </div>
   );
 }

@@ -1,5 +1,3 @@
-import { userInfo } from 'os';
-
 var mongoose = require('mongoose');
 var User = mongoose.model('users');
 const Cryptr = require('cryptr');
