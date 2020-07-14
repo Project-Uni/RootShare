@@ -44,7 +44,6 @@ module.exports = (app) => {
 
   app.post('/webinar/startStreaming', isAuthenticated, async (req, res) => {
     const { webinarID } = req.body;
-    console.log(webinarID);
     const packet = await startStreaming(webinarID);
     res.json(packet);
   });
