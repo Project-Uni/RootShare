@@ -59,7 +59,11 @@ function App(props: Props) {
               component={HypeExternalMissingInfo}
             />
             <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
-            <Route exact path="/profile/resetPassword" component={ResetPassword} />
+            <Route
+              exact
+              path="/profile/resetPassword/:emailtoken"
+              component={ResetPassword}
+            />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
 

@@ -14,25 +14,14 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-export async function resetPassword(emailToken, callback) {
+export function updatePassword(emailToken, newPassword, callback) {
   let emailAddress = convertTokenToEmail(emailToken);
-  let currUser;
   User.findOne({ email: emailAddress }, (err, currUser) => {
     if (err || currUser === undefined || currUser === null)
-      return callback(sendPacket(-1, 'Could not find user'));
-    return callback(
-      sendPacket(1, 'Sending user that needs password reset', { currUser })
-    );
-  });
-}
+      return callback(sendPacket(-1, 'User code invalid'));
 
-export function updatePassword(userID, newPassword, callback) {
-  User.findById(userID, (err, user) => {
-    if (err || user === undefined || user === null)
-      return callback(sendPacket(-1, 'Could not find user to update password for'));
-
-    user.hashedPassword = createHash(newPassword);
-    user.save(function (err) {
+    currUser.hashedPassword = createHash(newPassword);
+    currUser.save(function (err) {
       if (err) return callback(sendPacket(-1, "Could not save user's new password"));
       return callback(sendPacket(1, 'Password update successful!'));
     });
@@ -45,7 +34,7 @@ export function sendPasswordResetLink(emailAddress, callback) {
       return callback(sendPacket(0, "Can't reset password for this email"));
 
     const emailToken = convertEmailToToken(emailAddress);
-    const resetPasswordLink = `https://rootshare.io/auth/resetPassword/${emailToken}`;
+    const resetPasswordLink = `https://rootshare.io/profile/resetPassword/${emailToken}`;
     const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
 
     var params = {

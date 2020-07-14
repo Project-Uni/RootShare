@@ -10,7 +10,6 @@ var {
 } = require('../interactions/registration/email-confirmation');
 var {
   sendPasswordResetLink,
-  resetPassword,
   updatePassword,
 } = require('../interactions/registration/reset-password');
 var {
@@ -196,25 +195,8 @@ module.exports = (app) => {
     });
   });
 
-  app.get('/auth/resetPassword/:token', (req, res) => {
-    resetPassword(req.params.token, (packet) => {
-      if (packet.success === 1) {
-        const { currUser } = packet.content;
-        req.login(currUser, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${currUser.email}`);
-            return res.send(-1, 'Failed serializing user');
-          }
-          return res.redirect('/profile/resetPassword');
-        });
-      } else {
-        res.send(packet);
-      }
-    });
-  });
-
-  app.post('/auth/updatePassword', isAuthenticated, (req, res) => {
-    updatePassword(req.user._id, req.body.newPassword, (packet) => {
+  app.post('/auth/updatePassword', (req, res) => {
+    updatePassword(req.body.emailToken, req.body.newPassword, (packet) => {
       res.send(packet);
     });
   });

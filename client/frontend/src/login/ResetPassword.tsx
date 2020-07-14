@@ -40,6 +40,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
@@ -50,19 +54,12 @@ function ResetPassword(props: Props) {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [landingRedirect, setLandingRedirect] = useState(false);
+  const [error, setError] = useState('');
   const [passwordReset, setPasswordReset] = useState('');
 
-  useEffect(() => {
-    getCurrentUser();
-  }, []);
+  const emailToken = props.match.params['emailtoken'];
 
-  async function getCurrentUser() {
-    const { data } = await axios.get('/user/getCurrent');
-    if (data['success'] === 1) props.updateUser({ ...data['content'] });
-    else setLandingRedirect(true);
-  }
+  useEffect(() => {}, []);
 
   function handleNewPasswordChange(event: any) {
     setNewPassword(event.target.value);
@@ -78,33 +75,33 @@ function ResetPassword(props: Props) {
 
   async function handleUpdatePassword() {
     if (newPassword !== confirmPassword) {
-      setError(true);
+      setError('Passwords do not match');
       return;
     }
 
-    setError(false);
+    setError('');
     setLoading(true);
     const { data } = await axios.post('/auth/updatePassword', {
+      emailToken,
       newPassword,
     });
     if (data['success'] === 1) {
-      setError(false);
+      setError('');
       setPasswordReset('Password was successfully changed!');
       setNewPassword('');
       setConfirmPassword('');
     } else {
-      setError(true);
+      setError(data['message']);
     }
     setLoading(false);
   }
 
   return (
     <div className={styles.wrapper}>
-      {landingRedirect && <Redirect to="/" />}
       <HypeCard width={375} loading={loading} headerText="Reset Password">
         <TextField
           variant="outlined"
-          error={error}
+          error={error !== ''}
           label="New Password"
           autoComplete="new-password"
           onChange={handleNewPasswordChange}
@@ -115,7 +112,7 @@ function ResetPassword(props: Props) {
         />
         <TextField
           variant="outlined"
-          error={error}
+          error={error !== ''}
           label="Confirm Password"
           autoComplete="new-password"
           onChange={handleConfirmPasswordChange}
@@ -123,7 +120,7 @@ function ResetPassword(props: Props) {
           value={confirmPassword}
           type="password"
           className={styles.textField}
-          helperText={error ? 'Passwords do not match' : ''}
+          helperText={error !== '' ? error : ''}
         />
         <Button
           variant="contained"
