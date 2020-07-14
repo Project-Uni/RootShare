@@ -246,7 +246,8 @@ function EventHostContainer(props: Props) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
               updateVideoElements,
-              screenShareTearDown
+              screenShareTearDown,
+              stopLiveStream
             );
 
             session.publish(publisher, (err) => {

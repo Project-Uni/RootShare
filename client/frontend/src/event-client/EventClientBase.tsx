@@ -117,7 +117,6 @@ function EventClientBase(props: Props) {
   }
 
   function renderVideoArea() {
-    console.log(webinarData);
     if (eventMode === 'viewer')
       return (
         <EventWatcherVideoContainer muxPlaybackID={webinarData.muxPlaybackID} />
