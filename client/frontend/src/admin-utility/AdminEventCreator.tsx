@@ -107,8 +107,7 @@ function AdminEventCreator(props: Props) {
   const [title, setTitle] = useState('');
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
-  const [eventDate, setEventDate] = useState(new Date());
-  const [eventTime, setEventTime] = useState(new Date());
+  const [eventDateTime, setEventDateTime] = useState(new Date());
   const [hostID, setHostID] = useState('');
   const [hostEmail, setHostEmail] = useState('');
   const [speakers, setSpeakers] = useState([]);
@@ -158,12 +157,10 @@ function AdminEventCreator(props: Props) {
     setFullDesc(event.target.value);
   }
 
-  function handleDateChange(date: any) {
-    setEventDate(date);
-  }
-
-  function handleTimeChange(time: any) {
-    setEventTime(time);
+  function handleDateTimeChange(dateTime: any) {
+    const dateTimeObj = dateTime as Date;
+    console.log(dateTimeObj);
+    setEventDateTime(dateTime);
   }
 
   function handleHostChange(_: any, newValue: any) {
@@ -201,9 +198,6 @@ function AdminEventCreator(props: Props) {
   }
 
   async function handleSubmit() {
-    const date = dateFns.format(eventDate, `MM/dd/yyy`);
-    const time = dateFns.format(eventTime, 'hh:mm aa');
-
     let hasErr = false;
     if (title.length === 0) {
       hasErr = true;
@@ -240,8 +234,7 @@ function AdminEventCreator(props: Props) {
       host: hostID,
       hostEmail: hostEmail,
       speakers: speakerIDs,
-      date: date,
-      time: time,
+      dateTime: eventDateTime,
       speakerEmails: speakerEmails,
     };
     const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
@@ -255,8 +248,7 @@ function AdminEventCreator(props: Props) {
     setTitle('');
     setBriefDesc('');
     setFullDesc('');
-    setEventDate(new Date());
-    setEventTime(new Date());
+    setEventDateTime(new Date());
     setHostID('');
     setSpeakers([]);
     setCurrentSpeakear('');
@@ -355,8 +347,8 @@ function AdminEventCreator(props: Props) {
             margin="normal"
             label="Event Date"
             format="MM/dd/yyyy"
-            value={eventDate}
-            onChange={handleDateChange}
+            value={eventDateTime}
+            onChange={handleDateTimeChange}
             KeyboardButtonProps={{
               'aria-label': 'change date',
             }}
@@ -365,8 +357,8 @@ function AdminEventCreator(props: Props) {
           <KeyboardTimePicker
             margin="normal"
             label="Event Time"
-            value={eventTime}
-            onChange={handleTimeChange}
+            value={eventDateTime}
+            onChange={handleDateTimeChange}
             KeyboardButtonProps={{
               'aria-label': 'change time',
             }}

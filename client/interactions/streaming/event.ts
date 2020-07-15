@@ -42,6 +42,14 @@ export async function createEvent(
   });
 }
 
+export async function getAllEvents(callback) {
+  const webinars = await Webinar.find().populate('host', 'firstName lastName');
+
+  if (!webinars || webinars === undefined || webinars === null)
+    return callback(sendPacket(-1, 'Could not retrieve events'));
+  return callback(sendPacket(1, 'Sending back all events', { webinars }));
+}
+
 export async function getWebinarDetails(webinarID, callback) {
   Webinar.findOne({ _id: webinarID }, (err, webinar) => {
     if (err) {

@@ -1,9 +1,3 @@
-const mongoose = require('mongoose');
-const Webinar = mongoose.model('webinars');
-
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
-import { USER_LEVEL } from '../types/types';
 const isAuthenticated = require('../passport/middleware/isAuthenticated');
 const {
   createSession,
@@ -15,8 +9,6 @@ const {
   getLatestWebinarID,
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
-
-import { createEvent, getWebinarDetails } from '../interactions/streaming/event';
 
 module.exports = (app) => {
   app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
@@ -64,21 +56,6 @@ module.exports = (app) => {
   app.post('/webinar/changeBroadcastLayout', isAuthenticated, async (req, res) => {
     const { webinarID, type, streamID } = req.body;
     await changeBroadcastLayout(webinarID, type, streamID, (packet) => {
-      res.json(packet);
-    });
-  });
-
-  app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.admin)
-      return res.json(
-        sendPacket(0, 'User is not authorized to perform this action')
-      );
-    await createEvent(req.body, req.user, (packet) => res.json(packet));
-  });
-
-  app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
-    const { eventID } = req.params;
-    await getWebinarDetails(eventID, (packet) => {
       res.json(packet);
     });
   });

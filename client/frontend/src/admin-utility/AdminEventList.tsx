@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import axios from 'axios';
 
 import { colors } from '../theme/Colors';
+import log from '../helpers/logger';
 
 import AdminSingleEvent from './AdminSingleEvent';
 
@@ -31,22 +33,40 @@ type Props = {};
 function AdminEventList(props: Props) {
   const styles = useStyles();
 
+  const [events, setEvents] = useState<any>([]);
+
+  useEffect(() => {
+    updateEvents();
+  }, []);
+
+  async function updateEvents() {
+    const { data } = await axios.get('/api/webinar/getAllEvents');
+    if (data['success'] !== 1) return log('error', data['message']);
+    setEvents(data['content']['webinars']);
+  }
+
   function renderEvents() {
-    return (
-      <AdminSingleEvent
-        eventID="1001"
-        eventName="SMIT IS EVEN NICER. #69"
-        eventDescription="14"
-        organization="RootShare"
-        day="25"
-        month="DEC"
-        year="2020"
-        time="6"
-        ampm="PM"
-        timezone="EST"
-        picture="babyboilers.png"
-      />
-    );
+    let output: any[] = [];
+    events.forEach((event: any) => {
+      // console.log(event);
+      const eventDate = new Date(event.date);
+      output.push(
+        <AdminSingleEvent
+          eventID={event._id}
+          eventName={event.title}
+          eventDescription={event.brief_description}
+          organization={`${event.host.firstName} ${event.host.lastName}`}
+          day={eventDate.getDay().toString()}
+          month={eventDate.getMonth().toString()}
+          year={eventDate.getFullYear().toString()}
+          time="6"
+          ampm="PM"
+          timezone="EST"
+          picture="babyboilers.png"
+        />
+      );
+    });
+    return output;
   }
 
   return <div className={styles.wrapper}>{renderEvents()}</div>;

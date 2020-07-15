@@ -42,6 +42,7 @@ require('./routes/user')(app);
 require('./routes/registrationInternal')(app);
 require('./routes/registrationExternal')(app);
 require('./routes/opentok')(app);
+require('./routes/event')(app);
 require('./routes/utilities')(app);
 require('./routes/mocks')(app);
 
