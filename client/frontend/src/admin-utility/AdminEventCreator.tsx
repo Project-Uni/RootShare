@@ -9,16 +9,18 @@ import {
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 
 import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
+
+import { makeRequest } from '../helpers/makeRequest';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -85,7 +87,11 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 function AdminEventCreator(props: Props) {
@@ -124,7 +130,14 @@ function AdminEventCreator(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] !== 1) {
       setLoginRedirect(true);
       return false;
@@ -237,7 +250,15 @@ function AdminEventCreator(props: Props) {
       time: time,
       speakerEmails: speakerEmails,
     };
-    const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
+    // const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
+    const { data } = await makeRequest(
+      'POST',
+      '/api/webinar/createEvent',
+      API_DATA,
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       setTopMessage('s: Successfully created webinar.');
       resetData();
@@ -443,6 +464,8 @@ function AdminEventCreator(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -450,6 +473,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

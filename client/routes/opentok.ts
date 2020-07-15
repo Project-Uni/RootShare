@@ -4,7 +4,8 @@ const Webinar = mongoose.model('webinars');
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 import { USER_LEVEL } from '../types/types';
-const isAuthenticated = require('../passport/middleware/isAuthenticated');
+import { isAuthenticated } from '../passport/middleware/isAuthenticated';
+
 const {
   createSession,
   getOpenTokSessionID,

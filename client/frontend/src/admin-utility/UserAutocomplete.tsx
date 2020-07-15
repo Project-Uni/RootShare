@@ -3,28 +3,22 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
 import { TextField, Grid } from '@material-ui/core';
 
-import axios from 'axios';
+import { connect } from 'react-redux';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 
-const useStyles = makeStyles((_: any) => ({
-  logoStyle: {
-    width: '30px',
-    height: '30px',
-  },
-  schoolText: {
-    fontFamily: 'Ubuntu',
-    fontSize: '12pt',
-    marginLeft: '20px',
-  },
-  plusIconDiv: {
-    width: '30px',
-  },
-}));
+import { makeRequest } from '../helpers/makeRequest';
+
+const useStyles = makeStyles((_: any) => ({}));
 
 type Props = {
   handleAutoCompleteChange: (_: any, newValue: any) => void;
   value: String;
   err: String;
   label: string;
+  accessToken: string;
+  refreshToken: string;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 type UserInfo = {
@@ -40,9 +34,16 @@ function UserAutocomplete(props: Props) {
 
   async function handleQueryChange(event: any) {
     if (event.target.value.length >= 3) {
-      const { data } = await axios.post('/api/getMatchingUsers', {
-        query: event.target.value,
-      });
+      const { data } = await makeRequest(
+        'POST',
+        '/api/getMatchingUsers',
+        {
+          query: event.target.value,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
       if (data['success'] === 1) {
         setOptions(data['content']['users']);
       }
@@ -71,4 +72,22 @@ function UserAutocomplete(props: Props) {
   );
 }
 
-export default UserAutocomplete;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserAutocomplete);

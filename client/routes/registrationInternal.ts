@@ -1,7 +1,7 @@
 var passport = require('passport');
 const mongoose = require('mongoose');
 
-var isAuthenticated = require('../passport/middleware/isAuthenticated');
+import { isAuthenticated } from '../passport/middleware/isAuthenticated';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,

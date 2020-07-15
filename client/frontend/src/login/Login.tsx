@@ -64,7 +64,6 @@ function Login(props: Props) {
   }, []);
 
   async function checkAuth() {
-    // const { data } = await axios.get('/user/getCurrent');
     const { data } = await makeRequest(
       'GET',
       '/user/getCurrent',
