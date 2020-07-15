@@ -5,11 +5,13 @@ import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 
 import { Link, useLocation, BrowserRouter as Router } from 'react-router-dom';
+import { access } from 'fs';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,7 +39,11 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 function Login(props: Props) {
@@ -79,9 +85,15 @@ function Login(props: Props) {
       password: password,
     });
     if (data['success'] === 1) {
+      console.log('DataContent:', data['content']);
       setError(false);
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
+      const { firstName, lastName, _id, email, accessToken, refreshToken } = data[
+        'content'
+      ];
+      props.updateUser({ firstName, lastName, _id, email });
+      props.updateAccessToken(accessToken);
+      props.updateRefreshToken(refreshToken);
+      // setRedirectHome(true);
     } else {
       setError(true);
     }
@@ -134,6 +146,8 @@ function useQuery() {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -141,6 +155,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

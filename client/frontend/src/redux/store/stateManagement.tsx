@@ -2,10 +2,12 @@ import log from '../../helpers/logger';
 const STATE_NAME = 'RootShare:state';
 
 const initializeState = () => ({
-  user: {}
+  user: {},
+  accessToken: '',
+  refreshToken: '',
 });
 
-const saveState = (state: { [key: string]: any; }) => {
+const saveState = (state: { [key: string]: any }) => {
   try {
     let serializedState = JSON.stringify(state);
     localStorage.setItem(STATE_NAME, serializedState);
