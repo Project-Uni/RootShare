@@ -93,7 +93,7 @@ function Login(props: Props) {
       props.updateUser({ firstName, lastName, _id, email });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
-      // setRedirectHome(true);
+      setRedirectHome(true);
     } else {
       setError(true);
     }
