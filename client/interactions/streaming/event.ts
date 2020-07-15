@@ -69,13 +69,25 @@ function updateEvent(eventBody, callback) {
 }
 
 export async function getAllEvents(callback) {
+  function timeStampCompare(ObjectA, ObjectB) {
+    const a = ObjectA.dateTime !== undefined ? ObjectA.dateTime : new Date();
+    const b = ObjectB.dateTime !== undefined ? ObjectB.dateTime : new Date();
+
+    if (b < a) return 1;
+    if (a < b) return -1;
+    return 0;
+  }
+
   const webinars = await Webinar.find()
     .populate('host', 'firstName lastName email')
     .populate('speakers', 'firstName lastName email');
 
   if (!webinars || webinars === undefined || webinars === null)
     return callback(sendPacket(-1, 'Could not retrieve events'));
-  return callback(sendPacket(1, 'Sending back all events', { webinars }));
+
+  webinars.sort(timeStampCompare);
+  const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
+  return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
 }
 
 export async function getWebinarDetails(webinarID, callback) {
