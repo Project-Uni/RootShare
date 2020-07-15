@@ -6,12 +6,10 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 
-import { Link, useLocation, BrowserRouter as Router } from 'react-router-dom';
-import { access } from 'fs';
+import { useLocation } from 'react-router-dom';
 
 import { makeRequest } from '../helpers/makeRequest';
 
@@ -57,7 +55,7 @@ function Login(props: Props) {
   const [redirectHome, setRedirectHome] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
+  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/';
 
   useEffect(() => {
     checkAuth();
@@ -96,10 +94,24 @@ function Login(props: Props) {
     if (data['success'] === 1) {
       console.log('DataContent:', data['content']);
       setError(false);
-      const { firstName, lastName, _id, email, accessToken, refreshToken } = data[
-        'content'
-      ];
-      props.updateUser({ firstName, lastName, _id, email });
+      const {
+        firstName,
+        lastName,
+        _id,
+        email,
+        accessToken,
+        refreshToken,
+        privilegeLevel,
+        accountType,
+      } = data['content'];
+      props.updateUser({
+        firstName,
+        lastName,
+        _id,
+        email,
+        privilegeLevel,
+        accountType,
+      });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
       setRedirectHome(true);

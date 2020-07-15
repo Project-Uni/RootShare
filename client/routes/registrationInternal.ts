@@ -35,6 +35,8 @@ module.exports = (app) => {
               lastName: user.lastName,
               email: user.email,
               _id: user._id,
+              privilegeLevel: user.privilegeLevel || 1,
+              accountType: user.accountType,
               accessToken: info['jwtAccessToken'],
               refreshToken: info['jwtRefreshToken'],
             })
