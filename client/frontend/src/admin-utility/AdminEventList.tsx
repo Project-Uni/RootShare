@@ -15,10 +15,11 @@ const useStyles = makeStyles((_: any) => ({
     margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom: 20,
+    height: '85vh',
   },
 
   adminEventContainer: {
+    height: '100%',
     flex: 1,
     justifyContent: 'flex-end',
     //background: colors.secondary,
@@ -63,7 +64,11 @@ function AdminEventList(props: Props) {
     return output;
   }
 
-  return <div className={styles.wrapper}>{renderEvents()}</div>;
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.adminEventContainer}>{renderEvents()}</div>
+    </div>
+  );
 }
 
 export default AdminEventList;

@@ -25,7 +25,9 @@ const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    height: '50vh',
+  },
   loadingIndicator: {
     marginTop: 100,
   },
@@ -42,13 +44,13 @@ const useStyles = makeStyles((_: any) => ({
     margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   rootshareLogo: {
     height: '90px',
     marginLeft: 30,
-    marginBottom: 10,
-    marginTop: 20,
+    marginBottom: 0,
+    marginTop: 10,
   },
   submitButton: {
     width: 250,
@@ -396,7 +398,7 @@ function AdminEventCreator(props: Props) {
           className={styles.rootshareLogo}
           alt="RootShare"
         />
-        <RSText type="head" size={32} className={styles.pageTitle}>
+        <RSText type="head" size={28} className={styles.pageTitle}>
           Create New Event
         </RSText>
         <RSText
