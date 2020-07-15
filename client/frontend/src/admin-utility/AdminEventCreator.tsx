@@ -315,7 +315,7 @@ function AdminEventCreator(props: Props) {
     const output = [];
     for (let i = 0; i < speakers.length; i++) {
       output.push(
-        <div className={styles.singleSpeaker}>
+        <div key={speakers[i]['email']} className={styles.singleSpeaker}>
           <RSText type="subhead" className={styles.speakerName} size={14}>
             {speakers[i]['firstName'] + ' ' + speakers[i]['lastName']}{' '}
           </RSText>
