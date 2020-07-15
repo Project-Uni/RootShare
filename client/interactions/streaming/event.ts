@@ -24,8 +24,7 @@ export async function createEvent(
     full_description: eventBody['full_description'],
     host: eventBody['host'],
     speakers: eventBody['speakers'],
-    date: eventBody['date'],
-    time: eventBody['time'],
+    dateTime: eventBody['dateTime'],
   });
 
   newWebinar.save((err, webinar) => {

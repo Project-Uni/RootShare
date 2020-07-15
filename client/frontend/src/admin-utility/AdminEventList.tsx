@@ -48,20 +48,14 @@ function AdminEventList(props: Props) {
   function renderEvents() {
     let output: any[] = [];
     events.forEach((event: any) => {
-      // console.log(event);
-      const eventDate = new Date(event.date);
       output.push(
         <AdminSingleEvent
+          key={event._id}
           eventID={event._id}
           eventName={event.title}
           eventDescription={event.brief_description}
-          organization={`${event.host.firstName} ${event.host.lastName}`}
-          day={eventDate.getDay().toString()}
-          month={eventDate.getMonth().toString()}
-          year={eventDate.getFullYear().toString()}
-          time="6"
-          ampm="PM"
-          timezone="EST"
+          host={`${event.host.firstName} ${event.host.lastName}`}
+          dateTime={event.dateTime}
           picture="babyboilers.png"
         />
       );

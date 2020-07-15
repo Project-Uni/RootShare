@@ -158,8 +158,6 @@ function AdminEventCreator(props: Props) {
   }
 
   function handleDateTimeChange(dateTime: any) {
-    const dateTimeObj = dateTime as Date;
-    console.log(dateTimeObj);
     setEventDateTime(dateTime);
   }
 

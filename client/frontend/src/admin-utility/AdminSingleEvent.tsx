@@ -16,14 +16,17 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 5,
     paddingBottom: 4,
     margin: 10,
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: 'lightgray',
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.bright,
+    background: colors.primary,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-    //borderRadius: 10,
+    borderRadius: 10,
   },
   left: {
     color: colors.secondary,
@@ -38,8 +41,8 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.secondary,
   },
-  organization: {
-    marginLeft: 54,
+  host: {
+    marginLeft: 10,
     color: colors.secondary,
     marginTop: 30,
   },
@@ -65,6 +68,9 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.primaryText,
   },
+  editText: {
+    color: colors.primaryText,
+  },
   ellipsis: {
     marginRight: -5,
     color: colors.primaryText,
@@ -76,34 +82,82 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   description: {
-    marginTop: -15,
-    marginBottom: 5,
+    marginLeft: 10,
+    color: colors.secondary,
+    marginTop: 10,
+    paddingTop: 10,
+    // borderStyle: 'solid',
+    borderTopStyle: 'solid',
+    borderTopColor: 'gray',
+    borderTopWidth: 2,
   },
 }));
+
+const monthDict = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const weekDict = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
 type Props = {
   eventID: string;
   eventName: string;
   eventDescription: string;
-  organization: string;
-  day: string;
-  month: string;
-  year: string;
-  time: string;
-  ampm: string;
-  timezone: string;
+  host: string;
+  dateTime: Date;
   picture: string;
 };
 
 function AdminSingleEvent(props: Props) {
   const styles = useStyles();
 
+  function formatTime(date: Date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    let minutesString = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutesString + ' ' + ampm;
+
+    return strTime;
+  }
+
+  function formatYear(date: Date) {
+    let year = date.getFullYear().toString();
+    return `'${year.slice(2)}`;
+  }
+
+  const dateTime: Date =
+    props.dateTime === undefined ? new Date('04/22/1998') : new Date(props.dateTime);
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
           <IconButton>
-            <AddCircleOutlineIcon className={styles.ellipsis} />
+            {/* <AddCircleOutlineIcon className={styles.ellipsis} /> */}
+            <RSText size={11} className={styles.editText}>
+              Edit
+            </RSText>
           </IconButton>
           <RSText bold size={12} className={styles.name}>
             {props.eventName}
@@ -111,30 +165,26 @@ function AdminSingleEvent(props: Props) {
         </div>
         <div>
           <RSText size={12} className={styles.date}>
-            {props.month} {props.day}
+            {monthDict[dateTime.getMonth()]} {dateTime.getDate()}{' '}
+            {formatYear(dateTime)}
           </RSText>
         </div>
       </div>
       <div className={styles.bottom}>
         <div>
-          <RSText size={12} className={styles.organization}>
-            Hosted by {props.organization}
+          <RSText size={12} className={styles.host}>
+            Hosted by {props.host}
           </RSText>
         </div>
         <div>
           <RSText size={12} className={styles.left}>
-            {props.time}
-            {props.ampm}
+            {formatTime(dateTime)}
           </RSText>
         </div>
       </div>
-      <div className={styles.description}>
-        <div>
-          <RSText size={12} className={styles.organization}>
-            {props.eventDescription} people registered
-          </RSText>
-        </div>
-      </div>
+      <RSText size={12} className={styles.description}>
+        {props.eventDescription}
+      </RSText>
     </div>
   );
 }
