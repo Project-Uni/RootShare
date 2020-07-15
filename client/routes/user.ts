@@ -7,7 +7,7 @@ const isAuthenticated = require('../passport/middleware/isAuthenticated');
 import log from '../helpers/logger';
 
 module.exports = (app) => {
-  app.get('/user/getCurrent', (req, res) => {
+  app.get('/user/getCurrent', isAuthenticated, (req, res) => {
     const user = req.user;
     if (!user) return res.json(sendPacket(0, 'User not found'));
     return res.json(

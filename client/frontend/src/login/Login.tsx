@@ -13,6 +13,8 @@ import HypeCard from '../hype-page/hype-card/HypeCard';
 import { Link, useLocation, BrowserRouter as Router } from 'react-router-dom';
 import { access } from 'fs';
 
+import { makeRequest } from '../helpers/makeRequest';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     height: window.innerHeight,
@@ -62,7 +64,15 @@ function Login(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    // const { data } = await axios.get('/user/getCurrent');
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       props.updateUser({ ...data['content'] });
       setRedirectHome(true);
@@ -80,7 +90,7 @@ function Login(props: Props) {
   }
   async function handleLogin() {
     setLoading(true);
-    const { data } = await axios.post('/auth/login/local', {
+    const { data } = await makeRequest('POST', '/auth/login/local', {
       email: email,
       password: password,
     });

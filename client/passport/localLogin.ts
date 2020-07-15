@@ -37,8 +37,8 @@ module.exports = function (passport) {
               userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
             const jwtAccessToken = jwt.sign(
               userTokenInfo,
-              process.env.JWT_ACCESS_SECRET,
-              { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
+              process.env.JWT_ACCESS_SECRET
+              // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
             );
             const jwtRefreshToken = jwt.sign(
               userTokenInfo,
