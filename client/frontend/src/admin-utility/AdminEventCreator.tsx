@@ -51,6 +51,10 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 0,
     marginTop: 10,
   },
+  cancelButton: {
+    padding: 0,
+    margin: 0,
+  },
   submitButton: {
     width: 250,
     background: '#3D66DE',
@@ -442,6 +446,13 @@ function AdminEventCreator(props: Props) {
         <RSText type="head" size={28} className={styles.pageTitle}>
           {editEvent === '' ? 'Create New Event' : 'Update Event'}
         </RSText>
+        {editEvent !== '' ? (
+          <IconButton className={styles.cancelButton} onClick={resetData}>
+            <RSText size={14}>Cancel Update</RSText>
+          </IconButton>
+        ) : (
+          <span />
+        )}
         <RSText
           type="subhead"
           size={14}
