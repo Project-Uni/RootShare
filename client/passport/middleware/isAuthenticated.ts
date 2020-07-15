@@ -1,5 +1,6 @@
 import jwt = require('jsonwebtoken');
 import sendPacket from '../../helpers/sendPacket';
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../../types/types';
 
 export function isAuthenticated(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route
@@ -12,13 +13,23 @@ export function isAuthenticated(req, res, next) {
 }
 
 export function isAuthenticatedWithJWT(req, res, next) {
+  if (!req.user) return res.json(sendPacket(0, 'User not logged in'));
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
+  let user;
   try {
-    jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    user = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
   } catch {
     return res.json(sendPacket(-1, 'Invalid access token'));
+  }
+  //JWT Auth, checking if user info in request matches JWT
+  for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++) {
+    const tokenValue = user[JWT_TOKEN_FIELDS[i]].toString();
+    const requestValue = req.user[JWT_TOKEN_FIELDS[i]].toString();
+    if (tokenValue != requestValue)
+      return res.json(sendPacket(-1, 'Invalid access token'));
   }
 
   if (req.isAuthenticated()) return next();
