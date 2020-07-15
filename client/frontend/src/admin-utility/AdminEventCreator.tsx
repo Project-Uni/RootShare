@@ -19,6 +19,7 @@ import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
+import AdminEventList from './AdminEventList';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -28,7 +29,13 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     marginTop: 100,
   },
-  body: {
+  holder: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  formBody: {
     width: 400,
     border: '1px solid black',
     borderRadius: 10,
@@ -393,7 +400,7 @@ function AdminEventCreator(props: Props) {
 
   function renderContent() {
     return (
-      <div className={styles.body}>
+      <div className={styles.formBody}>
         <img
           src={RootShareLogoFull}
           className={styles.rootshareLogo}
@@ -434,7 +441,9 @@ function AdminEventCreator(props: Props) {
           color="primary"
         />
       ) : (
-        renderContent()
+        <div className={styles.holder}>
+          {renderContent()} <AdminEventList />
+        </div>
       )}
     </div>
   );
