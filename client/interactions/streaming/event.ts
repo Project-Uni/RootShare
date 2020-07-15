@@ -8,6 +8,7 @@ aws.config.loadFromPath('../keys/aws_key.json');
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 const { createNewOpenTokSession } = require('./opentok');
+import { formatTime, formatDate } from '../../helpers/dateFormat';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
@@ -96,17 +97,26 @@ function sendEventEmailConfirmation(
   speakerEmails: string[],
   hostEmail: string
 ) {
+  const eventDateTime = webinarData['dateTime'];
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>${webinarData['title']}<b></p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['brief_description']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${
+    webinarData['brief_description']
+  }</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['full_description']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${
+    webinarData['full_description']
+  }</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${webinarData['date']} at ${webinarData['time']}<b></p>
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${webinarData['_id']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${formatDate(
+    eventDateTime
+  )} at ${formatTime(eventDateTime)}<b></p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${
+    webinarData['_id']
+  }</p>
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>See you there!</p>
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>-The RootShare Team</p>

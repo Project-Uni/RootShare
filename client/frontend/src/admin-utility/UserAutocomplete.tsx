@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, Grid } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 
 import axios from 'axios';
 
@@ -64,7 +64,7 @@ function UserAutocomplete(props: Props) {
           value={props.value}
           error={props.err !== ''}
           helperText={props.err}
-          onChange={handleQueryChange}
+          // onChange={handleQueryChange}
         />
       )}
     />

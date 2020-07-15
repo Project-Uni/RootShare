@@ -8,6 +8,7 @@ import RootShareLogoFullWhite from '../../images/RootShareLogoFullWhite.png';
 
 import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';
+import { monthDict } from '../helpers/dateFormat';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -92,31 +93,6 @@ const useStyles = makeStyles((_: any) => ({
     borderTopWidth: 2,
   },
 }));
-
-const monthDict = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const weekDict = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
 
 type Props = {
   event: any;
