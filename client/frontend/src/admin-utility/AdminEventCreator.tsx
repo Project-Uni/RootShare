@@ -14,6 +14,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../redux/actions/user';
+import log from '../helpers/logger';
 
 import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
@@ -25,9 +26,7 @@ const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    height: '50vh',
-  },
+  wrapper: {},
   loadingIndicator: {
     marginTop: 100,
   },
@@ -110,10 +109,11 @@ function AdminEventCreator(props: Props) {
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
   const [eventDateTime, setEventDateTime] = useState(new Date());
-  const [hostID, setHostID] = useState('');
-  const [hostEmail, setHostEmail] = useState('');
+  const [host, setHost] = useState<any>({});
   const [speakers, setSpeakers] = useState([]);
-  const [currentSpeaker, setCurrentSpeakear] = useState('');
+  const [currentSpeaker, setCurrentSpeaker] = useState('');
+
+  const [events, setEvents] = useState<any>([]);
 
   const [hostErr, setHostErr] = useState('');
   const [speakerErr, setSpeakerErr] = useState('');
@@ -121,6 +121,7 @@ function AdminEventCreator(props: Props) {
   const [briefDescErr, setBriefDescErr] = useState('');
   const [fullDescErr, setFullDescErr] = useState('');
   const [topMessage, setTopMessage] = useState('');
+  const [editEvent, setEditEvent] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -146,6 +147,16 @@ function AdminEventCreator(props: Props) {
     return true;
   }
 
+  useEffect(() => {
+    updateEvents();
+  }, []);
+
+  async function updateEvents() {
+    const { data } = await axios.get('/api/webinar/getAllEvents');
+    if (data['success'] !== 1) return log('error', data['message']);
+    setEvents(data['content']['webinars']);
+  }
+
   function handleTitleChange(event: any) {
     setTitle(event.target.value);
   }
@@ -165,11 +176,9 @@ function AdminEventCreator(props: Props) {
 
   function handleHostChange(_: any, newValue: any) {
     if (newValue === null) {
-      setHostID('');
-      setHostEmail('');
+      setHost('');
     } else {
-      setHostID(newValue['_id']);
-      setHostEmail(newValue['email']);
+      setHost(newValue);
     }
   }
 
@@ -197,6 +206,16 @@ function AdminEventCreator(props: Props) {
     }
   }
 
+  function startEditing(event: any) {
+    setEditEvent(event._id);
+    setTitle(event.title);
+    setBriefDesc(event.brief_description);
+    setFullDesc(event.full_description);
+    setEventDateTime(event.dateTime);
+    setHost(event.host);
+    setSpeakers(event.speakers);
+  }
+
   async function handleSubmit() {
     let hasErr = false;
     if (title.length === 0) {
@@ -211,7 +230,7 @@ function AdminEventCreator(props: Props) {
       hasErr = true;
       setFullDescErr('Description is required');
     } else setFullDescErr('');
-    if (hostID === '') {
+    if (Object.keys(host).length === 0) {
       hasErr = true;
       setHostErr('Host is required');
     } else setHostErr('');
@@ -228,18 +247,20 @@ function AdminEventCreator(props: Props) {
     const speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
 
     const API_DATA = {
+      editEvent: editEvent,
       title: title,
       brief_description: briefDesc,
       full_description: fullDesc,
-      host: hostID,
-      hostEmail: hostEmail,
+      host: host,
       speakers: speakerIDs,
       dateTime: eventDateTime,
       speakerEmails: speakerEmails,
     };
+
     const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
+    updateEvents();
     if (data['success'] === 1) {
-      setTopMessage('s: Successfully created webinar.');
+      setTopMessage(`s: ${data['message']}`);
       resetData();
     } else setTopMessage('f: There was an error creating the webinar.');
   }
@@ -249,22 +270,41 @@ function AdminEventCreator(props: Props) {
     setBriefDesc('');
     setFullDesc('');
     setEventDateTime(new Date());
-    setHostID('');
+    setHost({});
     setSpeakers([]);
-    setCurrentSpeakear('');
-    setHostEmail('');
-
+    setCurrentSpeaker('');
     setHostErr('');
     setSpeakerErr('');
     setTitleErr('');
     setBriefDescErr('');
     setFullDescErr('');
+    setEditEvent('');
   }
 
   function removeSpeaker(index: number) {
     const newSpeakers = [...speakers];
     newSpeakers.splice(index, 1);
     setSpeakers(newSpeakers);
+  }
+
+  function renderHost() {
+    return (
+      <div className={styles.singleSpeaker}>
+        <RSText type="subhead" className={styles.speakerName} size={14}>
+          {`${host.firstName} ${host.lastName}`}
+        </RSText>
+        <RSText type="subhead" italic size={11}>
+          {host.email}
+        </RSText>
+        <IconButton
+          onClick={() => {
+            setHost({});
+          }}
+        >
+          <RSText type="subhead">X</RSText>
+        </IconButton>
+      </div>
+    );
   }
 
   function renderSpeakers() {
@@ -369,9 +409,10 @@ function AdminEventCreator(props: Props) {
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Host
         </RSText>
+        {Object.keys(host).length === 0 ? <span /> : renderHost()}
         <UserAutocomplete
           handleAutoCompleteChange={handleHostChange}
-          value={hostID}
+          value={host.firstName}
           err={hostErr}
           label="Host"
         />
@@ -399,7 +440,7 @@ function AdminEventCreator(props: Props) {
           alt="RootShare"
         />
         <RSText type="head" size={28} className={styles.pageTitle}>
-          Create New Event
+          {editEvent === '' ? 'Create New Event' : 'Update Event'}
         </RSText>
         <RSText
           type="subhead"
@@ -415,7 +456,7 @@ function AdminEventCreator(props: Props) {
           className={styles.submitButton}
           onClick={handleSubmit}
         >
-          CREATE
+          {editEvent === '' ? 'CREATE' : 'UPDATE'}
         </Button>
       </div>
     );
@@ -434,7 +475,8 @@ function AdminEventCreator(props: Props) {
         />
       ) : (
         <div className={styles.holder}>
-          {renderContent()} <AdminEventList />
+          {renderContent()}{' '}
+          <AdminEventList events={events} handleEdit={startEditing} />
         </div>
       )}
     </div>

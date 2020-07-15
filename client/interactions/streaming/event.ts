@@ -18,11 +18,13 @@ export async function createEvent(
   user: { [key: string]: any },
   callback: (packet: any) => void
 ) {
+  if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
+
   const newWebinar = new Webinar({
     title: eventBody['title'],
     brief_description: eventBody['brief_description'],
     full_description: eventBody['full_description'],
-    host: eventBody['host'],
+    host: eventBody['host']['_id'],
     speakers: eventBody['speakers'],
     dateTime: eventBody['dateTime'],
   });
@@ -41,8 +43,34 @@ export async function createEvent(
   });
 }
 
+function updateEvent(eventBody, callback) {
+  Webinar.findById(eventBody['editEvent'], (err, webinar) => {
+    if (err || webinar === undefined || webinar === null)
+      return callback(sendPacket(-1, "Couldn't find event to update"));
+    webinar.title = eventBody['title'];
+    webinar.brief_description = eventBody['brief_description'];
+    webinar.full_description = eventBody['full_description'];
+    webinar.host = eventBody['host'];
+    webinar.speakers = eventBody['speakers'];
+    webinar.dateTime = eventBody['dateTime'];
+
+    webinar.save((err, webinar) => {
+      if (err) return callback(sendPacket(-1, "Couldn't update event"));
+
+      sendEventEmailConfirmation(
+        webinar,
+        eventBody['speakerEmails'],
+        eventBody['hostEmail']
+      );
+      return callback(sendPacket(1, 'Successfully updated webinar'));
+    });
+  });
+}
+
 export async function getAllEvents(callback) {
-  const webinars = await Webinar.find().populate('host', 'firstName lastName');
+  const webinars = await Webinar.find()
+    .populate('host', 'firstName lastName email')
+    .populate('speakers', 'firstName lastName email');
 
   if (!webinars || webinars === undefined || webinars === null)
     return callback(sendPacket(-1, 'Could not retrieve events'));

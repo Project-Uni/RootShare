@@ -119,12 +119,8 @@ const weekDict = [
 ];
 
 type Props = {
-  eventID: string;
-  eventName: string;
-  eventDescription: string;
-  host: string;
-  dateTime: Date;
-  picture: string;
+  event: any;
+  handleEdit: (event: any) => void;
 };
 
 function AdminSingleEvent(props: Props) {
@@ -147,20 +143,21 @@ function AdminSingleEvent(props: Props) {
     return `'${year.slice(2)}`;
   }
 
+  const { event } = props;
   const dateTime: Date =
-    props.dateTime === undefined ? new Date('04/22/1998') : new Date(props.dateTime);
+    event.dateTime === undefined ? new Date('04/22/1998') : new Date(event.dateTime);
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
-          <IconButton>
+          <IconButton onClick={() => props.handleEdit(props.event)}>
             {/* <AddCircleOutlineIcon className={styles.ellipsis} /> */}
             <RSText size={11} className={styles.editText}>
               Edit
             </RSText>
           </IconButton>
           <RSText bold size={12} className={styles.name}>
-            {props.eventName}
+            {event.title}
           </RSText>
         </div>
         <div>
@@ -173,7 +170,7 @@ function AdminSingleEvent(props: Props) {
       <div className={styles.bottom}>
         <div>
           <RSText size={12} className={styles.host}>
-            Hosted by {props.host}
+            Hosted by {`${event.host.firstName} ${event.host.lastName}`}
           </RSText>
         </div>
         <div>
@@ -183,7 +180,7 @@ function AdminSingleEvent(props: Props) {
         </div>
       </div>
       <RSText size={12} className={styles.description}>
-        {props.eventDescription}
+        {event.brief_description}
       </RSText>
     </div>
   );

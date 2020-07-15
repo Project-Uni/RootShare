@@ -15,7 +15,7 @@ const useStyles = makeStyles((_: any) => ({
     margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
-    height: '85vh',
+    height: '90vh',
   },
 
   adminEventContainer: {
@@ -29,35 +29,24 @@ const useStyles = makeStyles((_: any) => ({
   event: {},
 }));
 
-type Props = {};
+type Props = {
+  events: any[];
+  handleEdit: (event: any) => void;
+};
 
 function AdminEventList(props: Props) {
   const styles = useStyles();
 
-  const [events, setEvents] = useState<any>([]);
-
-  useEffect(() => {
-    updateEvents();
-  }, []);
-
-  async function updateEvents() {
-    const { data } = await axios.get('/api/webinar/getAllEvents');
-    if (data['success'] !== 1) return log('error', data['message']);
-    setEvents(data['content']['webinars']);
-  }
+  useEffect(() => {}, []);
 
   function renderEvents() {
     let output: any[] = [];
-    events.forEach((event: any) => {
+    props.events.forEach((event: any) => {
       output.push(
         <AdminSingleEvent
           key={event._id}
-          eventID={event._id}
-          eventName={event.title}
-          eventDescription={event.brief_description}
-          host={`${event.host.firstName} ${event.host.lastName}`}
-          dateTime={event.dateTime}
-          picture="babyboilers.png"
+          event={event}
+          handleEdit={props.handleEdit}
         />
       );
     });
