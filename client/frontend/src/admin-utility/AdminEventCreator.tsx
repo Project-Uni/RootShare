@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, TextField, Button, IconButton } from '@material-ui/core';
-
 import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+  CircularProgress,
+  TextField,
+  Button,
+  IconButton,
+  FormHelperText,
+} from '@material-ui/core';
+
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
 import axios from 'axios';
@@ -77,9 +79,13 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   dateBox: {
-    width: 150,
+    width: 200,
     marginLeft: 20,
     marginRight: 20,
+  },
+  dateErr: {
+    padding: 0,
+    margin: 0,
   },
   singleSpeaker: {
     display: 'flex',
@@ -118,14 +124,15 @@ function AdminEventCreator(props: Props) {
   const [currentSpeaker, setCurrentSpeaker] = useState('');
 
   const [events, setEvents] = useState<any>([]);
+  const [editEvent, setEditEvent] = useState('');
 
   const [hostErr, setHostErr] = useState('');
   const [speakerErr, setSpeakerErr] = useState('');
   const [titleErr, setTitleErr] = useState('');
   const [briefDescErr, setBriefDescErr] = useState('');
   const [fullDescErr, setFullDescErr] = useState('');
+  const [dateTimeErr, setDateTimeErr] = useState('');
   const [topMessage, setTopMessage] = useState('');
-  const [editEvent, setEditEvent] = useState('');
 
   const dateFns = new DateFnsUtils();
 
@@ -240,10 +247,12 @@ function AdminEventCreator(props: Props) {
     } else setHostErr('');
     if (speakers.length === 0) {
       hasErr = true;
-      setSpeakerErr('Atleast one speaker is required');
+      setSpeakerErr('At least one speaker is required');
     } else setSpeakerErr('');
-
-    //TODO - Add validation for date to check that its not before current day
+    if (eventDateTime < new Date()) {
+      hasErr = true;
+      setDateTimeErr('Event cannot be in the past');
+    } else setDateTimeErr('');
 
     if (hasErr) return;
 
@@ -386,29 +395,21 @@ function AdminEventCreator(props: Props) {
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Event Date {'&'} Time
         </RSText>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            margin="normal"
-            label="Event Date"
-            format="MM/dd/yyyy"
-            value={eventDateTime}
-            onChange={handleDateTimeChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-            className={styles.dateBox}
-          />
-          <KeyboardTimePicker
-            margin="normal"
-            label="Event Time"
-            value={eventDateTime}
-            onChange={handleDateTimeChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change time',
-            }}
-            className={styles.dateBox}
-          />
-        </MuiPickersUtilsProvider>
+        <FormHelperText error={dateTimeErr !== ''} className={styles.dateBox}>
+          <p className={styles.dateErr}>{dateTimeErr}</p>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+              margin="normal"
+              label="Event Date and Time"
+              format="MM/dd/yyyy @ h:mm a"
+              value={eventDateTime}
+              onChange={handleDateTimeChange}
+              minDate={new Date()}
+              minDateMessage={'Event cannot be in the past'}
+              className={styles.dateBox}
+            />
+          </MuiPickersUtilsProvider>
+        </FormHelperText>
 
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Host

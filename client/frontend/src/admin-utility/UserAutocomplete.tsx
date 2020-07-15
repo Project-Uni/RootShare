@@ -64,7 +64,7 @@ function UserAutocomplete(props: Props) {
           value={props.value}
           error={props.err !== ''}
           helperText={props.err}
-          // onChange={handleQueryChange}
+          onChange={handleQueryChange}
         />
       )}
     />
