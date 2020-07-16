@@ -2,7 +2,6 @@ import axios from 'axios';
 import log from '../../../../../helpers/logger';
 import { makeRequest } from '../../../../../helpers/makeRequest';
 
-//TODO - Get JWT Into these 3 functions
 async function getLatestWebinarID() {
   const { data } = await axios.get('/webinar/latestWebinarID');
   if (data['success'] === 1) return data['content']['webinarID'];
@@ -13,7 +12,6 @@ async function getLatestWebinarID() {
 
 export async function startLiveStream(accessToken: string, refreshToken: string) {
   const webinarID = await getLatestWebinarID();
-  // axios.post('/webinar/startStreaming', { webinarID });
   makeRequest(
     'POST',
     '/webinar/startStreaming',
@@ -26,7 +24,6 @@ export async function startLiveStream(accessToken: string, refreshToken: string)
 
 export async function stopLiveStream(accessToken: string, refreshToken: string) {
   const webinarID = await getLatestWebinarID();
-  // axios.post('/webinar/stopStreaming', { webinarID });
   makeRequest(
     'POST',
     '/webinar/stopStreaming',
