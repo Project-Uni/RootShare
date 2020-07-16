@@ -6,6 +6,9 @@ import EventClientEmptyVideoPlayer from '../video/EventClientEmptyVideoPlayer';
 import VideoPlayer from '../video/VideoPlayer';
 
 import log from '../../../helpers/logger';
+import { makeRequest } from '../../../helpers/makeRequest';
+import { connect } from 'react-redux';
+import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
@@ -18,7 +21,12 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  accessToken: string;
+  refreshToken: string;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function EventWatcherVideoContainer(props: Props) {
   const styles = useStyles();
@@ -51,7 +59,14 @@ function EventWatcherVideoContainer(props: Props) {
   }
 
   async function getVideoData(webinarID: string) {
-    const { data } = await axios.post('/webinar/getMuxPlaybackID', { webinarID });
+    const { data } = await makeRequest(
+      'POST',
+      '/webinar/getMuxPlaybackID',
+      { webinarID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       const { muxPlaybackID } = data.content;
       const source = `https://stream.mux.com/${muxPlaybackID}.m3u8`;
@@ -86,4 +101,25 @@ function EventWatcherVideoContainer(props: Props) {
   );
 }
 
-export default EventWatcherVideoContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EventWatcherVideoContainer);

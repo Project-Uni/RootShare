@@ -2,13 +2,23 @@ import axios from 'axios';
 import OT from '@opentok/client';
 import log from '../../../../../helpers/logger';
 import { createNewWebcamPublisher } from './createPublishers';
+import { makeRequest } from '../../../../../helpers/makeRequest';
 
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
-export async function validateSession(webinarID: string) {
-  const { data } = await axios.post('/webinar/getOpenTokSessionID', {
-    webinarID,
-  });
+export async function validateSession(
+  webinarID: string,
+  accessToken: string,
+  refreshToken: string
+) {
+  const { data } = await makeRequest(
+    'POST',
+    '/webinar/getOpenTokSessionID',
+    { webinarID },
+    true,
+    accessToken,
+    refreshToken
+  );
   if (data['success'] !== 1) {
     alert('Session token invalid');
     return false;
@@ -16,10 +26,21 @@ export async function validateSession(webinarID: string) {
   return data['content']['opentokSessionID'];
 }
 
-export async function getOpenTokToken(sessionID: string) {
-  const { data } = await axios.post('/webinar/getOpenTokToken', {
-    opentokSessionID: sessionID,
-  });
+export async function getOpenTokToken(
+  sessionID: string,
+  accessToken: string,
+  refreshToken: string
+) {
+  const { data } = await makeRequest(
+    'POST',
+    '/webinar/getOpenTokToken',
+    {
+      opentokSessionID: sessionID,
+    },
+    true,
+    accessToken,
+    refreshToken
+  );
   if (data['success'] !== 1) {
     alert('Could not retrieve event token');
     return false;

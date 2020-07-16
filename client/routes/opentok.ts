@@ -4,7 +4,10 @@ const Webinar = mongoose.model('webinars');
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 import { USER_LEVEL } from '../types/types';
-import { isAuthenticated } from '../passport/middleware/isAuthenticated';
+import {
+  isAuthenticated,
+  isAuthenticatedWithJWT,
+} from '../passport/middleware/isAuthenticated';
 
 const {
   createSession,
@@ -32,19 +35,23 @@ module.exports = (app) => {
     res.json(packet);
   });
 
-  app.post('/webinar/getOpenTokSessionID', isAuthenticated, async (req, res) => {
-    const { webinarID } = req.body;
-    const packet = await getOpenTokSessionID(webinarID);
-    res.json(packet);
-  });
+  app.post(
+    '/webinar/getOpenTokSessionID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      const packet = await getOpenTokSessionID(webinarID);
+      res.json(packet);
+    }
+  );
 
-  app.post('/webinar/getOpenTokToken', isAuthenticated, async (req, res) => {
+  app.post('/webinar/getOpenTokToken', isAuthenticatedWithJWT, async (req, res) => {
     const { opentokSessionID } = req.body;
     const packet = await getOpenTokToken(opentokSessionID);
     res.json(packet);
   });
 
-  app.post('/webinar/getMuxPlaybackID', isAuthenticated, async (req, res) => {
+  app.post('/webinar/getMuxPlaybackID', isAuthenticatedWithJWT, async (req, res) => {
     const { webinarID } = req.body;
     const packet = await getMuxPlaybackID(webinarID);
     res.json(packet);
@@ -62,12 +69,16 @@ module.exports = (app) => {
     res.json(packet);
   });
 
-  app.post('/webinar/changeBroadcastLayout', isAuthenticated, async (req, res) => {
-    const { webinarID, type, streamID } = req.body;
-    await changeBroadcastLayout(webinarID, type, streamID, (packet) => {
-      res.json(packet);
-    });
-  });
+  app.post(
+    '/webinar/changeBroadcastLayout',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID, type, streamID } = req.body;
+      await changeBroadcastLayout(webinarID, type, streamID, (packet) => {
+        res.json(packet);
+      });
+    }
+  );
 
   app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)

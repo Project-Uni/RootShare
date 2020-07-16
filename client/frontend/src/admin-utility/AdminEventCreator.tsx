@@ -250,7 +250,6 @@ function AdminEventCreator(props: Props) {
       time: time,
       speakerEmails: speakerEmails,
     };
-    // const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
     const { data } = await makeRequest(
       'POST',
       '/api/webinar/createEvent',

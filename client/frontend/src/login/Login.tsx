@@ -6,12 +6,11 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { makeRequest } from '../helpers/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 
 import { useLocation } from 'react-router-dom';
-
-import { makeRequest } from '../helpers/makeRequest';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

@@ -5,10 +5,13 @@ import { CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
+import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 
 import EventHostButtonContainer from './EventHostButtonContainer';
 
 import log from '../../../helpers/logger';
+import { makeRequest } from '../../../helpers/makeRequest';
+
 import RSText from '../../../base-components/RSText';
 import {
   VideosOnlyLayout,
@@ -54,6 +57,10 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
 };
@@ -251,12 +258,18 @@ function EventHostContainer(props: Props) {
 
             session.publish(publisher, (err) => {
               if (err) return log('error', err.message);
-
-              axios.post('/webinar/changeBroadcastLayout', {
-                webinarID,
-                type: 'horizontalPresentation',
-                streamID: publisher.stream?.streamId,
-              });
+              makeRequest(
+                'POST',
+                '/webinar/changeBroadcastLayout',
+                {
+                  webinarID,
+                  type: 'horizontalPresentation',
+                  streamID: publisher.stream?.streamId,
+                },
+                true,
+                props.accessToken,
+                props.refreshToken
+              );
 
               setScreenPublisher(publisher);
             });
@@ -280,10 +293,17 @@ function EventHostContainer(props: Props) {
     screenPublisher: Publisher
   ) {
     setTimeout(() => {
-      axios.post('/webinar/changeBroadcastLayout', {
-        webinarID,
-        type: 'bestFit',
-      });
+      makeRequest(
+        'POST',
+        '/webinar/changeBroadcastLayout',
+        {
+          webinarID,
+          type: 'bestFit',
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
 
       removeVideoElement(screenElementID, 'screen', true);
       session.unpublish(screenPublisher);
@@ -298,7 +318,9 @@ function EventHostContainer(props: Props) {
         props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
-        setCameraPublisher
+        setCameraPublisher,
+        props.accessToken,
+        props.refreshToken
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {
@@ -382,11 +404,20 @@ function EventHostContainer(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventHostContainer);
