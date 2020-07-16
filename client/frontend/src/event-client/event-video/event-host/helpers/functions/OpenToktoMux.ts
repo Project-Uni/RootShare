@@ -1,17 +1,10 @@
-import axios from 'axios';
-import log from '../../../../../helpers/logger';
 import { makeRequest } from '../../../../../helpers/makeRequest';
 
-async function getLatestWebinarID() {
-  const { data } = await axios.get('/webinar/latestWebinarID');
-  if (data['success'] === 1) return data['content']['webinarID'];
-
-  log('error', data['message']);
-  return false;
-}
-
-export async function startLiveStream(accessToken: string, refreshToken: string) {
-  const webinarID = await getLatestWebinarID();
+export async function startLiveStream(
+  webinarID: string,
+  accessToken: string,
+  refreshToken: string
+) {
   makeRequest(
     'POST',
     '/webinar/startStreaming',
@@ -22,8 +15,11 @@ export async function startLiveStream(accessToken: string, refreshToken: string)
   );
 }
 
-export async function stopLiveStream(accessToken: string, refreshToken: string) {
-  const webinarID = await getLatestWebinarID();
+export async function stopLiveStream(
+  webinarID: string,
+  accessToken: string,
+  refreshToken: string
+) {
   makeRequest(
     'POST',
     '/webinar/stopStreaming',

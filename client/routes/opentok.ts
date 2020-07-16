@@ -15,19 +15,12 @@ const {
   getMuxPlaybackID,
   startStreaming,
   stopStreaming,
-  getLatestWebinarID,
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
 import { createEvent, getWebinarDetails } from '../interactions/streaming/event';
 
 module.exports = (app) => {
-  app.get('/webinar/latestWebinarID', isAuthenticated, async (req, res) => {
-    const { id } = req.user;
-    const packet = await getLatestWebinarID(id);
-    res.json(packet);
-  });
-
   app.post(
     '/webinar/getOpenTokSessionID',
     isAuthenticatedWithJWT,
@@ -41,12 +34,6 @@ module.exports = (app) => {
   app.post('/webinar/getOpenTokToken', isAuthenticatedWithJWT, async (req, res) => {
     const { opentokSessionID } = req.body;
     const packet = await getOpenTokToken(opentokSessionID);
-    res.json(packet);
-  });
-
-  app.post('/webinar/getMuxPlaybackID', isAuthenticatedWithJWT, async (req, res) => {
-    const { webinarID } = req.body;
-    const packet = await getMuxPlaybackID(webinarID);
     res.json(packet);
   });
 
@@ -86,7 +73,7 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { eventID } = req.params;
-      await getWebinarDetails(eventID, (packet) => {
+      await getWebinarDetails(req.user._id, eventID, (packet) => {
         res.json(packet);
       });
     }
