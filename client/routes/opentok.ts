@@ -23,12 +23,6 @@ const {
 import { createEvent, getWebinarDetails } from '../interactions/streaming/event';
 
 module.exports = (app) => {
-  app.get('/webinar/createSession', isAuthenticated, async (req, res) => {
-    const { id } = req.user;
-    const packet = await createSession(id);
-    res.json(packet);
-  });
-
   app.get('/webinar/latestWebinarID', isAuthenticated, async (req, res) => {
     const { id } = req.user;
     const packet = await getLatestWebinarID(id);
@@ -57,13 +51,13 @@ module.exports = (app) => {
     res.json(packet);
   });
 
-  app.post('/webinar/startStreaming', isAuthenticated, async (req, res) => {
+  app.post('/webinar/startStreaming', isAuthenticatedWithJWT, async (req, res) => {
     const { webinarID } = req.body;
     const packet = await startStreaming(webinarID);
     res.json(packet);
   });
 
-  app.post('/webinar/stopStreaming', isAuthenticated, async (req, res) => {
+  app.post('/webinar/stopStreaming', isAuthenticatedWithJWT, async (req, res) => {
     const { webinarID } = req.body;
     const packet = await stopStreaming(webinarID);
     res.json(packet);

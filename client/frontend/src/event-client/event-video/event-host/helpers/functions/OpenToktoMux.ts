@@ -1,6 +1,6 @@
 import axios from 'axios';
 import log from '../../../../../helpers/logger';
-
+import { makeRequest } from '../../../../../helpers/makeRequest';
 
 //TODO - Get JWT Into these 3 functions
 async function getLatestWebinarID() {
@@ -11,12 +11,28 @@ async function getLatestWebinarID() {
   return false;
 }
 
-export async function startLiveStream() {
+export async function startLiveStream(accessToken: string, refreshToken: string) {
   const webinarID = await getLatestWebinarID();
-  axios.post('/webinar/startStreaming', { webinarID });
+  // axios.post('/webinar/startStreaming', { webinarID });
+  makeRequest(
+    'POST',
+    '/webinar/startStreaming',
+    { webinarID },
+    true,
+    accessToken,
+    refreshToken
+  );
 }
 
-export async function stopLiveStream() {
+export async function stopLiveStream(accessToken: string, refreshToken: string) {
   const webinarID = await getLatestWebinarID();
-  axios.post('/webinar/stopStreaming', { webinarID });
+  // axios.post('/webinar/stopStreaming', { webinarID });
+  makeRequest(
+    'POST',
+    '/webinar/stopStreaming',
+    { webinarID },
+    true,
+    accessToken,
+    refreshToken
+  );
 }
