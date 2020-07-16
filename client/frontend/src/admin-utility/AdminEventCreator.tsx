@@ -99,7 +99,7 @@ function AdminEventCreator(props: Props) {
 
   const [loading, setLoading] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState(false);
-  const [homepageRedirect, setHomepageRedirect] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(false);
 
   const [briefCharsRemaining, setBriefCharsRemaining] = useState(MAX_BRIEF_LEN);
 
@@ -124,9 +124,9 @@ function AdminEventCreator(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (checkAuth()) {
+    checkAuth().then((authorized) => {
       setLoading(false);
-    }
+    });
   }, []);
 
   async function checkAuth() {
@@ -144,7 +144,7 @@ function AdminEventCreator(props: Props) {
     } else {
       updateUser({ ...data['content'] });
       if (data['content']['privilegeLevel'] < MIN_ACCESS_LEVEL) {
-        setHomepageRedirect(true);
+        setShowInvalid(true);
         return false;
       }
     }
@@ -286,6 +286,14 @@ function AdminEventCreator(props: Props) {
     const newSpeakers = [...speakers];
     newSpeakers.splice(index, 1);
     setSpeakers(newSpeakers);
+  }
+
+  function renderInvalid() {
+    return (
+      <RSText type="subhead" size={32} bold>
+        Permission not granted to view page
+      </RSText>
+    );
   }
 
   function renderSpeakers() {
@@ -445,7 +453,6 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      {homepageRedirect && <Redirect to="/" />}
       <HypeHeader />
       {loading ? (
         <CircularProgress
@@ -453,6 +460,8 @@ function AdminEventCreator(props: Props) {
           size={100}
           color="primary"
         />
+      ) : showInvalid ? (
+        renderInvalid()
       ) : (
         renderContent()
       )}
