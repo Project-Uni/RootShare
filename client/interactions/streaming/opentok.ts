@@ -12,7 +12,7 @@ const {
   PROD_BASE_64_MUX,
 } = require('../../../keys/keys.json');
 const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
-const BASE_64_MUX = IN_DEV ? PROD_BASE_64_MUX : DEV_BASE_64_MUX;
+const BASE_64_MUX = IN_DEV ? DEV_BASE_64_MUX : PROD_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 
 import log from '../../helpers/logger';
