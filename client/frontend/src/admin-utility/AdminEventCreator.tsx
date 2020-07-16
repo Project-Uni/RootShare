@@ -134,8 +134,6 @@ function AdminEventCreator(props: Props) {
   const [dateTimeErr, setDateTimeErr] = useState('');
   const [topMessage, setTopMessage] = useState('');
 
-  const dateFns = new DateFnsUtils();
-
   useEffect(() => {
     setLoading(true);
     if (checkAuth()) {

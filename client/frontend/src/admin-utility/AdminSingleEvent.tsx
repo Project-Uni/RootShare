@@ -13,7 +13,6 @@ import { monthDict } from '../helpers/dateFormat';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    // not final color
     borderRadius: 5,
     paddingBottom: 4,
     margin: 10,
@@ -34,14 +33,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
     marginRight: 10,
   },
-  right: {},
-  picture: {
-    margin: 10,
-    marginTop: 18,
-    marginBottom: -7,
-    display: 'inline-block',
-    color: colors.secondary,
-  },
   host: {
     marginLeft: 10,
     color: colors.secondary,
@@ -51,7 +42,6 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     margin: 0,
-    //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
   },
   name: {
@@ -72,22 +62,11 @@ const useStyles = makeStyles((_: any) => ({
   editText: {
     color: colors.primaryText,
   },
-  ellipsis: {
-    marginRight: -5,
-    color: colors.primaryText,
-    marginBottom: 0,
-  },
-  banner: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
   description: {
     marginLeft: 10,
     color: colors.secondary,
     marginTop: 10,
     paddingTop: 10,
-    // borderStyle: 'solid',
     borderTopStyle: 'solid',
     borderTopColor: 'gray',
     borderTopWidth: 2,
@@ -127,7 +106,6 @@ function AdminSingleEvent(props: Props) {
       <div className={styles.top}>
         <div>
           <IconButton onClick={() => props.handleEdit(props.event)}>
-            {/* <AddCircleOutlineIcon className={styles.ellipsis} /> */}
             <RSText size={11} className={styles.editText}>
               Edit
             </RSText>
