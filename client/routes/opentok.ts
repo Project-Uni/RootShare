@@ -10,7 +10,6 @@ import {
 } from '../passport/middleware/isAuthenticated';
 
 const {
-  createSession,
   getOpenTokSessionID,
   getOpenTokToken,
   getMuxPlaybackID,
@@ -74,7 +73,7 @@ module.exports = (app) => {
     }
   );
 
-  app.post('/api/webinar/createEvent', isAuthenticated, async (req, res) => {
+  app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
@@ -82,10 +81,14 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/api/webinar/getDetails/:eventID', isAuthenticated, async (req, res) => {
-    const { eventID } = req.params;
-    await getWebinarDetails(eventID, (packet) => {
-      res.json(packet);
-    });
-  });
+  app.get(
+    '/api/webinar/getDetails/:eventID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { eventID } = req.params;
+      await getWebinarDetails(eventID, (packet) => {
+        res.json(packet);
+      });
+    }
+  );
 };
