@@ -9,8 +9,6 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
-// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
-
 import { colors } from '../theme/Colors';
 
 import {
@@ -21,9 +19,7 @@ import {
 } from './drawer-components';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    // flexGrow: 1,
-  },
+  wrapper: {},
   header: {
     background: colors.secondary,
   },

@@ -33,15 +33,17 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type AVAILABLE_TABS =
+  | 'home'
+  | 'discover'
+  | 'communities'
+  | 'events'
+  | 'messages'
+  | 'connections'
+  | 'profile';
+
 type Props = {
-  currentTab:
-    | 'home'
-    | 'discover'
-    | 'communities'
-    | 'events'
-    | 'messages'
-    | 'connections'
-    | 'profile';
+  currentTab: AVAILABLE_TABS;
 };
 
 function MainNavigator(props: Props) {

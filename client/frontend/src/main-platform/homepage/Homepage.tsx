@@ -1,6 +1,9 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { connect } from 'react-redux';
+import { updateUser } from '../../redux/actions/user';
+
 import RSText from '../../base-components/RSText';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
@@ -28,7 +31,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  updateUser: (userInfo: { [key: string]: any }) => void;
+};
 
 function Homepage(props: Props) {
   const styles = useStyles();
@@ -53,4 +59,18 @@ function Homepage(props: Props) {
   );
 }
 
-export default Homepage;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Homepage);
