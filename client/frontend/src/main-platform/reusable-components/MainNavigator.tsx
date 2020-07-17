@@ -16,11 +16,14 @@ const ICON_SIZE = 32;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.secondary,
-    width: 250,
-    paddingLeft: 30,
-    paddingRight: 30,
-    paddingTop: 30,
+    background: colors.primary,
+    width: 310,
+    borderRight: `1px solid ${colors.primaryText}`,
+  },
+  linkContainer: {
+    marginLeft: 30,
+    marginRight: 30,
+    marginTop: 30,
   },
   link: {
     display: 'flex',
@@ -50,6 +53,13 @@ function MainNavigator(props: Props) {
   const styles = useStyles();
 
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
+  }
 
   const tabs = [
     {
@@ -125,14 +135,6 @@ function MainNavigator(props: Props) {
     },
   ];
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-  }, []);
-
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
   function renderLinks() {
     const output = [];
     for (let i = 0; i < tabs.length; i++) {
@@ -159,7 +161,7 @@ function MainNavigator(props: Props) {
   }
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {renderLinks()}
+      <div className={styles.linkContainer}>{renderLinks()}</div>
     </div>
   );
 }
