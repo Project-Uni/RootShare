@@ -57,6 +57,8 @@ type Props = {};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
+
+  const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -64,7 +66,14 @@ function HomepageBody(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    fetchData().then(() => {
+      setLoading(false);
+    });
   }, []);
+
+  async function fetchData() {
+    console.log('Fetching data');
+  }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);

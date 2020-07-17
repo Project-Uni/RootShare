@@ -24,7 +24,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
-function Discover(props: Props) {
+function Profile(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
@@ -59,7 +59,7 @@ function Discover(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/discover`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/profile`} />}
       <EventClientHeader />
       <div className={styles.body}>
         <p>I am template</p>
@@ -90,4 +90,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Discover);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

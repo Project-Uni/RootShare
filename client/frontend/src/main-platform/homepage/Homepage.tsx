@@ -34,11 +34,19 @@ type Props = {
 
 function Homepage(props: Props) {
   const styles = useStyles();
+
+  const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
 
   useEffect(() => {
-    checkAuth().then((authenticated) => {
-      if (authenticated) console.log('User is authenticated');
+    checkAuth().then(async (authenticated) => {
+      if (authenticated) {
+        console.log('User is authenticated');
+        await fetchData();
+        setLoading(false);
+      } else {
+        setLoginRedirect(true);
+      }
     });
   }, []);
 
@@ -55,10 +63,13 @@ function Homepage(props: Props) {
       props.updateUser({});
       props.updateAccessToken('');
       props.updateRefreshToken('');
-      setLoginRedirect(true);
       return false;
     }
     return true;
+  }
+
+  async function fetchData() {
+    console.log('Fetching data');
   }
 
   return (

@@ -18,7 +18,16 @@ import ResetPassword from './login/ResetPassword';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
-import { Homepage } from './main-platform';
+import {
+  Homepage,
+  Discover,
+  Messages,
+  Events,
+  Profile,
+  Community,
+  YourCommunities,
+  StreamLibrary,
+} from './main-platform';
 
 import axios from 'axios';
 
@@ -66,6 +75,14 @@ function App(props: Props) {
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
 
             <Route exact path="/home" component={Homepage} />
+            <Route exact path="/discover" component={Discover} />
+            <Route exact path="/events" component={Events} />
+            <Route exact path="/messages" component={Messages} />
+            <Route exact path="/profile/:profileID" component={Profile} />
+            <Route exact path="/communities" component={YourCommunities} />
+            <Route exact path="/community/:orgID" component={Community} />
+            <Route exact path="/library" component={StreamLibrary} />
+
             <Route component={PageNotFound} />
           </Switch>
         </div>

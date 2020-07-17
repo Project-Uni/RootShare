@@ -7,7 +7,7 @@ import { colors } from '../../theme/Colors';
 import { GiTreeBranch } from 'react-icons/gi';
 import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
 import { IoMdText } from 'react-icons/io';
-import { MdGroup } from 'react-icons/md';
+import { MdGroup, MdOndemandVideo } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
 const HEADER_HEIGHT = 60;
@@ -104,6 +104,15 @@ function MainNavigator(props: Props) {
       ),
     },
     {
+      name: 'Library',
+      icon: (
+        <MdOndemandVideo
+          size={ICON_SIZE}
+          color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
+        />
+      ),
+    },
+    {
       name: 'Messages',
       icon: (
         <IoMdText
@@ -133,6 +142,7 @@ function MainNavigator(props: Props) {
           color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
         />
       ),
+      link: '/profile/user',
     },
   ];
 
@@ -140,7 +150,10 @@ function MainNavigator(props: Props) {
     const output = [];
     for (let i = 0; i < tabs.length; i++) {
       output.push(
-        <a href={`/${tabs[i].name.toLowerCase()}`} className={styles.link}>
+        <a
+          href={tabs[i].link || `/${tabs[i].name.toLowerCase()}`}
+          className={styles.link}
+        >
           {tabs[i].icon}
           <RSText
             type="head"
