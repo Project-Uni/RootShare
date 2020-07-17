@@ -5,8 +5,8 @@ import { IconButton, Button } from '@material-ui/core';
 
 import { IoMdClose } from 'react-icons/io';
 
-import { colors } from '../../../theme/Colors';
-import RSText from '../../../base-components/RSText';
+import { colors } from '../../theme/Colors';
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
@@ -41,6 +41,8 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  title: string;
+  message: string;
   onClose: () => void;
 };
 
@@ -56,7 +58,7 @@ function WelcomeMessage(props: Props) {
 
       <div className={styles.welcomeTextContainer}>
         <RSText type="head" size={24} color={colors.primaryText} bold>
-          Discovery
+          {props.title}
         </RSText>
         <RSText
           type="subhead"
@@ -64,7 +66,7 @@ function WelcomeMessage(props: Props) {
           color={colors.secondaryText}
           className={styles.welcomeBrief}
         >
-          Find new communities to join, and people to connect to with
+          {props.message}
         </RSText>
       </div>
     </div>

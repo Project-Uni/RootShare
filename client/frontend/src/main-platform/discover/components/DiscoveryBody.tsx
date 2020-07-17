@@ -6,7 +6,7 @@ import { TextField, IconButton } from '@material-ui/core';
 import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
-import WelcomeMessage from './WelcomeMessage';
+import { WelcomeMessage } from '../../reusable-components';
 
 const HEADER_HEIGHT = 60;
 
@@ -59,7 +59,13 @@ function Template(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && <WelcomeMessage onClose={closeWelcomeMessage} />}
+      {showWelcomeModal && (
+        <WelcomeMessage
+          title="Discovery"
+          message="Find new communities to join, and people to connect to with"
+          onClose={closeWelcomeMessage}
+        />
+      )}
       <div className={styles.body}>
         <div className={styles.searchBarContainer}>
           <Autocomplete
