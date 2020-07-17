@@ -20,7 +20,7 @@ module.exports = function (passport) {
           // check in mongo if a user with username exists or not
           User.findOne({ email: email }, function (err, user) {
             if (err) return done(err);
-            if (!user) {
+            if (!user || user === undefined || user === null) {
               return done(null, false, { message: 'User Not Found' });
             }
             if (user.hashedPassword === undefined) {

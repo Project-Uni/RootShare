@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
-import SingleConnection from "./SingleConnection";
-import SinglePendingConnection from "./SinglePendingConnection";
-import MyConnections from "../images/MyConnections.png";
+import SingleConnection from './SingleConnection';
+import SinglePendingConnection from './SinglePendingConnection';
+import MyConnections from '../images/MyConnections.png';
 
-import { colors } from "../../theme/Colors";
+import { colors } from '../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "400px",
-    display: "flex",
-    flexDirection: "column",
+    width: '400px',
+    display: 'flex',
+    flexDirection: 'column',
     height: window.innerHeight - 60,
   },
   textFieldContainer: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     background: colors.primary,
-    borderTop: "2px solid " + colors.primaryText,
+    borderTop: '2px solid ' + colors.primaryText,
     color: colors.primaryText,
     paddingTop: 5,
     paddingBottom: 5,
@@ -26,9 +26,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectionContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     background: colors.secondary,
-    overflow: "scroll",
+    overflow: 'scroll',
     label: colors.primaryText,
   },
 }));
@@ -37,13 +37,13 @@ type Props = {};
 
 function ConnectionsDrawer(props: Props) {
   const styles = useStyles();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
 
   function testRenderConnections() {
     const output = [];
     for (let i = 0; i < 1; i++) {
       output.push(
-        <div >
+        <div>
           <SinglePendingConnection
             name="Ashwin Mahesh"
             nameId="1002"
@@ -51,9 +51,9 @@ function ConnectionsDrawer(props: Props) {
             picture="jeffsprofile.png"
           />
         </div>
-      )
+      );
       output.push(
-        <div >
+        <div>
           <SinglePendingConnection
             name="Dhruv Patel"
             nameId="1003"
@@ -61,9 +61,9 @@ function ConnectionsDrawer(props: Props) {
             picture="jeffsprofile.png"
           />
         </div>
-      )
+      );
       output.push(
-        <div >
+        <div>
           <SinglePendingConnection
             name="Lauren Odle"
             nameId="1004"
@@ -71,9 +71,9 @@ function ConnectionsDrawer(props: Props) {
             picture="jeffsprofile.png"
           />
         </div>
-      )
+      );
       output.push(
-        <div >
+        <div>
           <SinglePendingConnection
             name="Chris Hartley"
             nameId="1004"
@@ -81,11 +81,11 @@ function ConnectionsDrawer(props: Props) {
             picture="jeffsprofile.png"
           />
         </div>
-      )
+      );
     }
     for (let i = 0; i <= 10; i++) {
       output.push(
-        <div >
+        <div>
           <SingleConnection
             name="Jackson McCluskey"
             nameId="2001"
@@ -95,7 +95,7 @@ function ConnectionsDrawer(props: Props) {
         </div>
       );
       output.push(
-        <div >
+        <div>
           <SingleConnection
             name="Smit Desai"
             nameId="2002"
@@ -103,9 +103,9 @@ function ConnectionsDrawer(props: Props) {
             picture="elonsprofile.png"
           />
         </div>
-      )
+      );
       output.push(
-        <div >
+        <div>
           <SingleConnection
             name="Caite Capezzuto"
             nameId="2003"
@@ -113,7 +113,7 @@ function ConnectionsDrawer(props: Props) {
             picture="elonsprofile.png"
           />
         </div>
-      )
+      );
       output.push(
         <div>
           <SingleConnection
@@ -123,7 +123,7 @@ function ConnectionsDrawer(props: Props) {
             picture="elonsprofile.png"
           />
         </div>
-      )
+      );
     }
     return output;
   }
