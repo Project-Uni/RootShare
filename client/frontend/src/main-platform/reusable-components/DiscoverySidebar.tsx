@@ -104,9 +104,11 @@ function DiscoverySidebar(props: Props) {
     const communities = [];
     for (let i = 0; i < 5; i++) {
       communities.push(
-        <RSText type="body" color={colors.primaryText}>
-          Community {i}
-        </RSText>
+        <a href={`/community/id${i}`}>
+          <RSText type="body" color={colors.primaryText}>
+            Community {i}
+          </RSText>
+        </a>
       );
     }
 

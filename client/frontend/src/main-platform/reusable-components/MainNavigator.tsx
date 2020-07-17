@@ -43,7 +43,8 @@ type AVAILABLE_TABS =
   | 'events'
   | 'connections'
   | 'profile'
-  | 'library';
+  | 'library'
+  | 'none';
 
 type Props = {
   currentTab: AVAILABLE_TABS;

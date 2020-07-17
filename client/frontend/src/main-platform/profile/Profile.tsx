@@ -73,7 +73,7 @@ function Profile(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/profile`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/profile/${profileID}`} />}
       <EventClientHeader />
       <div className={styles.body}>
         <MainNavigator currentTab="profile" />
