@@ -27,6 +27,7 @@ import {
   Community,
   YourCommunities,
   StreamLibrary,
+  Connections,
 } from './main-platform';
 
 import axios from 'axios';
@@ -82,6 +83,7 @@ function App(props: Props) {
             <Route exact path="/communities" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={Community} />
             <Route exact path="/library" component={StreamLibrary} />
+            <Route exact path="/connections" component={Connections} />
 
             <Route component={PageNotFound} />
           </Switch>

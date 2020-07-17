@@ -6,6 +6,7 @@ import Community from './community/Community';
 import Profile from './profile/Profile';
 import YourCommunities from './your-communities/YourCommunities';
 import StreamLibrary from './stream-library/StreamLIbrary';
+import Connections from './connections/Connections';
 
 export {
   Homepage,
@@ -16,4 +17,5 @@ export {
   Profile,
   YourCommunities,
   StreamLibrary,
+  Connections,
 };
