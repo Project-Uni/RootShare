@@ -55,38 +55,40 @@ function Template(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
-      <a href="#" className={styles.personLink}>
-        <div className={styles.singlePersonWrapper}>
+      <div className={styles.singlePersonWrapper}>
+        <a href={`/profile/${props._id}`} className={styles.personLink}>
           <img src={props.profilePic} style={{ height: 50, borderRadius: 50 }} />
-          <div className={styles.textContainer}>
+        </a>
+        <div className={styles.textContainer}>
+          <a href={`/profile/${props._id}`} className={styles.personLink}>
             <RSText type="body" color={colors.primaryText} size={13}>
               {props.name}
             </RSText>
-            <RSText type="body" color={colors.secondaryText} italic size={11}>
-              {props.position},{' ' + props.company}
-            </RSText>
-            <RSText type="body" color={colors.secondaryText} size={10} italic>
-              {props.mutualConnections} Mutual Connections
-            </RSText>
-          </div>
+          </a>
+          <RSText type="body" color={colors.secondaryText} italic size={11}>
+            {props.position},{' ' + props.company}
+          </RSText>
+          <RSText type="body" color={colors.secondaryText} size={10} italic>
+            {props.mutualConnections} Mutual Connections
+          </RSText>
         </div>
-        <div className={styles.buttonContainer}>
-          <Button
-            className={styles.removeButton}
-            size="small"
-            onClick={props.onRemove}
-          >
-            Remove
-          </Button>
-          <Button
-            className={styles.connectButton}
-            size="small"
-            onClick={props.onConnect}
-          >
-            Connect
-          </Button>
-        </div>
-      </a>
+      </div>
+      <div className={styles.buttonContainer}>
+        <Button
+          className={styles.removeButton}
+          size="small"
+          onClick={props.onRemove}
+        >
+          Remove
+        </Button>
+        <Button
+          className={styles.connectButton}
+          size="small"
+          onClick={props.onConnect}
+        >
+          Connect
+        </Button>
+      </div>
     </div>
   );
 }
