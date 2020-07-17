@@ -6,13 +6,20 @@ import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/makeRequest';
-
-import EventClientHeader from '../../event-client/EventClientHeader';
 import { colors } from '../../theme/Colors';
 
+import EventClientHeader from '../../event-client/EventClientHeader';
+import { MainNavigator, DiscoverySidebar } from '../reusable-components';
+import EventsBody from './components/EventsBody';
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
-  body: {},
+  wrapper: {
+    width: '100%',
+  },
+  body: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
 }));
 
 type Props = {
@@ -62,7 +69,9 @@ function Events(props: Props) {
       {loginRedirect && <Redirect to={`/login?redirect=/template`} />}
       <EventClientHeader />
       <div className={styles.body}>
-        <p>I am template</p>
+        <MainNavigator currentTab="events" />
+        <EventsBody />
+        <DiscoverySidebar />
       </div>
     </div>
   );

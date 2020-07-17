@@ -27,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {};
 
-function YourCommunitiesBody(props: Props) {
+function EventsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -56,8 +56,8 @@ function YourCommunitiesBody(props: Props) {
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
         <WelcomeMessage
-          title="Communities"
-          message="All of the communities that you belong to will be displayed on this page. We believe in the power of community and want to make it as easy to access as possible"
+          title="Events"
+          message="You can find future events that are accessible to you on this page."
           onClose={closeWelcomeMessage}
         />
       )}
@@ -66,4 +66,4 @@ function YourCommunitiesBody(props: Props) {
   );
 }
 
-export default YourCommunitiesBody;
+export default EventsBody;

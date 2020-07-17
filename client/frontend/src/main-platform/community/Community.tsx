@@ -16,6 +16,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -28,6 +32,7 @@ function Community(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const orgID = props.match.params['orgID'];
 
   useEffect(() => {
     checkAuth().then(async (authenticated) => {
