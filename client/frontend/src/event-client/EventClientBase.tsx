@@ -82,7 +82,7 @@ function EventClientBase(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await await makeRequest(
+    const { data } = await makeRequest(
       'GET',
       '/user/getCurrent',
       {},

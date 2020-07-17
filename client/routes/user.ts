@@ -8,7 +8,6 @@ import {
 } from '../passport/middleware/isAuthenticated';
 import { getCurrentUser, getConnections } from '../interactions/user';
 
-
 import log from '../helpers/logger';
 
 module.exports = (app) => {
@@ -26,7 +25,8 @@ module.exports = (app) => {
       })
     );
   });
-  
+
+  //TODO - Authenticate With JWT
   app.get('/user/getConnections', (req, res) => {
     getConnections(req.user, (packet) => res.send(packet));
   });
