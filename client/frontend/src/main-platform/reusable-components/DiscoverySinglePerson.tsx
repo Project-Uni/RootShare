@@ -57,7 +57,7 @@ function Template(props: Props) {
     <div className={styles.wrapper}>
       <div className={styles.singlePersonWrapper}>
         <a href={`/profile/${props._id}`} className={styles.personLink}>
-          <img src={props.profilePic} style={{ height: 50, borderRadius: 50 }} />
+          <img src={props.profilePic} style={{ height: 80, borderRadius: 50 }} />
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props._id}`} className={styles.personLink}>
@@ -66,7 +66,10 @@ function Template(props: Props) {
             </RSText>
           </a>
           <RSText type="body" color={colors.secondaryText} italic size={11}>
-            {props.position},{' ' + props.company}
+            {props.position}
+          </RSText>
+          <RSText type="body" color={colors.secondaryText} italic size={11}>
+            {props.company}
           </RSText>
           <RSText type="body" color={colors.secondaryText} size={10} italic>
             {props.mutualConnections} Mutual Connections
