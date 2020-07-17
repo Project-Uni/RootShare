@@ -16,6 +16,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -28,6 +32,9 @@ function Profile(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+
+  //If it is the logged in user's, then profileID = 'user', else it is that user's ID
+  const profileID = props.match.params['profileID'];
 
   useEffect(() => {
     checkAuth().then(async (authenticated) => {
