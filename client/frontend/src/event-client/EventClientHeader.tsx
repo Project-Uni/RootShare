@@ -9,13 +9,21 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
+<<<<<<< HEAD
+=======
+// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
+
+>>>>>>> fix-video-layout
 import { colors } from '../theme/Colors';
 
 import {
   CalendarDrawer,
-  MessagesDrawer,
-  ProfileDrawer,
   ConnectionsDrawer,
+<<<<<<< HEAD
+=======
+  MessagesDrawerContainer,
+  ProfileDrawer,
+>>>>>>> fix-video-layout
 } from './drawer-components';
 
 const useStyles = makeStyles((_: any) => ({
@@ -82,7 +90,7 @@ function EventClientHeader(props: Props) {
       case 'calendar':
         return <CalendarDrawer />;
       case 'messages':
-        return <MessagesDrawer />;
+        return <MessagesDrawerContainer />;
       case 'profile':
         return <ProfileDrawer />;
       default:

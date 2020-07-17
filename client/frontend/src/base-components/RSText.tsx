@@ -25,6 +25,7 @@ type Props = {
   italic?: boolean;
   size?: number;
   className?: string;
+  color?: string;
   children: React.ReactNode;
   color?: string;
 };

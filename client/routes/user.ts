@@ -2,12 +2,17 @@ import sendPacket from '../helpers/sendPacket';
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
-const isAuthenticated = require('../passport/middleware/isAuthenticated');
+import {
+  isAuthenticated,
+  isAuthenticatedWithJWT,
+} from '../passport/middleware/isAuthenticated';
+import { getCurrentUser, getConnections } from '../interactions/user';
+
 
 import log from '../helpers/logger';
 
 module.exports = (app) => {
-  app.get('/user/getCurrent', (req, res) => {
+  app.get('/user/getCurrent', isAuthenticatedWithJWT, (req, res) => {
     const user = req.user;
     if (!user) return res.json(sendPacket(0, 'User not found'));
     return res.json(
@@ -21,8 +26,12 @@ module.exports = (app) => {
       })
     );
   });
+  
+  app.get('/user/getConnections', (req, res) => {
+    getConnections(req.user, (packet) => res.send(packet));
+  });
 
-  app.post('/api/getMatchingUsers', isAuthenticated, (req, res) => {
+  app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {
     const { query } = req.body;
     if (!query || query === '') return res.json(sendPacket(0, 'Invalid query'));
 

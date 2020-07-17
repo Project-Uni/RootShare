@@ -1,22 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { TextField, Grid, CircularProgress } from "@material-ui/core";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { TextField, Grid, CircularProgress } from '@material-ui/core';
 
-import axios from "axios";
+import axios from 'axios';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import RootShareLogoFull from "../images/RootShareLogoFull.png";
+import RootShareLogoFull from '../images/RootShareLogoFull.png';
 
-import HypeHeader from "../hype-page/headerFooter/HypeHeader";
-import RSText from "../base-components/RSText";
-import AccountTypePieChart from "./AccountTypePieChart";
+import HypeHeader from '../hype-page/headerFooter/HypeHeader';
+import RSText from '../base-components/RSText';
+import AccountTypePieChart from './AccountTypePieChart';
+
+import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { makeRequest } from '../helpers/makeRequest';
+
+const MIN_ACCESS_LEVEL = 6;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   textStyle: {
-    textAlign: "center",
+    textAlign: 'center',
   },
   rootshareLogo: {
-    height: "90px",
+    height: '90px',
     marginLeft: 30,
     marginBottom: 10,
     marginTop: 20,
@@ -35,8 +43,8 @@ const useStyles = makeStyles((_: any) => ({
     width: 300,
   },
   chartContainer: {
-    display: "flex",
-    justifyContent: "center",
+    display: 'flex',
+    justifyContent: 'center',
     marginTop: 20,
   },
   loadingIndicator: {
@@ -44,16 +52,24 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function UserCount(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
+  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([
-    { firstName: "", lastName: "", createdAt: "" },
+    { firstName: '', lastName: '', createdAt: '' },
   ]);
   const [joinedToday, setJoinedToday] = useState(0);
   const [typeCount, setTypeCount] = useState({
@@ -62,32 +78,58 @@ function UserCount(props: Props) {
     faculty: 0,
     fan: 0,
   });
-  const [searched, setSearched] = useState("");
+  const [searched, setSearched] = useState('');
 
   useEffect(() => {
-    const password = prompt("Enter password:");
-    if (password === "SmitMachine") {
-      fetchUsers();
+    checkAuth().then(async (authorized) => {
+      if (authorized) {
+        await fetchUsers();
+      }
       setLoading(false);
-    } else {
-      alert("Invalid password");
-      setShowInvalid(true);
-      setLoading(false);
-    }
+    });
   }, []);
 
+  async function checkAuth() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] !== 1) {
+      setLoginRedirect(true);
+      return false;
+    } else {
+      props.updateUser({ ...data['content'] });
+      if (data['content']['privilegeLevel'] < MIN_ACCESS_LEVEL) {
+        setShowInvalid(true);
+        return false;
+      }
+    }
+    return true;
+  }
+
   async function fetchUsers() {
-    const { data } = await axios.get("/api/adminCount");
+    const { data } = await makeRequest(
+      'GET',
+      '/api/adminCount',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data.success === 1) {
-      setAllUsers(data["content"]["users"]);
-      setUsers(data["content"]["users"]);
+      setAllUsers(data['content']['users']);
+      setUsers(data['content']['users']);
       setTypeCount({
-        student: data["content"]["studentCount"],
-        alumni: data["content"]["alumniCount"],
-        faculty: data["content"]["facultyCount"],
-        fan: data["content"]["fanCount"],
+        student: data['content']['studentCount'],
+        alumni: data['content']['alumniCount'],
+        faculty: data['content']['facultyCount'],
+        fan: data['content']['fanCount'],
       });
-      calculateJoinedToday(data["content"]["users"]);
+      calculateJoinedToday(data['content']['users']);
     }
   }
 
@@ -102,8 +144,8 @@ function UserCount(props: Props) {
     const morning = new Date(year, month, day, 5, 0);
 
     for (let i = 0; i < users.length; i++) {
-      if ("createdAt" in users[i]) {
-        const difference = +new Date(users[i]["createdAt"]) - +morning;
+      if ('createdAt' in users[i]) {
+        const difference = +new Date(users[i]['createdAt']) - +morning;
         const hourDiff = Math.floor(difference / (1000 * 60 * 60));
 
         if (hourDiff > 0) {
@@ -120,9 +162,9 @@ function UserCount(props: Props) {
     const output: any[] = [];
     for (let i = 0; i < allUsers.length; i++) {
       const username = (
-        allUsers[i]["firstName"] +
-        " " +
-        allUsers[i]["lastName"]
+        allUsers[i]['firstName'] +
+        ' ' +
+        allUsers[i]['lastName']
       ).toLowerCase();
       if (username.includes(searchQuery)) {
         output.push(allUsers[i]);
@@ -138,7 +180,7 @@ function UserCount(props: Props) {
       output.push(
         <Grid item xs={6} sm={3} className={styles.gridItem}>
           <RSText type="subhead" className={styles.textStyle} size={15}>
-            {i + 1}. {users[i]["firstName"]} {users[i]["lastName"]}
+            {i + 1}. {users[i]['firstName']} {users[i]['lastName']}
           </RSText>
         </Grid>
       );
@@ -166,10 +208,10 @@ function UserCount(props: Props) {
         </div>
         <div style={{ marginTop: 20 }}>
           <RSText type="subhead" className={styles.textStyle} size={14}>
-            {typeCount["student"]} Students | {typeCount["alumni"]} Alumni
+            {typeCount['student']} Students | {typeCount['alumni']} Alumni
           </RSText>
           <RSText type="subhead" className={styles.textStyle} size={14}>
-            {typeCount["faculty"]} Faculty | {typeCount["fan"]} Fans
+            {typeCount['faculty']} Faculty | {typeCount['fan']} Fans
           </RSText>
         </div>
 
@@ -198,12 +240,14 @@ function UserCount(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {loginRedirect && <Redirect to="/login?redirect=/admin/count" />}
       <HypeHeader />
       <img
         src={RootShareLogoFull}
         className={styles.rootshareLogo}
         alt="RootShare"
       />
+      <br />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}
@@ -213,10 +257,32 @@ function UserCount(props: Props) {
       ) : showInvalid ? (
         renderInvalid()
       ) : (
-            renderPageContent()
-          )}
+        renderPageContent()
+      )}
     </div>
   );
 }
 
-export default UserCount;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserCount);

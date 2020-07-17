@@ -5,6 +5,8 @@ import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { makeRequest } from '../helpers/makeRequest';
 
 import RSText from '../base-components/RSText';
 
@@ -50,7 +52,11 @@ type Props = {
     [key: string]: any;
   };
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
@@ -76,8 +82,18 @@ function EventClientBase(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    const { data } = await await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] !== 1) {
+      props.updateUser({});
+      props.updateAccessToken('');
+      props.updateRefreshToken('');
       setLoginRedirect(true);
       return false;
     }
@@ -85,7 +101,14 @@ function EventClientBase(props: Props) {
   }
 
   async function fetchEventInfo() {
-    const { data } = await axios.get(`/api/webinar/getDetails/${eventID}`);
+    const { data } = await makeRequest(
+      'GET',
+      `/api/webinar/getDetails/${eventID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
@@ -131,8 +154,8 @@ function EventClientBase(props: Props) {
   }
 
   function getHeaderMinWidth() {
-    if (eventMode === 'viewer') return 1102;
-    else return 1102;
+    if (eventMode === 'viewer') return 1150;
+    else return 1150;
   }
 
   function checkMobile() {
@@ -194,6 +217,8 @@ function EventClientBase(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -201,6 +226,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

@@ -9,16 +9,18 @@ import {
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 
 import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
+
+import { makeRequest } from '../helpers/makeRequest';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -85,7 +87,11 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 function AdminEventCreator(props: Props) {
@@ -93,7 +99,7 @@ function AdminEventCreator(props: Props) {
 
   const [loading, setLoading] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState(false);
-  const [homepageRedirect, setHomepageRedirect] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(false);
 
   const [briefCharsRemaining, setBriefCharsRemaining] = useState(MAX_BRIEF_LEN);
 
@@ -118,20 +124,27 @@ function AdminEventCreator(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (checkAuth()) {
+    checkAuth().then((authorized) => {
       setLoading(false);
-    }
+    });
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] !== 1) {
       setLoginRedirect(true);
       return false;
     } else {
       updateUser({ ...data['content'] });
       if (data['content']['privilegeLevel'] < MIN_ACCESS_LEVEL) {
-        setHomepageRedirect(true);
+        setShowInvalid(true);
         return false;
       }
     }
@@ -237,7 +250,14 @@ function AdminEventCreator(props: Props) {
       time: time,
       speakerEmails: speakerEmails,
     };
-    const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
+    const { data } = await makeRequest(
+      'POST',
+      '/api/webinar/createEvent',
+      API_DATA,
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       setTopMessage('s: Successfully created webinar.');
       resetData();
@@ -266,6 +286,14 @@ function AdminEventCreator(props: Props) {
     const newSpeakers = [...speakers];
     newSpeakers.splice(index, 1);
     setSpeakers(newSpeakers);
+  }
+
+  function renderInvalid() {
+    return (
+      <RSText type="subhead" size={32} bold>
+        Permission not granted to view page
+      </RSText>
+    );
   }
 
   function renderSpeakers() {
@@ -425,7 +453,6 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      {homepageRedirect && <Redirect to="/" />}
       <HypeHeader />
       {loading ? (
         <CircularProgress
@@ -433,6 +460,8 @@ function AdminEventCreator(props: Props) {
           size={100}
           color="primary"
         />
+      ) : showInvalid ? (
+        renderInvalid()
       ) : (
         renderContent()
       )}
@@ -443,6 +472,8 @@ function AdminEventCreator(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -450,6 +481,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

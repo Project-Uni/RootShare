@@ -1,10 +1,31 @@
-import axios from 'axios';
-import log from '../../../../../helpers/logger';
+import { makeRequest } from '../../../../../helpers/makeRequest';
 
-export async function startLiveStream(webinarID: string) {
-  axios.post('/webinar/startStreaming', { webinarID });
+export async function startLiveStream(
+  webinarID: string,
+  accessToken: string,
+  refreshToken: string
+) {
+  makeRequest(
+    'POST',
+    '/webinar/startStreaming',
+    { webinarID },
+    true,
+    accessToken,
+    refreshToken
+  );
 }
 
-export async function stopLiveStream(webinarID: string) {
-  axios.post('/webinar/stopStreaming', { webinarID });
+export async function stopLiveStream(
+  webinarID: string,
+  accessToken: string,
+  refreshToken: string
+) {
+  makeRequest(
+    'POST',
+    '/webinar/stopStreaming',
+    { webinarID },
+    true,
+    accessToken,
+    refreshToken
+  );
 }
