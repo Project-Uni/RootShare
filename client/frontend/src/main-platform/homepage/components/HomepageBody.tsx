@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import WelcomeMessage from './WelcomeMessage';
+import { WelcomeMessage } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 const HEADER_HEIGHT = 60;
@@ -95,10 +95,21 @@ function HomepageBody(props: Props) {
     console.log('Submitting post');
   }
 
+  function handleDiscoverClick() {
+    window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
-        <WelcomeMessage closeWelcomeMessage={closeWelcomeMessage} />
+        <WelcomeMessage
+          title="Welcome to RootShare!"
+          message="Every success story is rooted in the support from a community. Join your
+        communities or discover new ones today."
+          onClose={closeWelcomeMessage}
+          buttonText="Discover"
+          buttonAction={handleDiscoverClick}
+        />
       )}
       <MakePostContainer
         postValue={postValue}

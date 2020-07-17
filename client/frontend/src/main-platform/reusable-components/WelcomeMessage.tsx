@@ -33,7 +33,6 @@ const useStyles = makeStyles((_: any) => ({
     fontSize: 14,
     paddingLeft: 30,
     paddingRight: 30,
-    marginBottom: 30,
     '&:hover': {
       background: colors.ternary,
     },
@@ -44,6 +43,8 @@ type Props = {
   title: string;
   message: string;
   onClose: () => void;
+  buttonText?: string;
+  buttonAction?: () => any;
 };
 
 function WelcomeMessage(props: Props) {
@@ -68,6 +69,11 @@ function WelcomeMessage(props: Props) {
         >
           {props.message}
         </RSText>
+        {props.buttonText && (
+          <Button className={styles.discoverButton} onClick={props.buttonAction}>
+            {props.buttonText}
+          </Button>
+        )}
       </div>
     </div>
   );
