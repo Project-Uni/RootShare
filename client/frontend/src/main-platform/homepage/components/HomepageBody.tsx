@@ -1,24 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import WelcomeMessage from './WelcomeMessage';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-//FOR TESTING PURPOSE
-import { AshwinHeadshot } from '../../../images/team';
+import WelcomeMessage from './WelcomeMessage';
+import MakePostContainer from './MakePostContainer';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primary,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   postProfilePic: {
     height: 50,
     borderRadius: 50,
+    marginTop: 10,
+  },
+  messageAreaWrapper: {
+    background: colors.secondary,
+    borderRadius: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    paddingLeft: 30,
+    paddingRight: 30,
+    paddingTop: 15,
+    paddingBottom: 15,
+    marginTop: 20,
+  },
+  messageArea: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
+  newPostTextField: {
+    color: 'white',
+    marginLeft: 20,
+    flex: 1,
+  },
+  button: {
+    background: colors.bright,
+    color: colors.primaryText,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: 10,
   },
 }));
 
@@ -29,6 +60,7 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [postValue, setPostValue] = useState('');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -42,12 +74,16 @@ function HomepageBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function renderNewPost() {
-    return (
-      <div>
-        <img src={AshwinHeadshot} className={styles.postProfilePic} alt="Profile" />
-      </div>
-    );
+  function handlePostValueChange(event: any) {
+    setPostValue(event.target.value);
+  }
+
+  function handleImageUpload() {
+    console.log('Uploading image');
+  }
+
+  function handleSubmitPost() {
+    console.log('Submitting post');
   }
 
   return (
@@ -55,7 +91,12 @@ function HomepageBody(props: Props) {
       {showWelcomeModal && (
         <WelcomeMessage closeWelcomeMessage={closeWelcomeMessage} />
       )}
-      {renderNewPost()}
+      <MakePostContainer
+        postValue={postValue}
+        onChange={handlePostValueChange}
+        onPost={handleSubmitPost}
+        onUploadImage={handleImageUpload}
+      />
     </div>
   );
 }
