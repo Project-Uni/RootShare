@@ -7,7 +7,7 @@ import { updateUser } from '../../redux/actions/user';
 import RSText from '../../base-components/RSText';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
-import { MainNavigator } from '../reusable-components';
+import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
 
 const useStyles = makeStyles((_: any) => ({
@@ -17,11 +17,6 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     justifyContent: 'space-between',
-  },
-  discoverSidePanel: {
-    width: 300,
-    border: '1px solid green',
-    height: '100vh',
   },
 }));
 
@@ -40,9 +35,7 @@ function Homepage(props: Props) {
       <div className={styles.body}>
         <MainNavigator currentTab="home" />
         <HomepageBody />
-        <div className={styles.discoverSidePanel}>
-          <p>Discover</p>
-        </div>
+        <DiscoverySidebar />
       </div>
     </div>
   );

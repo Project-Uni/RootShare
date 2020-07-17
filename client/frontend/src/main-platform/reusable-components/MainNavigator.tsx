@@ -53,6 +53,7 @@ function MainNavigator(props: Props) {
   const styles = useStyles();
 
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);

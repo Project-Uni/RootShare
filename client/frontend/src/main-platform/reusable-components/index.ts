@@ -1,3 +1,4 @@
 import MainNavigator from './MainNavigator';
+import DiscoverySidebar from './DiscoverySidebar';
 
-export { MainNavigator };
+export { MainNavigator, DiscoverySidebar };
