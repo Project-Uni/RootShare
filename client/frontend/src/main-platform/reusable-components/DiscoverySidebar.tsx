@@ -14,6 +14,7 @@ import {
 } from '../../images/team';
 
 const HEADER_HEIGHT = 60;
+const VERTICAL_PADDING_TOTAL = 40;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -38,7 +39,9 @@ type Props = {};
 function DiscoverySidebar(props: Props) {
   const styles = useStyles();
 
-  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+  const [height, setHeight] = useState(
+    window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL
+  );
   const [recommendedPeople, setRecommendedPeople] = useState<PEOPLE[]>([]);
   const [recommendedCommunities, setRecommendedCommunities] = useState([]);
 
@@ -48,7 +51,7 @@ function DiscoverySidebar(props: Props) {
   }, []);
 
   function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
+    setHeight(window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL);
   }
 
   function getRecommendations() {

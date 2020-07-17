@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './App.css';
 
 import { Router, Route, Switch } from 'react-router-dom';
@@ -30,8 +30,6 @@ import {
   Connections,
 } from './main-platform';
 
-import axios from 'axios';
-
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
 ReactGA.pageview('/');
@@ -48,10 +46,6 @@ type Props = {
 };
 
 function App(props: Props) {
-  useEffect(() => {
-    // mockLogin();
-  }, []);
-
   return (
     <div className="App">
       <Router history={history}>
