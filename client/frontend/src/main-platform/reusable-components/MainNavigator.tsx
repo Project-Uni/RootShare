@@ -41,7 +41,6 @@ type AVAILABLE_TABS =
   | 'discover'
   | 'communities'
   | 'events'
-  | 'messages'
   | 'connections'
   | 'profile'
   | 'library';
@@ -110,17 +109,6 @@ function MainNavigator(props: Props) {
         <MdOndemandVideo
           size={ICON_SIZE}
           color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-        />
-      ),
-    },
-    {
-      name: 'Messages',
-      icon: (
-        <IoMdText
-          size={ICON_SIZE}
-          color={
-            props.currentTab === 'messages' ? colors.bright : colors.primaryText
-          }
         />
       ),
     },

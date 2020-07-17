@@ -21,7 +21,6 @@ import AdminEventCreator from './admin-utility/AdminEventCreator';
 import {
   Homepage,
   Discover,
-  Messages,
   Events,
   Profile,
   Community,
@@ -72,7 +71,6 @@ function App(props: Props) {
             <Route exact path="/home" component={Homepage} />
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
-            <Route exact path="/messages" component={Messages} />
             <Route exact path="/profile/:profileID" component={Profile} />
             <Route exact path="/communities" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={Community} />
