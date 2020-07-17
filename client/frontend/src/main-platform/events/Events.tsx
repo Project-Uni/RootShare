@@ -66,7 +66,7 @@ function Events(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/template`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/events`} />}
       <EventClientHeader />
       <div className={styles.body}>
         <MainNavigator currentTab="events" />

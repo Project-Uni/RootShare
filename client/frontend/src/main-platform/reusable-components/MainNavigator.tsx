@@ -43,7 +43,8 @@ type AVAILABLE_TABS =
   | 'events'
   | 'messages'
   | 'connections'
-  | 'profile';
+  | 'profile'
+  | 'library';
 
 type Props = {
   currentTab: AVAILABLE_TABS;
@@ -108,7 +109,7 @@ function MainNavigator(props: Props) {
       icon: (
         <MdOndemandVideo
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
         />
       ),
     },

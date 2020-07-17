@@ -6,13 +6,20 @@ import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/makeRequest';
-
-import EventClientHeader from '../../event-client/EventClientHeader';
 import { colors } from '../../theme/Colors';
 
+import EventClientHeader from '../../event-client/EventClientHeader';
+import { MainNavigator, DiscoverySidebar } from '../reusable-components';
+import StreamLibraryBody from './components/StreamLibraryBody';
+
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
-  body: {},
+  wrapper: {
+    width: '100%',
+  },
+  body: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
 }));
 
 type Props = {
@@ -59,10 +66,12 @@ function StreamLibrary(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/profile`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/library`} />}
       <EventClientHeader />
       <div className={styles.body}>
-        <p>I am template</p>
+        <MainNavigator currentTab="library" />
+        <StreamLibraryBody />
+        <DiscoverySidebar />
       </div>
     </div>
   );
