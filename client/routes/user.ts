@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
 const isAuthenticated = require('../passport/middleware/isAuthenticated');
+import { getCurrentUser, getConnections } from '../interactions/user';
 
 import log from '../helpers/logger';
 
@@ -20,6 +21,10 @@ module.exports = (app) => {
         accountType: user.accountType,
       })
     );
+  });
+
+  app.get('/user/getConnections', (req, res) => {
+    getConnections(req.user, (packet) => res.send(packet));
   });
 
   app.post('/api/getMatchingUsers', isAuthenticated, (req, res) => {

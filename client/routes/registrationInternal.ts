@@ -60,7 +60,7 @@ module.exports = (app) => {
             log('error', `Failed serializing ${user.email}`);
           }
           log('info', `Successfully created account for ${user.email}`);
-          return res.redirect('/secure-confirmed');
+          return res.redirect('/auth/secure-confirmed');
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -126,7 +126,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/confirmation/:token', async (req, res) => {
+  app.get('/auth/confirmation/:token', async (req, res) => {
     let user = await confirmUser(req.params.token);
 
     if (user) {
@@ -143,7 +143,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/unsubscribe/:token', async (req, res) => {
+  app.get('/auth/unsubscribe/:token', async (req, res) => {
     let user = await unsubscribeUser(req.params.token);
 
     if (user) {
@@ -155,7 +155,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/confirmation-resend', isAuthenticated, (req, res) => {
+  app.get('/auth/confirmation-resend', isAuthenticated, (req, res) => {
     let email = req.user.email;
     if (email) {
       sendConfirmationEmail(email);
@@ -167,7 +167,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/secure-unconfirmed', isAuthenticated, (req, res) => {
+  app.get('/auth/secure-unconfirmed', isAuthenticated, (req, res) => {
     res.json(
       sendPacket(
         1,
@@ -177,7 +177,7 @@ module.exports = (app) => {
     log('info', `User accessed secure-unconfirmed endpoint`);
   });
 
-  app.get('/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
+  app.get('/auth/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
     res.json(
       sendPacket(
         1,
@@ -186,6 +186,7 @@ module.exports = (app) => {
     );
     log('info', `User accessed secure-confirmed endpoint`);
   });
+
 
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.send(sendPacket(-1, 'No email to send link to'));
@@ -201,7 +202,7 @@ module.exports = (app) => {
     });
   });
 
-  app.get('/logout', isAuthenticated, (req, res) => {
+  app.get('/auth/logout', (req, res) => {
     let email = req.user.email;
     req.logout();
     res.json(sendPacket(1, 'Successfully logged out'));

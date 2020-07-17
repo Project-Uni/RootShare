@@ -131,8 +131,8 @@ function EventClientBase(props: Props) {
   }
 
   function getHeaderMinWidth() {
-    if (eventMode === 'viewer') return 1102;
-    else return 1102;
+    if (eventMode === 'viewer') return 1150;
+    else return 1150;
   }
 
   function checkMobile() {

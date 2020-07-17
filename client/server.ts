@@ -8,6 +8,8 @@ import * as path from 'path';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
+const http = require('http');
+const socketIO = require('socket.io');
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
@@ -38,9 +40,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+const server = http.createServer(app);
+const io = socketIO(server);
+server.listen(8080, '127.0.0.1');
+
 require('./routes/user')(app);
 require('./routes/registrationInternal')(app);
 require('./routes/registrationExternal')(app);
+require('./routes/messaging')(app, io);
+
 require('./routes/opentok')(app);
 require('./routes/utilities')(app);
 require('./routes/mocks')(app);

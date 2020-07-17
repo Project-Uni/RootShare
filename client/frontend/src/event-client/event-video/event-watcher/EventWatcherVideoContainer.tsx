@@ -7,7 +7,7 @@ import VideoPlayer from '../video/VideoPlayer';
 
 import log from '../../../helpers/logger';
 
-const MIN_WINDOW_WIDTH = 1100;
+const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const AD_CONTAINER_HEIGHT = 125;
 const HEADER_HEIGHT = 60;
@@ -27,7 +27,7 @@ function EventWatcherVideoContainer(props: Props) {
   const [videoData, setVideoData] = useState('');
   const [playerWidth, setPlayerWidth] = useState(
     window.innerWidth > MIN_WINDOW_WIDTH
-      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
+      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH - 2
       : MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH
   );
   const [playerHeight, setPlayerHeight] = useState(
@@ -41,7 +41,7 @@ function EventWatcherVideoContainer(props: Props) {
 
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH) {
-      setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
+      setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH - 2);
     }
     setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
   }
