@@ -18,6 +18,8 @@ import ResetPassword from './login/ResetPassword';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
+import { Homepage } from './main-platform';
+
 import axios from 'axios';
 
 const analyticsTrackingID = 'UA-169916177-1';
@@ -69,6 +71,8 @@ function App(props: Props) {
 
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
+
+            <Route exact path="/home" component={Homepage} />
             <Route component={PageNotFound} />
           </Switch>
         </div>
