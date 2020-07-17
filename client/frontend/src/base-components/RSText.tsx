@@ -27,7 +27,6 @@ type Props = {
   className?: string;
   color?: string;
   children: React.ReactNode;
-  color?: string;
 };
 
 function RSText(props: Props) {
