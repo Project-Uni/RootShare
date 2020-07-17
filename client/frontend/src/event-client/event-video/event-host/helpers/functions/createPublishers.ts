@@ -44,7 +44,8 @@ export function createNewScreensharePublisher(
     screenElementID: string,
     session: OT.Session,
     screenPublisher: OT.Publisher
-  ) => void
+  ) => void,
+  stopLiveStream: (webinarID: string) => void
 ) {
   const publisher = OT.initPublisher(
     ``,

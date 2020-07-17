@@ -9,6 +9,10 @@ var {
   sendConfirmationEmail,
 } = require('../interactions/registration/email-confirmation');
 var {
+  sendPasswordResetLink,
+  updatePassword,
+} = require('../interactions/registration/reset-password');
+var {
   completeRegistrationDetails,
   completeRegistrationRequired,
   userExists,
@@ -181,6 +185,21 @@ module.exports = (app) => {
       )
     );
     log('info', `User accessed secure-confirmed endpoint`);
+  });
+
+
+  app.post('/auth/sendPasswordReset', (req, res) => {
+    if (!req.body.email) return res.send(sendPacket(-1, 'No email to send link to'));
+
+    sendPasswordResetLink(req.body.email, (packet) => {
+      res.send(packet);
+    });
+  });
+
+  app.post('/auth/updatePassword', (req, res) => {
+    updatePassword(req.body.emailToken, req.body.newPassword, (packet) => {
+      res.send(packet);
+    });
   });
 
   app.get('/auth/logout', (req, res) => {

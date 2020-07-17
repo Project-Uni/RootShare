@@ -18,7 +18,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  muxPlaybackID: string;
+};
 
 function EventWatcherVideoContainer(props: Props) {
   const styles = useStyles();
@@ -33,9 +35,9 @@ function EventWatcherVideoContainer(props: Props) {
   );
 
   useEffect(() => {
-    setSourceToLatestWebinarID();
+    updateVideoData(props.muxPlaybackID);
     window.addEventListener('resize', handleResize);
-  }, []);
+  }, [props.muxPlaybackID]);
 
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH) {
@@ -44,24 +46,11 @@ function EventWatcherVideoContainer(props: Props) {
     setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
   }
 
-  async function setSourceToLatestWebinarID() {
-    const { data } = await axios.get('/webinar/latestWebinarID');
-    if (data['success'] === 1) getVideoData(data.content['webinarID']);
-    else log('error', data['message']);
-  }
+  async function updateVideoData(muxPlaybackID: string) {
+    const source = `https://stream.mux.com/${muxPlaybackID}.m3u8`;
 
-  async function getVideoData(webinarID: string) {
-    const { data } = await axios.post('/webinar/getMuxPlaybackID', { webinarID });
-    if (data['success'] === 1) {
-      const { muxPlaybackID } = data.content;
-      const source = `https://stream.mux.com/${muxPlaybackID}.m3u8`;
-      const streamExists = await checkStreamExists(source);
-
-      if (streamExists) setVideoData(source);
-      else log('error', data['message']);
-    } else {
-      log('error', data['message']);
-    }
+    if (await checkStreamExists(source)) setVideoData(source);
+    else log('error', 'No stream at endpoint');
   }
 
   async function checkStreamExists(source: string) {

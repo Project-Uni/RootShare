@@ -8,13 +8,15 @@ const jwt = require('njwt');
 const {
   OPENTOK_API_KEY,
   OPENTOK_API_SECRET,
-  BASE_64_MUX,
+  DEV_BASE_64_MUX,
+  PROD_BASE_64_MUX,
 } = require('../../../keys/keys.json');
+const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
+const BASE_64_MUX = IN_DEV ? DEV_BASE_64_MUX : PROD_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
-import { resolve } from 'dns';
 
 module.exports = {
   // Create Webinar and Opentok Session
@@ -48,19 +50,6 @@ module.exports = {
       .catch((err) => {
         return false;
       });
-  },
-
-  getLatestWebinarID: async (userID) => {
-    const currUser = await User.findById(userID);
-
-    if (!currUser || currUser === undefined || currUser === null)
-      return sendPacket(-1, 'Could not find User');
-
-    const RSVPCount = currUser.RSVPWebinars.length;
-    if (RSVPCount == 0) return sendPacket(0, 'User Has no Webinars');
-
-    const webinarID = currUser.RSVPWebinars[RSVPCount - 1];
-    return sendPacket(1, 'Sending Latest Webinar ID', { webinarID });
   },
 
   // Retrive Session ID from DB
@@ -183,7 +172,7 @@ module.exports = {
   createMuxStream: async () => {
     let muxStreamKey, muxLiveStreamID, muxPlaybackID;
     const muxReqBody = {
-      test: true,
+      test: IN_DEV,
       playback_policy: ['public'],
       new_asset_settings: {
         playback_policy: ['public'],
