@@ -51,7 +51,7 @@ type Props = {
   _id: string;
 };
 
-function Template(props: Props) {
+function DiscoverySinglePerson(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.wrapper}>
@@ -96,4 +96,4 @@ function Template(props: Props) {
   );
 }
 
-export default Template;
+export default DiscoverySinglePerson;
