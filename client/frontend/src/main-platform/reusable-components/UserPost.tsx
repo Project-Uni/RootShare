@@ -5,9 +5,10 @@ import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
 import { GiTreeBranch } from 'react-icons/gi';
-import { Button } from '@material-ui/core';
+import { BsStar, BsStarFill } from 'react-icons/bs';
+import { Button, TextField, IconButton } from '@material-ui/core';
 
-const MAX_INITIAL_VISIBLE_CHARS = 300;
+const MAX_INITIAL_VISIBLE_CHARS = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -66,6 +67,24 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'flex-end',
   },
+  likesAndCommentsContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  commentCount: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
+  },
+  commentCountLink: {
+    marginLeft: 20,
+  },
+  likeShareButtonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
 }));
 
 type Props = {};
@@ -73,13 +92,24 @@ type Props = {};
 function UserPost(props: Props) {
   const styles = useStyles();
   const [showFullMessage, setShowFullMessage] = useState(false);
+  const [liked, setLiked] = useState(false);
+
+  const [likeCount, setLikeCount] = useState(104);
 
   const message =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.';
-  const shortenedMessage = message.substr(0, 200);
+  const shortenedMessage = message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
+  }
+
+  function handleLikeStatusChange() {
+    const oldLiked = liked;
+    if (oldLiked) setLikeCount(likeCount - 1);
+    else setLikeCount(likeCount + 1);
+
+    setLiked(!oldLiked);
   }
 
   function renderPostHeader() {
@@ -131,9 +161,49 @@ function UserPost(props: Props) {
         </RSText>
         <div className={styles.seeMoreButtonDiv}>
           <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-            See more
+            See {showFullMessage ? 'less' : 'more'}
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  function renderLikesAndCommentCount() {
+    return (
+      <div className={styles.likesAndCommentsContainer}>
+        <IconButton onClick={handleLikeStatusChange}>
+          {liked ? (
+            <BsStarFill size={25} color={colors.bright} />
+          ) : (
+            <BsStar size={25} color={colors.bright} />
+          )}
+        </IconButton>
+
+        <RSText type="body" color={colors.secondaryText} size={12}>
+          {likeCount} Likes
+        </RSText>
+        <a href={undefined} className={styles.commentCountLink}>
+          <RSText
+            type="body"
+            color={colors.secondaryText}
+            size={12}
+            className={styles.commentCount}
+          >
+            102 Comments
+          </RSText>
+        </a>
+      </div>
+    );
+  }
+
+  function renderLikeShareButtons() {
+    return (
+      <div className={styles.likeShareButtonContainer}>
+        <Button size="large" variant="contained">
+          <BsStar size={22} color={colors.bright} />
+          <span style={{ marginRight: 10 }} />
+          Like
+        </Button>
       </div>
     );
   }
@@ -141,6 +211,9 @@ function UserPost(props: Props) {
     <div className={styles.wrapper}>
       {renderPostHeader()}
       {renderMessage()}
+      {renderLikesAndCommentCount()}
+      {/* {renderLikeShareButtons()} */}
+      {}
     </div>
   );
 }
