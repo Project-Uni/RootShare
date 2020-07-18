@@ -30,7 +30,6 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
   },
   newPostTextField: {
-    color: 'white',
     marginLeft: 20,
     flex: 1,
   },
@@ -54,7 +53,7 @@ type Props = {
   onUploadImage: () => any;
 };
 
-function Template(props: Props) {
+function MakePostContainer(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.messageAreaWrapper}>
@@ -85,4 +84,4 @@ function Template(props: Props) {
   );
 }
 
-export default Template;
+export default MakePostContainer;

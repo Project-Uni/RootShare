@@ -31,7 +31,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {};
 
-function Template(props: Props) {
+function DiscoverBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -92,4 +92,4 @@ function Template(props: Props) {
   );
 }
 
-export default Template;
+export default DiscoverBody;

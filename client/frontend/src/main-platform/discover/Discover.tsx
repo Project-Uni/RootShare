@@ -10,7 +10,7 @@ import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
-import DiscoveryBody from './components/DiscoveryBody';
+import DiscoverBody from './components/DiscoverBody';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -70,7 +70,7 @@ function Discover(props: Props) {
       <EventClientHeader />
       <div className={styles.body}>
         <MainNavigator currentTab="discover" />
-        <DiscoveryBody />
+        <DiscoverBody />
         <DiscoverySidebar />
       </div>
     </div>
