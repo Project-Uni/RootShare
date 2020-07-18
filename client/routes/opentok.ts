@@ -4,15 +4,11 @@ const Webinar = mongoose.model('webinars');
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 import { USER_LEVEL } from '../types/types';
-import {
-  isAuthenticated,
-  isAuthenticatedWithJWT,
-} from '../passport/middleware/isAuthenticated';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 const {
   getOpenTokSessionID,
   getOpenTokToken,
-  getMuxPlaybackID,
   startStreaming,
   stopStreaming,
   changeBroadcastLayout,

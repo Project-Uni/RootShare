@@ -2,28 +2,14 @@ import sendPacket from '../helpers/sendPacket';
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
-import {
-  isAuthenticated,
-  isAuthenticatedWithJWT,
-} from '../passport/middleware/isAuthenticated';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { getCurrentUser, getConnections } from '../interactions/user';
 
 import log from '../helpers/logger';
 
 module.exports = (app) => {
   app.get('/user/getCurrent', isAuthenticatedWithJWT, (req, res) => {
-    const user = req.user;
-    if (!user) return res.json(sendPacket(0, 'User not found'));
-    return res.json(
-      sendPacket(1, 'Found currentUser', {
-        email: user.email,
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        privilegeLevel: user.privilegeLevel || 1,
-        accountType: user.accountType,
-      })
-    );
+    return getCurrentUser(req.user, (packet) => res.json(packet));
   });
 
   //TODO - Authenticate With JWT
