@@ -4,15 +4,16 @@ const User = mongoose.model('users');
 import sendPacket from '../helpers/sendPacket';
 
 export function getCurrentUser(user, callback) {
-  if (!user || user === undefined || user === null)
-    return callback(sendPacket(0, 'User not found'));
+  if (!user) return callback(sendPacket(0, 'User not found'));
 
   return callback(
-    sendPacket(1, 'Found currentUser', {
+    sendPacket(1, 'Found current User', {
       email: user.email,
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
+      privilegeLevel: user.privilegeLevel || 1,
+      accountType: user.accountType,
     })
   );
 }

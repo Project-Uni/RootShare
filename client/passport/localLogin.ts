@@ -1,7 +1,11 @@
-var LocalStrategy = require('passport-local').Strategy;
-var mongoose = require('mongoose');
-var User = mongoose.model('users');
-var bCrypt = require('bcryptjs');
+const LocalStrategy = require('passport-local').Strategy;
+import mongoose = require('mongoose');
+import bCrypt = require('bcryptjs');
+import jwt = require('jsonwebtoken');
+
+const User = mongoose.model('users');
+
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
 module.exports = function (passport) {
   passport.use(
@@ -28,7 +32,24 @@ module.exports = function (passport) {
               return done(null, false, { message: 'Invalid Password.' });
             }
 
-            return done(null, user, { message: 'Found user and logged in' });
+            const userTokenInfo = {};
+            for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
+              userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
+            const jwtAccessToken = jwt.sign(
+              userTokenInfo,
+              process.env.JWT_ACCESS_SECRET
+              // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
+            );
+            const jwtRefreshToken = jwt.sign(
+              userTokenInfo,
+              process.env.JWT_REFRESH_SECRET
+            );
+
+            return done(null, user, {
+              message: 'Found user and logged in',
+              jwtAccessToken,
+              jwtRefreshToken,
+            });
           });
         });
       }

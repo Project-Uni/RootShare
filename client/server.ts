@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
@@ -5,6 +7,8 @@ import expressSession = require('express-session');
 import passport = require('passport');
 import log from './helpers/logger';
 import * as path from 'path';
+
+import { rateLimiter } from './middleware';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -39,6 +43,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(rateLimiter);
 
 const server = http.createServer(app);
 const io = socketIO(server);

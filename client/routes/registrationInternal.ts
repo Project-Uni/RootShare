@@ -1,7 +1,7 @@
 var passport = require('passport');
 const mongoose = require('mongoose');
 
-var isAuthenticated = require('../passport/middleware/isAuthenticated');
+import { isAuthenticated } from '../passport/middleware/isAuthenticated';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
@@ -39,6 +39,10 @@ module.exports = (app) => {
               lastName: user.lastName,
               email: user.email,
               _id: user._id,
+              privilegeLevel: user.privilegeLevel || 1,
+              accountType: user.accountType,
+              accessToken: info['jwtAccessToken'],
+              refreshToken: info['jwtRefreshToken'],
             })
           );
         });

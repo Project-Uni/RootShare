@@ -5,7 +5,8 @@ import { useLocation, Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
-import axios from 'axios';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { makeRequest } from '../helpers/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import RSText from '../base-components/RSText';
@@ -43,7 +44,11 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 // TODO - Set up login, signup and reset password to work with chrome’s credential standards
@@ -57,14 +62,21 @@ function Login(props: Props) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const [redirectUrl, setRedirectUrl] = useState(query ? query[1] : '/');
+  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/';
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       props.updateUser({ ...data['content'] });
       setRedirectHome(true);
@@ -83,13 +95,33 @@ function Login(props: Props) {
 
   async function handleLogin() {
     setLoading(true);
-    const { data } = await axios.post('/auth/login/local', {
+    const { data } = await makeRequest('POST', '/auth/login/local', {
       email: email,
       password: password,
     });
     if (data['success'] === 1) {
+      console.log('DataContent:', data['content']);
       setError(false);
-      props.updateUser({ ...data['content'] });
+      const {
+        firstName,
+        lastName,
+        _id,
+        email,
+        accessToken,
+        refreshToken,
+        privilegeLevel,
+        accountType,
+      } = data['content'];
+      props.updateUser({
+        firstName,
+        lastName,
+        _id,
+        email,
+        privilegeLevel,
+        accountType,
+      });
+      props.updateAccessToken(accessToken);
+      props.updateRefreshToken(refreshToken);
       setRedirectHome(true);
     } else {
       setError(true);
@@ -154,6 +186,8 @@ function useQuery() {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -161,6 +195,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

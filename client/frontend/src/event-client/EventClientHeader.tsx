@@ -9,8 +9,6 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
-// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
-
 import { colors } from '../theme/Colors';
 
 import {
@@ -21,9 +19,7 @@ import {
 } from './drawer-components';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    // flexGrow: 1,
-  },
+  wrapper: {},
   header: {
     background: colors.secondary,
   },
@@ -40,14 +36,15 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  minWidth: number;
+  minWidth?: number;
 };
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
   const [drawerContent, setDrawerContent] = useState('');
+  const minWidth = props.minWidth || 100;
   const [width, setWidth] = useState(
-    window.innerWidth >= props.minWidth ? window.innerWidth : props.minWidth
+    window.innerWidth >= minWidth ? window.innerWidth : props.minWidth
   );
 
   useEffect(() => {
@@ -55,7 +52,7 @@ function EventClientHeader(props: Props) {
   }, []);
 
   function handleResize() {
-    if (window.innerWidth >= props.minWidth) setWidth(window.innerWidth);
+    if (window.innerWidth >= minWidth) setWidth(window.innerWidth);
   }
 
   function handleDrawerClose() {
@@ -113,10 +110,7 @@ function EventClientHeader(props: Props) {
   }
 
   return (
-    <div
-      className={styles.wrapper}
-      style={{ width: width, minWidth: props.minWidth }}
-    >
+    <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <a href="/">

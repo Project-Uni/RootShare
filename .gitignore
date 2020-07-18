@@ -4,6 +4,8 @@ client/package-lock.json
 client/frontend/node_modules/
 client/frontend/package-lock.json
 
+client/*.rest
+
 balancer/venv/
 .DS_Store
 ranker/venv/

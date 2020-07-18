@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('users');
 import log from '../helpers/logger';
 
-const isAuthenticated = require('../passport/middleware/isAuthenticated');
+import { isAuthenticated } from '../passport/middleware/isAuthenticated';
 const {
   createThread,
   sendMessage,
