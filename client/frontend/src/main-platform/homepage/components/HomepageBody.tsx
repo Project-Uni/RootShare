@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage } from '../../reusable-components';
+import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 const HEADER_HEIGHT = 60;
@@ -14,6 +15,11 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     background: colors.primaryText,
     overflow: 'scroll',
+    minWidth: 600,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 80,
   },
 }));
 
@@ -36,7 +42,10 @@ function HomepageBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    setTimeout(() => {
+      console.log('Fetching data');
+      return true;
+    }, 1000);
   }
 
   function handleResize() {
@@ -63,6 +72,10 @@ function HomepageBody(props: Props) {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
+  function renderFeed() {
+    return <UserPost />;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -81,6 +94,11 @@ function HomepageBody(props: Props) {
         onPost={handleSubmitPost}
         onUploadImage={handleImageUpload}
       />
+      {loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : (
+        renderFeed()
+      )}
     </div>
   );
 }
