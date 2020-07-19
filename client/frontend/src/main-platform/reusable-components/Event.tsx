@@ -62,6 +62,7 @@ type Props = {
   timestamp: string;
   mutualSignups: number;
   rsvpYes: boolean;
+  style?: any;
 };
 
 function Event(props: Props) {
@@ -148,7 +149,7 @@ function Event(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={[styles.wrapper, props.style || null].join(' ')}>
       {renderEventHeader()}
       {showFullEvent && renderEventBody()}
     </div>
