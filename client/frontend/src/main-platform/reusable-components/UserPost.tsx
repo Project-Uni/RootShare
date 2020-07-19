@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CaiteHeadshot } from '../../images/team';
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
+import { Button, TextField, IconButton } from '@material-ui/core';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
-import { Button, TextField, IconButton } from '@material-ui/core';
+import { MdSend } from 'react-icons/md';
+
+import { CaiteHeadshot, AshwinHeadshot } from '../../images/team';
+import RSText from '../../base-components/RSText';
+import { colors } from '../../theme/Colors';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -24,7 +26,7 @@ const useStyles = makeStyles((_: any) => ({
   top: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginTop: 15,
+    marginTop: 20,
     marginBottom: 10,
   },
   profilePic: {
@@ -81,9 +83,24 @@ const useStyles = makeStyles((_: any) => ({
   commentCountLink: {
     marginLeft: 20,
   },
-  likeShareButtonContainer: {
+  commentProfile: {
+    height: 40,
+    borderRadius: 40,
+  },
+  leaveCommentContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+}));
+
+const useTextFieldStyles = makeStyles((_: any) => ({
+  commentTextField: {
+    flex: 1,
+    marginLeft: 15,
+    background: colors.primaryText,
+    borderRadius: 30,
   },
 }));
 
@@ -91,10 +108,12 @@ type Props = {};
 
 function UserPost(props: Props) {
   const styles = useStyles();
+  const textFieldStyles = useTextFieldStyles();
+
   const [showFullMessage, setShowFullMessage] = useState(false);
   const [liked, setLiked] = useState(false);
-
   const [likeCount, setLikeCount] = useState(104);
+  const [comment, setComment] = useState('');
 
   const message =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.';
@@ -110,6 +129,10 @@ function UserPost(props: Props) {
     else setLikeCount(likeCount + 1);
 
     setLiked(!oldLiked);
+  }
+
+  function handleSendComment() {
+    console.log('Comment:', comment);
   }
 
   function renderPostHeader() {
@@ -196,14 +219,21 @@ function UserPost(props: Props) {
     );
   }
 
-  function renderLikeShareButtons() {
+  function renderLeaveCommentArea() {
     return (
-      <div className={styles.likeShareButtonContainer}>
-        <Button size="large" variant="contained">
-          <BsStar size={22} color={colors.bright} />
-          <span style={{ marginRight: 10 }} />
-          Like
-        </Button>
+      <div className={styles.leaveCommentContainer}>
+        <img src={AshwinHeadshot} className={styles.commentProfile} />
+        <TextField
+          variant="outlined"
+          value={comment}
+          placeholder="Leave a comment..."
+          onChange={(event: any) => setComment(event.target.value)}
+          className={textFieldStyles.commentTextField}
+          multiline
+        />
+        <IconButton onClick={handleSendComment}>
+          <MdSend size={22} color={colors.bright} />
+        </IconButton>
       </div>
     );
   }
@@ -212,8 +242,7 @@ function UserPost(props: Props) {
       {renderPostHeader()}
       {renderMessage()}
       {renderLikesAndCommentCount()}
-      {/* {renderLikeShareButtons()} */}
-      {}
+      {renderLeaveCommentArea()}
     </div>
   );
 }

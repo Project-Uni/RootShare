@@ -217,6 +217,7 @@ function EventMessageContainer(props: Props) {
               focused: styles.cssFocused,
               // notchedOutline: styles.notchedOutline,
             },
+            //TODO - I'm not sure this is right.
             inputMode: 'numeric',
           }}
         />
