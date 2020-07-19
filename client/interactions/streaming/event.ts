@@ -90,18 +90,38 @@ export async function getAllEvents(callback) {
   return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
 }
 
-export async function getWebinarDetails(webinarID, callback) {
-  Webinar.findOne({ _id: webinarID }, (err, webinar) => {
+export async function getWebinarDetails(userID, webinarID, callback) {
+  Webinar.findById(webinarID, (err, webinar) => {
     if (err) {
       log('error', err);
       return callback(sendPacket(-1, 'There was an error finding webinar'));
-    } else if (!webinar) {
+    } else if (!webinar || webinar === undefined || webinar == null) {
       return callback(sendPacket(0, 'No webinar exists with this ID'));
     }
-    return callback(
-      sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
-    );
+
+    if (checkUserIsSpeaker(userID, webinar))
+      return callback(
+        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
+      );
+    else {
+      webinar.opentokSessionID = undefined;
+      webinar.opentokBroadcastID = undefined;
+      webinar.muxStreamKey = undefined;
+      webinar.muxLiveStreamID = undefined;
+      return callback(
+        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
+      );
+    }
   });
+}
+
+function checkUserIsSpeaker(userID, webinar) {
+  if (userID === webinar.host) return;
+  webinar.speakers.forEach((speaker) => {
+    if (userID === speaker) return true;
+  });
+
+  return false;
 }
 
 function sendEventEmailConfirmation(

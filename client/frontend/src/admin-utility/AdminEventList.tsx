@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../theme/Colors';
 
 import AdminSingleEvent from './AdminSingleEvent';
-import { FileExport } from '@styled-icons/boxicons-solid';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

@@ -11,18 +11,20 @@ import {
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../redux/actions/user';
-import log from '../helpers/logger';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 
 import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
+
+import { makeRequest } from '../helpers/makeRequest';
+import log from '../helpers/logger';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -53,7 +55,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   cancelButton: {
-    color: 'red',
     padding: 0,
     margin: 0,
   },
@@ -103,7 +104,11 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 type eventType = {
@@ -136,7 +141,7 @@ function AdminEventCreator(props: Props) {
 
   const [loading, setLoading] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState(false);
-  const [homepageRedirect, setHomepageRedirect] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(false);
 
   const [briefCharsRemaining, setBriefCharsRemaining] = useState(MAX_BRIEF_LEN);
 
@@ -161,20 +166,27 @@ function AdminEventCreator(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (checkAuth()) {
+    checkAuth().then((authorized) => {
       setLoading(false);
-    }
+    });
   }, []);
 
   async function checkAuth() {
-    const { data } = await axios.get('/user/getCurrent');
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] !== 1) {
       setLoginRedirect(true);
       return false;
     } else {
       updateUser({ ...data['content'] });
       if (data['content']['privilegeLevel'] < MIN_ACCESS_LEVEL) {
-        setHomepageRedirect(true);
+        setShowInvalid(true);
         return false;
       }
     }
@@ -186,7 +198,14 @@ function AdminEventCreator(props: Props) {
   }, []);
 
   async function updateEvents() {
-    const { data } = await axios.get('/api/webinar/getAllEvents');
+    const { data } = await makeRequest(
+      'GET',
+      '/api/webinar/getAllEvents',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] !== 1) return log('error', data['message']);
     setEvents(data['content']['webinars']);
   }
@@ -292,9 +311,14 @@ function AdminEventCreator(props: Props) {
       dateTime: eventDateTime,
       speakerEmails: speakerEmails,
     };
-
-    const { data } = await axios.post('/api/webinar/createEvent', API_DATA);
-    updateEvents();
+    const { data } = await makeRequest(
+      'POST',
+      '/api/webinar/createEvent',
+      API_DATA,
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       setTopMessage(`s: ${data['message']}`);
       resetData();
@@ -340,6 +364,14 @@ function AdminEventCreator(props: Props) {
           <RSText type="subhead">X</RSText>
         </IconButton>
       </div>
+    );
+  }
+
+  function renderInvalid() {
+    return (
+      <RSText type="subhead" size={32} bold>
+        Permission not granted to view page
+      </RSText>
     );
   }
 
@@ -472,7 +504,9 @@ function AdminEventCreator(props: Props) {
         </RSText>
         {editEvent !== '' ? (
           <IconButton className={styles.cancelButton} onClick={resetData}>
-            <RSText size={18}>Cancel Update</RSText>
+            <RSText size={18} color="red">
+              Cancel Update
+            </RSText>
           </IconButton>
         ) : (
           <span />
@@ -500,7 +534,6 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      {homepageRedirect && <Redirect to="/" />}
       <HypeHeader />
       {loading ? (
         <CircularProgress
@@ -508,6 +541,8 @@ function AdminEventCreator(props: Props) {
           size={100}
           color="primary"
         />
+      ) : showInvalid ? (
+        renderInvalid()
       ) : (
         <div className={styles.holder}>
           {renderContent()}{' '}
@@ -521,6 +556,8 @@ function AdminEventCreator(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
@@ -528,6 +565,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     updateUser: (userInfo: { [key: string]: any }) => {
       dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
     },
   };
 };

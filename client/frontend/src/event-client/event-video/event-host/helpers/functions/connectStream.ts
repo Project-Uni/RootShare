@@ -17,7 +17,9 @@ export async function connectStream(
     videoType: 'camera' | 'screen',
     self: boolean
   ) => void,
-  setCameraPublisher: (newPublisher: OT.Publisher) => void
+  setCameraPublisher: (newPublisher: OT.Publisher) => void,
+  accessToken: string,
+  refreshToken: string
 ) {
   let canScreenshare = false;
 
@@ -29,10 +31,10 @@ export async function connectStream(
     if (response.supported && response.extensionRegistered) canScreenshare = true;
   });
 
-  const sessionID = await validateSession(webinarID);
+  const sessionID = await validateSession(webinarID, accessToken, refreshToken);
   if (!sessionID) return { screenshare: canScreenshare, eventSession: false };
 
-  const eventToken = await getOpenTokToken(sessionID);
+  const eventToken = await getOpenTokToken(sessionID, accessToken, refreshToken);
   if (!eventToken) return { screenshare: canScreenshare, eventSession: false };
 
   const eventSession = await createEventSession(

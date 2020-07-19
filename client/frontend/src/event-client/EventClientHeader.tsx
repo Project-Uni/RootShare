@@ -1,54 +1,50 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar, IconButton } from "@material-ui/core";
-import RootShareLogoWhite from "../images/RootShareLogoWhite.png";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
 
-import { MdGroupAdd, MdAccountCircle } from "react-icons/md";
-import { IoMdText } from "react-icons/io";
-import { FaRegCalendarAlt } from "react-icons/fa";
+import { MdGroupAdd, MdAccountCircle } from 'react-icons/md';
+import { IoMdText } from 'react-icons/io';
+import { FaRegCalendarAlt } from 'react-icons/fa';
 
-import EventDrawer from "./EventDrawer";
+import EventDrawer from './EventDrawer';
 
-// import ConnectionsDrawer from "./drawer-components/ConnectionsDrawer";
-
-import { colors } from "../theme/Colors"
+import { colors } from '../theme/Colors';
 
 import {
   CalendarDrawer,
-  MessagesDrawer,
-  ProfileDrawer,
   ConnectionsDrawer,
-} from "./drawer-components";
+  MessagesDrawerContainer,
+  ProfileDrawer,
+} from './drawer-components';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    // flexGrow: 1,
-  },
+  wrapper: {},
   header: {
     background: colors.secondary,
   },
   headerLogo: {
-    height: "38px",
-    width: "190px",
+    height: '38px',
+    width: '190px',
   },
   icons: {},
   iconStyle: {},
   toolbar: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
   },
 }));
 
 type Props = {
-  minWidth: number;
+  minWidth?: number;
 };
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
-  const [drawerContent, setDrawerContent] = useState("");
-  const [width, setWidth] = useState(window.innerWidth >= props.minWidth
-    ? window.innerWidth
-    : props.minWidth
+  const [drawerContent, setDrawerContent] = useState('');
+  const minWidth = props.minWidth || 100;
+  const [width, setWidth] = useState(
+    window.innerWidth >= minWidth ? window.innerWidth : props.minWidth
   );
 
   useEffect(() => {
@@ -56,38 +52,38 @@ function EventClientHeader(props: Props) {
   }, []);
 
   function handleResize() {
-    if (window.innerWidth >= props.minWidth) setWidth(window.innerWidth);
+    if (window.innerWidth >= minWidth) setWidth(window.innerWidth);
   }
 
   function handleDrawerClose() {
-    setDrawerContent("");
+    setDrawerContent('');
   }
 
   function handleConnectionsClick() {
-    setDrawerContent("connections");
+    setDrawerContent('connections');
   }
 
   function handleMessagesClick() {
-    setDrawerContent("messages");
+    setDrawerContent('messages');
   }
 
   function handleCalendarClick() {
-    setDrawerContent("calendar");
+    setDrawerContent('calendar');
   }
 
   function handleProfileClick() {
-    setDrawerContent("profile");
+    setDrawerContent('profile');
   }
 
   function getDrawerContent() {
     switch (drawerContent) {
-      case "connections":
+      case 'connections':
         return <ConnectionsDrawer />;
-      case "calendar":
+      case 'calendar':
         return <CalendarDrawer />;
-      case "messages":
-        return <MessagesDrawer />;
-      case "profile":
+      case 'messages':
+        return <MessagesDrawerContainer />;
+      case 'profile':
         return <ProfileDrawer />;
       default:
         return null;
@@ -97,10 +93,7 @@ function EventClientHeader(props: Props) {
   function renderIcons() {
     return (
       <>
-        <IconButton
-          className={styles.iconStyle}
-          onClick={handleConnectionsClick}
-        >
+        <IconButton className={styles.iconStyle} onClick={handleConnectionsClick}>
           <MdGroupAdd size={32} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
@@ -117,7 +110,7 @@ function EventClientHeader(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper} style={{ width: width, minWidth: props.minWidth }}>
+    <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <a href="/">
@@ -133,7 +126,9 @@ function EventClientHeader(props: Props) {
         <EventDrawer
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
-          backgroundColor={drawerContent==="calendar" ? colors.secondary : colors.secondary}
+          backgroundColor={
+            drawerContent === 'calendar' ? colors.secondary : colors.secondary
+          }
         >
           {getDrawerContent()}
         </EventDrawer>

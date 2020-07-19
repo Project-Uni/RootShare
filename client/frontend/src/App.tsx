@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './App.css';
 
 import { Router, Route, Switch } from 'react-router-dom';
@@ -18,7 +18,16 @@ import ResetPassword from './login/ResetPassword';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
-import axios from 'axios';
+import {
+  Homepage,
+  Discover,
+  Events,
+  Profile,
+  Community,
+  YourCommunities,
+  StreamLibrary,
+  Connections,
+} from './main-platform';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -36,17 +45,6 @@ type Props = {
 };
 
 function App(props: Props) {
-  useEffect(() => {
-    // mockLogin();
-  }, []);
-
-  async function mockLogin() {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-      const { data } = await axios.get('/api/mockLogin');
-      if (data['success'] === 1) props.updateUser({ ...data['content'] });
-    }
-  }
-
   return (
     <div className="App">
       <Router history={history}>
@@ -69,6 +67,16 @@ function App(props: Props) {
 
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
+
+            <Route exact path="/home" component={Homepage} />
+            <Route exact path="/discover" component={Discover} />
+            <Route exact path="/events" component={Events} />
+            <Route exact path="/profile/:profileID" component={Profile} />
+            <Route exact path="/communities" component={YourCommunities} />
+            <Route exact path="/community/:orgID" component={Community} />
+            <Route exact path="/library" component={StreamLibrary} />
+            <Route exact path="/connections" component={Connections} />
+
             <Route component={PageNotFound} />
           </Switch>
         </div>

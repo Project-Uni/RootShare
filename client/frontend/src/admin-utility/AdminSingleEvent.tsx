@@ -25,14 +25,12 @@ const useStyles = makeStyles((_: any) => ({
     borderTopRightRadius: 5,
     borderRadius: 10,
   },
-  left: {
-    color: colors.secondary,
+  right: {
     marginTop: 30,
     marginRight: 10,
   },
   host: {
     marginLeft: 10,
-    color: colors.secondary,
     marginTop: 30,
   },
   bottom: {
@@ -54,10 +52,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 12,
     marginRight: 10,
     display: 'inline-block',
-    color: colors.primaryText,
-  },
-  editText: {
-    color: colors.primaryText,
   },
   description: {
     marginLeft: 10,
@@ -103,16 +97,16 @@ function AdminSingleEvent(props: Props) {
       <div className={styles.top}>
         <div>
           <IconButton onClick={() => props.handleEdit(props.event)}>
-            <RSText size={11} className={styles.editText}>
+            <RSText size={11} color={colors.primaryText}>
               Edit
             </RSText>
           </IconButton>
-          <RSText bold size={12} className={styles.name}>
+          <RSText bold size={12} color={colors.primaryText} className={styles.name}>
             {event.title}
           </RSText>
         </div>
         <div>
-          <RSText size={12} className={styles.date}>
+          <RSText size={12} color={colors.primaryText} className={styles.date}>
             {monthDict[dateTime.getMonth()]} {dateTime.getDate()}{' '}
             {formatYear(dateTime)}
           </RSText>
@@ -125,7 +119,7 @@ function AdminSingleEvent(props: Props) {
           </RSText>
         </div>
         <div>
-          <RSText size={12} className={styles.left}>
+          <RSText size={12} className={styles.right}>
             {formatTime(dateTime)}
           </RSText>
         </div>

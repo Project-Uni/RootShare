@@ -1,23 +1,23 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar } from "@material-ui/core";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { AppBar, Toolbar } from '@material-ui/core';
 
-import RootShareLogoWhite from "../../images/RootShareLogoWhite.png";
+import RootShareLogoWhite from '../../images/RootShareLogoWhite.png';
 
 const useStyles = makeStyles((_: any) => ({
   header: {
-    marginBottom: "5px",
-    background: "#3D66DE",
-    width: "100vw",
+    marginBottom: '5px',
+    background: '#3D66DE',
+    width: '100vw',
   },
   headerTitle: {
     flexGrow: 1,
-    textAlign: "left",
+    textAlign: 'left',
   },
   headerLogo: {
-    color: "white",
-    height: "38px",
-    width: "190px",
+    color: 'white',
+    height: '38px',
+    width: '190px',
   },
 }));
 
@@ -29,11 +29,13 @@ function HypeHeader(props: Props) {
     <AppBar position="static" className={styles.header}>
       <Toolbar>
         <div className={styles.headerTitle}>
-          <img
-            src={RootShareLogoWhite}
-            alt="RootShare"
-            className={styles.headerLogo}
-          />
+          <a href="/">
+            <img
+              src={RootShareLogoWhite}
+              alt="RootShare"
+              className={styles.headerLogo}
+            />
+          </a>
         </div>
       </Toolbar>
     </AppBar>

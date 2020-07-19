@@ -26,26 +26,26 @@ BACKEND ROUTES
 
 - [ /auth/curr-user/load ] Returns User information from current cookie'd User
 
-- [ /confirmation/:token ] Confirms user's email address
+- [ /auth/confirmation/:token ] Confirms user's email address
 
-- [ /unsubscribe/:token ] Unsubscribe from our emails
+- [ /auth/unsubscribe/:token ] Unsubscribe from our emails
 
-- [ /confirmation-resend ] Resend confirmation email
+- [ /auth/confirmation-resend ] Resend confirmation email
 
-- [ /secure-unconfirmed ] Route with access to logged in Users with unconfirmed emails
+- [ /auth/secure-unconfirmed ] Route with access to logged in Users with unconfirmed emails
 
-- [ /secure-confirmed ] Route with access to logged in Users with confirmed emails
+- [ /auth/secure-confirmed ] Route with access to logged in Users with confirmed emails
 
-- [ /user/getCurrent ] Returns current cookie'd User
+- [ /auth/logout] Logs out cookie'd User
+
+- [ /api/user/getCurrent ] Returns current cookie'd User
 
 - [ /api/adminCount ] Retrieves information about our database for admins
 
-- [ /x/x ] Information about x path
+- [ /api/messaging/sendMessage ] Send a Message to a Conversation
 
-- [ /x/x ] Information about x path
+- [ /api/messaging/createThread ] Create a new Conversation
 
-- [ /x/x ] Information about x path
+- [ /api/messaging/getLatestThreads ] Retrieve a User's latest Conversations in order
 
-- [ /x/x ] Information about x path
-
-- [ /x/x ] Information about x path
+- [ /api/messaging/getLatestMessages ] Retrieve a User's latest Messages in order

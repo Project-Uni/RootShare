@@ -8,13 +8,15 @@ const jwt = require('njwt');
 const {
   OPENTOK_API_KEY,
   OPENTOK_API_SECRET,
-  BASE_64_MUX,
+  DEV_BASE_64_MUX,
+  PROD_BASE_64_MUX,
 } = require('../../../keys/keys.json');
+const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
+const BASE_64_MUX = IN_DEV ? DEV_BASE_64_MUX : PROD_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
-import { resolve } from 'dns';
 
 module.exports = {
   // Create Webinar and Opentok Session
@@ -50,27 +52,15 @@ module.exports = {
       });
   },
 
-  getLatestWebinarID: async (userID) => {
-    const currUser = await User.findById(userID);
-
-    if (!currUser) return sendPacket(-1, 'Could not find User');
-
-    const RSVPCount = currUser.RSVPWebinars.length;
-    if (RSVPCount == 0) return sendPacket(0, 'User Has no Webinars');
-
-    const webinarID = currUser.RSVPWebinars[RSVPCount - 1];
-    return sendPacket(1, 'Sending Latest Webinar ID', { webinarID });
-  },
-
   // Retrive Session ID from DB
   getOpenTokSessionID: async (webinarID) => {
     let webinar = await Webinar.findById(webinarID);
-    if (webinar) {
+    if (!webinar || webinar === undefined || webinar === null)
+      return sendPacket(-1, 'Could not send OpenTok SessionID');
+    else {
       return sendPacket(1, "Sending Webinar's OpenTok SessionID", {
         opentokSessionID: webinar.opentokSessionID,
       });
-    } else {
-      return sendPacket(-1, 'Could not send OpenTok SessionID');
     }
   },
 
@@ -87,7 +77,7 @@ module.exports = {
   getMuxPlaybackID: async (webinarID) => {
     const currWebinar = await Webinar.findById(webinarID);
 
-    if (!currWebinar) {
+    if (!currWebinar || currWebinar === undefined || currWebinar === null) {
       return sendPacket(-1, 'No Webinar exists with this ID');
     }
     if (
@@ -103,6 +93,9 @@ module.exports = {
 
   stopStreaming: async (webinarID) => {
     let currWebinar = await Webinar.findById(webinarID);
+    if (!currWebinar || currWebinar === undefined || currWebinar === null)
+      return sendPacket(-1, 'Could not find webinar');
+
     const { opentokBroadcastID } = currWebinar;
     currWebinar.opentokBroadcastID = '';
     currWebinar.muxStreamKey = '';
@@ -161,6 +154,9 @@ module.exports = {
     const { opentokBroadcastID } = broadcastPacket.content;
 
     let currWebinar = await Webinar.findById(webinarID);
+    if (!currWebinar || currWebinar === undefined || currWebinar === null)
+      return sendPacket(-1, 'Could not find webinar');
+
     currWebinar.muxStreamKey = muxStreamKey;
     currWebinar.muxLiveStreamID = muxLiveStreamID;
     currWebinar.muxPlaybackID = muxPlaybackID;
@@ -176,7 +172,7 @@ module.exports = {
   createMuxStream: async () => {
     let muxStreamKey, muxLiveStreamID, muxPlaybackID;
     const muxReqBody = {
-      test: true,
+      test: IN_DEV,
       playback_policy: ['public'],
       new_asset_settings: {
         playback_policy: ['public'],
@@ -271,7 +267,8 @@ module.exports = {
     else return callback(sendPacket(-1, 'Invalid Layout Type'));
 
     Webinar.findById(webinarID, (err, currWebinar) => {
-      if (err) return callback(sendPacket(-1, 'Cannot find current Webinar'));
+      if (err || currWebinar === undefined || currWebinar === null)
+        return callback(sendPacket(-1, 'Cannot find current Webinar'));
       const { opentokBroadcastID, opentokSessionID } = currWebinar;
       if (
         !opentokBroadcastID ||
