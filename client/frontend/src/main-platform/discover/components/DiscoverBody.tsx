@@ -12,6 +12,7 @@ import {
   CommunityHighlight,
 } from '../../reusable-components';
 import { ReniHeadshot } from '../../../images/team';
+import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 
 const HEADER_HEIGHT = 60;
 
@@ -95,7 +96,7 @@ function DiscoverBody(props: Props) {
 
   function renderMockSearch() {
     const output = [];
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 3; i++) {
       output.push(
         <UserHighlight
           style={styles.singleResult}
@@ -111,7 +112,45 @@ function DiscoverBody(props: Props) {
         />
       );
       output.push(
-        <CommunityHighlight style={styles.singleResult} communityID="testID" />
+        <CommunityHighlight
+          style={styles.singleResult}
+          communityID="testID"
+          private
+          name={'RootShare'}
+          type="Business"
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
+          profilePicture={PurdueHypeBanner}
+          memberCount={1498}
+          mutualMemberCount={52}
+          status="PENDING"
+        />
+      );
+      output.push(
+        <CommunityHighlight
+          style={styles.singleResult}
+          communityID="testID"
+          name={'RootShare'}
+          type="Business"
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
+          profilePicture={PurdueHypeBanner}
+          memberCount={1498}
+          mutualMemberCount={52}
+          status="JOINED"
+        />
+      );
+      output.push(
+        <CommunityHighlight
+          style={styles.singleResult}
+          communityID="testID"
+          private
+          name={'RootShare'}
+          type="Business"
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
+          profilePicture={PurdueHypeBanner}
+          memberCount={1498}
+          mutualMemberCount={52}
+          status="OPEN"
+        />
       );
     }
     return output;
