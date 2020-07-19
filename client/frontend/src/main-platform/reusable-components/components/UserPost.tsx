@@ -69,7 +69,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   likesAndCommentsContainer: {
     display: 'flex',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   commentCount: {
@@ -88,7 +88,6 @@ const useStyles = makeStyles((_: any) => ({
   leaveCommentContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    alignItems: 'center',
     marginBottom: 15,
   },
   commentsContainer: {
@@ -202,11 +201,6 @@ function UserPost(props: Props) {
             ? shortenedMessage.concat('  ...')
             : props.message}
         </RSText>
-        <div className={styles.seeMoreButtonDiv}>
-          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-            See {showFullMessage ? 'less' : 'more'}
-          </Button>
-        </div>
       </div>
     );
   }
@@ -214,31 +208,37 @@ function UserPost(props: Props) {
   function renderLikesAndCommentCount() {
     return (
       <div className={styles.likesAndCommentsContainer}>
-        <IconButton onClick={handleLikeStatusChange}>
-          {liked ? (
-            <BsStarFill size={25} color={colors.bright} />
-          ) : (
-            <BsStar size={25} color={colors.bright} />
-          )}
-        </IconButton>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={handleLikeStatusChange}>
+            {liked ? (
+              <BsStarFill size={25} color={colors.bright} />
+            ) : (
+              <BsStar size={25} color={colors.bright} />
+            )}
+          </IconButton>
 
-        <RSText type="body" color={colors.secondaryText} size={12}>
-          {likeCount} Likes
-        </RSText>
-        <a
-          href={undefined}
-          className={styles.commentCountLink}
-          onClick={() => setShowComments(!showComments)}
-        >
-          <RSText
-            type="body"
-            color={colors.secondaryText}
-            size={12}
-            className={styles.commentCount}
-          >
-            {props.commentCount} Comments
+          <RSText type="body" color={colors.secondaryText} size={12}>
+            {likeCount} Likes
           </RSText>
-        </a>
+          <a
+            href={undefined}
+            className={styles.commentCountLink}
+            onClick={() => setShowComments(!showComments)}
+          >
+            <RSText
+              type="body"
+              color={colors.secondaryText}
+              size={12}
+              className={styles.commentCount}
+            >
+              {props.commentCount} Comments
+            </RSText>
+          </a>
+        </div>
+
+        <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+          See {showFullMessage ? 'less' : 'more'}
+        </Button>
       </div>
     );
   }
