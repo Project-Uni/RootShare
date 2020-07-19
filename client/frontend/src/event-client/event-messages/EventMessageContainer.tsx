@@ -218,7 +218,7 @@ function EventMessageContainer(props: Props) {
               // notchedOutline: styles.notchedOutline,
             },
             //TODO - I'm not sure this is right.
-            inputMode: 'numeric',
+            // inputMode: 'numeric',
           }}
         />
         <IconButton onClick={handleEmojiClick}>

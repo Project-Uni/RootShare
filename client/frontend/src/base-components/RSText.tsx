@@ -34,6 +34,11 @@ function RSText(props: Props) {
 
   const type = props.type ? props.type : 'body';
 
+  const style: { [key: string]: any } = {
+    fontSize: props.size ? `${props.size}pt` : '12pt',
+  };
+  if (props.color) style['color'] = props.color;
+
   return (
     <p
       className={[
@@ -43,10 +48,7 @@ function RSText(props: Props) {
         props.italic ? styles.italic : null,
         props.className ? props.className : null,
       ].join(' ')}
-      style={{
-        fontSize: props.size ? `${props.size}pt` : '12pt',
-        color: props.color || 'black',
-      }}
+      style={style}
     >
       {props.children}
     </p>
