@@ -6,10 +6,10 @@ import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
-import { Comment } from './';
-import { CaiteHeadshot, AshwinHeadshot } from '../../images/team';
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
+import { Comment } from '../';
+import { CaiteHeadshot, AshwinHeadshot } from '../../../images/team';
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 

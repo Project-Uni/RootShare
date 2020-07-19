@@ -1,8 +1,9 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { colors } from '../../theme/Colors';
-import RSText from '../../base-components/RSText';
 import { Button } from '@material-ui/core';
+
+import { colors } from '../../../theme/Colors';
+import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

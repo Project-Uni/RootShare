@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
-
 import { GiTreeBranch } from 'react-icons/gi';
 import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
 import { IoMdText } from 'react-icons/io';
 import { MdGroup, MdOndemandVideo } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
+
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
 const HEADER_HEIGHT = 60;
 const TEXT_SIZE = 22;

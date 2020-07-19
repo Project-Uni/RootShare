@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RSText from '../../base-components/RSText';
+import RSText from '../../../base-components/RSText';
 
-import { colors } from '../../theme/Colors';
+import { colors } from '../../../theme/Colors';
 
 import DiscoverySinglePerson from './DiscoverySinglePerson';
 import {
@@ -11,7 +11,7 @@ import {
   JacksonHeadshot,
   DhruvHeadshot,
   ChrisHeadshot,
-} from '../../images/team';
+} from '../../../images/team';
 
 const HEADER_HEIGHT = 60;
 const VERTICAL_PADDING_TOTAL = 40;

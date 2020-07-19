@@ -5,9 +5,9 @@ import { IconButton } from '@material-ui/core';
 
 import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
-import BabyBoilersBanner from '../../images/PurdueHypeAlt.png';
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
+import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 
 const MAX_SUBSTR_LEN = 200;
 
