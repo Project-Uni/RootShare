@@ -7,7 +7,7 @@ import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
 import { Comment } from '../';
-import { CaiteHeadshot, AshwinHeadshot } from '../../../images/team';
+import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
@@ -246,7 +246,7 @@ function UserPost(props: Props) {
   function renderLeaveCommentArea() {
     return (
       <div className={styles.leaveCommentContainer}>
-        <img src={AshwinHeadshot} className={styles.commentProfile} />
+        <img src={CaiteHeadshot} className={styles.commentProfile} />
         <TextField
           variant="outlined"
           value={comment}
@@ -268,11 +268,10 @@ function UserPost(props: Props) {
       output.push(
         <Comment
           userID="ABCD_TEST_123"
-          name="Ashwin Mahesh"
+          name="Caite Capezzuto"
           timestamp="July 11, 2020 7:45 PM"
-          message="This is a great comment! I will repeat again this is a great comment!
-          Hope you find some enjoyment in this comment!"
-          profilePicture={AshwinHeadshot}
+          message="Hello! Sign up for RootShare! New Hampshire is the best state! TOPANGA!!"
+          profilePicture={CaiteHeadshot}
         />
       );
     return (
