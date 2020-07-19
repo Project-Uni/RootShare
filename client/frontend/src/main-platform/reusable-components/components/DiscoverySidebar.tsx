@@ -5,6 +5,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 import DiscoverySinglePerson from './DiscoverySinglePerson';
+import DiscoveryCommunity from './DiscoveryCommunity';
 import {
   AshwinHeadshot,
   SmitHeadshot,
@@ -103,13 +104,7 @@ function DiscoverySidebar(props: Props) {
     //Test code
     const communities = [];
     for (let i = 0; i < 5; i++) {
-      communities.push(
-        <a href={`/community/id${i}`}>
-          <RSText type="body" color={colors.primaryText}>
-            Community {i}
-          </RSText>
-        </a>
-      );
+      communities.push(<DiscoveryCommunity />);
     }
 
     return (
