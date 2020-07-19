@@ -51,7 +51,7 @@ function updateEvent(eventBody, callback) {
     webinar.title = eventBody['title'];
     webinar.brief_description = eventBody['brief_description'];
     webinar.full_description = eventBody['full_description'];
-    webinar.host = eventBody['host'];
+    webinar.host = eventBody['host']['_id'];
     webinar.speakers = eventBody['speakers'];
     webinar.dateTime = eventBody['dateTime'];
 

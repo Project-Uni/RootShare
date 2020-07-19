@@ -28,9 +28,9 @@ type Props = {
 };
 
 type UserInfo = {
+  _id: string;
   firstName: string;
   lastName: string;
-  _id: string;
   email: string;
 };
 
