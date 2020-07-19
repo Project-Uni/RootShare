@@ -11,24 +11,26 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.primary,
-    paddingTop: 5,
-    paddingBottom: 5,
+    background: colors.secondary,
+    paddingTop: 3,
+    paddingBottom: 3,
     paddingLeft: 10,
     paddingRight: 10,
-    borderRadius: 10,
+    borderRadius: 5,
   },
   eventTitle: {
     marginLeft: 10,
   },
 }));
 
-type Props = {};
+type Props = {
+  style?: any;
+};
 
 function ProfileEvent(props: Props) {
   const styles = useStyles();
   return (
-    <div className={styles.wrapper}>
+    <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div
         style={{
           display: 'flex',
@@ -36,12 +38,12 @@ function ProfileEvent(props: Props) {
           alignItems: 'center',
         }}
       >
-        <RSText type="body" size={12} italic color={colors.secondaryText}>
+        <RSText type="body" size={11} italic color={colors.secondaryText}>
           Aug 14, 2020
         </RSText>
         <RSText
           type="body"
-          size={14}
+          size={12}
           bold
           color={colors.primaryText}
           className={styles.eventTitle}
@@ -50,11 +52,11 @@ function ProfileEvent(props: Props) {
         </RSText>
       </div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <RSText type="body" size={14} color={colors.primaryText}>
+        <RSText type="body" size={12} color={colors.primaryText}>
           SPEAKER
         </RSText>
         <IconButton>
-          <BsChevronDown size={14} color={colors.secondaryText} />
+          <BsChevronDown size={12} color={colors.secondaryText} />
         </IconButton>
       </div>
     </div>

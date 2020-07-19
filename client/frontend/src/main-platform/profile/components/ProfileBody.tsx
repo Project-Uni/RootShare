@@ -6,7 +6,6 @@ import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { WelcomeMessage } from '../../reusable-components';
 import { DhruvHeadshot } from '../../../images/team';
-import RSText from '../../../base-components/RSText';
 
 const HEADER_HEIGHT = 60;
 
@@ -18,8 +17,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   body: {},
   coverPhoto: {
-    background: 'lightgreen',
-    // background: colors.bright,
+    // background: 'lightgreen',
+    background: colors.bright,
     height: 250,
   },
   profilePicture: {
@@ -28,8 +27,10 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 200,
     marginTop: -100,
     border: `8px solid ${colors.primaryText}`,
-    // marginLeft: 90,
     marginLeft: 50,
+  },
+  event: {
+    marginTop: 5,
   },
 }));
 
@@ -70,10 +71,10 @@ function ProfileBody(props: Props) {
   }
 
   function renderRegisteredEvents() {
+    const output = [];
+    for (let i = 0; i < 4; i++) output.push(<ProfileEvent style={styles.event} />);
     return (
-      <div style={{ marginLeft: 6, marginRight: 6 }}>
-        <ProfileEvent />
-      </div>
+      <div style={{ marginLeft: 6, marginRight: 6, marginTop: 20 }}>{output}</div>
     );
   }
 
