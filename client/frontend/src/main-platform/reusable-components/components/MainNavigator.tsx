@@ -18,7 +18,6 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primary,
     width: 310,
-    borderRight: `1px solid ${colors.primaryText}`,
   },
   linkContainer: {
     marginLeft: 30,
