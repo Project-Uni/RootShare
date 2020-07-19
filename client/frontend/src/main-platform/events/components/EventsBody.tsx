@@ -54,7 +54,24 @@ function EventsBody(props: Props) {
   }
 
   function renderEvents() {
-    return <Event />;
+    return (
+      <Event
+        title="The Baby Boilers Are Back"
+        communityName="RootShare"
+        communityID="rootshareID"
+        summary={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore return to talk about what they have been up to since their time at Purdue`}
+        description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
+    experiences post-graduation. Robbie has played in the NBA for a season or
+    two, and played overseas for multiple. He is involved with startups now.
+    Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
+    currently on the New Orleans Pelicans and is having great success. The first
+    45 minutes will be dedicated to the three talking about their experiences.
+    The remaining 15 minutes will be dedicated to questions from the fans.`}
+        timestamp={'August 14, 2020 7:00 PM'}
+        mutualSignups={109}
+        rsvpYes={false}
+      />
+    );
   }
 
   return (

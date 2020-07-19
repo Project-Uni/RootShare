@@ -53,73 +53,33 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  title: string;
+  communityName: string;
+  communityID: string;
+  summary: string;
+  description: string;
+  timestamp: string;
+  mutualSignups: number;
+  rsvpYes: boolean;
+};
 
 function Event(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showFullEvent, setShowFullEvent] = useState(true);
 
-  const description = `Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
-  experiences post-graduation. Robbie has played in the NBA for a season or
-  two, and played overseas for multiple. He is involved with startups now.
-  Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
-  currently on the New Orleans Pelicans and is having great success. The first
-  45 minutes will be dedicated to the three talking about their experiences.
-  The remaining 15 minutes will be dedicated to questions from the fans.`;
-
-  const descriptionSubstr = description.substr(0, MAX_SUBSTR_LEN);
+  const descriptionSubstr = props.description.substr(0, MAX_SUBSTR_LEN);
 
   function handleShowMoreClick() {
     setShowFullDesc(!showFullDesc);
-  }
-
-  function renderEventBody() {
-    return (
-      <>
-        <a href="/community/testID">
-          <RSText type="subhead" color={colors.primaryText} size={14}>
-            Hosted by RootShare
-          </RSText>
-        </a>
-        <img src={BabyBoilersBanner} className={styles.banner} />
-        <RSText
-          type="body"
-          bold
-          size={14}
-          color={colors.primaryText}
-          className={styles.summary}
-        >
-          Robbie Hummel, Ja'Juan Johnson, and E'Twaun Moore return to talk about what
-          they have been up to since their time at Purdue
-        </RSText>
-        <RSText type="body" size={12} color={colors.primaryText}>
-          {showFullDesc && descriptionSubstr !== description
-            ? description
-            : descriptionSubstr.concat(' ...')}
-        </RSText>
-        <div className={styles.seeMoreButtonDiv}>
-          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-            See {showFullDesc ? 'less' : 'more'}
-          </Button>
-        </div>
-        <div className={styles.bottom}>
-          <RSText type="body" color={colors.secondaryText} size={13}>
-            98 Connections Signed Up
-          </RSText>
-          <Button variant="contained" className={styles.rsvpButton}>
-            RSVP YES
-          </Button>
-        </div>
-      </>
-    );
   }
 
   function renderEventHeader() {
     return (
       <div className={styles.top}>
         <RSText type="head" color={colors.primaryText} bold size={16}>
-          The Baby Boilers Are Back
+          {props.title}
         </RSText>
         <div
           style={{
@@ -129,7 +89,7 @@ function Event(props: Props) {
           }}
         >
           <RSText color={colors.secondaryText} italic>
-            August 14, 2020 7:00 PM
+            {props.timestamp}
           </RSText>
           <IconButton
             onClick={() => {
@@ -144,6 +104,46 @@ function Event(props: Props) {
           </IconButton>
         </div>
       </div>
+    );
+  }
+
+  function renderEventBody() {
+    return (
+      <>
+        <a href={`/community/${props.communityID}`}>
+          <RSText type="subhead" color={colors.primaryText} size={14}>
+            Hosted by {props.communityName}
+          </RSText>
+        </a>
+        <img src={BabyBoilersBanner} className={styles.banner} />
+        <RSText
+          type="body"
+          bold
+          size={14}
+          color={colors.primaryText}
+          className={styles.summary}
+        >
+          {props.summary}
+        </RSText>
+        <RSText type="body" size={12} color={colors.primaryText}>
+          {showFullDesc && descriptionSubstr !== props.description
+            ? props.description
+            : descriptionSubstr.concat(' ...')}
+        </RSText>
+        <div className={styles.seeMoreButtonDiv}>
+          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+            See {showFullDesc ? 'less' : 'more'}
+          </Button>
+        </div>
+        <div className={styles.bottom}>
+          <RSText type="body" color={colors.secondaryText} size={13}>
+            {props.mutualSignups} Connections Signed Up
+          </RSText>
+          <Button variant="contained" className={styles.rsvpButton}>
+            RSVP YES
+          </Button>
+        </div>
+      </>
     );
   }
 
