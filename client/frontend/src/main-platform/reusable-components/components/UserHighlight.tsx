@@ -1,9 +1,11 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { ReniHeadshot } from '../../../images/team';
+import { Button } from '@material-ui/core';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import { Button } from '@material-ui/core';
+
+import { ReniHeadshot } from '../../../images/team';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -36,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   name: {
-    marginBottom: 6,
+    marginBottom: 3,
   },
   noUnderline: {
     textDecoration: 'none',
@@ -70,13 +72,18 @@ function UserHighlight(props: Props) {
               Reni Patel
             </RSText>
           </a>
-          <RSText type="subhead" size={12} color={colors.primaryText}>
+          <RSText type="subhead" size={12} color={colors.secondaryText}>
             Purdue 2020
           </RSText>
-          <RSText type="subhead" size={12} color={colors.primaryText}>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.secondaryText}
+            className={styles.name}
+          >
             Head of Alumni Relations, RootShare
           </RSText>
-          <RSText type="subhead" size={12} color={colors.secondaryText}>
+          <RSText type="subhead" size={12} color={colors.primaryText}>
             178 Mutual Connections | 6 Mutal Organizations
           </RSText>
         </div>

@@ -6,7 +6,11 @@ import { TextField, IconButton } from '@material-ui/core';
 import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
-import { WelcomeMessage, UserHighlight } from '../../reusable-components';
+import {
+  WelcomeMessage,
+  UserHighlight,
+  CommunityHighlight,
+} from '../../reusable-components';
 
 const HEADER_HEIGHT = 60;
 
@@ -92,6 +96,9 @@ function DiscoverBody(props: Props) {
     const output = [];
     for (let i = 0; i < 1; i++) {
       output.push(<UserHighlight style={styles.singleResult} userID="testID" />);
+      output.push(
+        <CommunityHighlight style={styles.singleResult} communityID="testID" />
+      );
     }
     return output;
   }
