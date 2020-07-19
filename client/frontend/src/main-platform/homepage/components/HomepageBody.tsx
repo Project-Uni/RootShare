@@ -8,6 +8,8 @@ import RSText from '../../../base-components/RSText';
 import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
+import { JacksonHeadshot } from '../../../images/team';
+
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
@@ -73,7 +75,22 @@ function HomepageBody(props: Props) {
   }
 
   function renderFeed() {
-    return <UserPost />;
+    const output = [];
+    for (let i = 0; i < 6; i++)
+      output.push(
+        <UserPost
+          userID={'testID'}
+          userName="Jackson McCluskey"
+          profilePicture={JacksonHeadshot}
+          community="Computer Science Nerds Club"
+          communityID={'testCommID'}
+          timestamp="July 14th, 2020 6:52 PM"
+          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.;"
+          likeCount={109}
+          commentCount={54}
+        />
+      );
+    return output;
   }
 
   return (

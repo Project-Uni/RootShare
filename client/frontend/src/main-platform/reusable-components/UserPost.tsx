@@ -22,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
-    marginTop: 5,
+    marginTop: 10,
   },
   top: {
     display: 'flex',
@@ -110,7 +110,18 @@ const useTextFieldStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  userID: string;
+  userName: string;
+  community?: string;
+  communityID?: string;
+  timestamp: string;
+  profilePicture: any;
+  message: string;
+  likeCount: number;
+  commentCount: number;
+  style?: any;
+};
 
 function UserPost(props: Props) {
   const styles = useStyles();
@@ -118,13 +129,11 @@ function UserPost(props: Props) {
 
   const [showFullMessage, setShowFullMessage] = useState(false);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(104);
+  const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
 
-  const message =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.';
-  const shortenedMessage = message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
+  const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
@@ -145,31 +154,38 @@ function UserPost(props: Props) {
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a href="/profile/user_id" className={styles.noUnderline}>
-          <img src={CaiteHeadshot} className={styles.profilePic} />
+        <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+          <img src={props.profilePicture} className={styles.profilePic} />
         </a>
 
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
-            <a href="/profile/user_id" className={styles.noUnderline}>
+            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
               <RSText type="subhead" color={colors.primaryText} bold size={14}>
-                Caite Capezzuto
+                {props.userName}
               </RSText>
             </a>
 
-            <GiTreeBranch
-              color={colors.primaryText}
-              size={16}
-              className={styles.plantIcon}
-            />
-            <a href="/community/orgID" className={styles.noUnderline}>
-              <RSText type="subhead" color={colors.primaryText} bold size={14}>
-                Alpha Xi Delta
-              </RSText>
-            </a>
+            {props.community && (
+              <>
+                <GiTreeBranch
+                  color={colors.primaryText}
+                  size={16}
+                  className={styles.plantIcon}
+                />
+                <a
+                  href={`/community/${props.communityID}`}
+                  className={styles.noUnderline}
+                >
+                  <RSText type="subhead" color={colors.primaryText} bold size={14}>
+                    {props.community}
+                  </RSText>
+                </a>
+              </>
+            )}
           </div>
           <RSText type="subhead" color={colors.secondaryText} size={12} italic>
-            June 23, 2020 7:45 PM
+            {props.timestamp}
           </RSText>
         </div>
       </div>
@@ -185,9 +201,9 @@ function UserPost(props: Props) {
           size={12}
           className={styles.messageBody}
         >
-          {!showFullMessage && shortenedMessage !== message
+          {!showFullMessage && shortenedMessage !== props.message
             ? shortenedMessage.concat('  ...')
-            : message}
+            : props.message}
         </RSText>
         <div className={styles.seeMoreButtonDiv}>
           <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
@@ -223,7 +239,7 @@ function UserPost(props: Props) {
             size={12}
             className={styles.commentCount}
           >
-            102 Comments
+            {props.commentCount} Comments
           </RSText>
         </a>
       </div>
@@ -271,7 +287,7 @@ function UserPost(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={[styles.wrapper, props.style || null].join(' ')}>
       {renderPostHeader()}
       {renderMessage()}
       {renderLikesAndCommentCount()}
