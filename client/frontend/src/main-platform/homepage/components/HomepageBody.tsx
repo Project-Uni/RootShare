@@ -23,6 +23,13 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primary,
     marginTop: 80,
   },
+  posts: {
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  singlePost: {
+    marginTop: 10,
+  },
 }));
 
 type Props = {};
@@ -88,9 +95,10 @@ function HomepageBody(props: Props) {
           message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.;"
           likeCount={109}
           commentCount={54}
+          style={styles.singlePost}
         />
       );
-    return output;
+    return <div className={styles.posts}>{output}</div>;
   }
 
   return (

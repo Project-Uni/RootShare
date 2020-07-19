@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { WelcomeMessage } from '../../reusable-components';
+import { WelcomeMessage, UserPost } from '../../reusable-components';
 import { DhruvHeadshot } from '../../../images/team';
 
 const HEADER_HEIGHT = 60;
@@ -17,7 +17,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   body: {},
   coverPhoto: {
-    // background: 'lightgreen',
     background: colors.bright,
     height: 250,
   },
@@ -31,6 +30,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   event: {
     marginTop: 5,
+  },
+  post: {
+    marginTop: 10,
   },
 }));
 
@@ -78,6 +80,37 @@ function ProfileBody(props: Props) {
     );
   }
 
+  function renderPosts() {
+    const output = [];
+    for (let i = 0; i < 7; i++) {
+      output.push(
+        <UserPost
+          userID={'testID'}
+          userName="Dhruv Patel"
+          profilePicture={DhruvHeadshot}
+          timestamp="July 14th, 2020 6:52 PM"
+          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.;"
+          likeCount={109}
+          commentCount={54}
+          style={styles.post}
+        />
+      );
+    }
+    return (
+      <div
+        style={{
+          marginLeft: 10,
+          marginRight: 10,
+          marginTop: 10,
+          borderTop: `1px solid ${colors.secondaryText}`,
+          paddingTop: 4,
+        }}
+      >
+        {output}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {/* {showWelcomeModal && (
@@ -91,6 +124,7 @@ function ProfileBody(props: Props) {
         {renderProfileAndBackground()}
         <ProfileHead />
         {renderRegisteredEvents()}
+        {renderPosts()}
       </div>
     </div>
   );

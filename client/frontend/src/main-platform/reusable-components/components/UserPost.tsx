@@ -17,12 +17,9 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondary,
     borderRadius: 10,
-    marginLeft: 20,
-    marginRight: 20,
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
-    marginTop: 10,
   },
   top: {
     display: 'flex',
