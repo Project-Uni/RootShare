@@ -6,6 +6,7 @@ import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
+import { Comment } from './';
 import { CaiteHeadshot, AshwinHeadshot } from '../../images/team';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
@@ -248,38 +249,25 @@ function UserPost(props: Props) {
     );
   }
 
-  function renderSingleComment() {
-    return (
-      <div
-        style={{
-          borderBottom: `1px solid ${colors.secondaryText}`,
-          paddingTop: 10,
-          paddingBottom: 10,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-          <img src={AshwinHeadshot} className={styles.commentProfile} />
-          <div style={{ textAlign: 'left', marginLeft: 20 }}>
-            <RSText type="body" size={12} color={colors.primaryText} bold>
-              Ashwin Mahesh
-            </RSText>
-            <RSText type="body" size={10} color={colors.secondaryText} italic>
-              July 18, 2020 7:48 PM
-            </RSText>
-            <RSText type="body" size={12} color={colors.primaryText}>
-              This is a great comment! I will repeat again this is a great comment!
-              Hope you find some enjoyment in this comment!
-            </RSText>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   function renderComments() {
     const output = [];
-    for (let i = 0; i < 5; i++) output.push(renderSingleComment());
-    return <div className={styles.commentsContainer}>{output}</div>;
+    for (let i = 0; i < 5; i++)
+      output.push(
+        <Comment
+          userID="ABCD_TEST_123"
+          name="Ashwin Mahesh"
+          timestamp="July 11, 2020 7:45 PM"
+          message="This is a great comment! I will repeat again this is a great comment!
+          Hope you find some enjoyment in this comment!"
+          profilePicture={AshwinHeadshot}
+        />
+      );
+    return (
+      <div className={styles.commentsContainer}>
+        {output}
+        <Button className={styles.seeMoreButton}>More Comments</Button>
+      </div>
+    );
   }
 
   return (
