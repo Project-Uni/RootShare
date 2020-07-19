@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
+import { Event } from '../../reusable-components';
 
 const HEADER_HEIGHT = 60;
 
@@ -52,6 +53,10 @@ function EventsBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
+  function renderEvents() {
+    return <Event />;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -61,7 +66,7 @@ function EventsBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}></div>
+      <div className={styles.body}>{renderEvents()}</div>
     </div>
   );
 }
