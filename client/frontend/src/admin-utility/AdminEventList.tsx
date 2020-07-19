@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../theme/Colors';
 
 import AdminSingleEvent from './AdminSingleEvent';
+import RSText from '../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -24,7 +25,7 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
     label: colors.primaryText,
   },
-  event: {},
+  eventHeader: {},
 }));
 
 type Props = {
@@ -53,6 +54,9 @@ function AdminEventList(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      <RSText type="head" size={28} className={styles.eventHeader}>
+        Upcoming Events
+      </RSText>
       <div className={styles.adminEventContainer}>{renderEvents()}</div>
     </div>
   );
