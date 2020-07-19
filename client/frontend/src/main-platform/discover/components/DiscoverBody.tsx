@@ -11,6 +11,7 @@ import {
   UserHighlight,
   CommunityHighlight,
 } from '../../reusable-components';
+import { ReniHeadshot } from '../../../images/team';
 
 const HEADER_HEIGHT = 60;
 
@@ -95,7 +96,20 @@ function DiscoverBody(props: Props) {
   function renderMockSearch() {
     const output = [];
     for (let i = 0; i < 1; i++) {
-      output.push(<UserHighlight style={styles.singleResult} userID="testID" />);
+      output.push(
+        <UserHighlight
+          style={styles.singleResult}
+          userID="testID"
+          name="Reni Patel"
+          profilePic={ReniHeadshot}
+          university="Purdue"
+          graduationYear={2020}
+          position="Head of Alumni Relations"
+          company="RootShare"
+          mutualConnections={178}
+          mutualCommunities={6}
+        />
+      );
       output.push(
         <CommunityHighlight style={styles.singleResult} communityID="testID" />
       );

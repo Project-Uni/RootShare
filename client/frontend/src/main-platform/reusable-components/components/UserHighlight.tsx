@@ -5,8 +5,6 @@ import { Button } from '@material-ui/core';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-import { ReniHeadshot } from '../../../images/team';
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -51,6 +49,14 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   style?: any;
   userID: string;
+  profilePic: any;
+  name: string;
+  university: string;
+  graduationYear: number;
+  position: string;
+  company: string;
+  mutualConnections: number;
+  mutualCommunities: number;
 };
 
 function UserHighlight(props: Props) {
@@ -59,7 +65,7 @@ function UserHighlight(props: Props) {
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div className={styles.left}>
         <a href={`/profile/${props.userID}`}>
-          <img src={ReniHeadshot} className={styles.profilePic} />
+          <img src={props.profilePic} className={styles.profilePic} />
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
@@ -69,11 +75,11 @@ function UserHighlight(props: Props) {
               color={colors.primaryText}
               className={styles.name}
             >
-              Reni Patel
+              {props.name}
             </RSText>
           </a>
           <RSText type="subhead" size={12} color={colors.secondaryText}>
-            Purdue 2020
+            {props.university + ' ' + props.graduationYear}
           </RSText>
           <RSText
             type="subhead"
@@ -81,10 +87,11 @@ function UserHighlight(props: Props) {
             color={colors.secondaryText}
             className={styles.name}
           >
-            Head of Alumni Relations, RootShare
+            {props.position + ', ' + props.company}
           </RSText>
           <RSText type="subhead" size={12} color={colors.primaryText}>
-            178 Mutual Connections | 6 Mutal Organizations
+            {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
+            Mutal Communities
           </RSText>
         </div>
       </div>
