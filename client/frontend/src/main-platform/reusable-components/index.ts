@@ -5,4 +5,14 @@ import UserPost from './components/UserPost';
 import Comment from './components/Comment';
 import Event from './components/Event';
 
-export { MainNavigator, DiscoverySidebar, WelcomeMessage, UserPost, Comment, Event };
+import UserHighlight from './components/UserHighlight';
+
+export {
+  MainNavigator,
+  DiscoverySidebar,
+  WelcomeMessage,
+  UserPost,
+  Comment,
+  Event,
+  UserHighlight,
+};

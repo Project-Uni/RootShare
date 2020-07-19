@@ -6,7 +6,7 @@ import { TextField, IconButton } from '@material-ui/core';
 import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
-import { WelcomeMessage } from '../../reusable-components';
+import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 
 const HEADER_HEIGHT = 60;
 
@@ -24,6 +24,12 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  resultsContainer: {},
+  singleResult: {
+    marginTop: 10,
     marginLeft: 20,
     marginRight: 20,
   },
@@ -57,6 +63,39 @@ function DiscoverBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
+  function renderSearchArea() {
+    return (
+      <div className={styles.searchBarContainer}>
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={autocompleteResults}
+          className={styles.searchBar}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search for users or communities"
+              margin="normal"
+              variant="outlined"
+              InputProps={{ ...params.InputProps, type: 'search' }}
+            />
+          )}
+        />
+        <IconButton>
+          <FaSearch size={22} color={colors.primary} />
+        </IconButton>
+      </div>
+    );
+  }
+
+  function renderMockSearch() {
+    const output = [];
+    for (let i = 0; i < 1; i++) {
+      output.push(<UserHighlight style={styles.singleResult} userID="testID" />);
+    }
+    return output;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -67,26 +106,8 @@ function DiscoverBody(props: Props) {
         />
       )}
       <div className={styles.body}>
-        <div className={styles.searchBarContainer}>
-          <Autocomplete
-            freeSolo
-            disableClearable
-            options={autocompleteResults}
-            className={styles.searchBar}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search for users or communities"
-                margin="normal"
-                variant="outlined"
-                InputProps={{ ...params.InputProps, type: 'search' }}
-              />
-            )}
-          />
-          <IconButton>
-            <FaSearch size={22} color={colors.primary} />
-          </IconButton>
-        </div>
+        {renderSearchArea()}
+        <div className={styles.resultsContainer}>{renderMockSearch()}</div>
       </div>
     </div>
   );
