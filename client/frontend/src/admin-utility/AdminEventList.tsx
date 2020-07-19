@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 
 import { colors } from '../theme/Colors';
-import log from '../helpers/logger';
 
 import AdminSingleEvent from './AdminSingleEvent';
+import { FileExport } from '@styled-icons/boxicons-solid';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 400,
     border: '1px solid black',
     borderRadius: 10,
-    margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
     height: '90vh',
@@ -20,9 +18,10 @@ const useStyles = makeStyles((_: any) => ({
 
   adminEventContainer: {
     height: '100%',
-    flex: 1,
-    justifyContent: 'flex-end',
-    //background: colors.secondary,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
     overflow: 'scroll',
     label: colors.primaryText,
   },

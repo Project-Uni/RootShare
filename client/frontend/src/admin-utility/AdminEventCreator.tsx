@@ -23,7 +23,6 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
-import { colors } from '../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -34,16 +33,15 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 100,
   },
   holder: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
   },
   formBody: {
     width: 400,
     border: '1px solid black',
     borderRadius: 10,
-    margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 10,
