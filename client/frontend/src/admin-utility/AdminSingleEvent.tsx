@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
-import { FaEllipsisH } from 'react-icons/fa';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import RootShareLogoFullWhite from '../../images/RootShareLogoFullWhite.png';
 
 import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';

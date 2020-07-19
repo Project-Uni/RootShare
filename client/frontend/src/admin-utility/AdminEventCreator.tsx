@@ -23,6 +23,7 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
+import { colors } from '../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -54,6 +55,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   cancelButton: {
+    color: 'red',
     padding: 0,
     margin: 0,
   },
@@ -472,7 +474,7 @@ function AdminEventCreator(props: Props) {
         </RSText>
         {editEvent !== '' ? (
           <IconButton className={styles.cancelButton} onClick={resetData}>
-            <RSText size={14}>Cancel Update</RSText>
+            <RSText size={18}>Cancel Update</RSText>
           </IconButton>
         ) : (
           <span />
