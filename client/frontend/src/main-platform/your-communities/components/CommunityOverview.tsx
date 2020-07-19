@@ -6,8 +6,6 @@ import { FaLock } from 'react-icons/fa';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -53,10 +51,21 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
-  private?: boolean;
   name: string;
-  style?: any;
   description: string;
+  private?: boolean;
+  type:
+    | 'Social'
+    | 'Business'
+    | 'Just for Fun'
+    | 'Athletics'
+    | 'Student Organization'
+    | 'Academic';
+  memberCount: number;
+  mutualMemberCount: number;
+  profilePicture: any;
+  style?: any;
+  joinedDate: string;
 };
 
 function CommunityOverview(props: Props) {
@@ -81,7 +90,7 @@ function CommunityOverview(props: Props) {
     return (
       <div className={styles.secondRow}>
         <RSText color={colors.primary} size={12} type="body">
-          Student Organization
+          {props.type}
         </RSText>
         <RSText
           color={colors.secondaryText}
@@ -92,7 +101,7 @@ function CommunityOverview(props: Props) {
           |
         </RSText>
         <RSText color={colors.primary} size={12} type="body">
-          7054 Members
+          {props.memberCount} Members
         </RSText>
         <RSText
           color={colors.secondaryText}
@@ -103,7 +112,7 @@ function CommunityOverview(props: Props) {
           |
         </RSText>
         <RSText color={colors.primary} size={12} type="body">
-          56 Mutual
+          {props.mutualMemberCount} Mutual
         </RSText>
       </div>
     );
@@ -112,7 +121,7 @@ function CommunityOverview(props: Props) {
   return (
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <a href={`/community/${props.communityID}`}>
-        <img src={PurdueHypeBanner} className={styles.profilePic} />
+        <img src={props.profilePicture} className={styles.profilePic} />
       </a>
       <div className={styles.communityBody}>
         {renderName()}
@@ -126,7 +135,7 @@ function CommunityOverview(props: Props) {
           {props.description}
         </RSText>
         <RSText color={colors.primary} size={11} italic type="body">
-          Joined April 29, 2020
+          Joined {props.joinedDate}
         </RSText>
       </div>
     </div>
