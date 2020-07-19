@@ -36,7 +36,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  profileID: string;
+};
 
 function ProfileBody(props: Props) {
   const styles = useStyles();
@@ -74,7 +76,15 @@ function ProfileBody(props: Props) {
 
   function renderRegisteredEvents() {
     const output = [];
-    for (let i = 0; i < 4; i++) output.push(<ProfileEvent style={styles.event} />);
+    for (let i = 0; i < 4; i++)
+      output.push(
+        <ProfileEvent
+          title="The Baby Boilers Are Back"
+          date="Aug 14, 2020"
+          participationType="SPEAKER"
+          style={styles.event}
+        />
+      );
     return (
       <div style={{ marginLeft: 6, marginRight: 6, marginTop: 20 }}>{output}</div>
     );
@@ -122,7 +132,20 @@ function ProfileBody(props: Props) {
       )} */}
       <div className={styles.body}>
         {renderProfileAndBackground()}
-        <ProfileHead />
+        <ProfileHead
+          name="Dhruv Patel"
+          userID="testID"
+          university="Purdue University"
+          graduationYear={2020}
+          position="Chief Operating Officer"
+          company="RootShare"
+          bio="Hello! My name is Dhruv Patel and I am a big fan of Roots! I love roots so
+          much that I started a company where we can all share our roots. I hope you
+          guys enjoy my profile! Big Root guy here."
+          numConnections={804}
+          numMutualConnections={78}
+          numCommunities={6}
+        />
         {renderRegisteredEvents()}
         {renderPosts()}
       </div>

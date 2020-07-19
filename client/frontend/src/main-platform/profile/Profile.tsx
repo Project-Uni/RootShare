@@ -77,7 +77,7 @@ function Profile(props: Props) {
       <EventClientHeader />
       <div className={styles.body}>
         <MainNavigator currentTab="profile" />
-        <ProfileBody />
+        <ProfileBody profileID={profileID} />
         <DiscoverySidebar />
       </div>
     </div>

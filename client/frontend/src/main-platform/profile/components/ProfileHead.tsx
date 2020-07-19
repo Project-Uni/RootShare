@@ -39,7 +39,18 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  userID: string;
+  name: string;
+  university: string;
+  graduationYear: number;
+  position: string;
+  company: string;
+  bio: string;
+  numConnections: number;
+  numMutualConnections: number;
+  numCommunities: number;
+};
 
 function ProfileHead(props: Props) {
   const styles = useStyles();
@@ -48,13 +59,13 @@ function ProfileHead(props: Props) {
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
         <RSText type="head" size={24} bold color={colors.primary}>
-          Dhruv Patel
+          {props.name}
         </RSText>
         <RSText type="subhead" size={14} color={colors.secondaryText}>
-          Purdue 2020
+          {props.university + ' ' + props.graduationYear}
         </RSText>
         <RSText type="subhead" size={14} color={colors.secondaryText}>
-          Chief Operating Officer, RootShare
+          {props.position + ', ' + props.company}
         </RSText>
         <RSText
           type="subhead"
@@ -62,9 +73,7 @@ function ProfileHead(props: Props) {
           color={colors.primary}
           className={styles.bio}
         >
-          Hello! My name is Dhruv Patel and I am a big fan of Roots! I love roots so
-          much that I started a company where we can all share our roots. I hope you
-          guys enjoy my profile! Big Root guy here.
+          {props.bio}
         </RSText>
       </div>
       <div className={styles.headRight}>
@@ -78,7 +87,7 @@ function ProfileHead(props: Props) {
           italic
           className={styles.numbers}
         >
-          804 Connections
+          {props.numConnections} Connections
         </RSText>
         <RSText
           type="subhead"
@@ -87,7 +96,7 @@ function ProfileHead(props: Props) {
           italic
           className={styles.numbers}
         >
-          34 Mutual
+          {props.numMutualConnections} Mutual
         </RSText>
         <RSText
           type="subhead"
@@ -96,7 +105,7 @@ function ProfileHead(props: Props) {
           italic
           className={styles.numbers}
         >
-          6 Communities
+          {props.numCommunities} Communities
         </RSText>
       </div>
     </div>

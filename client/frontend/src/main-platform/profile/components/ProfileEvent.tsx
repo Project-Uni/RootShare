@@ -24,6 +24,9 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  title: string;
+  date: string;
+  participationType: 'ATTENDEE' | 'SPEAKER' | 'HOST';
   style?: any;
 };
 
@@ -39,7 +42,7 @@ function ProfileEvent(props: Props) {
         }}
       >
         <RSText type="body" size={11} italic color={colors.secondaryText}>
-          Aug 14, 2020
+          {props.date}
         </RSText>
         <RSText
           type="body"
@@ -48,12 +51,12 @@ function ProfileEvent(props: Props) {
           color={colors.primaryText}
           className={styles.eventTitle}
         >
-          The Baby Boilers are Back
+          {props.title}
         </RSText>
       </div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <RSText type="body" size={12} color={colors.primaryText}>
-          SPEAKER
+          {props.participationType}
         </RSText>
         <IconButton>
           <BsChevronDown size={12} color={colors.secondaryText} />
