@@ -93,6 +93,11 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'center',
     marginBottom: 15,
   },
+  commentsContainer: {
+    borderTop: `1px solid ${colors.primaryText}`,
+    borderBottom: `1px solid ${colors.primaryText}`,
+    marginBottom: 15,
+  },
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -114,6 +119,7 @@ function UserPost(props: Props) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(104);
   const [comment, setComment] = useState('');
+  const [showComments, setShowComments] = useState(false);
 
   const message =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis.';
@@ -205,7 +211,11 @@ function UserPost(props: Props) {
         <RSText type="body" color={colors.secondaryText} size={12}>
           {likeCount} Likes
         </RSText>
-        <a href={undefined} className={styles.commentCountLink}>
+        <a
+          href={undefined}
+          className={styles.commentCountLink}
+          onClick={() => setShowComments(!showComments)}
+        >
           <RSText
             type="body"
             color={colors.secondaryText}
@@ -237,11 +247,47 @@ function UserPost(props: Props) {
       </div>
     );
   }
+
+  function renderSingleComment() {
+    return (
+      <div
+        style={{
+          borderBottom: `1px solid ${colors.secondaryText}`,
+          paddingTop: 10,
+          paddingBottom: 10,
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <img src={AshwinHeadshot} className={styles.commentProfile} />
+          <div style={{ textAlign: 'left', marginLeft: 20 }}>
+            <RSText type="body" size={12} color={colors.primaryText} bold>
+              Ashwin Mahesh
+            </RSText>
+            <RSText type="body" size={10} color={colors.secondaryText} italic>
+              July 18, 2020 7:48 PM
+            </RSText>
+            <RSText type="body" size={12} color={colors.primaryText}>
+              This is a great comment! I will repeat again this is a great comment!
+              Hope you find some enjoyment in this comment!
+            </RSText>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderComments() {
+    const output = [];
+    for (let i = 0; i < 5; i++) output.push(renderSingleComment());
+    return <div className={styles.commentsContainer}>{output}</div>;
+  }
+
   return (
     <div className={styles.wrapper}>
       {renderPostHeader()}
       {renderMessage()}
       {renderLikesAndCommentCount()}
+      {showComments && renderComments()}
       {renderLeaveCommentArea()}
     </div>
   );
