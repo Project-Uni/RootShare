@@ -36,7 +36,7 @@ export async function createEvent(
     sendEventEmailConfirmation(
       webinar,
       eventBody['speakerEmails'],
-      eventBody['hostEmail']
+      eventBody['host']['email']
     );
   });
 }
@@ -66,7 +66,7 @@ function updateEvent(eventBody, callback) {
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
-        eventBody['hostEmail']
+        eventBody['host']['email']
       );
       return callback(sendPacket(1, 'Successfully updated webinar'));
     });
@@ -87,8 +87,7 @@ export async function getAllEvents(callback) {
     .populate('host', 'firstName lastName email')
     .populate('speakers', 'firstName lastName email');
 
-  if (!webinars || webinars === undefined || webinars === null)
-    return callback(sendPacket(-1, 'Could not retrieve events'));
+  if (!webinars) return callback(sendPacket(-1, 'Could not retrieve events'));
 
   webinars.sort(timeStampCompare);
   const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
