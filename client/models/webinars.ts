@@ -9,6 +9,7 @@ var webinarSchema = new Schema(
     host: { type: Schema.ObjectId, ref: 'users' },
     speakers: [{ type: Schema.ObjectId, ref: 'users' }],
     attendees: [{ type: Schema.ObjectId, ref: 'users' }],
+    conversation: { type: Schema.ObjectId, ref: 'conversations' },
     dateTime: { type: Date },
     opentokSessionID: String,
     opentokBroadcastID: String,

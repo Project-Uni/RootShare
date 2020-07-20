@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
-const User = mongoose.model('users');
+const Conversation = mongoose.model('conversations');
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
@@ -20,6 +20,9 @@ export async function createEvent(
 ) {
   if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
 
+  const newEventConversation = new Conversation({
+    participants: [],
+  });
   const newWebinar = new Webinar({
     title: eventBody['title'],
     brief_description: eventBody['brief_description'],

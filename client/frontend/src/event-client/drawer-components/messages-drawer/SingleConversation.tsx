@@ -146,8 +146,8 @@ function SingleConversation(props: Props) {
   const conversationTimeStamp = getConversationTime(
     new Date(
       props.conversation.lastMessage !== undefined
-        ? props.conversation.lastMessage.timeCreated
-        : props.conversation.timeCreated
+        ? props.conversation.lastMessage.createdAt
+        : props.conversation.createdAt
     )
   );
 

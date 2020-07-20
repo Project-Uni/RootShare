@@ -18,7 +18,6 @@ module.exports = {
     let newConversation = new Conversation();
     newConversation.participants = recipients;
     newConversation.participants.push(userID);
-    newConversation.timeCreated = new Date();
     newConversation.save((err, conversation) => {
       if (err) {
         log('error', err);
@@ -58,7 +57,6 @@ module.exports = {
       newMessage.sender = userID;
       newMessage.senderName = userName;
       newMessage.content = message;
-      newMessage.timeCreated = new Date();
       newMessage.save((err) => {
         if (err) {
           log('error', err);
@@ -104,12 +102,12 @@ module.exports = {
     function timeStampCompare(ObjectA, ObjectB) {
       const a =
         ObjectA.lastMessage !== undefined
-          ? ObjectA.lastMessage.timeCreated
-          : ObjectA.timeCreated;
+          ? ObjectA.lastMessage.createdAt
+          : ObjectA.createdAt;
       const b =
         ObjectB.lastMessage !== undefined
-          ? ObjectB.lastMessage.timeCreated
-          : ObjectB.timeCreated;
+          ? ObjectB.lastMessage.createdAt
+          : ObjectB.createdAt;
 
       if (a < b) return 1;
       if (b < a) return -1;
@@ -140,7 +138,7 @@ module.exports = {
 
       Message.find(
         { conversationID },
-        ['sender', 'senderName', 'content', 'timeCreated'],
+        ['sender', 'senderName', 'content', 'createdAt'],
         (err, messages) => {
           if (err || messages === undefined || messages === null) {
             log('error', err);
@@ -154,7 +152,7 @@ module.exports = {
             })
           );
         }
-      ).sort({ timeCreated: 'ascending' });
+      ).sort({ createdAt: 'ascending' });
     });
   },
   connectSocketToConversations: (socket, conversations) => {
