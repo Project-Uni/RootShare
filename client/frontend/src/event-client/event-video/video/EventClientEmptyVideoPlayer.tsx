@@ -25,7 +25,6 @@ type Props = {
 
 function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
-  console.log('Rendering this component');
   return (
     <div className={styles.wrapper}>
       <div
