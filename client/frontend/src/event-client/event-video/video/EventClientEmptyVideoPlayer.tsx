@@ -26,7 +26,6 @@ type Props = {
 function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
 
-  console.log('NOT YET STARTED');
   return (
     <div className={styles.wrapper}>
       <div

@@ -17,8 +17,7 @@ module.exports = (app) => {
     isEventSpeaker,
     async (req, res) => {
       const { webinarID } = req.body;
-      const packet = await getOpenTokSessionID(webinarID);
-      res.json(packet);
+      getOpenTokSessionID(webinarID, (packet) => res.json(packet));
     }
   );
 

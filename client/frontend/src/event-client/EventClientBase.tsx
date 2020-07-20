@@ -149,6 +149,7 @@ function EventClientBase(props: Props) {
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
+          setEventMode={setEventMode}
         />
       );
   }

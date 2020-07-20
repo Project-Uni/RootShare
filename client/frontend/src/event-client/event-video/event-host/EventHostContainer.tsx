@@ -55,6 +55,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type EventMode = 'viewer' | 'speaker' | 'admin';
+
 type Props = {
   user: { [key: string]: any };
   accessToken: string;
@@ -63,6 +65,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
+  setEventMode: (mode: EventMode) => void;
 };
 
 function EventHostContainer(props: Props) {
@@ -324,7 +327,7 @@ function EventHostContainer(props: Props) {
       );
       setScreenshareCapable(screenshare);
       if (!eventSession) {
-        alert('DEV: INVALID CONNECTION. Redirect to other page');
+        props.setEventMode('viewer');
         return;
       }
       setSession((eventSession as unknown) as OT.Session);

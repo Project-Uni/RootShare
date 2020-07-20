@@ -20,7 +20,6 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Session token invalid');
     alert(data['message']);
     return false;
   }
