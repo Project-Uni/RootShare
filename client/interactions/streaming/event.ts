@@ -38,7 +38,7 @@ export async function createEvent(
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
-        eventBody['hostEmail']
+        eventBody['host']['email']
       );
     } else callback(sendPacket(1, 'Failed to create OpenTok Session'));
   });
@@ -61,7 +61,7 @@ function updateEvent(eventBody, callback) {
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
-        eventBody['hostEmail']
+        eventBody['host']['email']
       );
       return callback(sendPacket(1, 'Successfully updated webinar'));
     });
