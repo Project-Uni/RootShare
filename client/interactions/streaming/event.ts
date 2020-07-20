@@ -8,6 +8,7 @@ aws.config.loadFromPath('../keys/aws_key.json');
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 const { createNewOpenTokSession } = require('./opentok');
+import { formatTime, formatDate } from '../../helpers/dateFormat';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
@@ -18,14 +19,15 @@ export async function createEvent(
   user: { [key: string]: any },
   callback: (packet: any) => void
 ) {
+  if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
+
   const newWebinar = new Webinar({
     title: eventBody['title'],
     brief_description: eventBody['brief_description'],
     full_description: eventBody['full_description'],
-    host: eventBody['host'],
+    host: eventBody['host']['_id'],
     speakers: eventBody['speakers'],
-    date: eventBody['date'],
-    time: eventBody['time'],
+    dateTime: eventBody['dateTime'],
   });
 
   newWebinar.save((err, webinar) => {
@@ -36,10 +38,55 @@ export async function createEvent(
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
-        eventBody['hostEmail']
+        eventBody['host']['email']
       );
     } else callback(sendPacket(1, 'Failed to create OpenTok Session'));
   });
+}
+
+function updateEvent(eventBody, callback) {
+  Webinar.findById(eventBody['editEvent'], (err, webinar) => {
+    if (err || webinar === undefined || webinar === null)
+      return callback(sendPacket(-1, "Couldn't find event to update"));
+    webinar.title = eventBody['title'];
+    webinar.brief_description = eventBody['brief_description'];
+    webinar.full_description = eventBody['full_description'];
+    webinar.host = eventBody['host']['_id'];
+    webinar.speakers = eventBody['speakers'];
+    webinar.dateTime = eventBody['dateTime'];
+
+    webinar.save((err, webinar) => {
+      if (err) return callback(sendPacket(-1, "Couldn't update event"));
+
+      sendEventEmailConfirmation(
+        webinar,
+        eventBody['speakerEmails'],
+        eventBody['host']['email']
+      );
+      return callback(sendPacket(1, 'Successfully updated webinar'));
+    });
+  });
+}
+
+export function timeStampCompare(ObjectA, ObjectB) {
+  const a = ObjectA.dateTime !== undefined ? ObjectA.dateTime : new Date();
+  const b = ObjectB.dateTime !== undefined ? ObjectB.dateTime : new Date();
+
+  if (b < a) return 1;
+  if (a < b) return -1;
+  return 0;
+}
+
+export async function getAllEvents(callback) {
+  const webinars = await Webinar.find()
+    .populate('host', 'firstName lastName email')
+    .populate('speakers', 'firstName lastName email');
+
+  if (!webinars) return callback(sendPacket(-1, 'Could not retrieve events'));
+
+  webinars.sort(timeStampCompare);
+  const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
+  return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
 }
 
 export async function getWebinarDetails(userID, webinarID, callback) {
@@ -81,17 +128,26 @@ function sendEventEmailConfirmation(
   speakerEmails: string[],
   hostEmail: string
 ) {
+  const eventDateTime = webinarData['dateTime'];
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>${webinarData['title']}<b></p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['brief_description']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${
+    webinarData['brief_description']
+  }</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['full_description']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${
+    webinarData['full_description']
+  }</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${webinarData['date']} at ${webinarData['time']}<b></p>
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${webinarData['_id']}</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${formatDate(
+    eventDateTime
+  )} at ${formatTime(eventDateTime)}<b></p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${
+    webinarData['_id']
+  }</p>
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>See you there!</p>
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>-The RootShare Team</p>

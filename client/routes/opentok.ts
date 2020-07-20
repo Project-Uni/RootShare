@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
 
 import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 import { USER_LEVEL } from '../types/types';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
@@ -51,25 +50,6 @@ module.exports = (app) => {
     async (req, res) => {
       const { webinarID, type, streamID } = req.body;
       await changeBroadcastLayout(webinarID, type, streamID, (packet) => {
-        res.json(packet);
-      });
-    }
-  );
-
-  app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(0, 'User is not authorized to perform this action')
-      );
-    await createEvent(req.body, req.user, (packet) => res.json(packet));
-  });
-
-  app.get(
-    '/api/webinar/getDetails/:eventID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { eventID } = req.params;
-      await getWebinarDetails(req.user._id, eventID, (packet) => {
         res.json(packet);
       });
     }

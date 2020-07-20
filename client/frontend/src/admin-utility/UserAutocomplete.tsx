@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, Grid } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
@@ -22,9 +22,9 @@ type Props = {
 };
 
 type UserInfo = {
+  _id: string;
   firstName: string;
   lastName: string;
-  _id: string;
   email: string;
 };
 

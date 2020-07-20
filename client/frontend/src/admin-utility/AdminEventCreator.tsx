@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, TextField, Button, IconButton } from '@material-ui/core';
-
 import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+  CircularProgress,
+  TextField,
+  Button,
+  IconButton,
+  FormHelperText,
+} from '@material-ui/core';
+
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
 import { Redirect } from 'react-router-dom';
@@ -19,8 +21,10 @@ import RootShareLogoFull from '../images/RootShareLogoFull.png';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
+import AdminEventList from './AdminEventList';
 
 import { makeRequest } from '../helpers/makeRequest';
+import log from '../helpers/logger';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -30,20 +34,29 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     marginTop: 100,
   },
-  body: {
+  holder: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
+  },
+  formBody: {
     width: 400,
     border: '1px solid black',
     borderRadius: 10,
-    margin: 'auto',
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   rootshareLogo: {
     height: '90px',
     marginLeft: 30,
-    marginBottom: 10,
-    marginTop: 20,
+    marginBottom: 0,
+    marginTop: 10,
+  },
+  cancelButton: {
+    padding: 0,
+    margin: 0,
   },
   submitButton: {
     width: 250,
@@ -67,9 +80,13 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   dateBox: {
-    width: 150,
+    width: 200,
     marginLeft: 20,
     marginRight: 20,
+  },
+  dateErr: {
+    padding: 0,
+    margin: 0,
   },
   singleSpeaker: {
     display: 'flex',
@@ -94,6 +111,31 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
+type EventType = {
+  _id: string;
+  title: string;
+  brief_description: string;
+  full_description: string;
+  host: HostType;
+  speakers: SpeakerType[];
+  attendees: string[];
+  dateTime: Date;
+};
+
+type HostType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
+type SpeakerType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
 function AdminEventCreator(props: Props) {
   const styles = useStyles();
 
@@ -106,21 +148,21 @@ function AdminEventCreator(props: Props) {
   const [title, setTitle] = useState('');
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
-  const [eventDate, setEventDate] = useState(new Date());
-  const [eventTime, setEventTime] = useState(new Date());
-  const [hostID, setHostID] = useState('');
-  const [hostEmail, setHostEmail] = useState('');
-  const [speakers, setSpeakers] = useState([]);
-  const [currentSpeaker, setCurrentSpeakear] = useState('');
+  const [eventDateTime, setEventDateTime] = useState(new Date());
+  const [host, setHost] = useState<HostType | any>({});
+  const [speakers, setSpeakers] = useState<SpeakerType[]>([]);
+  const [currentSpeaker, setCurrentSpeaker] = useState('');
+
+  const [events, setEvents] = useState<EventType[]>([]);
+  const [editEvent, setEditEvent] = useState('');
 
   const [hostErr, setHostErr] = useState('');
   const [speakerErr, setSpeakerErr] = useState('');
   const [titleErr, setTitleErr] = useState('');
   const [briefDescErr, setBriefDescErr] = useState('');
   const [fullDescErr, setFullDescErr] = useState('');
+  const [dateTimeErr, setDateTimeErr] = useState('');
   const [topMessage, setTopMessage] = useState('');
-
-  const dateFns = new DateFnsUtils();
 
   useEffect(() => {
     setLoading(true);
@@ -151,6 +193,23 @@ function AdminEventCreator(props: Props) {
     return true;
   }
 
+  useEffect(() => {
+    updateEvents();
+  }, []);
+
+  async function updateEvents() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/webinar/getAllEvents',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] !== 1) return log('error', data['message']);
+    setEvents(data['content']['webinars']);
+  }
+
   function handleTitleChange(event: any) {
     setTitle(event.target.value);
   }
@@ -164,21 +223,15 @@ function AdminEventCreator(props: Props) {
     setFullDesc(event.target.value);
   }
 
-  function handleDateChange(date: any) {
-    setEventDate(date);
+  function handleDateTimeChange(dateTime: any) {
+    setEventDateTime(dateTime);
   }
 
-  function handleTimeChange(time: any) {
-    setEventTime(time);
-  }
-
-  function handleHostChange(_: any, newValue: any) {
+  function handleHostChange(_: any, newValue: HostType) {
     if (newValue === null) {
-      setHostID('');
-      setHostEmail('');
+      setHost({});
     } else {
-      setHostID(newValue['_id']);
-      setHostEmail(newValue['email']);
+      setHost(newValue);
     }
   }
 
@@ -206,10 +259,17 @@ function AdminEventCreator(props: Props) {
     }
   }
 
-  async function handleSubmit() {
-    const date = dateFns.format(eventDate, `MM/dd/yyy`);
-    const time = dateFns.format(eventTime, 'hh:mm aa');
+  function startEditing(event: EventType) {
+    setEditEvent(event._id);
+    setTitle(event.title);
+    setBriefDesc(event.brief_description);
+    setFullDesc(event.full_description);
+    setEventDateTime(event.dateTime);
+    setHost(event.host);
+    setSpeakers(event.speakers);
+  }
 
+  async function handleSubmit() {
     let hasErr = false;
     if (title.length === 0) {
       hasErr = true;
@@ -223,16 +283,18 @@ function AdminEventCreator(props: Props) {
       hasErr = true;
       setFullDescErr('Description is required');
     } else setFullDescErr('');
-    if (hostID === '') {
+    if (Object.keys(host).length === 0) {
       hasErr = true;
       setHostErr('Host is required');
     } else setHostErr('');
     if (speakers.length === 0) {
       hasErr = true;
-      setSpeakerErr('Atleast one speaker is required');
+      setSpeakerErr('At least one speaker is required');
     } else setSpeakerErr('');
-
-    //TODO - Add validation for date to check that its not before current day
+    if (eventDateTime < new Date()) {
+      hasErr = true;
+      setDateTimeErr('Event cannot be in the past');
+    } else setDateTimeErr('');
 
     if (hasErr) return;
 
@@ -240,14 +302,13 @@ function AdminEventCreator(props: Props) {
     const speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
 
     const API_DATA = {
+      editEvent: editEvent,
       title: title,
       brief_description: briefDesc,
       full_description: fullDesc,
-      host: hostID,
-      hostEmail: hostEmail,
+      host: host,
       speakers: speakerIDs,
-      date: date,
-      time: time,
+      dateTime: eventDateTime,
       speakerEmails: speakerEmails,
     };
     const { data } = await makeRequest(
@@ -259,33 +320,72 @@ function AdminEventCreator(props: Props) {
       props.refreshToken
     );
     if (data['success'] === 1) {
-      setTopMessage('s: Successfully created webinar.');
+      setTopMessage(`s: ${data['message']}`);
+      editClientEvents();
       resetData();
     } else setTopMessage('f: There was an error creating the webinar.');
+  }
+
+  function editClientEvents() {
+    if (editEvent === '') updateEvents();
+    else
+      setEvents((prevEvents) => {
+        let newEvents = prevEvents.slice();
+        newEvents.forEach((event) => {
+          if (event._id === editEvent) {
+            event.title = title;
+            event.brief_description = briefDesc;
+            event.full_description = fullDesc;
+            event.host = host;
+            event.speakers = speakers;
+            event.dateTime = eventDateTime;
+          }
+        });
+
+        return prevEvents;
+      });
   }
 
   function resetData() {
     setTitle('');
     setBriefDesc('');
     setFullDesc('');
-    setEventDate(new Date());
-    setEventTime(new Date());
-    setHostID('');
+    setEventDateTime(new Date());
+    setHost({});
     setSpeakers([]);
-    setCurrentSpeakear('');
-    setHostEmail('');
-
+    setCurrentSpeaker('');
     setHostErr('');
     setSpeakerErr('');
     setTitleErr('');
     setBriefDescErr('');
     setFullDescErr('');
+    setEditEvent('');
   }
 
   function removeSpeaker(index: number) {
     const newSpeakers = [...speakers];
     newSpeakers.splice(index, 1);
     setSpeakers(newSpeakers);
+  }
+
+  function renderHost() {
+    return (
+      <div className={styles.singleSpeaker}>
+        <RSText type="subhead" className={styles.speakerName} size={14}>
+          {`${host.firstName} ${host.lastName}`}
+        </RSText>
+        <RSText type="subhead" italic size={11}>
+          {host.email}
+        </RSText>
+        <IconButton
+          onClick={() => {
+            setHost({});
+          }}
+        >
+          <RSText type="subhead">X</RSText>
+        </IconButton>
+      </div>
+    );
   }
 
   function renderInvalid() {
@@ -300,7 +400,7 @@ function AdminEventCreator(props: Props) {
     const output = [];
     for (let i = 0; i < speakers.length; i++) {
       output.push(
-        <div className={styles.singleSpeaker}>
+        <div key={speakers[i]['email']} className={styles.singleSpeaker}>
           <RSText type="subhead" className={styles.speakerName} size={14}>
             {speakers[i]['firstName'] + ' ' + speakers[i]['lastName']}{' '}
           </RSText>
@@ -371,36 +471,29 @@ function AdminEventCreator(props: Props) {
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Event Date {'&'} Time
         </RSText>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <KeyboardDatePicker
-            margin="normal"
-            label="Event Date"
-            format="MM/dd/yyyy"
-            value={eventDate}
-            onChange={handleDateChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-            className={styles.dateBox}
-          />
-          <KeyboardTimePicker
-            margin="normal"
-            label="Event Time"
-            value={eventTime}
-            onChange={handleTimeChange}
-            KeyboardButtonProps={{
-              'aria-label': 'change time',
-            }}
-            className={styles.dateBox}
-          />
-        </MuiPickersUtilsProvider>
+        <FormHelperText error={dateTimeErr !== ''} className={styles.dateBox}>
+          <p className={styles.dateErr}>{dateTimeErr}</p>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+              margin="normal"
+              label="Event Date and Time"
+              format="MM/dd/yyyy @ h:mm a"
+              value={eventDateTime}
+              onChange={handleDateTimeChange}
+              minDate={new Date()}
+              minDateMessage={'Event cannot be in the past'}
+              className={styles.dateBox}
+            />
+          </MuiPickersUtilsProvider>
+        </FormHelperText>
 
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Host
         </RSText>
+        {Object.keys(host).length === 0 ? <span /> : renderHost()}
         <UserAutocomplete
           handleAutoCompleteChange={handleHostChange}
-          value={hostID}
+          value={host.firstName}
           err={hostErr}
           label="Host"
         />
@@ -421,15 +514,24 @@ function AdminEventCreator(props: Props) {
 
   function renderContent() {
     return (
-      <div className={styles.body}>
+      <div className={styles.formBody}>
         <img
           src={RootShareLogoFull}
           className={styles.rootshareLogo}
           alt="RootShare"
         />
-        <RSText type="head" size={32} className={styles.pageTitle}>
-          Create New Event
+        <RSText type="head" size={28} className={styles.pageTitle}>
+          {editEvent === '' ? 'Create New Event' : 'Update Event'}
         </RSText>
+        {editEvent !== '' ? (
+          <IconButton className={styles.cancelButton} onClick={resetData}>
+            <RSText size={18} color="red">
+              Cancel Update
+            </RSText>
+          </IconButton>
+        ) : (
+          <span />
+        )}
         <RSText
           type="subhead"
           size={14}
@@ -444,7 +546,7 @@ function AdminEventCreator(props: Props) {
           className={styles.submitButton}
           onClick={handleSubmit}
         >
-          CREATE
+          {editEvent === '' ? 'CREATE' : 'UPDATE'}
         </Button>
       </div>
     );
@@ -463,7 +565,10 @@ function AdminEventCreator(props: Props) {
       ) : showInvalid ? (
         renderInvalid()
       ) : (
-        renderContent()
+        <div className={styles.holder}>
+          {renderContent()}{' '}
+          <AdminEventList events={events} handleEdit={startEditing} />
+        </div>
       )}
     </div>
   );

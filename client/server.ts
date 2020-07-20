@@ -55,6 +55,7 @@ require('./routes/registrationExternal')(app);
 require('./routes/messaging')(app, io);
 
 require('./routes/opentok')(app);
+require('./routes/event')(app);
 require('./routes/utilities')(app);
 require('./routes/mocks')(app);
 
