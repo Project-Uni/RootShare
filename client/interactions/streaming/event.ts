@@ -52,6 +52,14 @@ function updateEvent(eventBody, callback) {
     webinar.speakers = eventBody['speakers'];
     webinar.dateTime = eventBody['dateTime'];
 
+    if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000) {
+      webinar.opentokSessionID = undefined;
+      webinar.opentokBroadcastID = undefined;
+      webinar.muxStreamKey = undefined;
+      webinar.muxLiveStreamID = undefined;
+      webinar.muxPlaybackID = undefined;
+    }
+
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
 
