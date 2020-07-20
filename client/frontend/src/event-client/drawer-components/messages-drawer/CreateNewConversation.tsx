@@ -100,12 +100,6 @@ function CreateNewConversation(props: Props) {
     getConnections();
   }, []);
 
-  function createNewThread() {}
-
-  function handleMessageChange(event: any) {
-    // setNewMessage(event.target.value);
-  }
-
   function handleSendMessage(message: string) {
     setNewRecipients(async (prevRecipients: any) => {
       if (prevRecipients.length === 0 || message === '') return [];

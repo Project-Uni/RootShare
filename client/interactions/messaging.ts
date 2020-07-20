@@ -12,12 +12,9 @@ module.exports = {
     const { message, recipients } = req.body;
     const { _id: userID, firstName } = req.user;
 
-    if (recipients === undefined)
-      return callback(sendPacket(-1, 'Could not find conversation'));
-
     let newConversation = new Conversation();
-    newConversation.participants = recipients;
-    newConversation.participants.push(userID);
+    newConversation.participants = module.exports.fixRecipients(recipients, userID);
+
     newConversation.save((err, conversation) => {
       if (err) {
         log('error', err);
@@ -36,6 +33,21 @@ module.exports = {
         callback
       );
     });
+  },
+
+  fixRecipients: (recipients, userID) => {
+    if (recipients === undefined) return [];
+
+    let hasSelf = false;
+    for (let i = 0; i < recipients.length; i++) {
+      if (recipients[i].localeCompare(userID) === 0) {
+        hasSelf = true;
+        break;
+      }
+    }
+
+    if (!hasSelf) return recipients.concat(userID);
+    return recipients;
   },
 
   removeConversation: (conversationID, callback) => {
