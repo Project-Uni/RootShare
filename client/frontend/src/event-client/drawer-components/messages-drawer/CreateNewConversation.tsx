@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import axios from 'axios';
 
 import RSText from '../../../base-components/RSText';
 import { TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 import { Autocomplete } from '@material-ui/lab';
-import { MdSend } from 'react-icons/md';
-import { FaRegSmile } from 'react-icons/fa';
 
+import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/makeRequest';
 import log from '../../../helpers/logger';
+
 import MessageTextField from './MessageTextField';
 
 const useStyles = makeStyles((_: any) => ({
@@ -87,6 +86,8 @@ type Props = {
   user: any;
   selectConversation: (conversation: any) => void;
   setNewConversation: (conversation: any) => void;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function CreateNewConversation(props: Props) {
@@ -106,18 +107,20 @@ function CreateNewConversation(props: Props) {
   }
 
   function handleSendMessage(message: string) {
-    setNewRecipients((prevRecipients: any) => {
+    setNewRecipients(async (prevRecipients: any) => {
       if (prevRecipients.length === 0 || message === '') return [];
 
-      axios
-        .post('/api/messaging/createThread', {
-          recipients: prevRecipients,
-          message: message,
-        })
-        .then((response) => {
-          if (response.data.success === 1)
-            props.selectConversation(response.data.content.currConversation);
-        });
+      const { data } = await makeRequest(
+        'POST',
+        '/api/messaging/createThread',
+        { recipients: prevRecipients, message: message },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      if (data['success'] === 1)
+        props.selectConversation(data['content']['currConversation']);
 
       return [];
     });
@@ -137,16 +140,16 @@ function CreateNewConversation(props: Props) {
   }
 
   // change this to get users' actual connections
-  function getConnections() {
-    axios
-      .get('/user/getConnections')
-      .then((response) => {
-        if (response.data.success === 1)
-          setConnections(response.data.content.connections);
-      })
-      .catch((err) => {
-        log('error', err);
-      });
+  async function getConnections() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getConnections',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
   function renderOption(option: any) {
@@ -220,4 +223,15 @@ function CreateNewConversation(props: Props) {
   );
 }
 
-export default CreateNewConversation;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateNewConversation);
