@@ -111,25 +111,25 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
-type eventType = {
+type EventType = {
   _id: string;
   title: string;
   brief_description: string;
   full_description: string;
-  host: hostType;
-  speakers: speakerType[];
+  host: HostType;
+  speakers: SpeakerType[];
   attendees: string[];
   dateTime: Date;
 };
 
-type hostType = {
+type HostType = {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
 };
 
-type speakerType = {
+type SpeakerType = {
   _id: string;
   firstName: string;
   lastName: string;
@@ -149,11 +149,11 @@ function AdminEventCreator(props: Props) {
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
   const [eventDateTime, setEventDateTime] = useState(new Date());
-  const [host, setHost] = useState<hostType | any>({});
-  const [speakers, setSpeakers] = useState<speakerType[]>([]);
+  const [host, setHost] = useState<HostType | any>({});
+  const [speakers, setSpeakers] = useState<SpeakerType[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState('');
 
-  const [events, setEvents] = useState<eventType[]>([]);
+  const [events, setEvents] = useState<EventType[]>([]);
   const [editEvent, setEditEvent] = useState('');
 
   const [hostErr, setHostErr] = useState('');
@@ -227,7 +227,7 @@ function AdminEventCreator(props: Props) {
     setEventDateTime(dateTime);
   }
 
-  function handleHostChange(_: any, newValue: hostType) {
+  function handleHostChange(_: any, newValue: HostType) {
     if (newValue === null) {
       setHost({});
     } else {
@@ -259,7 +259,7 @@ function AdminEventCreator(props: Props) {
     }
   }
 
-  function startEditing(event: eventType) {
+  function startEditing(event: EventType) {
     setEditEvent(event._id);
     setTitle(event.title);
     setBriefDesc(event.brief_description);
