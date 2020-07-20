@@ -322,6 +322,7 @@ function EventHostContainer(props: Props) {
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
+        setLoading,
         props.accessToken,
         props.refreshToken
       );
@@ -333,8 +334,8 @@ function EventHostContainer(props: Props) {
       setSession((eventSession as unknown) as OT.Session);
 
       setTimeout(() => {
-        setLoading(false);
-      }, 500);
+        // setLoading(false);
+      }, 1500);
     } else {
       log('error', 'Error connecting to session');
       setLoadingErr(true);
