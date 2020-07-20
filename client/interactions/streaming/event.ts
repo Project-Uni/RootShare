@@ -68,16 +68,16 @@ function updateEvent(eventBody, callback) {
   });
 }
 
+export function timeStampCompare(ObjectA, ObjectB) {
+  const a = ObjectA.dateTime !== undefined ? ObjectA.dateTime : new Date();
+  const b = ObjectB.dateTime !== undefined ? ObjectB.dateTime : new Date();
+
+  if (b < a) return 1;
+  if (a < b) return -1;
+  return 0;
+}
+
 export async function getAllEvents(callback) {
-  function timeStampCompare(ObjectA, ObjectB) {
-    const a = ObjectA.dateTime !== undefined ? ObjectA.dateTime : new Date();
-    const b = ObjectB.dateTime !== undefined ? ObjectB.dateTime : new Date();
-
-    if (b < a) return 1;
-    if (a < b) return -1;
-    return 0;
-  }
-
   const webinars = await Webinar.find()
     .populate('host', 'firstName lastName email')
     .populate('speakers', 'firstName lastName email');
