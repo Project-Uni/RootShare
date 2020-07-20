@@ -27,8 +27,9 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 20,
   },
   singleCommunity: {
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 10,
   },
 }));
 

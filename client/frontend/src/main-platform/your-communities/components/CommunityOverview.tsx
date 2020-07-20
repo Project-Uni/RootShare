@@ -11,15 +11,18 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     textAlign: 'left',
-    borderBottom: `1px solid ${colors.primary}`,
-    paddingBottom: 10,
-    paddingTop: 10,
+    paddingBottom: 20,
+    paddingTop: 20,
+    background: colors.secondary,
+    borderRadius: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   profilePic: {
     width: 80,
     height: 80,
     borderRadius: 100,
-    border: `1px solid ${colors.primary}`,
+    border: `1px solid ${colors.primaryText}`,
   },
   communityBody: {
     flex: 1,
@@ -75,7 +78,7 @@ function CommunityOverview(props: Props) {
     return (
       <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <RSText type="head" size={14} color={colors.primary}>
+          <RSText type="head" size={14} color={colors.primaryText}>
             {props.name}
           </RSText>
           {props.private && (
@@ -89,7 +92,7 @@ function CommunityOverview(props: Props) {
   function renderTypeAndCounts() {
     return (
       <div className={styles.secondRow}>
-        <RSText color={colors.primary} size={12} type="body">
+        <RSText color={colors.primaryText} size={12} type="body">
           {props.type}
         </RSText>
         <RSText
@@ -100,7 +103,7 @@ function CommunityOverview(props: Props) {
         >
           |
         </RSText>
-        <RSText color={colors.primary} size={12} type="body">
+        <RSText color={colors.primaryText} size={12} type="body">
           {props.memberCount} Members
         </RSText>
         <RSText
@@ -111,7 +114,7 @@ function CommunityOverview(props: Props) {
         >
           |
         </RSText>
-        <RSText color={colors.primary} size={12} type="body">
+        <RSText color={colors.primaryText} size={12} type="body">
           {props.mutualMemberCount} Mutual
         </RSText>
       </div>
@@ -129,12 +132,12 @@ function CommunityOverview(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primary}
+          color={colors.secondaryText}
           className={styles.description}
         >
           {props.description}
         </RSText>
-        <RSText color={colors.primary} size={11} italic type="body">
+        <RSText color={colors.primaryText} size={11} italic type="body">
           Joined {props.joinedDate}
         </RSText>
       </div>
