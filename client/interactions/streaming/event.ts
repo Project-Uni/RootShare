@@ -82,8 +82,7 @@ export async function getAllEvents(callback) {
     .populate('host', 'firstName lastName email')
     .populate('speakers', 'firstName lastName email');
 
-  if (!webinars || webinars === undefined || webinars === null)
-    return callback(sendPacket(-1, 'Could not retrieve events'));
+  if (!webinars) return callback(sendPacket(-1, 'Could not retrieve events'));
 
   webinars.sort(timeStampCompare);
   const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
