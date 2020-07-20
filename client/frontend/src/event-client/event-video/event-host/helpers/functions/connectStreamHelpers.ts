@@ -63,7 +63,7 @@ export async function createEventSession(
     self: boolean
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void,
-  setLoading: (newLoading: boolean) => void
+  setPublisherLoading: (newLoading: boolean) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
@@ -83,7 +83,7 @@ export async function createEventSession(
         if (err) alert(err.message);
       });
       setCameraPublisher(publisher);
-      setLoading(false);
+      setPublisherLoading(false);
       return eventSession;
     }
   });

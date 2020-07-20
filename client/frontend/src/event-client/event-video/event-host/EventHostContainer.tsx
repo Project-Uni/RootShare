@@ -78,6 +78,7 @@ function EventHostContainer(props: Props) {
   const [webinarID, setWebinarID] = useState(-1);
 
   const [loading, setLoading] = useState(true);
+  const [publisherLoading, setPublisherLoading] = useState(true);
   const [loadingErr, setLoadingErr] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -322,7 +323,7 @@ function EventHostContainer(props: Props) {
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
-        setLoading,
+        setPublisherLoading,
         props.accessToken,
         props.refreshToken
       );
@@ -334,8 +335,8 @@ function EventHostContainer(props: Props) {
       setSession((eventSession as unknown) as OT.Session);
 
       setTimeout(() => {
-        // setLoading(false);
-      }, 1500);
+        setLoading(false);
+      }, 500);
     } else {
       log('error', 'Error connecting to session');
       setLoadingErr(true);
@@ -399,7 +400,7 @@ function EventHostContainer(props: Props) {
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
-        loading={loading}
+        loading={publisherLoading}
       />
     </div>
   );
