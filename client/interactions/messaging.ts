@@ -129,7 +129,7 @@ module.exports = {
     callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
   },
 
-  getLatestMessages: async (userID, conversationID, callback) => {
+  getLatestMessages: async (conversationID, callback) => {
     Conversation.findById(conversationID, (err, conversation) => {
       if (err || conversation === undefined || conversation === null) {
         log('error', err);

@@ -23,24 +23,30 @@ export async function createEvent(
   const newEventConversation = new Conversation({
     participants: [],
   });
-  const newWebinar = new Webinar({
-    title: eventBody['title'],
-    brief_description: eventBody['brief_description'],
-    full_description: eventBody['full_description'],
-    host: eventBody['host']['_id'],
-    speakers: eventBody['speakers'],
-    dateTime: eventBody['dateTime'],
-  });
+  newEventConversation.save((err, conversation) => {
+    if (err || conversation === undefined || conversation === null)
+      return callback(sendPacket(-1, 'Failed to create event conversation'));
 
-  newWebinar.save((err, webinar) => {
-    if (err) return callback(sendPacket(0, 'Failed to create webinar'));
+    const newWebinar = new Webinar({
+      title: eventBody['title'],
+      brief_description: eventBody['brief_description'],
+      full_description: eventBody['full_description'],
+      host: eventBody['host']['_id'],
+      speakers: eventBody['speakers'],
+      dateTime: eventBody['dateTime'],
+      conversation: newEventConversation._id,
+    });
+    newWebinar.save((err, webinar) => {
+      if (err || webinar === undefined || webinar === null)
+        return callback(sendPacket(-1, 'Failed to create webinar'));
 
-    callback(sendPacket(1, 'Successfully created webinar', webinar));
-    sendEventEmailConfirmation(
-      webinar,
-      eventBody['speakerEmails'],
-      eventBody['host']['email']
-    );
+      callback(sendPacket(1, 'Successfully created webinar', webinar));
+      sendEventEmailConfirmation(
+        webinar,
+        eventBody['speakerEmails'],
+        eventBody['host']['email']
+      );
+    });
   });
 }
 
@@ -108,6 +114,7 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       'speakers',
       'attendees',
       'dateTime',
+      'conversation',
       'muxPlaybackID',
     ],
     (err, webinar) => {

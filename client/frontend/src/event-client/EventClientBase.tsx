@@ -208,7 +208,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer />
+          <EventClientMessageContainer conversationID={webinarData.conversation} />
         </div>
       </div>
     </div>

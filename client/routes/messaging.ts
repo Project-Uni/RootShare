@@ -3,15 +3,13 @@ var mongoose = require('mongoose');
 var User = mongoose.model('users');
 import log from '../helpers/logger';
 
-import { isAuthenticated } from '../passport/middleware/isAuthenticated';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 const {
   createThread,
   sendMessage,
   getLatestThreads,
   getLatestMessages,
-  connectSocketToConversation,
   connectSocketToConversations,
-  connectSocketToUser,
 } = require('../interactions/messaging');
 
 module.exports = (app, io) => {
@@ -32,7 +30,7 @@ module.exports = (app, io) => {
     });
   });
 
-  app.post('/api/messaging/sendMessage', isAuthenticated, (req, res) => {
+  app.post('/api/messaging/sendMessage', isAuthenticatedWithJWT, (req, res) => {
     sendMessage(
       req.user._id,
       req.user.firstName,
@@ -45,21 +43,25 @@ module.exports = (app, io) => {
     );
   });
 
-  app.post('/api/messaging/createThread', isAuthenticated, (req, res) => {
+  app.post('/api/messaging/createThread', isAuthenticatedWithJWT, (req, res) => {
     createThread(req, io, (packet) => {
       res.send(packet);
     });
   });
 
-  app.get('/api/messaging/getLatestThreads', isAuthenticated, (req, res) => {
+  app.get('/api/messaging/getLatestThreads', isAuthenticatedWithJWT, (req, res) => {
     getLatestThreads(req.user._id, (packet) => {
       res.send(packet);
     });
   });
 
-  app.post('/api/messaging/getLatestMessages', isAuthenticated, (req, res) => {
-    getLatestMessages(req.user._id, req.body.conversationID, (packet) => {
-      res.send(packet);
-    });
-  });
+  app.post(
+    '/api/messaging/getLatestMessages',
+    isAuthenticatedWithJWT,
+    (req, res) => {
+      getLatestMessages(req.body.conversationID, (packet) => {
+        res.send(packet);
+      });
+    }
+  );
 };

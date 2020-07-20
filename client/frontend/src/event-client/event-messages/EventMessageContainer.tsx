@@ -3,7 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { TextField, IconButton } from '@material-ui/core';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
-import RSText from '../../base-components/RSText';
+
+import { connect } from 'react-redux';
+import { makeRequest } from '../../helpers/makeRequest';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
@@ -74,7 +76,20 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type MessageType = {
+  _id: string;
+  conversationID: string;
+  senderName: string;
+  sender: string;
+  content: string;
+  createdAt: string;
+};
+
+type Props = {
+  conversationID: string;
+  accessToken: string;
+  refreshToken: string;
+};
 
 function getDate() {
   let tempDate = new Date();
@@ -95,28 +110,79 @@ function getDate() {
 
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
-  const [message, setMessage] = useState('');
+
+  const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    fetchMessages();
+  }, [props.conversationID]);
+
+  async function fetchMessages() {
+    if (props.conversationID === undefined) return;
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/getLatestMessages',
+      {
+        conversationID: props.conversationID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) return;
+    const messages = data['content']['messages'];
+    setMessages(messages);
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function handleMessageChange(event: any) {
-    setMessage(event.target.value);
+    setNewMessage(event.target.value);
   }
 
   function handleSendMessage() {
-    console.log(`Sending message: ${message}`);
-    setMessage('');
+    setNewMessage((prevMessage) => {
+      makeRequest(
+        'POST',
+        '/api/messaging/sendMessage',
+        { conversationID: props.conversationID, message: prevMessage },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      return '';
+    });
   }
 
   function handleEmojiClick() {
     console.log('Clicked on emoji button');
+  }
+
+  function renderMessages() {
+    let output: any = [];
+    messages.forEach((message: MessageType) => {
+      output.push(
+        <EventMessage
+          senderName={message.senderName}
+          senderId={message.sender}
+          message={message.content}
+          likes={Math.floor(Math.random() * 1000 + 1)}
+          time={message.createdAt}
+        />
+      );
+    });
+
+    return output;
   }
 
   function testRenderMessages() {
@@ -194,7 +260,7 @@ function EventMessageContainer(props: Props) {
   }
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <div className={styles.messageContainer}>{testRenderMessages()}</div>
+      <div className={styles.messageContainer}>{renderMessages()}</div>
 
       <div className={styles.textFieldContainer}>
         <TextField
@@ -204,7 +270,7 @@ function EventMessageContainer(props: Props) {
           variant="outlined"
           className={styles.textField}
           onChange={handleMessageChange}
-          value={message}
+          value={newMessage}
           InputLabelProps={{
             classes: {
               root: styles.cssLabel,
@@ -231,4 +297,15 @@ function EventMessageContainer(props: Props) {
   );
 }
 
-export default EventMessageContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventMessageContainer);

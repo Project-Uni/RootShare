@@ -7,6 +7,9 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 import { IoIosArrowBack } from 'react-icons/io';
 
+import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/makeRequest';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import SingleSelfMessage from './SingleSelfMessage';
@@ -106,6 +109,8 @@ type Props = {
   conversation: any;
   messages: any[];
   returnToConversations: () => void;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function MessageThreadContainer(props: Props) {
@@ -145,10 +150,14 @@ function MessageThreadContainer(props: Props) {
   }
 
   function handleSendMessage(message: string) {
-    axios.post('/api/messaging/sendMessage', {
-      conversationID: props.conversation._id,
-      message: message,
-    });
+    makeRequest(
+      'POST',
+      '/api/messaging/sendMessage',
+      { conversationID: props.conversation._id, message: message },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
   }
 
   function joinUserNames(users: any, delimiter: string) {
@@ -197,4 +206,15 @@ function MessageThreadContainer(props: Props) {
   );
 }
 
-export default MessageThreadContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MessageThreadContainer);

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+
 import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/makeRequest';
 
 import AllConversationsContainer from './AllConversationsContainer';
 import MessageThreadContainer from './MessageThreadContainer';
@@ -46,6 +47,8 @@ const useStyles = makeStyles((_: any) => ({
 // TODO - Make self messages and conversations update without socket notification
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
 };
 
 function MessagesDrawerContainer(props: Props) {
@@ -135,38 +138,41 @@ function MessagesDrawerContainer(props: Props) {
     );
   }
 
-  function fetchConversations(currSocket: SocketIOClient.Socket) {
+  async function fetchConversations(currSocket: SocketIOClient.Socket) {
     if (currSocket === undefined && socket !== undefined) currSocket = socket;
-    axios
-      .get('/api/messaging/getLatestThreads')
-      .then((response) => {
-        if (response.data.success !== 1) return;
 
-        const userConversations = response.data.content.userConversations;
-        if (currSocket !== undefined) {
-          currSocket.emit('metadata', userConversations, props.user._id);
-        }
-        setConversations(userConversations);
-      })
-      .catch((err) => {
-        console.log('error', 'Failed to get Conversations');
-      });
+    const { data } = await makeRequest(
+      'GET',
+      '/api/messaging/getLatestThreads',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] !== 1) return;
+
+    const userConversations = data['content']['userConversations'];
+    if (currSocket !== undefined) {
+      currSocket.emit('metadata', userConversations, props.user._id);
+    }
+    setConversations(userConversations);
   }
 
-  function updateMessages(currID: string = currConversationID) {
-    axios
-      .post('/api/messaging/getLatestMessages', {
+  async function updateMessages(currID: string = currConversationID) {
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/getLatestMessages',
+      {
         conversationID: currID,
-      })
-      .then((response) => {
-        if (response.data.success !== 1) return;
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-        const messages = response.data.content.messages;
-        setMessages(messages);
-      })
-      .catch((err) => {
-        console.log('error', 'Failed to get Messages');
-      });
+    if (data['success'] !== 1) return;
+    const messages = data['content']['messages'];
+    setMessages(messages);
   }
 
   function selectConversation(conversation: any) {
@@ -222,6 +228,8 @@ function MessagesDrawerContainer(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
