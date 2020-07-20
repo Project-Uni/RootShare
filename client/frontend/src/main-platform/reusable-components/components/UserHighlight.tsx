@@ -57,6 +57,7 @@ type Props = {
   company: string;
   mutualConnections: number;
   mutualCommunities: number;
+  connected?: boolean;
 };
 
 function UserHighlight(props: Props) {
@@ -96,7 +97,13 @@ function UserHighlight(props: Props) {
         </div>
       </div>
       <div>
-        <Button className={styles.connectButton}>Connect</Button>
+        {!props.connected ? (
+          <Button className={styles.connectButton}>Connect</Button>
+        ) : (
+          <RSText color={colors.primaryText} size={11}>
+            CONNECTED
+          </RSText>
+        )}
       </div>
     </div>
   );
