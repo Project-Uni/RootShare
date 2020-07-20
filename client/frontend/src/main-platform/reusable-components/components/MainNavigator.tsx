@@ -154,6 +154,7 @@ function MainNavigator(props: Props) {
             size={TEXT_SIZE}
             bold
             className={styles.textStyle}
+            hoverColor={colors.bright}
           >
             {tabs[i].name}
           </RSText>

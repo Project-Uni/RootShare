@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((_: any) => ({
@@ -26,18 +26,32 @@ type Props = {
   size?: number;
   className?: string;
   color?: string;
+  hoverColor?: string;
   children?: React.ReactNode;
 };
 
 function RSText(props: Props) {
   const styles = useStyles();
+  const [style, setStyle] = useState({
+    fontSize: props.size ? `${props.size}pt` : '12pt',
+    color: 'black',
+  });
 
   const type = props.type ? props.type : 'body';
 
-  const style: { [key: string]: any } = {
-    fontSize: props.size ? `${props.size}pt` : '12pt',
-  };
-  if (props.color) style['color'] = props.color;
+  useEffect(() => {
+    if (props.color) {
+      setStyle({ ...style, color: props.color });
+    }
+  }, []);
+
+  function handleMouseOver() {
+    setStyle({ ...style, color: props.hoverColor! });
+  }
+
+  function handleMouseLeave() {
+    setStyle({ ...style, color: props.color || 'black' });
+  }
 
   return (
     <p
@@ -49,6 +63,8 @@ function RSText(props: Props) {
         props.className ? props.className : null,
       ].join(' ')}
       style={style}
+      onMouseEnter={props.hoverColor ? handleMouseOver : undefined}
+      onMouseLeave={props.hoverColor ? handleMouseLeave : undefined}
     >
       {props.children}
     </p>
