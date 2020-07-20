@@ -117,8 +117,8 @@ type eventType = {
   brief_description: string;
   full_description: string;
   host: hostType;
-  speakers: [speakerType];
-  attendees: [string];
+  speakers: speakerType[];
+  attendees: string[];
   dateTime: Date;
 };
 
@@ -321,8 +321,29 @@ function AdminEventCreator(props: Props) {
     );
     if (data['success'] === 1) {
       setTopMessage(`s: ${data['message']}`);
+      editClientEvents();
       resetData();
     } else setTopMessage('f: There was an error creating the webinar.');
+  }
+
+  function editClientEvents() {
+    if (editEvent === '') updateEvents();
+    else
+      setEvents((prevEvents) => {
+        let newEvents = prevEvents.slice();
+        newEvents.forEach((event) => {
+          if (event._id === editEvent) {
+            event.title = title;
+            event.brief_description = briefDesc;
+            event.full_description = fullDesc;
+            event.host = host;
+            event.speakers = speakers;
+            event.dateTime = eventDateTime;
+          }
+        });
+
+        return prevEvents;
+      });
   }
 
   function resetData() {
