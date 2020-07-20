@@ -25,13 +25,15 @@ type Props = {
 
 function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
+
+  console.log('NOT YET STARTED');
   return (
     <div className={styles.wrapper}>
       <div
         className={styles.videoContent}
         style={{ height: props.height, width: props.width }}
       >
-        <RSText type="subhead" className={styles.text} size={16}>
+        <RSText type="subhead" color={'white'} className={styles.text} size={16}>
           The event has not started yet
         </RSText>
       </div>

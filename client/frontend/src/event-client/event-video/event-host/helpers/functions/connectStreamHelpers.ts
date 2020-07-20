@@ -21,6 +21,7 @@ export async function validateSession(
   );
   if (data['success'] !== 1) {
     alert('Session token invalid');
+    alert(data['message']);
     return false;
   }
   return data['content']['opentokSessionID'];

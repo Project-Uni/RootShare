@@ -91,37 +91,31 @@ export async function getAllEvents(callback) {
 }
 
 export async function getWebinarDetails(userID, webinarID, callback) {
-  Webinar.findById(webinarID, (err, webinar) => {
-    if (err) {
-      log('error', err);
-      return callback(sendPacket(-1, 'There was an error finding webinar'));
-    } else if (!webinar || webinar === undefined || webinar == null) {
-      return callback(sendPacket(0, 'No webinar exists with this ID'));
-    }
+  Webinar.findById(
+    webinarID,
+    [
+      'title',
+      'brief_description',
+      'full_description',
+      'host',
+      'speakers',
+      'attendees',
+      'dateTime',
+      'muxPlaybackID',
+    ],
+    (err, webinar) => {
+      if (err) {
+        log('error', err);
+        return callback(sendPacket(-1, 'There was an error finding webinar'));
+      } else if (!webinar || webinar === undefined || webinar == null) {
+        return callback(sendPacket(0, 'No webinar exists with this ID'));
+      }
 
-    if (checkUserIsSpeaker(userID, webinar))
       return callback(
         sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
       );
-    else {
-      webinar.opentokSessionID = undefined;
-      webinar.opentokBroadcastID = undefined;
-      webinar.muxStreamKey = undefined;
-      webinar.muxLiveStreamID = undefined;
-      return callback(
-        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
-      );
     }
-  });
-}
-
-function checkUserIsSpeaker(userID, webinar) {
-  if (userID === webinar.host) return;
-  webinar.speakers.forEach((speaker) => {
-    if (userID === speaker) return true;
-  });
-
-  return false;
+  );
 }
 
 function sendEventEmailConfirmation(

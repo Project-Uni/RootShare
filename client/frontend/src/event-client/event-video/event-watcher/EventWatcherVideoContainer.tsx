@@ -71,6 +71,7 @@ function EventWatcherVideoContainer(props: Props) {
       });
   }
 
+  console.log(videoData !== '');
   return (
     <div className={styles.wrapper}>
       {videoData !== '' ? (
