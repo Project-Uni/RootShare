@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
-import { IoMdText } from 'react-icons/io';
 import { MdGroup, MdOndemandVideo } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
