@@ -6,7 +6,6 @@ import { useLocation, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { updateSocket } from '../redux/actions/socket';
 import { makeRequest } from '../helpers/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
@@ -47,11 +46,9 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
-  socket: any;
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-  updateSocket: (socket: any) => void;
 };
 
 // TODO - Set up login, signup and reset password to work with chrome’s credential standards
@@ -191,7 +188,6 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
-    socket: state.socket,
   };
 };
 
@@ -205,9 +201,6 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     updateRefreshToken: (refreshToken: string) => {
       dispatch(updateRefreshToken(refreshToken));
-    },
-    updateSocket: (socket: any) => {
-      dispatch(updateSocket(socket));
     },
   };
 };

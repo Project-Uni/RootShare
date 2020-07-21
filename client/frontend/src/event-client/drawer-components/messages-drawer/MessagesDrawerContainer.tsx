@@ -49,113 +49,23 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  newMessage: string;
 };
 
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
-  const [socket, setSocket] = useState<SocketIOClient.Socket>();
-  const [setup, setSetup] = useState(false);
-  const [conversations, setConversations] = useState<any>([]);
   const [currConversationID, setCurrConversationID] = useState('');
   const [currConversation, setCurrConversation] = useState({});
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState({});
-  const [newConversation, setNewConversation] = useState({});
 
   useEffect(() => {
-    if (setup) return;
-    setSetup(true);
-
-    connectSocket();
-  }, []);
-
-  useEffect(() => {
-    addMessage(newMessage);
-  }, [newMessage]);
-
-  useEffect(() => {
-    updateConversations(newConversation);
-  }, [newConversation]);
-
-  function connectSocket() {
-    const socket = io('http://localhost:8080');
-    setSocket(socket);
-
-    socket.on('connect', (data: React.SetStateAction<boolean>) => {
-      fetchConversations(socket);
-    });
-
-    socket.on('newMessage', (message: any) => {
-      setNewMessage(message);
-    });
-
-    socket.on('newConversation', (conversation: any) => {
-      addConversation(socket, conversation);
-    });
-
-    socket.on('error', function(err: any) {
-      console.log(`Received socket error: ${err}`);
-    });
-  }
+    addMessage(props.newMessage);
+  }, [props.newMessage]);
 
   function addMessage(newMessage: any) {
-    setConversations((prevConversations: any[]) => {
-      for (let i = 0; i < prevConversations.length; i++) {
-        if (prevConversations[i]._id === newMessage.conversationID) {
-          const updatedConversation = prevConversations[i];
-          updatedConversation.lastMessage = newMessage;
-          return [updatedConversation].concat(
-            prevConversations
-              .slice(0, i)
-              .concat(prevConversations.slice(i + 1, prevConversations.length))
-          );
-        }
-      }
-
-      return prevConversations;
-    });
-
     if (currConversationID !== '')
       setMessages((prevMessages) => prevMessages.concat(newMessage));
-  }
-
-  function addConversation(currSocket: SocketIOClient.Socket, newConversation: any) {
-    currSocket.emit('connectToConversation', newConversation._id);
-    setNewConversation(newConversation);
-  }
-
-  function updateConversations(newConversation: any) {
-    if (
-      Object.keys(newConversation).length === 0 ||
-      newConversation === undefined ||
-      newConversation === null
-    )
-      return;
-
-    setConversations((prevConversations: any[]) =>
-      [newConversation].concat(prevConversations)
-    );
-  }
-
-  async function fetchConversations(currSocket: SocketIOClient.Socket) {
-    if (currSocket === undefined && socket !== undefined) currSocket = socket;
-
-    const { data } = await makeRequest(
-      'GET',
-      '/api/messaging/getLatestThreads',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) return;
-
-    const userConversations = data['content']['userConversations'];
-    if (currSocket !== undefined) {
-      currSocket.emit('metadata', userConversations, props.user._id);
-    }
-    setConversations(userConversations);
   }
 
   async function updateMessages(currID: string = currConversationID) {
@@ -187,30 +97,11 @@ function MessagesDrawerContainer(props: Props) {
     setMessages([]);
   }
 
-  function joinUserNames(users: any, delimiter: string) {
-    let joinedString = '';
-
-    for (let i = 0; i < users.length; i++) {
-      const currUser = users[i];
-      const currName = currUser.firstName;
-
-      let firstFlag = false;
-      if (firstFlag) joinedString += delimiter;
-      if (currUser._id !== props.user._id) {
-        joinedString += currName;
-        firstFlag = true;
-      }
-    }
-
-    return joinedString;
-  }
-
   return (
     <div className={styles.wrapper}>
       {currConversationID === '' ? (
         <AllConversationsContainer
           user={props.user}
-          conversations={conversations}
           selectConversation={selectConversation}
         />
       ) : (
@@ -230,6 +121,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
+    newMessage: state.newMessage,
   };
 };
 
