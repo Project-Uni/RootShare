@@ -21,7 +21,7 @@ module.exports = function (passport) {
         function findOrCreateUser() {
           // find a user in Mongo with provided email address
           User.findOne({ email: email }, async function (err, user) {
-            if (err || user === undefined || user === null) {
+            if (err) {
               return done(err);
             }
             if (user) {
