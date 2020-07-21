@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
-import axios from 'axios';
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
 import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import OT from '@opentok/client';
 import log from '../../../../../helpers/logger';
 import { createNewWebcamPublisher } from './createPublishers';

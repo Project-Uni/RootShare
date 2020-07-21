@@ -1,6 +1,5 @@
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
-import axios from 'axios';
 
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
