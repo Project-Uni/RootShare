@@ -5,6 +5,9 @@ const initializeState = () => ({
   user: {},
   accessToken: '',
   refreshToken: '',
+  socket: {},
+  conversations: [],
+  newMessage: [],
 });
 
 const saveState = (state: { [key: string]: any }) => {
