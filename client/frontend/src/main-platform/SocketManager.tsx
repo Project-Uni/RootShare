@@ -60,6 +60,7 @@ function SocketManager(props: Props) {
   }
 
   function connectSocket() {
+    alert('connecting socket');
     const socket = io('http://localhost:8080');
     setSocket(socket);
 
@@ -88,6 +89,13 @@ function SocketManager(props: Props) {
   }
 
   function addMessage(newMessage: any) {
+    if (
+      Object.keys(newMessage).length === 0 ||
+      newMessage === undefined ||
+      newMessage === null
+    )
+      return;
+
     const prevConversations = props.conversations;
     for (let i = 0; i < prevConversations.length; i++) {
       if (prevConversations[i]._id === newMessage.conversationID) {

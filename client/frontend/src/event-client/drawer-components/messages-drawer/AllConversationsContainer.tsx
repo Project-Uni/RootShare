@@ -7,7 +7,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/makeRequest';
 
 import SingleConversation from './SingleConversation';
 import CreateNewConversation from './CreateNewConversation';
