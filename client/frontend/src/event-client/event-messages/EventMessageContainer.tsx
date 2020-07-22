@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, Modal } from '@material-ui/core';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 import RSText from '../../base-components/RSText';
-
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
-
 import { colors } from '../../theme/Colors';
+import { AnyCnameRecord } from 'dns';
+import Picker from 'emoji-picker-react';
+import { RightArrow } from '@styled-icons/boxicons-solid';
 
 const HEADER_HEIGHT = 58;
+const ITEM_HEIGHT = 48;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '350px',
@@ -72,6 +75,10 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  paper: {
+    verticalAlign: "middle",
+    horizontalAlign: "middle",
+  }
 }));
 
 type Props = {};
@@ -93,20 +100,45 @@ function getDate() {
   return hours + ':' + minutes + ' ' + ampm;
 }
 
+function getModalStyle() {
+  const top = 95;
+  const left = 80;
+
+  return {
+    bottom: `${top}%`,
+    right: `${left}%`,
+    transform: `translate(${left}%, ${top}%)`,
+  };
+}
+
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
   const [message, setMessage] = useState('');
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+  const [modalStyle] = React.useState(getModalStyle);
+  const [open, setOpen] = React.useState(false);
+
+  const onEmojiClick = (event: any, emojiObject: any) => {
+    console.log('Emoji clicked.');
+    addEmoji(emojiObject.emoji);
+  };
+
+  function addEmoji(emoji: any) {
+    console.log('Emoji added.');
+    setMessage(message.concat(emoji).concat(' '));
+  }
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   function handleResize() {
+    console.log('Resized.');
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function handleMessageChange(event: any) {
+    console.log('Message changed.');
     setMessage(event.target.value);
   }
 
@@ -115,9 +147,21 @@ function EventMessageContainer(props: Props) {
     setMessage('');
   }
 
-  function handleEmojiClick() {
-    console.log('Clicked on emoji button');
-  }
+  const handleOpen = () => {
+    console.log('Emojis opened.');
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    console.log('Emojis closed.');
+    setOpen(false);
+  };
+
+  const body = (
+    <div style={modalStyle} className={styles.paper}>
+      <Picker onEmojiClick={onEmojiClick} />
+    </div>
+  );
 
   function testRenderMessages() {
     const output = [];
@@ -220,9 +264,15 @@ function EventMessageContainer(props: Props) {
             inputMode: 'numeric',
           }}
         />
-        <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color={colors.primaryText} />
+        <IconButton aria-label="more" aria-controls="long-menu" aria-haspopup="true" onClick={handleOpen}>
+          <FaRegSmile color={"white"}></FaRegSmile>
         </IconButton>
+        <Modal
+          open={open}
+          onClose={handleClose}
+        >
+          {body}
+        </Modal>
         <IconButton onClick={handleSendMessage}>
           <MdSend color={colors.primaryText} size={20} />
         </IconButton>

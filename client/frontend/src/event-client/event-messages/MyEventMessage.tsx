@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Menu, MenuItem } from "@material-ui/core";
 
 import { FaEllipsisH, FaRegStar, FaStar } from "react-icons/fa";
 
 import RSText from "../../base-components/RSText";
 
+import { colors } from "../../theme/Colors";
+
+const options = [
+  'Connect with yourself?',
+  'Cancel',
+];
+
+const ITEM_HEIGHT = 48;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: "#3c4469",
+    background: colors.ternary,
     paddingBottom: 4,
   },
   top: {
@@ -21,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   senderName: {
     margin: 10,
     display: "inline-block",
-    color: "#f2f2f2",
+    color: colors.background,
   },
   message: {
     marginLeft: 10,
@@ -69,6 +78,17 @@ function MyEventMessage(props: Props) {
     setLiked(!oldVal);
   }
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
@@ -80,10 +100,28 @@ function MyEventMessage(props: Props) {
             {props.time}
           </RSText>
         </div>
-
-        <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color="grey" />
+        <IconButton aria-label="more" aria-controls="long-menu" aria-haspopup="true" onClick={handleClick}>
+          <FaEllipsisH className={styles.ellipsis} size={12} color="grey" />
         </IconButton>
+        <Menu
+          id="long-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            style: {
+              maxHeight: ITEM_HEIGHT * 4.5,
+              width: 200,
+            },
+          }}
+        >
+          {options.map(option => (
+            <MenuItem key={option} selected={option === 'Cancel'} onClick={handleClose}>
+              {option}
+            </MenuItem>
+          ))}
+        </Menu>
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
