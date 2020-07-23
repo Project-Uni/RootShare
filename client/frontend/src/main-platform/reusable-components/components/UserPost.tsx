@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField, IconButton } from '@material-ui/core';
+import { Button, TextField, IconButton, CircularProgress } from '@material-ui/core';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
@@ -96,6 +96,11 @@ const useStyles = makeStyles((_: any) => ({
     borderBottom: `1px solid ${colors.primaryText}`,
     marginBottom: 15,
   },
+  loadingIndicator: {
+    color: colors.secondaryText,
+    marginTop: 8,
+    marginBottom: 8,
+  },
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -129,6 +134,7 @@ function UserPost(props: Props) {
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
+  const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -146,6 +152,13 @@ function UserPost(props: Props) {
 
   function handleSendComment() {
     console.log('Comment:', comment);
+  }
+
+  function handleMoreCommentsClick() {
+    setLoadingMoreComments(true);
+    setTimeout(() => {
+      setLoadingMoreComments(false);
+    }, 1500);
   }
 
   function renderPostHeader() {
@@ -277,8 +290,15 @@ function UserPost(props: Props) {
       );
     return (
       <div className={styles.commentsContainer}>
-        {output}
-        <Button className={styles.seeMoreButton}>More Comments</Button>
+        <div>
+          {output}
+          <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
+            More Comments
+          </Button>
+        </div>
+        {loadingMoreComments && (
+          <CircularProgress size={40} className={styles.loadingIndicator} />
+        )}
       </div>
     );
   }
