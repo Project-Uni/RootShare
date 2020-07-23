@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
+import Stream from './Stream';
 
 const HEADER_HEIGHT = 60;
 
@@ -22,6 +23,13 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginLeft: 20,
     marginRight: 20,
+  },
+  stream: {
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 10,
+    borderBottom: `1px solid ${colors.secondaryText}`,
+    paddingBottom: 15,
   },
 }));
 
@@ -52,6 +60,25 @@ function StreamLibraryBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
+  function renderStreams() {
+    const output = [];
+    for (let i = 0; i < 8; i++) {
+      output.push(
+        <Stream
+          eventID="testID"
+          eventTitle="The Baby Boilers Are Back"
+          eventDesc="The Baby Boilers return for a once in a lifetime event. Prepare to be amazed as you watch what they have been up to sinc their time at Purdue!! The Baby Boilers return for a once in a lifetime event. Prepare to be amazed as you watch what they have been up to sinc their time at Purdue!! "
+          eventHostName="RootShare"
+          eventHostID="testID"
+          eventDate="Aug 14, 2020"
+          className={styles.stream}
+          liked={i % 3 == 0}
+        />
+      );
+    }
+    return output;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -61,7 +88,7 @@ function StreamLibraryBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}></div>
+      <div className={styles.body}>{renderStreams()}</div>
     </div>
   );
 }
