@@ -97,6 +97,7 @@ function HypeParticipatingOrganizations(props: Props) {
     'Financial Management Association',
     'ATO',
     'Society of Women Engineers',
+    'Zeta Tau Alpha',
   ].sort();
 
   function renderOrganizations() {
