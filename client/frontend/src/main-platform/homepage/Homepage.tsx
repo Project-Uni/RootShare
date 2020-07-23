@@ -13,7 +13,10 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
 
-import { SHOW_HEADER_NAVIGATION_WIDTH } from '../../types/constants';
+import {
+  SHOW_HEADER_NAVIGATION_WIDTH,
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+} from '../../types/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -39,8 +42,11 @@ function Homepage(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
@@ -51,6 +57,10 @@ function Homepage(props: Props) {
       }
     });
   }, []);
+
+  function handleResize() {
+    setWidth(window.innerWidth);
+  }
 
   async function checkAuth() {
     const { data } = await makeRequest(
@@ -81,9 +91,9 @@ function Homepage(props: Props) {
       {/* TODO?- Create Custom Header for Main Platform */}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
-        <MainNavigator currentTab="home" />
+        {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
-        <DiscoverySidebar />
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
   );
