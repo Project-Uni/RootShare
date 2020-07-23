@@ -12,6 +12,11 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import CommunityBody from './components/CommunityBody';
 
+import {
+  SHOW_HEADER_NAVIGATION_WIDTH,
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+} from '../../types/constants';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -39,9 +44,13 @@ function Community(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
+
   const orgID = props.match.params['orgID'];
 
   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
@@ -50,6 +59,10 @@ function Community(props: Props) {
       }
     });
   }, []);
+
+  function handleResize() {
+    setWidth(window.innerWidth);
+  }
 
   async function checkAuth() {
     const { data } = await makeRequest(
@@ -72,11 +85,11 @@ function Community(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
-      <EventClientHeader />
+      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
-        <MainNavigator currentTab="none" />
+        {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         <CommunityBody />
-        <DiscoverySidebar />
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
   );
