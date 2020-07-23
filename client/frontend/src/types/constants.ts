@@ -1,0 +1,1 @@
+export const SHOW_HEADER_NAVIGATION_WIDTH = 800;

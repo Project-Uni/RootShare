@@ -13,6 +13,8 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
 
+import { SHOW_HEADER_NAVIGATION_WIDTH } from '../../types/constants';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -77,7 +79,7 @@ function Homepage(props: Props) {
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
 
       {/* TODO?- Create Custom Header for Main Platform */}
-      <EventClientHeader />
+      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         <MainNavigator currentTab="home" />
         <HomepageBody />
