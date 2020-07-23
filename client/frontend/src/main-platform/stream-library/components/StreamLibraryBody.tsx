@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { TextField, IconButton } from '@material-ui/core';
+
+import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
@@ -41,6 +44,8 @@ function StreamLibraryBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
+  const [searchedValue, setSearchedValue] = useState('');
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     fetchData().then(() => {
@@ -58,6 +63,31 @@ function StreamLibraryBody(props: Props) {
 
   function closeWelcomeMessage() {
     setShowWelcomeModal(false);
+  }
+
+  function handleSearchChange(event: any) {
+    setSearchedValue(event.target.value);
+  }
+
+  function handleSearchClicked() {
+    console.log(`Searching for ${searchedValue}`);
+  }
+
+  function renderSearchbar() {
+    return (
+      <div className={styles.searchBarContainer}>
+        <TextField
+          label="Search for previous streams"
+          variant="outlined"
+          className={styles.searchBar}
+          value={searchedValue}
+          onChange={handleSearchChange}
+        />
+        <IconButton onClick={handleSearchClicked}>
+          <FaSearch size={22} color={colors.primary} />
+        </IconButton>
+      </div>
+    );
   }
 
   function renderStreams() {
@@ -88,7 +118,10 @@ function StreamLibraryBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}>{renderStreams()}</div>
+      <div className={styles.body}>
+        {renderSearchbar()}
+        {renderStreams()}
+      </div>
     </div>
   );
 }
