@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, Modal } from '@material-ui/core';
+
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
+
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
-import RSText from '../../base-components/RSText';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
-
 import { colors } from '../../theme/Colors';
 
 const HEADER_HEIGHT = 58;
+const ITEM_HEIGHT = 48;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '350px',
@@ -32,7 +36,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingLeft: 5,
   },
   textField: {
-    width: 200,
+    width: 250,
     background: colors.ternary,
     color: colors.primaryText,
     label: colors.primaryText,
@@ -72,6 +76,15 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  paper: {
+    width: 270,
+  },
+  icon: {
+    color: colors.primaryText,
+    '&:hover': {
+      color: colors.bright,
+    },
+  },
 }));
 
 type Props = {};
@@ -97,6 +110,8 @@ function EventMessageContainer(props: Props) {
   const styles = useStyles();
   const [message, setMessage] = useState('');
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+  const [modalStyle, setModalStyle] = useState(getModalStyle);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -104,9 +119,30 @@ function EventMessageContainer(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
+    setModalStyle(getModalStyle());
+  }
+
+  function getModalStyle() {
+    const bottom = 100;
+    const right = 50;
+    const containerWidth = 270;
+    const containerHeight = 400;
+    return {
+      bottom,
+      right,
+      transform: `translate(${window.innerWidth -
+        containerWidth -
+        right}px, ${window.innerHeight - containerHeight - bottom}px)`,
+    };
+  }
+
+  function onEmojiClick(emoji: { [key: string]: any }) {
+    const newMessage = message + emoji.native + ' ';
+    setMessage(newMessage);
   }
 
   function handleMessageChange(event: any) {
+    console.log('Message changed.');
     setMessage(event.target.value);
   }
 
@@ -115,8 +151,29 @@ function EventMessageContainer(props: Props) {
     setMessage('');
   }
 
-  function handleEmojiClick() {
-    console.log('Clicked on emoji button');
+  function handleOpen() {
+    setOpen(true);
+  }
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  function renderEmojiPicker() {
+    return (
+      <div style={modalStyle} className={styles.paper}>
+        <Picker
+          set="apple"
+          onSelect={onEmojiClick}
+          title="Spice it up"
+          perLine={7}
+          theme="dark"
+          showPreview={false}
+          sheetSize={64}
+          emoji=""
+        />
+      </div>
+    );
   }
 
   function testRenderMessages() {
@@ -220,12 +277,22 @@ function EventMessageContainer(props: Props) {
             inputMode: 'numeric',
           }}
         />
-        <IconButton onClick={handleEmojiClick}>
-          <FaRegSmile size={18} color={colors.primaryText} />
-        </IconButton>
-        <IconButton onClick={handleSendMessage}>
-          <MdSend color={colors.primaryText} size={20} />
-        </IconButton>
+        <div>
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleOpen}
+          >
+            <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
+          </IconButton>
+          <Modal open={open} onClose={handleClose}>
+            {renderEmojiPicker()}
+          </Modal>
+          <IconButton onClick={handleSendMessage}>
+            <MdSend size={20} className={styles.icon} />
+          </IconButton>
+        </div>
       </div>
     </div>
   );
