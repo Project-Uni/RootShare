@@ -11,58 +11,115 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 15,
     borderBottom: `1px solid ${colors.secondaryText}`,
     paddingBottom: 15,
+    display: 'flex',
+    justifyContent: 'flex-start',
   },
   profilePic: {
     height: 80,
     borderRadius: 80,
     marginRight: 10,
   },
-  top: {
-    display: 'flex',
-    justifyContent: 'flex-start',
-  },
-  nameHideDiv: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  body: {
     flex: 1,
   },
-  joinButton: {
+  top: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  button: {
     color: colors.primaryText,
+    marginTop: 10,
+    '&:hover': {
+      background: colors.primary,
+    },
+  },
+  joinButton: {
     background: colors.bright,
   },
-  joinButtonDiv: {
-    display: 'flex',
-    justifyContent: 'flex-end',
+  pendingButton: {
+    background: colors.secondaryText,
+  },
+  left: {},
+  joinedText: {
+    marginTop: 10,
+  },
+  noUnderline: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
 }));
 
-type Props = {};
+type Props = {
+  communityID: string;
+  status: 'JOINED' | 'PENDING' | 'OPEN';
+};
 
 function DiscoveryCommunity(props: Props) {
   const styles = useStyles();
+
+  function renderButton() {
+    if (props.status === 'OPEN')
+      return (
+        <Button
+          className={[styles.button, styles.joinButton].join(' ')}
+          size="small"
+        >
+          Join
+        </Button>
+      );
+    else if (props.status === 'PENDING')
+      return (
+        <Button
+          className={[styles.button, styles.pendingButton].join(' ')}
+          size="small"
+        >
+          Pending
+        </Button>
+      );
+    else
+      return (
+        <RSText color={colors.primaryText} size={12} className={styles.joinedText}>
+          MEMBER
+        </RSText>
+      );
+  }
+
   return (
     <div className={styles.wrapper}>
-      <div className={styles.top}>
+      <a href={`/community/${props.communityID}`}>
         <img src={DhruvHeadshot} className={styles.profilePic} />
-        <div>
-          <div className={styles.nameHideDiv}>
-            <RSText type="body" bold size={13} color={colors.primaryText}>
-              RootShare
-            </RSText>
-            <IconButton onClick={() => {}}>
-              <RSText type="subhead" color={colors.primaryText} size={12}>
-                X
+      </a>
+      <div className={styles.body}>
+        <div className={styles.top}>
+          <div className={styles.left}>
+            <a
+              href={`/community/${props.communityID}`}
+              className={styles.noUnderline}
+            >
+              <RSText type="body" bold size={13} color={colors.primaryText}>
+                RootShare
               </RSText>
-            </IconButton>
+            </a>
+
+            <RSText type="body" size={11} color={colors.secondaryText}>
+              7,042 Members
+            </RSText>
+            <RSText type="body" size={11} color={colors.secondaryText}>
+              109 Mutual
+            </RSText>
           </div>
-          <RSText type="body" size={11} color={colors.secondaryText}>
-            109 Mutual Connections
-          </RSText>
-          <div className={styles.joinButtonDiv}>
-            <Button className={styles.joinButton}>Join</Button>
-          </div>
+
+          <IconButton onClick={() => {}}>
+            <RSText type="subhead" color={colors.primaryText} size={12}>
+              X
+            </RSText>
+          </IconButton>
         </div>
+        {renderButton()}
       </div>
     </div>
   );

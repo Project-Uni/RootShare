@@ -104,7 +104,13 @@ function DiscoverySidebar(props: Props) {
     //Test code
     const communities = [];
     for (let i = 0; i < 5; i++) {
-      communities.push(<DiscoveryCommunity />);
+      let status: 'OPEN' | 'JOINED' | 'PENDING';
+      if (i % 3 == 0) status = 'OPEN';
+      else if (i % 3 == 2) status = 'PENDING';
+      else status = 'JOINED';
+      communities.push(
+        <DiscoveryCommunity communityID={'communityABC'} status={status} />
+      );
     }
 
     return (
