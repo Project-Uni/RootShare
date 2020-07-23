@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, IconButton, Modal } from '@material-ui/core';
+
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
+
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
-import RSText from '../../base-components/RSText';
+
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 import { colors } from '../../theme/Colors';
-import { AnyCnameRecord } from 'dns';
-import Picker from 'emoji-picker-react';
-import { RightArrow } from '@styled-icons/boxicons-solid';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -35,7 +36,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingLeft: 5,
   },
   textField: {
-    width: 200,
+    width: 250,
     background: colors.ternary,
     color: colors.primaryText,
     label: colors.primaryText,
@@ -76,9 +77,14 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   paper: {
-    verticalAlign: "middle",
-    horizontalAlign: "middle",
-  }
+    width: 270,
+  },
+  icon: {
+    color: colors.primaryText,
+    '&:hover': {
+      color: colors.bright,
+    },
+  },
 }));
 
 type Props = {};
@@ -100,41 +106,39 @@ function getDate() {
   return hours + ':' + minutes + ' ' + ampm;
 }
 
-function getModalStyle() {
-  const top = 95;
-  const left = 80;
-
-  return {
-    bottom: `${top}%`,
-    right: `${left}%`,
-    transform: `translate(${left}%, ${top}%)`,
-  };
-}
-
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
   const [message, setMessage] = useState('');
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [modalStyle] = React.useState(getModalStyle);
-  const [open, setOpen] = React.useState(false);
-
-  const onEmojiClick = (event: any, emojiObject: any) => {
-    console.log('Emoji clicked.');
-    addEmoji(emojiObject.emoji);
-  };
-
-  function addEmoji(emoji: any) {
-    console.log('Emoji added.');
-    setMessage(message.concat(emoji).concat(' '));
-  }
+  const [modalStyle, setModalStyle] = useState(getModalStyle);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   function handleResize() {
-    console.log('Resized.');
     setHeight(window.innerHeight - HEADER_HEIGHT);
+    setModalStyle(getModalStyle());
+  }
+
+  function getModalStyle() {
+    const bottom = 100;
+    const right = 50;
+    const containerWidth = 270;
+    const containerHeight = 400;
+    return {
+      bottom,
+      right,
+      transform: `translate(${window.innerWidth -
+        containerWidth -
+        right}px, ${window.innerHeight - containerHeight - bottom}px)`,
+    };
+  }
+
+  function onEmojiClick(emoji: { [key: string]: any }) {
+    const newMessage = message + emoji.native + ' ';
+    setMessage(newMessage);
   }
 
   function handleMessageChange(event: any) {
@@ -147,21 +151,30 @@ function EventMessageContainer(props: Props) {
     setMessage('');
   }
 
-  const handleOpen = () => {
-    console.log('Emojis opened.');
+  function handleOpen() {
     setOpen(true);
-  };
+  }
 
-  const handleClose = () => {
-    console.log('Emojis closed.');
+  function handleClose() {
     setOpen(false);
-  };
+  }
 
-  const body = (
-    <div style={modalStyle} className={styles.paper}>
-      <Picker onEmojiClick={onEmojiClick} />
-    </div>
-  );
+  function renderEmojiPicker() {
+    return (
+      <div style={modalStyle} className={styles.paper}>
+        <Picker
+          set="apple"
+          onSelect={onEmojiClick}
+          title="Spice it up"
+          perLine={7}
+          theme="dark"
+          showPreview={false}
+          sheetSize={64}
+          emoji=""
+        />
+      </div>
+    );
+  }
 
   function testRenderMessages() {
     const output = [];
@@ -264,18 +277,22 @@ function EventMessageContainer(props: Props) {
             inputMode: 'numeric',
           }}
         />
-        <IconButton aria-label="more" aria-controls="long-menu" aria-haspopup="true" onClick={handleOpen}>
-          <FaRegSmile color={"white"}></FaRegSmile>
-        </IconButton>
-        <Modal
-          open={open}
-          onClose={handleClose}
-        >
-          {body}
-        </Modal>
-        <IconButton onClick={handleSendMessage}>
-          <MdSend color={colors.primaryText} size={20} />
-        </IconButton>
+        <div>
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleOpen}
+          >
+            <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
+          </IconButton>
+          <Modal open={open} onClose={handleClose}>
+            {renderEmojiPicker()}
+          </Modal>
+          <IconButton onClick={handleSendMessage}>
+            <MdSend size={20} className={styles.icon} />
+          </IconButton>
+        </div>
       </div>
     </div>
   );

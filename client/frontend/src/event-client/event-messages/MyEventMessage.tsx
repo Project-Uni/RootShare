@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Menu, MenuItem } from "@material-ui/core";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { IconButton, Menu, MenuItem } from '@material-ui/core';
 
-import { FaEllipsisH, FaRegStar, FaStar } from "react-icons/fa";
+import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 
-import RSText from "../../base-components/RSText";
+import RSText from '../../base-components/RSText';
 
-import { colors } from "../../theme/Colors";
+import { colors } from '../../theme/Colors';
 
-const options = [
-  'Connect with yourself?',
-  'Cancel',
-];
+const options = ['Connect with yourself?', 'Cancel'];
 
 const ITEM_HEIGHT = 48;
 
@@ -21,39 +18,39 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 4,
   },
   top: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     paddingTop: 5,
   },
   left: {},
   right: {},
   senderName: {
     margin: 10,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.background,
   },
   message: {
     marginLeft: 10,
-    textAlign: "left",
-    wordBreak: "break-all",
-    color: "#f2f2f2",
+    textAlign: 'left',
+    wordBreak: 'break-all',
+    color: '#f2f2f2',
     marginTop: 15,
   },
   bottom: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     margin: 0,
     marginTop: -20,
     paddingBottom: 5,
   },
   likeCount: {
     marginTop: -5,
-    color: "#f2f2f2",
+    color: '#f2f2f2',
   },
   time: {
     marginLeft: 0,
-    display: "inline-block",
-    color: "grey",
+    display: 'inline-block',
+    color: 'grey',
   },
   ellipsis: {
     margin: 1.5,
@@ -68,18 +65,16 @@ type Props = {
   time: string;
 };
 
-//TODO ADD likes to messages
 function MyEventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   function handleLikeClicked() {
     const oldVal = liked;
     setLiked(!oldVal);
   }
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
 
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -100,7 +95,13 @@ function MyEventMessage(props: Props) {
             {props.time}
           </RSText>
         </div>
-        <IconButton aria-label="more" aria-controls="long-menu" aria-haspopup="true" onClick={handleClick}>
+        {/* TODO - Think about removing the ellipsis and options from your own messages */}
+        <IconButton
+          aria-label="more"
+          aria-controls="long-menu"
+          aria-haspopup="true"
+          onClick={handleClick}
+        >
           <FaEllipsisH className={styles.ellipsis} size={12} color="grey" />
         </IconButton>
         <Menu
@@ -116,8 +117,12 @@ function MyEventMessage(props: Props) {
             },
           }}
         >
-          {options.map(option => (
-            <MenuItem key={option} selected={option === 'Cancel'} onClick={handleClose}>
+          {options.map((option) => (
+            <MenuItem
+              key={option}
+              selected={option === 'Cancel'}
+              onClick={handleClose}
+            >
               {option}
             </MenuItem>
           ))}
@@ -132,8 +137,8 @@ function MyEventMessage(props: Props) {
             {liked ? (
               <FaStar color="#6699ff" size={14} />
             ) : (
-                <FaRegStar color="grey" size={14} />
-              )}
+              <FaRegStar color="grey" size={14} />
+            )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>
             {props.likes}
