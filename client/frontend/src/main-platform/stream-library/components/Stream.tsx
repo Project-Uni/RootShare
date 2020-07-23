@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
 
@@ -48,6 +48,15 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
     },
   },
+  seeMore: {
+    textDecoration: 'none',
+    color: colors.secondaryText,
+    marginLeft: 20,
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
@@ -63,13 +72,18 @@ type Props = {
 
 function Stream(props: Props) {
   const styles = useStyles();
+  const [showFullDesc, setShowFullDesc] = useState(false);
 
   const descSubstr = props.eventDesc.substr(0, MAX_DESC_LEN);
+
+  function handleSeeClicked() {
+    setShowFullDesc(!showFullDesc);
+  }
 
   return (
     <div className={[styles.wrapper, props.className || null].join(' ')}>
       {/* TODO - Navigate this to video stream  */}
-      <a href="#">
+      <a href={`/event/${props.eventID}`}>
         <img src={BabyBoilersBanner} className={styles.streamPreview} />
       </a>
 
@@ -77,7 +91,7 @@ function Stream(props: Props) {
         <div className={styles.top}>
           <div className={styles.headerRight}>
             {/* TODO - Navigate this to video stream  */}
-            <a href="#" className={styles.noUnderline}>
+            <a href={`/event/${props.eventID}`} className={styles.noUnderline}>
               <RSText type="head" color={colors.primary} bold size={14}>
                 {props.eventTitle}
               </RSText>
@@ -101,8 +115,20 @@ function Stream(props: Props) {
             </IconButton>
           </div>
         </div>
+
         <RSText type="body" color={colors.primary} size={12} className={styles.desc}>
-          {props.eventDesc === descSubstr ? props.eventDesc : descSubstr + ' ...'}
+          {props.eventDesc === descSubstr || showFullDesc
+            ? props.eventDesc
+            : descSubstr + ' ...'}
+          {props.eventDesc !== descSubstr && (
+            <a
+              href={undefined}
+              className={styles.seeMore}
+              onClick={handleSeeClicked}
+            >
+              See {showFullDesc ? 'less' : 'more'}
+            </a>
+          )}
         </RSText>
       </div>
     </div>

@@ -88,6 +88,7 @@ const useStyles = makeStyles((_: any) => ({
   leaveCommentContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
+    alignItems: 'center',
     marginBottom: 15,
   },
   commentsContainer: {
