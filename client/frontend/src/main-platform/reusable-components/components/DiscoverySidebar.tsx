@@ -25,6 +25,9 @@ const useStyles = makeStyles((_: any) => ({
     padding: 20,
     overflow: 'scroll',
   },
+  pplForYouText: {
+    marginTop: 15,
+  },
 }));
 
 type PEOPLE = {
@@ -109,7 +112,13 @@ function DiscoverySidebar(props: Props) {
       else if (i % 3 == 2) status = 'PENDING';
       else status = 'JOINED';
       communities.push(
-        <DiscoveryCommunity communityID={'communityABC'} status={status} />
+        <DiscoveryCommunity
+          communityID={'communityABC'}
+          status={status}
+          name="RootShare"
+          numMembers={7042}
+          numMutual={106}
+        />
       );
     }
 
@@ -146,7 +155,13 @@ function DiscoverySidebar(props: Props) {
     //End of test code
     return (
       <div>
-        <RSText size={18} type="head" bold color={colors.primaryText}>
+        <RSText
+          size={18}
+          type="head"
+          bold
+          color={colors.primaryText}
+          className={styles.pplForYouText}
+        >
           People for you
         </RSText>
         {people}

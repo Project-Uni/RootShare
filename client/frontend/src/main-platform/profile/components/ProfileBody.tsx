@@ -18,13 +18,13 @@ const useStyles = makeStyles((_: any) => ({
   body: {},
   coverPhoto: {
     background: colors.bright,
-    height: 250,
+    height: 200,
   },
   profilePicture: {
-    height: 200,
-    width: 200,
-    borderRadius: 200,
-    marginTop: -100,
+    height: 175,
+    width: 175,
+    borderRadius: 100,
+    marginTop: -88,
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
   },

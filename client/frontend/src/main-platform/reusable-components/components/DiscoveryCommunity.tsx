@@ -4,7 +4,7 @@ import { IconButton, Button } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
-import { DhruvHeadshot } from '../../../images/team';
+import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -16,6 +16,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   profilePic: {
     height: 80,
+    width: 80,
     borderRadius: 80,
     marginRight: 10,
   },
@@ -56,6 +57,9 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   communityID: string;
   status: 'JOINED' | 'PENDING' | 'OPEN';
+  name: string;
+  numMembers: number;
+  numMutual: number;
 };
 
 function DiscoveryCommunity(props: Props) {
@@ -91,7 +95,7 @@ function DiscoveryCommunity(props: Props) {
   return (
     <div className={styles.wrapper}>
       <a href={`/community/${props.communityID}`}>
-        <img src={DhruvHeadshot} className={styles.profilePic} />
+        <img src={BabyBoilersBanner} className={styles.profilePic} />
       </a>
       <div className={styles.body}>
         <div className={styles.top}>
@@ -101,15 +105,15 @@ function DiscoveryCommunity(props: Props) {
               className={styles.noUnderline}
             >
               <RSText type="body" bold size={13} color={colors.primaryText}>
-                RootShare
+                {props.name}
               </RSText>
             </a>
 
             <RSText type="body" size={11} color={colors.secondaryText}>
-              7,042 Members
+              {props.numMembers} Members
             </RSText>
             <RSText type="body" size={11} color={colors.secondaryText}>
-              109 Mutual
+              {props.numMutual} Mutual
             </RSText>
           </div>
 

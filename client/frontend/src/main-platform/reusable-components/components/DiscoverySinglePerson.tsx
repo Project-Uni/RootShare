@@ -21,7 +21,8 @@ const useStyles = makeStyles((_: any) => ({
   personLink: {
     textDecoration: 'none',
     '&:hover': {
-      textDecoration: 'none',
+      textDecoration: 'underline',
+      color: colors.primaryText,
     },
   },
   removeButton: {
@@ -62,7 +63,7 @@ function DiscoverySinglePerson(props: Props) {
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props._id}`} className={styles.personLink}>
-            <RSText type="body" color={colors.primaryText} size={13}>
+            <RSText type="body" color={colors.primaryText} size={13} bold>
               {props.name}
             </RSText>
           </a>

@@ -109,6 +109,7 @@ function DiscoverBody(props: Props) {
           company="RootShare"
           mutualConnections={178}
           mutualCommunities={6}
+          connected={i % 2 === 1}
         />
       );
       output.push(
