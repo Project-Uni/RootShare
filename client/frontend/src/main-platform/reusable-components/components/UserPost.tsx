@@ -107,8 +107,12 @@ const useTextFieldStyles = makeStyles((_: any) => ({
   commentTextField: {
     flex: 1,
     marginLeft: 15,
+    width: '100%',
     background: colors.primaryText,
     borderRadius: 30,
+    [`& fieldset`]: {
+      borderRadius: 30,
+    },
   },
 }));
 
