@@ -17,6 +17,7 @@ import MyEventMessage from './MyEventMessage';
 import { colors } from '../../theme/Colors';
 import { MessageType } from '../../types/messagingTypes';
 import { getConversationTime } from '../../helpers/dateFormat';
+import { userInfo } from 'os';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -94,6 +95,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: { [key: string]: any };
   conversationID: string;
   accessToken: string;
   refreshToken: string;
@@ -115,8 +117,14 @@ function EventMessageContainer(props: Props) {
   }, []);
 
   useEffect(() => {
+    if (
+      props.conversationID === '' ||
+      props.conversationID === undefined ||
+      props.user === undefined
+    )
+      return;
     fetchMessages();
-  }, [props.conversationID]);
+  }, [props.conversationID, props.user]);
 
   useEffect(() => {
     if (
@@ -145,7 +153,6 @@ function EventMessageContainer(props: Props) {
   }
 
   async function fetchMessages() {
-    if (props.conversationID === undefined) return;
     const { data } = await makeRequest(
       'POST',
       '/api/messaging/getLatestMessages',
@@ -234,13 +241,23 @@ function EventMessageContainer(props: Props) {
     let output: any = [];
     messages.forEach((message: MessageType) => {
       output.push(
-        <EventMessage
-          senderName={message.senderName}
-          senderId={message.sender}
-          message={message.content}
-          likes={Math.floor(Math.random() * 1000 + 1)}
-          timeStamp={getConversationTime(new Date(message.createdAt))}
-        />
+        message.sender !== props.user._id ? (
+          <EventMessage
+            senderName={message.senderName}
+            senderId={message.sender}
+            message={message.content}
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            timeStamp={getConversationTime(new Date(message.createdAt))}
+          />
+        ) : (
+          <MyEventMessage
+            senderName={message.senderName}
+            senderId={message.sender}
+            message={message.content}
+            likes={Math.floor(Math.random() * 1000 + 1)}
+            timeStamp={getConversationTime(new Date(message.createdAt))}
+          />
+        )
       );
     });
 
@@ -298,6 +315,7 @@ function EventMessageContainer(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
     newMessage: state.newMessage,
