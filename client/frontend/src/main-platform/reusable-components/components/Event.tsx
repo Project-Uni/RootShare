@@ -51,6 +51,13 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     color: colors.primaryText,
   },
+  hostLink: {
+    textDecoration: 'none',
+    color: colors.primaryText,
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -111,7 +118,7 @@ function Event(props: Props) {
   function renderEventBody() {
     return (
       <>
-        <a href={`/community/${props.communityID}`}>
+        <a href={`/community/${props.communityID}`} className={styles.hostLink}>
           <RSText type="subhead" color={colors.primaryText} size={14}>
             Hosted by {props.communityName}
           </RSText>

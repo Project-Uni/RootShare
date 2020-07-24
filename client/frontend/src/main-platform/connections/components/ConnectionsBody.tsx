@@ -75,7 +75,7 @@ function ConnectionsBody(props: Props) {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search for users or communities"
+              label="Search your connections"
               margin="normal"
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}

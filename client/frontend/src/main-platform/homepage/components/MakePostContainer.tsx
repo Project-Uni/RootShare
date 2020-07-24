@@ -33,6 +33,9 @@ const useStyles = makeStyles((_: any) => ({
     width: '100%',
     background: colors.primaryText,
     borderRadius: 15,
+    [`& fieldset`]: {
+      borderRadius: 15,
+    },
   },
   textFieldContainer: {
     flex: 1,
@@ -64,7 +67,6 @@ function MakePostContainer(props: Props) {
     <div className={styles.messageAreaWrapper}>
       <div className={styles.messageArea}>
         <img src={AshwinHeadshot} className={styles.postProfilePic} alt="Profile" />
-        {/* TODO - Update Style of this textfield */}
         <div className={styles.textFieldContainer}>
           <TextField
             variant="outlined"
