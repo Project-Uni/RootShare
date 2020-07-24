@@ -85,6 +85,13 @@ function CommunityBody(props: Props) {
           numMutual={58}
           type="Business"
           private
+          description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
+          experiences post-graduation. Robbie has played in the NBA for a season or
+          two, and played overseas for multiple. He is involved with startups now.
+          Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
+          currently on the New Orleans Pelicans and is having great success. The first
+          45 minutes will be dedicated to the three talking about their experiences.
+          The remaining 15 minutes will be dedicated to questions from the fans.`}
         />
       </div>
     </div>

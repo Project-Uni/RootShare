@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
@@ -6,6 +6,8 @@ import { FaLock } from 'react-icons/fa';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { Button } from '@material-ui/core';
+
+const MAX_DESC_LEN = 275;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -58,11 +60,24 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.secondaryText,
     },
   },
+  description: {
+    marginTop: 10,
+  },
+  seeMore: {
+    textDecoration: 'none',
+    fontSize: '13pt',
+    color: colors.secondaryText,
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
   status: 'JOINED' | 'PENDING' | 'OPEN';
   name: string;
+  description: string;
   numMembers: number;
   numMutual: number;
   type:
@@ -77,6 +92,13 @@ type Props = {
 
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
+  const [showFullDesc, setShowFullDesc] = useState(false);
+
+  const descSubstr = props.description.substr(0, MAX_DESC_LEN);
+
+  function handleSeeClicked() {
+    setShowFullDesc(!showFullDesc);
+  }
 
   function renderButton() {
     if (props.status === 'OPEN')
@@ -134,6 +156,23 @@ function CommunityGeneralInfo(props: Props) {
             {props.numMutual} Mutual
           </RSText>
         </div>
+      </div>
+      <RSText
+        type="body"
+        color={colors.secondary}
+        size={13}
+        className={styles.description}
+      >
+        {props.description === descSubstr || showFullDesc
+          ? props.description
+          : descSubstr + ' ...'}
+      </RSText>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {props.description !== descSubstr && (
+          <a href={undefined} className={styles.seeMore} onClick={handleSeeClicked}>
+            See {showFullDesc ? 'less' : 'more'}
+          </a>
+        )}
       </div>
     </div>
   );
