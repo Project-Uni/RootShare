@@ -10,7 +10,7 @@ const CommunitySchema = new mongoose.Schema(
     },
     admin: { type: mongoose.Schema.objectId, ref: 'users', required: true },
     private: { type: Boolean, default: false, required: true },
-    members: [{ type: mongoose.Schema.objectId, ref: 'users', required: true }],
+    members: [{ type: mongoose.Schema.objectId, ref: 'users' }],
     type: { type: Number, required: true, message: 'Type is required' },
     description: {
       type: String,
@@ -24,7 +24,12 @@ const CommunitySchema = new mongoose.Schema(
         required: true,
       },
     ],
-    posts: [],
+    posts: [
+      {
+        type: mongoose.Schema.objectId,
+        ref: 'posts',
+      },
+    ],
     //TODO - Add fields for profile pic and background Image
   },
   { timestamps: true }
