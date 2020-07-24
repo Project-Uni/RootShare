@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { FaLock } from 'react-icons/fa';
+
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
+
 import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
+import RSText from '../../../base-components/RSText';
 
 const HEADER_HEIGHT = 60;
 
@@ -31,13 +35,30 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  status: 'JOINED' | 'PENDING' | 'OPEN';
+  name: string;
+  description: string;
+  numMembers: number;
+  numMutual: number;
+  type:
+    | 'Social'
+    | 'Business'
+    | 'Just for Fun'
+    | 'Athletics'
+    | 'Student Organization'
+    | 'Academic';
+  private?: boolean;
+};
 
 function CommunityBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const locked =
+    props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -67,6 +88,21 @@ function CommunityBody(props: Props) {
     );
   }
 
+  function renderTabs() {
+    return <div></div>;
+  }
+
+  function renderLocked() {
+    return (
+      <div style={{ marginTop: 70 }}>
+        <FaLock size={90} color={colors.secondaryText} />
+        <RSText type="subhead" size={20} color={colors.primary}>
+          You must be a member to view this content.
+        </RSText>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {/* {showWelcomeModal && (
@@ -79,20 +115,15 @@ function CommunityBody(props: Props) {
       <div className={styles.body}>
         {renderProfileAndBackground()}
         <CommunityGeneralInfo
-          status="JOINED"
-          name="Rootshare"
-          numMembers={7042}
-          numMutual={58}
-          type="Business"
-          private
-          description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
-          experiences post-graduation. Robbie has played in the NBA for a season or
-          two, and played overseas for multiple. He is involved with startups now.
-          Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
-          currently on the New Orleans Pelicans and is having great success. The first
-          45 minutes will be dedicated to the three talking about their experiences.
-          The remaining 15 minutes will be dedicated to questions from the fans.`}
+          status={props.status}
+          name={props.name}
+          numMembers={props.numMembers}
+          numMutual={props.numMutual}
+          type={props.type}
+          private={props.private}
+          description={props.description}
         />
+        {locked ? renderLocked() : renderTabs()}
       </div>
     </div>
   );

@@ -88,7 +88,21 @@ function Community(props: Props) {
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
-        <CommunityBody />
+        <CommunityBody
+          status="PENDING"
+          name="Rootshare"
+          numMembers={7042}
+          numMutual={58}
+          type="Business"
+          private
+          description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
+          experiences post-graduation. Robbie has played in the NBA for a season or
+          two, and played overseas for multiple. He is involved with startups now.
+          Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
+          currently on the New Orleans Pelicans and is having great success. The first
+          45 minutes will be dedicated to the three talking about their experiences.
+          The remaining 15 minutes will be dedicated to questions from the fans.`}
+        />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
