@@ -67,7 +67,7 @@ function MessagesDrawerContainer(props: Props) {
       Object.keys(newMessage).length === 0 ||
       newMessage === undefined ||
       newMessage === null ||
-      currConversationID !== ''
+      currConversationID === ''
     )
       return;
 
