@@ -63,8 +63,15 @@ function MessagesDrawerContainer(props: Props) {
   }, [props.newMessage]);
 
   function addMessage(newMessage: any) {
-    if (currConversationID !== '')
-      setMessages((prevMessages) => prevMessages.concat(newMessage));
+    if (
+      Object.keys(newMessage).length === 0 ||
+      newMessage === undefined ||
+      newMessage === null ||
+      currConversationID !== ''
+    )
+      return;
+
+    setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
   async function updateMessages(currID: string = currConversationID) {
