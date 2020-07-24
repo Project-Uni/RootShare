@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { makeRequest } from '../helpers/makeRequest';
 import { updateConversations, updateNewMessage } from '../redux/actions/message';
+import { updateSocket } from '../redux/actions/socket';
 
 import { colors } from '../theme/Colors';
 import { disconnect } from 'cluster';
@@ -24,6 +25,7 @@ type Props = {
   newMessage: MessageType;
   updateConversations: (conversations: ConversationType[]) => void;
   updateNewMessage: (newMessage: MessageType) => void;
+  updateSocket: (socket: SocketIOClient.Socket) => void;
 };
 
 function SocketManager(props: Props) {
@@ -61,9 +63,9 @@ function SocketManager(props: Props) {
   }
 
   function connectSocket() {
-    alert('connecting socket');
     const socket = io('http://localhost:8080');
     setSocket(socket);
+    props.updateSocket(socket);
 
     socket.on('connect', (data: React.SetStateAction<boolean>) => {
       fetchConversations(socket);
@@ -144,7 +146,7 @@ function SocketManager(props: Props) {
 
     const userConversations = data['content']['userConversations'];
     if (currSocket !== undefined)
-      currSocket.emit('metadata', userConversations, props.user._id);
+      currSocket.emit('initialConnect', userConversations, props.user._id);
 
     props.updateConversations(userConversations);
   }
@@ -169,6 +171,9 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     updateNewMessage: (newMessage: MessageType) => {
       dispatch(updateNewMessage(newMessage));
+    },
+    updateSocket: (socket: SocketIOClient.Socket) => {
+      dispatch(updateSocket(socket));
     },
   };
 };

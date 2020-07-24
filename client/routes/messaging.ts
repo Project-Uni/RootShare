@@ -14,7 +14,7 @@ module.exports = (app, io) => {
   io.on('connection', (socket) => {
     log('info', 'New client connected');
 
-    socket.on('metadata', (conversations, userID) => {
+    socket.on('initialConnect', (conversations, userID) => {
       connectSocketToConversations(socket, conversations);
       socket.join(`USER_${userID}`);
     });

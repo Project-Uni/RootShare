@@ -97,6 +97,8 @@ type Props = {
   conversationID: string;
   accessToken: string;
   refreshToken: string;
+  newMessage: MessageType;
+  socket: SocketIOClient.Socket;
 };
 
 function EventMessageContainer(props: Props) {
@@ -115,6 +117,32 @@ function EventMessageContainer(props: Props) {
   useEffect(() => {
     fetchMessages();
   }, [props.conversationID]);
+
+  useEffect(() => {
+    if (
+      Object.keys(props.socket).length === 0 ||
+      props.conversationID === '' ||
+      props.conversationID === undefined
+    )
+      return;
+    props.socket.emit('connectToConversation', props.conversationID);
+  }, [props.socket, props.conversationID]);
+
+  useEffect(() => {
+    addMessage(props.newMessage);
+  }, [props.newMessage]);
+
+  function addMessage(newMessage: MessageType) {
+    if (
+      Object.keys(newMessage).length === 0 ||
+      newMessage === undefined ||
+      newMessage === null ||
+      newMessage.conversationID !== props.conversationID
+    )
+      return;
+
+    setMessages((prevMessages) => prevMessages.concat(newMessage));
+  }
 
   async function fetchMessages() {
     if (props.conversationID === undefined) return;
@@ -272,6 +300,8 @@ const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
+    newMessage: state.newMessage,
+    socket: state.socket,
   };
 };
 
