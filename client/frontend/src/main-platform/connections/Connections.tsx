@@ -12,6 +12,10 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import ConnectionsBody from './components/ConnectionsBody';
 
+import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../types/constants';
+
+const CONNECTIONS_SHOW_NAVIGATION_WIDTH = 850;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -35,8 +39,11 @@ function Connections(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
@@ -45,6 +52,10 @@ function Connections(props: Props) {
       }
     });
   }, []);
+
+  function handleResize() {
+    setWidth(window.innerWidth);
+  }
 
   async function checkAuth() {
     const { data } = await makeRequest(
@@ -67,11 +78,13 @@ function Connections(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/connections`} />}
-      <EventClientHeader />
+      <EventClientHeader showNavigationWidth={CONNECTIONS_SHOW_NAVIGATION_WIDTH} />
       <div className={styles.body}>
-        <MainNavigator currentTab="connections" />
+        {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
+          <MainNavigator currentTab="connections" />
+        )}
         <ConnectionsBody />
-        <DiscoverySidebar />
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
   );

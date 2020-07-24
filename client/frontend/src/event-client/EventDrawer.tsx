@@ -27,11 +27,12 @@ type Props = {
   children: React.ReactNode;
   handleClose: () => void;
   backgroundColor: string;
+  anchor: 'left' | 'right';
 };
 
 function EventDrawer(props: Props) {
   const styles = useStyles(props.backgroundColor)();
-  const anchor = 'right';
+  const anchor = props.anchor;
 
   return (
     <Drawer

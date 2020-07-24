@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage } from '../../reusable-components';
+import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
+
+import { JacksonHeadshot } from '../../../images/team';
 
 const HEADER_HEIGHT = 60;
 
@@ -14,6 +17,18 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     background: colors.primaryText,
     overflow: 'scroll',
+    minWidth: 600,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 80,
+  },
+  posts: {
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  singlePost: {
+    marginTop: 10,
   },
 }));
 
@@ -36,7 +51,10 @@ function HomepageBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    setTimeout(() => {
+      console.log('Fetching data');
+      return true;
+    }, 1000);
   }
 
   function handleResize() {
@@ -63,6 +81,26 @@ function HomepageBody(props: Props) {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
+  function renderFeed() {
+    const output = [];
+    for (let i = 0; i < 6; i++)
+      output.push(
+        <UserPost
+          userID={'testID'}
+          userName="Jackson McCluskey"
+          profilePicture={JacksonHeadshot}
+          community="Computer Science Nerds Club"
+          communityID={'testCommID'}
+          timestamp="July 14th, 2020 6:52 PM"
+          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
+          likeCount={109}
+          commentCount={54}
+          style={styles.singlePost}
+        />
+      );
+    return <div className={styles.posts}>{output}</div>;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -81,6 +119,11 @@ function HomepageBody(props: Props) {
         onPost={handleSubmitPost}
         onUploadImage={handleImageUpload}
       />
+      {loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : (
+        renderFeed()
+      )}
     </div>
   );
 }

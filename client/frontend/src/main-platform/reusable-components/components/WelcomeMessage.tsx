@@ -5,8 +5,8 @@ import { IconButton, Button } from '@material-ui/core';
 
 import { IoMdClose } from 'react-icons/io';
 
-import { colors } from '../../theme/Colors';
-import RSText from '../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
+import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {

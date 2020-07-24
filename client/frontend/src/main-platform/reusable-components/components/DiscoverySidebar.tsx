@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RSText from '../../base-components/RSText';
+import RSText from '../../../base-components/RSText';
 
-import { colors } from '../../theme/Colors';
+import { colors } from '../../../theme/Colors';
 
 import DiscoverySinglePerson from './DiscoverySinglePerson';
+import DiscoveryCommunity from './DiscoveryCommunity';
 import {
   AshwinHeadshot,
   SmitHeadshot,
   JacksonHeadshot,
   DhruvHeadshot,
   ChrisHeadshot,
-} from '../../images/team';
+} from '../../../images/team';
 
 const HEADER_HEIGHT = 60;
 const VERTICAL_PADDING_TOTAL = 40;
@@ -23,6 +24,9 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
     padding: 20,
     overflow: 'scroll',
+  },
+  pplForYouText: {
+    marginTop: 15,
   },
 }));
 
@@ -103,12 +107,18 @@ function DiscoverySidebar(props: Props) {
     //Test code
     const communities = [];
     for (let i = 0; i < 5; i++) {
+      let status: 'OPEN' | 'JOINED' | 'PENDING';
+      if (i % 3 == 0) status = 'OPEN';
+      else if (i % 3 == 2) status = 'PENDING';
+      else status = 'JOINED';
       communities.push(
-        <a href={`/community/id${i}`}>
-          <RSText type="body" color={colors.primaryText}>
-            Community {i}
-          </RSText>
-        </a>
+        <DiscoveryCommunity
+          communityID={'communityABC'}
+          status={status}
+          name="RootShare"
+          numMembers={7042}
+          numMutual={106}
+        />
       );
     }
 
@@ -145,7 +155,13 @@ function DiscoverySidebar(props: Props) {
     //End of test code
     return (
       <div>
-        <RSText size={18} type="head" bold color={colors.primaryText}>
+        <RSText
+          size={18}
+          type="head"
+          bold
+          color={colors.primaryText}
+          className={styles.pplForYouText}
+        >
           People for you
         </RSText>
         {people}
