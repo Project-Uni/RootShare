@@ -8,6 +8,7 @@ import AllConversationsContainer from './AllConversationsContainer';
 import MessageThreadContainer from './MessageThreadContainer';
 
 import { colors } from '../../../theme/Colors';
+import { MessageType, ConversationType } from '../../../types/messagingTypes';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -48,26 +49,26 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
-  newMessage: string;
+  newMessage: MessageType;
 };
 
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
   const [currConversationID, setCurrConversationID] = useState('');
-  const [currConversation, setCurrConversation] = useState({});
-  const [messages, setMessages] = useState([]);
+  const [currConversation, setCurrConversation] = useState<ConversationType>();
+  const [messages, setMessages] = useState<MessageType[]>([]);
 
   useEffect(() => {
     addMessage(props.newMessage);
   }, [props.newMessage]);
 
-  function addMessage(newMessage: any) {
+  function addMessage(newMessage: MessageType) {
     if (
       Object.keys(newMessage).length === 0 ||
       newMessage === undefined ||
       newMessage === null ||
-      currConversationID === ''
+      newMessage.conversationID !== currConversationID
     )
       return;
 
@@ -99,13 +100,13 @@ function MessagesDrawerContainer(props: Props) {
 
   function returnToConversations() {
     setCurrConversationID('');
-    setCurrConversation({});
+    setCurrConversation(undefined);
     setMessages([]);
   }
 
   return (
     <div className={styles.wrapper}>
-      {currConversationID === '' ? (
+      {currConversationID === '' || currConversation === undefined ? (
         <AllConversationsContainer
           user={props.user}
           selectConversation={selectConversation}

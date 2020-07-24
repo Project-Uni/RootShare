@@ -57,7 +57,7 @@ type Props = {
   senderId: string;
   message: string;
   likes: number;
-  time: string;
+  timeStamp: string;
   handleConnect?: (userID: string) => boolean;
   connected?: boolean;
 };
@@ -110,7 +110,7 @@ function EventMessage(props: Props) {
             {props.senderName}
           </RSText>
           <RSText size={10} className={styles.time}>
-            {props.time}
+            {props.timeStamp}
           </RSText>
         </div>
         <IconButton

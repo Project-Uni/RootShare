@@ -22,6 +22,7 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
+import { EventType, HostType, SpeakerType } from '../types/eventTypes';
 
 import { makeRequest } from '../helpers/makeRequest';
 import log from '../helpers/logger';
@@ -109,31 +110,6 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-};
-
-type EventType = {
-  _id: string;
-  title: string;
-  brief_description: string;
-  full_description: string;
-  host: HostType;
-  speakers: SpeakerType[];
-  attendees: string[];
-  dateTime: Date;
-};
-
-type HostType = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-};
-
-type SpeakerType = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
 };
 
 function AdminEventCreator(props: Props) {

@@ -13,7 +13,10 @@ import { makeRequest } from '../../helpers/makeRequest';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
+
 import { colors } from '../../theme/Colors';
+import { MessageType } from '../../types/messagingTypes';
+import { getConversationTime } from '../../helpers/dateFormat';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -90,37 +93,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type MessageType = {
-  _id: string;
-  conversationID: string;
-  senderName: string;
-  sender: string;
-  content: string;
-  createdAt: string;
-};
-
 type Props = {
   conversationID: string;
   accessToken: string;
   refreshToken: string;
 };
-
-function getDate() {
-  let tempDate = new Date();
-
-  let ampm = 'AM';
-  let hours = tempDate.getHours() === 0 ? 12 : tempDate.getHours();
-
-  if (tempDate.getHours() > 12) {
-    ampm = 'PM';
-    hours = hours - 12;
-  }
-
-  let minutes =
-    tempDate.getMinutes() < 10 ? '0' + tempDate.getMinutes() : tempDate.getMinutes();
-
-  return hours + ':' + minutes + ' ' + ampm;
-}
 
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
@@ -234,7 +211,7 @@ function EventMessageContainer(props: Props) {
           senderId={message.sender}
           message={message.content}
           likes={Math.floor(Math.random() * 1000 + 1)}
-          time={message.createdAt}
+          timeStamp={getConversationTime(new Date(message.createdAt))}
         />
       );
     });
@@ -242,79 +219,6 @@ function EventMessageContainer(props: Props) {
     return output;
   }
 
-  function testRenderMessages() {
-    const output = [];
-    for (let i = 0; i < 3; i++) {
-      output.push(
-        <div className={styles.messageTest}>
-          <EventMessage
-            senderName="Chris Hartley"
-            senderId="1001"
-            message="What is RootShare????"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Dhruv Patel"
-            senderId="1002"
-            message="Stay hungry."
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Ashwin Mahesh"
-            senderId="1003"
-            message="THE BABY BOILERS ARE BACK!!! #GottaGrow"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Smit Desai"
-            senderId="1004"
-            message="When is the event?"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <MyEventMessage
-            senderName="Jackson McCluskey"
-            senderId="1005"
-            message="AUGUST 14, 2020 @ 7PM EST YESSIR!!!"
-            likes={999}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Reni Patel"
-            senderId="1006"
-            message="Who's going to present?!?!"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Caite Capezzuto"
-            senderId="1007"
-            message="Robbie Hummel, Jajuan Johnson, and E’twaun Moore! It's gonna be hype!"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Lauren Odle"
-            senderId="1008"
-            message="Register for the event today on rootshare.io and follow the Instagram! ;)"
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            time={getDate()}
-          />
-          <EventMessage
-            senderName="Nick O'Teen"
-            senderId="1003"
-            message="has left the chat."
-            likes={193}
-            time={getDate()}
-          />
-        </div>
-      );
-    }
-    return output;
-  }
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       <div className={styles.messageContainer}>{renderMessages()}</div>

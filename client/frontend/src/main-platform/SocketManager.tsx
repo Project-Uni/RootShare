@@ -8,6 +8,7 @@ import { updateConversations, updateNewMessage } from '../redux/actions/message'
 
 import { colors } from '../theme/Colors';
 import { disconnect } from 'cluster';
+import { MessageType, ConversationType } from '../types/messagingTypes';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -19,10 +20,10 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
-  conversations: any[];
-  newMessage: string;
-  updateConversations: (conversations: any[]) => void;
-  updateNewMessage: (newMessage: string) => void;
+  conversations: ConversationType[];
+  newMessage: MessageType;
+  updateConversations: (conversations: ConversationType[]) => void;
+  updateNewMessage: (newMessage: MessageType) => void;
 };
 
 function SocketManager(props: Props) {
@@ -163,10 +164,10 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    updateConversations: (conversations: any[]) => {
+    updateConversations: (conversations: ConversationType[]) => {
       dispatch(updateConversations(conversations));
     },
-    updateNewMessage: (newMessage: string) => {
+    updateNewMessage: (newMessage: MessageType) => {
       dispatch(updateNewMessage(newMessage));
     },
   };

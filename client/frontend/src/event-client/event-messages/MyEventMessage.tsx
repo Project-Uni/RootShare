@@ -62,7 +62,7 @@ type Props = {
   senderId: string;
   message: string;
   likes: number;
-  time: string;
+  timeStamp: string;
 };
 
 function MyEventMessage(props: Props) {
@@ -92,7 +92,7 @@ function MyEventMessage(props: Props) {
             {props.senderName}
           </RSText>
           <RSText size={10} className={styles.time}>
-            {props.time}
+            {props.timeStamp}
           </RSText>
         </div>
         {/* TODO - Think about removing the ellipsis and options from your own messages */}

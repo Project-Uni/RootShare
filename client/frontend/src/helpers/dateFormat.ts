@@ -45,7 +45,7 @@ export function getConversationTime(date: Date) {
   const messageMonth = date.getMonth();
   const messageDate = date.getDate();
   const currDate = now.getDate();
-  if (messageYear !== now.getFullYear()) return messageYear;
+  if (messageYear !== now.getFullYear()) return messageYear.toString();
   else if (messageMonth !== now.getMonth()) return monthDict[messageMonth];
   else if (currDate - messageDate >= 7) return `${messageMonth}/${messageDate}`;
   else if (currDate - messageDate > 1) return weekDict[date.getDay()];

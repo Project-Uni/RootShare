@@ -9,11 +9,13 @@ import { IoIosArrowBack } from 'react-icons/io';
 import { connect } from 'react-redux';
 import { makeRequest } from '../../../helpers/makeRequest';
 
-import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
 import MessageTextField from './MessageTextField';
+import RSText from '../../../base-components/RSText';
+
+import { colors } from '../../../theme/Colors';
+import { MessageType, ConversationType } from '../../../types/messagingTypes';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -105,8 +107,8 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: any;
-  conversation: any;
-  messages: any[];
+  conversation: ConversationType;
+  messages: MessageType[];
   returnToConversations: () => void;
   accessToken: string;
   refreshToken: string;
@@ -114,8 +116,6 @@ type Props = {
 
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
-
-  const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
     scrollToBottom();
