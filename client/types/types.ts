@@ -8,3 +8,20 @@ export const USER_LEVEL = {
 export const JWT_TOKEN_FIELDS = ['email', '_id'];
 
 export const JWT_ACCESS_TOKEN_TIMEOUT = '30m';
+
+export type COMMUNITY_TYPE =
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';
+
+export const CommunityMap = {
+  Social: 0,
+  Business: 1,
+  'Just for Fun': 2,
+  Athletics: 3,
+  'Student Organization': 4,
+  Academic: 5,
+};
