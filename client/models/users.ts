@@ -27,9 +27,20 @@ var userSchema = new Schema(
     verified: { type: Boolean, required: true, default: false },
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
-      required: true,
-      default: [],
     },
+    connections: {
+      type: [{ type: Schema.ObjectId, ref: 'users' }],
+    },
+    pendingConnections: {
+      type: [{ type: Schema.ObjectId, ref: 'users' }],
+    },
+    joinedCommunities: {
+      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+    },
+    pendingCommunities: {
+      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+    },
+    //TODO - Add fields for profile picture and background image
   },
   { timestamps: true }
 );
