@@ -115,7 +115,7 @@ function addEventSessionListeners(
     });
 
     subscriber.on('videoElementCreated', function(event: any) {
-      increaseNumSpeakers();
+      if (streamEvent.stream.videoType === 'camera') increaseNumSpeakers();
       setTimeout(() => {
         updateVideoElements(
           event.element,

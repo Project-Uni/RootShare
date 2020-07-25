@@ -202,9 +202,11 @@ function EventHostContainer(props: Props) {
         }
       }
 
-      setNumSpeakers((prevState) => {
-        return (prevState - 1) as SINGLE_DIGIT;
-      });
+      if (videoType === 'camera') {
+        setNumSpeakers((prevState) => {
+          return (prevState - 1) as SINGLE_DIGIT;
+        });
+      }
 
       const newVideoElements =
         elementIndex === -1
