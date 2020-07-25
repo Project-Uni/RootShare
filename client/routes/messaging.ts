@@ -72,7 +72,7 @@ module.exports = (app, io) => {
   });
 
   app.post('/api/messaging/getLiked', isAuthenticatedWithJWT, (req, res) => {
-    getLiked(req.user._id, req.body.messageID, (packet) => {
+    getLiked(req.user._id, req.body.conversationID, (packet) => {
       res.send(packet);
     });
   });

@@ -140,34 +140,55 @@ module.exports = {
   },
 
   getLatestMessages: async (conversationID, callback) => {
-    Conversation.findById(conversationID, (err, conversation) => {
+    Conversation.findById(conversationID, async (err, conversation) => {
       if (err || conversation === undefined || conversation === null) {
         log('error', err);
         return callback(sendPacket(-1, 'Could not find Conversation'));
       }
 
+      // const filter = { createdAt: { $gte: 0 } };
+      // let docs = await Message.aggregate([{ $match: filter }]);
+      // console.log(docs);
       Message.aggregate([
-        { $match: { conversationID: conversationID } },
-        { $project: { numLikes: { $size: '$likes' } } },
+        { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
+        { $sort: { createdAt: -1 } },
+        {
+          $project: {
+            numLikes: { $size: '$likes' },
+            conversationID: '$conversationID',
+            senderName: '$senderName',
+            sender: '$sender',
+            content: '$content',
+            createdAt: '$createdAt',
+          },
+        },
       ])
         .exec()
-        .then((response) => {
-          console.log(response);
-        });
+        .then((messages) => {
+          console.log(messages);
+          if (!messages) return callback(sendPacket(-1, 'Could not find Messages'));
+          callback(
+            sendPacket(1, 'Sending Conversation and Messages', {
+              conversation,
+              messages,
+            })
+          );
+        })
+        .catch((err) => callback(sendPacket(-1, err)));
 
-      Message.find({ conversationID }, (err, messages) => {
-        if (err || messages === undefined || messages === null) {
-          log('error', err);
-          return callback(sendPacket(-1, 'Could not find Messages'));
-        }
+      // Message.find({ conversationID }, (err, messages) => {
+      //   if (err || messages === undefined || messages === null) {
+      //     log('error', err);
+      //     return callback(sendPacket(-1, 'Could not find Messages'));
+      //   }
 
-        return callback(
-          sendPacket(1, 'Sending Conversation and Messages', {
-            conversation,
-            messages,
-          })
-        );
-      }).sort({ createdAt: 'ascending' });
+      //   return callback(
+      //     sendPacket(1, 'Sending Conversation and Messages', {
+      //       conversation,
+      //       messages,
+      //     })
+      //   );
+      // }).sort({ createdAt: 'ascending' });
     });
   },
 
