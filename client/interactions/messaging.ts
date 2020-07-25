@@ -111,14 +111,13 @@ module.exports = {
 
   getLatestThreads: async (userID, callback) => {
     function timeStampCompare(ObjectA, ObjectB) {
-      const a =
-        ObjectA.lastMessage !== undefined
-          ? ObjectA.lastMessage.createdAt
-          : ObjectA.createdAt;
-      const b =
-        ObjectB.lastMessage !== undefined
-          ? ObjectB.lastMessage.createdAt
-          : ObjectB.createdAt;
+      const a = !ObjectA.lastMessage
+        ? ObjectA.createdAt
+        : ObjectA.lastMessage.createdAt;
+
+      const b = !ObjectB.lastMessage
+        ? ObjectB.createdAt
+        : ObjectB.lastMessage.createdAt;
 
       if (a < b) return 1;
       if (b < a) return -1;
