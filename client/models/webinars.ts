@@ -16,6 +16,11 @@ var webinarSchema = new Schema(
     muxStreamKey: String,
     muxLiveStreamID: String,
     muxPlaybackID: String,
+    communities: {
+      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+    },
+    private: { type: Boolean },
+    //TODO - Add field for image
   },
   { timestamps: true }
 );

@@ -27,29 +27,23 @@ var userSchema = new Schema(
     verified: { type: Boolean, required: true, default: false },
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
-      required: true,
-      default: [],
     },
     connections: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
-      required: true,
-      default: [],
+      type: [{ type: Schema.ObjectId, ref: 'users' }],
+    },
+    pendingConnections: {
+      type: [{ type: Schema.ObjectId, ref: 'users' }],
     },
     posts: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'posts' }],
-      required: true,
-      default: [],
+      type: [{ type: Schema.ObjectId, ref: 'posts' }],
     },
     joinedCommunities: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'communities' }],
-      required: true,
-      default: [],
+      type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
     pendingCommunities: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'communities' }],
-      required: true,
-      default: [],
+      type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
+    //TODO - Add fields for profile picture and background image
   },
   { timestamps: true }
 );

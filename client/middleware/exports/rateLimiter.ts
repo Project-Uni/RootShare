@@ -2,7 +2,7 @@ import * as rateLimit from 'express-rate-limit';
 
 export const rateLimiter = rateLimit({
   windowMs: 1000 * 60, // 1 minute window
-  max: 200, //Maximum requests per window
+  max: 50000, //Maximum requests per window
   message: 'Maximum requests per minute exceeded.',
   headers: true,
 });
