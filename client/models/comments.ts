@@ -13,6 +13,13 @@ const CommentSchema = new mongoose.Schema(
       required: true,
       message: 'Message is required',
     },
+    likes: { type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }] },
+    post: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'posts',
+      required: true,
+      message: 'Post is required to create a comment',
+    },
   },
   { timestamps: true }
 );

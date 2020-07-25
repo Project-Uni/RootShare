@@ -17,12 +17,7 @@ const PostSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },
-
     community: { type: mongoose.Schema.ObjectId, ref: 'communities' },
-    comments: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'comments' }],
-      default: [],
-    },
   },
   { timestamps: true }
 );
