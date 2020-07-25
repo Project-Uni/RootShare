@@ -30,6 +30,26 @@ var userSchema = new Schema(
       required: true,
       default: [],
     },
+    connections: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      required: true,
+      default: [],
+    },
+    posts: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'posts' }],
+      required: true,
+      default: [],
+    },
+    joinedCommunities: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'communities' }],
+      required: true,
+      default: [],
+    },
+    pendingCommunities: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'communities' }],
+      required: true,
+      default: [],
+    },
   },
   { timestamps: true }
 );

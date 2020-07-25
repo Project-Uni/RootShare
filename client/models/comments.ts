@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const CommentSchema = new mongoose.Schema(
   {
     user: {
-      type: mongoose.Schema.objectId,
+      type: mongoose.Schema.ObjectId,
       ref: 'users',
       required: true,
       message: 'User is required',

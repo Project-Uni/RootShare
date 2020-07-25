@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 import { COMMUNITY_TYPE, CommunityMap } from '../types/types';
 
 const CommunitySchema = new mongoose.Schema(
@@ -8,28 +8,30 @@ const CommunitySchema = new mongoose.Schema(
       required: true,
       message: 'Name is required for community',
     },
-    admin: { type: mongoose.Schema.objectId, ref: 'users', required: true },
+    admin: { type: mongoose.Schema.ObjectId, ref: 'users', required: true },
     private: { type: Boolean, default: false, required: true },
-    members: [{ type: mongoose.Schema.objectId, ref: 'users' }],
+    members: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      default: [],
+    },
     type: { type: Number, required: true, message: 'Type is required' },
     description: {
       type: String,
       required: true,
       message: 'Description is required.',
     },
-    events: [
-      {
-        type: mongoose.Schema.objectId,
-        ref: 'webinars',
-        required: true,
-      },
-    ],
-    posts: [
-      {
-        type: mongoose.Schema.objectId,
-        ref: 'posts',
-      },
-    ],
+    events: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'webinars' }],
+      required: true,
+      default: [],
+    },
+
+    posts: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'posts' }],
+      required: true,
+      default: [],
+    },
+
     //TODO - Add fields for profile pic and background Image
   },
   { timestamps: true }
@@ -43,6 +45,7 @@ export default Community;
 export function getCommunityValueFromType(type: COMMUNITY_TYPE) {
   return CommunityMap[type];
 }
+
 export function getCommunityTypeFromValue(value: number) {
   switch (value) {
     case 0:
