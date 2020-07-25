@@ -151,7 +151,7 @@ module.exports = {
       // console.log(docs);
       Message.aggregate([
         { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
-        { $sort: { createdAt: -1 } },
+        { $sort: { createdAt: 1 } },
         {
           $project: {
             numLikes: { $size: '$likes' },

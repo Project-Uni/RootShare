@@ -18,6 +18,9 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: '#242d56',
     paddingBottom: 4,
+    borderTopStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'lightgray',
   },
   top: {
     display: 'flex',
