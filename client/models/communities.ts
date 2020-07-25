@@ -20,11 +20,6 @@ const CommunitySchema = new mongoose.Schema(
       required: true,
       message: 'Description is required.',
     },
-    events: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'webinars' }],
-      required: true,
-      default: [],
-    },
     //TODO - Add fields for profile pic and background Image
   },
   { timestamps: true }
