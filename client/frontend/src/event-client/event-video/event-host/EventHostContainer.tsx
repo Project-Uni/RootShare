@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
-import axios from 'axios';
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
 import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
@@ -102,7 +101,6 @@ function EventHostContainer(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchEventInfo();
     initializeSession();
   }, []);
 
@@ -110,10 +108,6 @@ function EventHostContainer(props: Props) {
     if (window.innerWidth >= MIN_WINDOW_WIDTH)
       setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
     setVideoHeight(window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT);
-  }
-
-  async function fetchEventInfo() {
-    setNumSpeakers(props.webinar['speakers'].length + 1);
   }
 
   function handleStreamStatusChange() {
@@ -138,6 +132,12 @@ function EventHostContainer(props: Props) {
     });
   }
 
+  function increaseNumSpeakers() {
+    setNumSpeakers((prevState) => {
+      return (prevState + 1) as SINGLE_DIGIT;
+    });
+  }
+
   async function updateVideoElements(
     element: HTMLVideoElement | HTMLObjectElement,
     videoType: 'camera' | 'screen',
@@ -157,10 +157,8 @@ function EventHostContainer(props: Props) {
         if (videoType === 'screen') {
           setSomeoneSharingScreen(`${nextID}`);
           setSharingScreen(true);
-        }
-
-        if (videoType === 'screen')
           updateStateInHelper(`${nextID}`, session, screenPublisher);
+        }
 
         return {
           videoElements: prevVideoData.videoElements.concat(element),
@@ -172,7 +170,6 @@ function EventHostContainer(props: Props) {
         };
       } else {
         element.setAttribute('elementid', otherID);
-
         if (videoType === 'screen') setSomeoneSharingScreen(otherID);
 
         return {
@@ -204,6 +201,10 @@ function EventHostContainer(props: Props) {
           elementIndex = i;
         }
       }
+
+      setNumSpeakers((prevState) => {
+        return (prevState - 1) as SINGLE_DIGIT;
+      });
 
       const newVideoElements =
         elementIndex === -1
@@ -319,6 +320,7 @@ function EventHostContainer(props: Props) {
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
+        increaseNumSpeakers,
         props.accessToken,
         props.refreshToken
       );

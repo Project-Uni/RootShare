@@ -62,10 +62,16 @@ export async function createEventSession(
     videoType: 'camera' | 'screen',
     self: boolean
   ) => void,
-  setCameraPublisher: (newPublisher: OT.Publisher) => void
+  setCameraPublisher: (newPublisher: OT.Publisher) => void,
+  increaseNumSpeakers: () => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
-  addEventSessionListeners(eventSession, updateVideoElements, removeVideoElement);
+  addEventSessionListeners(
+    eventSession,
+    updateVideoElements,
+    removeVideoElement,
+    increaseNumSpeakers
+  );
 
   await eventSession.connect(eventToken, (err: any) => {
     if (err) {
@@ -100,7 +106,8 @@ function addEventSessionListeners(
     elementID: string,
     videoType: 'camera' | 'screen',
     self: boolean
-  ) => void
+  ) => void,
+  increaseNumSpeakers: () => void
 ) {
   eventSession.on('streamCreated', (streamEvent: any) => {
     let subscriber = eventSession.subscribe(streamEvent.stream, {
@@ -108,12 +115,15 @@ function addEventSessionListeners(
     });
 
     subscriber.on('videoElementCreated', function(event: any) {
-      updateVideoElements(
-        event.element,
-        streamEvent.stream.videoType,
-        streamEvent.stream.streamId,
-        () => {}
-      );
+      increaseNumSpeakers();
+      setTimeout(() => {
+        updateVideoElements(
+          event.element,
+          streamEvent.stream.videoType,
+          streamEvent.stream.streamId,
+          () => {}
+        );
+      }, 500);
     });
   });
 
