@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 
@@ -69,10 +69,32 @@ function MyEventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [loadingLike, setLoadingLike] = useState(false);
   const open = Boolean(anchorEl);
 
+  useEffect(() => {
+    fetchLiked();
+  }, []);
+
+  async function fetchLiked() {
+    setLoadingLike(true);
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/getLiked',
+      {
+        messageID: props.message._id,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    setLoadingLike(false);
+
+    if (data['success'] === 1) setLiked(data['content']['liked']);
+  }
+
   async function handleLikeClicked() {
-    console.log('BEFORE');
+    setLoadingLike(true);
     const { data } = await makeRequest(
       'POST',
       '/api/messaging/updateLike',
@@ -84,10 +106,9 @@ function MyEventMessage(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-    console.log(liked);
-    setLiked((prevVal) => {
-      return !prevVal;
-    });
+    setLoadingLike(false);
+
+    if (data['success'] === 1) setLiked(data['content']['newLiked']);
   }
 
   const handleClick = (event: any) => {
@@ -147,7 +168,7 @@ function MyEventMessage(props: Props) {
           <RSText className={styles.message}>{props.message.content}</RSText>
         </div>
         <div className={styles.right}>
-          <IconButton onClick={handleLikeClicked}>
+          <IconButton disabled={loadingLike} onClick={handleLikeClicked}>
             {liked ? (
               <FaStar color="#6699ff" size={14} />
             ) : (

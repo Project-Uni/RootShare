@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
@@ -69,8 +69,49 @@ function EventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [loadingLike, setLoadingLike] = useState(false);
+  const open = Boolean(anchorEl);
 
   const menuOpen = Boolean(anchorEl);
+
+  useEffect(() => {
+    fetchLiked();
+  }, []);
+
+  async function fetchLiked() {
+    setLoadingLike(true);
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/getLiked',
+      {
+        messageID: props.message._id,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    setLoadingLike(false);
+
+    if (data['success'] === 1) setLiked(data['content']['liked']);
+  }
+
+  async function handleLikeClicked() {
+    setLoadingLike(true);
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/updateLike',
+      {
+        messageID: props.message._id,
+        liked: !liked,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    setLoadingLike(false);
+
+    if (data['success'] === 1) setLiked(data['content']['newLiked']);
+  }
 
   function handleOptionsClick(event: any) {
     setAnchorEl(event.currentTarget);
@@ -83,23 +124,6 @@ function EventMessage(props: Props) {
   function handleConnect() {
     props.handleConnect && props.handleConnect(props.message.sender);
     setAnchorEl(null);
-  }
-
-  function handleLikeClicked() {
-    setLiked((prevVal) => {
-      makeRequest(
-        'POST',
-        '/api/messaging/updateLike',
-        {
-          messageID: props.message._id,
-          liked: !prevVal,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
-      return !prevVal;
-    });
   }
 
   function renderOptions() {

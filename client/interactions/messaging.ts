@@ -185,7 +185,18 @@ module.exports = {
 
       message.save((err) => {
         if (err) return callback(sendPacket(-1, err));
+        callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
       });
+    });
+  },
+
+  getLiked: (userID, messageID, callback) => {
+    Message.findById(messageID, ['content', 'likes'], (err, message) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!message) return callback(sendPacket(-1, 'Could not find message'));
+
+      const liked = message.likes.includes(userID);
+      callback(sendPacket(1, 'Sending liked value', { liked: liked }));
     });
   },
 
