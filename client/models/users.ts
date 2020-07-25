@@ -34,9 +34,6 @@ var userSchema = new Schema(
     pendingConnections: {
       type: [{ type: Schema.ObjectId, ref: 'users' }],
     },
-    posts: {
-      type: [{ type: Schema.ObjectId, ref: 'posts' }],
-    },
     joinedCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
