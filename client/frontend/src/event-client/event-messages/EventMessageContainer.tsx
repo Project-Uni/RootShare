@@ -48,8 +48,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   messageContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    background: 'white',
+    justifyContent: 'end',
+    background: 'lightgray',
     overflow: 'scroll',
     label: colors.primaryText,
   },

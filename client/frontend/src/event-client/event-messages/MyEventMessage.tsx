@@ -29,7 +29,18 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   left: {},
-  right: {},
+  right: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignContent: 'flex-end',
+    marginRight: 12,
+    marginTop: 7,
+    marginBottom: 5,
+  },
+  rightBottom: {
+    display: 'flex',
+    marginRight: -2,
+  },
   senderName: {
     margin: 10,
     display: 'inline-block',
@@ -40,17 +51,37 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
     wordBreak: 'break-all',
     color: '#f2f2f2',
-    marginTop: 15,
+    marginTop: 7,
+    marginBottom: 10,
   },
   bottom: {
     display: 'flex',
     justifyContent: 'space-between',
-    margin: 0,
-    marginTop: -20,
+    marginTop: -10,
   },
   likeCount: {
-    marginTop: -5,
+    marginRight: 5,
     color: '#f2f2f2',
+    alignSelf: 'flex-end',
+    marginBottom: 2,
+  },
+  star: {
+    '&:hover': {
+      color: colors.primaryText,
+      cursor: 'pointer',
+    },
+    alignSelf: 'flex-end',
+    marginBottom: 4,
+    color: '#6699ff',
+  },
+  starGray: {
+    '&:hover': {
+      color: colors.primaryText,
+      cursor: 'pointer',
+    },
+    alignSelf: 'flex-end',
+    marginBottom: 4,
+    color: 'grey',
   },
   time: {
     marginLeft: 0,
@@ -58,7 +89,13 @@ const useStyles = makeStyles((_: any) => ({
     color: 'grey',
   },
   ellipsis: {
-    margin: 1.5,
+    '&:hover': {
+      color: colors.primaryText,
+      cursor: 'pointer',
+    },
+    alignSelf: 'flex-end',
+    color: 'grey',
+    marginBottom: 7,
   },
 }));
 
@@ -134,53 +171,64 @@ function MyEventMessage(props: Props) {
           </RSText>
         </div>
         {/* TODO - Think about removing the ellipsis and options from your own messages */}
-        <IconButton
-          aria-label="more"
-          aria-controls="long-menu"
-          aria-haspopup="true"
-          onClick={handleClick}
-        >
-          <FaEllipsisH className={styles.ellipsis} size={12} color="grey" />
-        </IconButton>
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={open}
-          onClose={handleClose}
-          PaperProps={{
-            style: {
-              maxHeight: ITEM_HEIGHT * 4.5,
-              width: 200,
-            },
-          }}
-        >
-          {options.map((option) => (
-            <MenuItem
-              key={option}
-              selected={option === 'Cancel'}
-              onClick={handleClose}
-            >
-              {option}
-            </MenuItem>
-          ))}
-        </Menu>
+        <div className={styles.right}>
+          <FaEllipsisH
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+            className={styles.ellipsis}
+            size={12}
+          />
+
+          <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={open}
+            onClose={handleClose}
+            PaperProps={{
+              style: {
+                maxHeight: ITEM_HEIGHT * 4.5,
+                width: 200,
+              },
+            }}
+          >
+            {options.map((option) => (
+              <MenuItem
+                key={option}
+                selected={option === 'Cancel'}
+                onClick={handleClose}
+              >
+                {option}
+              </MenuItem>
+            ))}
+          </Menu>
+          <div className={styles.rightBottom}>
+            <RSText size={10} className={styles.likeCount}>
+              {props.message.numLikes}
+            </RSText>
+            {liked ? (
+              <FaStar
+                // disabled={loadingLike}
+                onClick={handleLikeClicked}
+                className={styles.star}
+                size={16}
+              />
+            ) : (
+              <FaRegStar
+                // disabled={loadingLike}
+                onClick={handleLikeClicked}
+                className={styles.starGray}
+                size={16}
+              />
+            )}
+          </div>
+        </div>
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
           <RSText className={styles.message}>{props.message.content}</RSText>
-        </div>
-        <div className={styles.right}>
-          <IconButton disabled={loadingLike} onClick={handleLikeClicked}>
-            {liked ? (
-              <FaStar color="#6699ff" size={14} />
-            ) : (
-              <FaRegStar color="grey" size={14} />
-            )}
-          </IconButton>
-          <RSText size={10} className={styles.likeCount}>
-            {props.message.numLikes}
-          </RSText>
         </div>
       </div>
     </div>
