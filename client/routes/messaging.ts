@@ -7,6 +7,7 @@ const {
   sendMessage,
   getLatestThreads,
   getLatestMessages,
+  updateLike,
   connectSocketToConversations,
 } = require('../interactions/messaging');
 
@@ -62,4 +63,10 @@ module.exports = (app, io) => {
       });
     }
   );
+
+  app.post('/api/messaging/updateLike', isAuthenticatedWithJWT, (req, res) => {
+    updateLike(req.user._id, req.body.messageID, req.body.liked, (packet) => {
+      res.send(packet);
+    });
+  });
 };

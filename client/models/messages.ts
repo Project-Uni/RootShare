@@ -11,6 +11,7 @@ var messageSchema = new Schema(
     senderName: { type: String, required: true },
     sender: { type: Schema.ObjectId, ref: 'users', required: true },
     content: { type: String, required: true },
+    likes: [{ type: Schema.ObjectId, ref: 'users' }],
   },
   { timestamps: true }
 );

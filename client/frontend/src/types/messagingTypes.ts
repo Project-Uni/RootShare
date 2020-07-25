@@ -5,6 +5,7 @@ export type MessageType = {
   sender: string;
   content: string;
   createdAt: Date;
+  numLikes: number;
 };
 
 export type ConversationType = {

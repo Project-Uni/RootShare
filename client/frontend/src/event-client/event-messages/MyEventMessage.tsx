@@ -4,9 +4,13 @@ import { IconButton, Menu, MenuItem } from '@material-ui/core';
 
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 
-import RSText from '../../base-components/RSText';
+import { connect } from 'react-redux';
+import { makeRequest } from '../../helpers/makeRequest';
 
 import { colors } from '../../theme/Colors';
+import RSText from '../../base-components/RSText';
+import { MessageType } from '../../types/messagingTypes';
+import { getConversationTime } from '../../helpers/dateFormat';
 
 const options = ['Connect with yourself?', 'Cancel'];
 
@@ -56,11 +60,9 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  senderName: string;
-  senderId: string;
-  message: string;
-  likes: number;
-  timeStamp: string;
+  message: MessageType;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function MyEventMessage(props: Props) {
@@ -69,9 +71,23 @@ function MyEventMessage(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
-  function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
+  async function handleLikeClicked() {
+    console.log('BEFORE');
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/updateLike',
+      {
+        messageID: props.message._id,
+        liked: !liked,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    console.log(liked);
+    setLiked((prevVal) => {
+      return !prevVal;
+    });
   }
 
   const handleClick = (event: any) => {
@@ -87,10 +103,10 @@ function MyEventMessage(props: Props) {
       <div className={styles.top}>
         <div>
           <RSText bold className={styles.senderName}>
-            {props.senderName}
+            {props.message.senderName}
           </RSText>
           <RSText size={10} className={styles.time}>
-            {props.timeStamp}
+            {getConversationTime(new Date(props.message.createdAt))}
           </RSText>
         </div>
         {/* TODO - Think about removing the ellipsis and options from your own messages */}
@@ -128,7 +144,7 @@ function MyEventMessage(props: Props) {
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
-          <RSText className={styles.message}>{props.message}</RSText>
+          <RSText className={styles.message}>{props.message.content}</RSText>
         </div>
         <div className={styles.right}>
           <IconButton onClick={handleLikeClicked}>
@@ -139,7 +155,7 @@ function MyEventMessage(props: Props) {
             )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>
-            {props.likes}
+            {props.message.numLikes}
           </RSText>
         </div>
       </div>
@@ -147,4 +163,15 @@ function MyEventMessage(props: Props) {
   );
 }
 
-export default MyEventMessage;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyEventMessage);

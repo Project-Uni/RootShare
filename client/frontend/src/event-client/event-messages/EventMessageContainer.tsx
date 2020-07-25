@@ -16,8 +16,6 @@ import MyEventMessage from './MyEventMessage';
 
 import { colors } from '../../theme/Colors';
 import { MessageType } from '../../types/messagingTypes';
-import { getConversationTime } from '../../helpers/dateFormat';
-import { userInfo } from 'os';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -242,21 +240,9 @@ function EventMessageContainer(props: Props) {
     messages.forEach((message: MessageType) => {
       output.push(
         message.sender !== props.user._id ? (
-          <EventMessage
-            senderName={message.senderName}
-            senderId={message.sender}
-            message={message.content}
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            timeStamp={getConversationTime(new Date(message.createdAt))}
-          />
+          <EventMessage message={message} />
         ) : (
-          <MyEventMessage
-            senderName={message.senderName}
-            senderId={message.sender}
-            message={message.content}
-            likes={Math.floor(Math.random() * 1000 + 1)}
-            timeStamp={getConversationTime(new Date(message.createdAt))}
-          />
+          <MyEventMessage message={message} />
         )
       );
     });

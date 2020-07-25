@@ -4,6 +4,12 @@ import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 import RSText from '../../base-components/RSText';
 
+import { connect } from 'react-redux';
+import { makeRequest } from '../../helpers/makeRequest';
+
+import { MessageType } from '../../types/messagingTypes';
+import { getConversationTime } from '../../helpers/dateFormat';
+
 const options = ['Connect', 'Cancel'];
 
 const ITEM_HEIGHT = 48;
@@ -35,7 +41,6 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     margin: 0,
-    //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
   },
   likeCount: {
@@ -53,13 +58,11 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  senderName: string;
-  senderId: string;
-  message: string;
-  likes: number;
-  timeStamp: string;
+  message: MessageType;
   handleConnect?: (userID: string) => boolean;
   connected?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function EventMessage(props: Props) {
@@ -78,13 +81,25 @@ function EventMessage(props: Props) {
   }
 
   function handleConnect() {
-    props.handleConnect && props.handleConnect(props.senderId);
+    props.handleConnect && props.handleConnect(props.message.sender);
     setAnchorEl(null);
   }
 
   function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
+    setLiked((prevVal) => {
+      makeRequest(
+        'POST',
+        '/api/messaging/updateLike',
+        {
+          messageID: props.message._id,
+          liked: !prevVal,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      return !prevVal;
+    });
   }
 
   function renderOptions() {
@@ -107,10 +122,10 @@ function EventMessage(props: Props) {
       <div className={styles.top}>
         <div>
           <RSText bold className={styles.senderName}>
-            {props.senderName}
+            {props.message.senderName}
           </RSText>
           <RSText size={10} className={styles.time}>
-            {props.timeStamp}
+            {getConversationTime(new Date(props.message.createdAt))}
           </RSText>
         </div>
         <IconButton
@@ -139,20 +154,18 @@ function EventMessage(props: Props) {
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
-          <RSText className={styles.message}>{props.message}</RSText>
+          <RSText className={styles.message}>{props.message.content}</RSText>
         </div>
         <div className={styles.right}>
           <IconButton onClick={handleLikeClicked}>
             {liked ? (
               <FaStar color="#6699ff" size={14} />
             ) : (
-              //faHeart #800000
               <FaRegStar color="grey" size={14} />
-              //faRegHeart #800000
             )}
           </IconButton>
           <RSText size={10} className={styles.likeCount}>
-            {props.likes}
+            {props.message.numLikes}
           </RSText>
         </div>
       </div>
@@ -160,4 +173,15 @@ function EventMessage(props: Props) {
   );
 }
 
-export default EventMessage;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventMessage);

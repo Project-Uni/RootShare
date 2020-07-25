@@ -147,25 +147,49 @@ module.exports = {
         return callback(sendPacket(-1, 'Could not find Conversation'));
       }
 
-      Message.find(
-        { conversationID },
-        ['sender', 'senderName', 'content', 'createdAt'],
-        (err, messages) => {
-          if (err || messages === undefined || messages === null) {
-            log('error', err);
-            return callback(sendPacket(-1, 'Could not find Messages'));
-          }
+      Message.aggregate([
+        { $match: { conversationID: conversationID } },
+        { $project: { numLikes: { $size: '$likes' } } },
+      ])
+        .exec()
+        .then((response) => {
+          console.log(response);
+        });
 
-          return callback(
-            sendPacket(1, 'Sending Conversation and Messages', {
-              conversation,
-              messages,
-            })
-          );
+      Message.find({ conversationID }, (err, messages) => {
+        if (err || messages === undefined || messages === null) {
+          log('error', err);
+          return callback(sendPacket(-1, 'Could not find Messages'));
         }
-      ).sort({ createdAt: 'ascending' });
+
+        return callback(
+          sendPacket(1, 'Sending Conversation and Messages', {
+            conversation,
+            messages,
+          })
+        );
+      }).sort({ createdAt: 'ascending' });
     });
   },
+
+  updateLike: (userID, messageID, liked, callback) => {
+    Message.findById(messageID, ['likes'], (err, message) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!message)
+        return callback(sendPacket(-1, 'Could not find message to like'));
+
+      const alreadyLiked = message.likes.includes(userID);
+
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
+        message.likes.splice(message.likes.indexOf(userID), 1);
+
+      message.save((err) => {
+        if (err) return callback(sendPacket(-1, err));
+      });
+    });
+  },
+
   connectSocketToConversations: (socket, conversations) => {
     conversations.forEach((conversation) => {
       socket.join(`CONVERSATION_${conversation._id}`);
