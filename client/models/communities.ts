@@ -25,13 +25,6 @@ const CommunitySchema = new mongoose.Schema(
       required: true,
       default: [],
     },
-
-    posts: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'posts' }],
-      required: true,
-      default: [],
-    },
-
     //TODO - Add fields for profile pic and background Image
   },
   { timestamps: true }
