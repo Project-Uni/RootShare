@@ -129,7 +129,6 @@ function addEventSessionListeners(
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
-    console.log('Stream destroyed:', event.stream);
     removeVideoElement(event.stream.streamId, event.stream.videoType, false);
     if (event.stream.videoType === 'camera') changeNumSpeakers(-1);
   });
