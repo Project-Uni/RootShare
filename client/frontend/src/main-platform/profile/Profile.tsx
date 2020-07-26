@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions/makeRequest';
 import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';

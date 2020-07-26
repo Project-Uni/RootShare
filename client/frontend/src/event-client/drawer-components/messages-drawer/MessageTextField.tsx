@@ -6,6 +6,7 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
+import { ENTER_KEYCODE } from '../../../helpers/constants/keycode';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -68,6 +69,13 @@ function MessageTextField(props: Props) {
     setNewMessage(event.target.value);
   }
 
+  function handleMessageKey(event: any) {
+    if (event.keyCode === ENTER_KEYCODE) {
+      event.preventDefault();
+      if (!getSendingDisabled()) props.handleSendMessage(newMessage);
+    }
+  }
+
   function handleEmojiClick() {}
 
   function getSendingDisabled() {
@@ -89,6 +97,7 @@ function MessageTextField(props: Props) {
         size="small"
         className={styles.textField}
         onChange={handleMessageChange}
+        onKeyDown={handleMessageKey}
         value={newMessage}
         InputLabelProps={{
           classes: {

@@ -5,12 +5,12 @@ import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions/makeRequest';
 
 import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
-import { MessageType } from '../../types/messagingTypes';
-import { getConversationTime } from '../../helpers/dateFormat';
+import { MessageType } from '../../helpers/types/messagingTypes';
+import { getConversationTime } from '../../helpers/functions/dateFormat';
 
 const options = ['Connect with yourself?', 'Cancel'];
 

@@ -1,4 +1,4 @@
-import { makeRequest } from '../../../../../helpers/makeRequest';
+import { makeRequest } from '../../../../../helpers/functions/makeRequest';
 
 export async function startLiveStream(
   webinarID: string,

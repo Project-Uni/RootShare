@@ -6,7 +6,7 @@ import { TextField } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions/makeRequest';
 
 const useStyles = makeStyles((_: any) => ({}));
 

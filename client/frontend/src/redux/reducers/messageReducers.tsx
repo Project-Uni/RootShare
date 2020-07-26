@@ -1,4 +1,4 @@
-import { MessageType, ConversationType } from '../../types/messagingTypes';
+import { MessageType, ConversationType } from '../../helpers/types/messagingTypes';
 import { UPDATE_CONVERSATIONS, UPDATE_NEW_MESSAGE } from '../actions/message';
 
 export function conversationsReducer(

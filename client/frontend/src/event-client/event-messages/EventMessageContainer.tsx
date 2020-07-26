@@ -9,13 +9,14 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions/makeRequest';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 
 import { colors } from '../../theme/Colors';
-import { MessageType, LikeUpdateType } from '../../types/messagingTypes';
+import { MessageType, LikeUpdateType } from '../../helpers/types/messagingTypes';
+import { ENTER_KEYCODE } from '../../helpers/constants/keycode';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -219,7 +220,6 @@ function EventMessageContainer(props: Props) {
   }
 
   function handleMessageKey(event: any) {
-    const ENTER_KEYCODE = 13;
     if (event.keyCode === ENTER_KEYCODE) {
       event.preventDefault();
       if (!getSendingDisabled()) handleSendMessage();

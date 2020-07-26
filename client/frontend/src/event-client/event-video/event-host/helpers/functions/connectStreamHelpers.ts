@@ -1,7 +1,7 @@
 import OT from '@opentok/client';
-import log from '../../../../../helpers/logger';
+import log from '../../../../../helpers/functions/logger';
 import { createNewWebcamPublisher } from './createPublishers';
-import { makeRequest } from '../../../../../helpers/makeRequest';
+import { makeRequest } from '../../../../../helpers/functions/makeRequest';
 
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 

@@ -1,4 +1,4 @@
-import { MessageType, ConversationType } from '../../types/messagingTypes';
+import { MessageType, ConversationType } from '../../helpers/types/messagingTypes';
 
 export const UPDATE_CONVERSATIONS = 'messages:updateConversations';
 export const UPDATE_NEW_MESSAGE = 'messages:updateNewMessage';

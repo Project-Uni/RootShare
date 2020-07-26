@@ -6,7 +6,7 @@ import { useLocation, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import RSText from '../base-components/RSText';

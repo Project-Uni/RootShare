@@ -5,8 +5,8 @@ import axios from 'axios';
 import EventClientEmptyVideoPlayer from '../video/EventClientEmptyVideoPlayer';
 import VideoPlayer from '../video/VideoPlayer';
 
-import log from '../../../helpers/logger';
-import { makeRequest } from '../../../helpers/makeRequest';
+import log from '../../../helpers/functions/logger';
+import { makeRequest } from '../../../helpers/functions/makeRequest';
 import { connect } from 'react-redux';
 import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 

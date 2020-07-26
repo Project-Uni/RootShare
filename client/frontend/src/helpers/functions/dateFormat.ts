@@ -1,27 +1,4 @@
-export const monthDict = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-export const weekDict = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
+import { weekDict, monthDict } from '../constants/date';
 
 export function formatTime(date: Date) {
   var hours = date.getHours();

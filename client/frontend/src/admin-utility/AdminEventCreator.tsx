@@ -22,10 +22,10 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
-import { EventType, HostType, SpeakerType } from '../types/eventTypes';
+import { EventType, HostType, SpeakerType } from '../helpers/types/eventTypes';
 
-import { makeRequest } from '../helpers/makeRequest';
-import log from '../helpers/logger';
+import { makeRequest } from '../helpers/functions/makeRequest';
+import log from '../helpers/functions/logger';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;

@@ -8,8 +8,8 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 
 import EventHostButtonContainer from './EventHostButtonContainer';
 
-import log from '../../../helpers/logger';
-import { makeRequest } from '../../../helpers/makeRequest';
+import log from '../../../helpers/functions/logger';
+import { makeRequest } from '../../../helpers/functions/makeRequest';
 
 import RSText from '../../../base-components/RSText';
 import {
@@ -24,7 +24,7 @@ import {
   createNewScreensharePublisher,
 } from './helpers';
 
-import { SINGLE_DIGIT } from '../../../types/types';
+import { SINGLE_DIGIT } from '../../../helpers/types/types';
 
 const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;

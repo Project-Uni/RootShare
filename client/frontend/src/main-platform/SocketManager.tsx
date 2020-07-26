@@ -3,13 +3,13 @@ import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions/makeRequest';
 import { updateConversations, updateNewMessage } from '../redux/actions/message';
 import { updateSocket } from '../redux/actions/socket';
 
 import { colors } from '../theme/Colors';
 import { disconnect } from 'cluster';
-import { MessageType, ConversationType } from '../types/messagingTypes';
+import { MessageType, ConversationType } from '../helpers/types/messagingTypes';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},

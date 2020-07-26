@@ -1,4 +1,4 @@
-import log from '../../../../../helpers/logger';
+import log from '../../../../../helpers/functions/logger';
 
 export function createNewWebcamPublisher(
   name: string,
