@@ -120,7 +120,6 @@ function EventMessageContainer(props: Props) {
   }, [messages]);
 
   useEffect(() => {
-    console.log('TEST1' + likeUpdate);
     updateLikes();
   }, [likeUpdate]);
 
@@ -219,19 +218,29 @@ function EventMessageContainer(props: Props) {
     setNewMessage(event.target.value);
   }
 
-  function handleSendMessage() {
-    setNewMessage((prevMessage) => {
-      makeRequest(
-        'POST',
-        '/api/messaging/sendMessage',
-        { conversationID: props.conversationID, message: prevMessage },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
+  function handleMessageKey(event: any) {
+    const ENTER_KEYCODE = 13;
+    if (event.keyCode === ENTER_KEYCODE) {
+      event.preventDefault();
+      if (!getSendingDisabled()) handleSendMessage();
+    }
+  }
 
-      return '';
-    });
+  function getSendingDisabled() {
+    return newMessage === undefined || newMessage === null || newMessage === '';
+  }
+
+  async function handleSendMessage() {
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/sendMessage',
+      { conversationID: props.conversationID, message: newMessage },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    setNewMessage('');
   }
 
   function handleOpen() {
@@ -293,6 +302,7 @@ function EventMessageContainer(props: Props) {
           variant="outlined"
           className={styles.textField}
           onChange={handleMessageChange}
+          onKeyDown={handleMessageKey}
           value={newMessage}
           InputLabelProps={{
             classes: {

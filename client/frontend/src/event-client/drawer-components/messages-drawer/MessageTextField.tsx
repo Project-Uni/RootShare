@@ -68,13 +68,6 @@ function MessageTextField(props: Props) {
     setNewMessage(event.target.value);
   }
 
-  function handleSendMessage() {
-    setNewMessage((prevMessage) => {
-      props.handleSendMessage(prevMessage);
-      return '';
-    });
-  }
-
   function handleEmojiClick() {}
 
   function getSendingDisabled() {
@@ -117,7 +110,7 @@ function MessageTextField(props: Props) {
       </IconButton>
       <IconButton
         disabled={getSendingDisabled()}
-        onClick={() => handleSendMessage()}
+        onClick={() => props.handleSendMessage(newMessage)}
       >
         <MdSend color={getSendingDisabled() ? '#555555' : '#f2f2f2'} size={20} />
       </IconButton>
