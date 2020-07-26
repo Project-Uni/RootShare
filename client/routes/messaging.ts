@@ -59,7 +59,7 @@ module.exports = (app, io) => {
     '/api/messaging/getLatestMessages',
     isAuthenticatedWithJWT,
     (req, res) => {
-      getLatestMessages(req.body.conversationID, (packet) => {
+      getLatestMessages(req.user._id, req.body.conversationID, (packet) => {
         res.send(packet);
       });
     }

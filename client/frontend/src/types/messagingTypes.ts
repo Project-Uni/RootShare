@@ -6,6 +6,7 @@ export type MessageType = {
   content: string;
   createdAt: Date;
   numLikes: number;
+  liked: boolean;
 };
 
 export type ConversationType = {

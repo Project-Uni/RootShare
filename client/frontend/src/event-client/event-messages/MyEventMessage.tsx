@@ -47,10 +47,11 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.background,
   },
   message: {
-    marginLeft: 10,
     textAlign: 'left',
     wordBreak: 'break-all',
     color: '#f2f2f2',
+    marginLeft: 10,
+    marginRight: 10,
     marginTop: 7,
     marginBottom: 10,
   },
@@ -63,7 +64,7 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 5,
     color: '#f2f2f2',
     alignSelf: 'flex-end',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   star: {
     '&:hover': {
@@ -113,27 +114,11 @@ function MyEventMessage(props: Props) {
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    fetchLiked();
-  }, []);
-
-  async function fetchLiked() {
-    setLoadingLike(true);
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/getLiked',
-      {
-        messageID: props.message._id,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    setLoadingLike(false);
-
-    if (data['success'] === 1) setLiked(data['content']['liked']);
-  }
+    setLiked(props.message.liked);
+  }, [props.message.liked]);
 
   async function handleLikeClicked() {
+    setLiked((prevVal) => !prevVal);
     setLoadingLike(true);
     const { data } = await makeRequest(
       'POST',
