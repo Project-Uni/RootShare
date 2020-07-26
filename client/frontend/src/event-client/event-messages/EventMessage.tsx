@@ -106,6 +106,7 @@ type Props = {
   connected?: boolean;
   accessToken: string;
   refreshToken: string;
+  socket: SocketIOClient.Socket;
 };
 
 function EventMessage(props: Props) {

@@ -15,7 +15,7 @@ import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 
 import { colors } from '../../theme/Colors';
-import { MessageType } from '../../types/messagingTypes';
+import { MessageType, LikeUpdateType } from '../../types/messagingTypes';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -109,6 +109,7 @@ function EventMessageContainer(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [modalStyle, setModalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
+  const [likeUpdate, setLikeUpdate] = useState<LikeUpdateType>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -119,14 +120,20 @@ function EventMessageContainer(props: Props) {
   }, [messages]);
 
   useEffect(() => {
+    console.log('TEST1' + likeUpdate);
+    updateLikes();
+  }, [likeUpdate]);
+
+  useEffect(() => {
     if (
+      Object.keys(props.socket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined ||
       props.user === undefined
     )
       return;
     fetchMessages();
-  }, [props.conversationID, props.user]);
+  }, [props.socket, props.conversationID, props.user]);
 
   useEffect(() => {
     if (
@@ -137,11 +144,22 @@ function EventMessageContainer(props: Props) {
       return;
 
     props.socket.emit('connectToConversation', props.conversationID);
+    props.socket.on('updateLikes', (messageData: any) => {
+      setLikeUpdate(messageData);
+    });
   }, [props.socket, props.conversationID]);
 
   useEffect(() => {
     addMessage(props.newMessage);
   }, [props.newMessage]);
+
+  function updateLikes() {
+    if (likeUpdate === undefined) return;
+    const { messageID } = likeUpdate;
+    messages.forEach((message) => {
+      if (message._id === messageID) message.numLikes = likeUpdate.numLikes;
+    });
+  }
 
   function addMessage(newMessage: MessageType) {
     if (
@@ -246,9 +264,9 @@ function EventMessageContainer(props: Props) {
     messages.forEach((message: MessageType) => {
       output.push(
         message.sender !== props.user._id ? (
-          <EventMessage message={message} />
+          <EventMessage message={message} socket={props.socket} />
         ) : (
-          <MyEventMessage message={message} />
+          <MyEventMessage message={message} socket={props.socket} />
         )
       );
     });

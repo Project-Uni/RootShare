@@ -104,6 +104,7 @@ type Props = {
   message: MessageType;
   accessToken: string;
   refreshToken: string;
+  socket: SocketIOClient.Socket;
 };
 
 function MyEventMessage(props: Props) {
