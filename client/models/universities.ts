@@ -14,3 +14,6 @@ var universitySchema = new Schema({
 });
 
 mongoose.model('universities', universitySchema);
+const University = mongoose.model('universities');
+
+export default University;
