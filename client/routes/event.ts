@@ -7,6 +7,8 @@ import {
   getWebinarDetails,
 } from '../interactions/streaming/event';
 
+import { updateAttendingList } from '../interactions/user';
+
 import { USER_LEVEL } from '../types/types';
 
 module.exports = (app) => {
@@ -34,6 +36,19 @@ module.exports = (app) => {
       await getWebinarDetails(req.user._id, eventID, (packet) => {
         res.json(packet);
       });
+    }
+  );
+
+  app.post(
+    '/api/webinar/updateAttendeeList',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      if (!webinarID)
+        return res.json(sendPacket(-1, 'Field webinarID not in request.'));
+      await updateAttendingList(req.user._id, webinarID, (packet) =>
+        res.json(packet)
+      );
     }
   );
 };

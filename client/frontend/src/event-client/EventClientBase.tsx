@@ -114,7 +114,7 @@ function EventClientBase(props: Props) {
       setWebinarData(webinar);
       setTimeout(() => {
         setPageMode(webinar);
-      }, 500);
+      }, 100);
     }
   }
 
@@ -136,7 +136,21 @@ function EventClientBase(props: Props) {
         }
       }
     }
+    updateAttendeeList(webinar['_id']);
     setEventMode('viewer');
+  }
+
+  function updateAttendeeList(webinarID: string) {
+    makeRequest(
+      'POST',
+      '/api/webinar/updateAttendeeList',
+      {
+        webinarID: webinarID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
   }
 
   function renderVideoArea() {

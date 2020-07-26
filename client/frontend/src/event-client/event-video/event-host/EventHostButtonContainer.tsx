@@ -42,6 +42,7 @@ type Props = {
   toggleWebcam: () => void;
   toggleMute: () => void;
   toggleScreenshare: () => void;
+  handleManageSpeakers: () => void;
   loading: boolean;
   mode: 'admin' | 'speaker';
 };
@@ -104,6 +105,7 @@ function EventHostButtonContainer(props: Props) {
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           disabled={props.loading}
+          onClick={props.handleManageSpeakers}
         >
           Manage Speakers
         </Button>

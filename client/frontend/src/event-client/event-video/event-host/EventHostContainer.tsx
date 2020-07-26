@@ -284,6 +284,8 @@ function EventHostContainer(props: Props) {
     }
   }
 
+  async function handleManageSpeakers() {}
+
   function screenShareTearDown(
     screenElementID: string,
     session: Session,
@@ -390,6 +392,7 @@ function EventHostContainer(props: Props) {
         muted={muted}
         sharingScreen={sharingScreen}
         handleStreamStatusChange={handleStreamStatusChange}
+        handleManageSpeakers={handleManageSpeakers}
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}

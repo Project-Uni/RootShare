@@ -1,4 +1,8 @@
-const sendPacket = (success: Number, message: String, content: Object = {}) => {
+const sendPacket = (
+  success: number,
+  message: string,
+  content: { [key: string]: any } = {}
+) => {
   return { success: success, message: message, content: content };
 };
 
