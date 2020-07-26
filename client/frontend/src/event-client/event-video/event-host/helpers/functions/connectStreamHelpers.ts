@@ -19,7 +19,6 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert(data['message']);
     return false;
   }
   return data['content']['opentokSessionID'];
@@ -41,7 +40,6 @@ export async function getOpenTokToken(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Could not retrieve event token');
     return false;
   }
   return data['content']['token'];

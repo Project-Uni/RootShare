@@ -12,6 +12,7 @@ import log from '../../../helpers/functions/logger';
 import { makeRequest } from '../../../helpers/functions/makeRequest';
 
 import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 import {
   VideosOnlyLayout,
   ScreenshareLayout,
@@ -64,7 +65,6 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
-  setEventMode: (mode: EventMode) => void;
 };
 
 function EventHostContainer(props: Props) {
@@ -78,12 +78,13 @@ function EventHostContainer(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [publisherLoading, setPublisherLoading] = useState(true);
-  const [loadingErr, setLoadingErr] = useState(false);
+  const [loadingErr, setLoadingErr] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(true);
   const [showWebcam, setShowWebcam] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
+  const [eventStarted, setEventStarted] = useState(true);
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
 
@@ -317,7 +318,7 @@ function EventHostContainer(props: Props) {
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
-      const { screenshare, eventSession } = await connectStream(
+      const { screenshare, eventSession, message } = await connectStream(
         props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
@@ -326,11 +327,13 @@ function EventHostContainer(props: Props) {
         props.accessToken,
         props.refreshToken
       );
-      setScreenshareCapable(screenshare);
+
       if (!eventSession) {
-        props.setEventMode('viewer');
+        setLoadingErr(message);
         return;
       }
+
+      setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
 
       setTimeout(() => {
@@ -338,22 +341,27 @@ function EventHostContainer(props: Props) {
       }, 500);
     } else {
       log('error', 'Error connecting to session');
-      setLoadingErr(true);
+      setLoadingErr('There was an error loading this stream.');
     }
   }
 
   function renderLoadingAndError() {
     return (
       <>
-        {loading && !loadingErr && (
+        {loading && loadingErr === '' && (
           <div className={styles.loadingDiv}>
             <CircularProgress size={100} className={styles.loadingIndicator} />
           </div>
         )}
-        {loadingErr && (
+        {loadingErr !== '' && (
           <div className={styles.loadingDiv}>
-            <RSText type="subhead" className={styles.errorText} size={16}>
-              There was an error loading this stream.
+            <RSText
+              type="subhead"
+              color={colors.primaryText}
+              className={styles.errorText}
+              size={16}
+            >
+              {loadingErr}
             </RSText>
           </div>
         )}
@@ -362,7 +370,7 @@ function EventHostContainer(props: Props) {
   }
 
   function renderVideoSections() {
-    if (!loading && !loadingErr) {
+    if (!loading && loadingErr === '') {
       return someoneSharingScreen === '' ? (
         <VideosOnlyLayout
           numSpeakers={numSpeakers}

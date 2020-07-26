@@ -25,18 +25,32 @@ export async function connectStream(
   let canScreenshare = false;
 
   if (OT.checkSystemRequirements() !== 1) {
-    alert('This browser is not yet supported.');
-    return { screenshare: canScreenshare, eventSession: false };
+    return {
+      screenshare: canScreenshare,
+      eventSession: false,
+      message: 'This browser is not yet supported',
+    };
   }
   OT.checkScreenSharingCapability((response: any) => {
     if (response.supported && response.extensionRegistered) canScreenshare = true;
   });
 
   const sessionID = await validateSession(webinarID, accessToken, refreshToken);
-  if (!sessionID) return { screenshare: canScreenshare, eventSession: false };
+  if (!sessionID)
+    return {
+      screenshare: canScreenshare,
+      eventSession: false,
+      message:
+        'The event has not started yet. Please wait until 30 minutes before the event start time.',
+    };
 
   const eventToken = await getOpenTokToken(sessionID, accessToken, refreshToken);
-  if (!eventToken) return { screenshare: canScreenshare, eventSession: false };
+  if (!eventToken)
+    return {
+      screenshare: canScreenshare,
+      eventSession: false,
+      message: 'Could not authenticate user',
+    };
 
   const eventSession = await createEventSession(
     sessionID,
@@ -48,7 +62,15 @@ export async function connectStream(
   );
 
   if (!((eventSession as unknown) as boolean))
-    return { screenshare: canScreenshare, eventSession: false };
+    return {
+      screenshare: canScreenshare,
+      eventSession: false,
+      message: 'Could not create event session',
+    };
 
-  return { screenshare: canScreenshare, eventSession: eventSession };
+  return {
+    screenshare: canScreenshare,
+    eventSession: eventSession,
+    message: 'Connecting to event',
+  };
 }
