@@ -58,12 +58,12 @@ type Props = {
   description: string;
   private?: boolean;
   type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';
   memberCount: number;
   mutualMemberCount: number;
   profilePicture: any;
@@ -137,7 +137,7 @@ function CommunityOverview(props: Props) {
         >
           {props.description}
         </RSText>
-        <RSText color={colors.primaryText} size={11} italic type="body">
+        <RSText color={colors.primaryText} size={11} type="body">
           Joined {props.joinedDate}
         </RSText>
       </div>

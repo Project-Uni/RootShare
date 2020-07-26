@@ -12,10 +12,13 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.second,
     overflow: 'scroll',
+    borderLeft: `1px solid ${colors.fourth}`,
+    borderRight: `1px solid ${colors.fourth}`,
   },
-  body: {},
+  body: {
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -25,11 +28,13 @@ const useStyles = makeStyles((_: any) => ({
     width: 175,
     borderRadius: 100,
     marginTop: -88,
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${colors.second}`,
     marginLeft: 50,
   },
   event: {
     marginTop: 5,
+    marginLeft: 34,
+    marginRight: 18,
   },
   post: {
     marginTop: 10,

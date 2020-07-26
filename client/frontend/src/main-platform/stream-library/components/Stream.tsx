@@ -15,15 +15,19 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    background: colors.secondary,
   },
   streamPreview: {
     width: 160,
     height: 90,
+    marginTop: 10,
+    marginLeft: 10,
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginTop: 10,
   },
   body: {
     flex: 1,
@@ -92,7 +96,7 @@ function Stream(props: Props) {
           <div className={styles.headerRight}>
             {/* TODO - Navigate this to video stream  */}
             <a href={`/event/${props.eventID}`} className={styles.noUnderline}>
-              <RSText type="head" color={colors.primary} bold size={14}>
+              <RSText type="head" color={colors.primaryText} bold size={14}>
                 {props.eventTitle}
               </RSText>
             </a>
@@ -110,13 +114,13 @@ function Stream(props: Props) {
               {props.liked ? (
                 <FaStar color={colors.bright} size={18} />
               ) : (
-                <FaRegStar color={colors.primary} size={18} />
-              )}
+                  <FaRegStar color={colors.fourth} size={18} />
+                )}
             </IconButton>
           </div>
         </div>
 
-        <RSText type="body" color={colors.primary} size={12} className={styles.desc}>
+        <RSText type="body" color={colors.primaryText} size={12} className={styles.desc}>
           {props.eventDesc === descSubstr || showFullDesc
             ? props.eventDesc
             : descSubstr + ' ...'}

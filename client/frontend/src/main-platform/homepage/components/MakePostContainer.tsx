@@ -12,18 +12,19 @@ const useStyles = makeStyles((_: any) => ({
   postProfilePic: {
     height: 50,
     borderRadius: 50,
-    marginTop: 10,
+    marginTop: 1,
   },
   messageAreaWrapper: {
     background: colors.secondary,
-    borderRadius: 10,
-    marginLeft: 20,
-    marginRight: 20,
+    borderRadius: 1,
+    marginLeft: 1,
+    marginRight: 1,
     paddingLeft: 15,
     paddingRight: 15,
     paddingTop: 15,
     paddingBottom: 10,
-    marginTop: 20,
+    marginTop: 1,
+    marginBottom: 1,
   },
   messageArea: {
     display: 'flex',
@@ -32,9 +33,9 @@ const useStyles = makeStyles((_: any) => ({
   newPostTextField: {
     width: '100%',
     background: colors.primaryText,
-    borderRadius: 15,
+    borderRadius: 10,
     [`& fieldset`]: {
-      borderRadius: 15,
+      borderRadius: 10,
     },
   },
   textFieldContainer: {
@@ -45,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     color: colors.primaryText,
     marginLeft: 10,
-    marginRight: 10,
+    marginRight: 1,
   },
   buttonContainer: {
     display: 'flex',

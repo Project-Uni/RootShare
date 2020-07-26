@@ -15,8 +15,10 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.second,
     overflow: 'scroll',
+    borderLeft: `1px solid ${colors.fourth}`,
+    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
   coverPhoto: {
@@ -29,7 +31,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 175,
     borderRadius: 100,
     marginTop: -88,
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${colors.second}`,
     marginLeft: 50,
     objectFit: 'cover',
   },
@@ -42,12 +44,12 @@ type Props = {
   numMembers: number;
   numMutual: number;
   type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';
   private?: boolean;
 };
 
@@ -95,8 +97,8 @@ function CommunityBody(props: Props) {
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
-        <FaLock size={90} color={colors.secondaryText} />
-        <RSText type="subhead" size={20} color={colors.primary}>
+        <FaLock size={90} color={colors.primaryText} />
+        <RSText type="subhead" size={20} color={colors.primaryText}>
           You must be a member to view this content.
         </RSText>
       </div>

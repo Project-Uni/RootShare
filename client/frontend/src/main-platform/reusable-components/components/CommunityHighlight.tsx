@@ -67,12 +67,12 @@ type Props = {
   private?: boolean;
   name: string;
   type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';
   description: string;
   memberCount: number;
   mutualMemberCount: number;

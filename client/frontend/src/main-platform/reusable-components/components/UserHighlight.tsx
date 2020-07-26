@@ -92,7 +92,7 @@ function UserHighlight(props: Props) {
           </RSText>
           <RSText type="subhead" size={12} color={colors.primaryText}>
             {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
-            Mutal Communities
+            Mutual Communities
           </RSText>
         </div>
       </div>
@@ -100,10 +100,10 @@ function UserHighlight(props: Props) {
         {!props.connected ? (
           <Button className={styles.connectButton}>Connect</Button>
         ) : (
-          <RSText color={colors.primaryText} size={11}>
-            CONNECTED
-          </RSText>
-        )}
+            <RSText color={colors.primaryText} size={11}>
+              CONNECTED
+            </RSText>
+          )}
       </div>
     </div>
   );

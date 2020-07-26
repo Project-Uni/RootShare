@@ -117,7 +117,7 @@ function DiscoveryCommunity(props: Props) {
             </RSText>
           </div>
 
-          <IconButton onClick={() => {}}>
+          <IconButton onClick={() => { }}>
             <RSText type="subhead" color={colors.primaryText} size={12}>
               X
             </RSText>

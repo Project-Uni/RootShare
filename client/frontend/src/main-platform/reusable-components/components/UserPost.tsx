@@ -30,6 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   profilePic: {
     height: 50,
     borderRadius: 60,
+    marginLeft: -6,
   },
   postHeadText: {
     display: 'flex',
@@ -45,6 +46,8 @@ const useStyles = makeStyles((_: any) => ({
   plantIcon: {
     marginLeft: 15,
     marginRight: 15,
+    marginBottom: -4,
+    marginTop: 4,
   },
   noUnderline: {
     textDecoration: 'none',
@@ -54,7 +57,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   message: {
     textAlign: 'left',
-    marginLeft: 10,
+    marginLeft: 55,
     marginRight: 10,
   },
   messageBody: {
@@ -62,15 +65,18 @@ const useStyles = makeStyles((_: any) => ({
   },
   seeMoreButton: {
     color: colors.secondaryText,
+    marginRight: 38,
   },
   seeMoreButtonDiv: {
     display: 'flex',
     justifyContent: 'flex-end',
+    marginRight: 20,
   },
   likesAndCommentsContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginLeft: 43,
   },
   commentCount: {
     '&:hover': {
@@ -92,8 +98,8 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   commentsContainer: {
-    borderTop: `1px solid ${colors.primaryText}`,
-    borderBottom: `1px solid ${colors.primaryText}`,
+    borderTop: `1px solid ${colors.fourth}`,
+    borderBottom: `1px solid ${colors.fourth}`,
     marginBottom: 15,
   },
   loadingIndicator: {
@@ -109,9 +115,9 @@ const useTextFieldStyles = makeStyles((_: any) => ({
     marginLeft: 15,
     width: '100%',
     background: colors.primaryText,
-    borderRadius: 30,
+    borderRadius: 10,
     [`& fieldset`]: {
-      borderRadius: 30,
+      borderRadius: 10,
     },
   },
 }));
@@ -198,7 +204,7 @@ function UserPost(props: Props) {
               </>
             )}
           </div>
-          <RSText type="subhead" color={colors.secondaryText} size={12} italic>
+          <RSText type="subhead" color={colors.secondaryText} size={12} >
             {props.timestamp}
           </RSText>
         </div>
@@ -229,10 +235,10 @@ function UserPost(props: Props) {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton onClick={handleLikeStatusChange}>
             {liked ? (
-              <BsStarFill size={25} color={colors.bright} />
+              <BsStarFill size={20} color={colors.bright} />
             ) : (
-              <BsStar size={25} color={colors.bright} />
-            )}
+                <BsStar size={20} color={colors.secondaryText} />
+              )}
           </IconButton>
 
           <RSText type="body" color={colors.secondaryText} size={12}>

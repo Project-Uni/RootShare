@@ -14,9 +14,9 @@ const MAX_SUBSTR_LEN = 200;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondary,
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 10,
+    marginLeft: 1,
+    marginRight: 1,
+    borderRadius: 1,
     textAlign: 'left',
     padding: 15,
   },
@@ -42,6 +42,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   seeMoreButton: {
     color: colors.secondaryText,
+    marginRight: -9,
   },
   bottom: {
     display: 'flex',
@@ -96,7 +97,7 @@ function Event(props: Props) {
             alignItems: 'center',
           }}
         >
-          <RSText color={colors.secondaryText} italic>
+          <RSText color={colors.secondaryText}>
             {props.timestamp}
           </RSText>
           <IconButton
@@ -107,8 +108,8 @@ function Event(props: Props) {
             {showFullEvent ? (
               <BsChevronDown color={colors.primaryText} size={14} />
             ) : (
-              <BsChevronRight color={colors.primaryText} size={14} />
-            )}
+                <BsChevronRight color={colors.primaryText} size={14} />
+              )}
           </IconButton>
         </div>
       </div>

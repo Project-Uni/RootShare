@@ -11,8 +11,8 @@ import RSText from '../../../base-components/RSText';
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
     background: colors.secondary,
-    borderRadius: 10,
-    margin: 20,
+    borderRadius: 1,
+    margin: 1,
     paddingBottom: 15,
   },
   closeWelcomeButtonDiv: {

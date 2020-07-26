@@ -73,7 +73,7 @@ function DiscoverySinglePerson(props: Props) {
           <RSText type="body" color={colors.secondaryText} italic size={11}>
             {props.company}
           </RSText>
-          <RSText type="body" color={colors.secondaryText} size={10} italic>
+          <RSText type="body" color={colors.secondaryText} size={10}>
             {props.mutualConnections} Mutual Connections
           </RSText>
         </div>

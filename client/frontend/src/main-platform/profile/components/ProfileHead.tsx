@@ -58,10 +58,10 @@ function ProfileHead(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
-        <RSText type="head" size={24} bold color={colors.primary}>
+        <RSText type="head" size={24} bold color={colors.primaryText}>
           {props.name}
         </RSText>
-        <RSText type="subhead" size={14} color={colors.secondaryText}>
+        <RSText type="subhead" size={14} color={colors.secondaryText} >
           {props.university + ' ' + props.graduationYear}
         </RSText>
         <RSText type="subhead" size={14} color={colors.secondaryText}>
@@ -70,7 +70,7 @@ function ProfileHead(props: Props) {
         <RSText
           type="subhead"
           size={14}
-          color={colors.primary}
+          color={colors.primaryText}
           className={styles.bio}
         >
           {props.bio}
@@ -83,8 +83,7 @@ function ProfileHead(props: Props) {
         <RSText
           type="subhead"
           size={12}
-          color={colors.secondary}
-          italic
+          color={colors.primaryText}
           className={styles.numbers}
         >
           {props.numConnections} Connections
@@ -92,8 +91,7 @@ function ProfileHead(props: Props) {
         <RSText
           type="subhead"
           size={12}
-          color={colors.secondary}
-          italic
+          color={colors.primaryText}
           className={styles.numbers}
         >
           {props.numMutualConnections} Mutual
@@ -101,8 +99,7 @@ function ProfileHead(props: Props) {
         <RSText
           type="subhead"
           size={12}
-          color={colors.secondary}
-          italic
+          color={colors.primaryText}
           className={styles.numbers}
         >
           {props.numCommunities} Communities
