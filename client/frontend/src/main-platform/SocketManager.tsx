@@ -35,6 +35,13 @@ function SocketManager(props: Props) {
   const [newConversation, setNewConversation] = useState({});
 
   useEffect(() => {
+    if (
+      Object.keys(props.user).length === 0 ||
+      props.accessToken === '' ||
+      props.refreshToken === ''
+    )
+      return;
+
     checkAuth((authed) => {
       if (authed) connectSocket();
       else disconnectSocket();
@@ -59,7 +66,6 @@ function SocketManager(props: Props) {
       props.refreshToken
     );
 
-    alert('checking auth: ' + (data['success'] === 1));
     callback(data['success'] === 1);
   }
 
@@ -83,7 +89,6 @@ function SocketManager(props: Props) {
       console.log(`Received socket error: ${err}`);
     });
 
-    alert('updating socket');
     props.updateSocket(socket);
   }
 
