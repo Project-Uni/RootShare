@@ -18,6 +18,7 @@ export async function connectStream(
     self: boolean
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void,
+  changeNumSpeakers: (value: 1 | -1) => void,
   accessToken: string,
   refreshToken: string
 ) {
@@ -42,7 +43,8 @@ export async function connectStream(
     eventToken,
     updateVideoElements,
     removeVideoElement,
-    setCameraPublisher
+    setCameraPublisher,
+    changeNumSpeakers
   );
 
   if (!((eventSession as unknown) as boolean))
