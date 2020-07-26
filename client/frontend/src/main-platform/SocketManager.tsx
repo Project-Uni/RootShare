@@ -78,6 +78,7 @@ function SocketManager(props: Props) {
     });
 
     socket.on('newMessage', (message: any) => {
+      console.log(message);
       props.updateNewMessage(message);
     });
 

@@ -152,6 +152,7 @@ function EventMessageContainer(props: Props) {
     )
       return;
 
+    if (!newMessage['numLikes']) newMessage.numLikes = 0;
     setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
