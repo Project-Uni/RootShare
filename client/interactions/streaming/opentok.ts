@@ -20,21 +20,25 @@ import sendPacket from '../../helpers/sendPacket';
 
 module.exports = {
   createNewOpenTokSession: (webinar, callback) => {
-    if (webinar === undefined || webinar === null)
-      return callback(sendPacket(-1, 'Could not retrieve webinar'));
+    if (webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
 
     if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000)
       return callback(
-        sendPacket(-1, 'Please wait until 30 minutes before the event starts')
+        sendPacket(
+          -1,
+          'Session can only be created 30 minutes before event start time'
+        )
       );
 
     opentok.createSession({ mediaMode: 'routed' }, async (error, session) => {
-      if (error || session === undefined || session === null)
+      if (error) return callback(sendPacket(-1, error));
+      if (!session)
         return callback(sendPacket(-1, 'Could not create opentok session'));
 
       webinar.opentokSessionID = session.sessionId;
       webinar.save((err, webinar) => {
-        if (err || webinar === undefined || webinar === null)
+        if (err) return callback(sendPacket(-1, err));
+        if (!webinar)
           return callback(sendPacket(-1, 'Could not save webinar session id'));
 
         return callback(
@@ -49,7 +53,8 @@ module.exports = {
   // Retrive Session ID from DB
   getOpenTokSessionID: async (webinarID, callback) => {
     Webinar.findById(webinarID, (err, webinar) => {
-      if (err || webinar === undefined || webinar === null)
+      if (err) return callback(sendPacket(-1, err));
+      if (!webinar)
         return callback(sendPacket(-1, 'Could not send OpenTok SessionID'));
 
       if (webinar.opentokSessionID === undefined)
@@ -76,7 +81,7 @@ module.exports = {
   getMuxPlaybackID: async (webinarID) => {
     const currWebinar = await Webinar.findById(webinarID);
 
-    if (!currWebinar || currWebinar === undefined || currWebinar === null) {
+    if (!currWebinar) {
       return sendPacket(-1, 'No Webinar exists with this ID');
     }
     if (
@@ -92,8 +97,7 @@ module.exports = {
 
   stopStreaming: async (webinarID) => {
     let currWebinar = await Webinar.findById(webinarID);
-    if (!currWebinar || currWebinar === undefined || currWebinar === null)
-      return sendPacket(-1, 'Could not find webinar');
+    if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     const { opentokBroadcastID } = currWebinar;
     currWebinar.opentokBroadcastID = '';
@@ -153,8 +157,7 @@ module.exports = {
     const { opentokBroadcastID } = broadcastPacket.content;
 
     let currWebinar = await Webinar.findById(webinarID);
-    if (!currWebinar || currWebinar === undefined || currWebinar === null)
-      return sendPacket(-1, 'Could not find webinar');
+    if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     currWebinar.muxStreamKey = muxStreamKey;
     currWebinar.muxLiveStreamID = muxLiveStreamID;
@@ -266,14 +269,11 @@ module.exports = {
     else return callback(sendPacket(-1, 'Invalid Layout Type'));
 
     Webinar.findById(webinarID, (err, currWebinar) => {
-      if (err || currWebinar === undefined || currWebinar === null)
+      if (err) return callback(sendPacket(-1, err));
+      if (!currWebinar)
         return callback(sendPacket(-1, 'Cannot find current Webinar'));
       const { opentokBroadcastID, opentokSessionID } = currWebinar;
-      if (
-        !opentokBroadcastID ||
-        opentokBroadcastID === undefined ||
-        opentokBroadcastID === ''
-      )
+      if (!opentokBroadcastID || opentokBroadcastID === '')
         return callback(sendPacket(-1, 'OpenTok Broadcast has not yet started'));
 
       const JWT = module.exports.createOpenTokJWT();

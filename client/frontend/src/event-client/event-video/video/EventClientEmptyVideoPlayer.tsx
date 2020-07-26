@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -14,7 +15,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
   },
   text: {
-    color: 'white',
+    color: colors.primaryText,
   },
 }));
 
@@ -32,7 +33,7 @@ function EventClientEmptyVideoPlayer(props: Props) {
         className={styles.videoContent}
         style={{ height: props.height, width: props.width }}
       >
-        <RSText type="subhead" color={'white'} className={styles.text} size={16}>
+        <RSText type="subhead" className={styles.text} size={16}>
           The event has not started yet
         </RSText>
       </div>
