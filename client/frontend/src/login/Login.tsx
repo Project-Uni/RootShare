@@ -100,7 +100,6 @@ function Login(props: Props) {
       password: password,
     });
     if (data['success'] === 1) {
-      console.log('DataContent:', data['content']);
       setError(false);
       const {
         firstName,

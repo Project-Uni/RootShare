@@ -39,7 +39,7 @@ function SocketManager(props: Props) {
       if (authed) connectSocket();
       else disconnectSocket();
     });
-  }, [props.user]);
+  }, [props.user, props.accessToken, props.refreshToken]);
 
   useEffect(() => {
     addMessage(props.newMessage);
@@ -59,13 +59,13 @@ function SocketManager(props: Props) {
       props.refreshToken
     );
 
+    alert('checking auth: ' + (data['success'] === 1));
     callback(data['success'] === 1);
   }
 
   function connectSocket() {
     const socket = io('http://localhost:8080');
     setSocket(socket);
-    props.updateSocket(socket);
 
     socket.on('connect', (data: React.SetStateAction<boolean>) => {
       fetchConversations(socket);
@@ -82,6 +82,9 @@ function SocketManager(props: Props) {
     socket.on('error', function(err: any) {
       console.log(`Received socket error: ${err}`);
     });
+
+    alert('updating socket');
+    props.updateSocket(socket);
   }
 
   function disconnectSocket() {

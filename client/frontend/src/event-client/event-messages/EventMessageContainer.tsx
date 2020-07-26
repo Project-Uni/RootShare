@@ -133,8 +133,17 @@ function EventMessageContainer(props: Props) {
       Object.keys(props.socket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined
-    )
+    ) {
+      alert('no socket or conversation');
+
+      console.log(props.socket);
+      console.log(props.conversationID);
       return;
+    }
+    alert('connecting socket');
+
+    console.log(props.socket);
+    console.log(props.conversationID);
     props.socket.emit('connectToConversation', props.conversationID);
   }, [props.socket, props.conversationID]);
 
