@@ -3,9 +3,8 @@ import log from '../helpers/logger';
 import axios from 'axios';
 
 const mongoose = require('mongoose');
-const User = mongoose.model('users');
-const Conversation = mongoose.model('conversations');
-const Message = mongoose.model('messages');
+
+import { User, Conversation, Message } from '../models';
 
 module.exports = {
   createThread: (req, io, callback) => {

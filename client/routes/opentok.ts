@@ -1,6 +1,3 @@
-const mongoose = require('mongoose');
-const Webinar = mongoose.model('webinars');
-
 import sendPacket from '../helpers/sendPacket';
 import { USER_LEVEL } from '../types/types';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';

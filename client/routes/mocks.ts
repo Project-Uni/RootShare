@@ -1,6 +1,5 @@
 import sendPacket from '../helpers/sendPacket';
-var mongoose = require('mongoose');
-var User = mongoose.model('users');
+import { User } from '../models';
 
 const MOCK_LOGIN_EMAIL = 'mahesh2@purdue.edu';
 

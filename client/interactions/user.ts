@@ -1,7 +1,4 @@
-const mongoose = require('mongoose');
-const User = mongoose.model('users');
-
-import Webinar from '../models/webinars';
+import { User, Webinar } from '../models';
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
