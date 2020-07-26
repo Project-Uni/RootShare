@@ -115,6 +115,10 @@ function EventMessageContainer(props: Props) {
   }, []);
 
   useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
     if (
       props.conversationID === '' ||
       props.conversationID === undefined ||
@@ -250,9 +254,16 @@ function EventMessageContainer(props: Props) {
     return output;
   }
 
+  function scrollToBottom() {
+    const messageContainer = document.getElementById('messageContainer');
+    messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <div className={styles.messageContainer}>{renderMessages()}</div>
+      <div id="messageContainer" className={styles.messageContainer}>
+        {renderMessages()}
+      </div>
 
       <div className={styles.textFieldContainer}>
         <TextField
