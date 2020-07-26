@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
+import CommunityOverview from './CommunityOverview';
+
+import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 
 const HEADER_HEIGHT = 60;
 
@@ -22,6 +25,11 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginLeft: 20,
     marginRight: 20,
+  },
+  singleCommunity: {
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 10,
   },
 }));
 
@@ -52,6 +60,26 @@ function YourCommunitiesBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
+  function renderCommunities() {
+    const output = [];
+    for (let i = 0; i < 5; i++)
+      output.push(
+        <CommunityOverview
+          communityID="testCommID"
+          name="RootShare"
+          private
+          style={styles.singleCommunity}
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
+          type="Business"
+          memberCount={7054}
+          mutualMemberCount={68}
+          profilePicture={PurdueHypeBanner}
+          joinedDate="April 29, 2020"
+        />
+      );
+    return output;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -61,7 +89,7 @@ function YourCommunitiesBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}></div>
+      <div className={styles.body}>{renderCommunities()}</div>
     </div>
   );
 }

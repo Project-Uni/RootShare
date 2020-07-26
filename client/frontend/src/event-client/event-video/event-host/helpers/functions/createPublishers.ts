@@ -15,6 +15,8 @@ export function createNewWebcamPublisher(
       publishVideo: false,
       publishAudio: false,
       insertDefaultUI: false,
+      name: name,
+      resolution: '1280x960',
     },
     (err) => {
       if (err) alert(err.message);
@@ -51,7 +53,7 @@ export function createNewScreensharePublisher(
     {
       insertDefaultUI: false,
       videoSource: 'screen',
-      resolution: '1280x720',
+      resolution: '1280x960',
     },
     (err) => {
       if (err) {

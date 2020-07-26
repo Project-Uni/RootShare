@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
 
-import { MdGroupAdd, MdAccountCircle } from 'react-icons/md';
+import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 
@@ -16,6 +16,7 @@ import {
   ConnectionsDrawer,
   MessagesDrawerContainer,
   ProfileDrawer,
+  NavigationDrawer,
 } from './drawer-components';
 
 const useStyles = makeStyles((_: any) => ({
@@ -37,11 +38,13 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   minWidth?: number;
+  showNavigationWidth?: number;
 };
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
   const [drawerContent, setDrawerContent] = useState('');
+  const [drawerAnchor, setDrawerAnchor] = useState<'left' | 'right'>('right');
   const minWidth = props.minWidth || 100;
   const [width, setWidth] = useState(
     window.innerWidth >= minWidth ? window.innerWidth : props.minWidth
@@ -60,19 +63,28 @@ function EventClientHeader(props: Props) {
   }
 
   function handleConnectionsClick() {
+    setDrawerAnchor('right');
     setDrawerContent('connections');
   }
 
   function handleMessagesClick() {
+    setDrawerAnchor('right');
     setDrawerContent('messages');
   }
 
   function handleCalendarClick() {
+    setDrawerAnchor('right');
     setDrawerContent('calendar');
   }
 
   function handleProfileClick() {
+    setDrawerAnchor('right');
     setDrawerContent('profile');
+  }
+
+  function handleNavigationClick() {
+    setDrawerAnchor('left');
+    setDrawerContent('navigation');
   }
 
   function getDrawerContent() {
@@ -86,7 +98,7 @@ function EventClientHeader(props: Props) {
       case 'profile':
         return <ProfileDrawer />;
       default:
-        return null;
+        return <NavigationDrawer currentTab="none" />;
     }
   }
 
@@ -113,13 +125,22 @@ function EventClientHeader(props: Props) {
     <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
-          <a href="/">
-            <img
-              src={RootShareLogoWhite}
-              alt="RootShare"
-              className={styles.headerLogo}
-            />
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {props.showNavigationWidth &&
+              window.innerWidth < props.showNavigationWidth && (
+                <IconButton onClick={handleNavigationClick}>
+                  <MdMenu color={colors.primaryText} size={28} />
+                </IconButton>
+              )}
+
+            <a href="/">
+              <img
+                src={RootShareLogoWhite}
+                alt="RootShare"
+                className={styles.headerLogo}
+              />
+            </a>
+          </div>
 
           <div className={styles.icons}>{renderIcons()}</div>
         </Toolbar>
@@ -129,6 +150,7 @@ function EventClientHeader(props: Props) {
           backgroundColor={
             drawerContent === 'calendar' ? colors.secondary : colors.secondary
           }
+          anchor={drawerAnchor}
         >
           {getDrawerContent()}
         </EventDrawer>

@@ -12,6 +12,11 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import EventsBody from './components/EventsBody';
 
+import {
+  SHOW_HEADER_NAVIGATION_WIDTH,
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+} from '../../types/constants';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -35,8 +40,11 @@ function Events(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
@@ -45,6 +53,10 @@ function Events(props: Props) {
       }
     });
   }, []);
+
+  function handleResize() {
+    setWidth(window.innerWidth);
+  }
 
   async function checkAuth() {
     const { data } = await makeRequest(
@@ -67,11 +79,13 @@ function Events(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/events`} />}
-      <EventClientHeader />
+      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
-        <MainNavigator currentTab="events" />
+        {width > SHOW_HEADER_NAVIGATION_WIDTH && (
+          <MainNavigator currentTab="events" />
+        )}
         <EventsBody />
-        <DiscoverySidebar />
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
   );

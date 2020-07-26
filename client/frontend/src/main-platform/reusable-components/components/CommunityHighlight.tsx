@@ -1,0 +1,150 @@
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
+
+import { FaLock } from 'react-icons/fa';
+
+import { colors } from '../../../theme/Colors';
+import RSText from '../../../base-components/RSText';
+
+const MAX_DESC_LEN = 200;
+
+const useStyles = makeStyles((_: any) => ({
+  wrapper: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: colors.secondary,
+    borderRadius: 10,
+    padding: 15,
+  },
+  left: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    textAlign: 'left',
+  },
+  profilePic: {
+    height: 70,
+    width: 70,
+    borderRadius: 50,
+    border: `1px solid ${colors.primaryText}`,
+  },
+  connectButton: {
+    background: colors.bright,
+    color: colors.primaryText,
+    '&:hover': {
+      background: colors.primary,
+    },
+  },
+  pendingButton: {
+    background: colors.secondaryText,
+    color: colors.primaryText,
+    '&:hover': {
+      background: colors.primary,
+    },
+  },
+  textContainer: {
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  type: {
+    marginBottom: 6,
+  },
+  noUnderline: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'none',
+    },
+  },
+  lock: {
+    marginLeft: 10,
+  },
+}));
+
+type Props = {
+  style?: any;
+  communityID: string;
+  private?: boolean;
+  name: string;
+  type:
+    | 'Social'
+    | 'Business'
+    | 'Just for Fun'
+    | 'Athletics'
+    | 'Student Organization'
+    | 'Academic';
+  description: string;
+  memberCount: number;
+  mutualMemberCount: number;
+  status: 'JOINED' | 'PENDING' | 'OPEN';
+  profilePicture: any;
+};
+
+function CommunityHighlight(props: Props) {
+  const styles = useStyles();
+
+  const descSubstr = props.description.substr(0, MAX_DESC_LEN);
+
+  function renderButton() {
+    if (props.status === 'OPEN')
+      return <Button className={styles.connectButton}>Join</Button>;
+    else if (props.status === 'PENDING')
+      return <Button className={styles.pendingButton}>Pending</Button>;
+    else
+      return (
+        <RSText color={colors.primaryText} size={12}>
+          MEMBER
+        </RSText>
+      );
+  }
+
+  return (
+    <div className={[styles.wrapper, props.style || null].join(' ')}>
+      <div className={styles.left}>
+        <a href={`/community/${props.communityID}`}>
+          <img src={props.profilePicture} className={styles.profilePic} />
+        </a>
+        <div className={styles.textContainer}>
+          <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <RSText type="head" size={13} color={colors.primaryText}>
+                {props.name}
+              </RSText>
+              {props.private && (
+                <FaLock
+                  color={colors.secondaryText}
+                  size={13}
+                  className={styles.lock}
+                />
+              )}
+            </div>
+          </a>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.primaryText}
+            className={styles.type}
+          >
+            {props.type}
+          </RSText>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.secondaryText}
+            className={styles.type}
+          >
+            {props.description !== descSubstr
+              ? descSubstr.concat(' ...')
+              : props.description}
+          </RSText>
+          <RSText type="subhead" size={12} color={colors.primaryText}>
+            {props.memberCount} Members | {props.mutualMemberCount} Mutual
+          </RSText>
+        </div>
+      </div>
+      <div style={{ width: 125 }}>{renderButton()}</div>
+    </div>
+  );
+}
+
+export default CommunityHighlight;

@@ -1,29 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
-import { IoMdText } from 'react-icons/io';
 import { MdGroup, MdOndemandVideo } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
-const HEADER_HEIGHT = 60;
-const TEXT_SIZE = 22;
-const ICON_SIZE = 32;
+import { colors } from '../../theme/Colors';
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    background: colors.primary,
-    width: 310,
-    borderRight: `1px solid ${colors.primaryText}`,
-  },
+  wrapper: {},
   linkContainer: {
     marginLeft: 30,
     marginRight: 30,
-    marginTop: 30,
+    marginTop: 40,
   },
   link: {
     display: 'flex',
@@ -35,6 +26,9 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 30,
   },
 }));
+
+const TEXT_SIZE = 22;
+const ICON_SIZE = 32;
 
 type AVAILABLE_TABS =
   | 'home'
@@ -50,18 +44,8 @@ type Props = {
   currentTab: AVAILABLE_TABS;
 };
 
-function MainNavigator(props: Props) {
+function NavigationDrawer(props: Props) {
   const styles = useStyles();
-
-  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-  }, []);
-
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
 
   const tabs = [
     {
@@ -155,6 +139,7 @@ function MainNavigator(props: Props) {
             size={TEXT_SIZE}
             bold
             className={styles.textStyle}
+            hoverColor={colors.bright}
           >
             {tabs[i].name}
           </RSText>
@@ -163,11 +148,12 @@ function MainNavigator(props: Props) {
     }
     return output;
   }
+
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
-      <div className={styles.linkContainer}>{renderLinks()}</div>
+    <div className={styles.wrapper}>
+      <div className={styles.linkContainer}>{renderLinks()}</div>{' '}
     </div>
   );
 }
 
-export default MainNavigator;
+export default NavigationDrawer;

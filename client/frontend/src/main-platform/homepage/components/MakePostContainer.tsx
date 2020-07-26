@@ -19,10 +19,10 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 10,
     marginLeft: 20,
     marginRight: 20,
-    paddingLeft: 30,
-    paddingRight: 30,
+    paddingLeft: 15,
+    paddingRight: 15,
     paddingTop: 15,
-    paddingBottom: 15,
+    paddingBottom: 10,
     marginTop: 20,
   },
   messageArea: {
@@ -30,8 +30,16 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
   },
   newPostTextField: {
-    marginLeft: 20,
+    width: '100%',
+    background: colors.primaryText,
+    borderRadius: 15,
+    [`& fieldset`]: {
+      borderRadius: 15,
+    },
+  },
+  textFieldContainer: {
     flex: 1,
+    marginLeft: 10,
   },
   button: {
     background: colors.bright,
@@ -59,16 +67,16 @@ function MakePostContainer(props: Props) {
     <div className={styles.messageAreaWrapper}>
       <div className={styles.messageArea}>
         <img src={AshwinHeadshot} className={styles.postProfilePic} alt="Profile" />
-        {/* TODO - Update Style of this textfield */}
-        <TextField
-          variant="outlined"
-          placeholder="Whats on your mind Ashwin?"
-          multiline
-          className={styles.newPostTextField}
-          helperText="Share with the world whats on your mind!"
-          value={props.postValue}
-          onChange={props.onChange}
-        />
+        <div className={styles.textFieldContainer}>
+          <TextField
+            variant="outlined"
+            placeholder="Whats on your mind Ashwin?"
+            multiline
+            className={styles.newPostTextField}
+            value={props.postValue}
+            onChange={props.onChange}
+          />
+        </div>
       </div>
       <div className={styles.buttonContainer}>
         <Button className={styles.button} onClick={props.onUploadImage}>

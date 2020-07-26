@@ -1,5 +1,22 @@
-import MainNavigator from './MainNavigator';
-import DiscoverySidebar from './DiscoverySidebar';
-import WelcomeMessage from './WelcomeMessage';
+import MainNavigator from './components/MainNavigator';
+import DiscoverySidebar from './components/DiscoverySidebar';
 
-export { MainNavigator, DiscoverySidebar, WelcomeMessage };
+import WelcomeMessage from './components/WelcomeMessage';
+
+import UserPost from './components/UserPost';
+import Comment from './components/Comment';
+import Event from './components/Event';
+
+import UserHighlight from './components/UserHighlight';
+import CommunityHighlight from './components/CommunityHighlight';
+
+export {
+  MainNavigator,
+  DiscoverySidebar,
+  WelcomeMessage,
+  UserPost,
+  Comment,
+  Event,
+  UserHighlight,
+  CommunityHighlight,
+};
