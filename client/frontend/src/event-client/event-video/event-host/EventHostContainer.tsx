@@ -132,9 +132,9 @@ function EventHostContainer(props: Props) {
     });
   }
 
-  function increaseNumSpeakers() {
+  function changeNumSpeakers(value: 1 | -1) {
     setNumSpeakers((prevState) => {
-      return (prevState + 1) as SINGLE_DIGIT;
+      return (prevState + value) as SINGLE_DIGIT;
     });
   }
 
@@ -200,12 +200,6 @@ function EventHostContainer(props: Props) {
         if (currElement.getAttribute('elementid') === elementID) {
           elementIndex = i;
         }
-      }
-
-      if (videoType === 'camera') {
-        setNumSpeakers((prevState) => {
-          return (prevState - 1) as SINGLE_DIGIT;
-        });
       }
 
       const newVideoElements =
@@ -322,7 +316,7 @@ function EventHostContainer(props: Props) {
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
-        increaseNumSpeakers,
+        changeNumSpeakers,
         props.accessToken,
         props.refreshToken
       );

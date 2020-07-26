@@ -63,14 +63,14 @@ export async function createEventSession(
     self: boolean
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void,
-  increaseNumSpeakers: () => void
+  changeNumSpeakers: (value: 1 | -1) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
   addEventSessionListeners(
     eventSession,
     updateVideoElements,
     removeVideoElement,
-    increaseNumSpeakers
+    changeNumSpeakers
   );
 
   await eventSession.connect(eventToken, (err: any) => {
@@ -107,14 +107,14 @@ function addEventSessionListeners(
     videoType: 'camera' | 'screen',
     self: boolean
   ) => void,
-  increaseNumSpeakers: () => void
+  changeNumSpeakers: (value: 1 | -1) => void
 ) {
   eventSession.on('streamCreated', (streamEvent: any) => {
     let subscriber = eventSession.subscribe(streamEvent.stream, {
       insertDefaultUI: false,
     });
 
-    if (streamEvent.stream.videoType === 'camera') increaseNumSpeakers();
+    if (streamEvent.stream.videoType === 'camera') changeNumSpeakers(1);
 
     subscriber.on('videoElementCreated', function(event: any) {
       setTimeout(() => {
@@ -129,6 +129,8 @@ function addEventSessionListeners(
   });
 
   eventSession.on('streamDestroyed', (event: any) => {
+    console.log('Stream destroyed:', event.stream);
     removeVideoElement(event.stream.streamId, event.stream.videoType, false);
+    if (event.stream.videoType === 'camera') changeNumSpeakers(-1);
   });
 }
