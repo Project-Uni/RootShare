@@ -174,7 +174,7 @@ function EventClientBase(props: Props) {
     return check;
   }
 
-  if (checkMobile()) {
+  if (checkMobile() && eventMode !== 'viewer') {
     return (
       <div className={styles.wrapper}>
         {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}

@@ -36,6 +36,14 @@ export default class VideoPlayer extends React.Component<Props> {
           // Handle on player ready here
         }
       );
+
+      this.player.landscapeFullscreen({
+        fullscreen: {
+          enterOnRotate: true,
+          alwaysInLandscapeMode: true,
+          iOS: true,
+        },
+      });
     } catch (err) {
       // Handle error here
     }
