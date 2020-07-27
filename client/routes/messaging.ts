@@ -33,7 +33,7 @@ module.exports = (app, io) => {
   app.post('/api/messaging/sendMessage', isAuthenticatedWithJWT, (req, res) => {
     sendMessage(
       req.user._id,
-      req.user.firstName,
+      `${req.user.firstName} ${req.user.lastName}`,
       req.body.conversationID,
       req.body.message,
       io,
