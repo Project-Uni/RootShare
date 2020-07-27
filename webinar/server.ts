@@ -88,10 +88,13 @@ io.on("connection", (socket: socketio.Socket) => {
     }
     socketUserId = userID;
     socketWebinarId = webinarID;
+
     if (!(webinarID in webinarCache)) {
       socket.emit("webinar-error", "Webinar not in cache");
       log("error", "Invalid webinarID received");
     }
+    socket.join(`${webinarID}`);
+
     webinarCache[webinarID].users[userID] = socket;
   });
 
