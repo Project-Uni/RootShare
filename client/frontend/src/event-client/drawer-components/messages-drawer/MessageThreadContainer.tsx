@@ -7,7 +7,7 @@ import { FaRegSmile } from 'react-icons/fa';
 import { IoIosArrowBack } from 'react-icons/io';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/functions/makeRequest';
+import { makeRequest } from '../../../helpers/functions';
 
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
@@ -15,10 +15,7 @@ import MessageTextField from './MessageTextField';
 import RSText from '../../../base-components/RSText';
 
 import { colors } from '../../../theme/Colors';
-import {
-  MessageType,
-  ConversationType,
-} from '../../../helpers/types/messagingTypes';
+import { MessageType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

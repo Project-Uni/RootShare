@@ -1,4 +1,4 @@
-import log from '../../helpers/functions/logger';
+import { log } from '../../helpers/functions';
 const STATE_NAME = 'RootShare:state';
 
 const initializeState = () => ({

@@ -6,7 +6,7 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
-import { ENTER_KEYCODE } from '../../../helpers/constants/keycode';
+import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},

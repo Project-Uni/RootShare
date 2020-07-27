@@ -5,7 +5,7 @@ import { IconButton } from '@material-ui/core';
 
 import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';
-import { monthDict } from '../helpers/constants/date';
+import { monthDict } from '../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

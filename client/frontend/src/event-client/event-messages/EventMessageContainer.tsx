@@ -9,14 +9,14 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/functions/makeRequest';
+import { makeRequest } from '../../helpers/functions';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 
 import { colors } from '../../theme/Colors';
-import { MessageType, LikeUpdateType } from '../../helpers/types/messagingTypes';
-import { ENTER_KEYCODE } from '../../helpers/constants/keycode';
+import { MessageType, LikeUpdateType } from '../../helpers/types';
+import { ENTER_KEYCODE } from '../../helpers/constants';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { SINGLE_DIGIT } from '../../../helpers/types/types';
+import { SINGLE_DIGIT } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   row: {
