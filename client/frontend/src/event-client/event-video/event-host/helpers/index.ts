@@ -4,6 +4,7 @@ import {
   createNewWebcamPublisher,
 } from './functions/createPublishers';
 import { startLiveStream, stopLiveStream } from './functions/OpenToktoMux';
+import { addToCache, removeFromCache } from './functions/webinarCache';
 
 export {
   connectStream,
@@ -11,4 +12,6 @@ export {
   createNewWebcamPublisher,
   startLiveStream,
   stopLiveStream,
+  addToCache,
+  removeFromCache,
 };

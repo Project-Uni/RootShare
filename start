@@ -25,6 +25,10 @@ osascript <<END
     end tell
 
     tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"WEBINAR CACHE MICROSERVICE\"; cd webinar; npm install; npm run startDev"
+    end tell
+
+    tell application "Terminal"
         do script "cd \"`pwd`\"; source scripts/setHeader \"REACT CLIENT\"; cd client/frontend; npm install; npm start"
     end tell
 END
@@ -33,6 +37,10 @@ else
 osascript <<END
     tell application "Terminal"
         do script "cd \"`pwd`\"; source scripts/setHeader \"NODEJS CLIENT\"; cd client; npm run startDev"
+    end tell
+
+    tell application "Terminal"
+        do script "cd \"`pwd`\"; source scripts/setHeader \"WEBINAR CACHE MICROSERVICE\"; cd webinar; npm run startDev"
     end tell
 
     tell application "Terminal"
