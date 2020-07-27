@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Button } from '@material-ui/core';
@@ -10,6 +10,7 @@ import {
 } from '@styled-icons/boxicons-solid';
 
 import { colors } from '../../../theme/Colors';
+import ManageSpeakersDialog from './ManageSpeakersDialog';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -49,8 +50,28 @@ type Props = {
 
 function EventHostButtonContainer(props: Props) {
   const styles = useStyles();
+
+  const [showManageDialog, setShowManageDialog] = useState(false);
+
+  function handleManageSpeakersClick() {
+    setShowManageDialog(true);
+  }
+
+  function handleOnSpeakerAdd(user: { [key: string]: any }) {
+    console.log('Adding user:', user);
+  }
+
+  function handleManageSpeakersCancel() {
+    setShowManageDialog(false);
+  }
+
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersDialog
+        open={showManageDialog}
+        onCancel={handleManageSpeakersCancel}
+        onAdd={handleOnSpeakerAdd}
+      />
       {props.mode === 'admin' && (
         <Button
           variant="contained"
@@ -105,7 +126,8 @@ function EventHostButtonContainer(props: Props) {
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           disabled={props.loading}
-          onClick={props.handleManageSpeakers}
+          // onClick={props.handleManageSpeakers}
+          onClick={handleManageSpeakersClick}
         >
           Manage Speakers
         </Button>
