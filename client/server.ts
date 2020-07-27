@@ -66,6 +66,6 @@ app.get('*', (_, response) => {
   response.sendFile(path.join(__dirname, '/frontend/build/index.html'));
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   log('info', `Listening on port ${port}`);
 });
