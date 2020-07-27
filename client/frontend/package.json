@@ -23,6 +23,7 @@
     "@types/redux-logger": "^3.0.8",
     "@types/socket.io-client": "^1.4.33",
     "@types/video.js": "^7.3.9",
+    "@videojs/themes": "^1.0.0",
     "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "date-fns": "^2.14.0",
@@ -41,7 +42,7 @@
     "styled-components": "^5.1.1",
     "styled-icons": "^10.5.0",
     "typescript": "^3.7.5",
-    "video.js": "^7.8.2",
+    "video.js": "^7.8.4",
     "videojs-landscape-fullscreen": "^1.5.1"
   },
   "devDependencies": {

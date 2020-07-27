@@ -1,6 +1,7 @@
 import React from 'react';
 import videojs from 'video.js';
-import '../../../../node_modules/video.js/dist/video-js.css';
+import 'video.js/dist/video-js.css';
+import '@videojs/themes/dist/fantasy/index.css';
 
 interface Props {
   src: string;
@@ -65,7 +66,7 @@ export default class VideoPlayer extends React.Component<Props> {
         <div data-vjs-player>
           <video
             ref={(node) => (this.videoNode = node)}
-            className="video-js"
+            className="video-js vjs-theme-fantasy"
             style={{ width: videoWidth, height: videoHeight }}
           ></video>
         </div>
