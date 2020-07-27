@@ -6,6 +6,7 @@ import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { WelcomeMessage, UserPost } from '../../reusable-components';
 import { DhruvHeadshot } from '../../../images/team';
+import RSText from '../../../base-components/RSText';
 
 const HEADER_HEIGHT = 60;
 
@@ -28,17 +29,27 @@ const useStyles = makeStyles((_: any) => ({
     width: 175,
     borderRadius: 100,
     marginTop: -88,
-    border: `8px solid ${colors.second}`,
+    border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
   },
   event: {
-    marginTop: 5,
-    marginLeft: 34,
-    marginRight: 18,
+    marginTop: 0,
+    marginLeft: 39,
+    marginRight: 0,
+    borderTop: `1px solid ${colors.fourth}`,
   },
   post: {
-    marginTop: 10,
+    // marginTop: 1,
+    borderBottom: `1px solid ${colors.fourth}`
   },
+  rootshares: {
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+    background: colors.second,
+    borderBottom: `1px solid ${colors.fourth}`,
+    borderTop: `1px solid ${colors.fourth}`,
+  }
 }));
 
 type Props = {
@@ -91,7 +102,9 @@ function ProfileBody(props: Props) {
         />
       );
     return (
-      <div style={{ marginLeft: 6, marginRight: 6, marginTop: 20 }}>{output}</div>
+      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20, }}>
+        {output}
+      </div>
     );
   }
 
@@ -114,11 +127,9 @@ function ProfileBody(props: Props) {
     return (
       <div
         style={{
-          marginLeft: 10,
-          marginRight: 10,
-          marginTop: 10,
-          borderTop: `1px solid ${colors.secondaryText}`,
-          paddingTop: 4,
+          paddingLeft: 1,
+          paddingRight: 1,
+          background: colors.fourth,
         }}
       >
         {output}
@@ -152,6 +163,9 @@ function ProfileBody(props: Props) {
           numCommunities={6}
         />
         {renderRegisteredEvents()}
+        <RSText type="head" size={24} bold color={colors.primaryText} className={styles.rootshares}>
+          Dhruv's RootShares
+        </RSText>
         {renderPosts()}
       </div>
     </div>

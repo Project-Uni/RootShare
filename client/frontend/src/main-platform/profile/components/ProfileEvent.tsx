@@ -16,7 +16,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 3,
     paddingLeft: 10,
     paddingRight: 10,
-    borderRadius: 5,
+    borderRadius: 0,
   },
   eventTitle: {
     marginLeft: 10,

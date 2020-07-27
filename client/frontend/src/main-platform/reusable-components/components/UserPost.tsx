@@ -16,7 +16,7 @@ const MAX_INITIAL_VISIBLE_CHARS = 200;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondary,
-    borderRadius: 10,
+    borderRadius: 1,
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
