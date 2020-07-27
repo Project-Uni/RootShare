@@ -54,14 +54,19 @@ export default class VideoPlayer extends React.Component<Props> {
   // wrap the player in a div with a `data-vjs-player` attribute
   // so videojs won't create additional wrapper in the DOM
   // see https://github.com/videojs/video.js/pull/3856
+
   render() {
+    const fs: boolean = !!document.fullscreenElement;
+    const videoWidth = fs ? '100%' : this.props.width;
+    const videoHeight = fs ? '100%' : this.props.height;
+
     return (
       <div>
         <div data-vjs-player>
           <video
             ref={(node) => (this.videoNode = node)}
             className="video-js"
-            style={{ width: this.props.width, height: this.props.height }}
+            style={{ width: videoWidth, height: videoHeight }}
           ></video>
         </div>
       </div>
