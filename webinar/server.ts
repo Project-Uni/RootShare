@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import * as express from "express";
 import * as socketio from "socket.io";
 
@@ -8,6 +10,7 @@ const http = require("http");
 
 import log from "./helpers/logger";
 import sendPacket from "./helpers/sendPacket";
+import { isAuthenticatedWithJWT } from "./middleware/isAuthenticated";
 
 const port = process.env.PORT || 8003;
 
@@ -37,7 +40,7 @@ app.get("/", (req, res) => {
   return res.send("Reached root of webinar cache micro-service");
 });
 
-app.post("/api/createWebinar", (req, res) => {
+app.post("/api/createWebinar", isAuthenticatedWithJWT, (req, res) => {
   const { webinarID } = req.body;
   if (!webinarID) return res.json(sendPacket(-1, "webinarID not in request"));
 
@@ -50,7 +53,7 @@ app.post("/api/createWebinar", (req, res) => {
   return res.json(sendPacket(1, "Successfully initialized webinar in cache"));
 });
 
-app.post("/api/removeWebinar", (req, res) => {
+app.post("/api/removeWebinar", isAuthenticatedWithJWT, (req, res) => {
   const { webinarID } = req.body;
 
   if (!webinarID) return res.json(sendPacket(-1, "webinarID not in request"));
@@ -58,6 +61,19 @@ app.post("/api/removeWebinar", (req, res) => {
     return res.json(sendPacket(0, "Webinar not found in cache"));
 
   delete webinarCache[webinarID];
+});
+
+app.post("/api/getActiveUsers", isAuthenticatedWithJWT, (req, res) => {
+  const { webinarID } = req.body;
+  if (!webinarID) return res.json(sendPacket(-1, "webinarID not in request"));
+  if (!(webinarID in webinarCache))
+    return res.json(sendPacket(0, "Webinar not found in cache"));
+
+  const activeUserIDs = Object.keys(webinarCache[webinarID].users);
+
+  return res.json(
+    sendPacket(1, "Successfully fetched active users", { activeUserIDs })
+  );
 });
 
 io.on("connection", (socket: socketio.Socket) => {
