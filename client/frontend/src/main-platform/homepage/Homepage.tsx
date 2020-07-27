@@ -16,7 +16,7 @@ import HomepageBody from './components/HomepageBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
-} from '../../types/constants';
+} from '../../helpers/constants/sizing';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

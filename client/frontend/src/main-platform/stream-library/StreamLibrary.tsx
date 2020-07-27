@@ -12,7 +12,7 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import StreamLibraryBody from './components/StreamLibraryBody';
 
-import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../types/constants';
+import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../helpers/constants/sizing';
 
 const LIBRARY_NAVIGATION_WIDTH = 850;
 

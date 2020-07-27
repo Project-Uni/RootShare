@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
-import { makeStyles } from "@material-ui/core/styles";
-import { IconButton } from "@material-ui/core";
-import { FaEllipsisH } from "react-icons/fa";
+import { makeStyles } from '@material-ui/core/styles';
+import { IconButton } from '@material-ui/core';
+import { FaEllipsisH } from 'react-icons/fa';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import RootShareLogoFullWhite from "../../images/RootShareLogoFullWhite.png"
 
-import RSText from "../../base-components/RSText";
-import { colors } from "../../theme/Colors";
+import { EventType } from '../../helpers/types/eventTypes';
+import { monthDict } from '../../helpers/constants/date';
+import { formatTime } from '../../helpers/functions/dateFormat';
+
+import RootShareLogoFullWhite from '../../images/RootShareLogoFullWhite.png';
+import RSText from '../../base-components/RSText';
+import { colors } from '../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -16,11 +20,11 @@ const useStyles = makeStyles((_: any) => ({
     // not final color
     borderRadius: 5,
     paddingBottom: 4,
-    margin: 10
+    margin: 10,
   },
   top: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     background: colors.bright,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
@@ -36,7 +40,7 @@ const useStyles = makeStyles((_: any) => ({
     margin: 10,
     marginTop: 18,
     marginBottom: -7,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.secondary,
   },
   organization: {
@@ -45,8 +49,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
   },
   bottom: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     margin: 0,
     //Questionable decision by me here below, but lets go with it for now
     marginTop: -20,
@@ -56,14 +60,14 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 10,
     marginTop: -50,
     marginLeft: 10,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   date: {
     alignRight: 5,
     marginTop: 12,
     marginRight: 10,
-    display: "inline-block",
+    display: 'inline-block',
     color: colors.primaryText,
   },
   ellipsis: {
@@ -72,28 +76,18 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 0,
   },
   banner: {
-    display: "flex",
-    justifyContent: "center",
+    display: 'flex',
+    justifyContent: 'center',
     marginTop: 10,
   },
   description: {
     marginTop: -15,
     marginBottom: 5,
-  }
+  },
 }));
 
 type Props = {
-  eventID: string,
-  eventName: string,
-  eventDescription: string,
-  organization: string,
-  day: string,
-  month: string,
-  year: string,
-  time: string,
-  ampm: string,
-  timezone: string,
-  picture: string,
+  event: EventType;
 };
 
 function SingleEvent(props: Props) {
@@ -105,39 +99,44 @@ function SingleEvent(props: Props) {
     setLiked(!oldVal);
   }
 
+  const { event } = props;
+  const eventTime = new Date(event.dateTime);
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
-        <IconButton>
-          <AddCircleOutlineIcon className={styles.ellipsis} />
-        </IconButton>
+          <IconButton>
+            <AddCircleOutlineIcon className={styles.ellipsis} />
+          </IconButton>
           <RSText bold size={12} className={styles.name}>
-            {props.eventName}
+            {event.title}
           </RSText>
         </div>
         <div>
           <RSText size={12} className={styles.date}>
-            {props.month} {props.day}
+            {monthDict[eventTime.getMonth()]} {eventTime.getDate()}
           </RSText>
         </div>
       </div>
       <div className={styles.bottom}>
-        <div >
+        <div>
           <RSText size={12} className={styles.organization}>
-            Hosted by {props.organization}
+            Hosted by{' '}
+            {event.hostCommunity
+              ? event.hostCommunity
+              : `${event.host.firstName} ${event.host.lastName}`}
           </RSText>
         </div>
         <div>
-        <RSText size={12} className={styles.left}>
-          {props.time}{props.ampm}
-        </RSText>
+          <RSText size={12} className={styles.left}>
+            {formatTime(eventTime)}
+          </RSText>
         </div>
       </div>
       <div className={styles.description}>
         <div>
           <RSText size={12} className={styles.organization}>
-            {props.eventDescription} people registered
+            {event.brief_description}
           </RSText>
         </div>
       </div>

@@ -18,12 +18,8 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(0, 'User is not authorized to perform this action')
-      );
-    await getAllEvents((packet) => res.json(packet));
+  app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
+    getAllEvents((packet) => res.json(packet));
   });
 
   app.get(
