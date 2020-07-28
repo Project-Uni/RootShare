@@ -17,16 +17,22 @@ module.exports = (io, webinarCache) => {
 
       if (!(webinarID in webinarCache)) {
         socket.emit("webinar-error", "Webinar not in cache");
-        log("error", "Invalid webinarID received");
+        return log("error", "Invalid webinarID received");
       }
       socket.join(`${webinarID}`);
 
       webinarCache[webinarID].users[userID] = socket;
+      console.log("Webinar cache:", webinarCache);
     });
 
     socket.on("disconnect", () => {
       log("disconnect", `${socketUserId}`);
-      delete webinarCache[socketWebinarId].users[socketUserId];
+      const webinarExists = socketWebinarId in webinarCache;
+      if (webinarExists) {
+        const userExists = socketUserId in webinarCache[socketWebinarId].users;
+        if (userExists)
+          delete webinarCache[socketWebinarId].users[socketUserId];
+      }
     });
   });
 };
