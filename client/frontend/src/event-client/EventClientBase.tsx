@@ -25,6 +25,8 @@ import SampleAd2 from '../images/sampleAd2.png';
 
 import { colors } from '../theme/Colors';
 
+import socketIOClient from 'socket.io-client';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
@@ -141,6 +143,9 @@ function EventClientBase(props: Props) {
   }
 
   function updateAttendeeList(webinarID: string) {
+    const socket = socketIOClient('http://localhost:8003');
+    socket.emit('new-user', { webinarID: webinarID, userID: props.user._id });
+
     makeRequest(
       'POST',
       '/api/webinar/updateAttendeeList',
