@@ -24,8 +24,7 @@ module.exports = (app) => {
       req.user
     );
 
-    console.log(data);
-    return res.json(sendPacket(1, 'Successfully made API call'));
+    return res.json(data);
   });
 
   app.post(
@@ -52,8 +51,7 @@ module.exports = (app) => {
         req.user
       );
 
-      console.log(data);
-      return res.json(sendPacket(1, 'Successfully made API call'));
+      return res.json(data);
     }
   );
 };

@@ -42,6 +42,7 @@ app.get("/", (req, res) => {
 });
 
 function cleanupCache() {
+  log("cleanup", "Running cache cleanup");
   const keys = Object.keys(webinarCache);
   const timeout = 1000 * 60 * 60 * 3; // 3 HOURS
   for (let i = 0; i < keys.length; i++) {
