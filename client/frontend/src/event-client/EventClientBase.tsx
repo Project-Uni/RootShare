@@ -143,8 +143,7 @@ function EventClientBase(props: Props) {
   }
 
   function updateAttendeeList(webinarID: string) {
-    const socket = socketIOClient('http://localhost:8003');
-    socket.emit('new-user', { webinarID: webinarID, userID: props.user._id });
+    initializeSocket(webinarID);
 
     makeRequest(
       'POST',
@@ -156,6 +155,19 @@ function EventClientBase(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+  }
+
+  function initializeSocket(webinarID: string) {
+    const socket = socketIOClient('http://localhost:8003');
+    socket.emit('new-user', { webinarID: webinarID, userID: props.user._id });
+
+    socket.on('speaking-invite', () => {
+      console.log('User has been invited to speak');
+    });
+
+    socket.on('speaking-end', () => {
+      console.log('User has been removed as a speaker');
+    });
   }
 
   function renderVideoArea() {
