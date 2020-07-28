@@ -1,24 +1,21 @@
 import { makeRequest } from '../../../../../helpers/makeRequest';
+import log from '../../../../../helpers/logger';
 
-//TODO - Move server base URL to env for easy switching between dev and prod
 export async function addToCache(
   webinarID: string,
   accessToken: string,
   refreshToken: string
 ) {
+  console.log('WebinarID:', webinarID);
   const { data } = await makeRequest(
     'POST',
-    `${
-      process.env.NODE_ENV === 'development'
-        ? 'http://localhost:8003'
-        : 'http://localhost:8003'
-    }/api/createWebinar`,
+    '/proxy/addWebinarToCache',
     { webinarID },
     true,
     accessToken,
     refreshToken
   );
-  console.log('Response:', data['message']);
+  log('info', `Server Response: ${data['message']}`);
 }
 
 export async function removeFromCache(
@@ -28,15 +25,11 @@ export async function removeFromCache(
 ) {
   const { data } = await makeRequest(
     'POST',
-    `${
-      process.env.NODE_ENV === 'development'
-        ? 'http://localhost:8003'
-        : 'http://localhost:8003'
-    }/api/removeWebinar`,
+    '/proxy/removeWebinarFromCache',
     { webinarID },
     true,
     accessToken,
     refreshToken
   );
-  console.log('Response:', data['message']);
+  log('info', `Server Response: ${data['message']}`);
 }
