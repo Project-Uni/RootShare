@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -40,6 +40,7 @@ type UserInfo = {
 
 type Props = {
   open: boolean;
+  webinarID: string;
   onCancel: () => void;
   onAdd: (user: { [key: string]: any }) => void;
   accessToken: string;
@@ -48,9 +49,30 @@ type Props = {
 
 function ManageSpeakersDialog(props: Props) {
   const styles = useStyles();
+
+  const [loading, setLoading] = useState(true);
   const [searchedUser, setSearchedUser] = useState<UserInfo>();
   const [options, setOptions] = useState<UserInfo[]>([]);
   const [searchErr, setSearchedErr] = useState('');
+
+  useEffect(() => {
+    if (props.open) fetchData();
+  }, [props.open]);
+
+  async function fetchData() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/webinar/${props.webinarID}/getActiveViewers`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] === 1) {
+      setOptions(data['content']['users']);
+    }
+    setLoading(false);
+  }
 
   function onAddClick() {
     console.log('Searched User:', searchedUser);
@@ -64,25 +86,6 @@ function ManageSpeakersDialog(props: Props) {
   function handleAutocompleteChange(_: any, newSpeaker: any) {
     console.log('New Speaker:', newSpeaker);
     setSearchedUser(newSpeaker);
-  }
-
-  async function handleQueryChange(event: any) {
-    if (event.target.value.length >= 3) {
-      const { data } = await makeRequest(
-        'POST',
-        //TODO - Change this to a route that only searches among users in the webinar
-        '/api/getMatchingUsers',
-        {
-          query: event.target.value,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
-      if (data['success'] === 1) {
-        setOptions(data['content']['users']);
-      }
-    }
   }
 
   function renderAutoComplete() {
@@ -101,7 +104,6 @@ function ManageSpeakersDialog(props: Props) {
             value={searchedUser}
             error={searchErr !== ''}
             helperText={searchErr}
-            onChange={handleQueryChange}
           />
         )}
       />

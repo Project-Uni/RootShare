@@ -390,6 +390,7 @@ function EventHostContainer(props: Props) {
         {renderVideoSections()}
       </div>
       <EventHostButtonContainer
+        webinarID={props.webinar['_id']}
         mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}

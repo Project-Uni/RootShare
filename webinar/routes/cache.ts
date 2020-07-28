@@ -37,16 +37,21 @@ module.exports = (app, webinarCache) => {
     }
   );
 
-  app.post("/api/getActiveUsers", isAuthenticatedWithJWT, (req, res) => {
-    const { webinarID } = req.body;
-    if (!webinarID) return res.json(sendPacket(-1, "webinarID not in request"));
-    if (!(webinarID in webinarCache))
-      return res.json(sendPacket(0, "Webinar not found in cache"));
+  app.get(
+    "/api/webinar/:webinarID/getActiveViewers",
+    isAuthenticatedWithJWT,
+    (req, res) => {
+      const { webinarID } = req.params;
+      if (!webinarID)
+        return res.json(sendPacket(-1, "webinarID not in request"));
+      if (!(webinarID in webinarCache))
+        return res.json(sendPacket(0, "Webinar not found in cache"));
 
-    const activeUserIDs = Object.keys(webinarCache[webinarID].users);
+      const activeUserIDs = Object.keys(webinarCache[webinarID].users);
 
-    return res.json(
-      sendPacket(1, "Successfully fetched active users", { activeUserIDs })
-    );
-  });
+      return res.json(
+        sendPacket(1, "Successfully fetched active users", { activeUserIDs })
+      );
+    }
+  );
 };

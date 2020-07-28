@@ -35,6 +35,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  webinarID: string;
   isStreaming: boolean;
   showWebcam: boolean;
   muted: boolean;
@@ -59,6 +60,7 @@ function EventHostButtonContainer(props: Props) {
 
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
     console.log('Adding user:', user);
+    setShowManageDialog(false);
   }
 
   function handleManageSpeakersCancel() {
@@ -71,6 +73,7 @@ function EventHostButtonContainer(props: Props) {
         open={showManageDialog}
         onCancel={handleManageSpeakersCancel}
         onAdd={handleOnSpeakerAdd}
+        webinarID={props.webinarID}
       />
       {props.mode === 'admin' && (
         <Button
@@ -126,7 +129,6 @@ function EventHostButtonContainer(props: Props) {
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           disabled={props.loading}
-          // onClick={props.handleManageSpeakers}
           onClick={handleManageSpeakersClick}
         >
           Manage Speakers

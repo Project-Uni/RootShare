@@ -12,6 +12,8 @@ module.exports = (io, webinarCache) => {
       if (!userID || !webinarID) {
         return log("alert", "Invalid socket connection received");
       }
+      log("new-user", `${userID}`);
+
       socketUserId = userID;
       socketWebinarId = webinarID;
 
