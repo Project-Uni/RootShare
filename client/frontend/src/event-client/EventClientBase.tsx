@@ -27,6 +27,8 @@ import { colors } from '../theme/Colors';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
+    height: window.innerHeight,
+    overflow: 'hidden',
   },
   body: {
     display: 'flex',
