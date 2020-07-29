@@ -322,8 +322,15 @@ function EventMessageContainer(props: Props) {
           <Modal open={open} onClose={() => setOpen(false)}>
             {renderEmojiPicker()}
           </Modal>
-          <IconButton onClick={handleSendMessage}>
-            <MdSend size={20} className={styles.icon} />
+          <IconButton
+            className={styles.icon}
+            onClick={handleSendMessage}
+            disabled={getSendingDisabled()}
+          >
+            <MdSend
+              size={20}
+              style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+            />
           </IconButton>
         </div>
       </div>

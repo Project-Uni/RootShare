@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { TextField, IconButton, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -21,15 +21,6 @@ const useStyles = makeStyles((_: any) => ({
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
-  },
-  icon: {
-    color: '#f2f2f2',
-    '&:hover': {
-      color: colors.bright,
-    },
-  },
-  paper: {
-    width: 270,
   },
   textField: {
     [`& fieldset`]: {
@@ -64,6 +55,15 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  paper: {
+    width: 270,
+  },
+  icon: {
+    color: '#f2f2f2',
+    '&:hover': {
+      color: colors.bright,
+    },
+  },
 }));
 
 type Props = {
@@ -77,6 +77,10 @@ function MessageTextField(props: Props) {
   const [newMessage, setNewMessage] = useState('');
   const [modalStyle, setModalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
 
   function handleMessageChange(event: any) {
     setNewMessage(event.target.value);
@@ -175,8 +179,9 @@ function MessageTextField(props: Props) {
         aria-controls="long-menu"
         aria-haspopup="true"
         onClick={() => setOpen(true)}
+        className={styles.icon}
       >
-        <FaRegSmile size={18} className={styles.icon}></FaRegSmile>
+        <FaRegSmile size={18}></FaRegSmile>
       </IconButton>
       <Modal open={open} onClose={() => setOpen(false)}>
         {renderEmojiPicker()}
@@ -184,8 +189,12 @@ function MessageTextField(props: Props) {
       <IconButton
         disabled={getSendingDisabled()}
         onClick={() => handleSendMessage()}
+        className={styles.icon}
       >
-        <MdSend color={getSendingDisabled() ? '#555555' : '#f2f2f2'} size={20} />
+        <MdSend
+          style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+          size={20}
+        />
       </IconButton>
     </div>
   );
