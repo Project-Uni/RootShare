@@ -11,6 +11,7 @@ import {
 
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
+import { makeRequest } from '../../../helpers/makeRequest';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

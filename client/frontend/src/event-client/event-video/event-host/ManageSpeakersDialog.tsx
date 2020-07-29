@@ -29,6 +29,27 @@ const useStyles = makeStyles((_: any) => ({
   text: {
     color: colors.primaryText,
   },
+  // cssLabel: {
+  //   color: colors.primaryText,
+  //   label: colors.primaryText,
+  // },
+  // cssFocused: {
+  //   color: colors.primaryText,
+  //   label: colors.primaryText,
+  //   borderColor: colors.primaryText,
+  // },
+  // cssOutlinedInput: {
+  //   '&$cssFocused $notchedOutline': {
+  //     color: colors.primaryText,
+  //     label: colors.primaryText,
+  //     borderColor: colors.primaryText,
+  //   },
+  // },
+  // notchedOutline: {
+  //   label: colors.primaryText,
+  //   borderColor: colors.primaryText,
+  //   color: colors.primaryText,
+  // },
 }));
 
 type UserInfo = {
@@ -74,10 +95,22 @@ function ManageSpeakersDialog(props: Props) {
     setLoading(false);
   }
 
-  function onAddClick() {
+  async function onAddClick() {
     console.log('Searched User:', searchedUser);
     if (searchedUser) {
-      props.onAdd(searchedUser);
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/inviteUserToSpeak',
+        {
+          userID: searchedUser._id,
+          webinarID: props.webinarID,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      console.log('Data:', data);
+      // props.onAdd(searchedUser);
     } else {
       setSearchedErr('Please enter a valid user');
     }
@@ -93,7 +126,9 @@ function ManageSpeakersDialog(props: Props) {
       <Autocomplete
         style={{ width: 400, marginBottom: '20px' }}
         options={options}
-        getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+        getOptionLabel={(option) =>
+          `${option.firstName} ${option.lastName} | ${option.email}`
+        }
         onChange={handleAutocompleteChange}
         renderInput={(params) => (
           <TextField
@@ -104,6 +139,19 @@ function ManageSpeakersDialog(props: Props) {
             value={searchedUser}
             error={searchErr !== ''}
             helperText={searchErr}
+            // InputLabelProps={{
+            //   classes: {
+            //     root: styles.cssLabel,
+            //     focused: styles.cssFocused,
+            //   },
+            // }}
+            // InputProps={{
+            //   classes: {
+            //     root: styles.cssOutlinedInput,
+            //     focused: styles.cssFocused,
+            //     notchedOutline: styles.notchedOutline,
+            //   },
+            // }}
           />
         )}
       />

@@ -35,6 +35,8 @@ const io = socketio(server);
 const webinarCache = {};
 
 require("./routes/cache")(app, webinarCache);
+require("./routes/user")(app, webinarCache);
+
 require("./socket/socketSetup")(io, webinarCache);
 
 app.get("/", (req, res) => {
