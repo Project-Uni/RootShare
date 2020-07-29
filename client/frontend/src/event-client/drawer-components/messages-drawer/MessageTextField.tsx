@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
 
 import { colors } from '../../../theme/Colors';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
@@ -19,6 +21,15 @@ const useStyles = makeStyles((_: any) => ({
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
+  },
+  icon: {
+    color: '#f2f2f2',
+    '&:hover': {
+      color: colors.bright,
+    },
+  },
+  paper: {
+    width: 270,
   },
   textField: {
     [`& fieldset`]: {
@@ -64,6 +75,8 @@ function MessageTextField(props: Props) {
   const styles = useStyles();
 
   const [newMessage, setNewMessage] = useState('');
+  const [modalStyle, setModalStyle] = useState(getModalStyle);
+  const [open, setOpen] = useState(false);
 
   function handleMessageChange(event: any) {
     setNewMessage(event.target.value);
@@ -81,7 +94,45 @@ function MessageTextField(props: Props) {
     }
   }
 
-  function handleEmojiClick() {}
+  function renderEmojiPicker() {
+    return (
+      <div style={modalStyle} className={styles.paper}>
+        <Picker
+          set="apple"
+          onSelect={onEmojiClick}
+          title="Spice it up"
+          perLine={7}
+          theme="dark"
+          showPreview={false}
+          sheetSize={64}
+          emoji=""
+        />
+      </div>
+    );
+  }
+
+  function onEmojiClick(emoji: { [key: string]: any }) {
+    const updateMessage = newMessage + emoji.native + ' ';
+    setNewMessage(updateMessage);
+  }
+
+  function getModalStyle() {
+    const bottom = 100;
+    const right = 50;
+    const containerWidth = 270;
+    const containerHeight = 400;
+    return {
+      bottom,
+      right,
+      transform: `translate(${window.innerWidth -
+        containerWidth -
+        right}px, ${window.innerHeight - containerHeight - bottom}px)`,
+    };
+  }
+
+  function handleResize() {
+    setModalStyle(getModalStyle());
+  }
 
   function getSendingDisabled() {
     return (
@@ -119,9 +170,17 @@ function MessageTextField(props: Props) {
           inputMode: 'numeric',
         }}
       />
-      <IconButton onClick={handleEmojiClick}>
-        <FaRegSmile size={18} color="#f2f2f2" />
+      <IconButton
+        aria-label="more"
+        aria-controls="long-menu"
+        aria-haspopup="true"
+        onClick={() => setOpen(true)}
+      >
+        <FaRegSmile size={18} className={styles.icon}></FaRegSmile>
       </IconButton>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        {renderEmojiPicker()}
+      </Modal>
       <IconButton
         disabled={getSendingDisabled()}
         onClick={() => handleSendMessage()}
