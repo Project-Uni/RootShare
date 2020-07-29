@@ -9,6 +9,7 @@ const expressSession = require("express-session");
 const http = require("http");
 
 import log from "./helpers/logger";
+import { Webinar, WebinarCache } from "./types/types";
 
 const port = process.env.PORT || 8003;
 
@@ -32,7 +33,7 @@ app.use(
 const server = http.Server(app);
 const io = socketio(server);
 
-const webinarCache = {};
+const webinarCache: WebinarCache = {};
 
 require("./routes/cache")(app, webinarCache);
 require("./routes/user")(app, webinarCache);

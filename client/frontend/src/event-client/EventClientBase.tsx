@@ -161,8 +161,12 @@ function EventClientBase(props: Props) {
     const socket = socketIOClient('http://localhost:8003');
     socket.emit('new-user', { webinarID: webinarID, userID: props.user._id });
 
-    socket.on('speaking-invite', () => {
-      console.log('User has been invited to speak');
+    socket.on('speaking-invite', (data: { speaking_token: string }) => {
+      const { speaking_token } = data;
+      console.log(
+        'Received invitation to speak with speaking_token:',
+        speaking_token
+      );
     });
 
     socket.on('speaking-end', () => {

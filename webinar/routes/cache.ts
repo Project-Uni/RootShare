@@ -2,7 +2,9 @@ import log from "../helpers/logger";
 import sendPacket from "../helpers/sendPacket";
 import { isAuthenticatedWithJWT } from "../middleware/isAuthenticated";
 
-module.exports = (app, webinarCache) => {
+import { WebinarCache, Webinar } from "../types/types";
+
+module.exports = (app, webinarCache: WebinarCache) => {
   app.post("/api/addWebinarToCache", isAuthenticatedWithJWT, (req, res) => {
     console.log(req.connection.remoteAddress);
     const { webinarID } = req.body;

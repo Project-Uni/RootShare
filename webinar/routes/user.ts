@@ -1,8 +1,11 @@
+const crypto = require("crypto");
+
 import log from "../helpers/logger";
 import sendPacket from "../helpers/sendPacket";
 import { isAuthenticatedWithJWT } from "../middleware/isAuthenticated";
+import { WebinarCache } from "../types/types";
 
-module.exports = (app, webinarCache) => {
+module.exports = (app, webinarCache: WebinarCache) => {
   app.post("/api/inviteUserToSpeak", isAuthenticatedWithJWT, (req, res) => {
     const { webinarID, userID } = req.body;
     if (!webinarID || !userID)
@@ -18,9 +21,10 @@ module.exports = (app, webinarCache) => {
 
     const socket = webinarCache[webinarID].users[userID];
 
-    log("invite", `Inviting user ${userID} to speak at ${webinarID}`);
+    const speaking_token = crypto.randomBytes(20).toString();
+    webinarCache[webinarID].speakingToken = speaking_token;
 
-    socket.emit("speaking-invite");
+    socket.emit("invite-to-speak", { speaking_token });
     return res.json(sendPacket(1, "Successfully invited user to speak"));
   });
 };

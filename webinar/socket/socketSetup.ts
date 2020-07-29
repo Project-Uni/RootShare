@@ -1,7 +1,9 @@
 import * as socketio from "socket.io";
 import log from "../helpers/logger";
 
-module.exports = (io, webinarCache) => {
+import { WebinarCache } from "../types/types";
+
+module.exports = (io, webinarCache: WebinarCache) => {
   io.on("connection", (socket: socketio.Socket) => {
     let socketUserId = "";
     let socketWebinarId = "";
