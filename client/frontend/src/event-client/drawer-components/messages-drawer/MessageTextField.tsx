@@ -69,10 +69,15 @@ function MessageTextField(props: Props) {
     setNewMessage(event.target.value);
   }
 
+  function handleSendMessage() {
+    props.handleSendMessage(newMessage);
+    setNewMessage('');
+  }
+
   function handleMessageKey(event: any) {
     if (event.keyCode === ENTER_KEYCODE) {
       event.preventDefault();
-      if (!getSendingDisabled()) props.handleSendMessage(newMessage);
+      if (!getSendingDisabled()) handleSendMessage();
     }
   }
 
@@ -119,7 +124,7 @@ function MessageTextField(props: Props) {
       </IconButton>
       <IconButton
         disabled={getSendingDisabled()}
-        onClick={() => props.handleSendMessage(newMessage)}
+        onClick={() => handleSendMessage()}
       >
         <MdSend color={getSendingDisabled() ? '#555555' : '#f2f2f2'} size={20} />
       </IconButton>
