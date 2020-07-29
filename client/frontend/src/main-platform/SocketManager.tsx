@@ -110,15 +110,16 @@ function SocketManager(props: Props) {
       if (prevConversations[i]._id === newMessage.conversationID) {
         const updatedConversation = prevConversations[i];
         updatedConversation.lastMessage = newMessage;
-        return [updatedConversation].concat(
+
+        const newConversations = [updatedConversation].concat(
           prevConversations
             .slice(0, i)
             .concat(prevConversations.slice(i + 1, prevConversations.length))
         );
+        props.updateConversations(newConversations);
+        return newConversations;
       }
     }
-
-    props.updateConversations(prevConversations);
   }
 
   function addConversation(currSocket: SocketIOClient.Socket, newConversation: any) {
