@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/makeRequest';
+import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -32,27 +33,13 @@ const useStyles = makeStyles((_: any) => ({
   textField: {
     background: colors.primaryText,
   },
-  // cssLabel: {
-  //   color: colors.primaryText,
-  //   label: colors.primaryText,
-  // },
-  // cssFocused: {
-  //   color: colors.primaryText,
-  //   label: colors.primaryText,
-  //   borderColor: colors.primaryText,
-  // },
-  // cssOutlinedInput: {
-  //   '&$cssFocused $notchedOutline': {
-  //     color: colors.primaryText,
-  //     label: colors.primaryText,
-  //     borderColor: colors.primaryText,
-  //   },
-  // },
-  // notchedOutline: {
-  //   label: colors.primaryText,
-  //   borderColor: colors.primaryText,
-  //   color: colors.primaryText,
-  // },
+  bright: {
+    color: colors.bright,
+    marginBottom: 6,
+  },
+  selectedName: {
+    marginBottom: 3,
+  },
 }));
 
 type UserInfo = {
@@ -78,9 +65,13 @@ function ManageSpeakersDialog(props: Props) {
   const [searchedUser, setSearchedUser] = useState<UserInfo>();
   const [options, setOptions] = useState<UserInfo[]>([]);
   const [searchErr, setSearchedErr] = useState('');
+  const [serverErr, setServerErr] = useState('');
 
   useEffect(() => {
-    if (props.open) fetchData();
+    if (props.open) {
+      fetchData();
+      setServerErr('');
+    }
   }, [props.open]);
 
   async function fetchData() {
@@ -99,7 +90,6 @@ function ManageSpeakersDialog(props: Props) {
   }
 
   async function onAddClick() {
-    console.log('Searched User:', searchedUser);
     if (searchedUser) {
       const { data } = await makeRequest(
         'POST',
@@ -112,15 +102,16 @@ function ManageSpeakersDialog(props: Props) {
         props.accessToken,
         props.refreshToken
       );
-      console.log('Data:', data);
-      // props.onAdd(searchedUser);
+      if (data.success === 1) props.onAdd(searchedUser);
+      else {
+        setServerErr('There was an error inviting this user');
+      }
     } else {
       setSearchedErr('Please enter a valid user');
     }
   }
 
   function handleAutocompleteChange(_: any, newSpeaker: any) {
-    console.log('New Speaker:', newSpeaker);
     setSearchedUser(newSpeaker);
   }
 
@@ -129,9 +120,7 @@ function ManageSpeakersDialog(props: Props) {
       <Autocomplete
         style={{ width: 400, marginBottom: '20px' }}
         options={options}
-        getOptionLabel={(option) =>
-          `${option.firstName} ${option.lastName} | ${option.email}`
-        }
+        getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
         onChange={handleAutocompleteChange}
         renderInput={(params) => (
           <TextField
@@ -143,19 +132,6 @@ function ManageSpeakersDialog(props: Props) {
             error={searchErr !== ''}
             helperText={searchErr}
             className={styles.textField}
-            // InputLabelProps={{
-            //   classes: {
-            //     root: styles.cssLabel,
-            //     focused: styles.cssFocused,
-            //   },
-            // }}
-            // InputProps={{
-            //   classes: {
-            //     root: styles.cssOutlinedInput,
-            //     focused: styles.cssFocused,
-            //     notchedOutline: styles.notchedOutline,
-            //   },
-            // }}
           />
         )}
       />
@@ -175,7 +151,23 @@ function ManageSpeakersDialog(props: Props) {
         <DialogContentText className={styles.text}>
           Enter a user to bring on as a guest speaker
         </DialogContentText>
+        {searchedUser && (
+          <div style={{ marginBottom: 15 }}>
+            <RSText className={styles.bright}>
+              <b>Selected User</b>
+            </RSText>
+            <RSText className={[styles.text, styles.selectedName].join(' ')}>
+              {searchedUser.firstName} {searchedUser.lastName}
+            </RSText>
+            <RSText className={styles.text}>{searchedUser.email}</RSText>
+          </div>
+        )}
         {renderAutoComplete()}
+        {serverErr && (
+          <RSText type="body" color={'red'} size={11} italic>
+            There was an error inviting this user.
+          </RSText>
+        )}
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={props.onCancel} className={styles.secondaryText}>
