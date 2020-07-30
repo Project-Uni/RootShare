@@ -181,11 +181,12 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('speaking-token-rejected', () => {
-      console.log('Speaking token was rejected.');
+      alert('Speaking token was rejected');
     });
 
     socket.on('speaking-token-accepted', () => {
       console.log('Speaking token was accepted');
+      setEventMode('speaker');
     });
   }
 
@@ -209,6 +210,7 @@ function EventClientBase(props: Props) {
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
+          speaking_token={speaking_token}
         />
       );
   }

@@ -64,6 +64,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
+  speaking_token?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -288,8 +289,6 @@ function EventHostContainer(props: Props) {
     }
   }
 
-  async function handleManageSpeakers() {}
-
   function screenShareTearDown(
     screenElementID: string,
     session: Session,
@@ -397,7 +396,6 @@ function EventHostContainer(props: Props) {
         muted={muted}
         sharingScreen={sharingScreen}
         handleStreamStatusChange={handleStreamStatusChange}
-        handleManageSpeakers={handleManageSpeakers}
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}

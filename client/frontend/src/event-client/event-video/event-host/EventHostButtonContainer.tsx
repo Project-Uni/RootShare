@@ -45,7 +45,6 @@ type Props = {
   toggleWebcam: () => void;
   toggleMute: () => void;
   toggleScreenshare: () => void;
-  handleManageSpeakers: () => void;
   loading: boolean;
   mode: 'admin' | 'speaker';
 };
