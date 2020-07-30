@@ -12,7 +12,6 @@ import {
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
 import { makeRequest } from '../../../helpers/makeRequest';
-import EventSnackbar from '../../EventSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

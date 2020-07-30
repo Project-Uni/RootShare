@@ -21,7 +21,7 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
     const socket = webinarCache[webinarID].users[userID];
 
-    const speaking_token = crypto.randomBytes(20).toString();
+    const speaking_token = crypto.randomBytes(64).toString();
     webinarCache[webinarID].speakingToken = speaking_token;
 
     socket.emit("speaking-invite", { speaking_token });

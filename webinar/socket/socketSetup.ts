@@ -42,14 +42,25 @@ module.exports = (io, webinarCache: WebinarCache) => {
     socket.on(
       "speaking-invite-accepted",
       (data: { speaking_token: string }) => {
-        console.log("Data:", data);
+        //TODO - Notify the host that user has accepted speaking invite
         const { speaking_token } = data;
         console.log("Speaking invite accepted with token:", speaking_token);
+        if (
+          !webinarCache[socketWebinarId].speakingToken ||
+          webinarCache[socketWebinarId].speakingToken !== speaking_token
+        ) {
+          log("socket", "Speaking token was rejected");
+          return socket.emit("speaking-token-rejected");
+        }
+        log("socket", "Speaking token was accepted");
+        socket.emit("speaking-token-accepted");
+        //TODO - Notify the client server that this user is allowed to
       }
     );
 
     socket.on("speaking-invite-rejected", () => {
-      console.log("Speaking invite rejected");
+      //TODO - Notify the host that user has rejected speaking invite
+      log("socket", "Speaking invite rejected");
     });
   });
 };

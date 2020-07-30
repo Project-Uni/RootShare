@@ -179,6 +179,14 @@ function EventClientBase(props: Props) {
     socket.on('speaking-end', () => {
       console.log('User has been removed as a speaker');
     });
+
+    socket.on('speaking-token-rejected', () => {
+      console.log('Speaking token was rejected.');
+    });
+
+    socket.on('speaking-token-accepted', () => {
+      console.log('Speaking token was accepted');
+    });
   }
 
   function onAcceptSpeakingInvite() {
