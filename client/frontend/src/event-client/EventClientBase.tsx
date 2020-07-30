@@ -64,6 +64,9 @@ type Props = {
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
+var socket: SocketIOClient.Socket;
+var speaking_token: string;
+
 function EventClientBase(props: Props) {
   const styles = useStyles();
 
@@ -73,6 +76,8 @@ function EventClientBase(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
 
   const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+
+  const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -159,21 +164,31 @@ function EventClientBase(props: Props) {
   }
 
   function initializeSocket(webinarID: string) {
-    const socket = socketIOClient('http://localhost:8003');
+    socket = socketIOClient('http://localhost:8003');
     socket.emit('new-user', { webinarID: webinarID, userID: props.user._id });
 
     socket.on('speaking-invite', (data: { speaking_token: string }) => {
-      const { speaking_token } = data;
+      speaking_token = data.speaking_token;
       console.log(
         'Received invitation to speak with speaking_token:',
         speaking_token
       );
-      socket.emit('speaking-invite-accepted', { speaking_token });
+      setShowSpeakingInvite(true);
     });
 
     socket.on('speaking-end', () => {
       console.log('User has been removed as a speaker');
     });
+  }
+
+  function onAcceptSpeakingInvite() {
+    socket.emit('speaking-invite-accepted', { speaking_token });
+    setShowSpeakingInvite(false);
+  }
+
+  function onRejectSpeakingInvite() {
+    socket.emit('speaking-invite-rejected');
+    setShowSpeakingInvite(false);
   }
 
   function renderVideoArea() {
@@ -227,7 +242,11 @@ function EventClientBase(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-      <SpeakingInviteDialog open={true} onReject={() => {}} onAccept={() => {}} />
+      <SpeakingInviteDialog
+        open={showSpeakingInvite}
+        onReject={onRejectSpeakingInvite}
+        onAccept={onAcceptSpeakingInvite}
+      />
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>

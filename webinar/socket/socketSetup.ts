@@ -38,5 +38,18 @@ module.exports = (io, webinarCache: WebinarCache) => {
           delete webinarCache[socketWebinarId].users[socketUserId];
       }
     });
+
+    socket.on(
+      "speaking-invite-accepted",
+      (data: { speaking_token: string }) => {
+        console.log("Data:", data);
+        const { speaking_token } = data;
+        console.log("Speaking invite accepted with token:", speaking_token);
+      }
+    );
+
+    socket.on("speaking-invite-rejected", () => {
+      console.log("Speaking invite rejected");
+    });
   });
 };
