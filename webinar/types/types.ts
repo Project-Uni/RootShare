@@ -11,6 +11,6 @@ export type Webinar = {
     [key: string]: SocketIO.Socket;
   };
   speakingToken?: string;
-  guestSpeakerID?: string;
+  guestSpeaker?: { _id: string; name: string; email: string };
   startTime: number;
 };

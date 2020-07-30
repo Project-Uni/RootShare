@@ -52,7 +52,10 @@ module.exports = (app, webinarCache: WebinarCache) => {
       const activeUserIDs = Object.keys(webinarCache[webinarID].users);
 
       return res.json(
-        sendPacket(1, "Successfully fetched active users", { activeUserIDs })
+        sendPacket(1, "Successfully fetched active users", {
+          activeUserIDs,
+          guestSpeaker: webinarCache[webinarID].guestSpeaker,
+        })
       );
     }
   );
