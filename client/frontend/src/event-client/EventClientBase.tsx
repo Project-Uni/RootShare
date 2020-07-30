@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/functions/makeRequest';
+import { makeRequest } from '../helpers/functions';
 
 import RSText from '../base-components/RSText';
 
@@ -27,6 +27,8 @@ import { colors } from '../theme/Colors';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
+    height: window.innerHeight,
+    overflow: 'hidden',
   },
   body: {
     display: 'flex',

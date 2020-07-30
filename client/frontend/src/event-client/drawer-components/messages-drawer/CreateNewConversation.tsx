@@ -7,8 +7,7 @@ import { colors } from '../../../theme/Colors';
 import { Autocomplete } from '@material-ui/lab';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/functions/makeRequest';
-import log from '../../../helpers/functions/logger';
+import { makeRequest } from '../../../helpers/functions';
 
 import MessageTextField from './MessageTextField';
 

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, Modal } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
 
 import { colors } from '../../../theme/Colors';
-import { ENTER_KEYCODE } from '../../../helpers/constants/keycode';
+import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -53,6 +55,15 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  paper: {
+    width: 270,
+  },
+  icon: {
+    color: '#f2f2f2',
+    '&:hover': {
+      color: colors.bright,
+    },
+  },
 }));
 
 type Props = {
@@ -64,19 +75,68 @@ function MessageTextField(props: Props) {
   const styles = useStyles();
 
   const [newMessage, setNewMessage] = useState('');
+  const [modalStyle, setModalStyle] = useState(getModalStyle);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
 
   function handleMessageChange(event: any) {
     setNewMessage(event.target.value);
   }
 
+  function handleSendMessage() {
+    props.handleSendMessage(newMessage);
+    setNewMessage('');
+  }
+
   function handleMessageKey(event: any) {
     if (event.keyCode === ENTER_KEYCODE) {
       event.preventDefault();
-      if (!getSendingDisabled()) props.handleSendMessage(newMessage);
+      if (!getSendingDisabled()) handleSendMessage();
     }
   }
 
-  function handleEmojiClick() {}
+  function renderEmojiPicker() {
+    return (
+      <div style={modalStyle} className={styles.paper}>
+        <Picker
+          set="apple"
+          onSelect={onEmojiClick}
+          title="Spice it up"
+          perLine={7}
+          theme="dark"
+          showPreview={false}
+          sheetSize={64}
+          emoji=""
+        />
+      </div>
+    );
+  }
+
+  function onEmojiClick(emoji: { [key: string]: any }) {
+    const updateMessage = newMessage + emoji.native + ' ';
+    setNewMessage(updateMessage);
+  }
+
+  function getModalStyle() {
+    const bottom = 100;
+    const right = 50;
+    const containerWidth = 270;
+    const containerHeight = 400;
+    return {
+      bottom,
+      right,
+      transform: `translate(${window.innerWidth -
+        containerWidth -
+        right}px, ${window.innerHeight - containerHeight - bottom}px)`,
+    };
+  }
+
+  function handleResize() {
+    setModalStyle(getModalStyle());
+  }
 
   function getSendingDisabled() {
     return (
@@ -114,14 +174,27 @@ function MessageTextField(props: Props) {
           inputMode: 'numeric',
         }}
       />
-      <IconButton onClick={handleEmojiClick}>
-        <FaRegSmile size={18} color="#f2f2f2" />
+      <IconButton
+        aria-label="more"
+        aria-controls="long-menu"
+        aria-haspopup="true"
+        onClick={() => setOpen(true)}
+        className={styles.icon}
+      >
+        <FaRegSmile size={18}></FaRegSmile>
       </IconButton>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        {renderEmojiPicker()}
+      </Modal>
       <IconButton
         disabled={getSendingDisabled()}
-        onClick={() => props.handleSendMessage(newMessage)}
+        onClick={() => handleSendMessage()}
+        className={styles.icon}
       >
-        <MdSend color={getSendingDisabled() ? '#555555' : '#f2f2f2'} size={20} />
+        <MdSend
+          style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+          size={20}
+        />
       </IconButton>
     </div>
   );

@@ -21,6 +21,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonDefault: {
     marginLeft: 8,
+    marginBottom: 'auto',
     backgroundColor: colors.secondary,
     color: 'white',
     '&:hover': {
@@ -71,9 +72,9 @@ function EventHostButtonContainer(props: Props) {
         disabled={props.loading}
       >
         {props.showWebcam ? (
-          <Video size={28} color="white" />
+          <Video size={24} color="white" />
         ) : (
-          <VideoOff size={28} color="white" />
+          <VideoOff size={24} color="white" />
         )}
       </Button>
       <Button
@@ -86,9 +87,9 @@ function EventHostButtonContainer(props: Props) {
         disabled={props.loading}
       >
         {!props.muted ? (
-          <Microphone color="white" size={26} />
+          <Microphone color="white" size={24} />
         ) : (
-          <MicrophoneOff color="white" size={26} />
+          <MicrophoneOff color="white" size={24} />
         )}
       </Button>
       <Button

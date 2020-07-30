@@ -3,13 +3,11 @@ import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../helpers/functions/makeRequest';
+import { makeRequest } from '../helpers/functions';
 import { updateConversations, updateNewMessage } from '../redux/actions/message';
 import { updateSocket } from '../redux/actions/socket';
 
-import { colors } from '../theme/Colors';
-import { disconnect } from 'cluster';
-import { MessageType, ConversationType } from '../helpers/types/messagingTypes';
+import { MessageType, ConversationType } from '../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -112,15 +110,16 @@ function SocketManager(props: Props) {
       if (prevConversations[i]._id === newMessage.conversationID) {
         const updatedConversation = prevConversations[i];
         updatedConversation.lastMessage = newMessage;
-        return [updatedConversation].concat(
+
+        const newConversations = [updatedConversation].concat(
           prevConversations
             .slice(0, i)
             .concat(prevConversations.slice(i + 1, prevConversations.length))
         );
+        props.updateConversations(newConversations);
+        return newConversations;
       }
     }
-
-    props.updateConversations(prevConversations);
   }
 
   function addConversation(currSocket: SocketIOClient.Socket, newConversation: any) {

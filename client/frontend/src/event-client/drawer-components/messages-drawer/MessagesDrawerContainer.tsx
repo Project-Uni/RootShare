@@ -2,16 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/functions/makeRequest';
+import { makeRequest } from '../../../helpers/functions';
 
 import AllConversationsContainer from './AllConversationsContainer';
 import MessageThreadContainer from './MessageThreadContainer';
 
 import { colors } from '../../../theme/Colors';
-import {
-  MessageType,
-  ConversationType,
-} from '../../../helpers/types/messagingTypes';
+import { MessageType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

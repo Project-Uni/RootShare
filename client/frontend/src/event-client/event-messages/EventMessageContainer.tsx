@@ -9,14 +9,14 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/functions/makeRequest';
+import { makeRequest } from '../../helpers/functions';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 
 import { colors } from '../../theme/Colors';
-import { MessageType, LikeUpdateType } from '../../helpers/types/messagingTypes';
-import { ENTER_KEYCODE } from '../../helpers/constants/keycode';
+import { MessageType, LikeUpdateType } from '../../helpers/types';
+import { ENTER_KEYCODE } from '../../helpers/constants';
 
 const HEADER_HEIGHT = 58;
 const ITEM_HEIGHT = 48;
@@ -108,7 +108,7 @@ function EventMessageContainer(props: Props) {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [modalStyle, setModalStyle] = useState(getModalStyle);
+  const [modalStyle, setModalStyle] = useState(getModalStyle());
   const [open, setOpen] = useState(false);
   const [likeUpdate, setLikeUpdate] = useState<LikeUpdateType>();
 
@@ -243,14 +243,6 @@ function EventMessageContainer(props: Props) {
     setNewMessage('');
   }
 
-  function handleOpen() {
-    setOpen(true);
-  }
-
-  function handleClose() {
-    setOpen(false);
-  }
-
   function renderEmojiPicker() {
     return (
       <div style={modalStyle} className={styles.paper}>
@@ -323,15 +315,22 @@ function EventMessageContainer(props: Props) {
             aria-label="more"
             aria-controls="long-menu"
             aria-haspopup="true"
-            onClick={handleOpen}
+            onClick={() => setOpen(true)}
           >
             <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
           </IconButton>
-          <Modal open={open} onClose={handleClose}>
+          <Modal open={open} onClose={() => setOpen(false)}>
             {renderEmojiPicker()}
           </Modal>
-          <IconButton onClick={handleSendMessage}>
-            <MdSend size={20} className={styles.icon} />
+          <IconButton
+            className={styles.icon}
+            onClick={handleSendMessage}
+            disabled={getSendingDisabled()}
+          >
+            <MdSend
+              size={20}
+              style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+            />
           </IconButton>
         </div>
       </div>

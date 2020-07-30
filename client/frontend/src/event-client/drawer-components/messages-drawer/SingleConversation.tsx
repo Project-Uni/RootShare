@@ -6,7 +6,7 @@ import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import { getConversationTime } from '../../../helpers/functions/dateFormat';
+import { getConversationTime } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
