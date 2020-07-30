@@ -12,6 +12,7 @@ import {
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
 import { makeRequest } from '../../../helpers/makeRequest';
+import EventSnackbar from '../../EventSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -60,7 +61,7 @@ function EventHostButtonContainer(props: Props) {
   }
 
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
-    console.log('Adding user:', user);
+    //TODO - Add notification for host that speaker was successfully invited
     setShowManageDialog(false);
   }
 
@@ -76,6 +77,7 @@ function EventHostButtonContainer(props: Props) {
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
       />
+
       {props.mode === 'admin' && (
         <Button
           variant="contained"
