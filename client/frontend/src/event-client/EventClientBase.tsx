@@ -26,6 +26,7 @@ import SampleAd2 from '../images/sampleAd2.png';
 import { colors } from '../theme/Colors';
 
 import socketIOClient from 'socket.io-client';
+import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -167,6 +168,7 @@ function EventClientBase(props: Props) {
         'Received invitation to speak with speaking_token:',
         speaking_token
       );
+      socket.emit('speaking-invite-accepted', { speaking_token });
     });
 
     socket.on('speaking-end', () => {
@@ -225,6 +227,7 @@ function EventClientBase(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <SpeakingInviteDialog open={true} onReject={() => {}} onAccept={() => {}} />
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>

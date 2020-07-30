@@ -29,6 +29,9 @@ const useStyles = makeStyles((_: any) => ({
   text: {
     color: colors.primaryText,
   },
+  textField: {
+    background: colors.primaryText,
+  },
   // cssLabel: {
   //   color: colors.primaryText,
   //   label: colors.primaryText,
@@ -139,6 +142,7 @@ function ManageSpeakersDialog(props: Props) {
             value={searchedUser}
             error={searchErr !== ''}
             helperText={searchErr}
+            className={styles.textField}
             // InputLabelProps={{
             //   classes: {
             //     root: styles.cssLabel,
