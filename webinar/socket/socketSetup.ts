@@ -53,8 +53,8 @@ module.exports = (io, webinarCache: WebinarCache) => {
           return socket.emit("speaking-token-rejected");
         }
         log("socket", "Speaking token was accepted");
+        webinarCache[socketWebinarId].guestSpeakerID = socketUserId;
         socket.emit("speaking-token-accepted");
-        //TODO - Notify the client server that this user is allowed to
       }
     );
 
