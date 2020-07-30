@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
-import { makeRequest } from '../../helpers/functions/makeRequest';
-import { EventType } from '../../helpers/types/eventTypes';
+import { makeRequest } from '../../helpers/functions';
+import { EventType } from '../../helpers/types';
 
 import { colors } from '../../theme/Colors';
 import SingleEvent from './SingleEvent';

@@ -14,7 +14,7 @@ import DiscoverBody from './components/DiscoverBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
-} from '../../helpers/constants/sizing';
+} from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

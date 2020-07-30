@@ -6,11 +6,10 @@ import { IconButton } from '@material-ui/core';
 import { FaEllipsisH } from 'react-icons/fa';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
-import { EventType } from '../../helpers/types/eventTypes';
-import { monthDict } from '../../helpers/constants/date';
-import { formatTime } from '../../helpers/functions/dateFormat';
+import { EventType } from '../../helpers/types';
+import { monthDict } from '../../helpers/constants';
+import { formatTime } from '../../helpers/functions';
 
-import RootShareLogoFullWhite from '../../images/RootShareLogoFullWhite.png';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
