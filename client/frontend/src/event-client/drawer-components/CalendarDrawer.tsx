@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
+import { BsPencilSquare } from 'react-icons/bs';
+import { IconButton } from '@material-ui/core';
+
 import { makeRequest } from '../../helpers/functions';
 import { EventType } from '../../helpers/types';
 
 import { colors } from '../../theme/Colors';
+import RSText from '../../base-components/RSText';
 import SingleEvent from './SingleEvent';
 
 const useStyles = makeStyles((_: any) => ({
@@ -14,6 +18,19 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     flexDirection: 'column',
     height: window.innerHeight - 60,
+  },
+  eventsTitle: {
+    height: '25px',
+    marginBottom: 20,
+    marginTop: 20,
+    margin: 'auto',
+    display: 'inline-block',
+    color: colors.primaryText,
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   textFieldContainer: {
     display: 'flex',
@@ -31,6 +48,10 @@ const useStyles = makeStyles((_: any) => ({
     //background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
+    borderTopStyle: 'solid',
+    borderTopColor: colors.primaryText,
+    borderTopWidth: '1px',
+    marginTop: '-2px',
   },
 }));
 
@@ -73,6 +94,11 @@ function CalendarDrawer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      <div className={styles.header}>
+        <RSText bold size={16} className={styles.eventsTitle}>
+          Upcoming Events
+        </RSText>
+      </div>
       <div className={styles.eventContainer}>{renderEvents()}</div>
     </div>
   );
