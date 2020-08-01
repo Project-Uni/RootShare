@@ -2,7 +2,6 @@ import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 const mongoose = require('mongoose');
-const User = mongoose.model('users');
 const Conversation = mongoose.model('conversations');
 const Message = mongoose.model('messages');
 
@@ -103,7 +102,7 @@ module.exports = {
             'newMessage',
             newMessage
           );
-          return callback(sendPacket(1, 'Message sent', { currConversation }));
+          return callback(sendPacket(1, 'Message sent'));
         });
       });
     });
@@ -128,7 +127,7 @@ module.exports = {
       participants: userID,
     })
       .populate('lastMessage')
-      .populate('participants');
+      .populate('participants', '_id firstName lastName');
 
     if (userConversations === undefined || userConversations === null)
       return callback(
@@ -141,10 +140,12 @@ module.exports = {
 
   getLatestMessages: async (userID, conversationID, callback) => {
     Conversation.findById(conversationID, async (err, conversation) => {
-      if (err || conversation === undefined || conversation === null) {
+      if (err) {
         log('error', err);
-        return callback(sendPacket(-1, 'Could not find Conversation'));
+        return callback(sendPacket(-1, err));
       }
+      if (!conversation)
+        return callback(sendPacket(0, 'Could not find Conversation'));
 
       Message.aggregate([
         { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },

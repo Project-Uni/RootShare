@@ -17,8 +17,8 @@ let ses = new aws.SES({
 export function updatePassword(emailToken, newPassword, callback) {
   let emailAddress = convertTokenToEmail(emailToken);
   User.findOne({ email: emailAddress }, (err, currUser) => {
-    if (err || currUser === undefined || currUser === null)
-      return callback(sendPacket(-1, 'User code invalid'));
+    if (err) return callback(-1, err);
+    if (!currUser) return callback(sendPacket(0, 'User code invalid'));
 
     currUser.hashedPassword = createHash(newPassword);
     currUser.save(function (err) {

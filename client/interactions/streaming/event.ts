@@ -221,10 +221,6 @@ export async function getWebinarDetails(userID, webinarID, callback) {
         return callback(sendPacket(0, 'No webinar exists with this ID'));
       }
 
-      if ()
-
-      webinar.host = undefined
-      webinar.speakers = undefined
       return callback(
         sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
       );

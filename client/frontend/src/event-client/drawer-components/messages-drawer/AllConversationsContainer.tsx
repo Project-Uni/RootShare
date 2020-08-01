@@ -81,8 +81,6 @@ function AllConversationsContainer(props: Props) {
     return output;
   }
 
-  function createNewThread() {}
-
   return newConversation ? (
     <CreateNewConversation
       user={props.user}

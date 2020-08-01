@@ -191,7 +191,6 @@ module.exports = (app) => {
     log('info', `User accessed secure-confirmed endpoint`);
   });
 
-
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.send(sendPacket(-1, 'No email to send link to'));
 

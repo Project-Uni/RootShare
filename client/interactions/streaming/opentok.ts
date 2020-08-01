@@ -1,7 +1,6 @@
 const OpenTok = require('opentok');
 var mongoose = require('mongoose');
 var Webinar = mongoose.model('webinars');
-var User = mongoose.model('users');
 import axios from 'axios';
 const jwt = require('njwt');
 
