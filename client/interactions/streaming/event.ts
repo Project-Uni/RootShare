@@ -120,11 +120,11 @@ export async function getAllEventsUser(userID, callback) {
     {
       $project: {
         userRSVP: { $in: [mongoose.Types.ObjectId(userID), '$attendees'] },
+        userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
         host: {
           _id: '$host._id',
           firstName: '$host.firstName',
           lastName: '$host.lastName',
-          email: '$host.email',
         },
         title: '$title',
         brief_description: '$brief_description',
@@ -138,6 +138,7 @@ export async function getAllEventsUser(userID, callback) {
     .exec()
     .then((webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
+
       callback(
         sendPacket(1, 'Sending Events', {
           webinars,

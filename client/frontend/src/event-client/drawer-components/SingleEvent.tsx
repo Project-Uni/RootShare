@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { connect } from 'react-redux';
 
 import { EventType, HostType } from '../../helpers/types';
@@ -86,6 +87,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: { [key: string]: any };
   event: EventType;
   accessToken: string;
   refreshToken: string;
@@ -122,23 +124,31 @@ function SingleEvent(props: Props) {
   const { event } = props;
   const eventTime = new Date(event.dateTime);
   const host: HostType = event.host as HostType;
+  const hideRSVPToggle = event.userSpeaker || host._id === props.user._id;
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
-          <IconButton>
-            {RSVP ? (
-              <RemoveCircleOutlineIcon
-                onClick={toggleRSVP}
-                className={styles.RSVPIcon}
-              />
-            ) : (
-              <AddCircleOutlineIcon
-                onClick={toggleRSVP}
-                className={styles.RSVPIcon}
-              />
-            )}
-          </IconButton>
+          {hideRSVPToggle ? (
+            <IconButton disabled={true}>
+              <FiberManualRecordIcon className={styles.RSVPIcon} />
+            </IconButton>
+          ) : (
+            <IconButton>
+              {RSVP ? (
+                <RemoveCircleOutlineIcon
+                  onClick={toggleRSVP}
+                  className={styles.RSVPIcon}
+                />
+              ) : (
+                <AddCircleOutlineIcon
+                  onClick={toggleRSVP}
+                  className={styles.RSVPIcon}
+                />
+              )}
+            </IconButton>
+          )}
+
           <RSText bold size={12} className={styles.name}>
             {event.title}
           </RSText>
@@ -177,6 +187,7 @@ function SingleEvent(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

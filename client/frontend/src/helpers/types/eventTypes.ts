@@ -14,6 +14,7 @@ export type EventType = {
   speakers: string[] | SpeakerType[];
   attendees: string[] | UserType[];
   userRSVP: boolean;
+  userSpeaker: boolean;
   conversation: string | ConversationType;
   dateTime: Date;
 };
