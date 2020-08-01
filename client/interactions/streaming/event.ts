@@ -93,15 +93,67 @@ export function timeStampCompare(ObjectA, ObjectB) {
 }
 
 export async function getAllEventsAdmin(callback) {
-  const webinars = await Webinar.find()
-    .populate('host', 'firstName lastName email')
-    .populate('speakers', 'firstName lastName email');
-
-  if (!webinars) return callback(sendPacket(-1, 'Could not retrieve events'));
-
-  webinars.sort(timeStampCompare);
-  const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
-  return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
+  Webinar.aggregate([
+    { $match: { dateTime: { $gt: new Date() } } },
+    { $sort: { createdAt: 1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'host',
+        foreignField: '_id',
+        as: 'host',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'speakers',
+        foreignField: '_id',
+        as: 'speakers',
+      },
+    },
+    { $unwind: '$host' },
+    {
+      $addFields: {
+        speakers: {
+          $map: {
+            input: '$speakers',
+            in: {
+              _id: '$$this._id',
+              firstName: '$$this.firstName',
+              lastName: '$$this.lastName',
+              email: '$$this.email',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        host: {
+          _id: '$host._id',
+          firstName: '$host.firstName',
+          lastName: '$host.lastName',
+          email: '$host.email',
+        },
+        speakers: '$speakers',
+        title: '$title',
+        brief_description: '$brief_description',
+        full_description: '$full_description',
+        dateTime: '$dateTime',
+      },
+    },
+  ])
+    .exec()
+    .then((webinars) => {
+      if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
+      callback(
+        sendPacket(1, 'Sending Events', {
+          webinars,
+        })
+      );
+    })
+    .catch();
 }
 
 export async function getAllEventsUser(userID, callback) {
