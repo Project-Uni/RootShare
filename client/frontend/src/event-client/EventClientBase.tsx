@@ -23,6 +23,7 @@ import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
 
 import { colors } from '../theme/Colors';
+import { EventType } from '../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -70,7 +71,7 @@ function EventClientBase(props: Props) {
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
 
-  const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+  const [webinarData, setWebinarData] = useState<EventType | {}>({});
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -114,7 +115,7 @@ function EventClientBase(props: Props) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
       setTimeout(() => {
-        setPageMode(webinar);
+        setPageMode(webinar.host, webinar.speakers);
       }, 500);
     }
   }
@@ -125,13 +126,13 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setPageMode(webinar: { [key: string]: any }) {
-    if (props.user._id === webinar['host']) {
+  function setPageMode(hostID: string, speakerIDs: string[]) {
+    if (props.user._id === hostID) {
       setEventMode('admin');
       return;
     } else {
-      for (let i = 0; i < webinar['speakers'].length; i++) {
-        if (props.user._id === webinar['speakers'][i]) {
+      for (let i = 0; i < speakerIDs.length; i++) {
+        if (props.user._id === speakerIDs[i]) {
           setEventMode('speaker');
           return;
         }
@@ -141,9 +142,10 @@ function EventClientBase(props: Props) {
   }
 
   function renderVideoArea() {
+    const currWebinarData = webinarData as EventType;
     if (eventMode === 'viewer')
       return (
-        <EventWatcherVideoContainer muxPlaybackID={webinarData.muxPlaybackID} />
+        <EventWatcherVideoContainer muxPlaybackID={currWebinarData.muxPlaybackID} />
       );
     else
       return (
@@ -188,6 +190,7 @@ function EventClientBase(props: Props) {
     );
   }
 
+  const currConversationID = (webinarData as EventType).conversation as string;
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
@@ -208,7 +211,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer conversationID={webinarData.conversation} />
+          <EventClientMessageContainer conversationID={currConversationID} />
         </div>
       </div>
     </div>

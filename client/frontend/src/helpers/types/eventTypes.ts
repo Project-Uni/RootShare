@@ -7,9 +7,7 @@ export type EventType = {
   brief_description: string;
   full_description: string;
   host: string | HostType;
-  hostName: string;
   hostCommunity: string;
-  hostCommunityName: string;
   availableCommunities: string[];
   speakers: string[] | SpeakerType[];
   attendees: string[] | UserType[];
@@ -17,6 +15,7 @@ export type EventType = {
   userSpeaker: boolean;
   conversation: string | ConversationType;
   dateTime: Date;
+  muxPlaybackID: string;
 };
 
 export type HostType = {
