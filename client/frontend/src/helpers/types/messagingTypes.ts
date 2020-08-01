@@ -1,8 +1,10 @@
+import { UserType } from './userTypes';
+
 export type MessageType = {
   _id: string;
-  conversationID: string;
+  conversationID: string | ConversationType;
   senderName: string;
-  sender: string;
+  sender: string | UserType[];
   content: string;
   createdAt: Date;
   numLikes: number;
@@ -11,13 +13,13 @@ export type MessageType = {
 
 export type ConversationType = {
   _id: string;
-  participants?: any[];
+  participants: string[] | UserType[];
   createdAt: Date;
-  lastMessage?: string | MessageType;
+  lastMessage: string | MessageType;
 };
 
 export type LikeUpdateType = {
-  messageID: string;
+  messageID: string | MessageType;
   numLikes: number;
 };
 

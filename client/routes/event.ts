@@ -3,7 +3,8 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
   createEvent,
-  getAllEvents,
+  getAllEventsAdmin,
+  getAllEventsUser,
   getWebinarDetails,
 } from '../interactions/streaming/event';
 
@@ -19,7 +20,9 @@ module.exports = (app) => {
   });
 
   app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
-    getAllEvents((packet) => res.json(packet));
+    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      getAllEventsUser(req.user._id, (packet) => res.json(packet));
+    else getAllEventsAdmin((packet) => res.json(packet));
   });
 
   app.get(

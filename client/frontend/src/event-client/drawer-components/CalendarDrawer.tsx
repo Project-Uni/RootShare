@@ -46,7 +46,7 @@ function CalendarDrawer(props: Props) {
 
   useEffect(() => {
     fetchEvents();
-  });
+  }, []);
 
   async function fetchEvents() {
     const { data } = await makeRequest(
@@ -58,11 +58,13 @@ function CalendarDrawer(props: Props) {
       props.refreshToken
     );
     if (data['success'] === 1) setEvents(data['content']['webinars']);
+    else console.log(data);
   }
 
   function renderEvents() {
     const output: any[] = [];
     events.forEach((event) => {
+      console.log(event);
       output.push(<SingleEvent event={event} />);
     });
 

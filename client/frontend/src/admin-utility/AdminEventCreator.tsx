@@ -125,7 +125,7 @@ function AdminEventCreator(props: Props) {
   const [briefDesc, setBriefDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
   const [eventDateTime, setEventDateTime] = useState(new Date());
-  const [host, setHost] = useState<HostType | any>({});
+  const [host, setHost] = useState<HostType | {}>({});
   const [speakers, setSpeakers] = useState<SpeakerType[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState('');
 
@@ -242,7 +242,7 @@ function AdminEventCreator(props: Props) {
     setFullDesc(event.full_description);
     setEventDateTime(event.dateTime);
     setHost(event.host);
-    setSpeakers(event.speakers);
+    setSpeakers(event.speakers as SpeakerType[]);
   }
 
   async function handleSubmit() {
@@ -312,7 +312,7 @@ function AdminEventCreator(props: Props) {
             event.title = title;
             event.brief_description = briefDesc;
             event.full_description = fullDesc;
-            event.host = host;
+            event.host = host as HostType;
             event.speakers = speakers;
             event.dateTime = eventDateTime;
           }
@@ -345,13 +345,14 @@ function AdminEventCreator(props: Props) {
   }
 
   function renderHost() {
+    const currHost = host as HostType;
     return (
       <div className={styles.singleSpeaker}>
         <RSText type="subhead" className={styles.speakerName} size={14}>
-          {`${host.firstName} ${host.lastName}`}
+          {`${currHost.firstName} ${currHost.lastName}`}
         </RSText>
         <RSText type="subhead" italic size={11}>
-          {host.email}
+          {currHost.email}
         </RSText>
         <IconButton
           onClick={() => {
@@ -397,6 +398,7 @@ function AdminEventCreator(props: Props) {
   }
 
   function renderFields() {
+    const currHost = host as HostType;
     return (
       <>
         <RSText type="subhead" bold className={styles.textFieldTitle}>
@@ -469,7 +471,7 @@ function AdminEventCreator(props: Props) {
         {Object.keys(host).length === 0 ? <span /> : renderHost()}
         <UserAutocomplete
           handleAutoCompleteChange={handleHostChange}
-          value={host.firstName}
+          value={currHost.firstName}
           err={hostErr}
           label="Host"
         />

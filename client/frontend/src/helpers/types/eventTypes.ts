@@ -1,15 +1,19 @@
 import { ConversationType } from './messagingTypes';
+import { UserType } from './userTypes';
 
 export type EventType = {
   _id: string;
   title: string;
   brief_description: string;
   full_description: string;
-  host: HostType;
+  host: string | HostType;
+  hostName: string;
   hostCommunity: string;
+  hostCommunityName: string;
   availableCommunities: string[];
-  speakers: SpeakerType[];
-  attendees: string[];
+  speakers: string[] | SpeakerType[];
+  attendees: string[] | UserType[];
+  userRSVP: boolean;
   conversation: string | ConversationType;
   dateTime: Date;
 };

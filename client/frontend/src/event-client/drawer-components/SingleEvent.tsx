@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
-import { FaEllipsisH } from 'react-icons/fa';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 
-import { EventType } from '../../helpers/types';
+import { EventType, HostType } from '../../helpers/types';
 import { monthDict } from '../../helpers/constants';
 import { formatTime } from '../../helpers/functions';
 
@@ -69,7 +68,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.primaryText,
   },
-  ellipsis: {
+  RSVPIcon: {
     marginRight: -5,
     color: colors.primaryText,
     marginBottom: 0,
@@ -91,21 +90,26 @@ type Props = {
 
 function SingleEvent(props: Props) {
   const styles = useStyles();
-  const [liked, setLiked] = useState(false);
+  const [RSVP, setRSVP] = useState(false);
 
-  function handleLikeClicked() {
-    const oldVal = liked;
-    setLiked(!oldVal);
-  }
+  useEffect(() => {
+    if (props.event.userRSVP !== undefined && props.event.userRSVP !== null)
+      setRSVP(props.event.userRSVP);
+  }, [props.event.userRSVP]);
 
   const { event } = props;
   const eventTime = new Date(event.dateTime);
+  const host: HostType = event.host as HostType;
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
           <IconButton>
-            <AddCircleOutlineIcon className={styles.ellipsis} />
+            {RSVP ? (
+              <RemoveCircleOutlineIcon className={styles.RSVPIcon} />
+            ) : (
+              <AddCircleOutlineIcon className={styles.RSVPIcon} />
+            )}
           </IconButton>
           <RSText bold size={12} className={styles.name}>
             {event.title}
@@ -123,7 +127,7 @@ function SingleEvent(props: Props) {
             Hosted by{' '}
             {event.hostCommunity
               ? event.hostCommunity
-              : `${event.host.firstName} ${event.host.lastName}`}
+              : `${host.firstName} ${host.lastName}`}
           </RSText>
         </div>
         <div>

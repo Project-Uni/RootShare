@@ -1,3 +1,5 @@
+import { EventType } from './eventTypes';
+
 export type UserType = {
   _id: string;
   firstName: string;
@@ -19,9 +21,9 @@ export type UserType = {
   sendEmails: boolean;
   confirmed: boolean;
   verified: boolean;
-  RSVPWebinars: string[];
-  connections: string[];
-  pendingConnections: string[];
+  RSVPWebinars: string[] | EventType[];
+  connections: string[] | UserType[];
+  pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
 };

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
+const User = mongoose.model('users');
 const Conversation = mongoose.model('conversations');
 
 const aws = require('aws-sdk');
@@ -91,7 +92,7 @@ export function timeStampCompare(ObjectA, ObjectB) {
   return 0;
 }
 
-export async function getAllEvents(callback) {
+export async function getAllEventsAdmin(callback) {
   const webinars = await Webinar.find()
     .populate('host', 'firstName lastName email')
     .populate('speakers', 'firstName lastName email');
@@ -101,6 +102,50 @@ export async function getAllEvents(callback) {
   webinars.sort(timeStampCompare);
   const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
   return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
+}
+
+export async function getAllEventsUser(userID, callback) {
+  Webinar.aggregate([
+    { $match: { dateTime: { $gt: new Date() } } },
+    { $sort: { createdAt: 1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'host',
+        foreignField: '_id',
+        as: 'host',
+      },
+    },
+    { $unwind: '$host' },
+    {
+      $project: {
+        userRSVP: { $in: [mongoose.Types.ObjectId(userID), '$attendees'] },
+        host: {
+          _id: '$host._id',
+          firstName: '$host.firstName',
+          lastName: '$host.lastName',
+          email: '$host.email',
+        },
+        title: '$title',
+        brief_description: '$brief_description',
+        full_description: '$full_description',
+        availableCommunities: '$availableCommunities',
+        conversation: '$conversation',
+        dateTime: '$dateTime',
+      },
+    },
+  ])
+    .exec()
+    .then((webinars) => {
+      if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
+      console.log(webinars);
+      callback(
+        sendPacket(1, 'Sending Events', {
+          webinars,
+        })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export async function getWebinarDetails(userID, webinarID, callback) {

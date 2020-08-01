@@ -150,7 +150,8 @@ function EventMessage(props: Props) {
   }
 
   function handleConnect() {
-    props.handleConnect && props.handleConnect(props.message.sender);
+    const sender = props.message.sender as string;
+    props.handleConnect && props.handleConnect(sender);
     setAnchorEl(null);
   }
 
