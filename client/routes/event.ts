@@ -6,6 +6,7 @@ import {
   getAllEventsAdmin,
   getAllEventsUser,
   getWebinarDetails,
+  updateRSVP,
 } from '../interactions/streaming/event';
 
 import { USER_LEVEL } from '../types/types';
@@ -19,10 +20,16 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
+  app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
-      getAllEventsUser(req.user._id, (packet) => res.json(packet));
-    else getAllEventsAdmin((packet) => res.json(packet));
+      return res.json(
+        sendPacket(0, 'User is not authorized to perform this action')
+      );
+    getAllEventsAdmin((packet) => res.json(packet));
+  });
+
+  app.get('/api/webinar/getAllEventsUser', isAuthenticatedWithJWT, (req, res) => {
+    getAllEventsUser(req.user._id, (packet) => res.json(packet));
   });
 
   app.get(
@@ -35,4 +42,10 @@ module.exports = (app) => {
       });
     }
   );
+
+  app.post('/api/webinar/updateRSVP', isAuthenticatedWithJWT, (req, res) => {
+    updateRSVP(req.user._id, req.body.webinarID, req.body.didRSVP, (packet) => {
+      res.send(packet);
+    });
+  });
 };

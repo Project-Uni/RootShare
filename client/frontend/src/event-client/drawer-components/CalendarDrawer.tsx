@@ -51,7 +51,7 @@ function CalendarDrawer(props: Props) {
   async function fetchEvents() {
     const { data } = await makeRequest(
       'GET',
-      '/api/webinar/getAllEvents',
+      '/api/webinar/getAllEventsUser',
       {},
       true,
       props.accessToken,

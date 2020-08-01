@@ -138,7 +138,6 @@ export async function getAllEventsUser(userID, callback) {
     .exec()
     .then((webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
-      console.log(webinars);
       callback(
         sendPacket(1, 'Sending Events', {
           webinars,
@@ -175,6 +174,55 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       );
     }
   );
+}
+
+export function updateRSVP(userID, webinarID, didRSVP, callback) {
+  Webinar.findById(webinarID, ['attendees'], (err, webinar) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!webinar)
+      return callback(sendPacket(-1, 'Could not find webinar to RSVP to'));
+
+    const alreadyRSVPWebinar = webinar.attendees.includes(userID);
+
+    if (didRSVP && !alreadyRSVPWebinar) webinar.attendees.push(userID);
+    else if (!didRSVP && alreadyRSVPWebinar)
+      webinar.attendees.splice(webinar.attendees.indexOf(userID), 1);
+
+    webinar.save((err, webinar) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!webinar)
+        return callback(sendPacket(-1, 'There was an error saving the RSVP'));
+
+      User.findById(userID, ['RSVPWebinars'], (err, user) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!user)
+          return callback(
+            sendPacket(-1, 'Could not find user to RSVP to the webinar')
+          );
+
+        const alreadyRSVPUser = user.RSVPWebinars.includes(webinarID);
+
+        if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
+        else if (!didRSVP && alreadyRSVPUser)
+          user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
+
+        user.save((err, user) => {
+          if (err) return callback(sendPacket(-1, err));
+          if (!user)
+            return callback(
+              sendPacket(-1, 'Could not save user RSVP to the webinar')
+            );
+
+          callback(
+            sendPacket(1, 'Updated RSVP state', {
+              newRSVP: didRSVP,
+              numAttendees: webinar.attendees.length,
+            })
+          );
+        });
+      });
+    });
+  });
 }
 
 function sendEventEmailConfirmation(

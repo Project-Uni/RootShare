@@ -4,10 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
+import { connect } from 'react-redux';
 
 import { EventType, HostType } from '../../helpers/types';
 import { monthDict } from '../../helpers/constants';
-import { formatTime } from '../../helpers/functions';
+import { formatTime, makeRequest } from '../../helpers/functions';
 
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
@@ -86,6 +87,8 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   event: EventType;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function SingleEvent(props: Props) {
@@ -97,6 +100,25 @@ function SingleEvent(props: Props) {
       setRSVP(props.event.userRSVP);
   }, [props.event.userRSVP]);
 
+  async function toggleRSVP() {
+    const oldRSVP = RSVP;
+    setRSVP(!oldRSVP);
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/webinar/updateRSVP',
+      {
+        webinarID: event._id,
+        didRSVP: !oldRSVP,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setRSVP(data['content']['newRSVP']);
+  }
+
   const { event } = props;
   const eventTime = new Date(event.dateTime);
   const host: HostType = event.host as HostType;
@@ -106,9 +128,15 @@ function SingleEvent(props: Props) {
         <div>
           <IconButton>
             {RSVP ? (
-              <RemoveCircleOutlineIcon className={styles.RSVPIcon} />
+              <RemoveCircleOutlineIcon
+                onClick={toggleRSVP}
+                className={styles.RSVPIcon}
+              />
             ) : (
-              <AddCircleOutlineIcon className={styles.RSVPIcon} />
+              <AddCircleOutlineIcon
+                onClick={toggleRSVP}
+                className={styles.RSVPIcon}
+              />
             )}
           </IconButton>
           <RSText bold size={12} className={styles.name}>
@@ -147,4 +175,15 @@ function SingleEvent(props: Props) {
   );
 }
 
-export default SingleEvent;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SingleEvent);

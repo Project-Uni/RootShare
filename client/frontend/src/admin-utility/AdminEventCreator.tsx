@@ -176,7 +176,7 @@ function AdminEventCreator(props: Props) {
   async function updateEvents() {
     const { data } = await makeRequest(
       'GET',
-      '/api/webinar/getAllEvents',
+      '/api/webinar/getAllEventsAdmin',
       {},
       true,
       props.accessToken,

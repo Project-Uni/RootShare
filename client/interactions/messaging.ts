@@ -182,22 +182,19 @@ module.exports = {
         return callback(sendPacket(-1, 'Could not find message to like'));
 
       const alreadyLiked = message.likes.includes(userID);
-      let likeCount = message.likes.length;
 
-      if (liked && !alreadyLiked) {
-        message.likes.push(userID);
-        likeCount++;
-      } else if (!liked && alreadyLiked) {
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
         message.likes.splice(message.likes.indexOf(userID), 1);
-        likeCount--;
-      }
 
-      message.save((err) => {
+      message.save((err, message) => {
         if (err) return callback(sendPacket(-1, err));
+        if (!message)
+          return callback(sendPacket(-1, 'There was an error saving the like'));
 
         io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
           messageID: message._id,
-          numLikes: likeCount,
+          numLikes: message.likes.length,
         });
         callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
       });
