@@ -1,13 +1,14 @@
 import { EventType } from './eventTypes';
+import { UniversityType } from './universityTypes';
 
 export type UserType = {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  university: string;
   accountType: string;
   privilegeLevel: number;
+  university: string | UniversityType;
   graduationYear: number;
   department: string;
   major: string;

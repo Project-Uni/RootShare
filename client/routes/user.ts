@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { getCurrentUser, getConnections } from '../interactions/user';
+import {
+  getCurrentUser,
+  getConnections,
+  getConnectionSuggestions,
+} from '../interactions/user';
 
 import log from '../helpers/logger';
 
@@ -14,6 +18,10 @@ module.exports = (app) => {
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     getConnections(req.user, (packet) => res.send(packet));
+  });
+
+  app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
+    getConnectionSuggestions(req.user, (packet) => res.send(packet));
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {

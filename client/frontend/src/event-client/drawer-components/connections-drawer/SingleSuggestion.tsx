@@ -3,15 +3,21 @@ import React, { useState } from 'react';
 import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
-import { FaEllipsisH } from 'react-icons/fa';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
-import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
+import { UserType } from '../../../helpers/types';
+import { UniversityType } from '../../../helpers/types/universityTypes';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondary,
-    paddingBottom: 4,
+    paddingBottom: 10,
+    paddingTop: 5,
+    // borderBottomStyle: 'solid',
+    // borderBottomColor: 'gray',
+    // borderBottomWidth: 1,
   },
   top: {
     display: 'flex',
@@ -20,9 +26,10 @@ const useStyles = makeStyles((_: any) => ({
   left: {},
   right: {},
   picture: {
-    margin: 10,
-    marginTop: 18,
-    marginBottom: -7,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 12,
+    marginBottom: -18,
     display: 'inline-block',
     color: colors.primaryText,
   },
@@ -45,39 +52,40 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.primaryText,
   },
-  ellipsis: {
-    margin: 1.5,
-    marginBottom: -7,
+  addUserButton: {
+    marginRight: -5,
+    marginTop: -2,
+    color: colors.primaryText,
+    marginBottom: -13,
   },
 }));
 
 type Props = {
-  name: string;
-  nameId: string;
-  organization: string;
-  picture: string;
+  suggestedUser: UserType;
 };
 
 function SingleConnection(props: Props) {
   const styles = useStyles();
 
+  const university = props.suggestedUser.university as UniversityType;
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
           <EmojiEmotionsIcon className={styles.picture} />
           <RSText bold size={12} className={styles.name}>
-            {props.name}
+            {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
           </RSText>
         </div>
-        <IconButton className={styles.ellipsis}>
-          <FaEllipsisH size={12} color={colors.secondaryText} />
+
+        <IconButton className={styles.addUserButton}>
+          <AddCircleOutlineIcon />
         </IconButton>
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
           <RSText size={12} className={styles.organization}>
-            from {props.organization}
+            from {university.universityName}
           </RSText>
         </div>
       </div>
