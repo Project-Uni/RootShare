@@ -13,7 +13,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
     paddingBottom: 20,
     paddingTop: 20,
-    background: colors.secondary,
+    background: colors.primaryText,
     borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
@@ -58,12 +58,12 @@ type Props = {
   description: string;
   private?: boolean;
   type:
-  | 'Social'
-  | 'Business'
-  | 'Just for Fun'
-  | 'Athletics'
-  | 'Student Organization'
-  | 'Academic';
+    | 'Social'
+    | 'Business'
+    | 'Just for Fun'
+    | 'Athletics'
+    | 'Student Organization'
+    | 'Academic';
   memberCount: number;
   mutualMemberCount: number;
   profilePicture: any;
@@ -78,7 +78,7 @@ function CommunityOverview(props: Props) {
     return (
       <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <RSText type="head" size={14} color={colors.primaryText}>
+          <RSText type="head" size={14} color={colors.second}>
             {props.name}
           </RSText>
           {props.private && (
@@ -92,7 +92,7 @@ function CommunityOverview(props: Props) {
   function renderTypeAndCounts() {
     return (
       <div className={styles.secondRow}>
-        <RSText color={colors.primaryText} size={12} type="body">
+        <RSText color={colors.second} size={12} type="body">
           {props.type}
         </RSText>
         <RSText
@@ -103,7 +103,7 @@ function CommunityOverview(props: Props) {
         >
           |
         </RSText>
-        <RSText color={colors.primaryText} size={12} type="body">
+        <RSText color={colors.second} size={12} type="body">
           {props.memberCount} Members
         </RSText>
         <RSText
@@ -114,7 +114,7 @@ function CommunityOverview(props: Props) {
         >
           |
         </RSText>
-        <RSText color={colors.primaryText} size={12} type="body">
+        <RSText color={colors.second} size={12} type="body">
           {props.mutualMemberCount} Mutual
         </RSText>
       </div>
@@ -137,7 +137,7 @@ function CommunityOverview(props: Props) {
         >
           {props.description}
         </RSText>
-        <RSText color={colors.primaryText} size={11} type="body">
+        <RSText color={colors.second} size={11} type="body">
           Joined {props.joinedDate}
         </RSText>
       </div>

@@ -14,8 +14,8 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: colors.secondary,
-    borderRadius: 10,
+    background: colors.primaryText,
+    borderRadius: 1,
     padding: 15,
   },
   left: {
@@ -67,12 +67,12 @@ type Props = {
   private?: boolean;
   name: string;
   type:
-  | 'Social'
-  | 'Business'
-  | 'Just for Fun'
-  | 'Athletics'
-  | 'Student Organization'
-  | 'Academic';
+    | 'Social'
+    | 'Business'
+    | 'Just for Fun'
+    | 'Athletics'
+    | 'Student Organization'
+    | 'Academic';
   description: string;
   memberCount: number;
   mutualMemberCount: number;
@@ -107,7 +107,7 @@ function CommunityHighlight(props: Props) {
         <div className={styles.textContainer}>
           <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <RSText type="head" size={13} color={colors.primaryText}>
+              <RSText type="head" size={13} color={colors.second}>
                 {props.name}
               </RSText>
               {props.private && (
@@ -122,7 +122,7 @@ function CommunityHighlight(props: Props) {
           <RSText
             type="subhead"
             size={12}
-            color={colors.primaryText}
+            color={colors.fourth}
             className={styles.type}
           >
             {props.type}
@@ -137,7 +137,7 @@ function CommunityHighlight(props: Props) {
               ? descSubstr.concat(' ...')
               : props.description}
           </RSText>
-          <RSText type="subhead" size={12} color={colors.primaryText}>
+          <RSText type="subhead" size={12} color={colors.second}>
             {props.memberCount} Members | {props.mutualMemberCount} Mutual
           </RSText>
         </div>

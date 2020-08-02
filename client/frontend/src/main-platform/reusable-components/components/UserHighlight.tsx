@@ -10,8 +10,8 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: colors.secondary,
-    borderRadius: 10,
+    background: colors.primaryText,
+    borderRadius: 1,
     padding: 15,
   },
   left: {
@@ -73,7 +73,7 @@ function UserHighlight(props: Props) {
             <RSText
               type="head"
               size={13}
-              color={colors.primaryText}
+              color={colors.second}
               className={styles.name}
             >
               {props.name}
@@ -90,7 +90,7 @@ function UserHighlight(props: Props) {
           >
             {props.position + ', ' + props.company}
           </RSText>
-          <RSText type="subhead" size={12} color={colors.primaryText}>
+          <RSText type="subhead" size={12} color={colors.second}>
             {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
             Mutual Communities
           </RSText>
@@ -100,10 +100,10 @@ function UserHighlight(props: Props) {
         {!props.connected ? (
           <Button className={styles.connectButton}>Connect</Button>
         ) : (
-            <RSText color={colors.primaryText} size={11}>
-              CONNECTED
-            </RSText>
-          )}
+          <RSText color={colors.primaryText} size={11}>
+            CONNECTED
+          </RSText>
+        )}
       </div>
     </div>
   );

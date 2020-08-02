@@ -13,13 +13,12 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.second,
+    background: colors.primaryText,
     overflow: 'scroll',
     borderLeft: `1px solid ${colors.fourth}`,
     borderRight: `1px solid ${colors.fourth}`,
   },
-  body: {
-  },
+  body: {},
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -40,16 +39,16 @@ const useStyles = makeStyles((_: any) => ({
   },
   post: {
     // marginTop: 1,
-    borderBottom: `1px solid ${colors.fourth}`
+    borderBottom: `1px solid ${colors.fourth}`,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
-    background: colors.second,
+    background: colors.primaryText,
     borderBottom: `1px solid ${colors.fourth}`,
     borderTop: `1px solid ${colors.fourth}`,
-  }
+  },
 }));
 
 type Props = {
@@ -102,9 +101,7 @@ function ProfileBody(props: Props) {
         />
       );
     return (
-      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20, }}>
-        {output}
-      </div>
+      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
     );
   }
 
@@ -163,7 +160,13 @@ function ProfileBody(props: Props) {
           numCommunities={6}
         />
         {renderRegisteredEvents()}
-        <RSText type="head" size={24} bold color={colors.primaryText} className={styles.rootshares}>
+        <RSText
+          type="head"
+          size={24}
+          bold
+          color={colors.second}
+          className={styles.rootshares}
+        >
           Dhruv's RootShares
         </RSText>
         {renderPosts()}

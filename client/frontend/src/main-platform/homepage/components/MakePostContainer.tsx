@@ -15,7 +15,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 1,
   },
   messageAreaWrapper: {
-    background: colors.secondary,
+    background: colors.primaryText,
     borderRadius: 1,
     marginLeft: 1,
     marginRight: 1,
@@ -23,7 +23,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 15,
     paddingTop: 15,
     paddingBottom: 10,
-    marginTop: 1,
+    marginTop: 0,
     marginBottom: 1,
   },
   messageArea: {

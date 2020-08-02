@@ -38,14 +38,13 @@ const useStyles = makeStyles((_: any) => ({
   },
   resultsContainer: {},
   singleResult: {
-    marginTop: 1,
     marginLeft: 1,
     marginRight: 1,
-    borderRadius: 1,
+    marginBottom: 1,
   },
   searchIcon: {
     marginRight: 10,
-  }
+  },
 }));
 
 type Props = {};

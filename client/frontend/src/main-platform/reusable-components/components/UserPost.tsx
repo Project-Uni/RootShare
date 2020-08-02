@@ -15,7 +15,7 @@ const MAX_INITIAL_VISIBLE_CHARS = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.secondary,
+    background: colors.primaryText,
     borderRadius: 1,
     padding: 1,
     paddingLeft: 20,
@@ -181,7 +181,7 @@ function UserPost(props: Props) {
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
             <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-              <RSText type="subhead" color={colors.primaryText} bold size={14}>
+              <RSText type="subhead" color={colors.secondary} bold size={14}>
                 {props.userName}
               </RSText>
             </a>
@@ -189,7 +189,7 @@ function UserPost(props: Props) {
             {props.community && (
               <>
                 <GiTreeBranch
-                  color={colors.primaryText}
+                  color={colors.secondary}
                   size={16}
                   className={styles.plantIcon}
                 />
@@ -197,14 +197,14 @@ function UserPost(props: Props) {
                   href={`/community/${props.communityID}`}
                   className={styles.noUnderline}
                 >
-                  <RSText type="subhead" color={colors.primaryText} bold size={14}>
+                  <RSText type="subhead" color={colors.secondary} bold size={14}>
                     {props.community}
                   </RSText>
                 </a>
               </>
             )}
           </div>
-          <RSText type="subhead" color={colors.secondaryText} size={12} >
+          <RSText type="subhead" color={colors.secondaryText} size={12}>
             {props.timestamp}
           </RSText>
         </div>
@@ -217,7 +217,7 @@ function UserPost(props: Props) {
       <div className={styles.message}>
         <RSText
           type="body"
-          color={colors.primaryText}
+          color={colors.secondary}
           size={12}
           className={styles.messageBody}
         >
@@ -237,8 +237,8 @@ function UserPost(props: Props) {
             {liked ? (
               <BsStarFill size={20} color={colors.bright} />
             ) : (
-                <BsStar size={20} color={colors.secondaryText} />
-              )}
+              <BsStar size={20} color={colors.secondaryText} />
+            )}
           </IconButton>
 
           <RSText type="body" color={colors.secondaryText} size={12}>

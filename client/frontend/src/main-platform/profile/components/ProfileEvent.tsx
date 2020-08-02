@@ -11,7 +11,7 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.secondary,
+    background: colors.primaryText,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 10,
@@ -48,14 +48,14 @@ function ProfileEvent(props: Props) {
           type="body"
           size={12}
           bold
-          color={colors.primaryText}
+          color={colors.second}
           className={styles.eventTitle}
         >
           {props.title}
         </RSText>
       </div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <RSText type="body" size={12} color={colors.primaryText}>
+        <RSText type="body" size={12} color={colors.second}>
           {props.participationType}
         </RSText>
         <IconButton>

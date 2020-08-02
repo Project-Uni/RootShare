@@ -123,8 +123,8 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (
-          renderFeed()
-        )}
+        renderFeed()
+      )}
     </div>
   );
 }

@@ -13,7 +13,7 @@ const MAX_SUBSTR_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.secondary,
+    background: colors.primaryText,
     marginLeft: 1,
     marginRight: 1,
     borderRadius: 1,
@@ -41,7 +41,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
   },
   seeMoreButton: {
-    color: colors.secondaryText,
+    color: colors.fourth,
     marginRight: -9,
   },
   bottom: {
@@ -87,7 +87,7 @@ function Event(props: Props) {
   function renderEventHeader() {
     return (
       <div className={styles.top}>
-        <RSText type="head" color={colors.primaryText} bold size={16}>
+        <RSText type="head" color={colors.second} bold size={16}>
           {props.title}
         </RSText>
         <div
@@ -97,19 +97,17 @@ function Event(props: Props) {
             alignItems: 'center',
           }}
         >
-          <RSText color={colors.secondaryText}>
-            {props.timestamp}
-          </RSText>
+          <RSText color={colors.fourth}>{props.timestamp}</RSText>
           <IconButton
             onClick={() => {
               setShowFullEvent(!showFullEvent);
             }}
           >
             {showFullEvent ? (
-              <BsChevronDown color={colors.primaryText} size={14} />
+              <BsChevronDown color={colors.second} size={14} />
             ) : (
-                <BsChevronRight color={colors.primaryText} size={14} />
-              )}
+              <BsChevronRight color={colors.second} size={14} />
+            )}
           </IconButton>
         </div>
       </div>
@@ -120,7 +118,7 @@ function Event(props: Props) {
     return (
       <>
         <a href={`/community/${props.communityID}`} className={styles.hostLink}>
-          <RSText type="subhead" color={colors.primaryText} size={14}>
+          <RSText type="subhead" color={colors.second} size={14}>
             Hosted by {props.communityName}
           </RSText>
         </a>
@@ -129,12 +127,12 @@ function Event(props: Props) {
           type="body"
           bold
           size={14}
-          color={colors.primaryText}
+          color={colors.second}
           className={styles.summary}
         >
           {props.summary}
         </RSText>
-        <RSText type="body" size={12} color={colors.primaryText}>
+        <RSText type="body" size={12} color={colors.second}>
           {showFullDesc && descriptionSubstr !== props.description
             ? props.description
             : descriptionSubstr.concat(' ...')}
@@ -145,7 +143,7 @@ function Event(props: Props) {
           </Button>
         </div>
         <div className={styles.bottom}>
-          <RSText type="body" color={colors.secondaryText} size={13}>
+          <RSText type="body" color={colors.fourth} size={13}>
             {props.mutualSignups} Connections Signed Up
           </RSText>
           <Button variant="contained" className={styles.rsvpButton}>
