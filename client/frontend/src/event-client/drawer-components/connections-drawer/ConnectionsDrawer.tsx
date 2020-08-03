@@ -37,7 +37,8 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     justifyContent: 'flex-start',
     background: colors.secondary,
-    overflow: 'scroll',
+    overflowY: 'scroll',
+    overflowX: 'hidden',
     label: colors.primaryText,
   },
   sectionHeader: {
@@ -82,6 +83,18 @@ function ConnectionsDrawer(props: Props) {
     if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
   }
 
+  function removeSuggestion(userID: string) {
+    let newSuggestions = suggestions.slice();
+    for (let i = 0; i < suggestions.length; i++) {
+      const currUser = suggestions[i];
+      if (currUser._id === userID) {
+        newSuggestions.splice(i, 1);
+        setSuggestions(newSuggestions);
+        return;
+      }
+    }
+  }
+
   function renderSuggestions() {
     const output: any = [];
     if (suggestions.length === 0) return;
@@ -96,7 +109,11 @@ function ConnectionsDrawer(props: Props) {
     for (let i = 0; i < numSuggestions; i++) {
       const currSuggestion = suggestions[i];
       output.push(
-        <SingleSuggestion key={currSuggestion._id} suggestedUser={currSuggestion} />
+        <SingleSuggestion
+          removeSuggestion={removeSuggestion}
+          key={currSuggestion._id}
+          suggestedUser={currSuggestion}
+        />
       );
     }
     return output;

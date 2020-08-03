@@ -32,7 +32,7 @@ var userSchema = new Schema(
       type: [{ type: Schema.ObjectId, ref: 'users' }],
     },
     pendingConnections: {
-      type: [{ type: Schema.ObjectId, ref: 'users' }],
+      type: [{ type: Schema.ObjectId, ref: 'connections' }],
     },
     joinedCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],

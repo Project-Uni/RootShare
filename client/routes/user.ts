@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   getConnections,
   getConnectionSuggestions,
+  requestConnection,
 } from '../interactions/user';
 
 import log from '../helpers/logger';
@@ -22,6 +23,12 @@ module.exports = (app) => {
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
     getConnectionSuggestions(req.user, (packet) => res.send(packet));
+  });
+
+  app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
+    requestConnection(req.user._id, req.body.requestID, (packet) =>
+      res.send(packet)
+    );
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {

@@ -4,6 +4,7 @@ import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import ClearIcon from '@material-ui/icons/Clear';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -26,15 +27,14 @@ const useStyles = makeStyles((_: any) => ({
   left: {},
   right: {},
   picture: {
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 0,
     marginTop: 12,
     marginBottom: -18,
     display: 'inline-block',
     color: colors.primaryText,
   },
   organization: {
-    marginLeft: 54,
+    marginLeft: 96,
     color: colors.primaryText,
     marginTop: 10,
   },
@@ -52,6 +52,17 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.primaryText,
   },
+  removeSuggestionButton: {
+    marginLeft: 10,
+    marginRight: 12,
+    marginTop: 0,
+    marginBottom: -21,
+    display: 'inline-block',
+  },
+  removeSuggestionIcon: {
+    color: 'gray',
+    fontSize: 14,
+  },
   addUserButton: {
     marginRight: -5,
     marginTop: -2,
@@ -62,6 +73,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   suggestedUser: UserType;
+  removeSuggestion: (userID: string) => void;
 };
 
 function SingleConnection(props: Props) {
@@ -72,6 +84,12 @@ function SingleConnection(props: Props) {
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
+          <IconButton
+            onClick={() => props.removeSuggestion(props.suggestedUser._id)}
+            className={styles.removeSuggestionButton}
+          >
+            <ClearIcon className={styles.removeSuggestionIcon} />
+          </IconButton>
           <EmojiEmotionsIcon className={styles.picture} />
           <RSText bold size={12} className={styles.name}>
             {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
