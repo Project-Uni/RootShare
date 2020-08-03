@@ -18,7 +18,7 @@ export type Webinar = {
     firstName: string;
     lastName: string;
     email: string;
-    sessionID?: string;
+    connectionID?: string;
   };
   startTime: number;
 };

@@ -9,6 +9,7 @@ import {
   DialogTitle,
   TextField,
   IconButton,
+  CircularProgress,
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import { Autocomplete } from '@material-ui/lab';
@@ -43,6 +44,13 @@ const useStyles = makeStyles((_: any) => ({
   selectedName: {
     marginBottom: 3,
   },
+  loadingDiv: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  loadingIndicator: {
+    color: colors.primaryText,
+  },
 }));
 
 type UserInfo = {
@@ -50,6 +58,7 @@ type UserInfo = {
   firstName: string;
   lastName: string;
   email: string;
+  connectionID?: string;
 };
 
 type Props = {
@@ -90,8 +99,10 @@ function ManageSpeakersDialog(props: Props) {
     );
     if (data['success'] === 1) {
       setOptions(data['content']['users']);
-      if (data['content']['currentSpeaker'])
+      if (data['content']['currentSpeaker']) {
         setCurrentSpeaker(data['content']['currentSpeaker']);
+        console.log(data['content']['currentSpeaker']);
+      }
     }
     setLoading(false);
   }
@@ -175,6 +186,46 @@ function ManageSpeakersDialog(props: Props) {
     );
   }
 
+  function renderCurrentSpeaker() {
+    return (
+      <>
+        <RSText className={styles.bright}>
+          <b>Current Speaker</b>
+        </RSText>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <RSText className={[styles.text, styles.selectedName].join(' ')}>
+            {currentSpeaker?.firstName} {currentSpeaker?.lastName}
+          </RSText>
+          <IconButton onClick={handleRemoveSpeaker}>
+            <IoMdClose color={colors.secondaryText} />
+          </IconButton>
+        </div>
+
+        <RSText className={styles.text}>{currentSpeaker?.email}</RSText>
+      </>
+    );
+  }
+
+  function renderSelectedUserInfo() {
+    return (
+      <div style={{ marginBottom: 15 }}>
+        <RSText className={styles.bright}>
+          <b>Selected User</b>
+        </RSText>
+        <RSText className={[styles.text, styles.selectedName].join(' ')}>
+          {searchedUser?.firstName} {searchedUser?.lastName}
+        </RSText>
+        <RSText className={styles.text}>{searchedUser?.email}</RSText>
+      </div>
+    );
+  }
+
   return (
     <Dialog open={props.open} onClose={() => {}} PaperComponent={PaperComponent}>
       <DialogTitle
@@ -188,48 +239,20 @@ function ManageSpeakersDialog(props: Props) {
         <DialogContentText className={styles.text}>
           Enter a user to bring on as a guest speaker
         </DialogContentText>
-        {currentSpeaker && (
-          <>
-            <RSText className={styles.bright}>
-              <b>Current Speaker</b>
-            </RSText>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <RSText className={[styles.text, styles.selectedName].join(' ')}>
-                {currentSpeaker.firstName} {currentSpeaker.lastName}
-              </RSText>
-              <IconButton onClick={handleRemoveSpeaker}>
-                <IoMdClose color={colors.secondaryText} />
-              </IconButton>
-            </div>
-
-            <RSText className={styles.text}>{currentSpeaker.email}</RSText>
-          </>
-        )}
-
-        {searchedUser && (
-          <div style={{ marginBottom: 15 }}>
-            <RSText className={styles.bright}>
-              <b>Selected User</b>
-            </RSText>
-            <RSText className={[styles.text, styles.selectedName].join(' ')}>
-              {searchedUser.firstName} {searchedUser.lastName}
-            </RSText>
-            <RSText className={styles.text}>{searchedUser.email}</RSText>
+        {loading ? (
+          <div className={styles.loadingDiv}>
+            <CircularProgress size={50} className={styles.loadingIndicator} />
           </div>
-        )}
-
-        {!currentSpeaker && renderAutoComplete()}
-
-        {serverErr && (
-          <RSText type="body" color={'red'} size={11} italic>
-            There was an error inviting this user.
-          </RSText>
+        ) : (
+          <>
+            {searchedUser && renderSelectedUserInfo()}
+            {currentSpeaker ? renderCurrentSpeaker() : renderAutoComplete()}
+            {serverErr && (
+              <RSText type="body" color={'red'} size={11} italic>
+                There was an error inviting this user.
+              </RSText>
+            )}
+          </>
         )}
       </DialogContent>
       <DialogActions>
@@ -237,7 +260,7 @@ function ManageSpeakersDialog(props: Props) {
           Cancel
         </Button>
         {!currentSpeaker && (
-          <Button onClick={onAddClick} className={styles.text}>
+          <Button onClick={onAddClick} className={styles.text} disabled={loading}>
             Add User
           </Button>
         )}

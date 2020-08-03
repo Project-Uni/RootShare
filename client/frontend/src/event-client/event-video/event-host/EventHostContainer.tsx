@@ -313,6 +313,11 @@ function EventHostContainer(props: Props) {
     return new Publisher();
   }
 
+  function removeGuestSpeaker(connectionID: string) {
+    // session.forceDisconnect(connectionID, () => {});
+    // session.forceDisconnect()
+  }
+
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
@@ -333,19 +338,21 @@ function EventHostContainer(props: Props) {
       setSession((eventSession as unknown) as OT.Session);
 
       if (props.speaking_token) {
-        const eventSession_casted = (eventSession as unknown) as Session;
-        await makeRequest(
-          'POST',
-          '/proxy/webinar/setSessionID',
-          {
-            webinarID: props.webinar['_id'],
-            speaking_token: props.speaking_token,
-            sessionID: eventSession_casted.connection?.connectionId,
-          },
-          true,
-          props.accessToken,
-          props.refreshToken
-        );
+        setTimeout(() => {
+          const eventSession_casted = (eventSession as unknown) as Session;
+          makeRequest(
+            'POST',
+            '/proxy/webinar/setConnectionID',
+            {
+              webinarID: props.webinar['_id'],
+              speaking_token: props.speaking_token,
+              connectionID: eventSession_casted.connection?.connectionId,
+            },
+            true,
+            props.accessToken,
+            props.refreshToken
+          );
+        }, 500);
       }
 
       setTimeout(() => {
