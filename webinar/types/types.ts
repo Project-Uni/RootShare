@@ -1,3 +1,5 @@
+import * as socketio from "socket.io";
+
 export const JWT_TOKEN_FIELDS = ["email", "_id"];
 
 export const JWT_ACCESS_TOKEN_TIMEOUT = "30m";
@@ -8,9 +10,15 @@ export type WebinarCache = {
 
 export type Webinar = {
   users: {
-    [key: string]: SocketIO.Socket;
+    [key: string]: socketio.Socket;
   };
   speakingToken?: string;
-  guestSpeaker?: { _id: string; name: string; email: string };
+  guestSpeaker?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    sessionID?: string;
+  };
   startTime: number;
 };

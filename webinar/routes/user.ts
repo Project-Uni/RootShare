@@ -27,4 +27,51 @@ module.exports = (app, webinarCache: WebinarCache) => {
     socket.emit("speaking-invite", { speaking_token });
     return res.json(sendPacket(1, "Successfully invited user to speak"));
   });
+
+  app.post("/api/removeGuestSpeaker", isAuthenticatedWithJWT, (req, res) => {
+    const { webinarID } = req.body;
+    if (!webinarID)
+      return res.json(sendPacket(-1, "webinarID missing from request body"));
+
+    if (!(webinarID in webinarCache))
+      return res.json(sendPacket(0, "Webinar not in cache"));
+
+    const speakerID = webinarCache[webinarID].guestSpeaker._id;
+
+    delete webinarCache[webinarID].guestSpeaker;
+    delete webinarCache[webinarID].speakingToken;
+
+    if (!(speakerID in webinarCache[webinarID].users))
+      return res.json(sendPacket(1, "User already left the stream"));
+
+    const socket = webinarCache[webinarID].users[speakerID];
+    socket.emit("speaking-revoke");
+
+    return res.json(
+      sendPacket(1, "Successfully removed user speaking privilege")
+    );
+  });
+
+  app.post("/api/setSessionID", isAuthenticatedWithJWT, (req, res) => {
+    const { sessionID, webinarID, speaking_token } = req.body;
+    if (!sessionID || !webinarID || !speaking_token)
+      return res.json(
+        sendPacket(
+          -1,
+          "sessionID, webinarID, or speaking_token missing from request body"
+        )
+      );
+    if (!webinarCache[webinarID].speakingToken)
+      return res.json(sendPacket(0, "No guest speakers in current webinar"));
+
+    if (webinarCache[webinarID].speakingToken !== speaking_token)
+      return res.json(sendPacket(0, "Speaking token does not match webinar"));
+
+    webinarCache[webinarID].guestSpeaker.sessionID = sessionID;
+
+    log("info", `Cache: ${webinarCache}`);
+    return res.json(
+      sendPacket(1, "Successfully updated sessionID for guest speaker")
+    );
+  });
 };

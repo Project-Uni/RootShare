@@ -9,7 +9,7 @@ const expressSession = require("express-session");
 const http = require("http");
 
 import log from "./helpers/logger";
-import { Webinar, WebinarCache } from "./types/types";
+import { WebinarCache } from "./types/types";
 
 const port = process.env.PORT || 8003;
 

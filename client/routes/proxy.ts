@@ -118,4 +118,67 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
+
+  app.post(
+    '/proxy/webinar/setSessionID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID, sessionID, speaking_token } = req.body;
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+
+      if (!webinarID || !sessionID || !speaking_token)
+        return res.json(
+          sendPacket(
+            -1,
+            'webinarID, sessionID, or speaking_token missing from request body'
+          )
+        );
+
+      const data = await makeRequest(
+        'webinarCache',
+        'api/setSessionID',
+        'POST',
+        {
+          webinarID,
+          sessionID,
+          speaking_token,
+        },
+        true,
+        accessToken,
+        '',
+        req.user
+      );
+
+      if (data.success !== 1) log('error', data.message);
+      return res.json(data);
+    }
+  );
+
+  app.get(
+    '/proxy/webinar/:webinarID/getGuestSpeakerSessionID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID } = req.params;
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+      //TODO - Check if host
+
+      const data = await makeRequest(
+        'webinarCache',
+        `/api/webinar/${webinarID}/getGuestSpeakerSessionID`,
+        'GET',
+        {},
+        true,
+        accessToken,
+        '',
+        req.user
+      );
+
+      if (data.success !== 1) log('error', data.message);
+      return res.json(data);
+    }
+  );
 };

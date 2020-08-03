@@ -54,7 +54,27 @@ module.exports = (app, webinarCache: WebinarCache) => {
       return res.json(
         sendPacket(1, "Successfully fetched active users", {
           activeUserIDs,
-          guestSpeaker: webinarCache[webinarID].guestSpeaker,
+          currentSpeaker: webinarCache[webinarID].guestSpeaker,
+        })
+      );
+    }
+  );
+
+  app.get(
+    "/api/webinar/:webinarID/getGuestSpeakerSessionID",
+    isAuthenticatedWithJWT,
+    (req, res) => {
+      const { webinarID } = req.params;
+      if (!(webinarID in webinarCache))
+        return res.json(sendPacket(0, "Webinar not found in cache"));
+
+      const sessionID = webinarCache[webinarID].guestSpeaker.sessionID;
+      if (!sessionID)
+        return res.json(sendPacket(0, "SessionID not set for guest speaker"));
+
+      return res.json(
+        sendPacket(1, "Successfully retrieved session id for guest speaker", {
+          sessionID,
         })
       );
     }

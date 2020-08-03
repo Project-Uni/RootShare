@@ -6,7 +6,8 @@ import { WebinarCache } from "../types/types";
 module.exports = (io, webinarCache: WebinarCache) => {
   io.on("connection", (socket: socketio.Socket) => {
     let socketUserId = "";
-    let socketUserName = "";
+    let socketUserFirstName = "";
+    let socketUserLastName = "";
     let socketUserEmail = "";
 
     let socketWebinarId = "";
@@ -17,17 +18,19 @@ module.exports = (io, webinarCache: WebinarCache) => {
       (data: {
         webinarID: string;
         userID: string;
-        name: string;
+        firstName: string;
+        lastName: string;
         email: string;
       }) => {
-        const { userID, webinarID, name, email } = data;
-        if (!userID || !webinarID || !name || !email) {
+        const { userID, webinarID, firstName, lastName, email } = data;
+        if (!userID || !webinarID || !firstName || !lastName || !email) {
           return log("alert", "Invalid socket connection received");
         }
         log("new-user", `${userID}`);
 
         socketUserId = userID;
-        socketUserName = name;
+        socketUserFirstName = firstName;
+        socketUserLastName = lastName;
         socketUserEmail = email;
 
         socketWebinarId = webinarID;
@@ -69,7 +72,8 @@ module.exports = (io, webinarCache: WebinarCache) => {
         log("socket", "Speaking token was accepted");
         webinarCache[socketWebinarId].guestSpeaker = {
           _id: socketUserId,
-          name: socketUserName,
+          firstName: socketUserFirstName,
+          lastName: socketUserLastName,
           email: socketUserEmail,
         };
         socket.emit("speaking-token-accepted");
