@@ -69,6 +69,14 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     marginBottom: -13,
   },
+  fadeOut: {
+    opacity: 0,
+    transition: 'width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s',
+  },
+  fadeIn: {
+    opacity: 1,
+    transition: 'width 0.5s, height 0.5s, opacity 0.5s 0.5s',
+  },
 }));
 
 type Props = {
@@ -79,32 +87,45 @@ type Props = {
 function SingleConnection(props: Props) {
   const styles = useStyles();
 
+  const [visible, setVisible] = useState(true);
+
+  function requestConnection() {}
+
+  function removeSuggestion() {
+    setVisible(false);
+    setTimeout(() => {
+      props.removeSuggestion(props.suggestedUser._id);
+    }, 500);
+  }
+
   const university = props.suggestedUser.university as UniversityType;
   return (
     <div className={styles.wrapper}>
-      <div className={styles.top}>
-        <div>
-          <IconButton
-            onClick={() => props.removeSuggestion(props.suggestedUser._id)}
-            className={styles.removeSuggestionButton}
-          >
-            <ClearIcon className={styles.removeSuggestionIcon} />
-          </IconButton>
-          <EmojiEmotionsIcon className={styles.picture} />
-          <RSText bold size={12} className={styles.name}>
-            {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
-          </RSText>
-        </div>
+      <div className={visible ? styles.fadeIn : styles.fadeOut}>
+        <div className={styles.top}>
+          <div>
+            <IconButton
+              onClick={removeSuggestion}
+              className={styles.removeSuggestionButton}
+            >
+              <ClearIcon className={styles.removeSuggestionIcon} />
+            </IconButton>
+            <EmojiEmotionsIcon className={styles.picture} />
+            <RSText bold size={12} className={styles.name}>
+              {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
+            </RSText>
+          </div>
 
-        <IconButton className={styles.addUserButton}>
-          <AddCircleOutlineIcon />
-        </IconButton>
-      </div>
-      <div className={styles.bottom}>
-        <div className={styles.left}>
-          <RSText size={12} className={styles.organization}>
-            from {university.universityName}
-          </RSText>
+          <IconButton className={styles.addUserButton}>
+            <AddCircleOutlineIcon />
+          </IconButton>
+        </div>
+        <div className={styles.bottom}>
+          <div className={styles.left}>
+            <RSText size={12} className={styles.organization}>
+              from {university.universityName}
+            </RSText>
+          </div>
         </div>
       </div>
     </div>
