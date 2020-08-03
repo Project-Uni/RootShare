@@ -35,6 +35,9 @@ const io = socketio(server);
 
 const webinarCache: WebinarCache = {};
 
+const TIMEOUT = 1000 * 60 * 60 * 3; // 3 HOURS
+const CLEANUP_INTERVAL = 1000 * 60 * 10; //10 MINUTES
+
 require("./routes/cache")(app, webinarCache);
 require("./routes/user")(app, webinarCache);
 
@@ -47,15 +50,14 @@ app.get("/", (req, res) => {
 function cleanupCache() {
   log("cleanup", "Running cache cleanup");
   const keys = Object.keys(webinarCache);
-  const timeout = 1000 * 60 * 60 * 3; // 3 HOURS
   for (let i = 0; i < keys.length; i++) {
     const webinarID = keys[i];
-    if (Date.now() - webinarCache[webinarID]["startTime"] >= timeout)
+    if (Date.now() - webinarCache[webinarID]["startTime"] >= TIMEOUT)
       delete webinarCache[webinarID];
   }
 }
 
-setInterval(cleanupCache, 1000 * 60 * 10); //10 MINUTES
+setInterval(cleanupCache, CLEANUP_INTERVAL); //10 MINUTES
 
 server.listen(port, () => {
   log("info", `Webinar cache is listening on port ${port}`);
