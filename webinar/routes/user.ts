@@ -69,7 +69,6 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
     webinarCache[webinarID].guestSpeaker.sessionID = sessionID;
 
-    log("info", `Cache: ${webinarCache}`);
     return res.json(
       sendPacket(1, "Successfully updated sessionID for guest speaker")
     );

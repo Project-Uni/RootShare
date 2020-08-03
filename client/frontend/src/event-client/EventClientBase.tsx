@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
@@ -184,8 +183,6 @@ function EventClientBase(props: Props) {
 
     socket.on('speaking-revoke', () => {
       speaking_token = '';
-
-      // console.log('User has been removed as a speaker');
       setEventMode('viewer');
       alert('You have been removed as a speaker');
       //TODO - Able to remove speaker, but webcam and mic still recording. Disable those if active.
