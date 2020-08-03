@@ -77,6 +77,11 @@ const useStyles = makeStyles((_: any) => ({
     opacity: 1,
     transition: 'width 0.5s, height 0.5s, opacity 0.5s 0.5s',
   },
+  confirmation: {
+    color: colors.success,
+    marginTop: 5,
+    marginLeft: 70,
+  },
 }));
 
 type Props = {
@@ -88,8 +93,12 @@ function SingleConnection(props: Props) {
   const styles = useStyles();
 
   const [visible, setVisible] = useState(true);
+  const [requested, setRequested] = useState(false);
 
-  function requestConnection() {}
+  function requestConnection() {
+    setRequested(true);
+    removeSuggestion();
+  }
 
   function removeSuggestion() {
     setVisible(false);
@@ -98,10 +107,9 @@ function SingleConnection(props: Props) {
     }, 500);
   }
 
-  const university = props.suggestedUser.university as UniversityType;
-  return (
-    <div className={styles.wrapper}>
-      <div className={visible ? styles.fadeIn : styles.fadeOut}>
+  function renderSuggestion() {
+    return (
+      <div>
         <div className={styles.top}>
           <div>
             <IconButton
@@ -116,7 +124,7 @@ function SingleConnection(props: Props) {
             </RSText>
           </div>
 
-          <IconButton className={styles.addUserButton}>
+          <IconButton onClick={requestConnection} className={styles.addUserButton}>
             <AddCircleOutlineIcon />
           </IconButton>
         </div>
@@ -127,6 +135,19 @@ function SingleConnection(props: Props) {
             </RSText>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  const university = props.suggestedUser.university as UniversityType;
+  return (
+    <div className={styles.wrapper}>
+      <div className={visible ? styles.fadeIn : styles.fadeOut}>
+        {requested ? (
+          <RSText className={styles.confirmation}>Request Sent!</RSText>
+        ) : (
+          renderSuggestion()
+        )}
       </div>
     </div>
   );
