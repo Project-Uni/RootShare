@@ -313,9 +313,10 @@ function EventHostContainer(props: Props) {
     return new Publisher();
   }
 
-  function removeGuestSpeaker(connectionID: string) {
-    // session.forceDisconnect(connectionID, () => {});
-    // session.forceDisconnect()
+  function removeGuestSpeaker(connection: OT.Connection) {
+    session.forceDisconnect(connection, (error) => {
+      if (error) log('OT Error', error.message);
+    });
   }
 
   async function initializeSession() {
@@ -346,13 +347,13 @@ function EventHostContainer(props: Props) {
             {
               webinarID: props.webinar['_id'],
               speaking_token: props.speaking_token,
-              connectionID: eventSession_casted.connection?.connectionId,
+              connection: eventSession_casted.connection,
             },
             true,
             props.accessToken,
             props.refreshToken
           );
-        }, 500);
+        }, 1000);
       }
 
       setTimeout(() => {
@@ -423,6 +424,7 @@ function EventHostContainer(props: Props) {
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
         loading={loading}
+        removeGuestSpeaker={removeGuestSpeaker}
       />
     </div>
   );

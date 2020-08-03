@@ -123,16 +123,16 @@ module.exports = (app) => {
     '/proxy/webinar/setConnectionID',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { webinarID, connectionID, speaking_token } = req.body;
+      const { webinarID, connection, speaking_token } = req.body;
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
 
-      if (!webinarID || !connectionID || !speaking_token)
+      if (!webinarID || !connection || !speaking_token)
         return res.json(
           sendPacket(
             -1,
-            'webinarID, connectionID, or speaking_token missing from request body'
+            'webinarID, connection, or speaking_token missing from request body'
           )
         );
 
@@ -142,7 +142,7 @@ module.exports = (app) => {
         'POST',
         {
           webinarID,
-          connectionID,
+          connection,
           speaking_token,
         },
         true,
@@ -155,30 +155,4 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
-
-  // app.get(
-  //   '/proxy/webinar/:webinarID/getGuestSpeakerSessionID',
-  //   isAuthenticatedWithJWT,
-  //   async (req, res) => {
-  //     const { webinarID } = req.params;
-
-  //     const authHeader = req.headers['authorization'];
-  //     const accessToken = authHeader && authHeader.split(' ')[1];
-  //     //TODO - Check if host
-
-  //     const data = await makeRequest(
-  //       'webinarCache',
-  //       `/api/webinar/${webinarID}/getGuestSpeakerSessionID`,
-  //       'GET',
-  //       {},
-  //       true,
-  //       accessToken,
-  //       '',
-  //       req.user
-  //     );
-
-  //     if (data.success !== 1) log('error', data.message);
-  //     return res.json(data);
-  //   }
-  // );
 };

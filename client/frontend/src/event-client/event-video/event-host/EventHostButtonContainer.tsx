@@ -47,6 +47,7 @@ type Props = {
   toggleScreenshare: () => void;
   loading: boolean;
   mode: 'admin' | 'speaker';
+  removeGuestSpeaker: (connection: OT.Connection) => void;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -74,6 +75,7 @@ function EventHostButtonContainer(props: Props) {
         onCancel={handleManageSpeakersCancel}
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
+        removeGuestSpeaker={props.removeGuestSpeaker}
       />
 
       {props.mode === 'admin' && (

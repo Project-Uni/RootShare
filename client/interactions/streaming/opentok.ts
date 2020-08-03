@@ -66,7 +66,8 @@ module.exports = {
   // Generate Token for each Publisher/Host client
   getOpenTokToken: async (sessionID) => {
     let token = await opentok.generateToken(sessionID, {
-      role: 'publisher',
+      //TODO - Deliver moderator to host, publisher to remaining
+      role: 'moderator',
       data: 'username=johndoe',
     });
 

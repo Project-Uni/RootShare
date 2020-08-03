@@ -58,7 +58,7 @@ type UserInfo = {
   firstName: string;
   lastName: string;
   email: string;
-  connectionID?: string;
+  connection?: OT.Connection;
 };
 
 type Props = {
@@ -68,6 +68,7 @@ type Props = {
   onAdd: (user: { [key: string]: any }) => void;
   accessToken: string;
   refreshToken: string;
+  removeGuestSpeaker: (connection: OT.Connection) => void;
 };
 
 function ManageSpeakersDialog(props: Props) {
@@ -101,7 +102,6 @@ function ManageSpeakersDialog(props: Props) {
       setOptions(data['content']['users']);
       if (data['content']['currentSpeaker']) {
         setCurrentSpeaker(data['content']['currentSpeaker']);
-        console.log(data['content']['currentSpeaker']);
       }
     }
     setLoading(false);
@@ -156,6 +156,7 @@ function ManageSpeakersDialog(props: Props) {
       );
 
       if (data['success'] === 1) {
+        props.removeGuestSpeaker(currentSpeaker?.connection!);
         setCurrentSpeaker(undefined);
       } else {
         setServerErr('There was an error trying to remove the speaker');

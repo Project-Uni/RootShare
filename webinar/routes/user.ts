@@ -53,12 +53,12 @@ module.exports = (app, webinarCache: WebinarCache) => {
   });
 
   app.post("/api/setConnectionID", isAuthenticatedWithJWT, (req, res) => {
-    const { connectionID, webinarID, speaking_token } = req.body;
-    if (!connectionID || !webinarID || !speaking_token)
+    const { connection, webinarID, speaking_token } = req.body;
+    if (!connection || !webinarID || !speaking_token)
       return res.json(
         sendPacket(
           -1,
-          "connectionID, webinarID, or speaking_token missing from request body"
+          "connection, webinarID, or speaking_token missing from request body"
         )
       );
     if (!webinarCache[webinarID].speakingToken)
@@ -67,9 +67,7 @@ module.exports = (app, webinarCache: WebinarCache) => {
     if (webinarCache[webinarID].speakingToken !== speaking_token)
       return res.json(sendPacket(0, "Speaking token does not match webinar"));
 
-    webinarCache[webinarID].guestSpeaker.connectionID = connectionID;
-
-    console.log(webinarCache[webinarID]);
+    webinarCache[webinarID].guestSpeaker.connection = connection;
 
     return res.json(
       sendPacket(1, "Successfully updated connectionID for guest speaker")
