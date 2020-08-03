@@ -168,7 +168,8 @@ function EventClientBase(props: Props) {
     socket.emit('new-user', {
       webinarID: webinarID,
       userID: props.user._id,
-      name: `${props.user.firstName} ${props.user.lastName}`,
+      firstName: props.user.firstName,
+      lastName: props.user.lastName,
       email: props.user.email,
     });
 
@@ -181,8 +182,13 @@ function EventClientBase(props: Props) {
       setShowSpeakingInvite(true);
     });
 
-    socket.on('speaking-end', () => {
-      console.log('User has been removed as a speaker');
+    socket.on('speaking-revoke', () => {
+      speaking_token = '';
+
+      // console.log('User has been removed as a speaker');
+      setEventMode('viewer');
+      alert('You have been removed as a speaker');
+      //TODO - Able to remove speaker, but webcam and mic still recording. Disable those if active.
     });
 
     socket.on('speaking-token-rejected', () => {

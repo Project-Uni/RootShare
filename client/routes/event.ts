@@ -91,6 +91,7 @@ module.exports = (app) => {
           return res.json(
             sendPacket(1, 'Successfully retrieved all active users', {
               users: users,
+              currentSpeaker: data['content']['currentSpeaker'],
             })
           );
         }

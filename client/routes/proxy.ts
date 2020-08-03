@@ -87,4 +87,35 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
+
+  app.post(
+    '/proxy/webinar/removeGuestSpeaker',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      if (!webinarID)
+        return res.json(sendPacket(-1, 'webinarID missing from request body'));
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+
+      //TODO - Check to see if user is host of event
+      //Will implement this using function smit Wrote in un-merged PR
+
+      const data = await makeRequest(
+        'webinarCache',
+        'api/removeGuestSpeaker',
+        'POST',
+        { webinarID },
+        true,
+        accessToken,
+        '',
+        req.user
+      );
+
+      if (data['success'] !== 1) log('error', 'Failed to invite user to stream');
+
+      return res.json(data);
+    }
+  );
 };

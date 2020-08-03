@@ -8,10 +8,13 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  IconButton,
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import { Autocomplete } from '@material-ui/lab';
 import Draggable from 'react-draggable';
+
+import { IoMdClose } from 'react-icons/io';
 
 import { connect } from 'react-redux';
 
@@ -67,6 +70,8 @@ function ManageSpeakersDialog(props: Props) {
   const [searchErr, setSearchedErr] = useState('');
   const [serverErr, setServerErr] = useState('');
 
+  const [currentSpeaker, setCurrentSpeaker] = useState<UserInfo>();
+
   useEffect(() => {
     if (props.open) {
       fetchData();
@@ -85,6 +90,8 @@ function ManageSpeakersDialog(props: Props) {
     );
     if (data['success'] === 1) {
       setOptions(data['content']['users']);
+      if (data['content']['currentSpeaker'])
+        setCurrentSpeaker(data['content']['currentSpeaker']);
     }
     setLoading(false);
   }
@@ -102,8 +109,11 @@ function ManageSpeakersDialog(props: Props) {
         props.accessToken,
         props.refreshToken
       );
-      if (data.success === 1) props.onAdd(searchedUser);
-      else {
+      if (data.success === 1) {
+        const guestSpeaker = { ...searchedUser };
+        props.onAdd(guestSpeaker);
+        setSearchedUser(undefined);
+      } else {
         setServerErr('There was an error inviting this user');
       }
     } else {
@@ -113,6 +123,33 @@ function ManageSpeakersDialog(props: Props) {
 
   function handleAutocompleteChange(_: any, newSpeaker: any) {
     setSearchedUser(newSpeaker);
+  }
+
+  async function handleRemoveSpeaker() {
+    if (
+      window.confirm(
+        `Are you sure you want to remove ${currentSpeaker!.firstName} ${
+          currentSpeaker!.lastName
+        } from the stream?`
+      )
+    ) {
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/removeGuestSpeaker',
+        {
+          webinarID: props.webinarID,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      if (data['success'] === 1) {
+        setCurrentSpeaker(undefined);
+      } else {
+        setServerErr('There was an error trying to remove the speaker');
+      }
+    }
   }
 
   function renderAutoComplete() {
@@ -151,6 +188,30 @@ function ManageSpeakersDialog(props: Props) {
         <DialogContentText className={styles.text}>
           Enter a user to bring on as a guest speaker
         </DialogContentText>
+        {currentSpeaker && (
+          <>
+            <RSText className={styles.bright}>
+              <b>Current Speaker</b>
+            </RSText>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <RSText className={[styles.text, styles.selectedName].join(' ')}>
+                {currentSpeaker.firstName} {currentSpeaker.lastName}
+              </RSText>
+              <IconButton onClick={handleRemoveSpeaker}>
+                <IoMdClose color={colors.secondaryText} />
+              </IconButton>
+            </div>
+
+            <RSText className={styles.text}>{currentSpeaker.email}</RSText>
+          </>
+        )}
+
         {searchedUser && (
           <div style={{ marginBottom: 15 }}>
             <RSText className={styles.bright}>
@@ -162,7 +223,9 @@ function ManageSpeakersDialog(props: Props) {
             <RSText className={styles.text}>{searchedUser.email}</RSText>
           </div>
         )}
-        {renderAutoComplete()}
+
+        {!currentSpeaker && renderAutoComplete()}
+
         {serverErr && (
           <RSText type="body" color={'red'} size={11} italic>
             There was an error inviting this user.
@@ -173,9 +236,11 @@ function ManageSpeakersDialog(props: Props) {
         <Button autoFocus onClick={props.onCancel} className={styles.secondaryText}>
           Cancel
         </Button>
-        <Button onClick={onAddClick} className={styles.text}>
-          Add User
-        </Button>
+        {!currentSpeaker && (
+          <Button onClick={onAddClick} className={styles.text}>
+            Add User
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );
