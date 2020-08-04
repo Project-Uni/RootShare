@@ -32,7 +32,7 @@ export function getConnections(user, callback) {
 }
 
 export function getConnectionSuggestions(user, callback) {
-  User.find({ firstName: 'Smit' }, (err, suggestions) => {
+  User.find({ lastName: 'Desai' }, (err, suggestions) => {
     if (err) return callback(sendPacket(-1, err));
     if (!suggestions)
       return callback(sendPacket(0, 'Could not find test suggestions'));
@@ -67,6 +67,59 @@ export function getConnectionSuggestions(user, callback) {
   //     callback(sendPacket(1, 'Sending connection suggestions', { suggestions }))
   //   )
   //   .catch((err) => callback(sendPacket(-1, err)));
+}
+
+export function getPendingRequests(userID, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'connectionrequests',
+        localField: 'pendingConnections',
+        foreignField: '_id',
+        as: 'pendingConnections',
+      },
+    },
+    {
+      $addFields: {
+        pendingConnections: {
+          $map: {
+            input: '$pendingConnections',
+            in: {
+              _id: '$$this._id',
+              from: '$$this.from',
+              to: '$$this.to',
+              createdAt: '$$this.createdAt',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        pendingConnections: {
+          $filter: {
+            input: '$pendingConnections',
+            as: 'pendingConnection',
+            cond: {
+              $eq: ['$$pendingConnection.to', userID],
+            },
+          },
+        },
+      },
+    },
+  ])
+    .exec()
+    .then((user) => {
+      if (!user || user.length === 0) return callback(0, 'Could not get user');
+
+      callback(
+        sendPacket(1, `Sending User's Pending Connection Requests`, {
+          pendingRequests: user[0].pendingConnections,
+        })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function requestConnection(userID, requestUserID, callback) {
@@ -112,5 +165,69 @@ export function requestConnection(userID, requestUserID, callback) {
         });
       });
     });
+  });
+}
+
+export function respondConnection(userID, requestID, accepted, callback) {
+  ConnectionRequest.findById(requestID, (err, request) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!request)
+      return callback(sendPacket(0, 'Could not find Connection Request'));
+
+    if (!accepted && (request['to'] === userID || request['from'] === userID))
+      return removeConnectionRequest(request, callback);
+    else if (accepted && request['to'] === userID)
+      return acceptConnectionRequest(request, callback);
+    else return callback(sendPacket(0, 'Invalid Request'));
+  });
+}
+
+function acceptConnectionRequest(request, callback) {
+  const userOneID = request['from'];
+  const userTwoID = request['to'];
+
+  User.find(
+    {
+      _id: {
+        $in: [
+          mongoose.Types.ObjectId(userOneID),
+          mongoose.Types.ObjectId(userTwoID),
+        ],
+      },
+    },
+    ['connections', 'pendingConnections'],
+    (err, users) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!users || users.length !== 2)
+        return callback(sendPacket(0, 'Could not find Users to Connect'));
+
+      for (let i = 0; i < 2; i++) {
+        // Add Connection
+        users[i].connections.push(
+          users[i]._id === userOneID ? userTwoID : userOneID
+        );
+
+        // Remove Request from User's pending
+        users[i].pendingConnections.splice(
+          users[i].pendingConnections.indexOf(request._id)
+        );
+      }
+
+      console.log(users);
+      return callback(sendPacket(1, 'TESTTT'));
+      users.save((err) => {
+        if (err) return callback(-1, err);
+
+        return removeConnectionRequest(request._id, callback);
+      });
+    }
+  );
+}
+
+function removeConnectionRequest(requestID, callback) {
+  ConnectionRequest.deleteOne({ _id: requestID }, (err) => {
+    if (err) return callback(sendPacket(-1, err));
+
+    return callback(sendPacket(1, 'Successfully removed connection request'));
   });
 }

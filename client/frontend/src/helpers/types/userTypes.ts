@@ -28,3 +28,10 @@ export type UserType = {
   joinedCommunities: string[];
   pendingCommunities: string[];
 };
+
+export type ConnectionRequestType = {
+  _id: string;
+  from: string | UserType;
+  to: string | UserType;
+  createdAt: Date;
+};

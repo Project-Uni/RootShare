@@ -7,6 +7,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { ConnectionRequestType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -61,10 +62,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  name: string;
-  nameId: string;
-  organization: string;
-  picture: string;
+  removePending: () => void;
+  connectionRequest: ConnectionRequestType;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function SinglePendingConnection(props: Props) {

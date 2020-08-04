@@ -7,7 +7,9 @@ import {
   getCurrentUser,
   getConnections,
   getConnectionSuggestions,
+  getPendingRequests,
   requestConnection,
+  respondConnection,
 } from '../interactions/user';
 
 import log from '../helpers/logger';
@@ -25,9 +27,22 @@ module.exports = (app) => {
     getConnectionSuggestions(req.user, (packet) => res.send(packet));
   });
 
+  app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
+    getPendingRequests(req.user._id, (packet) => res.send(packet));
+  });
+
   app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
     requestConnection(req.user._id, req.body.requestID, (packet) =>
       res.send(packet)
+    );
+  });
+
+  app.post('/user/respondConnection', isAuthenticatedWithJWT, (req, res) => {
+    respondConnection(
+      req.user._id,
+      req.body.requestID,
+      req.body.accepted,
+      (packet) => res.send(packet)
     );
   });
 

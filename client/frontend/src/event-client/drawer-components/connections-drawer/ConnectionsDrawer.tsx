@@ -9,9 +9,8 @@ import SingleSuggestion from './SingleSuggestion';
 import MyConnections from '../images/MyConnections.png';
 
 import { colors } from '../../../theme/Colors';
-import { UserType } from '../../../helpers/types';
+import { UserType, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
-import { Connections } from '../../../main-platform';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -64,9 +63,11 @@ type Props = {
 function ConnectionsDrawer(props: Props) {
   const styles = useStyles();
 
+  const [pending, setPending] = useState<ConnectionRequestType[]>([]);
   const [suggestions, setSuggestions] = useState<UserType[]>([]);
 
   useEffect(() => {
+    fetchPendingRequests();
     fetchConnectionSuggestions();
   }, []);
 
@@ -83,6 +84,19 @@ function ConnectionsDrawer(props: Props) {
     if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
   }
 
+  async function fetchPendingRequests() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getPendingRequests',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setPending(data['content']['pendingRequests']);
+  }
+
   function removeSuggestion(userID: string) {
     let newSuggestions = suggestions.slice();
     for (let i = 0; i < suggestions.length; i++) {
@@ -93,6 +107,32 @@ function ConnectionsDrawer(props: Props) {
         return;
       }
     }
+  }
+
+  function renderPending() {
+    const output: any = [];
+    if (pending.length === 0) return;
+
+    output.push(
+      <div className={styles.sectionHeader}>
+        <RSText className={styles.sectionName}>Pending</RSText>
+      </div>
+    );
+
+    const numSuggestions = pending.length > 4 ? 4 : pending.length;
+    for (let i = 0; i < numSuggestions; i++) {
+      const currPending = pending[i];
+      output.push(
+        <SinglePendingConnection
+          removePending={removePending}
+          key={currPending._id}
+          connectionRequest={currPending}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
+        />
+      );
+    }
+    return output;
   }
 
   function renderSuggestions() {
@@ -113,6 +153,8 @@ function ConnectionsDrawer(props: Props) {
           removeSuggestion={removeSuggestion}
           key={currSuggestion._id}
           suggestedUser={currSuggestion}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }
@@ -126,7 +168,10 @@ function ConnectionsDrawer(props: Props) {
           Connections
         </RSText>
       </div>
-      <div className={styles.connectionContainer}>{renderSuggestions()}</div>
+      <div className={styles.connectionContainer}>
+        {renderPending()}
+        {renderSuggestions()}
+      </div>
     </div>
   );
 }

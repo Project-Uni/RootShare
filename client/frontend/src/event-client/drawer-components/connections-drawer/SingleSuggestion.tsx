@@ -7,9 +7,11 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import ClearIcon from '@material-ui/icons/Clear';
 
 import RSText from '../../../base-components/RSText';
+
 import { colors } from '../../../theme/Colors';
 import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -87,15 +89,28 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   suggestedUser: UserType;
   removeSuggestion: (userID: string) => void;
+  accessToken: string;
+  refreshToken: string;
 };
 
-function SingleConnection(props: Props) {
+function SingleSuggestion(props: Props) {
   const styles = useStyles();
 
   const [visible, setVisible] = useState(true);
   const [requested, setRequested] = useState(false);
 
   function requestConnection() {
+    makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestID: props.suggestedUser._id,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
     setRequested(true);
     removeSuggestion();
   }
@@ -153,4 +168,4 @@ function SingleConnection(props: Props) {
   );
 }
 
-export default SingleConnection;
+export default SingleSuggestion;
