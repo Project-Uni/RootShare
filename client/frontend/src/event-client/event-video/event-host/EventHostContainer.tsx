@@ -353,7 +353,7 @@ function EventHostContainer(props: Props) {
             props.accessToken,
             props.refreshToken
           );
-        }, 1000);
+        }, 2000);
       }
 
       setTimeout(() => {

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button } from '@material-ui/core';
+import { Button, Slide } from '@material-ui/core';
 import {
   Video,
   VideoOff,
   Microphone,
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
-import { makeRequest } from '../../../helpers/makeRequest';
+import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -54,18 +55,33 @@ function EventHostButtonContainer(props: Props) {
   const styles = useStyles();
 
   const [showManageDialog, setShowManageDialog] = useState(false);
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
 
   function handleManageSpeakersClick() {
     setShowManageDialog(true);
   }
 
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
-    //TODO - Add notification for host that speaker was successfully invited
     setShowManageDialog(false);
+    setSnackbarMode('success');
+    setTransition(() => slideLeft);
+    setSnackbarMessage('Successfully invited user to speak.');
   }
 
   function handleManageSpeakersCancel() {
     setShowManageDialog(false);
+  }
+
+  function handleSnackbarClose() {
+    setSnackbarMode(null);
   }
 
   return (
@@ -76,6 +92,12 @@ function EventHostButtonContainer(props: Props) {
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
+      />
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={handleSnackbarClose}
       />
 
       {props.mode === 'admin' && (
