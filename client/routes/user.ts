@@ -20,11 +20,11 @@ module.exports = (app) => {
   });
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-    getConnections(req.user, (packet) => res.send(packet));
+    getConnections(req.user._id, (packet) => res.send(packet));
   });
 
-  app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionSuggestions(req.user, (packet) => res.send(packet));
+  app.post('/user/getConnectionSuggestions', (req, res) => {
+    getConnectionSuggestions(req.body._id, (packet) => res.send(packet));
   });
 
   app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {

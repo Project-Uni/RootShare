@@ -37,7 +37,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   organization: {
     marginLeft: 78,
-    color: colors.primaryText,
+    color: colors.secondaryText,
     marginTop: 10,
   },
   bottom: {
@@ -143,8 +143,8 @@ function SingleSuggestion(props: Props) {
         </div>
         <div className={styles.bottom}>
           <div className={styles.left}>
-            <RSText size={12} className={styles.organization}>
-              from {university.universityName}
+            <RSText size={11} italic={true} className={styles.organization}>
+              {university.universityName}
             </RSText>
           </div>
         </div>

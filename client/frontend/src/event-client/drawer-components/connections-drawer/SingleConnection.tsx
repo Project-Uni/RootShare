@@ -7,6 +7,7 @@ import { FaEllipsisH } from 'react-icons/fa';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { UserType, UniversityType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -21,14 +22,14 @@ const useStyles = makeStyles((_: any) => ({
   right: {},
   picture: {
     margin: 10,
-    marginTop: 18,
-    marginBottom: -7,
+    marginTop: 12,
+    marginBottom: -16,
     display: 'inline-block',
     color: colors.primaryText,
   },
   organization: {
     marginLeft: 54,
-    color: colors.primaryText,
+    color: colors.secondaryText,
     marginTop: 10,
   },
   bottom: {
@@ -52,22 +53,20 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  name: string;
-  nameId: string;
-  organization: string;
-  picture: string;
+  connectedUser: UserType;
 };
 
 function SingleConnection(props: Props) {
   const styles = useStyles();
 
+  const university = props.connectedUser.university as UniversityType;
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div>
           <EmojiEmotionsIcon className={styles.picture} />
           <RSText bold size={12} className={styles.name}>
-            {props.name}
+            {`${props.connectedUser.firstName} ${props.connectedUser.lastName}`}
           </RSText>
         </div>
         <IconButton className={styles.ellipsis}>
@@ -76,8 +75,8 @@ function SingleConnection(props: Props) {
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
-          <RSText size={11} className={styles.organization}>
-            from {props.organization}
+          <RSText size={11} italic={true} className={styles.organization}>
+            {university.universityName}
           </RSText>
         </div>
       </div>

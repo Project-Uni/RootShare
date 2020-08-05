@@ -65,24 +65,13 @@ function ConnectionsDrawer(props: Props) {
 
   const [pending, setPending] = useState<ConnectionRequestType[]>([]);
   const [suggestions, setSuggestions] = useState<UserType[]>([]);
+  const [connections, setConnections] = useState<UserType[]>([]);
 
   useEffect(() => {
     fetchPendingRequests();
     fetchConnectionSuggestions();
+    fetchConnections();
   }, []);
-
-  async function fetchConnectionSuggestions() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnectionSuggestions',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
-  }
 
   async function fetchPendingRequests() {
     const { data } = await makeRequest(
@@ -97,16 +86,30 @@ function ConnectionsDrawer(props: Props) {
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 
-  function removeSuggestion(userID: string) {
-    let newSuggestions = suggestions.slice();
-    for (let i = 0; i < suggestions.length; i++) {
-      const currUser = suggestions[i];
-      if (currUser._id === userID) {
-        newSuggestions.splice(i, 1);
-        setSuggestions(newSuggestions);
-        return;
-      }
-    }
+  async function fetchConnectionSuggestions() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getConnectionSuggestions',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
+  }
+
+  async function fetchConnections() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getConnections',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
   function removePending(requestID: string) {
@@ -116,6 +119,18 @@ function ConnectionsDrawer(props: Props) {
       if (currPending._id === requestID) {
         newPending.splice(i, 1);
         setPending(newPending);
+        return;
+      }
+    }
+  }
+
+  function removeSuggestion(userID: string) {
+    let newSuggestions = suggestions.slice();
+    for (let i = 0; i < suggestions.length; i++) {
+      const currUser = suggestions[i];
+      if (currUser._id === userID) {
+        newSuggestions.splice(i, 1);
+        setSuggestions(newSuggestions);
         return;
       }
     }
@@ -173,6 +188,48 @@ function ConnectionsDrawer(props: Props) {
     return output;
   }
 
+  function renderConnections() {
+    const output: any = [];
+    if (connections.length === 0) return;
+
+    output.push(
+      <div className={styles.sectionHeader}>
+        <RSText className={styles.sectionName}>Connections</RSText>
+      </div>
+    );
+
+    for (let i = 0; i < connections.length; i++) {
+      const currConnection = connections[i];
+      output.push(
+        <SingleConnection
+          key={currConnection._id}
+          connectedUser={currConnection}
+          // accessToken={props.accessToken}
+          // refreshToken={props.refreshToken}
+        />
+      );
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+      output.push(<SingleConnection connectedUser={currConnection} />);
+    }
+    return output;
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
@@ -183,6 +240,7 @@ function ConnectionsDrawer(props: Props) {
       <div className={styles.connectionContainer}>
         {renderPending()}
         {renderSuggestions()}
+        {renderConnections()}
       </div>
     </div>
   );

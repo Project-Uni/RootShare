@@ -37,7 +37,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   organization: {
     marginLeft: 39,
-    color: colors.primaryText,
+    color: colors.secondaryText,
     marginTop: 10,
   },
   bottom: {
@@ -164,8 +164,8 @@ function SinglePendingConnection(props: Props) {
         </div>
         <div className={styles.bottom}>
           <div className={styles.left}>
-            <RSText size={11} className={styles.organization}>
-              from {requestUserUniversity.universityName}
+            <RSText size={11} italic={true} className={styles.organization}>
+              {requestUserUniversity.universityName}
             </RSText>
           </div>
         </div>
