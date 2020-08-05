@@ -109,6 +109,18 @@ function ConnectionsDrawer(props: Props) {
     }
   }
 
+  function removePending(requestID: string) {
+    let newPending = pending.slice();
+    for (let i = 0; i < pending.length; i++) {
+      const currPending = pending[i];
+      if (currPending._id === requestID) {
+        newPending.splice(i, 1);
+        setPending(newPending);
+        return;
+      }
+    }
+  }
+
   function renderPending() {
     const output: any = [];
     if (pending.length === 0) return;
@@ -124,8 +136,8 @@ function ConnectionsDrawer(props: Props) {
       const currPending = pending[i];
       output.push(
         <SinglePendingConnection
-          removePending={removePending}
           key={currPending._id}
+          removePending={removePending}
           connectionRequest={currPending}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}

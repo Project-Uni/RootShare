@@ -36,7 +36,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   organization: {
-    marginLeft: 96,
+    marginLeft: 78,
     color: colors.primaryText,
     marginTop: 10,
   },
@@ -55,9 +55,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   removeSuggestionButton: {
-    marginLeft: 10,
-    marginRight: 12,
-    marginTop: 0,
+    marginRight: 5,
     marginBottom: -21,
     display: 'inline-block',
   },

@@ -76,7 +76,7 @@ function SingleConnection(props: Props) {
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
-          <RSText size={12} className={styles.organization}>
+          <RSText size={11} className={styles.organization}>
             from {props.organization}
           </RSText>
         </div>
