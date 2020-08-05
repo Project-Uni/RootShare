@@ -154,6 +154,52 @@ export function getPendingRequests(userID, callback) {
 }
 
 export function requestConnection(userID, requestUserID, callback) {
+  if (requestUserID.toString().localeCompare(userID) === 0)
+    return callback(sendPacket(0, "Can't connect with yourself"));
+
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'connectionrequests',
+        localField: 'pendingConnections',
+        foreignField: '_id',
+        as: 'pendingConnections',
+      },
+    },
+    {
+      $project: {
+        isConnected: {
+          $in: [mongoose.Types.ObjectId(requestUserID), '$connections'],
+        },
+        isPendingFrom: {
+          $in: [mongoose.Types.ObjectId(requestUserID), '$pendingConnections.from'],
+        },
+        isPendingTo: {
+          $in: [mongoose.Types.ObjectId(requestUserID), '$pendingConnections.to'],
+        },
+      },
+    },
+  ])
+    .exec()
+    .then((response) => {
+      if (!response || response.length === 0)
+        return callback(-1, 'Error occurred checking request');
+      if (response[0].isConnected)
+        return callback(sendPacket(0, 'Already connected to this User'));
+      if (response[0].isPendingFrom)
+        return callback(sendPacket(0, 'This User has already sent you a request'));
+      if (response[0].isPendingTo)
+        return callback(sendPacket(0, 'Request has already been sent to this User'));
+
+      createConnectionRequest(userID, requestUserID, callback);
+    })
+    .catch((err) => {
+      if (err) callback(sendPacket(-1, err));
+    });
+}
+
+function createConnectionRequest(userID, requestUserID, callback) {
   const newConnectionRequest = new ConnectionRequest({
     from: userID,
     to: requestUserID,
