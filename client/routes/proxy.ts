@@ -83,6 +83,7 @@ module.exports = (app) => {
       );
 
       if (data['success'] !== 1) log('error', 'Failed to invite user to stream');
+      else log('info', 'Successfully invited user to stream');
 
       return res.json(data);
     }
@@ -113,7 +114,8 @@ module.exports = (app) => {
         req.user
       );
 
-      if (data['success'] !== 1) log('error', 'Failed to invite user to stream');
+      if (data['success'] !== 1) log('error', 'Failed to remove user from stream');
+      else log('info', 'Successfully removed user from stream');
 
       return res.json(data);
     }
@@ -152,6 +154,7 @@ module.exports = (app) => {
       );
 
       if (data.success !== 1) log('error', data.message);
+      else log('info', 'Successfully set connection for guest speaker');
       return res.json(data);
     }
   );

@@ -10,9 +10,12 @@ import {
   TextField,
   IconButton,
   CircularProgress,
+  Slide,
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import { Autocomplete } from '@material-ui/lab';
+import { TransitionProps } from '@material-ui/core/transitions';
+
 import Draggable from 'react-draggable';
 
 import { IoMdClose } from 'react-icons/io';
@@ -22,6 +25,7 @@ import { connect } from 'react-redux';
 import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/makeRequest';
 import RSText from '../../../base-components/RSText';
+import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -82,6 +86,12 @@ function ManageSpeakersDialog(props: Props) {
 
   const [currentSpeaker, setCurrentSpeaker] = useState<UserInfo>();
 
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
   useEffect(() => {
     if (props.open) {
       fetchData();
@@ -102,9 +112,19 @@ function ManageSpeakersDialog(props: Props) {
       setOptions(data['content']['users']);
       if (data['content']['currentSpeaker']) {
         setCurrentSpeaker(data['content']['currentSpeaker']);
+      } else {
+        setCurrentSpeaker(undefined);
       }
     }
     setLoading(false);
+  }
+
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
+  function handleSnackbarClose() {
+    setSnackbarMode(null);
   }
 
   async function onAddClick() {
@@ -123,7 +143,13 @@ function ManageSpeakersDialog(props: Props) {
       if (data.success === 1) {
         const guestSpeaker = { ...searchedUser };
         props.onAdd(guestSpeaker);
+
+        setSnackbarMode('success');
+        setTransition(() => slideLeft);
+        setSnackbarMessage('Successfully invited user to speak.');
+
         setSearchedUser(undefined);
+        setServerErr('');
       } else {
         setServerErr('There was an error inviting this user');
       }
@@ -155,9 +181,15 @@ function ManageSpeakersDialog(props: Props) {
         props.refreshToken
       );
 
-      if (data['success'] === 1) {
+      if (data['success'] === 1 && currentSpeaker?.connection?.connectionId) {
         props.removeGuestSpeaker(currentSpeaker?.connection!);
+
+        setSnackbarMode('notify');
+        setTransition(() => slideLeft);
+        setSnackbarMessage('Successfully removed speaker.');
+
         setCurrentSpeaker(undefined);
+        setServerErr('');
       } else {
         setServerErr('There was an error trying to remove the speaker');
       }
@@ -228,45 +260,57 @@ function ManageSpeakersDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} onClose={() => {}} PaperComponent={PaperComponent}>
-      <DialogTitle
-        style={{ cursor: 'move' }}
-        id="draggable-title"
-        className={styles.text}
-      >
-        Manage Event Speakers
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText className={styles.text}>
-          Enter a user to bring on as a guest speaker
-        </DialogContentText>
-        {loading ? (
-          <div className={styles.loadingDiv}>
-            <CircularProgress size={50} className={styles.loadingIndicator} />
-          </div>
-        ) : (
-          <>
-            {searchedUser && renderSelectedUserInfo()}
-            {currentSpeaker ? renderCurrentSpeaker() : renderAutoComplete()}
-            {serverErr && (
-              <RSText type="body" color={'red'} size={11} italic>
-                There was an error inviting this user.
-              </RSText>
-            )}
-          </>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={props.onCancel} className={styles.secondaryText}>
-          Cancel
-        </Button>
-        {!currentSpeaker && (
-          <Button onClick={onAddClick} className={styles.text} disabled={loading}>
-            Add User
+    <>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={handleSnackbarClose}
+      />
+      <Dialog open={props.open} onClose={() => {}} PaperComponent={PaperComponent}>
+        <DialogTitle
+          style={{ cursor: 'move' }}
+          id="draggable-title"
+          className={styles.text}
+        >
+          Manage Event Speakers
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText className={styles.text}>
+            Enter a user to bring on as a guest speaker
+          </DialogContentText>
+          {loading ? (
+            <div className={styles.loadingDiv}>
+              <CircularProgress size={50} className={styles.loadingIndicator} />
+            </div>
+          ) : (
+            <>
+              {searchedUser && renderSelectedUserInfo()}
+              {currentSpeaker ? renderCurrentSpeaker() : renderAutoComplete()}
+              {serverErr && (
+                <RSText type="body" color={'red'} size={11} italic>
+                  {serverErr}
+                </RSText>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            autoFocus
+            onClick={props.onCancel}
+            className={styles.secondaryText}
+          >
+            Cancel
           </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+          {!currentSpeaker && (
+            <Button onClick={onAddClick} className={styles.text} disabled={loading}>
+              Add User
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 

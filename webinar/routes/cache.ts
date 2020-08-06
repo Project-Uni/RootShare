@@ -2,7 +2,7 @@ import log from "../helpers/logger";
 import sendPacket from "../helpers/sendPacket";
 import { isAuthenticatedWithJWT } from "../middleware/isAuthenticated";
 
-import { WebinarCache, Webinar } from "../types/types";
+import { WebinarCache } from "../types/types";
 
 module.exports = (app, webinarCache: WebinarCache) => {
   app.post("/api/addWebinarToCache", isAuthenticatedWithJWT, (req, res) => {
@@ -10,8 +10,10 @@ module.exports = (app, webinarCache: WebinarCache) => {
     const { webinarID } = req.body;
     if (!webinarID) return res.json(sendPacket(-1, "webinarID not in request"));
 
-    if (webinarID in webinarCache)
+    if (webinarID in webinarCache) {
+      log("info", `Webinar ${webinarID} already initialized in cache`);
       return res.json(sendPacket(0, "Webinar already initialized in cache"));
+    }
 
     const startTime = Date.now();
     webinarCache[webinarID] = { users: {}, startTime };
@@ -29,8 +31,10 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
       if (!webinarID)
         return res.json(sendPacket(-1, "webinarID not in request"));
-      if (!(webinarID in webinarCache))
+      if (!(webinarID in webinarCache)) {
+        log("info", `Webinar ${webinarID} not in cache`);
         return res.json(sendPacket(0, "Webinar not found in cache"));
+      }
 
       delete webinarCache[webinarID];
 

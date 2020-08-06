@@ -38,6 +38,12 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
     const speakerID = webinarCache[webinarID].guestSpeaker._id;
 
+    if (!webinarCache[webinarID].guestSpeaker.connection?.connectionId) {
+      return res.json(
+        sendPacket(0, "Still waiting for connection to initialize")
+      );
+    }
+
     delete webinarCache[webinarID].guestSpeaker;
     delete webinarCache[webinarID].speakingToken;
 
@@ -61,6 +67,7 @@ module.exports = (app, webinarCache: WebinarCache) => {
           "connection, webinarID, or speaking_token missing from request body"
         )
       );
+
     if (!webinarCache[webinarID].speakingToken)
       return res.json(sendPacket(0, "No guest speakers in current webinar"));
 
@@ -68,6 +75,8 @@ module.exports = (app, webinarCache: WebinarCache) => {
       return res.json(sendPacket(0, "Speaking token does not match webinar"));
 
     webinarCache[webinarID].guestSpeaker.connection = connection;
+
+    log("info", `New Connection: ${JSON.stringify(connection)}`);
 
     return res.json(
       sendPacket(1, "Successfully updated connectionID for guest speaker")

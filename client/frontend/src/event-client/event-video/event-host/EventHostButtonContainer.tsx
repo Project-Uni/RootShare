@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button, Slide } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import {
   Video,
   VideoOff,
   Microphone,
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
-import { TransitionProps } from '@material-ui/core/transitions';
 
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
-import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -55,33 +53,24 @@ function EventHostButtonContainer(props: Props) {
   const styles = useStyles();
 
   const [showManageDialog, setShowManageDialog] = useState(false);
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-  const [transition, setTransition] = useState<any>();
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  function slideLeft(props: TransitionProps) {
-    return <Slide {...props} direction="left" />;
-  }
+  const [manageSpeakersDisabled, setManageSpeakersDisabled] = useState(false);
 
   function handleManageSpeakersClick() {
     setShowManageDialog(true);
   }
 
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
+    setManageSpeakersDisabled(true);
+    //Waiting 3 seconds b/c it takes ~2 seconds to get the connection from the new user if they accept immediately
+    //TODO - Change this to use a socket for when a user is loading. Won't be able to finish this feature in time for august 14th
+    setTimeout(() => {
+      setManageSpeakersDisabled(false);
+    }, 3000);
     setShowManageDialog(false);
-    setSnackbarMode('success');
-    setTransition(() => slideLeft);
-    setSnackbarMessage('Successfully invited user to speak.');
   }
 
   function handleManageSpeakersCancel() {
     setShowManageDialog(false);
-  }
-
-  function handleSnackbarClose() {
-    setSnackbarMode(null);
   }
 
   return (
@@ -92,12 +81,6 @@ function EventHostButtonContainer(props: Props) {
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
-      />
-      <ManageSpeakersSnackbar
-        message={snackbarMessage}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={handleSnackbarClose}
       />
 
       {props.mode === 'admin' && (
@@ -153,7 +136,7 @@ function EventHostButtonContainer(props: Props) {
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          disabled={props.loading}
+          disabled={props.loading || manageSpeakersDisabled}
           onClick={handleManageSpeakersClick}
         >
           Manage Speakers

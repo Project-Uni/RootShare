@@ -33,6 +33,8 @@ const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
 
+const CACHE_RETRANSMIT_INTERVAL = 1000; // 1 SECOND
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     minWidth: MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH,
@@ -117,13 +119,13 @@ function EventHostContainer(props: Props) {
     if (isStreaming) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
-        // stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
         removeFromCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
-        // startLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        startLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
         addToCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     }
@@ -319,6 +321,25 @@ function EventHostContainer(props: Props) {
     });
   }
 
+  async function setCacheConnection(eventSession: Session) {
+    setTimeout(async () => {
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/setConnectionID',
+        {
+          webinarID: props.webinar['_id'],
+          speaking_token: props.speaking_token,
+          connection: eventSession.connection,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      if (data.success !== 1) setCacheConnection(eventSession);
+    }, CACHE_RETRANSMIT_INTERVAL);
+  }
+
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
@@ -339,21 +360,8 @@ function EventHostContainer(props: Props) {
       setSession((eventSession as unknown) as OT.Session);
 
       if (props.speaking_token) {
-        setTimeout(() => {
-          const eventSession_casted = (eventSession as unknown) as Session;
-          makeRequest(
-            'POST',
-            '/proxy/webinar/setConnectionID',
-            {
-              webinarID: props.webinar['_id'],
-              speaking_token: props.speaking_token,
-              connection: eventSession_casted.connection,
-            },
-            true,
-            props.accessToken,
-            props.refreshToken
-          );
-        }, 2000);
+        const eventSession_casted = (eventSession as unknown) as Session;
+        setCacheConnection(eventSession_casted);
       }
 
       setTimeout(() => {
