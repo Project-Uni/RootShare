@@ -55,10 +55,18 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
       const activeUserIDs = Object.keys(webinarCache[webinarID].users);
 
+      let currentSpeaker: { [key: string]: any };
+      if (webinarCache[webinarID].guestSpeaker) {
+        const currentSpeakerID = webinarCache[webinarID].guestSpeaker._id;
+        if (webinarCache[webinarID].users[currentSpeakerID]) {
+          currentSpeaker = webinarCache[webinarID].guestSpeaker;
+        }
+      }
+
       return res.json(
         sendPacket(1, "Successfully fetched active users", {
           activeUserIDs,
-          currentSpeaker: webinarCache[webinarID].guestSpeaker,
+          currentSpeaker: currentSpeaker || null,
         })
       );
     }
