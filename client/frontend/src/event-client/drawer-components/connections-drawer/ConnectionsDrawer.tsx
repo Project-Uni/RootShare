@@ -109,7 +109,6 @@ function ConnectionsDrawer(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
@@ -209,28 +208,11 @@ function ConnectionsDrawer(props: Props) {
           // refreshToken={props.refreshToken}
         />
       );
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
-      output.push(<SingleConnection connectedUser={currConnection} />);
     }
     return output;
   }
 
+  // TODO: Make User name in Single Components clickable and link to profile
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>

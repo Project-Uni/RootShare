@@ -59,6 +59,7 @@ type Props = {
 function SingleConnection(props: Props) {
   const styles = useStyles();
 
+  // TODO: Make ellipsis show popup modal to send message to that user
   const university = props.connectedUser.university as UniversityType;
   return (
     <div className={styles.wrapper}>
@@ -69,9 +70,9 @@ function SingleConnection(props: Props) {
             {`${props.connectedUser.firstName} ${props.connectedUser.lastName}`}
           </RSText>
         </div>
-        <IconButton className={styles.ellipsis}>
+        {/* <IconButton className={styles.ellipsis}>
           <FaEllipsisH size={12} color={colors.secondaryText} />
-        </IconButton>
+        </IconButton> */}
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>

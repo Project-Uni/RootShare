@@ -20,6 +20,7 @@ export function getCurrentUser(user, callback) {
   );
 }
 
+// TODO: either send these in chunks or store all connections in redux when user logs in
 export function getConnections(userID, callback) {
   const lookupConnections = {
     $lookup: {
