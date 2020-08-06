@@ -1,12 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var connectionRequestSchema = new Schema(
+var connectionSchema = new Schema(
   {
     from: { type: Schema.ObjectId, ref: 'users' },
     to: { type: Schema.ObjectId, ref: 'users' },
+    accepted: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }
 );
 
-mongoose.model('connectionRequests', connectionRequestSchema);
+mongoose.model('connections', connectionSchema);

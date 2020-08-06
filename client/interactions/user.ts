@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
-const ConnectionRequest = mongoose.model('connectionRequests');
+const Connection = mongoose.model('connections');
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
@@ -21,43 +21,78 @@ export function getCurrentUser(user, callback) {
 }
 
 export function getConnections(userID, callback) {
+  const lookupConnections = {
+    $lookup: {
+      from: 'connections',
+      localField: 'connections',
+      foreignField: '_id',
+      as: 'connections',
+    },
+  };
+  const transformToArray = {
+    $project: { connections: ['$connections.from', '$connections.to'] },
+  };
+  const squashToSingleArray = {
+    $project: {
+      connections: {
+        $reduce: {
+          input: '$connections',
+          initialValue: [],
+          in: { $concatArrays: ['$$value', '$$this'] },
+        },
+      },
+    },
+  };
+  const removeSelf = {
+    $project: {
+      connections: {
+        $filter: {
+          input: '$connections',
+          as: 'connection',
+          cond: {
+            $ne: ['$$connection', mongoose.Types.ObjectId(userID)],
+          },
+        },
+      },
+    },
+  };
+  const lookupConnectionUsers = {
+    $lookup: {
+      from: 'users',
+      let: { connections: '$connections' },
+      pipeline: [
+        { $match: { $expr: { $in: ['$_id', '$$connections'] } } },
+        {
+          $lookup: {
+            from: 'universities',
+            localField: 'university',
+            foreignField: '_id',
+            as: 'university',
+          },
+        },
+        { $unwind: '$university' },
+        {
+          $project: {
+            _id: '$_id',
+            firstName: '$firstName',
+            lastName: '$lastName',
+            university: {
+              _id: '$university._id',
+              universityName: '$university.universityName',
+            },
+          },
+        },
+      ],
+      as: 'connections',
+    },
+  };
   User.aggregate([
     { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'users',
-        let: { connections: '$connections' },
-        pipeline: [
-          { $match: { $expr: { $in: ['$_id', '$$connections'] } } },
-          {
-            $lookup: {
-              from: 'universities',
-              localField: 'university',
-              foreignField: '_id',
-              as: 'university',
-            },
-          },
-          { $unwind: '$university' },
-          {
-            $project: {
-              _id: '_id',
-              firstName: '$firstName',
-              lastName: '$lastName',
-              university: {
-                _id: '$university._id',
-                universityName: '$university.universityName',
-              },
-            },
-          },
-        ],
-        as: 'connections',
-      },
-    },
-    {
-      $project: {
-        connections: '$connections',
-      },
-    },
+    lookupConnections,
+    transformToArray,
+    squashToSingleArray,
+    removeSelf,
+    lookupConnectionUsers,
   ])
     .exec()
     .then((user) => {
@@ -103,12 +138,19 @@ export function getConnectionSuggestions(userID, callback) {
     .then((rawSuggestions) => {
       if (!rawSuggestions)
         return callback(sendPacket(-1, "Couldn't get suggestions"));
-
       User.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(userID) } },
         {
           $lookup: {
-            from: 'connectionrequests',
+            from: 'connections',
+            localField: 'connections',
+            foreignField: '_id',
+            as: 'connections',
+          },
+        },
+        {
+          $lookup: {
+            from: 'connections',
             localField: 'pendingConnections',
             foreignField: '_id',
             as: 'pendingConnections',
@@ -126,7 +168,6 @@ export function getConnectionSuggestions(userID, callback) {
         .then((user) => {
           if (!user || user.length === 0)
             return callback(sendPacket(-1, "Couldn't get User"));
-
           const suggestions = filterSuggestions(user[0], rawSuggestions);
           callback(sendPacket(1, 'Sending Connection suggestions', { suggestions }));
         });
@@ -140,17 +181,17 @@ function filterSuggestions(user, suggestions) {
   let excludedUsers = new Set();
   excludedUsers.add(user._id.toString());
   user.connections.forEach((connection) => {
-    excludedUsers.add(connection.toString());
+    excludedUsers.add(connection.from.toString());
+    excludedUsers.add(connection.to.toString());
   });
   user.pendingConnections.forEach((pendingConnection) => {
     excludedUsers.add(pendingConnection.from.toString());
     excludedUsers.add(pendingConnection.to.toString());
   });
 
-  const result = suggestions.filter(
+  return suggestions.filter(
     (suggestion) => !excludedUsers.has(suggestion._id.toString())
   );
-  return result;
 }
 
 export function getPendingRequests(userID, callback) {
@@ -158,7 +199,7 @@ export function getPendingRequests(userID, callback) {
     { $match: { _id: mongoose.Types.ObjectId(userID) } },
     {
       $lookup: {
-        from: 'connectionrequests',
+        from: 'connections',
         let: { pendingConnections: '$pendingConnections' },
         pipeline: [
           { $match: { $expr: { $in: ['$_id', '$$pendingConnections'] } } },
@@ -198,6 +239,7 @@ export function getPendingRequests(userID, callback) {
               _id: '$_id',
               from: '$from',
               to: '$to',
+              accepted: '$accepted',
               createdAt: '$createdAt',
             },
           },
@@ -212,7 +254,14 @@ export function getPendingRequests(userID, callback) {
             input: '$pendingConnections',
             as: 'pendingConnection',
             cond: {
-              $eq: ['$$pendingConnection.to', userID],
+              $and: [
+                {
+                  $eq: ['$$pendingConnection.to', userID],
+                },
+                {
+                  $eq: ['$$pendingConnection.accepted', false],
+                },
+              ],
             },
           },
         },
@@ -243,16 +292,27 @@ export function requestConnection(userID, requestUserID, callback) {
     { $match: { _id: mongoose.Types.ObjectId(userID) } },
     {
       $lookup: {
-        from: 'connectionrequests',
+        from: 'connections',
         localField: 'pendingConnections',
         foreignField: '_id',
         as: 'pendingConnections',
       },
     },
     {
+      $lookup: {
+        from: 'connections',
+        localField: 'connections',
+        foreignField: '_id',
+        as: 'connections',
+      },
+    },
+    {
       $project: {
-        isConnected: {
-          $in: [mongoose.Types.ObjectId(requestUserID), '$connections'],
+        isConnectedFrom: {
+          $in: [mongoose.Types.ObjectId(requestUserID), '$connections.from'],
+        },
+        isConnectedTo: {
+          $in: [mongoose.Types.ObjectId(requestUserID), '$connections.to'],
         },
         isPendingFrom: {
           $in: [mongoose.Types.ObjectId(requestUserID), '$pendingConnections.from'],
@@ -267,7 +327,7 @@ export function requestConnection(userID, requestUserID, callback) {
     .then((response) => {
       if (!response || response.length === 0)
         return callback(-1, 'Error occurred checking request');
-      if (response[0].isConnected)
+      if (response[0].isConnectedFrom || response[0].isConnectedTo)
         return callback(sendPacket(0, 'Already connected to this User'));
       if (response[0].isPendingFrom)
         return callback(sendPacket(0, 'This User has already sent you a request'));
@@ -282,7 +342,7 @@ export function requestConnection(userID, requestUserID, callback) {
 }
 
 function createConnectionRequest(userID, requestUserID, callback) {
-  const newConnectionRequest = new ConnectionRequest({
+  const newConnectionRequest = new Connection({
     from: userID,
     to: requestUserID,
   });
@@ -328,18 +388,20 @@ function createConnectionRequest(userID, requestUserID, callback) {
 }
 
 export function respondConnection(userID, requestID, accepted, callback) {
-  ConnectionRequest.findById(requestID, (err, request) => {
+  Connection.findById(requestID, (err, request) => {
     if (err) return callback(sendPacket(-1, err));
     if (!request)
       return callback(sendPacket(0, 'Could not find Connection Request'));
 
     const isRequestee = userID.toString().localeCompare(request['to']) === 0;
     const isRequester = userID.toString().localeCompare(request['from']) === 0;
+    if (request.accepted)
+      return callback(sendPacket(0, 'Connection Request has already been accepted'));
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request, callback);
     else if (accepted && isRequestee)
       return acceptConnectionRequest(request, callback);
-    else return callback(sendPacket(0, 'Cannot accept request'));
+    else return callback(sendPacket(0, 'Cannot process request'));
   });
 }
 
@@ -356,23 +418,23 @@ function acceptConnectionRequest(request, callback) {
         ],
       },
     },
-    ['connections'],
+    ['connections', 'pendingConnections'],
     async (err, users) => {
       if (err) return callback(sendPacket(-1, err));
       if (!users || users.length !== 2)
         return callback(sendPacket(0, 'Could not find Users to Connect'));
 
       for (let i = 0; i < 2; i++) {
-        // Checks for duplicate connections
-        const connectionIndex = users[i].connections.indexOf(request._id);
-        if (connectionIndex !== -1) continue;
+        // Checks for duplicate connections: this is one point where multiple
+        // simultaneous requests could cause duplicates (low severity issue)
+        if (users[i].connections.indexOf(request._id) === -1) {
+          if (!users[i].connections) users[i].connections = [request._id];
+          users[i].connections.push(request._id);
+        }
 
-        // Connects users to each other
-        users[i].connections.push(
-          users[i]._id.toString().localeCompare(userOneID) === 0
-            ? userTwoID
-            : userOneID
-        );
+        // Checks that request exists in array
+        const removeIndex = users[i].pendingConnections.indexOf(request._id);
+        if (removeIndex !== -1) users[i].pendingConnections.splice(removeIndex);
 
         try {
           await users[i].save();
@@ -382,7 +444,17 @@ function acceptConnectionRequest(request, callback) {
         }
       }
 
-      return removeConnectionRequest(request, callback);
+      Connection.findById(request._id, ['accepted'], (err, connection) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!connection)
+          return callback(sendPacket(0, 'Could not find Connection to update'));
+
+        connection.accepted = true;
+        connection.save((err) => {
+          if (err) return callback(sendPacket(-1, err));
+          callback(sendPacket(1, 'Connection Accepted!'));
+        });
+      });
     }
   );
 }
@@ -423,7 +495,7 @@ function removeConnectionRequest(request, callback) {
         }
       }
 
-      ConnectionRequest.deleteOne({ _id: request._id }, (err) => {
+      Connection.deleteOne({ _id: request._id }, (err) => {
         if (err) return callback(sendPacket(-1, err));
 
         return callback(sendPacket(1, 'Successfully removed connection request'));

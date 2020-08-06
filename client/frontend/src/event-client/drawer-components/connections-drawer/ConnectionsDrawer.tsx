@@ -109,6 +109,7 @@ function ConnectionsDrawer(props: Props) {
       props.refreshToken
     );
 
+    console.log(data);
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
