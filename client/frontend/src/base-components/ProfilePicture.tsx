@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FaCamera } from 'react-icons/fa';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import RSText from './RSText';
 import { colors } from '../theme/Colors';
+import { refreshTokenReducer } from '../redux/reducers/tokenReducers';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -38,12 +39,36 @@ function ProfilePicture(props: Props) {
   const styles = useStyles();
   const [hovering, setHovering] = useState(false);
 
+  const [newImage, setNewImage] = useState<File>();
+
+  const fileUploader = useRef<HTMLInputElement>(null);
+
   function handleMouseOver() {
     setHovering(true);
   }
 
   function handleMouseLeave() {
     setHovering(false);
+  }
+
+  function handleImageClick() {
+    fileUploader.current?.click();
+  }
+
+  //TEST CODE
+  let testReader = new FileReader();
+  testReader.onloadend = testReadFile;
+  function testReadFile(event: any) {
+    const content = testReader.result;
+    console.log(content);
+  }
+  //END OF TEST CODE
+
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files) {
+      setNewImage(event.target.files[0]);
+      // testReader.readAsText(event.target.files[0]); //TEST CODE
+    }
   }
 
   function renderImage() {
@@ -60,6 +85,7 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
+          onClick={handleImageClick}
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -73,9 +99,18 @@ function ProfilePicture(props: Props) {
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
+              onClick={handleImageClick}
             />
           )}
         </div>
+
+        <input
+          type="file"
+          ref={fileUploader}
+          style={{ display: 'none' }}
+          accept="image/x-png, image/jpeg"
+          onChange={handleImageUpload}
+        />
       </div>
     );
   }
