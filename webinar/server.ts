@@ -1,7 +1,7 @@
 require("dotenv").config();
 
-import * as express from "express";
-import * as socketio from "socket.io";
+import express = require("express");
+import socketio = require("socket.io");
 
 const pino = require("express-pino-logger");
 const bodyParser = require("body-parser");

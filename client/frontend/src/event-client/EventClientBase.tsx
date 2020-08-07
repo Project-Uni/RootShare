@@ -27,6 +27,11 @@ import { colors } from '../theme/Colors';
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
 
+const WEBINAR_CACHE_IP =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8003'
+    : 'http://3.135.226.61:8003';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
@@ -163,7 +168,7 @@ function EventClientBase(props: Props) {
   }
 
   function initializeSocket(webinarID: string) {
-    socket = socketIOClient('http://localhost:8003');
+    socket = socketIOClient(WEBINAR_CACHE_IP);
     socket.emit('new-user', {
       webinarID: webinarID,
       userID: props.user._id,

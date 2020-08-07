@@ -16,7 +16,7 @@ function getServerPath(serverName: string) {
   else if (serverName === 'webinarCache')
     return process.env.NODE_ENV === 'dev'
       ? 'http://localhost:8003'
-      : 'http://localhost:8003';
+      : 'http://3.135.226.61:8003';
   else return 'ERROR';
 }
 
