@@ -29,7 +29,7 @@ module.exports = (app) => {
         return res.json(sendPacket(0, 'Error uploading', { err: err }));
       }
       const success = await uploadFile('profile', 'ashwin.jpeg', data);
-      console.log(`Successfull: ${success}`);
+
       if (!success) {
         return res.json(sendPacket(0, 'Failed to upload image'));
       }
@@ -47,31 +47,15 @@ async function uploadFile(reason: ImageReason, fileName: string, file: any) {
     Key: prefix + fileName,
     Body: file,
   };
-  // s3.putObject(params, (err, data) => {
-  //   if (err) {
-  //     log('error', err.message);
-  //     return false;
-  //   }
-  //   log('info', `Successfully uploaded: ${data}`);
-  //   return true;
-  // });
 
-  // try {
-
-  const uploadPromise = s3.putObject(params).promise();
-  uploadPromise
-    .then((data) => {
-      log('info', `Successfully uploaded: ${data}`);
-      return true;
-    })
-    .catch((err) => {
-      log('error', err.message);
-      return false;
-    });
-  // } catch (err) {
-  //   log('error', err.message);
-  //   return false;
-  // }
+  try {
+    const data = await s3.upload(params).promise();
+    log('info', `Successfully uploaded: ${data.Location}`);
+    return true;
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
 }
 
 function getPathPrefix(imageType: ImageReason) {
