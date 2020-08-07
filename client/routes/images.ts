@@ -23,12 +23,12 @@ type ImageReason =
 
 module.exports = (app) => {
   app.get('/test/upload', async (req, res) => {
-    fs.readFile('./frontend/src/images/team/ashwin.jpeg', async (err, data) => {
+    fs.readFile('./frontend/src/images/team/smit.jpeg', async (err, data) => {
       if (err) {
         log('error', err);
         return res.json(sendPacket(0, 'Error uploading', { err: err }));
       }
-      const success = await uploadFile('profile', 'ashwin.jpeg', data);
+      const success = await uploadFile('profile', 'dhruv.jpeg', data);
 
       if (!success) {
         return res.json(sendPacket(0, 'Failed to upload image'));
@@ -38,7 +38,7 @@ module.exports = (app) => {
   });
 
   app.get('/test/retrieve', async (req, res) => {
-    const data = await retrieveFile('profile', 'ashwin.jpeg');
+    const data = await retrieveFile('profile', 'smit.jpeg');
     if (!data) {
       return res.json(sendPacket(0, 'Failed to retrieve image'));
     }
