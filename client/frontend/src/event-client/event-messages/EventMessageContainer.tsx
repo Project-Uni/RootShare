@@ -17,8 +17,9 @@ import MyEventMessage from './MyEventMessage';
 import { colors } from '../../theme/Colors';
 import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { ENTER_KEYCODE } from '../../helpers/constants';
+import RSText from '../../base-components/RSText';
 
-const HEADER_HEIGHT = 58;
+const HEADER_HEIGHT = 64;
 const ITEM_HEIGHT = 48;
 
 const useStyles = makeStyles((_: any) => ({
@@ -37,9 +38,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     background: colors.secondary,
     color: colors.primaryText,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingLeft: 5,
+    borderTopStyle: 'solid',
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
   },
   textField: {
     width: 250,
@@ -49,8 +50,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   messageContainer: {
     flex: 1,
-    justifyContent: 'end',
-    background: 'lightgray',
+    display: 'flex',
+    flexDirection: 'column',
+    background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
   },
@@ -67,6 +69,7 @@ const useStyles = makeStyles((_: any) => ({
     label: colors.primaryText,
     borderWidth: '2px',
     borderColor: colors.primaryText,
+    shrink: false,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
@@ -261,8 +264,13 @@ function EventMessageContainer(props: Props) {
   }
 
   function renderMessages() {
+    const numMessages = messages.length;
+    if (numMessages === 0) return;
+
     let output: any = [];
-    messages.forEach((message: MessageType) => {
+    output.push(<div style={{ marginTop: 'auto' }}></div>);
+    for (let i = 0; i < numMessages; i++) {
+      const message = messages[i];
       output.push(
         message.sender !== props.user._id ? (
           <EventMessage message={message} socket={props.socket} />
@@ -270,7 +278,7 @@ function EventMessageContainer(props: Props) {
           <MyEventMessage message={message} socket={props.socket} />
         )
       );
-    });
+    }
 
     return output;
   }
@@ -280,6 +288,7 @@ function EventMessageContainer(props: Props) {
     messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
   }
 
+  // alert(document.getElementById('messageContainer')?.offsetHeight);
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       <div id="messageContainer" className={styles.messageContainer}>

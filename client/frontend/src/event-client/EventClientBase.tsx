@@ -27,8 +27,6 @@ import { colors } from '../theme/Colors';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
-    height: window.innerHeight,
-    overflow: 'hidden',
   },
   body: {
     display: 'flex',
@@ -39,7 +37,7 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  right: {},
+  right: { height: '100%' },
   adContainer: {
     width: '100%',
     display: 'flex',
@@ -189,7 +187,7 @@ function EventClientBase(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>

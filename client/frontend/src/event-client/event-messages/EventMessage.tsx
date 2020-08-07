@@ -48,7 +48,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   message: {
     textAlign: 'left',
-    wordBreak: 'break-all',
     color: '#f2f2f2',
     marginLeft: 10,
     marginRight: 10,
@@ -61,10 +60,9 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: -10,
   },
   likeCount: {
-    marginRight: 5,
+    marginRight: 0,
     color: '#f2f2f2',
     alignSelf: 'flex-end',
-    marginBottom: 3,
   },
   star: {
     '&:hover': {
@@ -72,7 +70,9 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
     alignSelf: 'flex-end',
+    marginTop: -10,
     marginBottom: 4,
+    marginRight: -4,
     color: '#6699ff',
   },
   starGray: {
@@ -81,7 +81,9 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
     alignSelf: 'flex-end',
+    marginTop: -10,
     marginBottom: 4,
+    marginRight: -4,
     color: 'grey',
   },
   time: {
@@ -96,7 +98,8 @@ const useStyles = makeStyles((_: any) => ({
     },
     alignSelf: 'flex-end',
     color: 'grey',
-    marginBottom: 7,
+    marginBottom: 18,
+    marginRight: 10,
   },
 }));
 
@@ -150,7 +153,8 @@ function EventMessage(props: Props) {
   }
 
   function handleConnect() {
-    props.handleConnect && props.handleConnect(props.message.sender);
+    const sender = props.message.sender as string;
+    props.handleConnect && props.handleConnect(sender);
     setAnchorEl(null);
   }
 
@@ -180,56 +184,55 @@ function EventMessage(props: Props) {
             {getConversationTime(new Date(props.message.createdAt))}
           </RSText>
         </div>
-        <div className={styles.right}>
-          <FaEllipsisH
-            aria-label="more"
-            aria-controls="long-menu"
-            aria-haspopup="true"
-            onClick={handleOptionsClick}
-            className={styles.ellipsis}
-            size={12}
-          />
 
-          <Menu
-            id="long-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            open={menuOpen}
-            onClose={handleClose}
-            PaperProps={{
-              style: {
-                maxHeight: ITEM_HEIGHT * 4.5,
-                width: 200,
-              },
-            }}
-          >
-            {renderOptions()}
-          </Menu>
-          <div className={styles.rightBottom}>
-            <RSText size={10} className={styles.likeCount}>
-              {props.message.numLikes}
-            </RSText>
-            {liked ? (
-              <FaStar
-                // disabled={loadingLike}
-                className={styles.star}
-                onClick={handleLikeClicked}
-                size={16}
-              />
-            ) : (
-              <FaRegStar
-                // disabled={loadingLike}
-                className={styles.starGray}
-                onClick={handleLikeClicked}
-                size={16}
-              />
-            )}
-          </div>
-        </div>
+        <FaEllipsisH
+          aria-label="more"
+          aria-controls="long-menu"
+          aria-haspopup="true"
+          onClick={handleOptionsClick}
+          className={styles.ellipsis}
+          size={12}
+        />
+
+        <Menu
+          id="long-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={menuOpen}
+          onClose={handleClose}
+          PaperProps={{
+            style: {
+              maxHeight: ITEM_HEIGHT * 4.5,
+              width: 200,
+            },
+          }}
+        >
+          {renderOptions()}
+        </Menu>
       </div>
       <div className={styles.bottom}>
         <div className={styles.left}>
           <RSText className={styles.message}>{props.message.content}</RSText>
+        </div>
+        <div className={styles.right}>
+          {liked ? (
+            <FaStar
+              // disabled={loadingLike}
+              className={styles.star}
+              onClick={handleLikeClicked}
+              size={16}
+            />
+          ) : (
+            <FaRegStar
+              // disabled={loadingLike}
+              className={styles.starGray}
+              onClick={handleLikeClicked}
+              size={16}
+            />
+          )}
+          <RSText size={10} className={styles.likeCount}>
+            {props.message.numLikes}
+          </RSText>
         </div>
       </div>
     </div>
