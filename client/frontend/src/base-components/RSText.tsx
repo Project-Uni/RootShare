@@ -17,6 +17,9 @@ const useStyles = makeStyles((_: any) => ({
   italic: {
     fontStyle: 'italic',
   },
+  ubuntu: {
+    fontFamily: 'Ubuntu',
+  },
 }));
 
 type Props = {
@@ -51,7 +54,11 @@ function RSText(props: Props) {
     <p
       className={[
         styles.base,
-        type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
+        type === 'head'
+          ? styles.title
+          : type === 'other'
+          ? styles.ubuntu
+          : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
         props.className ? props.className : null,

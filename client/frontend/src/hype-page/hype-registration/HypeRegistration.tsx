@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { makeStyles } from "@material-ui/core/styles";
-import { Button, Stepper, Step, StepLabel } from "@material-ui/core";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { makeStyles } from '@material-ui/core/styles';
+import { Button, Stepper, Step, StepLabel } from '@material-ui/core';
 
-import RegistrationStep0 from "./RegistrationStep0";
-import RegistrationStep1 from "./RegistrationStep1";
-import RegistrationStep2 from "./RegistrationStep2";
-import RegistrationStep3 from "./RegistrationStep3";
-import HypeCard from "../hype-card/HypeCard";
-import GoogleButton from "./GoogleButton";
-import LinkedInButton from "./LinkedInButton";
+import RegistrationStep0 from './RegistrationStep0';
+import RegistrationStep1 from './RegistrationStep1';
+import RegistrationStep2 from './RegistrationStep2';
+import RegistrationStep3 from './RegistrationStep3';
+import HypeCard from '../hype-card/HypeCard';
+import GoogleButton from './GoogleButton';
+import LinkedInButton from './LinkedInButton';
+import { colors } from '../../theme/Colors';
+
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -19,18 +22,21 @@ const useStyles = makeStyles((_: any) => ({
     // height: "100vh",
   },
   buttonDiv: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginLeft: "20px",
-    marginRight: "20px",
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginLeft: '20px',
+    marginRight: '20px',
   },
   googleDiv: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: "20px",
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '20px',
   },
   rootshareLogo: {
-    height: "80px",
+    height: '80px',
+  },
+  alreadyHaveAnAccount: {
+    marginTop: 20,
   },
 }));
 
@@ -42,27 +48,27 @@ function HypeRegistration(props: Props) {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  const [username, setUsername] = useState("");
-  const [usernameErr, setUsernameErr] = useState("");
+  const [username, setUsername] = useState('');
+  const [usernameErr, setUsernameErr] = useState('');
 
-  const [university, setUniversity] = useState("Purdue");
-  const [universityErr, setUniversityErr] = useState("");
+  const [university, setUniversity] = useState('Purdue');
+  const [universityErr, setUniversityErr] = useState('');
 
-  const [firstName, setFirstName] = useState("");
-  const [firstNameErr, setFirstNameErr] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [lastNameErr, setLastNameErr] = useState("");
-  const [standing, setStanding] = useState("");
-  const [standingErr, setStandingErr] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [firstNameErr, setFirstNameErr] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [lastNameErr, setLastNameErr] = useState('');
+  const [standing, setStanding] = useState('');
+  const [standingErr, setStandingErr] = useState('');
 
-  const [password, setPassword] = useState("");
-  const [passwordErr, setPasswordErr] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmErr, setConfirmErr] = useState("");
+  const [password, setPassword] = useState('');
+  const [passwordErr, setPasswordErr] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmErr, setConfirmErr] = useState('');
   const [ageValidation, setAgeValidation] = useState(false);
-  const [ageValidationErr, setAgeValidationErr] = useState("");
+  const [ageValidationErr, setAgeValidationErr] = useState('');
 
-  const steps = ["Email", "Basic Info", "Password"];
+  const steps = ['Email', 'Basic Info', 'Password'];
 
   function handleUsernameChange(event: any) {
     setUsername(event.target.value);
@@ -74,7 +80,7 @@ function HypeRegistration(props: Props) {
 
   function handleUniversityAutocompleteChange(_: any, newValue: any) {
     if (newValue === null) {
-      setUniversity("");
+      setUniversity('');
     } else setUniversity(newValue);
   }
 
@@ -100,9 +106,7 @@ function HypeRegistration(props: Props) {
     setConfirmPassword(event.target.value as string);
   }
 
-  function handleAgeValidationChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
+  function handleAgeValidationChange(event: React.ChangeEvent<HTMLInputElement>) {
     setAgeValidation(event.target.checked);
   }
 
@@ -132,24 +136,24 @@ function HypeRegistration(props: Props) {
     setTimeout(async () => {
       setLoading(false);
       if (!re.test(String(username).toLowerCase())) {
-        setUsernameErr("Email address not valid");
+        setUsernameErr('Email address not valid');
         hasErr = true;
-      } else setUsernameErr("");
+      } else setUsernameErr('');
 
       if (!hasErr) {
-        const { data } = await axios.post("/auth/signup/user-exists", {
+        const { data } = await axios.post('/auth/signup/user-exists', {
           email: username,
         });
-        if (data["success"] !== 1) {
-          setUsernameErr("An account with that email address already exists");
+        if (data['success'] !== 1) {
+          setUsernameErr('An account with that email address already exists');
           hasErr = true;
-        } else setUsernameErr("");
+        } else setUsernameErr('');
       }
 
       if (university.length === 0) {
-        setUniversityErr("University is required");
+        setUniversityErr('University is required');
         hasErr = true;
-      } else setUniversityErr("");
+      } else setUniversityErr('');
 
       if (!hasErr) {
         const newStep = currentStep + 1;
@@ -165,19 +169,19 @@ function HypeRegistration(props: Props) {
       setLoading(false);
 
       if (firstName.length === 0) {
-        setFirstNameErr("First name is required");
+        setFirstNameErr('First name is required');
         hasErr = true;
-      } else setFirstNameErr("");
+      } else setFirstNameErr('');
 
       if (lastName.length === 0) {
-        setLastNameErr("Last name is required");
+        setLastNameErr('Last name is required');
         hasErr = true;
-      } else setLastNameErr("");
+      } else setLastNameErr('');
 
       if (standing.length === 0) {
-        setStandingErr("Standing is required");
+        setStandingErr('Standing is required');
         hasErr = true;
-      } else setStandingErr("");
+      } else setStandingErr('');
 
       if (!hasErr) {
         const newStep = currentStep + 1;
@@ -193,22 +197,22 @@ function HypeRegistration(props: Props) {
       setLoading(false);
 
       if (password.length < 8) {
-        setPasswordErr("Password must be at least 8 characters");
+        setPasswordErr('Password must be at least 8 characters');
         hasErr = true;
-      } else setPasswordErr("");
+      } else setPasswordErr('');
 
       if (confirmPassword !== password) {
-        setConfirmErr("Passwords must match");
+        setConfirmErr('Passwords must match');
         hasErr = true;
-      } else setConfirmErr("");
+      } else setConfirmErr('');
 
       if (!ageValidation) {
-        setAgeValidationErr("You must be over the age of 16 to register.");
+        setAgeValidationErr('You must be over the age of 16 to register.');
         hasErr = true;
-      } else setAgeValidationErr("");
+      } else setAgeValidationErr('');
 
       if (!hasErr) {
-        const { data } = await axios.post("/auth/signup/local", {
+        const { data } = await axios.post('/auth/signup/local', {
           firstName: firstName,
           lastName: lastName,
           email: username,
@@ -217,9 +221,9 @@ function HypeRegistration(props: Props) {
           accountType: standing,
         });
 
-        if (data["success"] !== 1) {
+        if (data['success'] !== 1) {
           setAgeValidationErr(
-            "There was an error while creating the account. Please try again later."
+            'There was an error while creating the account. Please try again later.'
           );
           return;
         }
@@ -231,7 +235,7 @@ function HypeRegistration(props: Props) {
   }
 
   function handleStep3NextButtonClick() {
-    window.location.href = "/profile/initialize";
+    window.location.href = '/profile/initialize';
   }
 
   function getStepContent(step: Number) {
@@ -243,9 +247,7 @@ function HypeRegistration(props: Props) {
           usernameErr={usernameErr}
           university={university}
           handleUniversityChange={handleUniversityChange}
-          handleUniversityAutocompleteChange={
-            handleUniversityAutocompleteChange
-          }
+          handleUniversityAutocompleteChange={handleUniversityAutocompleteChange}
           universityErr={universityErr}
         />
       );
@@ -285,7 +287,7 @@ function HypeRegistration(props: Props) {
       <HypeCard
         width={400}
         loading={loading}
-        headerText="Go find your community"
+        headerText="Find your community today"
         backArrow="action"
         backArrowAction={() => {
           setCurrentStep(0);
@@ -320,11 +322,11 @@ function HypeRegistration(props: Props) {
           )}
           <Button
             variant="contained"
-            color="primary"
             onClick={handleNextButtonClicked}
             disabled={loading}
+            color="primary"
           >
-            {currentStep !== steps.length - 1 ? "Next" : "Submit"}
+            {currentStep !== steps.length - 1 ? 'Next' : 'Submit'}
           </Button>
         </div>
 
@@ -336,6 +338,15 @@ function HypeRegistration(props: Props) {
             <div className={styles.googleDiv}>
               <LinkedInButton />
             </div>
+            <RSText
+              type="other"
+              size={10}
+              color={colors.second}
+              className={styles.alreadyHaveAnAccount}
+            >
+              Already have an account?
+              <a href="https://www.rootshare.io/home"> Login</a>
+            </RSText>
           </>
         )}
       </HypeCard>

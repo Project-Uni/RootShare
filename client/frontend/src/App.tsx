@@ -18,6 +18,8 @@ import ResetPassword from './login/ResetPassword';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
+import LandingNew from './landing-new/LandingNew';
+
 import {
   Homepage,
   Discover,
@@ -76,6 +78,8 @@ function App(props: Props) {
             <Route exact path="/community/:orgID" component={Community} />
             <Route exact path="/library" component={StreamLibrary} />
             <Route exact path="/connections" component={Connections} />
+
+            <Route exact path="/landing/new" component={LandingNew} />
 
             <Route component={PageNotFound} />
           </Switch>
