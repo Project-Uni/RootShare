@@ -109,6 +109,8 @@ type Props = {
   user: any;
   conversation: ConversationType;
   messages: MessageType[];
+  addMessage: (message: MessageType) => void;
+  addMessageErr: (tempID: number) => void;
   returnToConversations: () => void;
   accessToken: string;
   refreshToken: string;
@@ -148,15 +150,32 @@ function MessageThreadContainer(props: Props) {
     return output;
   }
 
-  function handleSendMessage(message: string) {
-    makeRequest(
+  async function handleSendMessage(message: string) {
+    const tempID = props.messages.length.toString();
+    const newMessage = {
+      conversationID: props.conversation._id,
+      sender: props.user._id,
+      senderName: props.user.firstName,
+      content: message,
+      tempID: tempID,
+    };
+    props.addMessage(newMessage as MessageType);
+
+    const { data } = await makeRequest(
       'POST',
       '/api/messaging/sendMessage',
-      { conversationID: props.conversation._id, message: message },
+      {
+        conversationID: props.conversation._id,
+        message: message,
+        tempID: tempID,
+      },
       true,
       props.accessToken,
       props.refreshToken
     );
+
+    if (data['success'] !== 1 && data['content']['tempID'])
+      props.addMessageErr(data['content']['tempID']);
   }
 
   function joinUserNames(users: any, delimiter: string) {

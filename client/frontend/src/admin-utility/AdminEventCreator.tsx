@@ -22,10 +22,9 @@ import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
-import { EventType, HostType, SpeakerType } from '../helpers/types';
 
-import { makeRequest } from '../helpers/functions';
-import { log } from '../helpers/functions';
+import { EventType, HostType, SpeakerType } from '../helpers/types';
+import { makeRequest, log } from '../helpers/functions';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -242,7 +241,7 @@ function AdminEventCreator(props: Props) {
     setFullDesc(event.full_description);
     setEventDateTime(event.dateTime);
     setHost(event.host);
-    setSpeakers(event.speakers);
+    setSpeakers(event.speakers as SpeakerType[]);
   }
 
   async function handleSubmit() {

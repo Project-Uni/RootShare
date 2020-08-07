@@ -7,6 +7,8 @@ export type MessageType = {
   createdAt: Date;
   numLikes: number;
   liked: boolean;
+  error: boolean;
+  tempID: string;
 };
 
 export type ConversationType = {

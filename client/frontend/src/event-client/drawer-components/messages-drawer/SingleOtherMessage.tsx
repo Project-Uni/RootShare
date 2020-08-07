@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { MessageType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,7 +44,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: any;
-  message: any;
+  message: MessageType;
   senderName: string;
 };
 

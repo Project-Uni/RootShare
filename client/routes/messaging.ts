@@ -36,6 +36,7 @@ module.exports = (app, io) => {
       `${req.user.firstName} ${req.user.lastName}`,
       req.body.conversationID,
       req.body.message,
+      req.body.tempID,
       io,
       (packet) => {
         res.send(packet);

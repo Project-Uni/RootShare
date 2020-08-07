@@ -60,10 +60,10 @@ function MessagesDrawerContainer(props: Props) {
   const [messages, setMessages] = useState<MessageType[]>([]);
 
   useEffect(() => {
-    addMessage(props.newMessage);
+    handleNewMessage(props.newMessage);
   }, [props.newMessage]);
 
-  function addMessage(newMessage: MessageType) {
+  function handleNewMessage(newMessage: MessageType) {
     if (
       Object.keys(newMessage).length === 0 ||
       newMessage === undefined ||
@@ -72,6 +72,20 @@ function MessagesDrawerContainer(props: Props) {
     )
       return;
 
+    if (newMessage.sender === props.user._id)
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i].tempID === newMessage.tempID) {
+          let newMessages = messages.slice();
+          newMessages[i] = newMessage;
+          setMessages(newMessages);
+          return;
+        }
+      }
+
+    addMessage(newMessage);
+  }
+
+  function addMessage(newMessage: MessageType) {
     setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
@@ -104,6 +118,14 @@ function MessagesDrawerContainer(props: Props) {
     setMessages([]);
   }
 
+  function addMessageErr(tempID: number) {
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.slice();
+      newMessages[tempID].error = true;
+      return newMessages;
+    });
+  }
+
   return (
     <div className={styles.wrapper}>
       {currConversationID === '' || currConversation === undefined ? (
@@ -116,6 +138,8 @@ function MessagesDrawerContainer(props: Props) {
           user={props.user}
           conversation={currConversation}
           messages={messages}
+          addMessage={addMessage}
+          addMessageErr={addMessageErr}
           returnToConversations={returnToConversations}
         />
       )}

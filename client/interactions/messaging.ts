@@ -8,7 +8,7 @@ const Message = mongoose.model('messages');
 
 module.exports = {
   createThread: (req, io, callback) => {
-    const { message, recipients } = req.body;
+    const { message, tempID, recipients } = req.body;
     const { _id: userID, firstName } = req.user;
 
     let newConversation = new Conversation();
@@ -28,6 +28,7 @@ module.exports = {
         firstName,
         conversationID,
         message,
+        tempID,
         io,
         callback
       );
@@ -56,11 +57,11 @@ module.exports = {
     });
   },
 
-  sendMessage: (userID, userName, conversationID, message, io, callback) => {
+  sendMessage: (userID, userName, conversationID, message, tempID, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
       if (err || conversationID === undefined || currConversation === null) {
         log('error', err);
-        return callback(sendPacket(-1, 'Could not find conversation'));
+        return callback(sendPacket(-1, 'Could not find conversation', { tempID }));
       }
 
       let newMessage = new Message();
@@ -71,7 +72,9 @@ module.exports = {
       newMessage.save((err) => {
         if (err) {
           log('error', err);
-          return callback(sendPacket(-1, 'There was an error saving the message'));
+          return callback(
+            sendPacket(-1, 'There was an error saving the message', { tempID })
+          );
         }
 
         let isNewConversation = false;
@@ -82,7 +85,7 @@ module.exports = {
           if (err) {
             log('error', err);
             return callback(
-              sendPacket(1, 'There was an error updating the conversation')
+              sendPacket(-1, 'There was an error updating the conversation')
             );
           }
 
@@ -99,9 +102,13 @@ module.exports = {
               );
             });
           }
+
+          let jsonNewMessage = newMessage.toObject();
+          jsonNewMessage.tempID = tempID;
+
           io.in(`CONVERSATION_${newMessage.conversationID}`).emit(
             'newMessage',
-            newMessage
+            jsonNewMessage
           );
           return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
