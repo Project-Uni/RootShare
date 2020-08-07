@@ -36,6 +36,16 @@ module.exports = (app) => {
       return res.json(sendPacket(1, 'Successfully uploaded image'));
     });
   });
+
+  app.get('/test/retrieve', async (req, res) => {
+    const data = await retrieveFile('profile', 'ashwin.jpeg');
+    if (!data) {
+      return res.json(sendPacket(0, 'Failed to retrieve image'));
+    }
+    res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+    res.write(data.Body, 'binary');
+    return res.end(null, 'binary');
+  });
 };
 
 async function uploadFile(reason: ImageReason, fileName: string, file: any) {
@@ -52,6 +62,21 @@ async function uploadFile(reason: ImageReason, fileName: string, file: any) {
     const data = await s3.upload(params).promise();
     log('info', `Successfully uploaded: ${data.Location}`);
     return true;
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+}
+
+async function retrieveFile(reason: ImageReason, fileName: string) {
+  const prefix = getPathPrefix(reason);
+  if (!prefix) return false;
+
+  const params = { Bucket: BUCKET, Key: prefix + fileName };
+  try {
+    const data = await s3.getObject(params).promise();
+    log('info', `Successfully retrieved: ${prefix + fileName}`);
+    return data;
   } catch (err) {
     log('error', err.message);
     return false;
