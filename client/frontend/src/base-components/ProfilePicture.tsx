@@ -1,11 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { FaCamera } from 'react-icons/fa';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@material-ui/core';
+import Paper, { PaperProps } from '@material-ui/core/Paper';
+
+import Draggable from 'react-draggable';
+
+import ReactCrop from 'react-image-crop';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
-import RSText from './RSText';
 import { colors } from '../theme/Colors';
-import { refreshTokenReducer } from '../redux/reducers/tokenReducers';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -24,6 +34,18 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  paper: {
+    background: colors.secondary,
+  },
+  dialogText: {
+    color: colors.primaryText,
+  },
+  cancelButton: {
+    color: colors.secondaryText,
+  },
+  saveButton: {
+    color: colors.primaryText,
+  },
 }));
 
 type Props = {
@@ -37,9 +59,13 @@ type Props = {
 
 function ProfilePicture(props: Props) {
   const styles = useStyles();
-  const [hovering, setHovering] = useState(false);
 
-  const [newImage, setNewImage] = useState<File>();
+  const [hovering, setHovering] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>();
+
+  const [crop, setCrop] = useState<{ [key: string]: any }>({
+    aspect: 1,
+  });
 
   const fileUploader = useRef<HTMLInputElement>(null);
 
@@ -55,19 +81,16 @@ function ProfilePicture(props: Props) {
     fileUploader.current?.click();
   }
 
-  //TEST CODE
-  let testReader = new FileReader();
-  testReader.onloadend = testReadFile;
-  function testReadFile(event: any) {
-    const content = testReader.result;
-    console.log(content);
-  }
-  //END OF TEST CODE
-
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.files) {
-      setNewImage(event.target.files[0]);
-      // testReader.readAsText(event.target.files[0]); //TEST CODE
+    if (event.target.files && event.target.files.length > 0) {
+      const imageReader = new FileReader();
+
+      imageReader.onloadend = (event: ProgressEvent) => {
+        const resultBuffer = imageReader.result;
+        setImageSrc(resultBuffer as string);
+      };
+
+      imageReader.readAsDataURL(event.target.files[0]);
     }
   }
 
@@ -114,7 +137,51 @@ function ProfilePicture(props: Props) {
       </div>
     );
   }
-  return <div className={styles.wrapper}>{renderImage()}</div>;
+
+  function renderCrop() {
+    return (
+      <Dialog open={Boolean(imageSrc)} PaperComponent={PaperComponent}>
+        <DialogTitle className={styles.dialogText} id="draggable-title">
+          Update Image
+        </DialogTitle>
+        <DialogContent>
+          <ReactCrop
+            src={imageSrc!}
+            crop={crop}
+            onChange={(newCrop) => setCrop(newCrop)}
+            circularCrop
+            ruleOfThirds
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            className={styles.cancelButton}
+            onClick={() => {
+              setImageSrc(undefined);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button className={styles.saveButton}>Save</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+  return (
+    <div className={styles.wrapper}>
+      {renderImage()}
+      {renderCrop()}
+    </div>
+  );
 }
 
 export default ProfilePicture;
+
+function PaperComponent(props: PaperProps) {
+  const styles = useStyles();
+  return (
+    <Draggable cancel={'[class*="MuiDialogContent-root"]'}>
+      <Paper {...props} className={styles.paper} square={false} />
+    </Draggable>
+  );
+}
