@@ -1,6 +1,6 @@
 import sendPacket from '../helpers/sendPacket';
 import jwt = require('jsonwebtoken');
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/constants';
 
 export function isAuthenticatedWithJWT(req, res, next) {
   const reqUser_raw = req.headers['user'];
