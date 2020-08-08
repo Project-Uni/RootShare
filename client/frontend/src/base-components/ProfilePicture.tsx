@@ -13,6 +13,7 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
 
 import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
@@ -65,6 +66,9 @@ function ProfilePicture(props: Props) {
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
+    height: 500,
+    top: 100,
+    left: 100,
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
@@ -145,13 +149,15 @@ function ProfilePicture(props: Props) {
           Update Image
         </DialogTitle>
         <DialogContent>
-          <ReactCrop
-            src={imageSrc!}
-            crop={crop}
-            onChange={(newCrop) => setCrop(newCrop)}
-            circularCrop
-            ruleOfThirds
-          />
+          <div style={{ display: 'block' }}>
+            <ReactCrop
+              src={imageSrc!}
+              crop={crop}
+              onChange={(newCrop) => setCrop(newCrop)}
+              circularCrop
+              ruleOfThirds
+            />
+          </div>
         </DialogContent>
         <DialogActions>
           <Button
