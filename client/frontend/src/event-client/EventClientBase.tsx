@@ -194,7 +194,7 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('speaking-token-rejected', () => {
-      alert('Speaking token was rejected');
+      alert('There was an error adding you as a speaker');
     });
 
     socket.on('speaking-token-accepted', () => {
