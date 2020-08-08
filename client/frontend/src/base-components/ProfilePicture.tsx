@@ -22,6 +22,7 @@ import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
+  imageURLToBlob,
 } from './profileHelpers/profilePictureHelpers';
 import log from '../helpers/logger';
 import { makeRequest } from '../helpers/makeRequest';
@@ -140,9 +141,11 @@ function ProfilePicture(props: Props) {
 
   async function handleSaveImage() {
     imageURLToFile(croppedImageURL!, sendPictureToServer);
+    // const imageData = imageURLToBlob(croppedImageURL!);
+    // sendPictureToServer(imageData);
   }
 
-  async function sendPictureToServer(imageData: string | ArrayBuffer | null) {
+  async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     const { data } = await makeRequest(
       'POST',
       '/api/profile/updateProfilePicture',
@@ -252,15 +255,10 @@ function ProfilePicture(props: Props) {
     );
   }
 
-  function testPreviewCrop() {
-    return <>{croppedImageURL && <img src={croppedImageURL} />}</>;
-  }
-
   return (
     <div className={styles.wrapper}>
       {renderImage()}
       {renderCrop()}
-      {testPreviewCrop()}
     </div>
   );
 }

@@ -45,8 +45,7 @@ module.exports = (app) => {
       const { image } = req.body;
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      console.log('Image:', image.substr(0, 100));
-
+      //TODO - Image appear corrupted. It is able to load on the frontend, might have something to do with that (or data getting lost?)
       const success = await uploadFile(
         'profile',
         `${req.user._id}_profile.jpeg`,
