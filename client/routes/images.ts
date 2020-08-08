@@ -3,7 +3,12 @@ const fs = require('fs');
 import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
 
-import { uploadFile, retrieveFile, decodeBase64Image } from '../helpers/S3';
+import {
+  uploadFile,
+  retrieveFile,
+  retrieveSignedUrl,
+  decodeBase64Image,
+} from '../helpers/S3';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import mongoose = require('mongoose');
@@ -69,26 +74,26 @@ module.exports = (app) => {
     }
   );
 
-  app.get(
-    '/api/getProfilePicture/:userID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { userID } = req.params;
-      let pictureFileName = `${req.user._id}_profile.jpeg`;
+  app.get('/api/getProfilePicture/:userID', async (req, res) => {
+    const { userID } = req.params;
+    let pictureFileName = `${req.user._id}_profile.jpeg`;
 
-      try {
-        const user = await User.findById(userID);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
-      } catch (err) {
-        log('err', err);
-      }
-
-      const data = await retrieveFile('profile', pictureFileName);
-      if (!data) return res.json(sendPacket(0, 'Failed to retrieve image'));
-
-      res.writeHead(200, { 'Content-Type': 'image/jpeg' });
-      res.write(data.Body, 'binary');
-      return res.end(null, 'binary');
+    try {
+      const user = await User.findById(userID);
+      if (user.profilePicture) pictureFileName = user.profilePicture;
+    } catch (err) {
+      log('err', err);
     }
-  );
+
+    const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+    console.log('imageURL', imageURL);
+
+    if (!imageURL) {
+      return res.json(sendPacket(0, 'No profile image found for user'));
+    }
+
+    return res.json(
+      sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
+    );
+  });
 };

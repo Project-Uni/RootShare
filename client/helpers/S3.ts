@@ -54,8 +54,24 @@ export async function retrieveFile(reason: ImageReason, fileName: string) {
   }
 }
 
-export function getPathPrefix(imageType: ImageReason) {
-  let base = '/images/';
+export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
+  const prefix = getPathPrefix(reason);
+  if (!prefix) return false;
+
+  const params = { Bucket: BUCKET, Key: prefix + fileName };
+  try {
+    const head = await s3.headObject(params).promise();
+    const signedURL = s3.getSignedUrl('getObject', params);
+
+    return signedURL;
+  } catch (err) {
+    log('err', err);
+    return false;
+  }
+}
+
+function getPathPrefix(imageType: ImageReason) {
+  let base = 'images/';
   switch (imageType) {
     case 'profile':
       return base + 'user/profile/';
