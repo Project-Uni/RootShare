@@ -76,8 +76,6 @@ function ProfilePicture(props: Props) {
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
-  // const imageRef = useRef<HTMLImageElement>(null);
-  // var imageRef: HTMLImageElement;
 
   function handleMouseOver() {
     setHovering(true);
@@ -105,17 +103,14 @@ function ProfilePicture(props: Props) {
   }
 
   function handleImageLoaded(image: HTMLImageElement) {
-    console.log('Calling imageLoaded. image:', image);
     setImageRef(image);
   }
 
   function handleCropChange(newCrop: { [key: string]: any }) {
-    console.log('New crop:', newCrop);
     setCrop(newCrop);
   }
 
   async function handleCropComplete(newCrop: { [key: string]: any }) {
-    console.log('Calling on complete. imageRef:', imageRef);
     if (imageRef && newCrop.width && newCrop.height) {
       try {
         const imageURL = await getCroppedImage(
@@ -126,14 +121,23 @@ function ProfilePicture(props: Props) {
         );
 
         setCroppedImageURL(imageURL);
-        console.log('handleCropComplete -> croppedImage', imageURL);
       } catch (err) {
         log('error', err);
       }
     }
   }
 
-  function handleSaveImage() {}
+  function handleSaveImage() {
+    // console.log('CroppedImageURL:', croppedImageURL);
+    const imageReader = new FileReader();
+
+    imageReader.onloadend = (event: ProgressEvent) => {
+      const resultBuffer = imageReader.result;
+      console.log('Result:', resultBuffer);
+    };
+
+    imageReader.readAsDataURL(croppedImageURL);
+  }
 
   function renderImage() {
     return (
@@ -194,7 +198,7 @@ function ProfilePicture(props: Props) {
               onChange={handleCropChange}
               onComplete={handleCropComplete}
               circularCrop
-              ruleOfThirds
+              // ruleOfThirds
             />
           </div>
         </DialogContent>
@@ -207,7 +211,9 @@ function ProfilePicture(props: Props) {
           >
             Cancel
           </Button>
-          <Button className={styles.saveButton}>Save</Button>
+          <Button className={styles.saveButton} onClick={handleSaveImage}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
     );
