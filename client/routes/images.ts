@@ -1,25 +1,18 @@
-import AWS = require('aws-sdk');
-
-const AWSKeys = require('../../keys/aws_key.json');
 const fs = require('fs');
 
 import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
 
-const s3 = new AWS.S3({
-  accessKeyId: AWSKeys.accessKeyId,
-  secretAccessKey: AWSKeys.secretAccessKey,
-  apiVersion: '2006-03-01',
-});
+import {
+  uploadFile,
+  retrieveFile,
+  retrieveSignedUrl,
+  decodeBase64Image,
+} from '../helpers/S3';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
-const BUCKET = 'rootshare-profile-images';
-
-type ImageReason =
-  | 'profile'
-  | 'profileBanner'
-  | 'communityProfile'
-  | 'communityBanner'
-  | 'eventBanner';
+import mongoose = require('mongoose');
+const User = mongoose.model('users');
 
 module.exports = (app) => {
   app.get('/test/upload', async (req, res) => {
@@ -46,57 +39,61 @@ module.exports = (app) => {
     res.write(data.Body, 'binary');
     return res.end(null, 'binary');
   });
+
+  app.post(
+    '/api/profile/updateProfilePicture',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
+
+      const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+      if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
+
+      const success = await uploadFile(
+        'profile',
+        `${req.user._id}_profile.jpeg`,
+        imageBuffer.data
+      );
+      if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
+
+      try {
+        const user = await User.findById(req.user._id);
+        user.profilePicture = `${req.user._id}_profile.jpeg`;
+        user.save();
+        log('info', 'Successfully updated user entry for profile picture');
+      } catch (err) {
+        log('error', err);
+      }
+
+      log(
+        'info',
+        `Updated profile picture for ${req.user.firstName + req.user.lastName}`
+      );
+      return res.json(sendPacket(1, 'Successfully uploaded image'));
+    }
+  );
+
+  app.get('/api/getProfilePicture/:userID', async (req, res) => {
+    const { userID } = req.params;
+    let pictureFileName = `${req.user._id}_profile.jpeg`;
+
+    try {
+      const user = await User.findById(userID);
+      if (user.profilePicture) pictureFileName = user.profilePicture;
+    } catch (err) {
+      log('err', err);
+    }
+
+    const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+    console.log('imageURL', imageURL);
+
+    if (!imageURL) {
+      return res.json(sendPacket(0, 'No profile image found for user'));
+    }
+
+    return res.json(
+      sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
+    );
+  });
 };
-
-async function uploadFile(reason: ImageReason, fileName: string, file: any) {
-  const prefix = getPathPrefix(reason);
-  if (!prefix) return false;
-
-  const params = {
-    Bucket: BUCKET,
-    Key: prefix + fileName,
-    Body: file,
-  };
-
-  try {
-    const data = await s3.upload(params).promise();
-    log('info', `Successfully uploaded: ${data.Location}`);
-    return true;
-  } catch (err) {
-    log('error', err.message);
-    return false;
-  }
-}
-
-async function retrieveFile(reason: ImageReason, fileName: string) {
-  const prefix = getPathPrefix(reason);
-  if (!prefix) return false;
-
-  const params = { Bucket: BUCKET, Key: prefix + fileName };
-  try {
-    const data = await s3.getObject(params).promise();
-    log('info', `Successfully retrieved: ${prefix + fileName}`);
-    return data;
-  } catch (err) {
-    log('error', err.message);
-    return false;
-  }
-}
-
-function getPathPrefix(imageType: ImageReason) {
-  let base = '/images/';
-  switch (imageType) {
-    case 'profile':
-      return base + 'user/profile/';
-    case 'profileBanner':
-      return base + 'user/banner/';
-    case 'communityProfile':
-      return base + 'community/profile/';
-    case 'communityBanner':
-      return base + 'community/banner/';
-    case 'eventBanner':
-      return base + 'event/banner/';
-    default:
-      return null;
-  }
-}
