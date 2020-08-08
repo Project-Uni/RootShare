@@ -72,3 +72,15 @@ export function getPathPrefix(imageType: ImageReason) {
       return null;
   }
 }
+
+export function decodeBase64Image(dataString: string) {
+  const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  const output: { type?: string; data?: Buffer } = {};
+
+  if (matches.length !== 3) return {};
+
+  output.type = matches[1];
+  output.data = new Buffer(matches[2], 'base64');
+
+  return output;
+}

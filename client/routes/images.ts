@@ -6,7 +6,7 @@ const fs = require('fs');
 import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
 
-import { uploadFile, retrieveFile } from '../helpers/S3';
+import { uploadFile, retrieveFile, decodeBase64Image } from '../helpers/S3';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import mongoose = require('mongoose');
@@ -45,11 +45,13 @@ module.exports = (app) => {
       const { image } = req.body;
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      //TODO - Image appear corrupted. It is able to load on the frontend, might have something to do with that (or data getting lost?)
+      const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+      if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
+
       const success = await uploadFile(
         'profile',
         `${req.user._id}_profile.jpeg`,
-        image
+        imageBuffer.data
       );
       if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
 
