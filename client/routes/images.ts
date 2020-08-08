@@ -28,7 +28,7 @@ module.exports = (app) => {
         log('error', err);
         return res.json(sendPacket(0, 'Error uploading', { err: err }));
       }
-      const success = await uploadFile('profile', 'dhruv.jpeg', data);
+      const success = await uploadFile('profile', 'smit.jpeg', data);
 
       if (!success) {
         return res.json(sendPacket(0, 'Failed to upload image'));
