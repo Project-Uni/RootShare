@@ -1,4 +1,4 @@
-export default function getCroppedImage(
+export function getCroppedImage(
   image: HTMLImageElement,
   crop: { [key: string]: any },
   fileName: string,
@@ -28,9 +28,25 @@ export default function getCroppedImage(
       if (!blob) {
         reject(new Error('Canvas is empty'));
       }
+
       window.URL.revokeObjectURL(fileUrl);
       const newFileUrl = window.URL.createObjectURL(blob);
       resolve(newFileUrl);
     }, 'image/jpeg');
   });
+}
+
+export async function imageURLToFile(
+  imageURL: string,
+  callback: (data: string | ArrayBuffer | null) => any
+) {
+  const imageBlob = await fetch(imageURL).then((res) => res.blob());
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const arrayBuffer = reader.result;
+    callback(arrayBuffer);
+  };
+
+  reader.readAsDataURL(imageBlob);
 }

@@ -17,7 +17,10 @@ import 'react-image-crop/dist/ReactCrop.css';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
-import getCroppedImage from './profileHelpers/getCroppedImage';
+import {
+  getCroppedImage,
+  imageURLToFile,
+} from './profileHelpers/profilePictureHelpers';
 import log from '../helpers/logger';
 
 const useStyles = makeStyles((_: any) => ({
@@ -127,16 +130,12 @@ function ProfilePicture(props: Props) {
     }
   }
 
-  function handleSaveImage() {
-    // console.log('CroppedImageURL:', croppedImageURL);
-    const imageReader = new FileReader();
+  async function handleSaveImage() {
+    imageURLToFile(croppedImageURL!, sendPictureToServer);
+  }
 
-    imageReader.onloadend = (event: ProgressEvent) => {
-      const resultBuffer = imageReader.result;
-      console.log('Result:', resultBuffer);
-    };
-
-    imageReader.readAsDataURL(croppedImageURL);
+  async function sendPictureToServer(data: string | ArrayBuffer | null) {
+    console.log('Calling callback:', data);
   }
 
   function renderImage() {
