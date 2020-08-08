@@ -17,6 +17,8 @@ import 'react-image-crop/dist/ReactCrop.css';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
+import getCroppedImage from './profileHelpers/getCroppedImage';
+import log from '../helpers/logger';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -63,15 +65,19 @@ function ProfilePicture(props: Props) {
 
   const [hovering, setHovering] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
+  const [croppedImageURL, setCroppedImageURL] = useState<string>();
+  const [imageRef, setImageRef] = useState<HTMLImageElement>();
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
-    height: 500,
+    height: 300,
     top: 100,
     left: 100,
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
+  // const imageRef = useRef<HTMLImageElement>(null);
+  // var imageRef: HTMLImageElement;
 
   function handleMouseOver() {
     setHovering(true);
@@ -97,6 +103,37 @@ function ProfilePicture(props: Props) {
       imageReader.readAsDataURL(event.target.files[0]);
     }
   }
+
+  function handleImageLoaded(image: HTMLImageElement) {
+    console.log('Calling imageLoaded. image:', image);
+    setImageRef(image);
+  }
+
+  function handleCropChange(newCrop: { [key: string]: any }) {
+    console.log('New crop:', newCrop);
+    setCrop(newCrop);
+  }
+
+  async function handleCropComplete(newCrop: { [key: string]: any }) {
+    console.log('Calling on complete. imageRef:', imageRef);
+    if (imageRef && newCrop.width && newCrop.height) {
+      try {
+        const imageURL = await getCroppedImage(
+          imageRef,
+          newCrop,
+          'new-profile.jpeg',
+          croppedImageURL || ''
+        );
+
+        setCroppedImageURL(imageURL);
+        console.log('handleCropComplete -> croppedImage', imageURL);
+      } catch (err) {
+        log('error', err);
+      }
+    }
+  }
+
+  function handleSaveImage() {}
 
   function renderImage() {
     return (
@@ -149,11 +186,13 @@ function ProfilePicture(props: Props) {
           Update Image
         </DialogTitle>
         <DialogContent>
-          <div style={{ display: 'block' }}>
+          <div style={{ height: 500, width: 500 }}>
             <ReactCrop
               src={imageSrc!}
               crop={crop}
-              onChange={(newCrop) => setCrop(newCrop)}
+              onImageLoaded={handleImageLoaded}
+              onChange={handleCropChange}
+              onComplete={handleCropComplete}
               circularCrop
               ruleOfThirds
             />
@@ -173,10 +212,15 @@ function ProfilePicture(props: Props) {
       </Dialog>
     );
   }
+
+  function testPreviewCrop() {
+    return <>{croppedImageURL && <img src={croppedImageURL} />}</>;
+  }
   return (
     <div className={styles.wrapper}>
       {renderImage()}
       {renderCrop()}
+      {testPreviewCrop()}
     </div>
   );
 }
