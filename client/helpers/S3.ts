@@ -1,7 +1,6 @@
 import AWS = require('aws-sdk');
 
 const AWSKeys = require('../../keys/aws_key.json');
-const fs = require('fs');
 
 import log from '../helpers/logger';
 
@@ -13,7 +12,7 @@ const s3 = new AWS.S3({
 
 const BUCKET = 'rootshare-profile-images';
 
-export type ImageReason =
+type ImageReason =
   | 'profile'
   | 'profileBanner'
   | 'communityProfile'

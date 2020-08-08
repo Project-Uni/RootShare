@@ -1,6 +1,3 @@
-// import AWS = require('aws-sdk');
-
-// const AWSKeys = require('../../keys/aws_key.json');
 const fs = require('fs');
 
 import log from '../helpers/logger';

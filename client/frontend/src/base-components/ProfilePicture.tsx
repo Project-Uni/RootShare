@@ -22,7 +22,6 @@ import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
-  imageURLToBlob,
 } from './profileHelpers/profilePictureHelpers';
 import log from '../helpers/logger';
 import { makeRequest } from '../helpers/makeRequest';
@@ -61,14 +60,15 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  accessToken: string;
+  refreshToken: string;
   className?: string;
   currentPicture?: any;
   editable?: boolean;
   height: number;
   width: number;
   borderRadius?: number;
-  accessToken: string;
-  refreshToken: string;
+  updateCurrentPicture?: (imageData: string) => any;
 };
 
 function ProfilePicture(props: Props) {
@@ -141,8 +141,6 @@ function ProfilePicture(props: Props) {
 
   async function handleSaveImage() {
     imageURLToFile(croppedImageURL!, sendPictureToServer);
-    // const imageData = imageURLToBlob(croppedImageURL!);
-    // sendPictureToServer(imageData);
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
@@ -158,10 +156,11 @@ function ProfilePicture(props: Props) {
     );
     if (data['success'] !== 1) {
       setUploadErr(data.message);
-    } else {
-      setUploadErr('');
-      setImageSrc(undefined);
+      return;
     }
+    setUploadErr('');
+    setImageSrc(undefined);
+    props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
   function renderImage() {
