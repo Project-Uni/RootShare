@@ -39,7 +39,6 @@ const useStyles = makeStyles((_: any) => ({
   right: {
     display: 'flex',
     flexDirection: 'column',
-    alignContent: 'flex-end',
     marginRight: 12,
     marginTop: 7,
   },

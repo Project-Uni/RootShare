@@ -17,7 +17,6 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
   },
   message: {
-    marginLeft: 54,
     color: colors.primaryText,
     marginTop: 2,
     marginBottom: 5,
@@ -29,6 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: 'gray',
     borderRadius: 7,
     borderWidth: '2px',
+    maxWidth: 300,
   },
   timeStamp: {
     textAlign: 'right',

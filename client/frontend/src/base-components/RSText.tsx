@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
+    wordWrap: 'break-word',
     margin: 0,
   },
   title: {

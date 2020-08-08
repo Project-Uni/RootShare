@@ -52,6 +52,7 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
     marginTop: 7,
     marginBottom: 10,
+    maxWidth: 300,
   },
   bottom: {
     display: 'flex',
