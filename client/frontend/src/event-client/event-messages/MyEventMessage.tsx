@@ -121,6 +121,7 @@ type Props = {
 function MyEventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
+  const [numLikes, setNumLikes] = useState(0);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [loadingLike, setLoadingLike] = useState(false);
   const open = Boolean(anchorEl);
@@ -129,8 +130,19 @@ function MyEventMessage(props: Props) {
     setLiked(props.message.liked);
   }, [props.message.liked]);
 
+  useEffect(() => {
+    setNumLikes(props.message.numLikes);
+  }, [props.message.numLikes]);
+
   async function handleLikeClicked() {
-    setLiked((prevVal) => !prevVal);
+    setLiked((prevVal) => {
+      setNumLikes((prevNumLikes) => {
+        if (prevVal) return prevNumLikes > 0 ? prevNumLikes - 1 : 0;
+        else return prevNumLikes + 1;
+      });
+      return !prevVal;
+    });
+
     setLoadingLike(true);
     const { data } = await makeRequest(
       'POST',
@@ -209,21 +221,19 @@ function MyEventMessage(props: Props) {
           <div className={styles.right}>
             {liked ? (
               <FaStar
-                // disabled={loadingLike}
                 onClick={handleLikeClicked}
                 className={styles.star}
                 size={16}
               />
             ) : (
               <FaRegStar
-                // disabled={loadingLike}
                 onClick={handleLikeClicked}
                 className={styles.starGray}
                 size={16}
               />
             )}
             <RSText size={10} className={styles.likeCount}>
-              {props.message.numLikes}
+              {numLikes}
             </RSText>
           </div>
         </div>
