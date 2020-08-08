@@ -94,7 +94,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   newMessage: MessageType;
-  socket: SocketIOClient.Socket;
+  messageSocket: SocketIOClient.Socket;
 };
 
 function EventMessageContainer(props: Props) {
@@ -118,28 +118,28 @@ function EventMessageContainer(props: Props) {
 
   useEffect(() => {
     if (
-      Object.keys(props.socket).length === 0 ||
+      Object.keys(props.messageSocket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined ||
       props.user === undefined
     )
       return;
     fetchMessages();
-  }, [props.socket, props.conversationID, props.user]);
+  }, [props.messageSocket, props.conversationID, props.user]);
 
   useEffect(() => {
     if (
-      Object.keys(props.socket).length === 0 ||
+      Object.keys(props.messageSocket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined
     )
       return;
 
-    props.socket.emit('connectToConversation', props.conversationID);
-    props.socket.on('updateLikes', (messageData: any) => {
+    props.messageSocket.emit('connectToConversation', props.conversationID);
+    props.messageSocket.on('updateLikes', (messageData: any) => {
       setLikeUpdate(messageData);
     });
-  }, [props.socket, props.conversationID]);
+  }, [props.messageSocket, props.conversationID]);
 
   useEffect(() => {
     handleNewMessage(props.newMessage);
@@ -301,7 +301,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
     newMessage: state.newMessage,
-    socket: state.socket,
+    messageSocket: state.messageSocket,
   };
 };
 

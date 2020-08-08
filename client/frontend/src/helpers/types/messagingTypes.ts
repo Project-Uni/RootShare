@@ -22,7 +22,3 @@ export type LikeUpdateType = {
   messageID: string;
   numLikes: number;
 };
-
-// export type UserType = {
-
-// }

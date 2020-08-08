@@ -66,8 +66,7 @@ function MessagesDrawerContainer(props: Props) {
   function handleNewMessage(newMessage: MessageType) {
     if (
       Object.keys(newMessage).length === 0 ||
-      newMessage === undefined ||
-      newMessage === null ||
+      !newMessage ||
       newMessage.conversationID !== currConversationID
     )
       return;

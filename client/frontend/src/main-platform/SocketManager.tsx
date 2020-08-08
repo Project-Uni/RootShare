@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import { makeRequest } from '../helpers/functions';
 import { updateConversations, updateNewMessage } from '../redux/actions/message';
-import { updateSocket } from '../redux/actions/socket';
+import { updateMessageSocket } from '../redux/actions/sockets';
 
 import { MessageType, ConversationType } from '../helpers/types';
 
@@ -23,7 +23,7 @@ type Props = {
   newMessage: MessageType;
   updateConversations: (conversations: ConversationType[]) => void;
   updateNewMessage: (newMessage: MessageType) => void;
-  updateSocket: (socket: SocketIOClient.Socket) => void;
+  updateMessageSocket: (socket: SocketIOClient.Socket) => void;
 };
 
 function SocketManager(props: Props) {
@@ -87,7 +87,7 @@ function SocketManager(props: Props) {
       console.log(`Received socket error: ${err}`);
     });
 
-    props.updateSocket(socket);
+    props.updateMessageSocket(socket);
   }
 
   function disconnectSocket() {
@@ -179,8 +179,8 @@ const mapDispatchToProps = (dispatch: any) => {
     updateNewMessage: (newMessage: MessageType) => {
       dispatch(updateNewMessage(newMessage));
     },
-    updateSocket: (socket: SocketIOClient.Socket) => {
-      dispatch(updateSocket(socket));
+    updateMessageSocket: (socket: SocketIOClient.Socket) => {
+      dispatch(updateMessageSocket(socket));
     },
   };
 };
