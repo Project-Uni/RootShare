@@ -45,6 +45,8 @@ module.exports = (app) => {
       const { image } = req.body;
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
+      console.log('Image:', image.substr(0, 100));
+
       const success = await uploadFile(
         'profile',
         `${req.user._id}_profile.jpeg`,
@@ -74,10 +76,18 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      const data = await retrieveFile('profile', `${req.user._id}_profile.jpeg`);
-      if (!data) {
-        return res.json(sendPacket(0, 'Failed to retrieve image'));
+      let pictureFileName = `${req.user._id}_profile.jpeg`;
+
+      try {
+        const user = await User.findById(userID);
+        if (user.profilePicture) pictureFileName = user.profilePicture;
+      } catch (err) {
+        log('err', err);
       }
+
+      const data = await retrieveFile('profile', pictureFileName);
+      if (!data) return res.json(sendPacket(0, 'Failed to retrieve image'));
+
       res.writeHead(200, { 'Content-Type': 'image/jpeg' });
       res.write(data.Body, 'binary');
       return res.end(null, 'binary');
