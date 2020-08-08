@@ -110,7 +110,9 @@ module.exports = {
             'newMessage',
             jsonNewMessage
           );
-          return callback(sendPacket(1, 'Message sent', { currConversation }));
+          return callback(
+            sendPacket(1, 'Message sent', { currConversation, tempID })
+          );
         });
       });
     });
@@ -146,7 +148,7 @@ module.exports = {
     callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
   },
 
-  getLatestMessages: async (userID, conversationID, callback) => {
+  getLatestMessages: async (userID, conversationID, maxMessages = 200, callback) => {
     Conversation.findById(conversationID, async (err, conversation) => {
       if (err || conversation === undefined || conversation === null) {
         log('error', err);
@@ -155,6 +157,8 @@ module.exports = {
 
       Message.aggregate([
         { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
+        { $sort: { createdAt: -1 } },
+        { $limit: maxMessages },
         { $sort: { createdAt: 1 } },
         {
           $project: {

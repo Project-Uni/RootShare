@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 
-import { connect } from 'react-redux';
 import { makeRequest } from '../../helpers/functions';
 
 import { MessageType } from '../../helpers/types';
@@ -109,7 +108,6 @@ type Props = {
   connected?: boolean;
   accessToken: string;
   refreshToken: string;
-  socket: SocketIOClient.Socket;
 };
 
 function EventMessage(props: Props) {
@@ -239,15 +237,4 @@ function EventMessage(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(EventMessage);
+export default EventMessage;

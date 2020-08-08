@@ -69,10 +69,7 @@ function SingleSelfMessage(props: Props) {
       <RSText size={12} className={styles.message}>
         {props.message.content}
       </RSText>
-      <CustomTooltip
-        color={colors.brightError}
-        title="There was an error sending the message"
-      >
+      <CustomTooltip title="There was an error sending the message">
         {props.message.error ? (
           <ErrorOutlineIcon className={styles.errorIcon} />
         ) : (

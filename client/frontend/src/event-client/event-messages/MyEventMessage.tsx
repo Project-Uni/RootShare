@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton, Menu, MenuItem } from '@material-ui/core';
 
+import { Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
-
-import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/functions';
 
 import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
+
+import { makeRequest, getConversationTime } from '../../helpers/functions';
 import { MessageType } from '../../helpers/types';
-import { getConversationTime } from '../../helpers/functions';
 
 const options = ['Connect with yourself?', 'Cancel'];
 
@@ -107,7 +105,6 @@ type Props = {
   message: MessageType;
   accessToken: string;
   refreshToken: string;
-  socket: SocketIOClient.Socket;
 };
 
 function MyEventMessage(props: Props) {
@@ -148,6 +145,7 @@ function MyEventMessage(props: Props) {
     setAnchorEl(null);
   };
 
+  /* TODO - Think about removing the ellipsis and options from your own messages */
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
@@ -159,7 +157,6 @@ function MyEventMessage(props: Props) {
             {getConversationTime(new Date(props.message.createdAt))}
           </RSText>
         </div>
-        {/* TODO - Think about removing the ellipsis and options from your own messages */}
 
         <FaEllipsisH
           aria-label="more"
@@ -169,6 +166,7 @@ function MyEventMessage(props: Props) {
           className={styles.ellipsis}
           size={12}
         />
+        {props.message.error ? <RSText>ERRRORRRRRR</RSText> : null}
 
         <Menu
           id="long-menu"
@@ -223,15 +221,4 @@ function MyEventMessage(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(MyEventMessage);
+export default MyEventMessage;

@@ -17,7 +17,7 @@ import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcher
 import EventHostContainer from './event-video/event-host/EventHostContainer';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
-import EventClientMessageContainer from './event-messages/EventMessageContainer';
+import EventMessageContainer from './event-messages/EventMessageContainer';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -206,7 +206,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer conversationID={webinarData.conversation} />
+          <EventMessageContainer conversationID={webinarData.conversation} />
         </div>
       </div>
     </div>

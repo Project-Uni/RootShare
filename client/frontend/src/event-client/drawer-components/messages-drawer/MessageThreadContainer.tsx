@@ -135,7 +135,11 @@ function MessageThreadContainer(props: Props) {
 
       output.push(
         props.user._id === message.sender ? (
-          <SingleSelfMessage key={message._id} user={props.user} message={message} />
+          <SingleSelfMessage
+            key={message._id || message.tempID}
+            user={props.user}
+            message={message}
+          />
         ) : (
           <SingleOtherMessage
             key={message._id}
@@ -155,8 +159,9 @@ function MessageThreadContainer(props: Props) {
     const newMessage = {
       conversationID: props.conversation._id,
       sender: props.user._id,
-      senderName: props.user.firstName,
+      senderName: `${props.user.firstName} ${props.user.lastName}`,
       content: message,
+      createdAt: new Date(),
       tempID: tempID,
     };
     props.addMessage(newMessage as MessageType);
@@ -167,14 +172,14 @@ function MessageThreadContainer(props: Props) {
       {
         conversationID: props.conversation._id,
         message: message,
-        tempID: tempID,
+        tempID,
       },
       true,
       props.accessToken,
       props.refreshToken
     );
 
-    if (data['success'] !== 1 && data['content']['tempID'])
+    if (data['success'] === 1 && data['content']['tempID'])
       props.addMessageErr(data['content']['tempID']);
   }
 
