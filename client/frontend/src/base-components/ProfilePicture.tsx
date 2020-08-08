@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  CircularProgress,
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 
@@ -26,6 +27,7 @@ import {
 import log from '../helpers/logger';
 import { makeRequest } from '../helpers/makeRequest';
 import RSText from './RSText';
+import { relative } from 'path';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -55,6 +57,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   saveButton: {
     background: colors.bright,
+    color: colors.primaryText,
+  },
+  loadingIndicator: {
     color: colors.primaryText,
   },
 }));
@@ -113,6 +118,7 @@ function ProfilePicture(props: Props) {
 
       imageReader.readAsDataURL(event.target.files[0]);
     }
+    setHovering(false);
   }
 
   function handleImageLoaded(image: HTMLImageElement) {
@@ -229,6 +235,13 @@ function ProfilePicture(props: Props) {
               circularCrop
               // ruleOfThirds
             />
+            {loading && (
+              <div style={{ position: 'relative', height: 0, width: 0 }}>
+                <div style={{ position: 'absolute', bottom: 200, left: 200 }}>
+                  <CircularProgress size={100} className={styles.loadingIndicator} />
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
         <DialogActions>

@@ -27,6 +27,7 @@ type Props = {
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
   const [currentPicture, setCurrentPicture] = useState<string>();
+  const [imageLoaded, setImagedLoaded] = useState(false);
 
   useEffect(() => {
     getCurrentProfilePicture();
@@ -41,6 +42,7 @@ function ProfileDrawer(props: Props) {
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['imageURL']);
     }
+    setImagedLoaded(true);
   }
 
   function updateCurrentPicture(imageData: string) {
@@ -48,15 +50,17 @@ function ProfileDrawer(props: Props) {
   }
   return (
     <div className={styles.wrapper}>
-      <ProfilePicture
-        className={styles.profilePicture}
-        editable
-        height={150}
-        width={150}
-        borderRadius={150}
-        currentPicture={currentPicture}
-        updateCurrentPicture={updateCurrentPicture}
-      />
+      {imageLoaded && (
+        <ProfilePicture
+          className={styles.profilePicture}
+          editable
+          height={150}
+          width={150}
+          borderRadius={150}
+          currentPicture={currentPicture}
+          updateCurrentPicture={updateCurrentPicture}
+        />
+      )}
     </div>
   );
 }
