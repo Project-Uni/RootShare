@@ -15,6 +15,8 @@ import Draggable from 'react-draggable';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
+import { connect } from 'react-redux';
+
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
 import {
@@ -50,6 +52,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.secondaryText,
   },
   saveButton: {
+    background: colors.bright,
     color: colors.primaryText,
   },
 }));
@@ -61,6 +64,8 @@ type Props = {
   height: number;
   width: number;
   borderRadius?: number;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function ProfilePicture(props: Props) {
@@ -73,9 +78,9 @@ function ProfilePicture(props: Props) {
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
-    height: 300,
-    top: 100,
-    left: 100,
+    // height: 300,
+    // top: 100,
+    // left: 100,
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
@@ -186,7 +191,7 @@ function ProfilePicture(props: Props) {
     return (
       <Dialog open={Boolean(imageSrc)} PaperComponent={PaperComponent}>
         <DialogTitle className={styles.dialogText} id="draggable-title">
-          Update Image
+          Crop Image
         </DialogTitle>
         <DialogContent>
           <div style={{ height: 500, width: 500 }}>
@@ -210,7 +215,11 @@ function ProfilePicture(props: Props) {
           >
             Cancel
           </Button>
-          <Button className={styles.saveButton} onClick={handleSaveImage}>
+          <Button
+            className={styles.saveButton}
+            onClick={handleSaveImage}
+            disabled={!Boolean(croppedImageURL)}
+          >
             Save
           </Button>
         </DialogActions>
@@ -221,6 +230,7 @@ function ProfilePicture(props: Props) {
   function testPreviewCrop() {
     return <>{croppedImageURL && <img src={croppedImageURL} />}</>;
   }
+
   return (
     <div className={styles.wrapper}>
       {renderImage()}
@@ -230,7 +240,18 @@ function ProfilePicture(props: Props) {
   );
 }
 
-export default ProfilePicture;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();
