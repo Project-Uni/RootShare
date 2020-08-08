@@ -20,26 +20,6 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  headerText: {
-    margin: 0,
-    display: 'block',
-  },
-  messageTest: {},
-  textFieldContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    background: colors.secondary,
-    color: colors.primaryText,
-    borderTopStyle: 'solid',
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
-  },
-  textField: {
-    width: 250,
-    background: colors.ternary,
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
   messageContainer: {
     flex: 1,
     display: 'flex',
@@ -47,44 +27,6 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
-  },
-  input: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssLabel: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssFocused: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-    borderWidth: '2px',
-    borderColor: colors.primaryText,
-    shrink: false,
-  },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      color: colors.primaryText,
-      label: colors.primaryText,
-      borderWidth: '2px',
-      borderColor: colors.primaryText,
-    },
-  },
-  notchedOutline: {
-    borderWidth: '2px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
-  },
-  paper: {
-    width: 270,
-  },
-  icon: {
-    color: colors.primaryText,
-    '&:hover': {
-      color: colors.bright,
-    },
   },
 }));
 

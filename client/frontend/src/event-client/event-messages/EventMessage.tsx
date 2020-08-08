@@ -36,10 +36,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 7,
     marginBottom: 5,
   },
-  rightBottom: {
-    display: 'flex',
-    marginRight: -2,
-  },
   senderName: {
     margin: 10,
     display: 'inline-block',
