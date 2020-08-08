@@ -74,6 +74,7 @@ type Props = {
 function ProfilePicture(props: Props) {
   const styles = useStyles();
 
+  const [loading, setLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
   const [croppedImageURL, setCroppedImageURL] = useState<string>();
@@ -144,6 +145,7 @@ function ProfilePicture(props: Props) {
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
+    setLoading(true);
     const { data } = await makeRequest(
       'POST',
       '/api/profile/updateProfilePicture',
@@ -154,6 +156,7 @@ function ProfilePicture(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+    setLoading(false);
     if (data['success'] !== 1) {
       setUploadErr(data.message);
       return;
@@ -236,6 +239,7 @@ function ProfilePicture(props: Props) {
           )}
           <Button
             className={styles.cancelButton}
+            disabled={loading}
             onClick={() => {
               setImageSrc(undefined);
             }}
@@ -245,7 +249,7 @@ function ProfilePicture(props: Props) {
           <Button
             className={styles.saveButton}
             onClick={handleSaveImage}
-            disabled={!Boolean(croppedImageURL)}
+            disabled={!Boolean(croppedImageURL) || loading}
           >
             Save
           </Button>

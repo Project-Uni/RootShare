@@ -7,7 +7,6 @@ import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token
 import { makeRequest } from '../../helpers/makeRequest';
 
 import ProfilePicture from '../../base-components/ProfilePicture';
-import { isString } from 'util';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
