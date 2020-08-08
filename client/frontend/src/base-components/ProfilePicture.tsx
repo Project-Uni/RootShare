@@ -24,6 +24,8 @@ import {
   imageURLToFile,
 } from './profileHelpers/profilePictureHelpers';
 import log from '../helpers/logger';
+import { makeRequest } from '../helpers/makeRequest';
+import RSText from './RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -75,6 +77,7 @@ function ProfilePicture(props: Props) {
   const [imageSrc, setImageSrc] = useState<string>();
   const [croppedImageURL, setCroppedImageURL] = useState<string>();
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
+  const [uploadErr, setUploadErr] = useState('');
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -139,8 +142,23 @@ function ProfilePicture(props: Props) {
     imageURLToFile(croppedImageURL!, sendPictureToServer);
   }
 
-  async function sendPictureToServer(data: string | ArrayBuffer | null) {
-    console.log('Calling callback:', data);
+  async function sendPictureToServer(imageData: string | ArrayBuffer | null) {
+    const { data } = await makeRequest(
+      'POST',
+      '/api/profile/updateProfilePicture',
+      {
+        image: imageData,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] !== 1) {
+      setUploadErr(data.message);
+    } else {
+      setUploadErr('');
+      setImageSrc(undefined);
+    }
   }
 
   function renderImage() {
@@ -191,7 +209,9 @@ function ProfilePicture(props: Props) {
     return (
       <Dialog open={Boolean(imageSrc)} PaperComponent={PaperComponent}>
         <DialogTitle className={styles.dialogText} id="draggable-title">
-          Crop Image
+          <RSText type="head" size={16} bold>
+            Crop Image
+          </RSText>
         </DialogTitle>
         <DialogContent>
           <div style={{ height: 500, width: 500 }}>
@@ -207,6 +227,11 @@ function ProfilePicture(props: Props) {
           </div>
         </DialogContent>
         <DialogActions>
+          {uploadErr && (
+            <RSText type="body" size={12} color="red" italic>
+              {uploadErr}
+            </RSText>
+          )}
           <Button
             className={styles.cancelButton}
             onClick={() => {

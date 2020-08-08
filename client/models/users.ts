@@ -41,6 +41,7 @@ var userSchema = new Schema(
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
     //TODO - Add fields for profile picture and background image
+    profilePicture: { type: String },
   },
   { timestamps: true }
 );

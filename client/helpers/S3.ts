@@ -13,7 +13,7 @@ const s3 = new AWS.S3({
 
 const BUCKET = 'rootshare-profile-images';
 
-type ImageReason =
+export type ImageReason =
   | 'profile'
   | 'profileBanner'
   | 'communityProfile'
