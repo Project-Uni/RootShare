@@ -27,7 +27,6 @@ import {
 import log from '../helpers/logger';
 import { makeRequest } from '../helpers/makeRequest';
 import RSText from './RSText';
-import { relative } from 'path';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
