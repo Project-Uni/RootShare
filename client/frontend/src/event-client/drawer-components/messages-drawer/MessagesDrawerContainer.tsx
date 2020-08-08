@@ -73,11 +73,11 @@ function MessagesDrawerContainer(props: Props) {
       return;
 
     if (newMessage.sender === props.user._id)
-      for (let i = 0; i < messages.length; i++) {
+      for (let i = messages.length - 1; i >= 0; i--) {
         if (messages[i].tempID === newMessage.tempID) {
-          // let newMessages = messages.slice();
-          // newMessages[i] = newMessage;
-          // setMessages(newMessages);
+          let newMessages = messages.slice();
+          newMessages[i] = newMessage;
+          setMessages(newMessages);
           return;
         }
       }

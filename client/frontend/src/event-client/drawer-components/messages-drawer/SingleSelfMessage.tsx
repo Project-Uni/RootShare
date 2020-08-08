@@ -41,10 +41,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 'auto',
     marginBottom: 'auto',
   },
-  errorTip: {
-    color: colors.brightError,
-    fontSize: 11,
-  },
 }));
 
 const CustomTooltip = withStyles((theme: Theme) => ({
@@ -69,7 +65,7 @@ function SingleSelfMessage(props: Props) {
       <RSText size={12} className={styles.message}>
         {props.message.content}
       </RSText>
-      <CustomTooltip title="There was an error sending the message">
+      <CustomTooltip title="There was an error sending this message">
         {props.message.error ? (
           <ErrorOutlineIcon className={styles.errorIcon} />
         ) : (

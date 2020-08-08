@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
 
 import { Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
@@ -22,6 +24,13 @@ const useStyles = makeStyles((_: any) => ({
     borderWidth: '1px',
     borderColor: 'lightgray',
   },
+  errorWrapper: {
+    background: colors.brightError,
+    paddingBottom: 4,
+    borderTopStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'lightgray',
+  },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -33,7 +42,6 @@ const useStyles = makeStyles((_: any) => ({
     alignContent: 'flex-end',
     marginRight: 12,
     marginTop: 7,
-    marginBottom: 5,
   },
   rightBottom: {
     display: 'flex',
@@ -60,7 +68,6 @@ const useStyles = makeStyles((_: any) => ({
   likeCount: {
     color: '#f2f2f2',
     alignSelf: 'flex-end',
-    marginBottom: 3,
   },
   star: {
     '&:hover': {
@@ -85,7 +92,6 @@ const useStyles = makeStyles((_: any) => ({
     color: 'grey',
   },
   time: {
-    marginLeft: 0,
     display: 'inline-block',
     color: 'grey',
   },
@@ -98,6 +104,11 @@ const useStyles = makeStyles((_: any) => ({
     color: 'grey',
     marginBottom: 18,
     marginRight: 10,
+  },
+  errorIcon: {
+    color: colors.brightError,
+    marginTop: 'auto',
+    marginBottom: 'auto',
   },
 }));
 
@@ -145,78 +156,118 @@ function MyEventMessage(props: Props) {
     setAnchorEl(null);
   };
 
+  function renderSuccessfulMessage() {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.top}>
+          <div>
+            <RSText bold className={styles.senderName}>
+              {props.message.senderName}
+            </RSText>
+            <RSText size={10} className={styles.time}>
+              {getConversationTime(new Date(props.message.createdAt))}
+            </RSText>
+          </div>
+
+          <FaEllipsisH
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+            className={styles.ellipsis}
+            size={12}
+          />
+
+          <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={open}
+            onClose={handleClose}
+            PaperProps={{
+              style: {
+                maxHeight: ITEM_HEIGHT * 4.5,
+                width: 200,
+              },
+            }}
+          >
+            {options.map((option) => (
+              <MenuItem
+                key={option}
+                selected={option === 'Cancel'}
+                onClick={handleClose}
+              >
+                {option}
+              </MenuItem>
+            ))}
+          </Menu>
+        </div>
+        <div className={styles.bottom}>
+          <div className={styles.left}>
+            <RSText className={styles.message}>{props.message.content}</RSText>
+          </div>
+          <div className={styles.right}>
+            {liked ? (
+              <FaStar
+                // disabled={loadingLike}
+                onClick={handleLikeClicked}
+                className={styles.star}
+                size={16}
+              />
+            ) : (
+              <FaRegStar
+                // disabled={loadingLike}
+                onClick={handleLikeClicked}
+                className={styles.starGray}
+                size={16}
+              />
+            )}
+            <RSText size={10} className={styles.likeCount}>
+              {props.message.numLikes}
+            </RSText>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderErroredMessage() {
+    return (
+      <CustomTooltip title="There was an error sending this message">
+        <div className={styles.errorWrapper}>
+          <div className={styles.top}>
+            <div>
+              <RSText bold className={styles.senderName}>
+                {props.message.senderName}
+              </RSText>
+              <RSText size={10} className={styles.time}>
+                {getConversationTime(new Date(props.message.createdAt))}
+              </RSText>
+            </div>
+          </div>
+          <div className={styles.bottom}>
+            <div className={styles.left}>
+              <RSText className={styles.message}>{props.message.content}</RSText>
+            </div>
+          </div>
+        </div>
+      </CustomTooltip>
+    );
+  }
+
+  const CustomTooltip = withStyles((theme: Theme) => ({
+    tooltip: {
+      backgroundColor: theme.palette.common.white,
+      color: colors.brightError,
+      boxShadow: theme.shadows[1],
+      fontSize: 12,
+    },
+  }))(Tooltip);
+
   /* TODO - Think about removing the ellipsis and options from your own messages */
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.top}>
-        <div>
-          <RSText bold className={styles.senderName}>
-            {props.message.senderName}
-          </RSText>
-          <RSText size={10} className={styles.time}>
-            {getConversationTime(new Date(props.message.createdAt))}
-          </RSText>
-        </div>
-
-        <FaEllipsisH
-          aria-label="more"
-          aria-controls="long-menu"
-          aria-haspopup="true"
-          onClick={handleClick}
-          className={styles.ellipsis}
-          size={12}
-        />
-        {props.message.error ? <RSText>ERRRORRRRRR</RSText> : null}
-
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={open}
-          onClose={handleClose}
-          PaperProps={{
-            style: {
-              maxHeight: ITEM_HEIGHT * 4.5,
-              width: 200,
-            },
-          }}
-        >
-          {options.map((option) => (
-            <MenuItem
-              key={option}
-              selected={option === 'Cancel'}
-              onClick={handleClose}
-            >
-              {option}
-            </MenuItem>
-          ))}
-        </Menu>
-      </div>
-      <div className={styles.bottom}>
-        <div className={styles.left}>
-          <RSText className={styles.message}>{props.message.content}</RSText>
-        </div>
-        <div className={styles.right}>
-          {liked ? (
-            <FaStar
-              // disabled={loadingLike}
-              onClick={handleLikeClicked}
-              className={styles.star}
-              size={16}
-            />
-          ) : (
-            <FaRegStar
-              // disabled={loadingLike}
-              onClick={handleLikeClicked}
-              className={styles.starGray}
-              size={16}
-            />
-          )}
-          <RSText size={10} className={styles.likeCount}>
-            {props.message.numLikes}
-          </RSText>
-        </div>
-      </div>
+    <div>
+      {props.message.error ? renderErroredMessage() : renderSuccessfulMessage()}
     </div>
   );
 }

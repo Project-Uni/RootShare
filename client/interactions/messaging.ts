@@ -110,9 +110,7 @@ module.exports = {
             'newMessage',
             jsonNewMessage
           );
-          return callback(
-            sendPacket(1, 'Message sent', { currConversation, tempID })
-          );
+          return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
       });
     });

@@ -165,11 +165,11 @@ function EventMessageContainer(props: Props) {
     if (!newMessage['numLikes']) newMessage.numLikes = 0;
 
     if (newMessage.sender === props.user._id)
-      for (let i = 0; i < messages.length; i++) {
+      for (let i = messages.length - 1; i >= 0; i--) {
         if (messages[i].tempID === newMessage.tempID) {
-          // let newMessages = messages.slice();
-          // newMessages[i] = newMessage;
-          // setMessages(newMessages);
+          let newMessages = messages.slice();
+          newMessages[i] = newMessage;
+          setMessages(newMessages);
           return;
         }
       }
@@ -222,7 +222,7 @@ function EventMessageContainer(props: Props) {
   }
 
   async function handleSendMessage(message: string) {
-    const tempID = messages.length.toString();
+    const tempID = new Date().toISOString();
     const newMessageObj = {
       conversationID: props.conversationID,
       sender: props.user._id,
@@ -243,9 +243,8 @@ function EventMessageContainer(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1 && data['content']['tempID'])
+    if (data['success'] !== 1 && data['content']['tempID'])
       addMessageErr(data['content']['tempID']);
-    else alert('REAL ERROR: ' + data['message']);
   }
 
   function renderMessages() {

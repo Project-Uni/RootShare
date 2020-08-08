@@ -155,7 +155,7 @@ function MessageThreadContainer(props: Props) {
   }
 
   async function handleSendMessage(message: string) {
-    const tempID = props.messages.length.toString();
+    const tempID = new Date().toISOString();
     const newMessage = {
       conversationID: props.conversation._id,
       sender: props.user._id,
@@ -179,7 +179,7 @@ function MessageThreadContainer(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1 && data['content']['tempID'])
+    if (data['success'] !== 1 && data['content']['tempID'])
       props.addMessageErr(data['content']['tempID']);
   }
 
