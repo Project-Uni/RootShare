@@ -280,13 +280,13 @@ function EventMessageContainer(props: Props) {
   }
 
   function scrollToBottom() {
-    const messageContainer = document.getElementById('messageContainer');
-    messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
+    const eventMessageContainer = document.getElementById('eventMessageContainer');
+    eventMessageContainer?.scrollTo(0, eventMessageContainer?.scrollHeight);
   }
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <div id="messageContainer" className={styles.messageContainer}>
+      <div id="eventMessageContainer" className={styles.messageContainer}>
         {renderMessages()}
       </div>
 
