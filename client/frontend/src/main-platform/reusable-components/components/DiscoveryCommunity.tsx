@@ -9,7 +9,7 @@ import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${colors.secondaryText}`,
+    borderBottom: `1px solid ${colors.fourth}`,
     paddingBottom: 15,
     display: 'flex',
     justifyContent: 'flex-start',

@@ -15,20 +15,21 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.fourth,
     overflow: 'scroll',
     minWidth: 600,
   },
   loadingIndicator: {
     color: colors.primary,
-    marginTop: 80,
+    marginTop: 1,
   },
   posts: {
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 1,
+    marginRight: 1,
   },
   singlePost: {
-    marginTop: 10,
+    marginTop: 1,
+    borderRadius: 1,
   },
 }));
 

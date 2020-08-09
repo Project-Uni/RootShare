@@ -13,7 +13,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.fourth,
     overflow: 'scroll',
   },
   body: {},
@@ -24,16 +24,17 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 20,
-    marginRight: 20,
+    background: colors.primaryText,
   },
   stream: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 10,
-    borderBottom: `1px solid ${colors.secondaryText}`,
+    marginLeft: 1,
+    marginRight: 1,
+    marginTop: 1,
     paddingBottom: 15,
   },
+  searchIcon: {
+    marginRight: 10,
+  }
 }));
 
 type Props = {};
@@ -84,7 +85,7 @@ function StreamLibraryBody(props: Props) {
           onChange={handleSearchChange}
         />
         <IconButton onClick={handleSearchClicked}>
-          <FaSearch size={22} color={colors.primary} />
+          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );
