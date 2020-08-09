@@ -5,7 +5,7 @@ import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
 import passport = require('passport');
-import log from './helpers/logger';
+import log, { initializeDirectory } from './helpers/logger';
 import * as path from 'path';
 
 import { rateLimiter } from './middleware';
@@ -24,6 +24,8 @@ mongoConfig.connectDB(function (err, client) {
 fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
+
+initializeDirectory();
 
 const app = express();
 const port = process.env.PORT || 8000;
