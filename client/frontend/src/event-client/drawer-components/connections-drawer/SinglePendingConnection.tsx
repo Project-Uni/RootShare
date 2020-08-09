@@ -11,7 +11,7 @@ import {
   UserType,
   UniversityType,
 } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -22,6 +22,7 @@ const useStyles = makeStyles((_: any) => ({
   left: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   top: {
     display: 'flex',
@@ -45,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   organization: {
     marginTop: 20,
-    marginLeft: 39,
+    marginLeft: 38,
     color: colors.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 196,
@@ -106,40 +107,40 @@ function SinglePendingConnection(props: Props) {
   const [visible, setVisible] = useState(true);
   const [accepted, setAccepted] = useState(false);
 
+  function respondRequest(accepted: boolean) {
+    const requestID = props.connectionRequest._id;
+    makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID,
+        accepted,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (!accepted) {
+      setVisible(false);
+      setTimeout(() => {
+        props.removePending(requestID);
+      }, 500);
+    } else {
+      setAccepted(true);
+      setTimeout(() => {
+        setVisible(false);
+      }, 300);
+      setTimeout(() => {
+        props.removePending(requestID);
+        props.addConnection(props.connectionRequest.from as UserType);
+      }, 1000);
+    }
+  }
+
   function renderPending() {
     const requestUser = props.connectionRequest.from as UserType;
     const requestUserUniversity = requestUser.university as UniversityType;
-
-    function respondRequest(accepted: boolean) {
-      const requestID = props.connectionRequest._id;
-      makeRequest(
-        'POST',
-        '/user/respondConnection',
-        {
-          requestID,
-          accepted,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
-
-      if (!accepted) {
-        setVisible(false);
-        setTimeout(() => {
-          props.removePending(requestID);
-        }, 500);
-      } else {
-        setAccepted(true);
-        setTimeout(() => {
-          setVisible(false);
-        }, 300);
-        setTimeout(() => {
-          props.removePending(requestID);
-          props.addConnection(props.connectionRequest.from as UserType);
-        }, 1000);
-      }
-    }
 
     return (
       <div className={styles.wrapper}>
@@ -152,7 +153,8 @@ function SinglePendingConnection(props: Props) {
           </div>
           <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
-              {requestUserUniversity.universityName}
+              {requestUserUniversity.universityName} |{' '}
+              {capitalizeFirstLetter(requestUser.accountType)}
             </RSText>
           </div>
         </div>

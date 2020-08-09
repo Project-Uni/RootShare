@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { UserType, UniversityType } from '../../../helpers/types';
+import { capitalizeFirstLetter } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -26,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   organization: {
-    marginLeft: 39,
+    marginLeft: 38,
     color: colors.secondaryText,
     marginTop: 10,
   },
@@ -75,7 +76,8 @@ function SingleConnection(props: Props) {
       <div className={styles.bottom}>
         <div className={styles.left}>
           <RSText size={11} italic={true} className={styles.organization}>
-            {university.universityName}
+            {university.universityName} |{' '}
+            {capitalizeFirstLetter(props.connectedUser.accountType)}
           </RSText>
         </div>
       </div>

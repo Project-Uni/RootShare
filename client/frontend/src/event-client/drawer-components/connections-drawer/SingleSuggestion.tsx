@@ -9,7 +9,7 @@ import { colors } from '../../../theme/Colors';
 
 import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
-import { makeRequest } from '../../../helpers/functions';
+import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -20,6 +20,7 @@ const useStyles = makeStyles((_: any) => ({
   left: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   top: {
     display: 'flex',
@@ -43,7 +44,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   organization: {
     marginTop: 20,
-    marginLeft: 39,
+    marginLeft: 38,
     color: colors.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 196,
@@ -140,7 +141,8 @@ function SingleSuggestion(props: Props) {
           </div>
           <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
-              {university.universityName}
+              {university.universityName} |{' '}
+              {capitalizeFirstLetter(props.suggestedUser.accountType)}
             </RSText>
           </div>
         </div>

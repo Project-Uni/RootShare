@@ -77,6 +77,7 @@ export function getConnections(userID, callback) {
             _id: '$_id',
             firstName: '$firstName',
             lastName: '$lastName',
+            accountType: '$accountType',
             university: {
               _id: '$university._id',
               universityName: '$university.universityName',
@@ -128,6 +129,7 @@ export function getConnectionSuggestions(userID, callback) {
         _id: '$_id',
         firstName: '$firstName',
         lastName: '$lastName',
+        accountType: '$accountType',
         university: {
           _id: '$university._id',
           universityName: '$university.universityName',
@@ -224,6 +226,7 @@ export function getPendingRequests(userID, callback) {
                     _id: '$_id',
                     firstName: '$firstName',
                     lastName: '$lastName',
+                    accountType: '$accountType',
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
