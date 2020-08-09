@@ -20,7 +20,7 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Session token invalid');
+    alert(data['message']);
     return false;
   }
   return data['content']['opentokSessionID'];
@@ -42,7 +42,7 @@ export async function getOpenTokToken(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Could not retrieve event token');
+    alert('Could not connect to session. Please try again');
     return false;
   }
   return data['content']['token'];
