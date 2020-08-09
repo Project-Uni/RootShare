@@ -15,12 +15,12 @@ const ICON_SIZE = 32;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.primary,
+    background: colors.second,
     width: 310,
   },
   linkContainer: {
     marginLeft: 30,
-    marginRight: 30,
+    marginRight: 27,
     marginTop: 30,
   },
   link: {

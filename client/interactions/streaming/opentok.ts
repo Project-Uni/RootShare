@@ -1,7 +1,6 @@
 const OpenTok = require('opentok');
-var mongoose = require('mongoose');
-var Webinar = mongoose.model('webinars');
-var User = mongoose.model('users');
+
+import { Webinar, User } from '../../models';
 import axios from 'axios';
 const jwt = require('njwt');
 
@@ -67,7 +66,8 @@ module.exports = {
   // Generate Token for each Publisher/Host client
   getOpenTokToken: async (sessionID) => {
     let token = await opentok.generateToken(sessionID, {
-      role: 'publisher',
+      //TODO - Deliver moderator to host, publisher to remaining
+      role: 'moderator',
       data: 'username=johndoe',
     });
 

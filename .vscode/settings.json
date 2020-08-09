@@ -1,16 +1,17 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "editor.formatOnSave": true,
-    "[javascript]": {
-        "editor.formatOnSave": false
-    },
-    "[javascriptreact]": {
-        "editor.formatOnSave": false
-    },
-    "editor.tabSize": 2,
-    "editor.wordWrapColumn": 90,
-    "javascript.format.semicolons": "insert",
-    "typescript.format.semicolons": "insert"
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": false
+  },
+  "editor.tabSize": 2,
+  "editor.wordWrapColumn": 90,
+  "javascript.format.semicolons": "insert",
+  "typescript.format.semicolons": "insert",
+  "bracket-pair-colorizer-2.colors": ["Gold", "White", "RoyalBlue", "IndianRed"]
 }

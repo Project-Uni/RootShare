@@ -8,3 +8,6 @@ var conversationSchema = new Schema({
 });
 
 mongoose.model('conversations', conversationSchema);
+const Conversation = mongoose.model('conversations');
+
+export default Conversation;

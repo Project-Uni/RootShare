@@ -59,6 +59,9 @@ require('./routes/event')(app);
 require('./routes/utilities')(app);
 require('./routes/mocks')(app);
 
+require('./routes/proxy')(app);
+
+require('./routes/images')(app);
 require('./config/setup')(passport);
 
 app.use(express.static(path.join('./', '/frontend/build')));

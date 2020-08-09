@@ -1,7 +1,6 @@
 import sendPacket from '../helpers/sendPacket';
 
-const mongoose = require('mongoose');
-const User = mongoose.model('users');
+import { User } from '../models';
 
 module.exports = {
   getUserData: (callback) => {
