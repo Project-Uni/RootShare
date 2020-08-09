@@ -15,19 +15,27 @@ import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    display: 'flex',
     background: colors.secondary,
-    paddingBottom: 10,
-    paddingTop: 5,
-    // borderBottomStyle: 'solid',
-    // borderBottomColor: 'gray',
-    // borderBottomWidth: 1,
+    paddingBottom: 7,
+  },
+  left: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  left: {},
-  right: {},
+  bottom: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: 0,
+    marginTop: -20,
+  },
+  right: {
+    marginLeft: 'auto',
+  },
   picture: {
     marginLeft: 4,
     marginTop: 12,
@@ -36,23 +44,19 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   organization: {
+    marginTop: 20,
     marginLeft: 39,
     color: colors.secondaryText,
-    marginTop: 10,
-  },
-  bottom: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    margin: 0,
-    marginTop: -20,
+    wordWrap: 'break-word',
+    maxWidth: 196,
   },
   name: {
-    marginRight: 4,
-    marginBottom: 10,
-    marginTop: -50,
     marginLeft: 10,
+    marginTop: 5,
     display: 'inline-block',
     color: colors.primaryText,
+    wordWrap: 'break-word',
+    maxWidth: 196,
   },
   removeSuggestionButton: {
     marginRight: 5,
@@ -82,7 +86,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   confirmation: {
     color: colors.success,
-    height: 31,
+    height: 31, //TODO: Set this to dynamically mimic height of wrapper?
     marginTop: 10,
     marginLeft: 38,
   },
@@ -90,6 +94,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   removePending: (requestID: string) => void;
+  addConnection: (newConnection: UserType) => void;
   connectionRequest: ConnectionRequestType;
   accessToken: string;
   refreshToken: string;
@@ -131,59 +136,56 @@ function SinglePendingConnection(props: Props) {
         }, 300);
         setTimeout(() => {
           props.removePending(requestID);
+          props.addConnection(props.connectionRequest.from as UserType);
         }, 1000);
       }
     }
 
     return (
-      <div>
-        <div className={styles.top}>
-          <div>
+      <div className={styles.wrapper}>
+        <div className={styles.left}>
+          <div className={styles.top}>
             <EmojiEmotionsIcon className={styles.picture} />
             <RSText bold size={12} className={styles.name}>
               {`${requestUser.firstName} ${requestUser.lastName}`}
             </RSText>
           </div>
-
-          <div>
-            <Button
-              className={styles.removeButton}
-              size="small"
-              onClick={() => respondRequest(false)}
-            >
-              Remove
-            </Button>
-            <Button
-              className={styles.connectButton}
-              size="small"
-              onClick={() => respondRequest(true)}
-            >
-              Connect
-            </Button>
-          </div>
-        </div>
-        <div className={styles.bottom}>
-          <div className={styles.left}>
+          <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
               {requestUserUniversity.universityName}
             </RSText>
           </div>
+        </div>
+        <div className={styles.right}>
+          <Button
+            className={styles.removeButton}
+            size="small"
+            onClick={() => respondRequest(false)}
+          >
+            Remove
+          </Button>
+          <Button
+            className={styles.connectButton}
+            size="small"
+            onClick={() => respondRequest(true)}
+          >
+            Connect
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={visible ? '' : styles.fadeOut}>
-        {accepted ? (
+    <div className={visible ? '' : styles.fadeOut}>
+      {accepted ? (
+        <div className={styles.wrapper}>
           <RSText className={styles.confirmation}>Connection Added!</RSText>
-        ) : (
-          renderPending()
-        )}
-      </div>
+        </div>
+      ) : (
+        renderPending()
+      )}
     </div>
   );
 }
-
 export default SinglePendingConnection;

@@ -1,44 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton } from '@material-ui/core';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import ClearIcon from '@material-ui/icons/Clear';
+import { Button } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
-
 import { colors } from '../../../theme/Colors';
+
 import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
 import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    display: 'flex',
     background: colors.secondary,
-    paddingBottom: 10,
-    paddingTop: 5,
-    // borderBottomStyle: 'solid',
-    // borderBottomColor: 'gray',
-    // borderBottomWidth: 1,
+    paddingBottom: 7,
+  },
+  left: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
-  },
-  left: {},
-  right: {},
-  picture: {
-    marginLeft: 0,
-    marginTop: 12,
-    marginBottom: -18,
-    display: 'inline-block',
-    color: colors.primaryText,
-  },
-  organization: {
-    marginLeft: 78,
-    color: colors.secondaryText,
-    marginTop: 10,
   },
   bottom: {
     display: 'flex',
@@ -46,41 +31,56 @@ const useStyles = makeStyles((_: any) => ({
     margin: 0,
     marginTop: -20,
   },
+  right: {
+    marginLeft: 'auto',
+  },
+  picture: {
+    marginLeft: 4,
+    marginTop: 12,
+    marginBottom: -18,
+    display: 'inline-block',
+    color: colors.primaryText,
+  },
+  organization: {
+    marginTop: 20,
+    marginLeft: 39,
+    color: colors.secondaryText,
+    wordWrap: 'break-word',
+    maxWidth: 196,
+  },
   name: {
-    marginRight: 4,
-    marginBottom: 10,
-    marginTop: -50,
     marginLeft: 10,
+    marginTop: 5,
     display: 'inline-block',
     color: colors.primaryText,
+    wordWrap: 'break-word',
+    maxWidth: 196,
   },
-  removeSuggestionButton: {
-    marginRight: 5,
-    marginBottom: -21,
-    display: 'inline-block',
-  },
-  removeSuggestionIcon: {
-    color: 'gray',
-    fontSize: 14,
-  },
-  addUserButton: {
-    marginRight: -5,
-    marginTop: -2,
+  removeButton: {
     color: colors.primaryText,
-    marginBottom: -13,
+    background: 'gray',
+    height: 27,
+    marginTop: 7,
+  },
+  connectButton: {
+    color: colors.primaryText,
+    background: colors.bright,
+    height: 27,
+    marginTop: 7,
+    marginLeft: 7,
   },
   fadeOut: {
     opacity: 0,
-    transition: 'width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s',
+    transition: 'opacity 0.5s',
   },
-  fadeIn: {
-    opacity: 1,
-    transition: 'width 0.5s, height 0.5s, opacity 0.5s 0.5s',
+  confirmationWrapper: {
+    display: 'flex',
   },
   confirmation: {
     color: colors.success,
-    marginTop: 5,
-    marginLeft: 70,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 40,
   },
 }));
 
@@ -96,6 +96,12 @@ function SingleSuggestion(props: Props) {
 
   const [visible, setVisible] = useState(true);
   const [requested, setRequested] = useState(false);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const wrapperElem = document.getElementById('suggestionWrapper');
+    if (wrapperElem) setHeight(wrapperElem.offsetHeight);
+  }, [document.getElementById('suggestionWrapper')?.offsetHeight]);
 
   function requestConnection() {
     makeRequest(
@@ -121,47 +127,52 @@ function SingleSuggestion(props: Props) {
   }
 
   function renderSuggestion() {
+    const university = props.suggestedUser.university as UniversityType;
+
     return (
-      <div>
-        <div className={styles.top}>
-          <div>
-            <IconButton
-              onClick={removeSuggestion}
-              className={styles.removeSuggestionButton}
-            >
-              <ClearIcon className={styles.removeSuggestionIcon} />
-            </IconButton>
+      <div id="suggestionWrapper" className={styles.wrapper}>
+        <div className={styles.left}>
+          <div className={styles.top}>
             <EmojiEmotionsIcon className={styles.picture} />
             <RSText bold size={12} className={styles.name}>
               {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
             </RSText>
           </div>
-
-          <IconButton onClick={requestConnection} className={styles.addUserButton}>
-            <AddCircleOutlineIcon />
-          </IconButton>
-        </div>
-        <div className={styles.bottom}>
-          <div className={styles.left}>
+          <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
               {university.universityName}
             </RSText>
           </div>
         </div>
+        <div className={styles.right}>
+          <Button
+            className={styles.removeButton}
+            size="small"
+            onClick={removeSuggestion}
+          >
+            Remove
+          </Button>
+          <Button
+            className={styles.connectButton}
+            size="small"
+            onClick={requestConnection}
+          >
+            Connect
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const university = props.suggestedUser.university as UniversityType;
   return (
-    <div className={styles.wrapper}>
-      <div className={visible ? styles.fadeIn : styles.fadeOut}>
-        {requested ? (
+    <div className={visible ? '' : styles.fadeOut}>
+      {requested ? (
+        <div className={styles.confirmationWrapper} style={{ height: height }}>
           <RSText className={styles.confirmation}>Request Sent!</RSText>
-        ) : (
-          renderSuggestion()
-        )}
-      </div>
+        </div>
+      ) : (
+        renderSuggestion()
+      )}
     </div>
   );
 }

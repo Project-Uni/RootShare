@@ -48,6 +48,7 @@ const useStyles = makeStyles((_: any) => ({
     borderTopColor: colors.primaryText,
     borderTopWidth: '1px',
     paddingTop: 10,
+    paddingBottom: 3,
   },
   sectionName: {
     color: colors.primaryText,
@@ -83,6 +84,7 @@ function ConnectionsDrawer(props: Props) {
       props.refreshToken
     );
 
+    console.log(data);
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 
@@ -153,6 +155,11 @@ function ConnectionsDrawer(props: Props) {
         <SinglePendingConnection
           key={currPending._id}
           removePending={removePending}
+          addConnection={(newConnection: UserType) =>
+            setConnections((prevConnections) =>
+              prevConnections.concat(newConnection)
+            )
+          }
           connectionRequest={currPending}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}

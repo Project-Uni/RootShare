@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton } from '@material-ui/core';
-import { FaEllipsisH } from 'react-icons/fa';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -21,14 +19,14 @@ const useStyles = makeStyles((_: any) => ({
   left: {},
   right: {},
   picture: {
-    margin: 10,
+    marginLeft: 4,
     marginTop: 12,
     marginBottom: -16,
     display: 'inline-block',
     color: colors.primaryText,
   },
   organization: {
-    marginLeft: 54,
+    marginLeft: 39,
     color: colors.secondaryText,
     marginTop: 10,
   },

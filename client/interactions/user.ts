@@ -435,7 +435,7 @@ function acceptConnectionRequest(request, callback) {
 
         // Checks that request exists in array
         const removeIndex = users[i].pendingConnections.indexOf(request._id);
-        if (removeIndex !== -1) users[i].pendingConnections.splice(removeIndex);
+        if (removeIndex !== -1) users[i].pendingConnections.splice(removeIndex, 1);
 
         try {
           await users[i].save();
@@ -487,7 +487,7 @@ function removeConnectionRequest(request, callback) {
         if (removeIndex === -1) continue;
 
         // Remove Request from each User's pending
-        users[i].pendingConnections.splice(removeIndex);
+        users[i].pendingConnections.splice(removeIndex, 1);
         try {
           await users[i].save();
         } catch (err) {
