@@ -26,7 +26,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   top: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
   left: {
@@ -57,7 +57,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 7,
     marginBottom: 10,
     wordWrap: 'break-word',
-    maxWidth: 300,
+    maxWidth: 290,
   },
   bottom: {
     display: 'flex',
@@ -66,7 +66,8 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: 309,
   },
   likeCount: {
-    marginRight: 1,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     color: '#f2f2f2',
     alignSelf: 'flex-end',
   },
@@ -77,8 +78,9 @@ const useStyles = makeStyles((_: any) => ({
     },
     alignSelf: 'flex-end',
     marginTop: -10,
-    marginBottom: 4,
-    marginRight: -3,
+    marginBottom: 3,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     color: '#6699ff',
   },
   starGray: {
@@ -88,8 +90,9 @@ const useStyles = makeStyles((_: any) => ({
     },
     alignSelf: 'flex-end',
     marginTop: -10,
-    marginBottom: 4,
-    marginRight: -3,
+    marginBottom: 3,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     color: 'grey',
   },
   time: {
@@ -105,7 +108,9 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     color: 'grey',
     marginBottom: 18,
-    marginRight: -1,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    paddingRight: 1,
   },
 }));
 
@@ -211,7 +216,7 @@ function EventMessage(props: Props) {
           aria-haspopup="true"
           onClick={handleOptionsClick}
           className={styles.ellipsis}
-          size={12}
+          size={17}
         />
 
         <Menu
@@ -234,14 +239,14 @@ function EventMessage(props: Props) {
             // disabled={loadingLike}
             className={styles.star}
             onClick={handleLikeClicked}
-            size={16}
+            size={20}
           />
         ) : (
           <FaRegStar
             // disabled={loadingLike}
             className={styles.starGray}
             onClick={handleLikeClicked}
-            size={16}
+            size={20}
           />
         )}
         <RSText size={10} className={styles.likeCount}>
