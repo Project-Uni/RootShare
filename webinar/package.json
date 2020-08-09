@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.ts | pino-colada",
+    "start": "ts-node server.ts | pino-colada",
     "startDev": "NODE_ENV=dev nodemon server.ts | pino-colada",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
