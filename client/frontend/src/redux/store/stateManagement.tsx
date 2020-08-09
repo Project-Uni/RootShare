@@ -5,7 +5,7 @@ const initializeState = () => ({
   user: {},
   accessToken: '',
   refreshToken: '',
-  socket: {},
+  messageSocket: {},
   conversations: [],
   newMessage: {},
 });

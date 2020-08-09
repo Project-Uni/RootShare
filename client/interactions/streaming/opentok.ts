@@ -19,7 +19,7 @@ import sendPacket from '../../helpers/sendPacket';
 
 module.exports = {
   createNewOpenTokSession: (webinar, callback) => {
-    if (webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
+    if (!webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
 
     if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000)
       return callback(

@@ -12,11 +12,12 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const AD_CONTAINER_HEIGHT = 125;
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     minWidth: MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH,
+    height: '100%',
   },
 }));
 
@@ -37,7 +38,7 @@ function EventWatcherVideoContainer(props: Props) {
       : MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH
   );
   const [playerHeight, setPlayerHeight] = useState(
-    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
+    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT - 2
   );
 
   useEffect(() => {
@@ -49,7 +50,7 @@ function EventWatcherVideoContainer(props: Props) {
     if (window.innerWidth >= MIN_WINDOW_WIDTH) {
       setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH - 2);
     }
-    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
+    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT - 2);
   }
 
   async function updateVideoData(muxPlaybackID: string) {

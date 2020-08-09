@@ -6,7 +6,7 @@ import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import { getConversationTime } from '../../../helpers/functions';
+import { getConversationTime } from '../../../helpers/functions/dateFormat';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -48,11 +48,14 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     marginRight: 4,
-    marginBottom: 10,
     marginTop: -50,
     marginLeft: 10,
     display: 'inline-block',
     color: colors.primaryText,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '300px',
   },
   arrow: {
     margin: 1.5,

@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton, Modal } from '@material-ui/core';
-
-import 'emoji-mart/css/emoji-mart.css';
-import { Picker } from 'emoji-mart';
-
-import { MdSend } from 'react-icons/md';
-import { FaRegSmile } from 'react-icons/fa';
-
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/functions';
+
+import { makeStyles } from '@material-ui/core/styles';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
-
 import { colors } from '../../theme/Colors';
-import { MessageType, LikeUpdateType } from '../../helpers/types';
-import { ENTER_KEYCODE } from '../../helpers/constants';
+import EventMessageTextField from './EventMessageTextField';
 
-const HEADER_HEIGHT = 58;
-const ITEM_HEIGHT = 48;
+import { MessageType, LikeUpdateType } from '../../helpers/types';
+import { makeRequest } from '../../helpers/functions';
+
+const HEADER_HEIGHT = 64;
+const MAX_MESSAGES = 40;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -27,69 +20,13 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  headerText: {
-    margin: 0,
-    display: 'block',
-  },
-  messageTest: {},
-  textFieldContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    background: colors.secondary,
-    color: colors.primaryText,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingLeft: 5,
-  },
-  textField: {
-    width: 250,
-    background: colors.ternary,
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
   messageContainer: {
     flex: 1,
-    justifyContent: 'end',
-    background: 'lightgray',
+    display: 'flex',
+    flexDirection: 'column',
+    background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
-  },
-  input: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssLabel: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssFocused: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-    borderWidth: '2px',
-    borderColor: colors.primaryText,
-  },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      color: colors.primaryText,
-      label: colors.primaryText,
-      borderWidth: '2px',
-      borderColor: colors.primaryText,
-    },
-  },
-  notchedOutline: {
-    borderWidth: '2px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
-  },
-  paper: {
-    width: 270,
-  },
-  icon: {
-    color: colors.primaryText,
-    '&:hover': {
-      color: colors.bright,
-    },
   },
 }));
 
@@ -99,17 +36,14 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   newMessage: MessageType;
-  socket: SocketIOClient.Socket;
+  messageSocket: SocketIOClient.Socket;
 };
 
 function EventMessageContainer(props: Props) {
   const styles = useStyles();
 
-  const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [modalStyle, setModalStyle] = useState(getModalStyle());
-  const [open, setOpen] = useState(false);
   const [likeUpdate, setLikeUpdate] = useState<LikeUpdateType>();
 
   useEffect(() => {
@@ -126,31 +60,31 @@ function EventMessageContainer(props: Props) {
 
   useEffect(() => {
     if (
-      Object.keys(props.socket).length === 0 ||
+      Object.keys(props.messageSocket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined ||
       props.user === undefined
     )
       return;
     fetchMessages();
-  }, [props.socket, props.conversationID, props.user]);
+  }, [props.messageSocket, props.conversationID, props.user]);
 
   useEffect(() => {
     if (
-      Object.keys(props.socket).length === 0 ||
+      Object.keys(props.messageSocket).length === 0 ||
       props.conversationID === '' ||
       props.conversationID === undefined
     )
       return;
 
-    props.socket.emit('connectToConversation', props.conversationID);
-    props.socket.on('updateLikes', (messageData: any) => {
+    props.messageSocket.emit('connectToConversation', props.conversationID);
+    props.messageSocket.on('updateLikes', (messageData: any) => {
       setLikeUpdate(messageData);
     });
-  }, [props.socket, props.conversationID]);
+  }, [props.messageSocket, props.conversationID]);
 
   useEffect(() => {
-    addMessage(props.newMessage);
+    handleNewMessage(props.newMessage);
   }, [props.newMessage]);
 
   function updateLikes() {
@@ -161,7 +95,7 @@ function EventMessageContainer(props: Props) {
     });
   }
 
-  function addMessage(newMessage: MessageType) {
+  function handleNewMessage(newMessage: MessageType) {
     if (
       Object.keys(newMessage).length === 0 ||
       newMessage === undefined ||
@@ -171,7 +105,40 @@ function EventMessageContainer(props: Props) {
       return;
 
     if (!newMessage['numLikes']) newMessage.numLikes = 0;
-    setMessages((prevMessages) => prevMessages.concat(newMessage));
+
+    if (newMessage.sender === props.user._id)
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].tempID === newMessage.tempID) {
+          let newMessages = messages.slice();
+          newMessages[i] = newMessage;
+          setMessages(newMessages);
+          return;
+        }
+      }
+
+    addMessage(newMessage);
+  }
+
+  function addMessage(newMessage: MessageType) {
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.concat(newMessage);
+      const numMessages = newMessages.length;
+      if (numMessages > MAX_MESSAGES)
+        newMessages = newMessages.slice(numMessages - MAX_MESSAGES, numMessages);
+      return newMessages;
+    });
+  }
+
+  function addMessageErr(tempID: string) {
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.slice();
+      for (let i = newMessages.length - 1; i >= 0; i--) {
+        if (newMessages[i].tempID === tempID) newMessages[i].error = true;
+        return newMessages;
+      }
+
+      return newMessages;
+    });
   }
 
   async function fetchMessages() {
@@ -180,6 +147,7 @@ function EventMessageContainer(props: Props) {
       '/api/messaging/getLatestMessages',
       {
         conversationID: props.conversationID,
+        maxMessages: MAX_MESSAGES,
       },
       true,
       props.accessToken,
@@ -193,147 +161,78 @@ function EventMessageContainer(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-    setModalStyle(getModalStyle());
   }
 
-  function getModalStyle() {
-    const bottom = 100;
-    const right = 50;
-    const containerWidth = 270;
-    const containerHeight = 400;
-    return {
-      bottom,
-      right,
-      transform: `translate(${window.innerWidth -
-        containerWidth -
-        right}px, ${window.innerHeight - containerHeight - bottom}px)`,
+  async function handleSendMessage(message: string) {
+    const tempID = new Date().toISOString();
+    const newMessageObj = {
+      conversationID: props.conversationID,
+      sender: props.user._id,
+      senderName: `${props.user.firstName} ${props.user.lastName}`,
+      content: message,
+      createdAt: new Date(),
+      numLikes: 0,
+      tempID: tempID,
     };
-  }
+    addMessage(newMessageObj as MessageType);
 
-  function onEmojiClick(emoji: { [key: string]: any }) {
-    const updateMessage = newMessage + emoji.native + ' ';
-    setNewMessage(updateMessage);
-  }
-
-  function handleMessageChange(event: any) {
-    setNewMessage(event.target.value);
-  }
-
-  function handleMessageKey(event: any) {
-    if (event.keyCode === ENTER_KEYCODE) {
-      event.preventDefault();
-      if (!getSendingDisabled()) handleSendMessage();
-    }
-  }
-
-  function getSendingDisabled() {
-    return newMessage === undefined || newMessage === null || newMessage === '';
-  }
-
-  async function handleSendMessage() {
     const { data } = await makeRequest(
       'POST',
       '/api/messaging/sendMessage',
-      { conversationID: props.conversationID, message: newMessage },
+      { conversationID: props.conversationID, message, tempID },
       true,
       props.accessToken,
       props.refreshToken
     );
 
-    setNewMessage('');
-  }
-
-  function renderEmojiPicker() {
-    return (
-      <div style={modalStyle} className={styles.paper}>
-        <Picker
-          set="apple"
-          onSelect={onEmojiClick}
-          title="Spice it up"
-          perLine={7}
-          theme="dark"
-          showPreview={false}
-          sheetSize={64}
-          emoji=""
-        />
-      </div>
-    );
+    if (data['success'] !== 1 && data['content']['tempID'])
+      addMessageErr(data['content']['tempID']);
   }
 
   function renderMessages() {
+    const numMessages = messages.length;
+    if (numMessages === 0) return;
+
     let output: any = [];
-    messages.forEach((message: MessageType) => {
+    output.push(<div key={0} style={{ marginTop: 'auto' }}></div>);
+    for (let i = 0; i < numMessages; i++) {
+      const temp = messages[i];
+      const message = temp; //.error ? { ...temp } : temp;
+
       output.push(
         message.sender !== props.user._id ? (
-          <EventMessage message={message} socket={props.socket} />
+          <EventMessage
+            key={message._id}
+            message={message}
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
+          />
         ) : (
-          <MyEventMessage message={message} socket={props.socket} />
+          <MyEventMessage
+            key={message._id || message.tempID}
+            message={message}
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
+          />
         )
       );
-    });
+    }
 
     return output;
   }
 
   function scrollToBottom() {
-    const messageContainer = document.getElementById('messageContainer');
-    messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
+    const eventMessageContainer = document.getElementById('eventMessageContainer');
+    eventMessageContainer?.scrollTo(0, eventMessageContainer?.scrollHeight);
   }
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <div id="messageContainer" className={styles.messageContainer}>
+      <div id="eventMessageContainer" className={styles.messageContainer}>
         {renderMessages()}
       </div>
 
-      <div className={styles.textFieldContainer}>
-        <TextField
-          multiline
-          type="search"
-          label="Aa"
-          variant="outlined"
-          className={styles.textField}
-          onChange={handleMessageChange}
-          onKeyDown={handleMessageKey}
-          value={newMessage}
-          InputLabelProps={{
-            classes: {
-              root: styles.cssLabel,
-              focused: styles.cssFocused,
-            },
-          }}
-          InputProps={{
-            classes: {
-              root: styles.cssOutlinedInput,
-              focused: styles.cssFocused,
-              // notchedOutline: styles.notchedOutline,
-            },
-          }}
-        />
-        <div>
-          <IconButton
-            aria-label="more"
-            aria-controls="long-menu"
-            aria-haspopup="true"
-            onClick={() => setOpen(true)}
-          >
-            <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
-          </IconButton>
-          <Modal open={open} onClose={() => setOpen(false)}>
-            {renderEmojiPicker()}
-          </Modal>
-          <IconButton
-            className={styles.icon}
-            onClick={handleSendMessage}
-            disabled={getSendingDisabled()}
-          >
-            <MdSend
-              size={20}
-              style={{ color: getSendingDisabled() ? '#555555' : undefined }}
-            />
-          </IconButton>
-        </div>
-      </div>
+      <EventMessageTextField handleSendMessage={handleSendMessage} />
     </div>
   );
 }
@@ -344,7 +243,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
     newMessage: state.newMessage,
-    socket: state.socket,
+    messageSocket: state.messageSocket,
   };
 };
 

@@ -171,7 +171,6 @@ export async function getAllEventsUser(userID, callback) {
     { $unwind: '$host' },
     {
       $project: {
-        userRSVP: { $in: [mongoose.Types.ObjectId(userID), '$attendees'] },
         userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
         host: {
           _id: '$host._id',
@@ -191,11 +190,30 @@ export async function getAllEventsUser(userID, callback) {
     .then((webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
 
-      callback(
-        sendPacket(1, 'Sending Events', {
-          webinars,
-        })
-      );
+      return addUserRSVP(userID, webinars, callback);
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
+
+function addUserRSVP(userID, webinars, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    { $project: { RSVPWebinars: '$RSVPWebinars' } },
+  ])
+    .exec()
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(-1, 'Could not find User'));
+      let RSVPWebinars = users[0].RSVPWebinars;
+      for (let i = 0; i < RSVPWebinars.length; i++) {
+        RSVPWebinars[i] = RSVPWebinars[i].toString();
+      }
+      webinars.forEach((webinar) => {
+        webinar.userRSVP =
+          RSVPWebinars && RSVPWebinars.includes(webinar._id.toString());
+      });
+
+      return callback(sendPacket(1, 'Sending Events', { webinars }));
     })
     .catch((err) => callback(sendPacket(-1, err)));
 }
@@ -229,50 +247,28 @@ export async function getWebinarDetails(userID, webinarID, callback) {
 }
 
 export function updateRSVP(userID, webinarID, didRSVP, callback) {
-  Webinar.findById(webinarID, ['attendees'], (err, webinar) => {
+  User.findById(userID, ['RSVPWebinars'], (err, user) => {
     if (err) return callback(sendPacket(-1, err));
-    if (!webinar)
-      return callback(sendPacket(-1, 'Could not find webinar to RSVP to'));
+    if (!user)
+      return callback(sendPacket(-1, 'Could not find user to RSVP to the webinar'));
 
-    const alreadyRSVPWebinar = webinar.attendees.includes(userID);
+    let RSVPWebinars = formatElementsToStrings(user.RSVPWebinars);
+    const alreadyRSVPUser = RSVPWebinars.includes(webinarID);
 
-    if (didRSVP && !alreadyRSVPWebinar) webinar.attendees.push(userID);
-    else if (!didRSVP && alreadyRSVPWebinar)
-      webinar.attendees.splice(webinar.attendees.indexOf(userID), 1);
+    if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
+    else if (!didRSVP && alreadyRSVPUser)
+      user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
 
-    webinar.save((err, webinar) => {
+    user.save((err, user) => {
       if (err) return callback(sendPacket(-1, err));
-      if (!webinar)
-        return callback(sendPacket(-1, 'There was an error saving the RSVP'));
+      if (!user)
+        return callback(sendPacket(-1, 'Could not save user RSVP to the webinar'));
 
-      User.findById(userID, ['RSVPWebinars'], (err, user) => {
-        if (err) return callback(sendPacket(-1, err));
-        if (!user)
-          return callback(
-            sendPacket(-1, 'Could not find user to RSVP to the webinar')
-          );
-
-        const alreadyRSVPUser = user.RSVPWebinars.includes(webinarID);
-
-        if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
-        else if (!didRSVP && alreadyRSVPUser)
-          user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
-
-        user.save((err, user) => {
-          if (err) return callback(sendPacket(-1, err));
-          if (!user)
-            return callback(
-              sendPacket(-1, 'Could not save user RSVP to the webinar')
-            );
-
-          callback(
-            sendPacket(1, 'Updated RSVP state', {
-              newRSVP: didRSVP,
-              numAttendees: webinar.attendees.length,
-            })
-          );
-        });
-      });
+      callback(
+        sendPacket(1, 'Updated RSVP state', {
+          newRSVP: didRSVP,
+        })
+      );
     });
   });
 }
@@ -336,4 +332,13 @@ function sendEventEmailConfirmation(
     .catch((err) => {
       log('error', err);
     });
+}
+
+function formatElementsToStrings(array) {
+  let newArray = [];
+  array.forEach((element) => {
+    newArray.push(element.toString());
+  });
+
+  return newArray;
 }

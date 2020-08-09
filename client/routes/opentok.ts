@@ -1,6 +1,5 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { isEventSpeaker } from './middleware/eventAuthentication';
-import { isEventHost } from './middleware/eventAuthentication';
+import { isEventHost, isEventSpeaker } from './middleware/eventAuthentication';
 
 const {
   getOpenTokSessionID,
