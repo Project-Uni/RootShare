@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 
-import EventClientEmptyVideoPlayer from '../video/EventClientEmptyVideoPlayer';
-import VideoPlayer from '../video/VideoPlayer';
+import EventClientEmptyVideoPlayer from '../../video/EventClientEmptyVideoPlayer';
+import VideoPlayer from '../../video/VideoPlayer';
+import EventMobileHeader from './EventMobileHeader';
 
-import log from '../../../helpers/logger';
-import { makeRequest } from '../../../helpers/makeRequest';
+import log from '../../../../helpers/logger';
 import { connect } from 'react-redux';
-import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
+import {
+  updateAccessToken,
+  updateRefreshToken,
+} from '../../../../redux/actions/token';
 
-const AD_CONTAINER_HEIGHT = 125;
+const MOBILE_AD_CONTAINER_HEIGHT = 60;
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
@@ -30,7 +33,7 @@ function EventWatcherMobile(props: Props) {
   const [videoData, setVideoData] = useState('');
   const [playerWidth, setPlayerWidth] = useState(window.innerWidth);
   const [playerHeight, setPlayerHeight] = useState(
-    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
+    window.innerHeight - MOBILE_AD_CONTAINER_HEIGHT - HEADER_HEIGHT
   );
 
   useEffect(() => {
@@ -40,7 +43,7 @@ function EventWatcherMobile(props: Props) {
 
   function handleResize() {
     setPlayerWidth(window.innerWidth);
-    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
+    setPlayerHeight(window.innerHeight - MOBILE_AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
   }
 
   async function updateVideoData(muxPlaybackID: string) {
@@ -63,6 +66,7 @@ function EventWatcherMobile(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      <EventMobileHeader />
       {videoData !== '' ? (
         <VideoPlayer src={videoData} height={playerHeight} width={playerWidth} />
       ) : (

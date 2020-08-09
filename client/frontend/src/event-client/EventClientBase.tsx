@@ -16,7 +16,7 @@ import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
-import EventWatcherMobile from './event-video/event-watcher/EventWatcherMobile';
+import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile/EventWatcherMobile';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventClientMessageContainer from './event-messages/EventMessageContainer';
@@ -180,12 +180,11 @@ function EventClientBase(props: Props) {
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-          <EventClientHeader />
           <EventWatcherMobile muxPlaybackID={webinarData.muxPlaybackID} />
           <div className={styles.adContainer}>
             {adLoaded && (
               <EventClientAdvertisement
-                height={125}
+                height={60}
                 width={window.innerWidth}
                 advertisements={advertisements}
               />
