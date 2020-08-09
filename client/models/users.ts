@@ -43,7 +43,8 @@ var userSchema = new Schema(
     pendingCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
-    //TODO - Add fields for profile picture and background image
+    //TODO - Add fields for background image
+    profilePicture: { type: String },
   },
   { timestamps: true }
 );
