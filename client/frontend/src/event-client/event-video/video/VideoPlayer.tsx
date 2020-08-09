@@ -71,7 +71,7 @@ export default class VideoPlayer extends React.Component<Props> {
 
     return (
       <div>
-        <div data-vjs-player>
+        <div data-vjs-player style={{ width: videoWidth, height: videoHeight }}>
           <video
             ref={(node) => (this.videoNode = node)}
             className="video-js vjs-theme-fantasy"
