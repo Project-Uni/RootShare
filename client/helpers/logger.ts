@@ -2,13 +2,14 @@ const fs = require('fs');
 
 const LOGS_DIRECTORY = '../logs';
 
-function log(title: string, message: string) {
+const buffer = [];
+const MAX_BUFFER_LEN = 5;
+
+export default function log(title: string, message: string) {
   if (process.env.NODE_ENV === 'dev')
     return console.log(`[${title.toUpperCase()}] ${message}`);
   writeLogToFile(`[${title.toUpperCase()}] ${message}`);
 }
-
-export default log;
 
 export async function initializeDirectory() {
   console.log(`[INFO] Initializing log directory`);
@@ -32,11 +33,13 @@ function writeLogToFile(message: string) {
   const fileName = `logs_${month}-${day}-${year}.txt`;
   const timestamp = `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
 
-  fs.appendFile(
-    `${LOGS_DIRECTORY}/${fileName}`,
-    `[${timestamp}] ${message}\n`,
-    () => {}
-  );
+  const timeStampedMessage = `[${timestamp}] ${message}\n`;
+  buffer.push(timeStampedMessage);
+
+  if (buffer.length === MAX_BUFFER_LEN) {
+    fs.appendFile(`${LOGS_DIRECTORY}/${fileName}`, buffer.join(''), () => {});
+    buffer.splice(0, buffer.length);
+  }
 }
 
 function pad(n) {
