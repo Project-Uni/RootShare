@@ -24,6 +24,7 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: 'gray',
     borderRadius: 7,
     borderWidth: '2px',
+    wordWrap: 'break-word',
     maxWidth: 300,
   },
   senderName: {
@@ -32,6 +33,8 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
     marginTop: -5,
     marginBottom: 2,
+    wordWrap: 'break-word',
+    maxWidth: 300,
   },
   timeStamp: {
     textAlign: 'right',

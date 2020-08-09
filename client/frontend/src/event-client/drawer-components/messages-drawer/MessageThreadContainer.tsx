@@ -25,9 +25,9 @@ const useStyles = makeStyles((_: any) => ({
     height: '100%',
   },
   headerParticipants: {
-    display: 'flex',
     justifyContent: 'center',
-    height: '25px',
+    wordWrap: 'break-word',
+    maxWidth: 315,
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',

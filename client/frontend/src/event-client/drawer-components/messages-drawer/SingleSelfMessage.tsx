@@ -28,6 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: 'gray',
     borderRadius: 7,
     borderWidth: '2px',
+    wordWrap: 'break-word',
     maxWidth: 300,
   },
   timeStamp: {
