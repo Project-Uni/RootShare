@@ -22,6 +22,8 @@ import {
   startLiveStream,
   stopLiveStream,
   createNewScreensharePublisher,
+  addToCache,
+  removeFromCache,
 } from './helpers';
 
 import { SINGLE_DIGIT } from '../../../types/types';
@@ -30,6 +32,8 @@ const MIN_WINDOW_WIDTH = 1100;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
+
+const CACHE_RETRANSMIT_INTERVAL = 1000; // 1 SECOND
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -62,6 +66,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
+  speaking_token?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -115,11 +120,13 @@ function EventHostContainer(props: Props) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        removeFromCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
         startLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        addToCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     }
   }
@@ -308,6 +315,31 @@ function EventHostContainer(props: Props) {
     return new Publisher();
   }
 
+  function removeGuestSpeaker(connection: OT.Connection) {
+    session.forceDisconnect(connection, (error) => {
+      if (error) log('OT Error', error.message);
+    });
+  }
+
+  async function setCacheConnection(eventSession: Session) {
+    setTimeout(async () => {
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/setConnectionID',
+        {
+          webinarID: props.webinar['_id'],
+          speaking_token: props.speaking_token,
+          connection: eventSession.connection,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      if (data.success !== 1) setCacheConnection(eventSession);
+    }, CACHE_RETRANSMIT_INTERVAL);
+  }
+
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
@@ -326,6 +358,11 @@ function EventHostContainer(props: Props) {
         return;
       }
       setSession((eventSession as unknown) as OT.Session);
+
+      if (props.speaking_token) {
+        const eventSession_casted = (eventSession as unknown) as Session;
+        setCacheConnection(eventSession_casted);
+      }
 
       setTimeout(() => {
         setLoading(false);
@@ -384,6 +421,7 @@ function EventHostContainer(props: Props) {
         {renderVideoSections()}
       </div>
       <EventHostButtonContainer
+        webinarID={props.webinar['_id']}
         mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}
@@ -394,6 +432,7 @@ function EventHostContainer(props: Props) {
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
         loading={loading}
+        removeGuestSpeaker={removeGuestSpeaker}
       />
     </div>
   );

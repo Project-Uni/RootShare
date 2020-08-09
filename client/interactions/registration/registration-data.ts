@@ -1,6 +1,5 @@
-var mongoose = require('mongoose');
-var User = mongoose.model('users');
-var University = mongoose.model('universities');
+import { User, University } from '../../models';
+
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 

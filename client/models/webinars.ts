@@ -8,7 +8,8 @@ var webinarSchema = new Schema(
     full_description: { type: String },
     host: { type: Schema.ObjectId, ref: 'users' },
     speakers: [{ type: Schema.ObjectId, ref: 'users' }],
-    attendees: [{ type: Schema.ObjectId, ref: 'users' }],
+    // attendees: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
+    attendees: { type: {}, default: {} },
     dateTime: { type: Date },
     opentokSessionID: String,
     opentokBroadcastID: String,
@@ -26,3 +27,6 @@ var webinarSchema = new Schema(
 );
 
 mongoose.model('webinars', webinarSchema);
+const Webinar = mongoose.model('webinars');
+
+export default Webinar;

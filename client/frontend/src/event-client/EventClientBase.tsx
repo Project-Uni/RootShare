@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
@@ -24,6 +23,14 @@ import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
 
 import { colors } from '../theme/Colors';
+
+import socketIOClient from 'socket.io-client';
+import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
+
+const WEBINAR_CACHE_IP =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8003'
+    : 'http://3.135.226.61:8003';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -61,6 +68,9 @@ type Props = {
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
+var socket: SocketIOClient.Socket;
+var speaking_token: string;
+
 function EventClientBase(props: Props) {
   const styles = useStyles();
 
@@ -70,6 +80,8 @@ function EventClientBase(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
 
   const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+
+  const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -114,7 +126,7 @@ function EventClientBase(props: Props) {
       setWebinarData(webinar);
       setTimeout(() => {
         setPageMode(webinar);
-      }, 500);
+      }, 100);
     }
   }
 
@@ -136,7 +148,67 @@ function EventClientBase(props: Props) {
         }
       }
     }
+    updateAttendeeList(webinar['_id']);
     setEventMode('viewer');
+  }
+
+  function updateAttendeeList(webinarID: string) {
+    initializeSocket(webinarID);
+
+    makeRequest(
+      'POST',
+      '/api/webinar/updateAttendeeList',
+      {
+        webinarID: webinarID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
+  function initializeSocket(webinarID: string) {
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+    socket.emit('new-user', {
+      webinarID: webinarID,
+      userID: props.user._id,
+      firstName: props.user.firstName,
+      lastName: props.user.lastName,
+      email: props.user.email,
+    });
+
+    socket.on('speaking-invite', (data: { speaking_token: string }) => {
+      speaking_token = data.speaking_token;
+      console.log(
+        'Received invitation to speak with speaking_token:',
+        speaking_token
+      );
+      setShowSpeakingInvite(true);
+    });
+
+    socket.on('speaking-revoke', () => {
+      speaking_token = '';
+      setEventMode('viewer');
+      alert('You have been removed as a speaker');
+    });
+
+    socket.on('speaking-token-rejected', () => {
+      alert('There was an error adding you as a speaker');
+    });
+
+    socket.on('speaking-token-accepted', () => {
+      setEventMode('speaker');
+    });
+  }
+
+  function onAcceptSpeakingInvite() {
+    socket.emit('speaking-invite-accepted', { speaking_token });
+    setShowSpeakingInvite(false);
+  }
+
+  function onRejectSpeakingInvite() {
+    socket.emit('speaking-invite-rejected');
+    setShowSpeakingInvite(false);
   }
 
   function renderVideoArea() {
@@ -149,6 +221,7 @@ function EventClientBase(props: Props) {
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
+          speaking_token={speaking_token}
         />
       );
   }
@@ -190,6 +263,11 @@ function EventClientBase(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <SpeakingInviteDialog
+        open={showSpeakingInvite}
+        onReject={onRejectSpeakingInvite}
+        onAccept={onAcceptSpeakingInvite}
+      />
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>

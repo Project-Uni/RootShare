@@ -1,3 +1,13 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Allow: /home
+Allow: /login
+Allow: /events
+Allow: /event/*
+Allow: /communities
+Allow: /connections
+Allow: /profile/*
+Allow: /community/*
+Allow: /discover
+Disallow: /admin/*

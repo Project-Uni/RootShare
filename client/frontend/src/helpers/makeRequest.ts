@@ -1,4 +1,11 @@
 import axios from 'axios';
+
+type Config = {
+  headers: {
+    Authorization: string;
+  };
+};
+
 export function makeRequest(
   method: 'GET' | 'POST',
   url: string,
@@ -7,7 +14,7 @@ export function makeRequest(
   accessToken = '',
   refreshToken = ''
 ) {
-  const config = {
+  const config: Config = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

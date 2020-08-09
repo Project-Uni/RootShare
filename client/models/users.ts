@@ -28,6 +28,9 @@ var userSchema = new Schema(
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
     },
+    attendedWebinars: {
+      type: [{ type: Schema.ObjectId, ref: 'webinars' }],
+    },
     connections: {
       type: [{ type: Schema.ObjectId, ref: 'users' }],
     },
@@ -47,3 +50,6 @@ var userSchema = new Schema(
 );
 
 mongoose.model('users', userSchema);
+const User = mongoose.model('users');
+
+export default User;

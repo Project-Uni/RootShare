@@ -6,6 +6,9 @@ client/frontend/package-lock.json
 
 client/*.rest
 
+webinar/node_modules/
+webinar/package-lock.json
+
 balancer/venv/
 .DS_Store
 ranker/venv/

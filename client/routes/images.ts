@@ -11,8 +11,7 @@ import {
 } from '../helpers/S3';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
-import mongoose = require('mongoose');
-const User = mongoose.model('users');
+import { User } from '../models';
 
 module.exports = (app) => {
   app.get('/test/upload', async (req, res) => {
