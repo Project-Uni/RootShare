@@ -42,7 +42,10 @@ module.exports = (io, webinarCache: WebinarCache) => {
         socket.join(`${webinarID}`);
 
         webinarCache[webinarID].users[userID] = socket;
-        console.log('Webinar cache:', webinarCache);
+        log(
+          'info',
+          `Successfully added user ${socketUserFirstName} ${socketUserLastName} to cache for webinar ${webinarID}`
+        );
       }
     );
 
@@ -58,7 +61,7 @@ module.exports = (io, webinarCache: WebinarCache) => {
     socket.on('speaking-invite-accepted', (data: { speaking_token: string }) => {
       //TODO - Notify the host that user has accepted speaking invite
       const { speaking_token } = data;
-      console.log('Speaking invite accepted with token:', speaking_token);
+      log('info', `Speaking invite accepted with token: ${speaking_token}`);
       if (
         !webinarCache[socketWebinarId].speakingToken ||
         webinarCache[socketWebinarId].speakingToken !== speaking_token

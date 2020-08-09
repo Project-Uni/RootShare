@@ -190,7 +190,6 @@ function EventClientBase(props: Props) {
       speaking_token = '';
       setEventMode('viewer');
       alert('You have been removed as a speaker');
-      //TODO - Able to remove speaker, but webcam and mic still recording. Disable those if active.
     });
 
     socket.on('speaking-token-rejected', () => {
@@ -198,7 +197,6 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('speaking-token-accepted', () => {
-      console.log('Speaking token was accepted');
       setEventMode('speaker');
     });
   }

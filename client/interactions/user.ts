@@ -55,7 +55,7 @@ export async function updateAttendingList(
           }
 
           if (!containsWebinar) user.attendedWebinars.push(webinarID);
-        } else user.attendWebinars = [webinarID];
+        } else user.attendedWebinars = [webinarID];
       }
       //TODO - decide which method for setting is better and stick with it
       if (webinar) {

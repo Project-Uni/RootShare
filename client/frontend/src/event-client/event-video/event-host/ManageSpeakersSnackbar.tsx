@@ -3,9 +3,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import { IconButton, Snackbar } from '@material-ui/core';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { MdErrorOutline, MdInfoOutline } from 'react-icons/md';
-
 import CloseIcon from '@material-ui/icons/Close';
+
 import { colors } from '../../../theme/Colors';
+import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_) => ({
   successSnackBar: {
@@ -21,10 +22,7 @@ const useStyles = makeStyles((_) => ({
     color: colors.primaryText,
   },
   snackbarText: {
-    display: 'inline-block',
-    margin: '0px',
     marginLeft: '15px',
-    fontSize: '12pt',
   },
   snackBarMessageDiv: {
     display: 'flex',
@@ -76,7 +74,9 @@ export default function ManageSpeakersSnackbar(props: Props) {
           {snackbarMode === 'notify' && (
             <MdInfoOutline size={24} color={colors.primaryText} />
           )}
-          <p className={styles.snackbarText}>{props.message}</p>
+          <RSText type="body" className={styles.snackbarText} size={12}>
+            {props.message}
+          </RSText>
         </div>
       }
       action={

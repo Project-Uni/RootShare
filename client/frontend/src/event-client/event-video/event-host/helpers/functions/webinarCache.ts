@@ -6,7 +6,6 @@ export async function addToCache(
   accessToken: string,
   refreshToken: string
 ) {
-  console.log('WebinarID:', webinarID);
   const { data } = await makeRequest(
     'POST',
     '/proxy/addWebinarToCache',

@@ -6,7 +6,6 @@ import { WebinarCache } from '../types/types';
 
 module.exports = (app, webinarCache: WebinarCache) => {
   app.post('/api/addWebinarToCache', isAuthenticatedWithJWT, (req, res) => {
-    console.log(req.connection.remoteAddress);
     const { webinarID } = req.body;
     if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request'));
 
