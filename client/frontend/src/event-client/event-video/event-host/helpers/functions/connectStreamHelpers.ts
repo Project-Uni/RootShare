@@ -18,7 +18,7 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    return false;
+    return data['message'];
   }
   return data['content']['opentokSessionID'];
 }
