@@ -292,6 +292,9 @@ function ManageSpeakersDialog(props: Props) {
                   {serverErr}
                 </RSText>
               )}
+              <RSText type="body" color={colors.secondaryText}>
+                {options.length} Active Viewer{options.length !== 1 && 's'}
+              </RSText>
             </>
           )}
         </DialogContent>
