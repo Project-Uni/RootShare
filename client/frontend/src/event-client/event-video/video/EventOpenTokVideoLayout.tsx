@@ -4,9 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { SINGLE_DIGIT } from '../../../types/types';
 
 const useStyles = makeStyles((_: any) => ({
-  videoQuadrant: {
-    width: '50%',
-  },
   row: {
     display: 'flex',
     justifyContent: 'center',
@@ -30,7 +27,7 @@ type VideoLayoutProps = {
 
 export function VideosOnlyLayout(props: VideoLayoutProps) {
   const styles = useStyles();
-  const numRows = Math.ceil(props.numSpeakers / 3);
+  const numRows = props.numSpeakers === 3 ? 2 : Math.ceil(props.numSpeakers / 3);
   const numPerRow = Math.ceil(Math.sqrt(props.numSpeakers));
 
   const output = [];
@@ -50,15 +47,17 @@ export function VideosOnlyLayout(props: VideoLayoutProps) {
     );
   }
 
-  for (let i = 0; i < props.videoElements.length; i++) {
-    let currVideo = props.videoElements[i];
-    if (currVideo) {
-      currVideo.style.height = '100%';
-      currVideo.style.width = '100%';
-      currVideo.style['objectFit'] = 'cover';
-      document.getElementById(`pos${i + 1}`)?.appendChild(currVideo);
+  useEffect(() => {
+    for (let i = 0; i < props.videoElements.length; i++) {
+      let currVideo = props.videoElements[i];
+      if (currVideo) {
+        currVideo.style.height = '100%';
+        currVideo.style.width = '100%';
+        currVideo.style['objectFit'] = 'cover';
+        document.getElementById(`pos${i + 1}`)?.appendChild(currVideo);
+      }
     }
-  }
+  });
 
   return <>{output}</>;
 }
