@@ -116,6 +116,7 @@ function ProfilePicture(props: Props) {
       };
 
       imageReader.readAsDataURL(event.target.files[0]);
+      event.target.value = '';
     }
     setHovering(false);
   }
