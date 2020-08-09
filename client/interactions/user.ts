@@ -46,16 +46,20 @@ export async function updateAttendingList(
       const [user, webinar] = values;
       if (user) {
         if (user.attendedWebinars) {
-          let containsWebinar = false;
-          for (let i = 0; i < user.attendedWebinars.length; i++) {
-            if (user.attendedWebinars[i].toString() === webinarID) {
-              containsWebinar = true;
-              break;
-            }
+          if (!user.attendedWebinars.includes(webinarID)) {
+            user.attendedWebinars.push(webinarID);
+            log(
+              'info',
+              `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
+            );
           }
-
-          if (!containsWebinar) user.attendedWebinars.push(webinarID);
-        } else user.attendedWebinars = [webinarID];
+        } else {
+          user.attendedWebinars = [webinarID];
+          log(
+            'info',
+            `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
+          );
+        }
       }
       //TODO - decide which method for setting is better and stick with it
       if (webinar) {
