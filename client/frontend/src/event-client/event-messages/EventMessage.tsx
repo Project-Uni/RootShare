@@ -22,12 +22,17 @@ const useStyles = makeStyles((_: any) => ({
     borderTopStyle: 'solid',
     borderWidth: '1px',
     borderColor: 'lightgray',
+    display: 'flex',
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  left: {},
+  left: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   right: {
     display: 'flex',
     flexDirection: 'column',
@@ -35,11 +40,14 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 12,
     marginTop: 7,
     marginBottom: 5,
+    marginLeft: 'auto',
   },
   senderName: {
     margin: 10,
     display: 'inline-block',
     color: '#f2f2f2',
+    wordWrap: 'break-word',
+    maxWidth: 240,
   },
   message: {
     textAlign: 'left',
@@ -48,15 +56,17 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
     marginTop: 7,
     marginBottom: 10,
+    wordWrap: 'break-word',
     maxWidth: 300,
   },
   bottom: {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: -10,
+    maxWidth: 309,
   },
   likeCount: {
-    marginRight: 0,
+    marginRight: 1,
     color: '#f2f2f2',
     alignSelf: 'flex-end',
   },
@@ -68,7 +78,7 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 4,
-    marginRight: -4,
+    marginRight: -3,
     color: '#6699ff',
   },
   starGray: {
@@ -79,11 +89,11 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 4,
-    marginRight: -4,
+    marginRight: -3,
     color: 'grey',
   },
   time: {
-    marginLeft: 0,
+    marginTop: 12,
     display: 'inline-block',
     color: 'grey',
   },
@@ -95,7 +105,7 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     color: 'grey',
     marginBottom: 18,
-    marginRight: 10,
+    marginRight: -1,
   },
 }));
 
@@ -181,8 +191,8 @@ function EventMessage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.top}>
-        <div>
+      <div className={styles.left}>
+        <div className={styles.top}>
           <RSText bold className={styles.senderName}>
             {props.message.senderName}
           </RSText>
@@ -190,7 +200,11 @@ function EventMessage(props: Props) {
             {getConversationTime(new Date(props.message.createdAt))}
           </RSText>
         </div>
-
+        <div className={styles.bottom}>
+          <RSText className={styles.message}>{props.message.content}</RSText>
+        </div>
+      </div>
+      <div className={styles.right}>
         <FaEllipsisH
           aria-label="more"
           aria-controls="long-menu"
@@ -215,31 +229,24 @@ function EventMessage(props: Props) {
         >
           {renderOptions()}
         </Menu>
-      </div>
-      <div className={styles.bottom}>
-        <div className={styles.left}>
-          <RSText className={styles.message}>{props.message.content}</RSText>
-        </div>
-        <div className={styles.right}>
-          {liked ? (
-            <FaStar
-              // disabled={loadingLike}
-              className={styles.star}
-              onClick={handleLikeClicked}
-              size={16}
-            />
-          ) : (
-            <FaRegStar
-              // disabled={loadingLike}
-              className={styles.starGray}
-              onClick={handleLikeClicked}
-              size={16}
-            />
-          )}
-          <RSText size={10} className={styles.likeCount}>
-            {numLikes}
-          </RSText>
-        </div>
+        {liked ? (
+          <FaStar
+            // disabled={loadingLike}
+            className={styles.star}
+            onClick={handleLikeClicked}
+            size={16}
+          />
+        ) : (
+          <FaRegStar
+            // disabled={loadingLike}
+            className={styles.starGray}
+            onClick={handleLikeClicked}
+            size={16}
+          />
+        )}
+        <RSText size={10} className={styles.likeCount}>
+          {numLikes}
+        </RSText>
       </div>
     </div>
   );

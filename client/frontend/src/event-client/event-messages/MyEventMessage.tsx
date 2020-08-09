@@ -3,7 +3,6 @@ import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
 
 import { Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { colors } from '../../theme/Colors';
@@ -23,6 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     borderTopStyle: 'solid',
     borderWidth: '1px',
     borderColor: 'lightgray',
+    display: 'flex',
   },
   errorWrapper: {
     background: colors.brightError,
@@ -34,18 +34,25 @@ const useStyles = makeStyles((_: any) => ({
   top: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  left: {},
+  left: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   right: {
     display: 'flex',
     flexDirection: 'column',
     marginRight: 12,
     marginTop: 7,
+    marginLeft: 'auto',
   },
   senderName: {
     margin: 10,
     display: 'inline-block',
     color: colors.background,
+    wordWrap: 'break-word',
+    maxWidth: 240,
   },
   message: {
     textAlign: 'left',
@@ -54,13 +61,17 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
     marginTop: 7,
     marginBottom: 10,
+    wordWrap: 'break-word',
+    maxWidth: 300,
   },
   bottom: {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: -10,
+    maxWidth: 309,
   },
   likeCount: {
+    marginRight: 1,
     color: '#f2f2f2',
     alignSelf: 'flex-end',
   },
@@ -72,7 +83,7 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 4,
-    marginRight: -4,
+    marginRight: -3,
     color: '#6699ff',
   },
   starGray: {
@@ -83,10 +94,11 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 4,
-    marginRight: -4,
+    marginRight: -3,
     color: 'grey',
   },
   time: {
+    marginTop: 12,
     display: 'inline-block',
     color: 'grey',
   },
@@ -98,7 +110,7 @@ const useStyles = makeStyles((_: any) => ({
     alignSelf: 'flex-end',
     color: 'grey',
     marginBottom: 18,
-    marginRight: 10,
+    marginRight: -1,
   },
   errorIcon: {
     color: colors.brightError,
@@ -166,8 +178,8 @@ function MyEventMessage(props: Props) {
   function renderSuccessfulMessage() {
     return (
       <div className={styles.wrapper}>
-        <div className={styles.top}>
-          <div>
+        <div className={styles.left}>
+          <div className={styles.top}>
             <RSText bold className={styles.senderName}>
               {props.message.senderName}
             </RSText>
@@ -175,7 +187,11 @@ function MyEventMessage(props: Props) {
               {getConversationTime(new Date(props.message.createdAt))}
             </RSText>
           </div>
-
+          <div className={styles.bottom}>
+            <RSText className={styles.message}>{props.message.content}</RSText>
+          </div>
+        </div>
+        <div className={styles.right}>
           <FaEllipsisH
             aria-label="more"
             aria-controls="long-menu"
@@ -208,29 +224,18 @@ function MyEventMessage(props: Props) {
               </MenuItem>
             ))}
           </Menu>
-        </div>
-        <div className={styles.bottom}>
-          <div className={styles.left}>
-            <RSText className={styles.message}>{props.message.content}</RSText>
-          </div>
-          <div className={styles.right}>
-            {liked ? (
-              <FaStar
-                onClick={handleLikeClicked}
-                className={styles.star}
-                size={16}
-              />
-            ) : (
-              <FaRegStar
-                onClick={handleLikeClicked}
-                className={styles.starGray}
-                size={16}
-              />
-            )}
-            <RSText size={10} className={styles.likeCount}>
-              {numLikes}
-            </RSText>
-          </div>
+          {liked ? (
+            <FaStar onClick={handleLikeClicked} className={styles.star} size={16} />
+          ) : (
+            <FaRegStar
+              onClick={handleLikeClicked}
+              className={styles.starGray}
+              size={16}
+            />
+          )}
+          <RSText size={10} className={styles.likeCount}>
+            {numLikes}
+          </RSText>
         </div>
       </div>
     );
