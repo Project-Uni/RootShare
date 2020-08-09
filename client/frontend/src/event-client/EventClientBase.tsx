@@ -17,7 +17,7 @@ import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcher
 import EventHostContainer from './event-video/event-host/EventHostContainer';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
-import EventClientMessageContainer from './event-messages/EventMessageContainer';
+import EventMessageContainer from './event-messages/EventMessageContainer';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -28,8 +28,6 @@ import { EventType } from '../helpers/types';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.secondaryText,
-    height: window.innerHeight,
-    overflow: 'hidden',
   },
   body: {
     display: 'flex',
@@ -40,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  right: {},
+  right: { height: '100%' },
   adContainer: {
     width: '100%',
     display: 'flex',
@@ -192,7 +190,7 @@ function EventClientBase(props: Props) {
 
   const currConversationID = (webinarData as EventType).conversation as string;
   return (
-    <div className={styles.wrapper}>
+    <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
@@ -211,7 +209,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer conversationID={currConversationID} />
+          <EventMessageContainer conversationID={currConversationID} />
         </div>
       </div>
     </div>

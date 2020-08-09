@@ -36,6 +36,7 @@ module.exports = (app, io) => {
       `${req.user.firstName} ${req.user.lastName}`,
       req.body.conversationID,
       req.body.message,
+      req.body.tempID,
       io,
       (packet) => {
         res.send(packet);
@@ -59,9 +60,14 @@ module.exports = (app, io) => {
     '/api/messaging/getLatestMessages',
     isAuthenticatedWithJWT,
     (req, res) => {
-      getLatestMessages(req.user._id, req.body.conversationID, (packet) => {
-        res.send(packet);
-      });
+      getLatestMessages(
+        req.user._id,
+        req.body.conversationID,
+        req.body.maxMessages,
+        (packet) => {
+          res.send(packet);
+        }
+      );
     }
   );
 

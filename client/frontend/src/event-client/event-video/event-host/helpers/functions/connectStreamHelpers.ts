@@ -1,7 +1,6 @@
 import OT from '@opentok/client';
-import { log } from '../../../../../helpers/functions';
+import { log, makeRequest } from '../../../../../helpers/functions';
 import { createNewWebcamPublisher } from './createPublishers';
-import { makeRequest } from '../../../../../helpers/functions';
 
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
@@ -19,7 +18,7 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    return false;
+    return data['message'];
   }
   return data['content']['opentokSessionID'];
 }

@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { MessageType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -12,26 +13,28 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.secondary,
   },
   message: {
-    marginRight: 54,
     color: colors.primaryText,
     marginTop: 2,
     marginBottom: 5,
     padding: 5,
     float: 'left',
-    background: colors.primary,
+    background: colors.ternary,
     marginLeft: 5,
     borderStyle: 'solid',
     borderColor: 'gray',
     borderRadius: 7,
     borderWidth: '2px',
+    wordWrap: 'break-word',
+    maxWidth: 300,
   },
   senderName: {
     display: 'inline-block',
-    // borderStyle: 'solid',
     color: 'gray',
     marginLeft: 10,
     marginTop: -5,
     marginBottom: 2,
+    wordWrap: 'break-word',
+    maxWidth: 300,
   },
   timeStamp: {
     textAlign: 'right',
@@ -43,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: any;
-  message: any;
+  message: MessageType;
   senderName: string;
 };
 
