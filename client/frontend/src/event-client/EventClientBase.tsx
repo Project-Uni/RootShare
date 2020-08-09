@@ -15,6 +15,7 @@ import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
+import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile/EventWatcherMobile';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventClientMessageContainer from './event-messages/EventMessageContainer';
@@ -247,18 +248,34 @@ function EventClientBase(props: Props) {
     return check;
   }
 
-  if (checkMobile()) {
-    return (
-      <div className={styles.wrapper}>
-        {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-        <HypeHeader />
-        <RSText type="subhead" size={16}>
-          The live event feature is currently not available on mobile. Please switch
-          to a desktop.
-        </RSText>
-      </div>
-    );
-  }
+  if (checkMobile())
+    if (eventMode === 'viewer')
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <EventWatcherMobile muxPlaybackID={webinarData.muxPlaybackID} />
+          <div className={styles.adContainer}>
+            {adLoaded && (
+              <EventClientAdvertisement
+                height={60}
+                width={window.innerWidth}
+                advertisements={advertisements}
+              />
+            )}
+          </div>
+        </div>
+      );
+    else
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <HypeHeader />
+          <RSText type="subhead" size={16}>
+            Video conference feature is currently not available on mobile. Please
+            switch to a desktop.
+          </RSText>
+        </div>
+      );
 
   return (
     <div className={styles.wrapper}>

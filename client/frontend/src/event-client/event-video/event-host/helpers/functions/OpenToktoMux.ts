@@ -5,7 +5,7 @@ export async function startLiveStream(
   accessToken: string,
   refreshToken: string
 ) {
-  makeRequest(
+  const { data } = await makeRequest(
     'POST',
     '/webinar/startStreaming',
     { webinarID },
@@ -13,6 +13,7 @@ export async function startLiveStream(
     accessToken,
     refreshToken
   );
+  return data['success'] === 1;
 }
 
 export async function stopLiveStream(

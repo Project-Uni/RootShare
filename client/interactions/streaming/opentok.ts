@@ -154,8 +154,7 @@ module.exports = {
     const { opentokBroadcastID } = broadcastPacket.content;
 
     let currWebinar = await Webinar.findById(webinarID);
-    if (!currWebinar || currWebinar === undefined || currWebinar === null)
-      return sendPacket(-1, 'Could not find webinar');
+    if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     currWebinar.muxStreamKey = muxStreamKey;
     currWebinar.muxLiveStreamID = muxLiveStreamID;
@@ -267,8 +266,12 @@ module.exports = {
     else return callback(sendPacket(-1, 'Invalid Layout Type'));
 
     Webinar.findById(webinarID, (err, currWebinar) => {
-      if (err || currWebinar === undefined || currWebinar === null)
-        return callback(sendPacket(-1, 'Cannot find current Webinar'));
+      if (err) return callback(sendPacket(-1, err));
+      if (!currWebinar) {
+        log('ERROR', 'Cannot find current Webinar');
+        return callback(sendPacket(0, 'Cannot find current Webinar'));
+      }
+
       const { opentokBroadcastID, opentokSessionID } = currWebinar;
       if (
         !opentokBroadcastID ||
@@ -289,10 +292,12 @@ module.exports = {
         .then((response) => {
           log('info', `Changed OpenTok Broadcast Layout to ${type}`);
 
-          if (type === 'bestFit')
+          if (type === 'bestFit') {
             return callback(
               sendPacket(1, 'Successfully changed OpenTok Broadcast Layout')
             );
+          }
+
           axios
             .put(
               `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/session/${opentokSessionID}/stream`,
