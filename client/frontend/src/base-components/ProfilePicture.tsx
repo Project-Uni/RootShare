@@ -225,7 +225,7 @@ function ProfilePicture(props: Props) {
           </RSText>
         </DialogTitle>
         <DialogContent>
-          <div style={{ height: 500, width: 500 }}>
+          <div style={{ maxHeight: 500, maxWidth: 500 }}>
             <ReactCrop
               src={imageSrc!}
               crop={crop}
