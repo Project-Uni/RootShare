@@ -1,4 +1,3 @@
-import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -33,7 +32,6 @@ module.exports = (app, io) => {
   app.post('/api/messaging/sendMessage', isAuthenticatedWithJWT, (req, res) => {
     sendMessage(
       req.user._id,
-      `${req.user.firstName} ${req.user.lastName}`,
       req.body.conversationID,
       req.body.message,
       req.body.tempID,
@@ -44,7 +42,7 @@ module.exports = (app, io) => {
     );
   });
 
-  app.post('/api/messaging/createThread', isAuthenticatedWithJWT, (req, res) => {
+  app.post('/api/messaging/createThread', (req, res) => {
     createThread(req, io, (packet) => {
       res.send(packet);
     });
