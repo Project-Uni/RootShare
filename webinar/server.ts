@@ -8,10 +8,12 @@ const bodyParser = require('body-parser');
 const expressSession = require('express-session');
 const http = require('http');
 
-import log from './helpers/logger';
+import log, { initializeDirectory } from './helpers/logger';
 import { WebinarCache } from './types/types';
 
 const port = process.env.PORT || 8003;
+
+initializeDirectory();
 
 const app = express();
 app.set('port', port);
