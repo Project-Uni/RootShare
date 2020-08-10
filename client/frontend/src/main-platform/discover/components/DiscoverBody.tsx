@@ -13,31 +13,37 @@ import {
 } from '../../reusable-components';
 import { ReniHeadshot } from '../../../images/team';
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
+import { ColorFillDimensions } from '@styled-icons/boxicons-solid/ColorFill';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.fourth,
     overflow: 'scroll',
   },
   body: {},
   searchBar: {
     flex: 1,
     marginRight: 10,
+    background: colors.primaryText,
   },
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 1,
+    marginRight: 1,
+    background: colors.primaryText,
   },
   resultsContainer: {},
   singleResult: {
-    marginTop: 10,
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 1,
+    marginRight: 1,
+    marginBottom: 1,
+  },
+  searchIcon: {
+    marginRight: 10,
   },
 }));
 
@@ -81,14 +87,13 @@ function DiscoverBody(props: Props) {
             <TextField
               {...params}
               label="Search for users or communities"
-              margin="normal"
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
             />
           )}
         />
         <IconButton>
-          <FaSearch size={22} color={colors.primary} />
+          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );

@@ -6,7 +6,7 @@ import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    borderBottom: `1px solid ${colors.secondaryText}`,
+    borderBottom: `1px solid ${colors.fourth}`,
     paddingTop: 10,
     paddingBottom: 10,
   },
@@ -48,14 +48,14 @@ function Comment(props: Props) {
         </a>
         <div className={styles.commentBody}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-            <RSText type="body" size={12} color={colors.primaryText} bold>
+            <RSText type="body" size={12} color={colors.secondary} bold>
               {props.name}
             </RSText>
           </a>
-          <RSText type="body" size={10} color={colors.secondaryText} italic>
+          <RSText type="body" size={10} color={colors.secondaryText}>
             {props.timestamp}
           </RSText>
-          <RSText type="body" size={12} color={colors.primaryText}>
+          <RSText type="body" size={12} color={colors.secondary}>
             {props.message}
           </RSText>
         </div>

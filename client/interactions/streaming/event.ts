@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-const Webinar = mongoose.model('webinars');
-const Conversation = mongoose.model('conversations');
+import { Webinar, Conversation } from '../../models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');

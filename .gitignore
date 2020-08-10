@@ -6,6 +6,9 @@ client/frontend/package-lock.json
 
 client/*.rest
 
+webinar/node_modules/
+webinar/package-lock.json
+
 balancer/venv/
 .DS_Store
 ranker/venv/
@@ -16,3 +19,5 @@ balancer/helpers/__pycache__/
 ranker/helpers/__pycache__/
 .metals/
 documents/
+
+logs/

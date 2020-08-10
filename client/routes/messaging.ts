@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';

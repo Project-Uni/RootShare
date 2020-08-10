@@ -20,7 +20,7 @@ const VERTICAL_PADDING_TOTAL = 40;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 270,
-    background: colors.primary,
+    background: colors.second,
     textAlign: 'left',
     padding: 20,
     overflow: 'scroll',
