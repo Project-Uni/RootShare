@@ -23,7 +23,7 @@ import { IoMdClose } from 'react-icons/io';
 import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
-import { makeRequest } from '../../../helpers/makeRequest';
+import { makeRequest } from '../../../helpers/functions';
 import RSText from '../../../base-components/RSText';
 import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 

@@ -1,5 +1,4 @@
-import { makeRequest } from '../../../../../helpers/makeRequest';
-import log from '../../../../../helpers/logger';
+import { makeRequest, log } from '../../../../../helpers/functions';
 
 export async function addToCache(
   webinarID: string,
