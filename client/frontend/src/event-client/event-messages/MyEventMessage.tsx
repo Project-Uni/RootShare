@@ -33,19 +33,18 @@ const useStyles = makeStyles((_: any) => ({
   },
   top: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
   left: {
-    display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
   },
   right: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     marginRight: 12,
     marginTop: 7,
-    marginLeft: 'auto',
   },
   senderName: {
     margin: 10,
@@ -62,28 +61,23 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 7,
     marginBottom: 10,
     wordWrap: 'break-word',
-    maxWidth: 300,
+    maxWidth: 290,
   },
   bottom: {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: -10,
-    maxWidth: 309,
   },
   likeCount: {
-    marginRight: 1,
     color: '#f2f2f2',
-    alignSelf: 'flex-end',
   },
   star: {
     '&:hover': {
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     marginTop: -10,
-    marginBottom: 4,
-    marginRight: -3,
+    marginBottom: 3,
     color: '#6699ff',
   },
   starGray: {
@@ -91,10 +85,8 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     marginTop: -10,
-    marginBottom: 4,
-    marginRight: -3,
+    marginBottom: 3,
     color: 'grey',
   },
   time: {
@@ -107,15 +99,9 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     color: 'grey',
     marginBottom: 18,
-    marginRight: -1,
-  },
-  errorIcon: {
-    color: colors.brightError,
-    marginTop: 'auto',
-    marginBottom: 'auto',
+    paddingRight: 1,
   },
 }));
 
@@ -198,7 +184,7 @@ function MyEventMessage(props: Props) {
             aria-haspopup="true"
             onClick={handleClick}
             className={styles.ellipsis}
-            size={12}
+            size={17}
           />
 
           <Menu
@@ -225,12 +211,12 @@ function MyEventMessage(props: Props) {
             ))}
           </Menu>
           {liked ? (
-            <FaStar onClick={handleLikeClicked} className={styles.star} size={16} />
+            <FaStar onClick={handleLikeClicked} className={styles.star} size={20} />
           ) : (
             <FaRegStar
               onClick={handleLikeClicked}
               className={styles.starGray}
-              size={16}
+              size={20}
             />
           )}
           <RSText size={10} className={styles.likeCount}>

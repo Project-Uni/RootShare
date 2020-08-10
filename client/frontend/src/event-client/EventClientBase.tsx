@@ -15,6 +15,7 @@ import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
+import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile/EventWatcherMobile';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
@@ -24,6 +25,14 @@ import SampleAd2 from '../images/sampleAd2.png';
 
 import { colors } from '../theme/Colors';
 import { EventType } from '../helpers/types';
+
+import socketIOClient from 'socket.io-client';
+import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
+
+const WEBINAR_CACHE_IP =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8003'
+    : 'http://3.135.226.61:8003';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -61,6 +70,9 @@ type Props = {
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
+var socket: SocketIOClient.Socket;
+var speaking_token: string;
+
 function EventClientBase(props: Props) {
   const styles = useStyles();
 
@@ -70,6 +82,8 @@ function EventClientBase(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
 
   const [webinarData, setWebinarData] = useState<EventType | {}>({});
+
+  const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -113,8 +127,8 @@ function EventClientBase(props: Props) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
       setTimeout(() => {
-        setPageMode(webinar.host, webinar.speakers);
-      }, 500);
+        setPageMode(webinar);
+      }, 100);
     }
   }
 
@@ -124,19 +138,79 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setPageMode(hostID: string, speakerIDs: string[]) {
-    if (props.user._id === hostID) {
+  function setPageMode(webinar: EventType) {
+    if (props.user._id === webinar.host) {
       setEventMode('admin');
       return;
     } else {
-      for (let i = 0; i < speakerIDs.length; i++) {
-        if (props.user._id === speakerIDs[i]) {
+      for (let i = 0; i < webinar.speakers.length; i++) {
+        if (props.user._id === webinar.speakers[i]) {
           setEventMode('speaker');
           return;
         }
       }
     }
+    updateAttendeeList(webinar['_id']);
     setEventMode('viewer');
+  }
+
+  function updateAttendeeList(webinarID: string) {
+    initializeSocket(webinarID);
+
+    makeRequest(
+      'POST',
+      '/api/webinar/updateAttendeeList',
+      {
+        webinarID: webinarID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
+  function initializeSocket(webinarID: string) {
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+    socket.emit('new-user', {
+      webinarID: webinarID,
+      userID: props.user._id,
+      firstName: props.user.firstName,
+      lastName: props.user.lastName,
+      email: props.user.email,
+    });
+
+    socket.on('speaking-invite', (data: { speaking_token: string }) => {
+      speaking_token = data.speaking_token;
+      console.log(
+        'Received invitation to speak with speaking_token:',
+        speaking_token
+      );
+      setShowSpeakingInvite(true);
+    });
+
+    socket.on('speaking-revoke', () => {
+      speaking_token = '';
+      setEventMode('viewer');
+      alert('You have been removed as a speaker');
+    });
+
+    socket.on('speaking-token-rejected', () => {
+      alert('There was an error adding you as a speaker');
+    });
+
+    socket.on('speaking-token-accepted', () => {
+      setEventMode('speaker');
+    });
+  }
+
+  function onAcceptSpeakingInvite() {
+    socket.emit('speaking-invite-accepted', { speaking_token });
+    setShowSpeakingInvite(false);
+  }
+
+  function onRejectSpeakingInvite() {
+    socket.emit('speaking-invite-rejected');
+    setShowSpeakingInvite(false);
   }
 
   function renderVideoArea() {
@@ -150,6 +224,7 @@ function EventClientBase(props: Props) {
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
+          speaking_token={speaking_token}
         />
       );
   }
@@ -175,23 +250,45 @@ function EventClientBase(props: Props) {
     return check;
   }
 
-  if (checkMobile()) {
-    return (
-      <div className={styles.wrapper}>
-        {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-        <HypeHeader />
-        <RSText type="subhead" size={16}>
-          The live event feature is currently not available on mobile. Please switch
-          to a desktop.
-        </RSText>
-      </div>
-    );
-  }
+  const webinarEvent = webinarData as EventType;
+  if (checkMobile())
+    if (eventMode === 'viewer')
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <EventWatcherMobile muxPlaybackID={webinarEvent.muxPlaybackID} />
+          <div className={styles.adContainer}>
+            {adLoaded && (
+              <EventClientAdvertisement
+                height={60}
+                width={window.innerWidth}
+                advertisements={advertisements}
+              />
+            )}
+          </div>
+        </div>
+      );
+    else
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <HypeHeader />
+          <RSText type="subhead" size={16}>
+            Video conference feature is currently not available on mobile. Please
+            switch to a desktop.
+          </RSText>
+        </div>
+      );
 
-  const currConversationID = (webinarData as EventType).conversation as string;
+  const currConversationID = webinarEvent.conversation as string;
   return (
     <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <SpeakingInviteDialog
+        open={showSpeakingInvite}
+        onReject={onRejectSpeakingInvite}
+        onAccept={onAcceptSpeakingInvite}
+      />
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>

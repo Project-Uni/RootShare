@@ -17,3 +17,6 @@ var messageSchema = new Schema(
 );
 
 mongoose.model('messages', messageSchema);
+const Message = mongoose.model('messages');
+
+export default Message;

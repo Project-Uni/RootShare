@@ -23,6 +23,8 @@ import {
   startLiveStream,
   stopLiveStream,
   createNewScreensharePublisher,
+  addToCache,
+  removeFromCache,
 } from './helpers';
 
 import { SINGLE_DIGIT } from '../../../helpers/types';
@@ -31,6 +33,8 @@ const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
+
+const CACHE_RETRANSMIT_INTERVAL = 1000; // 1 SECOND
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -65,6 +69,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
+  speaking_token?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -115,16 +120,28 @@ function EventHostContainer(props: Props) {
     setVideoHeight(window.innerHeight - HEADER_HEIGHT - BUTTON_CONTAINER_HEIGHT);
   }
 
-  function handleStreamStatusChange() {
+  async function handleStreamStatusChange() {
     if (isStreaming) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        removeFromCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
-        startLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        const streamStarted = await startLiveStream(
+          props.webinar['_id'],
+          props.accessToken,
+          props.refreshToken
+        );
+        if (streamStarted && someoneSharingScreen !== '') {
+          changeBroadcastLayout(
+            'horizontalPresentation',
+            screenPublisher.stream?.streamId
+          );
+        }
+        addToCache(props.webinar['_id'], props.accessToken, props.refreshToken);
       }
     }
   }
@@ -235,6 +252,20 @@ function EventHostContainer(props: Props) {
     });
   }
 
+  function changeBroadcastLayout(
+    type: 'bestFit' | 'horizontalPresentation',
+    streamID = ''
+  ) {
+    makeRequest(
+      'POST',
+      '/webinar/changeBroadcastLayout',
+      { webinarID, type, streamID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
   function toggleScreenshare() {
     if (!sharingScreen && someoneSharingScreen) {
       window.alert(`Can't share screen while someone else is`);
@@ -251,7 +282,7 @@ function EventHostContainer(props: Props) {
           if (session.sessionId === undefined) {
             return new Publisher();
           }
-          if (prevState.session === undefined || prevState.session === null) {
+          if (!prevState.session) {
             const publisher = createNewScreensharePublisher(
               props.user['firstName'] + ' ' + props.user['lastName'],
               updateVideoElements,
@@ -260,17 +291,10 @@ function EventHostContainer(props: Props) {
 
             session.publish(publisher, (err) => {
               if (err) return log('error', err.message);
-              makeRequest(
-                'POST',
-                '/webinar/changeBroadcastLayout',
-                {
-                  webinarID,
-                  type: 'horizontalPresentation',
-                  streamID: publisher.stream?.streamId,
-                },
-                true,
-                props.accessToken,
-                props.refreshToken
+
+              changeBroadcastLayout(
+                'horizontalPresentation',
+                publisher.stream?.streamId
               );
 
               setScreenPublisher(publisher);
@@ -295,22 +319,37 @@ function EventHostContainer(props: Props) {
     screenPublisher: Publisher
   ) {
     setTimeout(() => {
-      makeRequest(
+      changeBroadcastLayout('bestFit');
+
+      removeVideoElement(screenElementID, 'screen', true);
+      session.unpublish(screenPublisher);
+    }, 500);
+    return new Publisher();
+  }
+
+  function removeGuestSpeaker(connection: OT.Connection) {
+    session.forceDisconnect(connection, (error) => {
+      if (error) log('OT Error', error.message);
+    });
+  }
+
+  async function setCacheConnection(eventSession: Session) {
+    setTimeout(async () => {
+      const { data } = await makeRequest(
         'POST',
-        '/webinar/changeBroadcastLayout',
+        '/proxy/webinar/setConnectionID',
         {
-          webinarID,
-          type: 'bestFit',
+          webinarID: props.webinar['_id'],
+          speaking_token: props.speaking_token,
+          connection: eventSession.connection,
         },
         true,
         props.accessToken,
         props.refreshToken
       );
 
-      removeVideoElement(screenElementID, 'screen', true);
-      session.unpublish(screenPublisher);
-    }, 500);
-    return new Publisher();
+      if (data.success !== 1) setCacheConnection(eventSession);
+    }, CACHE_RETRANSMIT_INTERVAL);
   }
 
   async function initializeSession() {
@@ -334,6 +373,11 @@ function EventHostContainer(props: Props) {
 
       setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
+
+      if (props.speaking_token) {
+        const eventSession_casted = (eventSession as unknown) as Session;
+        setCacheConnection(eventSession_casted);
+      }
 
       setTimeout(() => {
         setLoading(false);
@@ -397,6 +441,7 @@ function EventHostContainer(props: Props) {
         {renderVideoSections()}
       </div>
       <EventHostButtonContainer
+        webinarID={props.webinar['_id']}
         mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}
@@ -407,6 +452,7 @@ function EventHostContainer(props: Props) {
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
         loading={publisherLoading}
+        removeGuestSpeaker={removeGuestSpeaker}
       />
     </div>
   );

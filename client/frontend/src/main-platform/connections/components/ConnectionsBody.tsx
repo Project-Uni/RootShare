@@ -14,7 +14,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.fourth,
     overflow: 'scroll',
   },
   body: {},
@@ -25,14 +25,19 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 1,
+    marginRight: 1,
+    background: colors.primaryText,
   },
   connectionStyle: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginBottom: 10,
+    marginLeft: 1,
+    marginRight: 1,
+    marginBottom: 1,
+    borderRadius: 1,
   },
+  searchIcon: {
+    marginRight: 10,
+  }
 }));
 
 type Props = {};
@@ -76,14 +81,13 @@ function ConnectionsBody(props: Props) {
             <TextField
               {...params}
               label="Search your connections"
-              margin="normal"
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
             />
           )}
         />
         <IconButton>
-          <FaSearch size={22} color={colors.primary} />
+          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );

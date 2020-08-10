@@ -1,6 +1,5 @@
 const OpenTok = require('opentok');
-var mongoose = require('mongoose');
-var Webinar = mongoose.model('webinars');
+import { Webinar } from '../../models';
 import axios from 'axios';
 const jwt = require('njwt');
 
@@ -70,7 +69,8 @@ module.exports = {
   // Generate Token for each Publisher/Host client
   getOpenTokToken: async (sessionID) => {
     let token = await opentok.generateToken(sessionID, {
-      role: 'publisher',
+      //TODO - Deliver moderator to host, publisher to remaining
+      role: 'moderator',
       data: 'username=johndoe',
     });
 
@@ -269,8 +269,11 @@ module.exports = {
 
     Webinar.findById(webinarID, (err, currWebinar) => {
       if (err) return callback(sendPacket(-1, err));
-      if (!currWebinar)
-        return callback(sendPacket(-1, 'Cannot find current Webinar'));
+      if (!currWebinar) {
+        log('ERROR', 'Cannot find current Webinar');
+        return callback(sendPacket(0, 'Cannot find current Webinar'));
+      }
+
       const { opentokBroadcastID, opentokSessionID } = currWebinar;
       if (!opentokBroadcastID || opentokBroadcastID === '')
         return callback(sendPacket(-1, 'OpenTok Broadcast has not yet started'));
@@ -287,10 +290,12 @@ module.exports = {
         .then((response) => {
           log('info', `Changed OpenTok Broadcast Layout to ${type}`);
 
-          if (type === 'bestFit')
+          if (type === 'bestFit') {
             return callback(
               sendPacket(1, 'Successfully changed OpenTok Broadcast Layout')
             );
+          }
+
           axios
             .put(
               `https://api.opentok.com/v2/project/${OPENTOK_API_KEY}/session/${opentokSessionID}/stream`,

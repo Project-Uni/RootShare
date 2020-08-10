@@ -9,7 +9,6 @@ const useStyles = makeStyles((_: any) => ({
   videoContent: {
     background: 'black',
     verticalAlign: 'center',
-    padding: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

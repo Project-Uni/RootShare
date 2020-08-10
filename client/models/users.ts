@@ -28,6 +28,9 @@ var userSchema = new Schema(
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
     },
+    attendedWebinars: {
+      type: [{ type: Schema.ObjectId, ref: 'webinars' }],
+    },
     connections: {
       type: [{ type: Schema.ObjectId, ref: 'users' }],
     },
@@ -40,9 +43,13 @@ var userSchema = new Schema(
     pendingCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
-    //TODO - Add fields for profile picture and background image
+    //TODO - Add fields for background image
+    profilePicture: { type: String },
   },
   { timestamps: true }
 );
 
 mongoose.model('users', userSchema);
+const User = mongoose.model('users');
+
+export default User;
