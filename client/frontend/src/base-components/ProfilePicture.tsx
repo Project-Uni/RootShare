@@ -24,8 +24,7 @@ import {
   getCroppedImage,
   imageURLToFile,
 } from './profileHelpers/profilePictureHelpers';
-import log from '../helpers/logger';
-import { makeRequest } from '../helpers/makeRequest';
+import { log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
 
 const useStyles = makeStyles((_: any) => ({

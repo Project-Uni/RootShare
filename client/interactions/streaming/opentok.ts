@@ -50,14 +50,18 @@ module.exports = {
 
   // Retrive Session ID from DB
   getOpenTokSessionID: async (webinarID, callback) => {
+    console.log('TESSSSSSST', webinarID);
     Webinar.findById(webinarID, (err, webinar) => {
       if (err) return callback(sendPacket(-1, err));
       if (!webinar)
         return callback(sendPacket(-1, 'Could not send OpenTok SessionID'));
 
-      if (webinar.opentokSessionID === undefined)
+      if (webinar.opentokSessionID === undefined) {
+        console.log(`DID CREATE NEW SESSIONID`);
         return module.exports.createNewOpenTokSession(webinar, callback);
+      }
 
+      console.log(`DIDN'T CREATE NEW SESSIONID`);
       return callback(
         sendPacket(1, "Sending Webinar's OpenTok SessionID", {
           opentokSessionID: webinar.opentokSessionID,
@@ -134,11 +138,10 @@ module.exports = {
   startStreaming: async (webinarID) => {
     await module.exports.stopStreaming(webinarID);
 
-    const sessionPacket = await module.exports.getOpenTokSessionID(webinarID);
-    if (sessionPacket.success !== 1) {
-      return sessionPacket;
-    }
-    const { opentokSessionID } = sessionPacket.content;
+    const webinar = await Webinar.findById(webinarID);
+    if (!webinar) return sendPacket(-1, 'Could not get session ID');
+
+    const opentokSessionID = webinar.opentokSessionID;
 
     const muxPacket = await module.exports.createMuxStream();
     if (muxPacket.success !== 1) {
