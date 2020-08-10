@@ -7,7 +7,7 @@ import { Conversation, Message, User } from '../models';
 
 export function createThread(req, io, callback) {
   const { message, tempID, recipients } = req.body;
-  const { _id: userID } = req.body;
+  const { _id: userID } = req.user;
 
   checkUsersConnected(userID, recipients, (packet) => {
     if (packet['success'] !== 1) return callback(packet);

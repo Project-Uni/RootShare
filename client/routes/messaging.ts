@@ -42,7 +42,7 @@ module.exports = (app, io) => {
     );
   });
 
-  app.post('/api/messaging/createThread', (req, res) => {
+  app.post('/api/messaging/createThread', isAuthenticatedWithJWT, (req, res) => {
     createThread(req, io, (packet) => {
       res.send(packet);
     });
