@@ -76,8 +76,13 @@ module.exports = {
   },
 
   sendLaunchEventInvitation: async (emailAddress) => {
+    const currDate = new Date();
+    const dayBeforeEvent = new Date('August 13, 2020 16:00:00');
+    const endOfEvent = new Date('August 15, 2020 01:00:00');
+    if (currDate < dayBeforeEvent || currDate > endOfEvent) return;
+
     const eventID = '5f30b4488e8fb07262044e9f'; // Note: This ID shouldn't change
-    const eventLink = `https://www.rootshare.io/event/${eventLink}`;
+    const eventLink = `https://www.rootshare.io/event/${eventID}`;
     let webinarData = await Webinar.findById(eventID);
     if (!webinarData)
       webinarData = {
@@ -93,8 +98,7 @@ module.exports = {
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['full_description']}</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can access the event at ${eventLink}
-  }</p>
+  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can access the event at ${eventLink}</p>
   <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On Friday, August 14th at 7PM EST<b></p>
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>See you there!</p>
