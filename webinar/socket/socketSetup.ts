@@ -1,7 +1,10 @@
 import * as socketio from 'socket.io';
 import log from '../helpers/logger';
 
+import { Webinar } from '../database/models';
+
 import { WebinarCache, WaitingRooms } from '../types/types';
+import { emit } from 'process';
 
 module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) => {
   io.on('connection', (socket: socketio.Socket) => {
@@ -15,7 +18,7 @@ module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =>
 
     socket.on(
       'new-user',
-      (data: {
+      async (data: {
         webinarID: string;
         userID: string;
         firstName: string;
@@ -36,17 +39,43 @@ module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =>
         socketWebinarId = webinarID;
 
         if (!(webinarID in webinarCache)) {
-          //TODO - Check if webinar is real, if it is, add them to a waiting list
-          if (!(webinarID in waitingRooms)) {
-            waitingRooms[webinarID] = { users: {} };
-          }
-          waitingRooms[webinarID].users[userID] = {
-            socket: socket,
-            joinedAt: Date.now(),
-          };
+          try {
+            const webinars = await Webinar.find(
+              { _id: webinarID },
+              { _id: 1 }
+            ).limit(1);
+            if (webinars.length === 0) {
+              //Webinar does not exist
+              socket.emit('webinar-error', 'WebinarID not valid');
+              return log('error', 'Invalid webinarID received');
+            }
 
-          socket.emit('webinar-error', 'Webinar not in cache');
-          return log('error', 'Invalid webinarID received');
+            //Webinar exists
+            if (!(webinarID in waitingRooms)) {
+              waitingRooms[webinarID] = { users: {} };
+            }
+            waitingRooms[webinarID].users[userID] = {
+              socket: socket,
+              joinedAt: Date.now(),
+            };
+
+            console.log('Waiting Rooms:', waitingRooms);
+
+            socket.emit(
+              'waiting-room-add',
+              `You have been added to the waiting room for ${webinarID}`
+            );
+            return log(
+              'info',
+              `Added user ${firstName} ${lastName} to waiting room for webinar ${webinarID}`
+            );
+          } catch (err) {
+            socket.emit(
+              'webinar-error',
+              'There was an error connecting to the database'
+            );
+            return log('error', err);
+          }
         }
         socket.join(`${webinarID}`);
 
