@@ -135,11 +135,10 @@ module.exports = {
   startStreaming: async (webinarID) => {
     await module.exports.stopStreaming(webinarID);
 
-    const sessionPacket = await module.exports.getOpenTokSessionID(webinarID);
-    if (sessionPacket.success !== 1) {
-      return sessionPacket;
-    }
-    const { opentokSessionID } = sessionPacket.content;
+    const webinar = await Webinar.findById(webinarID);
+    if (!webinar) return sendPacket(-1, 'Could not get session ID');
+
+    const opentokSessionID = webinar.opentokSessionID;
 
     const muxPacket = await module.exports.createMuxStream();
     if (muxPacket.success !== 1) {
