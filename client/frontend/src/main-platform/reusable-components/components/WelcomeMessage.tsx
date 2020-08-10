@@ -10,9 +10,11 @@ import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
-    background: colors.secondary,
-    borderRadius: 10,
-    margin: 20,
+    background: colors.primaryText,
+    borderRadius: 1,
+    marginLeft: 1,
+    marginRight: 1,
+    marginTop: 1,
     paddingBottom: 15,
   },
   closeWelcomeButtonDiv: {
@@ -58,7 +60,7 @@ function WelcomeMessage(props: Props) {
       </div>
 
       <div className={styles.welcomeTextContainer}>
-        <RSText type="head" size={24} color={colors.primaryText} bold>
+        <RSText type="head" size={24} color={colors.secondary} bold>
           {props.title}
         </RSText>
         <RSText

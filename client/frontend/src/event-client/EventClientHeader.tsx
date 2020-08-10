@@ -22,7 +22,7 @@ import {
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   header: {
-    background: colors.secondary,
+    background: colors.second,
   },
   headerLogo: {
     height: '38px',

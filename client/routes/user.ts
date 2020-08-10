@@ -1,6 +1,5 @@
 import sendPacket from '../helpers/sendPacket';
-const mongoose = require('mongoose');
-const User = mongoose.model('users');
+import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { getCurrentUser, getConnections } from '../interactions/user';

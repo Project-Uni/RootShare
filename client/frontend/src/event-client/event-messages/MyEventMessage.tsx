@@ -37,15 +37,14 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'flex-start',
   },
   left: {
-    display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
   },
   right: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     marginRight: 12,
     marginTop: 7,
-    marginLeft: 'auto',
   },
   senderName: {
     margin: 10,
@@ -68,24 +67,17 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: -10,
-    maxWidth: 309,
   },
   likeCount: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
     color: '#f2f2f2',
-    alignSelf: 'flex-end',
   },
   star: {
     '&:hover': {
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 3,
-    marginLeft: 'auto',
-    marginRight: 'auto',
     color: '#6699ff',
   },
   starGray: {
@@ -93,11 +85,8 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     marginTop: -10,
     marginBottom: 3,
-    marginLeft: 'auto',
-    marginRight: 'auto',
     color: 'grey',
   },
   time: {
@@ -110,17 +99,9 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'flex-end',
     color: 'grey',
     marginBottom: 18,
-    marginLeft: 'auto',
-    marginRight: 'auto',
     paddingRight: 1,
-  },
-  errorIcon: {
-    color: colors.brightError,
-    marginTop: 'auto',
-    marginBottom: 'auto',
   },
 }));
 

@@ -17,6 +17,8 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     background: colors.primaryText,
     overflow: 'scroll',
+    borderLeft: `1px solid ${colors.fourth}`,
+    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
   coverPhoto: {
@@ -95,8 +97,8 @@ function CommunityBody(props: Props) {
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
-        <FaLock size={90} color={colors.secondaryText} />
-        <RSText type="subhead" size={20} color={colors.primary}>
+        <FaLock size={90} color={colors.second} />
+        <RSText type="subhead" size={20} color={colors.second}>
           You must be a member to view this content.
         </RSText>
       </div>

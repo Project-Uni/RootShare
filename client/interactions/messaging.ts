@@ -2,8 +2,8 @@ import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 const mongoose = require('mongoose');
-const Conversation = mongoose.model('conversations');
-const Message = mongoose.model('messages');
+
+import { Conversation, Message } from '../models';
 
 module.exports = {
   createThread: (req, io, callback) => {
