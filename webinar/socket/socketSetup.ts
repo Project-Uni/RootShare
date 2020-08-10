@@ -4,9 +4,12 @@ import log from '../helpers/logger';
 import { Webinar } from '../database/models';
 
 import { WebinarCache, WaitingRooms } from '../types/types';
-import { emit } from 'process';
 
-module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) => {
+module.exports = (
+  io: socketio.Server,
+  webinarCache: WebinarCache,
+  waitingRooms: WaitingRooms
+) => {
   io.on('connection', (socket: socketio.Socket) => {
     let socketUserId = '';
     let socketUserFirstName = '';
@@ -60,6 +63,8 @@ module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =>
             };
 
             console.log('Waiting Rooms:', waitingRooms);
+
+            socket.join(`waitingRoom_${webinarID}`);
 
             socket.emit(
               'waiting-room-add',

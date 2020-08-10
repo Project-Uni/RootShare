@@ -200,6 +200,10 @@ function EventClientBase(props: Props) {
     socket.on('speaking-token-accepted', () => {
       setEventMode('speaker');
     });
+
+    socket.on('event-started', () => {
+      console.log('Event has started');
+    });
   }
 
   function onAcceptSpeakingInvite() {
