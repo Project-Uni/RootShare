@@ -133,7 +133,7 @@ function CommunityGeneralInfo(props: Props) {
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <div className={styles.left}>
-          <RSText type="head" size={22} color={colors.primary}>
+          <RSText type="head" size={22} color={colors.second}>
             {props.name}
             {props.private && (
               <FaLock
@@ -149,17 +149,17 @@ function CommunityGeneralInfo(props: Props) {
         </div>
         <div className={styles.right}>
           {renderButton()}
-          <RSText type="body" size={14} color={colors.primary} bold>
+          <RSText type="body" size={14} color={colors.second} bold>
             {props.numMembers} Members
           </RSText>
-          <RSText type="body" size={14} color={colors.primary} bold>
+          <RSText type="body" size={14} color={colors.second} bold>
             {props.numMutual} Mutual
           </RSText>
         </div>
       </div>
       <RSText
         type="body"
-        color={colors.secondary}
+        color={colors.second}
         size={13}
         className={styles.description}
       >
@@ -170,7 +170,7 @@ function CommunityGeneralInfo(props: Props) {
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         {props.description !== descSubstr && (
           <a href={undefined} className={styles.seeMore} onClick={handleSeeClicked}>
-            See {showFullDesc ? 'less' : 'more'}
+            SEE {showFullDesc ? 'LESS' : 'MORE'}
           </a>
         )}
       </div>

@@ -12,7 +12,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.fourth,
     overflow: 'scroll',
   },
   body: {},
@@ -27,9 +27,10 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 20,
   },
   singleCommunity: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginBottom: 10,
+    marginLeft: 1,
+    marginRight: 1,
+    marginBottom: 1,
+    borderRadius: 1,
   },
 }));
 

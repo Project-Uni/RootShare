@@ -37,15 +37,14 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'flex-start',
   },
   left: {
-    display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
   },
   right: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     marginRight: 12,
     marginTop: 7,
-    marginLeft: 'auto',
   },
   senderName: {
     margin: 10,
@@ -68,18 +67,15 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: -10,
-    maxWidth: 309,
   },
   likeCount: {
     color: '#f2f2f2',
-    alignSelf: 'center',
   },
   star: {
     '&:hover': {
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'center',
     marginTop: -10,
     marginBottom: 3,
     color: '#6699ff',
@@ -89,7 +85,6 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'center',
     marginTop: -10,
     marginBottom: 3,
     color: 'grey',
@@ -104,7 +99,6 @@ const useStyles = makeStyles((_: any) => ({
       color: colors.primaryText,
       cursor: 'pointer',
     },
-    alignSelf: 'center',
     color: 'grey',
     marginBottom: 18,
     paddingRight: 1,

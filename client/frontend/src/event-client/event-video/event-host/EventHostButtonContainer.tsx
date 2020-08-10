@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Button } from '@material-ui/core';
@@ -10,6 +10,7 @@ import {
 } from '@styled-icons/boxicons-solid';
 
 import { colors } from '../../../theme/Colors';
+import ManageSpeakersDialog from './ManageSpeakersDialog';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -35,6 +36,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  webinarID: string;
   isStreaming: boolean;
   showWebcam: boolean;
   muted: boolean;
@@ -45,12 +47,43 @@ type Props = {
   toggleScreenshare: () => void;
   loading: boolean;
   mode: 'admin' | 'speaker';
+  removeGuestSpeaker: (connection: OT.Connection) => void;
 };
 
 function EventHostButtonContainer(props: Props) {
   const styles = useStyles();
+
+  const [showManageDialog, setShowManageDialog] = useState(false);
+  const [manageSpeakersDisabled, setManageSpeakersDisabled] = useState(false);
+
+  function handleManageSpeakersClick() {
+    setShowManageDialog(true);
+  }
+
+  function handleOnSpeakerAdd(user: { [key: string]: any }) {
+    setManageSpeakersDisabled(true);
+    //Waiting 3 seconds b/c it takes ~2 seconds to get the connection from the new user if they accept immediately
+    //TODO - Change this to use a socket for when a user is loading. Won't be able to finish this feature in time for august 14th
+    setTimeout(() => {
+      setManageSpeakersDisabled(false);
+    }, 3000);
+    setShowManageDialog(false);
+  }
+
+  function handleManageSpeakersCancel() {
+    setShowManageDialog(false);
+  }
+
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersDialog
+        open={showManageDialog}
+        onCancel={handleManageSpeakersCancel}
+        onAdd={handleOnSpeakerAdd}
+        webinarID={props.webinarID}
+        removeGuestSpeaker={props.removeGuestSpeaker}
+      />
+
       {props.mode === 'admin' && (
         <Button
           variant="contained"
@@ -104,7 +137,8 @@ function EventHostButtonContainer(props: Props) {
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          disabled={props.loading}
+          disabled={props.loading || manageSpeakersDisabled}
+          onClick={handleManageSpeakersClick}
         >
           Manage Speakers
         </Button>

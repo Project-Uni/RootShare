@@ -11,3 +11,6 @@ var connectionSchema = new Schema(
 );
 
 mongoose.model('connections', connectionSchema);
+const Connection = mongoose.model('conversations');
+
+export default Connection;
