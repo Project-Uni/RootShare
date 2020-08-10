@@ -1,9 +1,9 @@
 import * as socketio from 'socket.io';
 import log from '../helpers/logger';
 
-import { WebinarCache } from '../types/types';
+import { WebinarCache, WaitingRooms } from '../types/types';
 
-module.exports = (io, webinarCache: WebinarCache) => {
+module.exports = (io, webinarCache: WebinarCache, waitingRooms: WaitingRooms) => {
   io.on('connection', (socket: socketio.Socket) => {
     let socketUserId = '';
     let socketUserFirstName = '';
@@ -36,6 +36,15 @@ module.exports = (io, webinarCache: WebinarCache) => {
         socketWebinarId = webinarID;
 
         if (!(webinarID in webinarCache)) {
+          //TODO - Check if webinar is real, if it is, add them to a waiting list
+          if (!(webinarID in waitingRooms)) {
+            waitingRooms[webinarID] = { users: {} };
+          }
+          waitingRooms[webinarID].users[userID] = {
+            socket: socket,
+            joinedAt: Date.now(),
+          };
+
           socket.emit('webinar-error', 'Webinar not in cache');
           return log('error', 'Invalid webinarID received');
         }
