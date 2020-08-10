@@ -202,7 +202,8 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('event-started', () => {
-      console.log('Event has started');
+      alert('The event has started');
+      fetchEventInfo();
     });
   }
 

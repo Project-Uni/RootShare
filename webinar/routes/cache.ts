@@ -23,7 +23,9 @@ module.exports = (app, webinarCache: WebinarCache, io: Server) => {
     log('info', `Added webinar ${webinarID} to cache`);
     log('info', `Active Webinars: ${Object.keys(webinarCache)}`);
 
-    broadcastEventStart(io, webinarID);
+    setTimeout(() => {
+      broadcastEventStart(io, webinarID);
+    }, 1000 * 45);
 
     return res.json(sendPacket(1, 'Successfully initialized webinar in cache'));
   });

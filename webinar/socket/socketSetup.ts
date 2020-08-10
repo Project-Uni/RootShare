@@ -62,9 +62,7 @@ module.exports = (
               joinedAt: Date.now(),
             };
 
-            console.log('Waiting Rooms:', waitingRooms);
-
-            socket.join(`waitingRoom_${webinarID}`);
+            socket.join(`webinar_${webinarID}`);
 
             socket.emit(
               'waiting-room-add',
@@ -82,7 +80,7 @@ module.exports = (
             return log('error', err);
           }
         }
-        socket.join(`${webinarID}`);
+        socket.join(`webinar_${webinarID}`);
 
         webinarCache[webinarID].users[userID] = socket;
         log(
