@@ -24,7 +24,8 @@ export function broadcastEventStart(
       'info',
       `Added all users from waiting room for webinar ${webinarID} to cache`
     );
-    log('info', `Waiting Rooms: ${Object.keys(waitingRooms)}`);
+
     delete waitingRooms[webinarID];
+    log('info', `Waiting Rooms: ${Object.keys(waitingRooms)}`);
   }
 }
