@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import { TextField, IconButton } from '@material-ui/core';
+import { CircularProgress, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { MdSend } from 'react-icons/md';
-import { FaRegSmile } from 'react-icons/fa';
 import { IoIosArrowBack } from 'react-icons/io';
 
 import { connect } from 'react-redux';
@@ -35,7 +33,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   messagesContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    display: 'flex',
+    flexDirection: 'column',
     background: colors.secondary,
     overflow: 'scroll',
     // scrollbarWidth: 'thin', // don't work in most browsers
@@ -103,6 +102,10 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  loadingIndicator: {
+    alignSelf: 'center',
+    marginTop: 40,
+  },
 }));
 
 type Props = {
@@ -118,6 +121,12 @@ type Props = {
 
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (props.messages && props.messages.length > 0) setLoading(false);
+  }, [props.messages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -218,7 +227,16 @@ function MessageThreadContainer(props: Props) {
         <div className={styles.filler}>SAVE</div>
       </div>
       <div id="messageContainer" className={styles.messagesContainer}>
-        {renderLatestMessages()}
+        {loading ? (
+          <CircularProgress
+            className={styles.loadingIndicator}
+            size={200}
+            thickness={1.5}
+            color="primary"
+          />
+        ) : (
+          renderLatestMessages()
+        )}
       </div>
 
       <MessageTextField
