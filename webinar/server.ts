@@ -11,6 +11,11 @@ const http = require('http');
 import log from './helpers/logger';
 import { WebinarCache, WaitingRooms } from './types/types';
 
+const mongoConfig = require('./database/mongoConfig');
+mongoConfig.connectDB(function (err, client) {
+  if (err) log('MONGO ERROR', err);
+});
+
 const port = process.env.PORT || 8003;
 
 const app = express();
