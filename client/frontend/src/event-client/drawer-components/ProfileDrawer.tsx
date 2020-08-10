@@ -92,18 +92,18 @@ function ProfileDrawer(props: Props) {
   const [originalPhoneNumber, setOriginalPhoneNumber] = useState('');
   const [originalDiscoveryMethod, setOriginalDiscoveryMethod] = useState('');
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [major, setMajor] = useState('');
-  const [graduationYear, setGraduationYear] = useState('');
-  const [currentEmployer, setCurrentEmployer] = useState('');
-  const [currentRole, setCurrentRole] = useState('');
-  const [college, setCollege] = useState('');
-  const [interests, setInterests] = useState('');
-  const [organizations, setOrganizations] = useState('');
-  const [graduateDegree, setGraduateDegree] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [discoveryMethod, setDiscoveryMethod] = useState('');
+  const [updatedFirstName, setUpdatedFirstName] = useState('');
+  const [updatedLastName, setUpdatedLastName] = useState('');
+  const [updatedMajor, setUpdatedMajor] = useState('');
+  const [updatedGraduationYear, setUpdatedGraduationYear] = useState('');
+  const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
+  const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
+  const [updatedCollege, setUpdatedCollege] = useState('');
+  const [updatedInterests, setUpdatedInterests] = useState('');
+  const [updatedOrganizations, setUpdatedOrganizations] = useState('');
+  const [updatedGraduateDegree, setUpdatedGraduateDegree] = useState('');
+  const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
+  const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
   useEffect(() => {
     setOriginalUserInfo();
@@ -126,18 +126,18 @@ function ProfileDrawer(props: Props) {
     setOriginalPhoneNumber('4086449017');
     setOriginalDiscoveryMethod('Creator of Platform');
 
-    setFirstName(props.user.firstName);
-    setLastName(props.user.lastName);
-    setMajor('Computer Science');
-    setGraduationYear('2020');
-    setCurrentEmployer('AutoZone');
-    setCurrentRole('Senior Lead Software Engineer');
-    setCollege('Purdue University');
-    setInterests('Baddies, Hoes, Thots');
-    setOrganizations('PIKE, Volleyball, APhi Sexers');
-    setGraduateDegree('No');
-    setPhoneNumber('4086449017');
-    setDiscoveryMethod('Creator of Platform');
+    setUpdatedFirstName(props.user.firstName);
+    setUpdatedLastName(props.user.lastName);
+    setUpdatedMajor('Computer Science');
+    setUpdatedGraduationYear('2020');
+    setUpdatedCurrentEmployer('AutoZone');
+    setUpdatedCurrentRole('Senior Lead Software Engineer');
+    setUpdatedCollege('Purdue University');
+    setUpdatedInterests('Baddies, Hoes, Thots');
+    setUpdatedOrganizations('PIKE, Volleyball, APhi Sexers');
+    setUpdatedGraduateDegree('No');
+    setUpdatedPhoneNumber('4086449017');
+    setUpdatedDiscoveryMethod('Creator of Platform');
   }
 
   // Changed User Information
@@ -146,129 +146,129 @@ function ProfileDrawer(props: Props) {
   function updateNewUserInfoToServer() {
     // TODO: Map Out All The Variables To Server To Store Changed User Info
 
-    console.log(firstName);
-    console.log(lastName);
-    console.log(major);
-    console.log(graduationYear);
-    console.log(currentEmployer);
-    console.log(currentRole);
-    console.log(college);
-    console.log(interests);
-    console.log(organizations);
-    console.log(graduateDegree);
-    console.log(phoneNumber);
-    console.log(discoveryMethod);
+    console.log(updatedFirstName);
+    console.log(updatedLastName);
+    console.log(updatedMajor);
+    console.log(updatedGraduationYear);
+    console.log(updatedCurrentEmployer);
+    console.log(updatedCurrentRole);
+    console.log(updatedCollege);
+    console.log(updatedInterests);
+    console.log(updatedOrganizations);
+    console.log(updatedGraduateDegree);
+    console.log(updatedPhoneNumber);
+    console.log(updatedDiscoveryMethod);
 
-    if (firstName !== originalFirstName) {
-      setOriginalFirstName(firstName);
+    if (updatedFirstName !== originalFirstName) {
+      setOriginalFirstName(updatedFirstName);
     }
 
-    if (lastName !== originalLastName) {
-      setOriginalLastName(firstName);
+    if (updatedLastName !== originalLastName) {
+      setOriginalLastName(updatedLastName);
     }
 
-    if (major !== originalMajor) {
-      setOriginalMajor(major);
+    if (updatedMajor !== originalMajor) {
+      setOriginalMajor(updatedMajor);
     }
 
-    if (graduationYear !== originalGraduationYear) {
-      setOriginalGraduationYear(graduationYear);
+    if (updatedGraduationYear !== originalGraduationYear) {
+      setOriginalGraduationYear(updatedGraduationYear);
     }
 
-    if (currentEmployer !== originalCurrentEmployer) {
-      setOriginalCurrentEmployer(currentEmployer);
+    if (updatedCurrentEmployer !== originalCurrentEmployer) {
+      setOriginalCurrentEmployer(updatedCurrentEmployer);
     }
 
-    if (currentRole !== originalCurrentRole) {
-      setOriginalCurrentRole(currentRole);
+    if (updatedCurrentRole !== originalCurrentRole) {
+      setOriginalCurrentRole(updatedCurrentRole);
     }
 
-    if (college !== originalCollege) {
-      setOriginalCollege(college);
+    if (updatedCollege !== originalCollege) {
+      setOriginalCollege(updatedCollege);
     }
 
-    if (interests !== originalInterests) {
-      setOriginalInterests(interests);
+    if (updatedInterests !== originalInterests) {
+      setOriginalInterests(updatedInterests);
     }
 
-    if (organizations !== originalOrganizations) {
-      setOriginalOrganizations(organizations);
+    if (updatedOrganizations !== originalOrganizations) {
+      setOriginalOrganizations(updatedOrganizations);
     }
 
-    if (graduateDegree !== originalGraduateDegree) {
-      setOriginalGraduateDegree(graduateDegree);
+    if (updatedGraduateDegree !== originalGraduateDegree) {
+      setOriginalGraduateDegree(updatedGraduateDegree);
     }
 
-    if (phoneNumber !== originalPhoneNumber) {
-      setOriginalPhoneNumber(phoneNumber);
+    if (updatedPhoneNumber !== originalPhoneNumber) {
+      setOriginalPhoneNumber(updatedPhoneNumber);
     }
 
-    if (discoveryMethod !== originalDiscoveryMethod) {
-      setOriginalDiscoveryMethod(discoveryMethod);
+    if (updatedDiscoveryMethod !== originalDiscoveryMethod) {
+      setOriginalDiscoveryMethod(updatedDiscoveryMethod);
     }
   }
 
   // Handle User Info Change Functions
   // TODO: Find What To Pass In As "value"
 
-  function handleFirstNameChange(event: any) {
+  function handleUpdatedFirstNameChange(event: any) {
     console.log('Handling first name change...');
-    setFirstName(event.target.value);
+    setUpdatedFirstName(event.target.value);
   }
 
   function handleLastNameChange(event: any) {
     console.log('Handling last name change...');
-    setLastName(event.target.value);
+    setUpdatedLastName(event.target.value);
   }
 
   function handleMajorChange(event: any) {
     console.log('Handling major change...');
-    setMajor(event.target.value);
+    setUpdatedMajor(event.target.value);
   }
 
   function handleGraduationYearChange(event: any) {
     console.log('Handling grad year change...');
-    setGraduationYear(event.target.value);
+    setUpdatedGraduationYear(event.target.value);
   }
 
   function handleCurrentEmployerChange(event: any) {
     console.log('Handling current employer change...');
-    setCurrentEmployer(event.target.value);
+    setUpdatedCurrentEmployer(event.target.value);
   }
 
   function handleCurrentRoleChange(event: any) {
     console.log('Handling current role change...');
-    setCurrentRole(event.target.value);
+    setUpdatedCurrentRole(event.target.value);
   }
 
   function handleCollegeChange(event: any) {
     console.log('Handling college change...');
-    setCollege(event.target.value);
+    setUpdatedCollege(event.target.value);
   }
 
   function handleInterestsChange(event: any) {
     console.log('Handling interests change...');
-    setInterests(event.target.value);
+    setUpdatedInterests(event.target.value);
   }
 
   function handleOrganizationsChange(event: any) {
     console.log('Handling organizations change...');
-    setOrganizations(event.target.value);
+    setUpdatedOrganizations(event.target.value);
   }
 
   function handleGraduateDegreeChange(event: any) {
     console.log('Handling graduate degree change...');
-    setGraduateDegree(event.target.value);
+    setUpdatedGraduateDegree(event.target.value);
   }
 
   function handlePhoneNumberChange(event: any) {
     console.log('Handling phone number change...');
-    setPhoneNumber(event.target.value);
+    setUpdatedPhoneNumber(event.target.value);
   }
 
   function handleDiscoveryMethodChange(event: any) {
     console.log('Handling discovery method change...');
-    setDiscoveryMethod(event.target.value);
+    setUpdatedDiscoveryMethod(event.target.value);
   }
 
   // End Handle Change Functions For User Info
@@ -374,13 +374,13 @@ function ProfileDrawer(props: Props) {
         <div className={styles.names}>
           <UserInfoTextField
             label="First Name"
-            value={firstName}
-            onChange={handleFirstNameChange}
+            value={updatedFirstName}
+            onChange={handleUpdatedFirstNameChange}
             width={170}
           />
           <UserInfoTextField
             label="Last Name"
-            value={lastName}
+            value={updatedLastName}
             onChange={handleLastNameChange}
             width={170}
             className={styles.lastName}
@@ -388,52 +388,52 @@ function ProfileDrawer(props: Props) {
         </div>
         <UserInfoTextField
           label="Major"
-          value={major}
+          value={updatedMajor}
           onChange={handleMajorChange}
         />
         <UserInfoTextField
           label="Graduation Year"
-          value={graduationYear}
+          value={updatedGraduationYear}
           onChange={handleGraduationYearChange}
         />
         <UserInfoTextField
           label="Current Employer"
-          value={currentEmployer}
+          value={updatedCurrentEmployer}
           onChange={handleCurrentEmployerChange}
         />
         <UserInfoTextField
           label="Current Role"
-          value={currentRole}
+          value={updatedCurrentRole}
           onChange={handleCurrentRoleChange}
         />
         <UserInfoTextField
           label="College"
-          value={college}
+          value={updatedCollege}
           onChange={handleCollegeChange}
         />
         <UserInfoTextField
           label="Interests"
-          value={interests}
+          value={updatedInterests}
           onChange={handleInterestsChange}
         />
         <UserInfoTextField
           label="Organizations"
-          value={organizations}
+          value={updatedOrganizations}
           onChange={handleOrganizationsChange}
         />
         <UserInfoTextField
           label="Graduate Degree"
-          value={graduateDegree}
+          value={updatedGraduateDegree}
           onChange={handleGraduateDegreeChange}
         />
         <UserInfoTextField
           label="Phone Number"
-          value={phoneNumber}
+          value={updatedPhoneNumber}
           onChange={handlePhoneNumberChange}
         />
         <UserInfoTextField
           label="Discovery Method"
-          value={discoveryMethod}
+          value={updatedDiscoveryMethod}
           onChange={handleDiscoveryMethodChange}
         />
         {returnSaveButton()}
@@ -498,7 +498,6 @@ function ProfileDrawer(props: Props) {
           className={styles.staticIndividual}
         >
           Organizations: {originalOrganizations}
-          {organizations && !original}
         </RSText>
         <RSText
           type="body"
@@ -507,7 +506,6 @@ function ProfileDrawer(props: Props) {
           className={styles.staticIndividual}
         >
           Graduate Degree: {originalGraduateDegree}
-          {graduateDegree && !original}
         </RSText>
         <RSText
           type="body"
