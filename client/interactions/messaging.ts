@@ -96,7 +96,7 @@ export function sendMessage(userID, conversationID, message, tempID, io, callbac
             'newMessage',
             jsonNewMessage
           );
-          return callback(sendPacket(1, 'Message sent'));
+          return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
       });
     });
