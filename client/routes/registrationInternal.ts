@@ -61,7 +61,18 @@ module.exports = (app) => {
             log('error', `Failed serializing ${user.email}`);
           }
           log('info', `Successfully created account for ${user.email}`);
-          return res.redirect('/auth/secure-confirmed');
+          return res.json(
+            sendPacket(1, 'Successfully logged in', {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              _id: user._id,
+              privilegeLevel: 1,
+              accountType: user.accountType,
+              accessToken: info['jwtAccessToken'],
+              refreshToken: info['jwtRefreshToken'],
+            })
+          );
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));

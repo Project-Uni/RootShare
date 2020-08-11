@@ -3,7 +3,9 @@ var mongoose = require('mongoose');
 var User = mongoose.model('users');
 var University = mongoose.model('universities');
 var bCrypt = require('bcryptjs');
-import log from '../helpers/logger';
+import jwt = require('jsonwebtoken');
+
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
 var {
   sendConfirmationEmail,
@@ -52,8 +54,23 @@ module.exports = function (passport) {
                 }
 
                 sendConfirmationEmail(email);
+
+                const userTokenInfo = {};
+                for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
+                  userTokenInfo[JWT_TOKEN_FIELDS[i]] = newUser[JWT_TOKEN_FIELDS[i]];
+                const jwtAccessToken = jwt.sign(
+                  userTokenInfo,
+                  process.env.JWT_ACCESS_SECRET
+                  // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
+                );
+                const jwtRefreshToken = jwt.sign(
+                  userTokenInfo,
+                  process.env.JWT_REFRESH_SECRET
+                );
                 return done(null, newUser, {
                   message: 'User Registration Succesful!',
+                  jwtAccessToken,
+                  jwtRefreshToken,
                 });
               });
             }
