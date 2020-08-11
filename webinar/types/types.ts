@@ -4,6 +4,19 @@ export type WebinarCache = {
   [key: string]: Webinar;
 };
 
+export type WaitingRooms = {
+  [key: string]: WaitingRoom;
+};
+
+export type WaitingRoom = {
+  users: {
+    [key: string]: {
+      socket: Socket;
+      joinedAt: number;
+    };
+  };
+};
+
 export type Webinar = {
   users: {
     [key: string]: Socket;

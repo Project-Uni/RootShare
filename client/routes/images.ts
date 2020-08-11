@@ -14,31 +14,6 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { User } from '../models';
 
 module.exports = (app) => {
-  app.get('/test/upload', async (req, res) => {
-    fs.readFile('./frontend/src/images/team/smit.jpeg', async (err, data) => {
-      if (err) {
-        log('error', err);
-        return res.json(sendPacket(0, 'Error uploading', { err: err }));
-      }
-      const success = await uploadFile('profile', 'smit.jpeg', data);
-
-      if (!success) {
-        return res.json(sendPacket(0, 'Failed to upload image'));
-      }
-      return res.json(sendPacket(1, 'Successfully uploaded image'));
-    });
-  });
-
-  app.get('/test/retrieve', async (req, res) => {
-    const data = await retrieveFile('profile', 'smit.jpeg');
-    if (!data) {
-      return res.json(sendPacket(0, 'Failed to retrieve image'));
-    }
-    res.writeHead(200, { 'Content-Type': 'image/jpeg' });
-    res.write(data.Body, 'binary');
-    return res.end(null, 'binary');
-  });
-
   app.post(
     '/api/profile/updateProfilePicture',
     isAuthenticatedWithJWT,
