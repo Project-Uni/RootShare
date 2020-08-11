@@ -14,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   textLeft: {
     marginTop: 25,
-    marginLeft: '25%',
+    marginLeft: 200,
     alignSelf: 'left',
     alignItems: 'left',
     justifyContent: 'left',
@@ -22,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   photoLeft: {
     marginTop: 25,
-    marginLeft: '25%',
+    marginLeft: 200,
     alignSelf: 'left',
     alignItems: 'left',
     justifyContent: 'left',
@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   login: {
     marginTop: 25,
-    marginRight: '25%',
+    marginRight: 250,
     alignSelf: 'right',
     alignItems: 'right',
     justifyContent: 'right',

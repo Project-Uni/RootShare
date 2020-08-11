@@ -345,7 +345,7 @@ function HypeRegistration(props: Props) {
               className={styles.alreadyHaveAnAccount}
             >
               Already have an account?
-              <a href="https://www.rootshare.io/home"> Login</a>
+              <a href="https://www.rootshare.io/login"> Login</a>
             </RSText>
           </>
         )}
