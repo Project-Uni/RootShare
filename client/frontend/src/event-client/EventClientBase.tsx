@@ -31,7 +31,7 @@ import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitation
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8003'
-    : 'http://3.135.226.61:8003';
+    : 'https://cache.rootshare.io:8003';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
