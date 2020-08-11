@@ -3,12 +3,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
-import { updateUser } from '../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { makeRequest } from '../functions/makeRequest';
 
-import EventClientHeader from '../event-client/EventClientHeader';
-import { colors } from '../theme/Colors';
+import EventClientHeader from '../../event-client/EventClientHeader';
+import { colors } from '../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},

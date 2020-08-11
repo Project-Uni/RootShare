@@ -18,49 +18,54 @@ import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 
 module.exports = {
-  // Create Webinar and Opentok Session
-  // Set creating User as the Event Host
-  createNewOpenTokSession: async (webinar) => {
-    function createHelper() {
-      return new Promise((resolve, reject) => {
-        opentok.createSession({ mediaMode: 'routed' }, async (error, session) => {
-          if (error) {
-            log('error', error);
-            return reject(error);
-          } else {
-            webinar.opentokSessionID = session.sessionId;
-            await webinar.save((err, webinar) => {
-              if (err) {
-                log('error', err);
-                return reject(err);
-              } else {
-                return resolve(session);
-              }
-            });
-          }
-        });
-      });
-    }
+  createNewOpenTokSession: (webinar, callback) => {
+    if (!webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
 
-    return createHelper()
-      .then((session) => {
-        return true;
-      })
-      .catch((err) => {
-        return false;
+    if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000)
+      return callback(
+        sendPacket(
+          -1,
+          'Session can only be created 30 minutes before event start time'
+        )
+      );
+
+    opentok.createSession({ mediaMode: 'routed' }, async (error, session) => {
+      if (error) return callback(sendPacket(-1, error));
+      if (!session)
+        return callback(sendPacket(-1, 'Could not create opentok session'));
+
+      webinar.opentokSessionID = session.sessionId;
+      webinar.save((err, webinar) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!webinar)
+          return callback(sendPacket(-1, 'Could not save webinar session id'));
+
+        return callback(
+          sendPacket(1, 'Updated webinar with session id', {
+            opentokSessionID: webinar.opentokSessionID,
+          })
+        );
       });
+    });
   },
 
   // Retrive Session ID from DB
-  getOpenTokSessionID: async (webinarID) => {
-    let webinar = await Webinar.findById(webinarID);
-    if (!webinar || webinar === undefined || webinar === null)
-      return sendPacket(-1, 'Could not send OpenTok SessionID');
-    else {
-      return sendPacket(1, "Sending Webinar's OpenTok SessionID", {
-        opentokSessionID: webinar.opentokSessionID,
-      });
-    }
+  getOpenTokSessionID: async (webinarID, callback) => {
+    Webinar.findById(webinarID, (err, webinar) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!webinar)
+        return callback(sendPacket(-1, 'Could not send OpenTok SessionID'));
+
+      if (webinar.opentokSessionID === undefined) {
+        return module.exports.createNewOpenTokSession(webinar, callback);
+      }
+
+      return callback(
+        sendPacket(1, "Sending Webinar's OpenTok SessionID", {
+          opentokSessionID: webinar.opentokSessionID,
+        })
+      );
+    });
   },
 
   // Generate Token for each Publisher/Host client
@@ -77,7 +82,7 @@ module.exports = {
   getMuxPlaybackID: async (webinarID) => {
     const currWebinar = await Webinar.findById(webinarID);
 
-    if (!currWebinar || currWebinar === undefined || currWebinar === null) {
+    if (!currWebinar) {
       return sendPacket(-1, 'No Webinar exists with this ID');
     }
     if (
@@ -93,8 +98,7 @@ module.exports = {
 
   stopStreaming: async (webinarID) => {
     let currWebinar = await Webinar.findById(webinarID);
-    if (!currWebinar || currWebinar === undefined || currWebinar === null)
-      return sendPacket(-1, 'Could not find webinar');
+    if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     const { opentokBroadcastID } = currWebinar;
     currWebinar.opentokBroadcastID = '';
@@ -132,11 +136,10 @@ module.exports = {
   startStreaming: async (webinarID) => {
     await module.exports.stopStreaming(webinarID);
 
-    const sessionPacket = await module.exports.getOpenTokSessionID(webinarID);
-    if (sessionPacket.success !== 1) {
-      return sessionPacket;
-    }
-    const { opentokSessionID } = sessionPacket.content;
+    const webinar = await Webinar.findById(webinarID);
+    if (!webinar) return sendPacket(-1, 'Could not get session ID');
+
+    const opentokSessionID = webinar.opentokSessionID;
 
     const muxPacket = await module.exports.createMuxStream();
     if (muxPacket.success !== 1) {
@@ -273,11 +276,7 @@ module.exports = {
       }
 
       const { opentokBroadcastID, opentokSessionID } = currWebinar;
-      if (
-        !opentokBroadcastID ||
-        opentokBroadcastID === undefined ||
-        opentokBroadcastID === ''
-      )
+      if (!opentokBroadcastID || opentokBroadcastID === '')
         return callback(sendPacket(-1, 'OpenTok Broadcast has not yet started'));
 
       const JWT = module.exports.createOpenTokJWT();

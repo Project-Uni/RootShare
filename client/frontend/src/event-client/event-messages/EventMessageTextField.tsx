@@ -7,46 +7,43 @@ import { FaRegSmile } from 'react-icons/fa';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker } from 'emoji-mart';
 
-import { colors } from '../../../theme/Colors';
-import { ENTER_KEYCODE } from '../../../helpers/constants';
+import { colors } from '../../theme/Colors';
+import { ENTER_KEYCODE } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   textFieldContainer: {
     display: 'flex',
-    width: '100%',
     justifyContent: 'space-between',
-    borderTop: '1px solid #333333',
-    color: '#f2f2f2',
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingLeft: 5,
+    background: colors.secondary,
+    color: colors.primaryText,
+    borderTopStyle: 'solid',
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
   },
   textField: {
-    [`& fieldset`]: {
-      borderRadius: 40,
-    },
-    width: '100%',
-    color: '#f2f2f2',
-    label: '#f2f2f2',
-    borderRadius: 40,
+    width: 250,
+    background: colors.ternary,
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssLabel: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: colors.primaryText,
+    label: colors.primaryText,
   },
   cssFocused: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
-    borderWidth: '1px',
-    borderColor: '#f2f2f2 !important',
+    color: colors.primaryText,
+    label: colors.primaryText,
+    borderWidth: '2px',
+    borderColor: colors.primaryText,
+    shrink: false,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      // color: '#f2f2f2 !important',
-      // label: '#f2f2f2 !important',
+      color: colors.primaryText,
+      label: colors.primaryText,
       borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
+      borderColor: colors.primaryText,
     },
   },
   notchedOutline: {
@@ -59,7 +56,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 270,
   },
   icon: {
-    color: '#f2f2f2',
+    color: colors.primaryText,
     '&:hover': {
       color: colors.bright,
     },
@@ -68,7 +65,6 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   handleSendMessage: (message: string) => void;
-  sendingDisabled: boolean;
 };
 
 function MessageTextField(props: Props) {
@@ -139,12 +135,7 @@ function MessageTextField(props: Props) {
   }
 
   function getSendingDisabled() {
-    return (
-      props.sendingDisabled ||
-      newMessage === undefined ||
-      newMessage === null ||
-      newMessage === ''
-    );
+    return newMessage === undefined || newMessage === null || newMessage === '';
   }
 
   return (
@@ -154,7 +145,6 @@ function MessageTextField(props: Props) {
         type="search"
         label="Aa"
         variant="outlined"
-        size="small"
         className={styles.textField}
         onChange={handleMessageChange}
         onKeyDown={handleMessageKey}
@@ -169,33 +159,33 @@ function MessageTextField(props: Props) {
           classes: {
             root: styles.cssOutlinedInput,
             focused: styles.cssFocused,
-            notchedOutline: styles.notchedOutline,
+            // notchedOutline: styles.notchedOutline,
           },
-          inputMode: 'numeric',
         }}
       />
-      <IconButton
-        aria-label="more"
-        aria-controls="long-menu"
-        aria-haspopup="true"
-        onClick={() => setOpen(true)}
-        className={styles.icon}
-      >
-        <FaRegSmile size={18}></FaRegSmile>
-      </IconButton>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        {renderEmojiPicker()}
-      </Modal>
-      <IconButton
-        disabled={getSendingDisabled()}
-        onClick={() => handleSendMessage()}
-        className={styles.icon}
-      >
-        <MdSend
-          style={{ color: getSendingDisabled() ? '#555555' : undefined }}
-          size={20}
-        />
-      </IconButton>
+      <div>
+        <IconButton
+          aria-label="more"
+          aria-controls="long-menu"
+          aria-haspopup="true"
+          onClick={() => setOpen(true)}
+        >
+          <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
+        </IconButton>
+        <Modal open={open} onClose={() => setOpen(false)}>
+          {renderEmojiPicker()}
+        </Modal>
+        <IconButton
+          className={styles.icon}
+          onClick={handleSendMessage}
+          disabled={getSendingDisabled()}
+        >
+          <MdSend
+            size={20}
+            style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+          />
+        </IconButton>
+      </div>
     </div>
   );
 }

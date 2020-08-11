@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -13,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
   },
   text: {
-    color: 'white',
+    color: colors.primaryText,
   },
 }));
 
@@ -24,6 +25,7 @@ type Props = {
 
 function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
+
   return (
     <div className={styles.wrapper}>
       <div

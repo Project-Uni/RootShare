@@ -19,11 +19,10 @@ export function getCurrentUser(user, callback) {
 }
 
 export function getConnections(user, callback) {
-  if (!user || user === undefined || user === null)
-    return callback(sendPacket(0, 'User not found'));
+  if (!user) return callback(sendPacket(0, 'User not found'));
 
   User.find({}, ['_id', 'firstName', 'lastName'], (err, users) => {
-    if (err || user === undefined || users === null)
+    if (err || users === undefined || users === null)
       return callback(sendPacket(-1, 'Could not get connections'));
     return callback(sendPacket(1, 'Sending Connections', { connections: users }));
   });

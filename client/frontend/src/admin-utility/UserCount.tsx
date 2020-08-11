@@ -15,7 +15,7 @@ import AccountTypePieChart from './AccountTypePieChart';
 
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions';
 import { colors } from '../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;

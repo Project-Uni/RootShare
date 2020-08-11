@@ -8,10 +8,11 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 
 import EventHostButtonContainer from './EventHostButtonContainer';
 
-import log from '../../../helpers/logger';
-import { makeRequest } from '../../../helpers/makeRequest';
+import { log } from '../../../helpers/functions';
+import { makeRequest } from '../../../helpers/functions';
 
 import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 import {
   VideosOnlyLayout,
   ScreenshareLayout,
@@ -26,9 +27,9 @@ import {
   removeFromCache,
 } from './helpers';
 
-import { SINGLE_DIGIT } from '../../../types/types';
+import { SINGLE_DIGIT } from '../../../helpers/types';
 
-const MIN_WINDOW_WIDTH = 1100;
+const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const HEADER_HEIGHT = 60;
 const BUTTON_CONTAINER_HEIGHT = 50;
@@ -58,6 +59,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type EventMode = 'viewer' | 'speaker' | 'admin';
+
 type Props = {
   user: { [key: string]: any };
   accessToken: string;
@@ -67,6 +70,7 @@ type Props = {
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
   speaking_token?: string;
+  sessionID?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -77,14 +81,17 @@ function EventHostContainer(props: Props) {
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
   const [webinarID, setWebinarID] = useState(-1);
+  const [eventSessionID, setEventSessionID] = useState('');
 
   const [loading, setLoading] = useState(true);
-  const [loadingErr, setLoadingErr] = useState(false);
+  const [publisherLoading, setPublisherLoading] = useState(true);
+  const [loadingErr, setLoadingErr] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [muted, setMuted] = useState(true);
   const [showWebcam, setShowWebcam] = useState(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
+  const [eventStarted, setEventStarted] = useState(true);
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
 
@@ -350,20 +357,26 @@ function EventHostContainer(props: Props) {
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
-      const { screenshare, eventSession } = await connectStream(
+      const { screenshare, eventSession, message, sessionID } = await connectStream(
         props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
+        setPublisherLoading,
         changeNumSpeakers,
         props.accessToken,
-        props.refreshToken
+        props.refreshToken,
+        props.sessionID
       );
-      setScreenshareCapable(screenshare);
+
       if (!eventSession) {
-        alert('DEV: INVALID CONNECTION. Redirect to other page');
+        setLoadingErr(message);
         return;
       }
+
+      setEventSessionID(sessionID);
+
+      setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
 
       if (props.speaking_token) {
@@ -376,22 +389,27 @@ function EventHostContainer(props: Props) {
       }, 500);
     } else {
       log('error', 'Error connecting to session');
-      setLoadingErr(true);
+      setLoadingErr('There was an error loading this stream.');
     }
   }
 
   function renderLoadingAndError() {
     return (
       <>
-        {loading && !loadingErr && (
+        {loading && loadingErr === '' && (
           <div className={styles.loadingDiv}>
             <CircularProgress size={100} className={styles.loadingIndicator} />
           </div>
         )}
-        {loadingErr && (
+        {loadingErr !== '' && (
           <div className={styles.loadingDiv}>
-            <RSText type="subhead" className={styles.errorText} size={16}>
-              There was an error loading this stream.
+            <RSText
+              type="subhead"
+              color={colors.primaryText}
+              className={styles.errorText}
+              size={16}
+            >
+              {loadingErr}
             </RSText>
           </div>
         )}
@@ -400,7 +418,7 @@ function EventHostContainer(props: Props) {
   }
 
   function renderVideoSections() {
-    if (!loading && !loadingErr) {
+    if (!loading && loadingErr === '') {
       return someoneSharingScreen === '' ? (
         <VideosOnlyLayout
           numSpeakers={numSpeakers}
@@ -438,8 +456,9 @@ function EventHostContainer(props: Props) {
         toggleWebcam={toggleWebcam}
         toggleMute={toggleMute}
         toggleScreenshare={toggleScreenshare}
-        loading={loading}
+        loading={publisherLoading}
         removeGuestSpeaker={removeGuestSpeaker}
+        sessionID={eventSessionID}
       />
     </div>
   );

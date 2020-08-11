@@ -22,6 +22,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonDefault: {
     marginLeft: 8,
+    marginBottom: 'auto',
     backgroundColor: colors.secondary,
     color: 'white',
     '&:hover': {
@@ -47,6 +48,7 @@ type Props = {
   loading: boolean;
   mode: 'admin' | 'speaker';
   removeGuestSpeaker: (connection: OT.Connection) => void;
+  sessionID: string;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -81,6 +83,7 @@ function EventHostButtonContainer(props: Props) {
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
+        sessionID={props.sessionID}
       />
 
       {props.mode === 'admin' && (
@@ -104,9 +107,9 @@ function EventHostButtonContainer(props: Props) {
         disabled={props.loading}
       >
         {props.showWebcam ? (
-          <Video size={28} color="white" />
+          <Video size={24} color="white" />
         ) : (
-          <VideoOff size={28} color="white" />
+          <VideoOff size={24} color="white" />
         )}
       </Button>
       <Button
@@ -119,9 +122,9 @@ function EventHostButtonContainer(props: Props) {
         disabled={props.loading}
       >
         {!props.muted ? (
-          <Microphone color="white" size={26} />
+          <Microphone color="white" size={24} />
         ) : (
-          <MicrophoneOff color="white" size={26} />
+          <MicrophoneOff color="white" size={24} />
         )}
       </Button>
       <Button

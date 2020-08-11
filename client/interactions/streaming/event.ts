@@ -1,11 +1,10 @@
-import { Webinar, User } from '../../models';
+import { Webinar, Conversation } from '../../models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
 
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
-const { createNewOpenTokSession } = require('./opentok');
 import { formatTime, formatDate } from '../../helpers/dateFormat';
 
 let ses = new aws.SES({
@@ -19,26 +18,33 @@ export async function createEvent(
 ) {
   if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
 
-  const newWebinar = new Webinar({
-    title: eventBody['title'],
-    brief_description: eventBody['brief_description'],
-    full_description: eventBody['full_description'],
-    host: eventBody['host']['_id'],
-    speakers: eventBody['speakers'],
-    dateTime: eventBody['dateTime'],
+  const newEventConversation = new Conversation({
+    participants: [],
   });
+  newEventConversation.save((err, conversation) => {
+    if (err || conversation === undefined || conversation === null)
+      return callback(sendPacket(-1, 'Failed to create event conversation'));
 
-  newWebinar.save((err, webinar) => {
-    if (err) return callback(sendPacket(0, 'Failed to create webinar'));
-    const createdOpenTokSession = createNewOpenTokSession(webinar);
-    if (createdOpenTokSession) {
+    const newWebinar = new Webinar({
+      title: eventBody['title'],
+      brief_description: eventBody['brief_description'],
+      full_description: eventBody['full_description'],
+      host: eventBody['host']['_id'],
+      speakers: eventBody['speakers'],
+      dateTime: eventBody['dateTime'],
+      conversation: newEventConversation._id,
+    });
+    newWebinar.save((err, webinar) => {
+      if (err || webinar === undefined || webinar === null)
+        return callback(sendPacket(-1, 'Failed to create webinar'));
+
       callback(sendPacket(1, 'Successfully created webinar', webinar));
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
         eventBody['host']['email']
       );
-    } else callback(sendPacket(1, 'Failed to create OpenTok Session'));
+    });
   });
 }
 
@@ -52,6 +58,14 @@ function updateEvent(eventBody, callback) {
     webinar.host = eventBody['host']['_id'];
     webinar.speakers = eventBody['speakers'];
     webinar.dateTime = eventBody['dateTime'];
+
+    if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000) {
+      webinar.opentokSessionID = undefined;
+      webinar.opentokBroadcastID = undefined;
+      webinar.muxStreamKey = undefined;
+      webinar.muxLiveStreamID = undefined;
+      webinar.muxPlaybackID = undefined;
+    }
 
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
@@ -88,37 +102,32 @@ export async function getAllEvents(callback) {
 }
 
 export async function getWebinarDetails(userID, webinarID, callback) {
-  Webinar.findById(webinarID, (err, webinar) => {
-    if (err) {
-      log('error', err);
-      return callback(sendPacket(-1, 'There was an error finding webinar'));
-    } else if (!webinar || webinar === undefined || webinar == null) {
-      return callback(sendPacket(0, 'No webinar exists with this ID'));
-    }
+  Webinar.findById(
+    webinarID,
+    [
+      'title',
+      'brief_description',
+      'full_description',
+      'host',
+      'speakers',
+      'attendees',
+      'dateTime',
+      'conversation',
+      'muxPlaybackID',
+    ],
+    (err, webinar) => {
+      if (err) {
+        log('error', err);
+        return callback(sendPacket(-1, 'There was an error finding webinar'));
+      } else if (!webinar || webinar === undefined || webinar == null) {
+        return callback(sendPacket(0, 'No webinar exists with this ID'));
+      }
 
-    if (checkUserIsSpeaker(userID, webinar))
       return callback(
         sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
       );
-    else {
-      webinar.opentokSessionID = undefined;
-      webinar.opentokBroadcastID = undefined;
-      webinar.muxStreamKey = undefined;
-      webinar.muxLiveStreamID = undefined;
-      return callback(
-        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
-      );
     }
-  });
-}
-
-function checkUserIsSpeaker(userID, webinar) {
-  if (userID === webinar.host) return;
-  webinar.speakers.forEach((speaker) => {
-    if (userID === speaker) return true;
-  });
-
-  return false;
+  );
 }
 
 function sendEventEmailConfirmation(

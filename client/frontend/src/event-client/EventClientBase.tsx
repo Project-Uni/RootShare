@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions';
 
 import RSText from '../base-components/RSText';
 
@@ -18,7 +18,7 @@ import EventHostContainer from './event-video/event-host/EventHostContainer';
 import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile/EventWatcherMobile';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
-import EventClientMessageContainer from './event-messages/EventMessageContainer';
+import EventMessageContainer from './event-messages/EventMessageContainer';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -46,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  right: {},
+  right: { height: '100%' },
   adContainer: {
     width: '100%',
     display: 'flex',
@@ -71,6 +71,7 @@ type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
 var socket: SocketIOClient.Socket;
 var speaking_token: string;
+var sessionID: string;
 
 function EventClientBase(props: Props) {
   const styles = useStyles();
@@ -178,17 +179,22 @@ function EventClientBase(props: Props) {
       email: props.user.email,
     });
 
-    socket.on('speaking-invite', (data: { speaking_token: string }) => {
-      speaking_token = data.speaking_token;
-      console.log(
-        'Received invitation to speak with speaking_token:',
-        speaking_token
-      );
-      setShowSpeakingInvite(true);
-    });
+    socket.on(
+      'speaking-invite',
+      (data: { speaking_token: string; sessionID: string }) => {
+        speaking_token = data.speaking_token;
+        console.log(
+          'Received invitation to speak with speaking_token:',
+          speaking_token
+        );
+        sessionID = data.sessionID;
+        setShowSpeakingInvite(true);
+      }
+    );
 
     socket.on('speaking-revoke', () => {
       speaking_token = '';
+      sessionID = '';
       setEventMode('viewer');
       alert('You have been removed as a speaker');
     });
@@ -228,6 +234,7 @@ function EventClientBase(props: Props) {
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
           speaking_token={speaking_token}
+          sessionID={sessionID}
         />
       );
   }
@@ -283,7 +290,7 @@ function EventClientBase(props: Props) {
       );
 
   return (
-    <div className={styles.wrapper}>
+    <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <SpeakingInviteDialog
         open={showSpeakingInvite}
@@ -307,7 +314,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer />
+          <EventMessageContainer conversationID={webinarData.conversation} />
         </div>
       </div>
     </div>
