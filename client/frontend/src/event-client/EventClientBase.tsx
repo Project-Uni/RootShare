@@ -71,6 +71,7 @@ type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
 var socket: SocketIOClient.Socket;
 var speaking_token: string;
+var sessionID: string;
 
 function EventClientBase(props: Props) {
   const styles = useStyles();
@@ -178,17 +179,22 @@ function EventClientBase(props: Props) {
       email: props.user.email,
     });
 
-    socket.on('speaking-invite', (data: { speaking_token: string }) => {
-      speaking_token = data.speaking_token;
-      console.log(
-        'Received invitation to speak with speaking_token:',
-        speaking_token
-      );
-      setShowSpeakingInvite(true);
-    });
+    socket.on(
+      'speaking-invite',
+      (data: { speaking_token: string; sessionID: string }) => {
+        speaking_token = data.speaking_token;
+        console.log(
+          'Received invitation to speak with speaking_token:',
+          speaking_token
+        );
+        sessionID = data.sessionID;
+        setShowSpeakingInvite(true);
+      }
+    );
 
     socket.on('speaking-revoke', () => {
       speaking_token = '';
+      sessionID = '';
       setEventMode('viewer');
       alert('You have been removed as a speaker');
     });
@@ -223,6 +229,7 @@ function EventClientBase(props: Props) {
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
           speaking_token={speaking_token}
+          sessionID={sessionID}
         />
       );
   }

@@ -70,6 +70,7 @@ type Props = {
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
   speaking_token?: string;
+  sessionID?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -364,7 +365,8 @@ function EventHostContainer(props: Props) {
         setPublisherLoading,
         changeNumSpeakers,
         props.accessToken,
-        props.refreshToken
+        props.refreshToken,
+        props.sessionID
       );
 
       if (!eventSession) {

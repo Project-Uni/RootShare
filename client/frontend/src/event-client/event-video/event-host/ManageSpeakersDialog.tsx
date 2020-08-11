@@ -136,6 +136,7 @@ function ManageSpeakersDialog(props: Props) {
         {
           userID: searchedUser._id,
           webinarID: props.webinarID,
+          sessionID: props.sessionID,
         },
         true,
         props.accessToken,

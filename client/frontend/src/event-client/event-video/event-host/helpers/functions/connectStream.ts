@@ -21,7 +21,8 @@ export async function connectStream(
   setPublisherLoading: (newLoading: boolean) => void,
   changeNumSpeakers: (value: 1 | -1) => void,
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
+  existingSessionID?: string
 ) {
   let canScreenshare = false;
 
@@ -37,7 +38,9 @@ export async function connectStream(
     if (response.supported && response.extensionRegistered) canScreenshare = true;
   });
 
-  const sessionID = await validateSession(webinarID, accessToken, refreshToken);
+  const sessionID =
+    existingSessionID ||
+    (await validateSession(webinarID, accessToken, refreshToken));
   if (!sessionID)
     return {
       screenshare: canScreenshare,
