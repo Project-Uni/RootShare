@@ -13,6 +13,7 @@ import { rateLimiter } from './middleware';
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const socketIO = require('socket.io');
 
 // Use mongoose to connect to MongoDB
@@ -47,7 +48,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(rateLimiter);
 
-const server = http.createServer(app);
+const server =
+  process.env.NODE_ENV === 'dev' ? http.createServer(app) : https.createServer(app);
 const io = socketIO(server);
 server.listen(8080, '127.0.0.1');
 
