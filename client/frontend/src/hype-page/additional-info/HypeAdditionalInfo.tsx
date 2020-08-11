@@ -1,48 +1,63 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Button, Typography } from "@material-ui/core";
-import { Redirect } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Button, Typography } from '@material-ui/core';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import HypeHeader from "../headerFooter/HypeHeader";
-import HypeFooter from "../headerFooter/HypeFooter";
-import HypeCard from "../hype-card/HypeCard";
-import HypeInfoBody from "./HypeInfoBody";
-import HypeAdditionalComplete from "./HypeAdditionalComplete";
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { makeRequest } from '../../helpers/makeRequest';
+
+import HypeHeader from '../headerFooter/HypeHeader';
+import HypeFooter from '../headerFooter/HypeFooter';
+import HypeCard from '../hype-card/HypeCard';
+import HypeInfoBody from './HypeInfoBody';
+import HypeAdditionalComplete from './HypeAdditionalComplete';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "35px",
-    marginBottom: "35px",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '35px',
+    marginBottom: '35px',
   },
   subheaderText: {
-    fontFamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
-    fontSize: "11pt",
+    fontFamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
+    fontSize: '11pt',
     marginTop: 10,
-    color: "rgb(100,100,100)",
+    color: 'rgb(100,100,100)',
   },
   buttonDiv: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginLeft: "20px",
-    marginRight: "20px",
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginLeft: '20px',
+    marginRight: '20px',
   },
   submitError: {
     marginLeft: 25,
     marginRight: 25,
-    fontSize: "11pt",
-    color: "red",
-    textAlign: "left",
+    fontSize: '11pt',
+    color: 'red',
+    textAlign: 'left',
   },
 }));
 
-type Props = {};
+type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
+
+  accessToken: string;
+  refreshToken: string;
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
@@ -51,40 +66,71 @@ function HypeAdditionalInfo(props: Props) {
   const [externalRedirect, setExternalRedirect] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [major, setMajor] = useState("");
-  const [graduationYear, setGraduationYear] = useState("");
-  const [work, setWork] = useState("");
-  const [position, setPosition] = useState("");
-  const [college, setCollege] = useState("");
-  const [interests, setInterests] = useState("");
-  const [organizations, setOrganizations] = useState("");
-  const [graduateSchool, setGraduateSchool] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [hasGradDegree, setHasGradDegree] = useState("no");
-  const [discoveryMethod, setDiscoveryMethod] = useState("");
+  const [major, setMajor] = useState('');
+  const [graduationYear, setGraduationYear] = useState('');
+  const [work, setWork] = useState('');
+  const [position, setPosition] = useState('');
+  const [college, setCollege] = useState('');
+  const [interests, setInterests] = useState('');
+  const [organizations, setOrganizations] = useState('');
+  const [graduateSchool, setGraduateSchool] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [hasGradDegree, setHasGradDegree] = useState('no');
+  const [discoveryMethod, setDiscoveryMethod] = useState('');
 
-  const [gradYearErr, setGradYearErr] = useState("");
-  const [phoneNumErr, setPhoneNumErr] = useState("");
+  const [gradYearErr, setGradYearErr] = useState('');
+  const [phoneNumErr, setPhoneNumErr] = useState('');
   const [updateErr, setUpdateErr] = useState(false);
 
   const [regCompleted, setRegCompleted] = useState(false);
 
-  const [currentUser, setCurrentUser] = useState("");
+  const [currentUser, setCurrentUser] = useState('');
 
-  async function getCurrentUser() {
-    const { data } = await axios.get("/auth/curr-user/load");
-    if (data["success"] === 1) {
-      if (!data["content"]["externalComplete"]) {
+  const accessToken = props.match.params['accessToken'];
+  const refreshToken = props.match.params['refreshToken'];
+
+  async function checkCompletedRegistration() {
+    const currAccessToken = props.accessToken ? props.accessToken : accessToken;
+    const currRefreshToken = props.refreshToken ? props.refreshToken : refreshToken;
+    const { data } = await makeRequest(
+      'POST',
+      '/auth/getRegistrationInfo',
+      {},
+      true,
+      currAccessToken,
+      currRefreshToken
+    );
+    if (data['success'] === 1) {
+      if (!data['content']['externalComplete']) {
         setExternalRedirect(true);
       } else {
-        setRegCompleted(data["content"]["regComplete"]);
-        setCurrentUser(data["content"]["email"]);
+        setRegCompleted(data['content']['regComplete']);
+        setCurrentUser(data['content']['email']);
       }
     } else setLandingRedirect(true);
   }
 
+  async function checkAuth() {
+    const currAccessToken = props.accessToken ? props.accessToken : accessToken;
+    const currRefreshToken = props.refreshToken ? props.refreshToken : refreshToken;
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      currAccessToken,
+      currRefreshToken
+    );
+    if (data['success'] === 1) {
+      props.updateUser({ ...data['content'] });
+      props.updateAccessToken(currAccessToken);
+      props.updateRefreshToken(currRefreshToken);
+    } else setLandingRedirect(true);
+  }
+
   useEffect(() => {
-    getCurrentUser();
+    checkCompletedRegistration();
+    checkAuth();
   }, []);
 
   function handleMajorChange(event: any) {
@@ -138,36 +184,47 @@ function HypeAdditionalInfo(props: Props) {
       setLoading(false);
       let hasErr = false;
       if (
-        graduationYear !== "" &&
+        graduationYear !== '' &&
         (Number(graduationYear) > 2050 || Number(graduationYear) < 1920)
       ) {
-        setGradYearErr("Graduation year is invalid");
+        setGradYearErr('Graduation year is invalid');
         hasErr = true;
-      } else setGradYearErr("");
+      } else setGradYearErr('');
 
       if (
         phoneNumber.length !== 0 &&
         (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber))
       ) {
-        setPhoneNumErr("Invalid phone number");
+        setPhoneNumErr('Invalid phone number');
         hasErr = true;
-      } else setPhoneNumErr("");
+      } else setPhoneNumErr('');
 
       if (hasErr) return;
-      const { data } = await axios.post("/auth/complete-registration/details", {
-        email: currentUser,
-        major: major,
-        graduationYear: graduationYear,
-        work: work,
-        position: position,
-        department: college,
-        organizations: organizations.split(","),
-        interests: interests.split(","),
-        phoneNumber: phoneNumber,
-        graduateSchool: hasGradDegree ? graduateSchool : "",
-        discoveryMethod: discoveryMethod,
-      });
-      if (data["success"] !== 1) {
+      const currAccessToken = props.accessToken ? props.accessToken : accessToken;
+      const currRefreshToken = props.refreshToken
+        ? props.refreshToken
+        : refreshToken;
+      const { data } = await makeRequest(
+        'POST',
+        '/auth/complete-registration/details',
+        {
+          email: currentUser,
+          major: major,
+          graduationYear: graduationYear,
+          work: work,
+          position: position,
+          department: college,
+          organizations: organizations.split(','),
+          interests: interests.split(','),
+          phoneNumber: phoneNumber,
+          graduateSchool: hasGradDegree ? graduateSchool : '',
+          discoveryMethod: discoveryMethod,
+        },
+        true,
+        currAccessToken,
+        currRefreshToken
+      );
+      if (data['success'] !== 1) {
         setUpdateErr(true);
       } else {
         setUpdateErr(false);
@@ -176,45 +233,43 @@ function HypeAdditionalInfo(props: Props) {
     }, 1000);
   }
 
-  const mode = "question";
+  const mode = 'question';
 
   const modePrompts = {
     question: {
-      major: "What was your major?",
-      graduation: "What year did you graduate?",
-      work: "Where do you currently work?",
-      position: "What is your current role?",
+      major: 'What was your major?',
+      graduation: 'What year did you graduate?',
+      work: 'Where do you currently work?',
+      position: 'What is your current role?',
       college:
-        "Which college of Purdue did you graduate from (Krannert, Engineering, etc)?",
-      interests: "What are your interests (use comma-separated list)?",
+        'Which college of Purdue did you graduate from (Krannert, Engineering, etc)?',
+      interests: 'What are your interests (use comma-separated list)?',
       organizations:
-        "What organizations were you involved with on campus (use comma-separated list)?",
-      graduateDegree: "Did you get a graduate degree?",
-      graduateSchool:
-        "What university did you obtain your graduate degree from?",
-      phoneNumber: "Add Your Phone Number (Digits Only):",
-      discoveryMethod: "How did you hear about us?",
+        'What organizations were you involved with on campus (use comma-separated list)?',
+      graduateDegree: 'Did you get a graduate degree?',
+      graduateSchool: 'What university did you obtain your graduate degree from?',
+      phoneNumber: 'Add Your Phone Number (Digits Only):',
+      discoveryMethod: 'How did you hear about us?',
     },
     demand: {
-      major: "Major:",
-      graduation: "Graduation Year:",
-      work: "Current Place of Employment:",
-      position: "Current Position:",
-      college: "College of Study (Krannert, Engineering, etc):",
-      interests: "Interests (Comma-Separated List):",
-      organizatins:
-        "Organizations You Were Involved With (Comma Separated List):",
-      graduateDegree: "Do you have a graduate degree?",
-      graduateSchool: "Graduate University:",
-      phoneNumber: "Phone Number (Digits Only):",
-      discoveryMethod: "How did you hear about us?",
+      major: 'Major:',
+      graduation: 'Graduation Year:',
+      work: 'Current Place of Employment:',
+      position: 'Current Position:',
+      college: 'College of Study (Krannert, Engineering, etc):',
+      interests: 'Interests (Comma-Separated List):',
+      organizatins: 'Organizations You Were Involved With (Comma Separated List):',
+      graduateDegree: 'Do you have a graduate degree?',
+      graduateSchool: 'Graduate University:',
+      phoneNumber: 'Phone Number (Digits Only):',
+      discoveryMethod: 'How did you hear about us?',
     },
   };
 
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
-      {externalRedirect && <Redirect to="/profile/externalRegister" />}
+      {externalRedirect && <Redirect to="/register/external" />}
 
       <HypeHeader />
       <div className={styles.body}>
@@ -228,9 +283,8 @@ function HypeAdditionalInfo(props: Props) {
           {!regCompleted ? (
             <>
               <Typography className={styles.subheaderText}>
-                All of this information is completely optional, adding it will
-                help us curate the best information for you once our platform
-                goes live!
+                All of this information is completely optional, adding it will help
+                us curate the best information for you once our platform goes live!
               </Typography>
               <HypeInfoBody
                 modePrompts={modePrompts}
@@ -262,8 +316,8 @@ function HypeAdditionalInfo(props: Props) {
               />
             </>
           ) : (
-              <HypeAdditionalComplete />
-            )}
+            <HypeAdditionalComplete />
+          )}
 
           {updateErr && (
             <p className={styles.submitError}>
@@ -290,4 +344,25 @@ function HypeAdditionalInfo(props: Props) {
   );
 }
 
-export default HypeAdditionalInfo;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeAdditionalInfo);

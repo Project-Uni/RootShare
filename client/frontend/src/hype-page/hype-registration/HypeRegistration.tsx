@@ -256,7 +256,7 @@ function HypeRegistration(props: Props) {
   }
 
   function handleStep3NextButtonClick() {
-    window.location.href = '/profile/initialize';
+    window.location.href = '/register/initialize';
   }
 
   function getStepContent(step: Number) {

@@ -9,7 +9,6 @@ import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 import { makeRequest } from '../helpers/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
-import RSText from '../base-components/RSText';
 import ForgotPasswordCard from './ForgotPasswordCard';
 
 const useStyles = makeStyles((_: any) => ({

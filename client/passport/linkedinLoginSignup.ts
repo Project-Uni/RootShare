@@ -3,6 +3,9 @@ const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json');
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 import log from '../helpers/logger';
+import jwt = require('jsonwebtoken');
+
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
 module.exports = (passport) => {
   // const callbackURL =
@@ -15,7 +18,7 @@ module.exports = (passport) => {
       {
         clientID: LINKEDIN_KEY,
         clientSecret: LINKEDIN_SECRET,
-        callbackURL: 'https://rootshare.io/auth/callback/linkedin',
+        callbackURL: '/auth/callback/linkedin',
         scope: ['r_emailaddress', 'r_liteprofile'],
         state: true,
       },
@@ -34,7 +37,24 @@ module.exports = (passport) => {
             email,
             linkedinID
           );
-          return done(null, newUser);
+
+          const userTokenInfo = {};
+          for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
+            userTokenInfo[JWT_TOKEN_FIELDS[i]] = newUser[JWT_TOKEN_FIELDS[i]];
+          const jwtAccessToken = jwt.sign(
+            userTokenInfo,
+            process.env.JWT_ACCESS_SECRET
+            // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
+          );
+          const jwtRefreshToken = jwt.sign(
+            userTokenInfo,
+            process.env.JWT_REFRESH_SECRET
+          );
+          return done(null, newUser, {
+            message: 'User Registration with LinkedIn Succesful!',
+            jwtAccessToken,
+            jwtRefreshToken,
+          });
         }
 
         if (user.linkedinID === undefined) {
@@ -49,7 +69,23 @@ module.exports = (passport) => {
         }
 
         log('LINKEDIN REG', 'Found user and sending back!');
-        return done(null, user);
+        const userTokenInfo = {};
+        for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
+          userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
+        const jwtAccessToken = jwt.sign(
+          userTokenInfo,
+          process.env.JWT_ACCESS_SECRET
+          // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
+        );
+        const jwtRefreshToken = jwt.sign(
+          userTokenInfo,
+          process.env.JWT_REFRESH_SECRET
+        );
+        return done(null, user, {
+          message: 'User Login with LinkedIn Succesful!',
+          jwtAccessToken,
+          jwtRefreshToken,
+        });
       }
     )
   );
