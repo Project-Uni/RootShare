@@ -48,6 +48,7 @@ type Props = {
   loading: boolean;
   mode: 'admin' | 'speaker';
   removeGuestSpeaker: (connection: OT.Connection) => void;
+  sessionID: string;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -82,6 +83,7 @@ function EventHostButtonContainer(props: Props) {
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
+        sessionID={props.sessionID}
       />
 
       {props.mode === 'admin' && (

@@ -30,6 +30,7 @@ export async function connectStream(
       screenshare: canScreenshare,
       eventSession: false,
       message: 'This browser is not yet supported',
+      sessionID: false,
     };
   }
   OT.checkScreenSharingCapability((response: any) => {
@@ -43,6 +44,7 @@ export async function connectStream(
       eventSession: false,
       message:
         'The event has not started yet. Please wait until 30 minutes before the event start time.',
+      sessionID: false,
     };
 
   const eventToken = await getOpenTokToken(sessionID, accessToken, refreshToken);
@@ -51,6 +53,7 @@ export async function connectStream(
       screenshare: canScreenshare,
       eventSession: false,
       message: 'Could not authenticate user',
+      sessionID: false,
     };
 
   const eventSession = await createEventSession(
@@ -68,11 +71,13 @@ export async function connectStream(
       screenshare: canScreenshare,
       eventSession: false,
       message: 'Could not create event session',
+      sessionID: false,
     };
 
   return {
     screenshare: canScreenshare,
     eventSession: eventSession,
     message: 'Connecting to event',
+    sessionID,
   };
 }
