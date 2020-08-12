@@ -49,7 +49,6 @@ app.use(rateLimiter);
 
 const server = http.createServer(app);
 const io = socketIO(server);
-server.listen(8080, '127.0.0.1');
 
 require('./routes/user')(app);
 require('./routes/registrationInternal')(app);
@@ -69,6 +68,10 @@ require('./config/setup')(passport);
 app.use(express.static(path.join('./', '/frontend/build')));
 app.get('*', (_, response) => {
   response.sendFile(path.join(__dirname, '/frontend/build/index.html'));
+});
+
+server.listen(8080, () => {
+  log('info', `Message Socket Listening on port 8080`);
 });
 
 app.listen(port, () => {

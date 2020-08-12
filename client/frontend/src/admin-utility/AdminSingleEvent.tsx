@@ -115,7 +115,7 @@ function AdminSingleEvent(props: Props) {
       <div className={styles.bottom}>
         <div>
           <RSText size={12} className={styles.host}>
-            Hosted by {`${event.host.firstName} ${event.host.lastName}`}
+            Hosted by {`${event.host?.firstName} ${event.host?.lastName}`}
           </RSText>
         </div>
         <div>
