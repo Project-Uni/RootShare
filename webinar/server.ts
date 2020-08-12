@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const expressSession = require('express-session');
 
 const http = require('http');
-const https = require('https');
 
 import log, { initializeDirectory } from './helpers/logger';
 import { WebinarCache, WaitingRooms } from './types/types';
@@ -39,7 +38,7 @@ app.use(
   })
 );
 
-const server = process.env.NODE_ENV === 'dev' ? http.Server(app) : https.Server(app);
+const server = http.Server(app);
 const io = socketio(server);
 
 const webinarCache: WebinarCache = {};
