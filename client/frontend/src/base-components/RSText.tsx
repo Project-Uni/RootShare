@@ -51,7 +51,7 @@ function RSText(props: Props) {
     <p
       className={[
         styles.base,
-        type === 'head' ? styles.title : type === 'other' ? styles.normal : null,
+        type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
         props.bold ? styles.bold : null,
         props.italic ? styles.italic : null,
         props.className ? props.className : null,
