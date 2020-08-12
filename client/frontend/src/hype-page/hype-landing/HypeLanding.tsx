@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
-import HypeDesktopBody from "./HypeDesktopBody";
-import HypeMobileBody from "./HypeMobileBody";
-import HypeHeader from "../headerFooter/HypeHeader";
-import HypeFooter from "../headerFooter/HypeFooter";
-import HypeParticipatingOrganizations from "./HypeParticipatingOrganizations";
-import HypeEventCountdown from "./HypeEventCountdown";
-import HypeTeamInfo from "./HypeTeamInfo";
+import HypeDesktopBody from './HypeDesktopBody';
+import HypeMobileBody from './HypeMobileBody';
+import HypeHeader from '../headerFooter/HypeHeader';
+import HypeFooter from '../headerFooter/HypeFooter';
+import HypeParticipatingOrganizations from './HypeParticipatingOrganizations';
+import HypeEventCountdown from './HypeEventCountdown';
+import HypeTeamInfo from './HypeTeamInfo';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -28,7 +28,7 @@ function HypeLanding(props: Props) {
     eventMinute: 0,
   };
   useEffect(() => {
-    window.addEventListener("resize", updateWindow);
+    window.addEventListener('resize', updateWindow);
   }, []);
 
   function updateWindow() {
@@ -48,12 +48,9 @@ function HypeLanding(props: Props) {
       {desktopMode ? (
         <HypeDesktopBody eventDescription={eventDescription} />
       ) : (
-          <HypeMobileBody eventDescription={eventDescription} />
-        )}
-      <HypeEventCountdown
-        {...event}
-        mode={desktopMode ? "desktop" : "mobile"}
-      />
+        <HypeMobileBody eventDescription={eventDescription} />
+      )}
+      <HypeEventCountdown {...event} mode={desktopMode ? 'desktop' : 'mobile'} />
       <div className={styles.bottom}>
         <HypeParticipatingOrganizations />
         <HypeTeamInfo />
