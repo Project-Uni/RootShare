@@ -1,6 +1,13 @@
 {
-    "recommendations": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
-    ]
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "naumovs.color-highlight",
+    "coenraads.bracket-pair-colorizer-2",
+    "eamodio.gitlens",
+    "chakrounanas.turbo-console-log",
+    "pkief.material-icon-theme",
+    "alefragnani.bookmarks",
+    "xabikos.javascriptsnippets"
+  ]
 }

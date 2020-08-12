@@ -1,6 +1,5 @@
 import sendPacket from '../helpers/sendPacket';
-const mongoose = require('mongoose');
-const User = mongoose.model('users');
+import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { getCurrentUser, getConnections } from '../interactions/user';
@@ -12,8 +11,7 @@ module.exports = (app) => {
     return getCurrentUser(req.user, (packet) => res.json(packet));
   });
 
-  //TODO - Authenticate With JWT
-  app.get('/user/getConnections', (req, res) => {
+  app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     getConnections(req.user, (packet) => res.send(packet));
   });
 

@@ -14,6 +14,7 @@ import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import Login from './login/Login';
 import ResetPassword from './login/ResetPassword';
+import SocketManager from './main-platform/SocketManager';
 
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
@@ -49,6 +50,7 @@ type Props = {
 function App(props: Props) {
   return (
     <div className="App">
+      <SocketManager />
       <Router history={history}>
         <div className="wrapper">
           <Switch>

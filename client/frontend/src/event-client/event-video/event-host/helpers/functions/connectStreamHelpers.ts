@@ -1,8 +1,6 @@
-import axios from 'axios';
 import OT from '@opentok/client';
-import log from '../../../../../helpers/logger';
+import { log, makeRequest } from '../../../../../helpers/functions';
 import { createNewWebcamPublisher } from './createPublishers';
-import { makeRequest } from '../../../../../helpers/makeRequest';
 
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
@@ -20,7 +18,7 @@ export async function validateSession(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Session token invalid');
+    alert(data['message']);
     return false;
   }
   return data['content']['opentokSessionID'];
@@ -42,7 +40,6 @@ export async function getOpenTokToken(
     refreshToken
   );
   if (data['success'] !== 1) {
-    alert('Could not retrieve event token');
     return false;
   }
   return data['content']['token'];
@@ -63,6 +60,7 @@ export async function createEventSession(
     self: boolean
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void,
+  setPublisherLoading: (newLoading: boolean) => void,
   changeNumSpeakers: (value: 1 | -1) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
@@ -88,6 +86,7 @@ export async function createEventSession(
         if (err) alert(err.message);
       });
       setCameraPublisher(publisher);
+      setPublisherLoading(false);
       return eventSession;
     }
   });

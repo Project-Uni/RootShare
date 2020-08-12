@@ -24,8 +24,7 @@ import {
   getCroppedImage,
   imageURLToFile,
 } from './profileHelpers/profilePictureHelpers';
-import log from '../helpers/logger';
-import { makeRequest } from '../helpers/makeRequest';
+import { log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
 
 const useStyles = makeStyles((_: any) => ({
@@ -225,7 +224,7 @@ function ProfilePicture(props: Props) {
           </RSText>
         </DialogTitle>
         <DialogContent>
-          <div style={{ height: 500, width: 500 }}>
+          <div style={{ maxHeight: 500, maxWidth: 500 }}>
             <ReactCrop
               src={imageSrc!}
               crop={crop}

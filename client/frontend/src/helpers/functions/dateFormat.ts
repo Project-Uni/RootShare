@@ -1,27 +1,4 @@
-export const monthDict = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-export const weekDict = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
+import { weekDict, monthDict } from '../constants/date';
 
 export function formatTime(date: Date) {
   var hours = date.getHours();
@@ -45,7 +22,7 @@ export function getConversationTime(date: Date) {
   const messageMonth = date.getMonth();
   const messageDate = date.getDate();
   const currDate = now.getDate();
-  if (messageYear !== now.getFullYear()) return messageYear;
+  if (messageYear !== now.getFullYear()) return messageYear.toString();
   else if (messageMonth !== now.getMonth()) return monthDict[messageMonth];
   else if (currDate - messageDate >= 7) return `${messageMonth}/${messageDate}`;
   else if (currDate - messageDate > 1) return weekDict[date.getDay()];

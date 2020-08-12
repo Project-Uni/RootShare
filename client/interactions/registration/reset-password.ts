@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var User = mongoose.model('users');
+import { User } from '../../models';
+
 const Cryptr = require('cryptr');
 
 const { CRYPT_SECRET } = require('../../../keys/keys.json');

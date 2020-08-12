@@ -6,6 +6,7 @@ import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { getConversationTime } from '../../../helpers/functions/dateFormat';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -47,11 +48,14 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     marginRight: 4,
-    marginBottom: 10,
     marginTop: -50,
     marginLeft: 10,
     display: 'inline-block',
     color: colors.primaryText,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '300px',
   },
   arrow: {
     margin: 1.5,
@@ -64,31 +68,6 @@ const useStyles = makeStyles((_: any) => ({
     color: 'gray',
   },
 }));
-
-const monthDict = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const weekDict = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
 
 type Props = {
   user: any;
@@ -117,37 +96,11 @@ function SingleConversation(props: Props) {
     return joinedString;
   }
 
-  function formatTime(date: Date) {
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    let minutesString = minutes < 10 ? '0' + minutes : minutes;
-    var strTime = hours + ':' + minutesString + ' ' + ampm;
-
-    return strTime;
-  }
-
-  function getConversationTime(date: Date) {
-    const now = new Date();
-    const messageYear = date.getFullYear();
-    const messageMonth = date.getMonth();
-    const messageDate = date.getDate();
-    const currDate = now.getDate();
-    if (messageYear !== now.getFullYear()) return messageYear;
-    else if (messageMonth !== now.getMonth()) return monthDict[messageMonth];
-    else if (currDate - messageDate >= 7) return `${messageMonth}/${messageDate}`;
-    else if (currDate - messageDate > 1) return weekDict[date.getDay()];
-    else if (messageDate !== currDate) return 'Yesterday';
-    else return formatTime(date);
-  }
-
   const conversationTimeStamp = getConversationTime(
     new Date(
-      props.conversation.lastMessage !== undefined
-        ? props.conversation.lastMessage.timeCreated
-        : props.conversation.timeCreated
+      !props.conversation.lastMessage
+        ? props.conversation.createdAt
+        : props.conversation.lastMessage.createdAt
     )
   );
 
