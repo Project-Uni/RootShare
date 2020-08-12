@@ -53,12 +53,12 @@ function App(props: Props) {
             <Route exact path="/" component={HypeLanding} />
             <Route
               exact
-              path="/register/external/:accessToken?/:refreshToken?"
+              path="/register/external/"
               component={HypeExternalMissingInfo}
             />
             <Route
               exact
-              path="/register/initialize/:accessToken?/:refreshToken?"
+              path="/register/initialize/"
               component={HypeAdditionalInfo}
             />
             <Route

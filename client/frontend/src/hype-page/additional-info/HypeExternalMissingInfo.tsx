@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import queryString from 'query-string';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import { makeStyles } from '@material-ui/core/styles';
 import {
   FormControl,
@@ -8,9 +12,6 @@ import {
   FormHelperText,
   Button,
 } from '@material-ui/core';
-
-import { Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
 
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
@@ -70,10 +71,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
+  location: any;
 
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
@@ -91,8 +89,9 @@ function HypeExternalMissingInfo(props: Props) {
   const [universityErr, setUniversityErr] = useState('');
   const [standingErr, setStandingErr] = useState('');
 
-  const accessToken = props.match.params['accessToken'];
-  const refreshToken = props.match.params['refreshToken'];
+  const values = queryString.parse(props.location.search);
+  const accessToken = values.accessToken as string;
+  const refreshToken = values.refreshToken as string;
 
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
@@ -101,7 +100,7 @@ function HypeExternalMissingInfo(props: Props) {
       {},
       true,
       accessToken,
-      accessToken
+      refreshToken
     );
     if (data['success'] === 1) {
       if (data['content']['externalComplete']) setAdditionalRedirect(true);
@@ -125,8 +124,8 @@ function HypeExternalMissingInfo(props: Props) {
   }
 
   useEffect(() => {
-    checkCompletedRegistration();
     checkAuth();
+    checkCompletedRegistration();
   }, []);
 
   function handleUniversityChange(event: any) {

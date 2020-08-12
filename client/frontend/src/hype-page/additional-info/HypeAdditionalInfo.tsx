@@ -4,8 +4,6 @@ import { Button, Typography } from '@material-ui/core';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/makeRequest';
 
 import HypeHeader from '../headerFooter/HypeHeader';
@@ -47,16 +45,8 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
-
   accessToken: string;
   refreshToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
 };
 
 function HypeAdditionalInfo(props: Props) {
@@ -86,19 +76,14 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  const accessToken = props.match.params['accessToken'];
-  const refreshToken = props.match.params['refreshToken'];
-
   async function checkCompletedRegistration() {
-    const currAccessToken = props.accessToken ? props.accessToken : accessToken;
-    const currRefreshToken = props.refreshToken ? props.refreshToken : refreshToken;
     const { data } = await makeRequest(
       'POST',
       '/auth/getRegistrationInfo',
       {},
       true,
-      currAccessToken,
-      currRefreshToken
+      props.accessToken,
+      props.refreshToken
     );
     if (data['success'] === 1) {
       if (!data['content']['externalComplete']) {
@@ -110,27 +95,8 @@ function HypeAdditionalInfo(props: Props) {
     } else setLandingRedirect(true);
   }
 
-  async function checkAuth() {
-    const currAccessToken = props.accessToken ? props.accessToken : accessToken;
-    const currRefreshToken = props.refreshToken ? props.refreshToken : refreshToken;
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      currAccessToken,
-      currRefreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
-      props.updateAccessToken(currAccessToken);
-      props.updateRefreshToken(currRefreshToken);
-    } else setLandingRedirect(true);
-  }
-
   useEffect(() => {
     checkCompletedRegistration();
-    checkAuth();
   }, []);
 
   function handleMajorChange(event: any) {
@@ -200,10 +166,6 @@ function HypeAdditionalInfo(props: Props) {
       } else setPhoneNumErr('');
 
       if (hasErr) return;
-      const currAccessToken = props.accessToken ? props.accessToken : accessToken;
-      const currRefreshToken = props.refreshToken
-        ? props.refreshToken
-        : refreshToken;
       const { data } = await makeRequest(
         'POST',
         '/auth/complete-registration/details',
@@ -221,8 +183,8 @@ function HypeAdditionalInfo(props: Props) {
           discoveryMethod: discoveryMethod,
         },
         true,
-        currAccessToken,
-        currRefreshToken
+        props.accessToken,
+        props.refreshToken
       );
       if (data['success'] !== 1) {
         setUpdateErr(true);
@@ -352,17 +314,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HypeAdditionalInfo);

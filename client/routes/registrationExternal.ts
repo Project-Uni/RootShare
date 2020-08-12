@@ -21,15 +21,9 @@ module.exports = (app) => {
           }
           log('info', `Successfully serialized ${user.email}`);
 
-          if (user.university === undefined) {
-            return res.redirect(
-              `/register/external/${info['jwtAccessToken']}/${info['jwtRefreshToken']}`
-            );
-          } else {
-            return res.redirect(
-              `/register/initialize/${info['jwtAccessToken']}/${info['jwtRefreshToken']}`
-            );
-          }
+          return res.redirect(
+            `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
+          );
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
