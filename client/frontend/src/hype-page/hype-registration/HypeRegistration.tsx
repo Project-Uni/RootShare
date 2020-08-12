@@ -37,6 +37,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   alreadyHaveAnAccount: {
     marginTop: 20,
+    fontFamily: 'ubuntu',
+  },
+  loginLink: {
+    textDecoration: 'none',
+    color: colors.bright,
   },
 }));
 
@@ -340,12 +345,15 @@ function HypeRegistration(props: Props) {
             </div>
             <RSText
               type="other"
-              size={10}
+              size={12}
               color={colors.second}
               className={styles.alreadyHaveAnAccount}
+              bold
             >
-              Already have an account?
-              <a href="https://www.rootshare.io/login"> Login</a>
+              Already have an account?{' '}
+              <a className={styles.loginLink} href="https://www.rootshare.io/login">
+                Login
+              </a>
             </RSText>
           </>
         )}
