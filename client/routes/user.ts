@@ -12,7 +12,7 @@ module.exports = (app) => {
   });
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-    getConnections(req.user, (packet) => res.send(packet));
+    getConnections(req.user, (packet) => res.json(packet));
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {
