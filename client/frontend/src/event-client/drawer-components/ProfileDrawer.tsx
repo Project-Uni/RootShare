@@ -43,25 +43,47 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   staticIndividual: {
-    marginTop: 20,
+    marginTop: 17,
   },
   update: {
-    marginTop: 30,
+    marginTop: 20,
     marginLeft: 20,
   },
   updateIndividual: {
-    marginTop: 20,
+    marginTop: 17,
     color: colors.primaryText,
   },
   button: {
-    marginRight: 20,
+    width: '361px',
     marginTop: 20,
     color: colors.primaryText,
     background: colors.bright,
   },
+  logoutButton: {
+    width: '361px',
+    marginTop: 10,
+    color: colors.primaryText,
+  },
   buttonWrapper: {
+    marginLeft: -20,
     marginBottom: 10,
-    textAlign: 'right',
+    textAlign: 'center',
+  },
+  logoutButtonWrapper: {
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  selectCollege: {
+    width: 360,
+    height: 57,
+    marginTop: 17,
+    background: colors.fourth,
+  },
+  collegeOfItem: {
+    // Dropdown Menu Items
+  },
+  root: {
+    paddingLeft: 10,
   },
 }));
 
@@ -76,6 +98,22 @@ function ProfileDrawer(props: Props) {
   const [edit, setEdit] = useState(false);
   const [original, setOriginal] = useState(true);
 
+  const PurdueColleges = [
+    'College of Agriculture',
+    'College of Education',
+    'College of Engineering',
+    'Exploratory Studies',
+    'College of Health and Human Sciences',
+    'College of Liberal Arts',
+    'Krannert School of Management',
+    'College of Pharmacy',
+    'Purdue Polytechnic Institute',
+    'College of Science',
+    'College of Veterinary Medicine',
+    'Honors College',
+    'The Graduate School',
+  ];
+
   // Original User Information
   // Constant Variables For Primary Info
 
@@ -86,6 +124,7 @@ function ProfileDrawer(props: Props) {
   const [originalCurrentEmployer, setOriginalCurrentEmployer] = useState('');
   const [originalCurrentRole, setOriginalCurrentRole] = useState('');
   const [originalCollege, setOriginalCollege] = useState('');
+  const [originalCollegeOf, setOriginalCollegeOf] = useState('');
   const [originalInterests, setOriginalInterests] = useState('');
   const [originalOrganizations, setOriginalOrganizations] = useState('');
   const [originalGraduateDegree, setOriginalGraduateDegree] = useState('');
@@ -99,6 +138,7 @@ function ProfileDrawer(props: Props) {
   const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
   const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
   const [updatedCollege, setUpdatedCollege] = useState('');
+  const [updatedCollegeOf, setUpdatedCollegeOf] = useState('');
   const [updatedInterests, setUpdatedInterests] = useState('');
   const [updatedOrganizations, setUpdatedOrganizations] = useState('');
   const [updatedGraduateDegree, setUpdatedGraduateDegree] = useState('');
@@ -120,6 +160,7 @@ function ProfileDrawer(props: Props) {
     setOriginalCurrentEmployer('AutoZone');
     setOriginalCurrentRole('Senior Lead Software Engineer');
     setOriginalCollege('Purdue University');
+    setOriginalCollegeOf('College of Science');
     setOriginalInterests('Baddies, Hoes, Thots');
     setOriginalOrganizations('PIKE, Volleyball, APhi Sexers');
     setOriginalGraduateDegree('No');
@@ -133,6 +174,7 @@ function ProfileDrawer(props: Props) {
     setUpdatedCurrentEmployer('AutoZone');
     setUpdatedCurrentRole('Senior Lead Software Engineer');
     setUpdatedCollege('Purdue University');
+    setUpdatedCollegeOf('College of Science');
     setUpdatedInterests('Baddies, Hoes, Thots');
     setUpdatedOrganizations('PIKE, Volleyball, APhi Sexers');
     setUpdatedGraduateDegree('No');
@@ -153,6 +195,7 @@ function ProfileDrawer(props: Props) {
     console.log(updatedCurrentEmployer);
     console.log(updatedCurrentRole);
     console.log(updatedCollege);
+    console.log(updatedCollegeOf);
     console.log(updatedInterests);
     console.log(updatedOrganizations);
     console.log(updatedGraduateDegree);
@@ -185,6 +228,10 @@ function ProfileDrawer(props: Props) {
 
     if (updatedCollege !== originalCollege) {
       setOriginalCollege(updatedCollege);
+    }
+
+    if (updatedCollegeOf !== originalCollegeOf) {
+      setOriginalCollegeOf(updatedCollegeOf);
     }
 
     if (updatedInterests !== originalInterests) {
@@ -244,6 +291,11 @@ function ProfileDrawer(props: Props) {
   function handleCollegeChange(event: any) {
     console.log('Handling college change...');
     setUpdatedCollege(event.target.value);
+  }
+
+  function handleCollegeOfChange(event: any) {
+    console.log('Handling college of change...');
+    setUpdatedCollegeOf(event.target.value);
   }
 
   function handleInterestsChange(event: any) {
@@ -407,9 +459,25 @@ function ProfileDrawer(props: Props) {
           onChange={handleCurrentRoleChange}
         />
         <UserInfoTextField
-          label="College"
+          label="University"
           value={updatedCollege}
           onChange={handleCollegeChange}
+        />
+        <Select
+          className={styles.selectCollege}
+          variant="outlined"
+          value={updatedCollegeOf}
+          onChange={handleCollegeOfChange}
+          label="College"
+        >
+          {PurdueColleges.map((singleCollege) => (
+            <MenuItem value={singleCollege}>{singleCollege}</MenuItem>
+          ))}
+        </Select>
+        <UserInfoTextField
+          label="College"
+          value={updatedCollegeOf}
+          onChange={handleCollegeOfChange}
         />
         <UserInfoTextField
           label="Interests"
@@ -481,7 +549,15 @@ function ProfileDrawer(props: Props) {
           color={colors.primaryText}
           className={styles.staticIndividual}
         >
-          College: {originalCollege}
+          University: {originalCollege}
+        </RSText>
+        <RSText
+          type="body"
+          size={12}
+          color={colors.primaryText}
+          className={styles.staticIndividual}
+        >
+          College: {originalCollegeOf}
         </RSText>
         <RSText
           type="body"
@@ -542,12 +618,32 @@ function ProfileDrawer(props: Props) {
       </div>
     );
   }
+
+  function logoutOnClick() {
+    // TODO: Logout On Click - Server Side
+  }
+
+  function returnLogoutButton() {
+    return (
+      <Button
+        onClick={() => {
+          logoutOnClick();
+        }}
+        className={styles.logoutButton}
+      >
+        LOGOUT
+      </Button>
+    );
+  }
   return (
     <div className={styles.wrapper}>
-      {imageLoaded && returnProfilePicture()}
-      {returnNameAndEmail()}
-      {!edit && returnStatic()}
-      {edit && returnUpdate()}
+      <div>
+        {imageLoaded && returnProfilePicture()}
+        {returnNameAndEmail()}
+        {!edit && returnStatic()}
+        {edit && returnUpdate()}
+      </div>
+      <div className={styles.logoutButtonWrapper}>{returnLogoutButton()}</div>
     </div>
   );
 }
