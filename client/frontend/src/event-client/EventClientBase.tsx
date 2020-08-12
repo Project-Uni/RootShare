@@ -19,6 +19,7 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
+import WelcomeModal from './WelcomeModal';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -291,6 +292,7 @@ function EventClientBase(props: Props) {
 
   return (
     <div id="wrapper" className={styles.wrapper}>
+      {<WelcomeModal />}
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <SpeakingInviteDialog
         open={showSpeakingInvite}
