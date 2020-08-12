@@ -10,6 +10,7 @@ import { makeRequest } from '../helpers/makeRequest';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
+import LinkedInButton from '../hype-page/hype-registration/LinkedInButton';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -38,6 +39,11 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
     },
+  },
+  linkedinWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
 }));
 
@@ -165,6 +171,9 @@ function Login(props: Props) {
           >
             Login
           </Button>
+          <div className={styles.linkedinWrapper}>
+            <LinkedInButton message={'Login With LinkedIn'} />
+          </div>
           <Link
             href={undefined}
             className={styles.forgotPassword}

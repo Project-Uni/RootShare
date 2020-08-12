@@ -357,7 +357,7 @@ function HypeRegistration(props: Props) {
               <GoogleButton />
             </div> */}
             <div className={styles.googleDiv}>
-              <LinkedInButton />
+              <LinkedInButton message={'Register With LinkedIn'} />
             </div>
           </>
         )}

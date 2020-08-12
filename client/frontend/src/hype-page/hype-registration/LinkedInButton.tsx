@@ -40,7 +40,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LinkedInButton() {
+type Props = {
+  message: string;
+};
+
+export default function LinkedInButton(props: Props) {
   const styles = useStyles();
 
   return (
@@ -48,7 +52,7 @@ export default function LinkedInButton() {
       <a href="/auth/login/linkedin" className={styles.googleLink}>
         <img src={linkedInLogo} alt="Google logo" className={styles.logoStyle} />
 
-        <p className={styles.googleText}>Register With LinkedIn</p>
+        <p className={styles.googleText}>{props.message}</p>
       </a>
     </Paper>
   );
