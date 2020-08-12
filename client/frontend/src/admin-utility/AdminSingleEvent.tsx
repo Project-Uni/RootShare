@@ -5,7 +5,7 @@ import { IconButton } from '@material-ui/core';
 
 import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';
-import { monthDict } from '../helpers/dateFormat';
+import { monthDict } from '../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -115,7 +115,7 @@ function AdminSingleEvent(props: Props) {
       <div className={styles.bottom}>
         <div>
           <RSText size={12} className={styles.host}>
-            Hosted by {`${event.host.firstName} ${event.host.lastName}`}
+            Hosted by {`${event.host?.firstName} ${event.host?.lastName}`}
           </RSText>
         </div>
         <div>

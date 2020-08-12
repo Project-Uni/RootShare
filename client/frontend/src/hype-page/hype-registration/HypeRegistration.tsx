@@ -14,6 +14,9 @@ import RegistrationStep3 from './RegistrationStep3';
 import HypeCard from '../hype-card/HypeCard';
 import GoogleButton from './GoogleButton';
 import LinkedInButton from './LinkedInButton';
+import { colors } from '../../theme/Colors';
+
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -35,6 +38,14 @@ const useStyles = makeStyles((_: any) => ({
   },
   rootshareLogo: {
     height: '80px',
+  },
+  alreadyHaveAnAccount: {
+    marginTop: 20,
+    fontFamily: 'ubuntu',
+  },
+  loginLink: {
+    textDecoration: 'none',
+    color: colors.bright,
   },
 }));
 
@@ -308,7 +319,7 @@ function HypeRegistration(props: Props) {
       <HypeCard
         width={400}
         loading={loading}
-        headerText="Go find your community"
+        headerText="Find your community today"
         backArrow="action"
         backArrowAction={() => {
           setCurrentStep(0);
@@ -343,9 +354,9 @@ function HypeRegistration(props: Props) {
           )}
           <Button
             variant="contained"
-            color="primary"
             onClick={handleNextButtonClicked}
             disabled={loading}
+            color="primary"
           >
             {currentStep !== steps.length - 1 ? 'Next' : 'Submit'}
           </Button>
@@ -359,6 +370,18 @@ function HypeRegistration(props: Props) {
             <div className={styles.googleDiv}>
               <LinkedInButton message={'Register With LinkedIn'} />
             </div>
+            <RSText
+              type="other"
+              size={12}
+              color={colors.second}
+              className={styles.alreadyHaveAnAccount}
+              bold
+            >
+              Already have an account?{' '}
+              <a className={styles.loginLink} href="https://www.rootshare.io/login">
+                Login
+              </a>
+            </RSText>
           </>
         )}
       </HypeCard>

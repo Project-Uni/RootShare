@@ -1,10 +1,19 @@
+import { Server } from 'socket.io';
+import { Express } from 'express';
+
 import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
 import { isAuthenticatedWithJWT } from '../middleware/isAuthenticated';
+import { broadcastEventStart } from '../interactions/socket';
 
-import { WebinarCache } from '../types/types';
+import { WebinarCache, WaitingRooms } from '../types/types';
 
-module.exports = (app, webinarCache: WebinarCache) => {
+module.exports = (
+  app: Express,
+  io: Server,
+  webinarCache: WebinarCache,
+  waitingRooms: WaitingRooms
+) => {
   app.post('/api/addWebinarToCache', isAuthenticatedWithJWT, (req, res) => {
     const { webinarID } = req.body;
     if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request'));
@@ -17,7 +26,12 @@ module.exports = (app, webinarCache: WebinarCache) => {
     const startTime = Date.now();
     webinarCache[webinarID] = { users: {}, startTime };
 
-    log('info', `Webinars: ${Object.keys(webinarCache)}`);
+    log('info', `Added webinar ${webinarID} to cache`);
+    log('info', `Active Webinars: ${Object.keys(webinarCache)}`);
+
+    setTimeout(() => {
+      broadcastEventStart(io, webinarID, waitingRooms, webinarCache);
+    }, 1000 * 45);
 
     return res.json(sendPacket(1, 'Successfully initialized webinar in cache'));
   });

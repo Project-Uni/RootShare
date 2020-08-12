@@ -23,8 +23,8 @@ import RSText from '../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
 
-import { makeRequest } from '../helpers/makeRequest';
-import log from '../helpers/logger';
+import { EventType, HostType, SpeakerType } from '../helpers/types';
+import { makeRequest, log } from '../helpers/functions';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -109,31 +109,6 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-};
-
-type EventType = {
-  _id: string;
-  title: string;
-  brief_description: string;
-  full_description: string;
-  host: HostType;
-  speakers: SpeakerType[];
-  attendees: string[];
-  dateTime: Date;
-};
-
-type HostType = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-};
-
-type SpeakerType = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
 };
 
 function AdminEventCreator(props: Props) {
@@ -266,7 +241,7 @@ function AdminEventCreator(props: Props) {
     setFullDesc(event.full_description);
     setEventDateTime(event.dateTime);
     setHost(event.host);
-    setSpeakers(event.speakers);
+    setSpeakers(event.speakers as SpeakerType[]);
   }
 
   async function handleSubmit() {

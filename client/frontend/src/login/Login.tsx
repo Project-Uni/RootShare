@@ -6,7 +6,7 @@ import { useLocation, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
@@ -105,7 +105,6 @@ function Login(props: Props) {
       password: password,
     });
     if (data['success'] === 1) {
-      console.log('DataContent:', data['content']);
       setError(false);
       const {
         firstName,

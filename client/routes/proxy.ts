@@ -2,34 +2,42 @@ import makeRequest from '../helpers/makeRequest';
 import log from '../helpers/logger';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import sendPacket from '../../webinar/helpers/sendPacket';
+import { isEventHost } from './middleware/eventAuthentication';
 
 module.exports = (app) => {
-  app.post('/proxy/addWebinarToCache', isAuthenticatedWithJWT, async (req, res) => {
-    const { webinarID } = req.body;
-    if (!webinarID) return res.json(sendPacket(-1, 'No webinarID in request body'));
+  app.post(
+    '/proxy/addWebinarToCache',
+    isAuthenticatedWithJWT,
+    isEventHost,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      if (!webinarID)
+        return res.json(sendPacket(-1, 'No webinarID in request body'));
 
-    const authHeader = req.headers['authorization'];
-    const accessToken = authHeader && authHeader.split(' ')[1];
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
 
-    const data = await makeRequest(
-      'webinarCache',
-      'api/addWebinarToCache',
-      'POST',
-      {
-        webinarID,
-      },
-      true,
-      accessToken,
-      '',
-      req.user
-    );
+      const data = await makeRequest(
+        'webinarCache',
+        'api/addWebinarToCache',
+        'POST',
+        {
+          webinarID,
+        },
+        true,
+        accessToken,
+        '',
+        req.user
+      );
 
-    return res.json(data);
-  });
+      return res.json(data);
+    }
+  );
 
   app.post(
     '/proxy/removeWebinarFromCache',
     isAuthenticatedWithJWT,
+    isEventHost,
     async (req, res) => {
       const { webinarID } = req.body;
       if (!webinarID)
@@ -58,15 +66,16 @@ module.exports = (app) => {
   app.post(
     '/proxy/webinar/inviteUserToSpeak',
     isAuthenticatedWithJWT,
+    isEventHost,
     async (req, res) => {
-      const { webinarID, userID } = req.body;
-      if (!webinarID || !userID)
+      const { webinarID, userID, sessionID } = req.body;
+      if (!webinarID || !userID || !sessionID)
         return res.json(
-          sendPacket(-1, 'userID or webinarID missing from request body')
+          sendPacket(
+            -1,
+            'userID or webinarID or sessionID missing from request body'
+          )
         );
-
-      //TODO - Check to see if user is host of event
-      //Will implement this using function smit Wrote in un-merged PR
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
@@ -75,7 +84,7 @@ module.exports = (app) => {
         'webinarCache',
         'api/inviteUserToSpeak',
         'POST',
-        { webinarID, userID },
+        { webinarID, userID, sessionID },
         true,
         accessToken,
         '',
@@ -92,6 +101,7 @@ module.exports = (app) => {
   app.post(
     '/proxy/webinar/removeGuestSpeaker',
     isAuthenticatedWithJWT,
+    isEventHost,
     async (req, res) => {
       const { webinarID } = req.body;
       if (!webinarID)
@@ -99,9 +109,6 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
-
-      //TODO - Check to see if user is host of event
-      //Will implement this using function smit Wrote in un-merged PR
 
       const data = await makeRequest(
         'webinarCache',

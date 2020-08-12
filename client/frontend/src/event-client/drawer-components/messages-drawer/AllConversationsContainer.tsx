@@ -6,6 +6,8 @@ import { IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 
+import { connect } from 'react-redux';
+
 import SingleConversation from './SingleConversation';
 import CreateNewConversation from './CreateNewConversation';
 
@@ -113,4 +115,17 @@ function AllConversationsContainer(props: Props) {
   );
 }
 
-export default AllConversationsContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    conversations: state.conversations,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AllConversationsContainer);
