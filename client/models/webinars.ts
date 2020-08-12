@@ -8,6 +8,7 @@ var webinarSchema = new Schema(
     full_description: { type: String },
     host: { type: Schema.ObjectId, ref: 'users' },
     speakers: [{ type: Schema.ObjectId, ref: 'users' }],
+    conversation: { type: Schema.ObjectId, ref: 'conversations' },
     // attendees: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
     attendees: { type: {}, default: {} },
     dateTime: { type: Date },

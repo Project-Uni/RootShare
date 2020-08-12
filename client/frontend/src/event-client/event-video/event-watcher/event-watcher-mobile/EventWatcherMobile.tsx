@@ -6,7 +6,7 @@ import EventClientEmptyVideoPlayer from '../../video/EventClientEmptyVideoPlayer
 import VideoPlayer from '../../video/VideoPlayer';
 import EventMobileHeader from './EventMobileHeader';
 
-import log from '../../../../helpers/logger';
+import { log } from '../../../../helpers/functions';
 import { connect } from 'react-redux';
 import {
   updateAccessToken,

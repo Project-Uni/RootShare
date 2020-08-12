@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+
 import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/functions';
 
 import AllConversationsContainer from './AllConversationsContainer';
 import MessageThreadContainer from './MessageThreadContainer';
 
 import { colors } from '../../../theme/Colors';
+import { MessageType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -46,127 +47,62 @@ const useStyles = makeStyles((_: any) => ({
 // TODO - Make self messages and conversations update without socket notification
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+  newMessage: MessageType;
 };
 
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
-  const [socket, setSocket] = useState<SocketIOClient.Socket>();
-  const [setup, setSetup] = useState(false);
-  const [conversations, setConversations] = useState<any>([]);
   const [currConversationID, setCurrConversationID] = useState('');
-  const [currConversation, setCurrConversation] = useState({});
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState({});
-  const [newConversation, setNewConversation] = useState({});
+  const [currConversation, setCurrConversation] = useState<ConversationType>();
+  const [messages, setMessages] = useState<MessageType[]>([]);
 
   useEffect(() => {
-    if (setup) return;
-    setSetup(true);
+    handleNewMessage(props.newMessage);
+  }, [props.newMessage]);
 
-    connectSocket();
-  }, []);
-
-  useEffect(() => {
-    addMessage(newMessage);
-  }, [newMessage]);
-
-  useEffect(() => {
-    updateConversations(newConversation);
-  }, [newConversation]);
-
-  function connectSocket() {
-    const socket = io('http://localhost:8080');
-    setSocket(socket);
-
-    socket.on('connect', (data: React.SetStateAction<boolean>) => {
-      fetchConversations(socket);
-    });
-
-    socket.on('newMessage', (message: any) => {
-      setNewMessage(message);
-    });
-
-    socket.on('newConversation', (conversation: any) => {
-      addConversation(socket, conversation);
-    });
-
-    socket.on('error', function(err: any) {
-      console.log(`Received socket error: ${err}`);
-    });
-  }
-
-  function addMessage(newMessage: any) {
-    setConversations((prevConversations: any[]) => {
-      for (let i = 0; i < prevConversations.length; i++) {
-        if (prevConversations[i]._id === newMessage.conversationID) {
-          const updatedConversation = prevConversations[i];
-          updatedConversation.lastMessage = newMessage;
-          return [updatedConversation].concat(
-            prevConversations
-              .slice(0, i)
-              .concat(prevConversations.slice(i + 1, prevConversations.length))
-          );
-        }
-      }
-
-      return prevConversations;
-    });
-
-    if (currConversationID !== '')
-      setMessages((prevMessages) => prevMessages.concat(newMessage));
-  }
-
-  function addConversation(currSocket: SocketIOClient.Socket, newConversation: any) {
-    currSocket.emit('connectToConversation', newConversation._id);
-    setNewConversation(newConversation);
-  }
-
-  function updateConversations(newConversation: any) {
+  function handleNewMessage(newMessage: MessageType) {
     if (
-      Object.keys(newConversation).length === 0 ||
-      newConversation === undefined ||
-      newConversation === null
+      Object.keys(newMessage).length === 0 ||
+      !newMessage ||
+      newMessage.conversationID !== currConversationID
     )
       return;
 
-    setConversations((prevConversations: any[]) =>
-      [newConversation].concat(prevConversations)
-    );
-  }
-
-  function fetchConversations(currSocket: SocketIOClient.Socket) {
-    if (currSocket === undefined && socket !== undefined) currSocket = socket;
-    axios
-      .get('/api/messaging/getLatestThreads')
-      .then((response) => {
-        if (response.data.success !== 1) return;
-
-        const userConversations = response.data.content.userConversations;
-        if (currSocket !== undefined) {
-          currSocket.emit('metadata', userConversations, props.user._id);
+    if (newMessage.sender === props.user._id)
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].tempID === newMessage.tempID) {
+          let newMessages = messages.slice();
+          newMessages[i] = newMessage;
+          setMessages(newMessages);
+          return;
         }
-        setConversations(userConversations);
-      })
-      .catch((err) => {
-        console.log('error', 'Failed to get Conversations');
-      });
+      }
+
+    addMessage(newMessage);
   }
 
-  function updateMessages(currID: string = currConversationID) {
-    axios
-      .post('/api/messaging/getLatestMessages', {
-        conversationID: currID,
-      })
-      .then((response) => {
-        if (response.data.success !== 1) return;
+  function addMessage(newMessage: MessageType) {
+    setMessages((prevMessages) => prevMessages.concat(newMessage));
+  }
 
-        const messages = response.data.content.messages;
-        setMessages(messages);
-      })
-      .catch((err) => {
-        console.log('error', 'Failed to get Messages');
-      });
+  async function updateMessages(currID: string = currConversationID) {
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/getLatestMessages',
+      {
+        conversationID: currID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) return;
+    const messages = data['content']['messages'];
+    setMessages(messages);
   }
 
   function selectConversation(conversation: any) {
@@ -177,34 +113,23 @@ function MessagesDrawerContainer(props: Props) {
 
   function returnToConversations() {
     setCurrConversationID('');
-    setCurrConversation({});
+    setCurrConversation(undefined);
     setMessages([]);
   }
 
-  function joinUserNames(users: any, delimiter: string) {
-    let joinedString = '';
-
-    for (let i = 0; i < users.length; i++) {
-      const currUser = users[i];
-      const currName = currUser.firstName;
-
-      let firstFlag = false;
-      if (firstFlag) joinedString += delimiter;
-      if (currUser._id !== props.user._id) {
-        joinedString += currName;
-        firstFlag = true;
-      }
-    }
-
-    return joinedString;
+  function addMessageErr(tempID: number) {
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.slice();
+      newMessages[tempID].error = true;
+      return newMessages;
+    });
   }
 
   return (
     <div className={styles.wrapper}>
-      {currConversationID === '' ? (
+      {currConversationID === '' || currConversation === undefined ? (
         <AllConversationsContainer
           user={props.user}
-          conversations={conversations}
           selectConversation={selectConversation}
         />
       ) : (
@@ -212,6 +137,8 @@ function MessagesDrawerContainer(props: Props) {
           user={props.user}
           conversation={currConversation}
           messages={messages}
+          addMessage={addMessage}
+          addMessageErr={addMessageErr}
           returnToConversations={returnToConversations}
         />
       )}
@@ -222,6 +149,9 @@ function MessagesDrawerContainer(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+    newMessage: state.newMessage,
   };
 };
 

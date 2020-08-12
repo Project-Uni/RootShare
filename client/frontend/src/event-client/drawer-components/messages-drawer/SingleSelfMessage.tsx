@@ -1,18 +1,22 @@
 import React from 'react';
+import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
 
-import { makeStyles } from '@material-ui/core/styles';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { MessageType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    display: 'flex',
+    justifyContent: 'flex-end',
     float: 'right',
     width: '80%',
     background: colors.secondary,
   },
   message: {
-    marginLeft: 54,
     color: colors.primaryText,
     marginTop: 2,
     marginBottom: 5,
@@ -24,6 +28,8 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: 'gray',
     borderRadius: 7,
     borderWidth: '2px',
+    wordWrap: 'break-word',
+    maxWidth: 300,
   },
   timeStamp: {
     textAlign: 'right',
@@ -31,72 +37,42 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 25,
     color: 'gray',
   },
+  errorIcon: {
+    color: colors.brightError,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
 }));
 
-const monthDict = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const weekDict = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
+const CustomTooltip = withStyles((theme: Theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: colors.brightError,
+    boxShadow: theme.shadows[1],
+    fontSize: 12,
+  },
+}))(Tooltip);
 
 type Props = {
   user: any;
-  message: any;
+  message: MessageType;
 };
 
 function SingleSelfMessage(props: Props) {
   const styles = useStyles();
-
-  function formatTime(date: Date) {
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    let minutesString = minutes < 10 ? '0' + minutes : minutes;
-    var strTime = hours + ':' + minutesString + ' ' + ampm;
-
-    return strTime;
-  }
-
-  function getConversationTime(date: Date) {
-    const now = new Date();
-    const messageYear = date.getFullYear();
-    const messageMonth = date.getMonth();
-    const messageDate = date.getDate();
-    const currDate = now.getDate();
-    if (messageYear !== now.getFullYear()) return messageYear;
-    else if (messageMonth !== now.getMonth()) return monthDict[messageMonth];
-    else if (currDate - messageDate >= 7) return `${messageMonth}/${messageDate}`;
-    else if (currDate - messageDate > 1) return weekDict[date.getDay()];
-    else if (messageDate !== currDate) return 'Yesterday';
-    else return formatTime(date);
-  }
 
   return (
     <div className={styles.wrapper}>
       <RSText size={12} className={styles.message}>
         {props.message.content}
       </RSText>
+      <CustomTooltip title="There was an error sending this message">
+        {props.message.error ? (
+          <ErrorOutlineIcon className={styles.errorIcon} />
+        ) : (
+          <span />
+        )}
+      </CustomTooltip>
     </div>
   );
 }

@@ -1,8 +1,6 @@
-import axios from 'axios';
 import OT from '@opentok/client';
-import log from '../../../../../helpers/logger';
+import { log, makeRequest } from '../../../../../helpers/functions';
 import { createNewWebcamPublisher } from './createPublishers';
-import { makeRequest } from '../../../../../helpers/makeRequest';
 
 const { OPENTOK_API_KEY } = require('../../../../../keys.json');
 
@@ -63,6 +61,7 @@ export async function createEventSession(
     self: boolean
   ) => void,
   setCameraPublisher: (newPublisher: OT.Publisher) => void,
+  setPublisherLoading: (newLoading: boolean) => void,
   changeNumSpeakers: (value: 1 | -1) => void
 ) {
   const eventSession = OT.initSession(OPENTOK_API_KEY, sessionID);
@@ -88,6 +87,7 @@ export async function createEventSession(
         if (err) alert(err.message);
       });
       setCameraPublisher(publisher);
+      setPublisherLoading(false);
       return eventSession;
     }
   });
