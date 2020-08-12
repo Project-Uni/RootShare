@@ -71,7 +71,7 @@ function SocketManager(props: Props) {
     const socket = io(
       process.env.NODE_ENV === 'development'
         ? 'http://localhost:8080'
-        : 'https://www.rootshare.io:8080'
+        : 'https://www.rootshare.io'
     );
     setSocket(socket);
 
