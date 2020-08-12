@@ -19,6 +19,7 @@ module.exports = (app) => {
   });
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
+<<<<<<< HEAD
     getConnections(req.user._id, (packet) => res.send(packet));
   });
 
@@ -43,6 +44,9 @@ module.exports = (app) => {
       req.body.accepted,
       (packet) => res.send(packet)
     );
+=======
+    getConnections(req.user, (packet) => res.json(packet));
+>>>>>>> calendar-functionality
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {

@@ -50,7 +50,7 @@ module.exports = (app) => {
 
   app.post('/api/webinar/updateRSVP', isAuthenticatedWithJWT, (req, res) => {
     updateRSVP(req.user._id, req.body.webinarID, req.body.didRSVP, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 

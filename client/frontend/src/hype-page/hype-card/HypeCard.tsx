@@ -5,12 +5,14 @@ import { Card, CardContent, LinearProgress } from '@material-ui/core';
 import { FaArrowLeft } from 'react-icons/fa';
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
 
+import { colors } from '../../theme/Colors';
+
 const useStyles = makeStyles((_: any) => ({
   linearProgress: {
-    backgroundColor: 'rgb(30, 67, 201)',
+    backgroundColor: colors.second,
   },
   linearProgressBg: {
-    backgroundColor: 'rgb(140, 165, 255)',
+    backgroundColor: colors.second,
   },
   linearProgressRoot: {
     height: 5,
@@ -53,7 +55,7 @@ function HypeCard(props: Props) {
     else if (props.backArrow === 'link')
       return (
         <a href={props.backArrowLink} className={styles.backArrow}>
-          <FaArrowLeft color={'rgb(30, 67, 201)'} size={24} />
+          <FaArrowLeft color={colors.second} size={24} />
         </a>
       );
     else
@@ -63,7 +65,7 @@ function HypeCard(props: Props) {
           className={styles.backArrow}
           onClick={props.backArrowAction}
         >
-          <FaArrowLeft color={'rgb(30, 67, 201)'} size={24} />
+          <FaArrowLeft color={colors.second} size={24} />
         </a>
       );
   }
