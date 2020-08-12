@@ -1,9 +1,15 @@
 import * as socketio from 'socket.io';
 import log from '../helpers/logger';
 
-import { WebinarCache } from '../types/types';
+import { Webinar } from '../database/models';
 
-module.exports = (io, webinarCache: WebinarCache) => {
+import { WebinarCache, WaitingRooms } from '../types/types';
+
+module.exports = (
+  io: socketio.Server,
+  webinarCache: WebinarCache,
+  waitingRooms: WaitingRooms
+) => {
   io.on('connection', (socket: socketio.Socket) => {
     let socketUserId = '';
     let socketUserFirstName = '';
@@ -15,7 +21,7 @@ module.exports = (io, webinarCache: WebinarCache) => {
 
     socket.on(
       'new-user',
-      (data: {
+      async (data: {
         webinarID: string;
         userID: string;
         firstName: string;
@@ -36,10 +42,45 @@ module.exports = (io, webinarCache: WebinarCache) => {
         socketWebinarId = webinarID;
 
         if (!(webinarID in webinarCache)) {
-          socket.emit('webinar-error', 'Webinar not in cache');
-          return log('error', 'Invalid webinarID received');
+          try {
+            const webinars = await Webinar.find(
+              { _id: webinarID },
+              { _id: 1 }
+            ).limit(1);
+            if (webinars.length === 0) {
+              //Webinar does not exist
+              socket.emit('webinar-error', 'WebinarID not valid');
+              return log('error', 'Invalid webinarID received');
+            }
+
+            //Webinar exists
+            if (!(webinarID in waitingRooms)) {
+              waitingRooms[webinarID] = { users: {} };
+            }
+            waitingRooms[webinarID].users[userID] = {
+              socket: socket,
+              joinedAt: Date.now(),
+            };
+
+            socket.join(`webinar_${webinarID}`);
+
+            socket.emit(
+              'waiting-room-add',
+              `You have been added to the waiting room for ${webinarID}`
+            );
+            return log(
+              'info',
+              `Added user ${firstName} ${lastName} to waiting room for webinar ${webinarID}`
+            );
+          } catch (err) {
+            socket.emit(
+              'webinar-error',
+              'There was an error connecting to the database'
+            );
+            return log('error', err);
+          }
         }
-        socket.join(`${webinarID}`);
+        socket.join(`webinar_${webinarID}`);
 
         webinarCache[webinarID].users[userID] = socket;
         log(

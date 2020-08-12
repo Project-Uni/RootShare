@@ -7,10 +7,10 @@ import { WebinarCache } from '../types/types';
 
 module.exports = (app, webinarCache: WebinarCache) => {
   app.post('/api/inviteUserToSpeak', isAuthenticatedWithJWT, (req, res) => {
-    const { webinarID, userID } = req.body;
-    if (!webinarID || !userID)
+    const { webinarID, userID, sessionID } = req.body;
+    if (!webinarID || !userID || !sessionID)
       return res.json(
-        sendPacket(-1, 'userID or webinarID missing from request body')
+        sendPacket(-1, 'userID or webinarID or sessionID missing from request body')
       );
 
     if (!(webinarID in webinarCache))
@@ -24,7 +24,7 @@ module.exports = (app, webinarCache: WebinarCache) => {
     const speaking_token = crypto.randomBytes(64).toString();
     webinarCache[webinarID].speakingToken = speaking_token;
 
-    socket.emit('speaking-invite', { speaking_token });
+    socket.emit('speaking-invite', { speaking_token, sessionID });
     return res.json(sendPacket(1, 'Successfully invited user to speak'));
   });
 

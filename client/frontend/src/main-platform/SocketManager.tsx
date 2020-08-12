@@ -68,7 +68,11 @@ function SocketManager(props: Props) {
   }
 
   function connectSocket() {
-    const socket = io('http://localhost:8080');
+    const socket = io(
+      process.env.NODE_ENV === 'development'
+        ? 'http://localhost:8080'
+        : 'https://www.rootshare.io'
+    );
     setSocket(socket);
 
     socket.on('connect', (data: React.SetStateAction<boolean>) => {

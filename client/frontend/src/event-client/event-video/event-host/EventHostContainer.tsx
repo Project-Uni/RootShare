@@ -70,6 +70,7 @@ type Props = {
   mode: 'speaker' | 'admin';
   webinar: { [key: string]: any };
   speaking_token?: string;
+  sessionID?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -80,6 +81,7 @@ function EventHostContainer(props: Props) {
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
   const [webinarID, setWebinarID] = useState(-1);
+  const [eventSessionID, setEventSessionID] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [publisherLoading, setPublisherLoading] = useState(true);
@@ -355,7 +357,7 @@ function EventHostContainer(props: Props) {
   async function initializeSession() {
     if (props.webinar) {
       setWebinarID(props.webinar['_id']);
-      const { screenshare, eventSession, message } = await connectStream(
+      const { screenshare, eventSession, message, sessionID } = await connectStream(
         props.webinar['_id'],
         updateVideoElements,
         removeVideoElement,
@@ -363,13 +365,16 @@ function EventHostContainer(props: Props) {
         setPublisherLoading,
         changeNumSpeakers,
         props.accessToken,
-        props.refreshToken
+        props.refreshToken,
+        props.sessionID
       );
 
       if (!eventSession) {
         setLoadingErr(message);
         return;
       }
+
+      setEventSessionID(sessionID);
 
       setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
@@ -453,6 +458,7 @@ function EventHostContainer(props: Props) {
         toggleScreenshare={toggleScreenshare}
         loading={publisherLoading}
         removeGuestSpeaker={removeGuestSpeaker}
+        sessionID={eventSessionID}
       />
     </div>
   );

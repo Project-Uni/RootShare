@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Grid, CircularProgress } from '@material-ui/core';
+import { TextField, Grid, CircularProgress, Button } from '@material-ui/core';
+
+import { CSVDownload } from 'react-csv';
 
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -14,6 +16,7 @@ import AccountTypePieChart from './AccountTypePieChart';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 import { makeRequest } from '../helpers/functions';
+import { colors } from '../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
 
@@ -47,7 +50,20 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
   },
   loadingIndicator: {
-    // color: "blue",
+    color: colors.primary,
+    marginTop: 30,
+  },
+  downloadButton: {
+    background: colors.bright,
+    color: colors.primaryText,
+    paddingLeft: 20,
+    paddingRight: 20,
+    '&:hover': {
+      color: colors.secondary,
+    },
+  },
+  downloadLink: {
+    display: 'none',
   },
 }));
 
@@ -78,6 +94,7 @@ function UserCount(props: Props) {
     fan: 0,
   });
   const [searched, setSearched] = useState('');
+  const [performDownload, setPerformDownload] = useState(false);
 
   useEffect(() => {
     checkAuth().then(async (authorized) => {
@@ -155,6 +172,13 @@ function UserCount(props: Props) {
     setJoinedToday(newUserCount);
   }
 
+  function handleDownloadClicked() {
+    setPerformDownload(true);
+    setTimeout(() => {
+      setPerformDownload(false);
+    }, 300);
+  }
+
   function handleSearchChange(event: any) {
     const searchQuery = event.target.value.toLowerCase();
     setSearched(event.target.value);
@@ -212,6 +236,23 @@ function UserCount(props: Props) {
           <RSText type="subhead" className={styles.textStyle} size={14}>
             {typeCount['faculty']} Faculty | {typeCount['fan']} Fans
           </RSText>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 15 }}>
+          <Button
+            className={styles.downloadButton}
+            size="large"
+            onClick={handleDownloadClicked}
+          >
+            Download
+          </Button>
+          {performDownload && (
+            <CSVDownload
+              data={allUsers}
+              target="_blank"
+              filename="rootshare-users.csv"
+            />
+          )}
         </div>
 
         <TextField

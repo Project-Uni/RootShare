@@ -73,6 +73,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   removeGuestSpeaker: (connection: OT.Connection) => void;
+  sessionID: string;
 };
 
 function ManageSpeakersDialog(props: Props) {
@@ -135,6 +136,7 @@ function ManageSpeakersDialog(props: Props) {
         {
           userID: searchedUser._id,
           webinarID: props.webinarID,
+          sessionID: props.sessionID,
         },
         true,
         props.accessToken,
