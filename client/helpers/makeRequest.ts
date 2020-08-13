@@ -1,5 +1,6 @@
 import axios from 'axios';
 import log from './logger';
+import { JWT_TOKEN_FIELDS } from '../types/types';
 
 type Config = {
   headers: {
@@ -41,7 +42,15 @@ export default function makeRequest(
       Authorization: `Bearer ${accessToken}`,
     },
   };
-  if (user) config.headers.user = JSON.stringify(user);
+  if (user) {
+    if (user) {
+      const userWithJWTFields = {};
+      for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++) {
+        userWithJWTFields[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
+      }
+      config.headers.user = JSON.stringify(userWithJWTFields);
+    }
+  }
 
   if (method == 'GET') {
     return axios
