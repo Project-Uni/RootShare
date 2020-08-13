@@ -1,5 +1,6 @@
 import Comment from './comments';
 import Community from './communities';
+import Connection from './connections';
 import Conversation from './conversations';
 import Message from './messages';
 import Post from './posts';
@@ -10,6 +11,7 @@ import Webinar from './webinars';
 export {
   Comment,
   Community,
+  Connection,
   Conversation,
   Message,
   Post,

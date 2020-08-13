@@ -1,13 +1,14 @@
 import { EventType } from './eventTypes';
+import { UniversityType } from './universityTypes';
 
 export type UserType = {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  university: string;
   accountType: string;
   privilegeLevel: number;
+  university: string | UniversityType;
   graduationYear: number;
   department: string;
   major: string;
@@ -26,4 +27,11 @@ export type UserType = {
   pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
+};
+
+export type ConnectionRequestType = {
+  _id: string;
+  from: string | UserType;
+  to: string | UserType;
+  createdAt: Date;
 };
