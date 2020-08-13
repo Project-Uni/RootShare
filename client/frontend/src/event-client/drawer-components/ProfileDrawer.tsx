@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions/makeRequest';
 import { colors } from '../../theme/Colors';
 import { Select, MenuItem } from '@material-ui/core';
 import UserInfoTextField from './UserInfoTextField';
