@@ -2,7 +2,14 @@ import sendPacket from '../helpers/sendPacket';
 import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { getCurrentUser, getConnections } from '../interactions/user';
+import {
+  getCurrentUser,
+  getConnections,
+  getConnectionSuggestions,
+  getPendingRequests,
+  requestConnection,
+  respondConnection,
+} from '../interactions/user';
 
 import log from '../helpers/logger';
 
@@ -12,7 +19,30 @@ module.exports = (app) => {
   });
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-    getConnections(req.user, (packet) => res.json(packet));
+    getConnections(req.user._id, (packet) => res.json(packet));
+  });
+
+  app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
+    getConnectionSuggestions(req.user._id, (packet) => res.json(packet));
+  });
+
+  app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
+    getPendingRequests(req.user._id, (packet) => res.json(packet));
+  });
+
+  app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
+    requestConnection(req.user._id, req.body.requestID, (packet) =>
+      res.json(packet)
+    );
+  });
+
+  app.post('/user/respondConnection', isAuthenticatedWithJWT, (req, res) => {
+    respondConnection(
+      req.user._id,
+      req.body.requestID,
+      req.body.accepted,
+      (packet) => res.json(packet)
+    );
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {
