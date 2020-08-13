@@ -1,26 +1,25 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { TextField } from "@material-ui/core";
-
-import UniversityAutocomplete from "./UniversityAutocomplete";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { TextField } from '@material-ui/core';
+import UniversityAutocomplete from './UniversityAutocomplete';
 
 const useStyles = makeStyles((_: any) => ({
   tabDesc: {
-    fontSize: "13pt",
-    margin: "0px",
-    fontWeight: "bold",
-    fontfamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
   },
   emailField: {
-    width: "325px",
-    marginTop: "20px",
-    marginBottom: "10px",
+    width: '325px',
+    marginTop: '20px',
+    marginBottom: '10px',
   },
   autocompleteDiv: {
-    marginLeft: "25px",
-    marginTop: "20px",
+    marginLeft: '25px',
+    marginTop: '20px',
   },
 }));
 
@@ -41,7 +40,7 @@ function RegistrationStep0(props: Props) {
     <>
       <p className={styles.tabDesc}>Email:</p>
       <TextField
-        error={props.usernameErr !== ""}
+        error={props.usernameErr !== ''}
         label="Email"
         value={props.username}
         variant="outlined"
