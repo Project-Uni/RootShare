@@ -19,21 +19,20 @@ module.exports = (app) => {
   });
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-<<<<<<< HEAD
-    getConnections(req.user._id, (packet) => res.send(packet));
+    getConnections(req.user._id, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionSuggestions(req.user._id, (packet) => res.send(packet));
+    getConnectionSuggestions(req.user._id, (packet) => res.json(packet));
   });
 
   app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
-    getPendingRequests(req.user._id, (packet) => res.send(packet));
+    getPendingRequests(req.user._id, (packet) => res.json(packet));
   });
 
   app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
     requestConnection(req.user._id, req.body.requestID, (packet) =>
-      res.send(packet)
+      res.json(packet)
     );
   });
 
@@ -42,11 +41,8 @@ module.exports = (app) => {
       req.user._id,
       req.body.requestID,
       req.body.accepted,
-      (packet) => res.send(packet)
+      (packet) => res.json(packet)
     );
-=======
-    getConnections(req.user, (packet) => res.json(packet));
->>>>>>> calendar-functionality
   });
 
   app.post('/api/getMatchingUsers', isAuthenticatedWithJWT, (req, res) => {
