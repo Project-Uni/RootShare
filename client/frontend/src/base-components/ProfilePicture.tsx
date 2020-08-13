@@ -67,6 +67,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   className?: string;
+  pictureStyle?: string;
   currentPicture?: any;
   editable?: boolean;
   height: number;
@@ -178,7 +179,7 @@ function ProfilePicture(props: Props) {
         <img
           src={props.currentPicture || DefaultProfilePicture}
           alt="Profile Picture"
-          className={styles.image}
+          className={[styles.image, props.pictureStyle].join(' ')}
           style={{
             height: props.height,
             width: props.width,

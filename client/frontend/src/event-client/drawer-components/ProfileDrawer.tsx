@@ -3,8 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { connect } from 'react-redux';
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/makeRequest';
 import { colors } from '../../theme/Colors';
 import { Select, MenuItem } from '@material-ui/core';
@@ -16,11 +14,14 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '400px',
   },
-  profilePicture: {
+  profilePictureContainer: {
     marginTop: 20,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  profilePicture: {
+    border: `3px solid ${colors.primaryText}`,
   },
   names: {
     display: 'flex',
@@ -87,8 +88,26 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+const PurdueColleges = [
+  'College of Agriculture',
+  'College of Education',
+  'College of Engineering',
+  'Exploratory Studies',
+  'College of Health and Human Sciences',
+  'College of Liberal Arts',
+  'Krannert School of Management',
+  'College of Pharmacy',
+  'Purdue Polytechnic Institute',
+  'College of Science',
+  'College of Veterinary Medicine',
+  'Honors College',
+  'The Graduate School',
+];
+
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
 };
 
 function ProfileDrawer(props: Props) {
@@ -96,23 +115,6 @@ function ProfileDrawer(props: Props) {
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [imageLoaded, setImagedLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [original, setOriginal] = useState(true);
-
-  const PurdueColleges = [
-    'College of Agriculture',
-    'College of Education',
-    'College of Engineering',
-    'Exploratory Studies',
-    'College of Health and Human Sciences',
-    'College of Liberal Arts',
-    'Krannert School of Management',
-    'College of Pharmacy',
-    'Purdue Polytechnic Institute',
-    'College of Science',
-    'College of Veterinary Medicine',
-    'Honors College',
-    'The Graduate School',
-  ];
 
   // Original User Information
   // Constant Variables For Primary Info
@@ -147,7 +149,24 @@ function ProfileDrawer(props: Props) {
 
   useEffect(() => {
     setOriginalUserInfo();
+    getCurrentProfilePicture();
   }, []);
+
+  async function getCurrentProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/getProfilePicture/${props.user._id}`
+    );
+
+    if (data['success'] === 1) {
+      setCurrentPicture(data['content']['imageURL']);
+    }
+    setImagedLoaded(true);
+  }
+
+  function updateCurrentPicture(imageData: string) {
+    setCurrentPicture(imageData);
+  }
 
   // Set All Initial User Info
   // TODO: Map From Server From Specific User Instead Of Ashwin's Info
@@ -186,7 +205,7 @@ function ProfileDrawer(props: Props) {
   // Constant Variables For Changed Info
 
   function updateNewUserInfoToServer() {
-    // TODO: Map Out All The Variables To Server To Store Changed User Info
+    // TODO: Make service request here
 
     console.log(updatedFirstName);
     console.log(updatedLastName);
@@ -202,61 +221,42 @@ function ProfileDrawer(props: Props) {
     console.log(updatedPhoneNumber);
     console.log(updatedDiscoveryMethod);
 
-    if (updatedFirstName !== originalFirstName) {
+    if (updatedFirstName !== originalFirstName)
       setOriginalFirstName(updatedFirstName);
-    }
 
-    if (updatedLastName !== originalLastName) {
-      setOriginalLastName(updatedLastName);
-    }
+    if (updatedLastName !== originalLastName) setOriginalLastName(updatedLastName);
 
-    if (updatedMajor !== originalMajor) {
-      setOriginalMajor(updatedMajor);
-    }
+    if (updatedMajor !== originalMajor) setOriginalMajor(updatedMajor);
 
-    if (updatedGraduationYear !== originalGraduationYear) {
+    if (updatedGraduationYear !== originalGraduationYear)
       setOriginalGraduationYear(updatedGraduationYear);
-    }
 
-    if (updatedCurrentEmployer !== originalCurrentEmployer) {
+    if (updatedCurrentEmployer !== originalCurrentEmployer)
       setOriginalCurrentEmployer(updatedCurrentEmployer);
-    }
 
-    if (updatedCurrentRole !== originalCurrentRole) {
+    if (updatedCurrentRole !== originalCurrentRole)
       setOriginalCurrentRole(updatedCurrentRole);
-    }
 
-    if (updatedCollege !== originalCollege) {
-      setOriginalCollege(updatedCollege);
-    }
+    if (updatedCollege !== originalCollege) setOriginalCollege(updatedCollege);
 
-    if (updatedCollegeOf !== originalCollegeOf) {
+    if (updatedCollegeOf !== originalCollegeOf)
       setOriginalCollegeOf(updatedCollegeOf);
-    }
 
-    if (updatedInterests !== originalInterests) {
+    if (updatedInterests !== originalInterests)
       setOriginalInterests(updatedInterests);
-    }
 
-    if (updatedOrganizations !== originalOrganizations) {
+    if (updatedOrganizations !== originalOrganizations)
       setOriginalOrganizations(updatedOrganizations);
-    }
 
-    if (updatedGraduateDegree !== originalGraduateDegree) {
+    if (updatedGraduateDegree !== originalGraduateDegree)
       setOriginalGraduateDegree(updatedGraduateDegree);
-    }
 
-    if (updatedPhoneNumber !== originalPhoneNumber) {
+    if (updatedPhoneNumber !== originalPhoneNumber)
       setOriginalPhoneNumber(updatedPhoneNumber);
-    }
 
-    if (updatedDiscoveryMethod !== originalDiscoveryMethod) {
+    if (updatedDiscoveryMethod !== originalDiscoveryMethod)
       setOriginalDiscoveryMethod(updatedDiscoveryMethod);
-    }
   }
-
-  // Handle User Info Change Functions
-  // TODO: Find What To Pass In As "value"
 
   function handleUpdatedFirstNameChange(event: any) {
     console.log('Handling first name change...');
@@ -325,78 +325,60 @@ function ProfileDrawer(props: Props) {
 
   // End Handle Change Functions For User Info
 
-  function editOnClick() {
-    setEdit(!edit);
+  function handleEditClick() {
+    setEdit(true);
   }
 
-  function saveOnClick() {
-    setEdit(!edit);
+  function handleSaveClick() {
+    setEdit(false);
     updateNewUserInfoToServer();
   }
 
-  function cancelOnClick() {
-    setEdit(!edit);
+  function handleCancelClick() {
+    setEdit(false);
   }
 
-  useEffect(() => {
-    getCurrentProfilePicture();
-  }, []);
-
-  async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/getProfilePicture/${props.user._id}`
+  function renderProfilePicture() {
+    return (
+      <div>
+        <ProfilePicture
+          className={styles.profilePictureContainer}
+          pictureStyle={styles.profilePicture}
+          editable
+          height={150}
+          width={150}
+          borderRadius={150}
+          currentPicture={currentPicture}
+          updateCurrentPicture={updateCurrentPicture}
+        />
+      </div>
     );
-
-    if (data['success'] === 1) {
-      setCurrentPicture(data['content']['imageURL']);
-    }
-    setImagedLoaded(true);
   }
 
-  function updateCurrentPicture(imageData: string) {
-    setCurrentPicture(imageData);
-  }
-
-  function returnSaveButton() {
+  function renderSaveButton() {
     return (
       <div className={styles.buttonWrapper}>
-        <Button
-          onClick={() => {
-            saveOnClick();
-          }}
-          className={styles.button}
-        >
+        <Button onClick={handleSaveClick} className={styles.button}>
           SAVE
         </Button>
-        <Button
-          onClick={() => {
-            cancelOnClick();
-          }}
-          className={styles.button}
-        >
+        <Button onClick={handleCancelClick} className={styles.button}>
           CANCEL
         </Button>
       </div>
     );
   }
 
-  function returnEditButton() {
+  function renderEditButton() {
     return (
       <div className={styles.buttonWrapper}>
-        <Button
-          onClick={() => {
-            editOnClick();
-          }}
-          className={styles.button}
-        >
+        <Button onClick={handleEditClick} className={styles.button}>
           EDIT
         </Button>
       </div>
     );
   }
 
-  function returnNameAndEmail() {
+  function renderNameAndEmail() {
     return (
       <div className={styles.nameWrapper}>
         <RSText
@@ -420,7 +402,7 @@ function ProfileDrawer(props: Props) {
     );
   }
 
-  function returnUpdate() {
+  function renderUpdateView() {
     return (
       <div className={styles.update}>
         <div className={styles.names}>
@@ -475,11 +457,6 @@ function ProfileDrawer(props: Props) {
           ))}
         </Select>
         <UserInfoTextField
-          label="College"
-          value={updatedCollegeOf}
-          onChange={handleCollegeOfChange}
-        />
-        <UserInfoTextField
           label="Interests"
           value={updatedInterests}
           onChange={handleInterestsChange}
@@ -489,11 +466,12 @@ function ProfileDrawer(props: Props) {
           value={updatedOrganizations}
           onChange={handleOrganizationsChange}
         />
-        <UserInfoTextField
+        {/* TODO - Change to yes or no select */}
+        {/* <UserInfoTextField
           label="Graduate Degree"
           value={updatedGraduateDegree}
           onChange={handleGraduateDegreeChange}
-        />
+        /> */}
         <UserInfoTextField
           label="Phone Number"
           value={updatedPhoneNumber}
@@ -504,11 +482,11 @@ function ProfileDrawer(props: Props) {
           value={updatedDiscoveryMethod}
           onChange={handleDiscoveryMethodChange}
         />
-        {returnSaveButton()}
+        {renderSaveButton()}
       </div>
     );
   }
-  function returnStatic() {
+  function renderStaticView() {
     return (
       <div className={styles.static}>
         <RSText
@@ -575,14 +553,15 @@ function ProfileDrawer(props: Props) {
         >
           Organizations: {originalOrganizations}
         </RSText>
-        <RSText
+        {/* TODO - Change Graduate Degree to Yes or No Select */}
+        {/* <RSText
           type="body"
           size={12}
           color={colors.primaryText}
           className={styles.staticIndividual}
         >
           Graduate Degree: {originalGraduateDegree}
-        </RSText>
+        </RSText> */}
         <RSText
           type="body"
           size={12}
@@ -599,50 +578,21 @@ function ProfileDrawer(props: Props) {
         >
           Discovery Method: {originalDiscoveryMethod}
         </RSText>
-        {returnEditButton()}
-      </div>
-    );
-  }
-  function returnProfilePicture() {
-    return (
-      <div>
-        <ProfilePicture
-          className={styles.profilePicture}
-          editable
-          height={150}
-          width={150}
-          borderRadius={150}
-          currentPicture={currentPicture}
-          updateCurrentPicture={updateCurrentPicture}
-        />
+        {renderEditButton()}
       </div>
     );
   }
 
-  function logoutOnClick() {
-    // TODO: Logout On Click - Server Side
-  }
-
-  function returnLogoutButton() {
-    return (
-      <Button
-        onClick={() => {
-          logoutOnClick();
-        }}
-        className={styles.logoutButton}
-      >
-        LOGOUT
-      </Button>
-    );
-  }
   return (
     <div className={styles.wrapper}>
       <div>
-        {imageLoaded && returnProfilePicture()}
-        {returnNameAndEmail()}
-        {edit ? returnUpdate() : returnStatic()}
+        {imageLoaded && renderProfilePicture()}
+        {renderNameAndEmail()}
+        {edit ? renderUpdateView() : renderStaticView()}
       </div>
-      <div className={styles.logoutButtonWrapper}>{returnLogoutButton()}</div>
+      <div className={styles.logoutButtonWrapper}>
+        <Button className={styles.logoutButton}>LOGOUT</Button>
+      </div>
     </div>
   );
 }
@@ -650,6 +600,8 @@ function ProfileDrawer(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
