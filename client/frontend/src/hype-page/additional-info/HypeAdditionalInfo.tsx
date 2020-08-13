@@ -76,6 +76,8 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
+  const redirectURL = '/event/5f30b4488e8fb07262044e9f';
+
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
       'POST',
@@ -195,6 +197,10 @@ function HypeAdditionalInfo(props: Props) {
     }, 1000);
   }
 
+  function handleContinue() {
+    window.location.href = redirectURL;
+  }
+
   const mode = 'question';
 
   const modePrompts = {
@@ -286,8 +292,17 @@ function HypeAdditionalInfo(props: Props) {
               There was an error processing your request.
             </p>
           )}
-          {!regCompleted && (
-            <div className={styles.buttonDiv}>
+          <div className={styles.buttonDiv}>
+            {regCompleted ? (
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                onClick={handleContinue}
+              >
+                Continue
+              </Button>
+            ) : (
               <Button
                 variant="contained"
                 color="primary"
@@ -296,8 +311,8 @@ function HypeAdditionalInfo(props: Props) {
               >
                 Finish
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </HypeCard>
       </div>
 
