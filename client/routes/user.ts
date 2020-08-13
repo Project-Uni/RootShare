@@ -4,6 +4,7 @@ import { User } from '../models';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   getCurrentUser,
+  getProfileInformation,
   getConnections,
   getConnectionSuggestions,
   getPendingRequests,
@@ -20,6 +21,10 @@ module.exports = (app) => {
 
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     getConnections(req.user._id, (packet) => res.json(packet));
+  });
+
+  app.get('/user/getProfile', isAuthenticatedWithJWT, (req, res) => {
+    getProfileInformation(req.user._id, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {

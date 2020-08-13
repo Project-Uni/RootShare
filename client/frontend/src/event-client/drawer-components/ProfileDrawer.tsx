@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+
+import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-import RSText from '../../base-components/RSText';
-import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/makeRequest';
-import { colors } from '../../theme/Colors';
-import { Select, MenuItem } from '@material-ui/core';
-import UserInfoTextField from './UserInfoTextField';
 
+import { colors } from '../../theme/Colors';
+import UserInfoTextField from './UserInfoTextField';
+import RSText from '../../base-components/RSText';
 import ProfilePicture from '../../base-components/ProfilePicture';
+
+import { makeRequest } from '../../helpers/functions';
+import { UserType, UniversityType } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -122,7 +125,7 @@ function ProfileDrawer(props: Props) {
   const [originalFirstName, setOriginalFirstName] = useState('');
   const [originalLastName, setOriginalLastName] = useState('');
   const [originalMajor, setOriginalMajor] = useState('');
-  const [originalGraduationYear, setOriginalGraduationYear] = useState('');
+  const [originalGraduationYear, setOriginalGraduationYear] = useState(0);
   const [originalCurrentEmployer, setOriginalCurrentEmployer] = useState('');
   const [originalCurrentRole, setOriginalCurrentRole] = useState('');
   const [originalCollege, setOriginalCollege] = useState('');
@@ -136,7 +139,7 @@ function ProfileDrawer(props: Props) {
   const [updatedFirstName, setUpdatedFirstName] = useState('');
   const [updatedLastName, setUpdatedLastName] = useState('');
   const [updatedMajor, setUpdatedMajor] = useState('');
-  const [updatedGraduationYear, setUpdatedGraduationYear] = useState('');
+  const [updatedGraduationYear, setUpdatedGraduationYear] = useState(0);
   const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
   const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
   const [updatedCollege, setUpdatedCollege] = useState('');
@@ -147,8 +150,10 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  const [fetchingErr, setFetchingErr] = useState(false);
+
   useEffect(() => {
-    setOriginalUserInfo();
+    getProfile();
     getCurrentProfilePicture();
   }, []);
 
@@ -168,45 +173,42 @@ function ProfileDrawer(props: Props) {
     setCurrentPicture(imageData);
   }
 
-  // Set All Initial User Info
-  // TODO: Map From Server From Specific User Instead Of Ashwin's Info
+  async function getProfile() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getProfile',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-  function setOriginalUserInfo() {
-    setOriginalFirstName(props.user.firstName);
-    setOriginalLastName(props.user.lastName);
-    setOriginalMajor('Computer Science');
-    setOriginalGraduationYear('2020');
-    setOriginalCurrentEmployer('AutoZone');
-    setOriginalCurrentRole('Senior Lead Software Engineer');
-    setOriginalCollege('Purdue University');
-    setOriginalCollegeOf('College of Science');
-    setOriginalInterests('Baddies, Hoes, Thots');
-    setOriginalOrganizations('PIKE, Volleyball, APhi Sexers');
-    setOriginalGraduateDegree('No');
-    setOriginalPhoneNumber('4086449017');
-    setOriginalDiscoveryMethod('Creator of Platform');
+    if (data['success'] === 1) setOriginalUserInfo(data['content']['user']);
+    else setFetchingErr(true);
+  }
 
-    setUpdatedFirstName(props.user.firstName);
-    setUpdatedLastName(props.user.lastName);
-    setUpdatedMajor('Computer Science');
-    setUpdatedGraduationYear('2020');
-    setUpdatedCurrentEmployer('AutoZone');
-    setUpdatedCurrentRole('Senior Lead Software Engineer');
-    setUpdatedCollege('Purdue University');
-    setUpdatedCollegeOf('College of Science');
-    setUpdatedInterests('Baddies, Hoes, Thots');
-    setUpdatedOrganizations('PIKE, Volleyball, APhi Sexers');
-    setUpdatedGraduateDegree('No');
-    setUpdatedPhoneNumber('4086449017');
-    setUpdatedDiscoveryMethod('Creator of Platform');
+  function setOriginalUserInfo(user: UserType) {
+    const university = user.university as UniversityType;
+
+    setOriginalFirstName(user.firstName);
+    setOriginalLastName(user.lastName);
+    setOriginalMajor(user.major);
+    setOriginalGraduationYear(user.graduationYear);
+    setOriginalCurrentEmployer(user.work);
+    setOriginalCurrentRole(user.position);
+    setOriginalCollege(university.universityName);
+    setOriginalCollegeOf(user.department);
+    setOriginalInterests(user.interests.join(','));
+    setOriginalOrganizations(user.organizations.join(','));
+    setOriginalGraduateDegree(user.graduateSchool);
+    setOriginalPhoneNumber(user.phoneNumber);
+    setOriginalDiscoveryMethod(user.discoveryMethod);
   }
 
   // Changed User Information
   // Constant Variables For Changed Info
 
   function updateNewUserInfoToServer() {
-    // TODO: Make service request here
-
     console.log(updatedFirstName);
     console.log(updatedLastName);
     console.log(updatedMajor);
@@ -220,41 +222,81 @@ function ProfileDrawer(props: Props) {
     console.log(updatedGraduateDegree);
     console.log(updatedPhoneNumber);
     console.log(updatedDiscoveryMethod);
+  }
 
+  function setUpdatedToOriginal() {
     if (updatedFirstName !== originalFirstName)
-      setOriginalFirstName(updatedFirstName);
+      setUpdatedFirstName(originalFirstName);
 
-    if (updatedLastName !== originalLastName) setOriginalLastName(updatedLastName);
+    if (updatedLastName !== originalLastName) setUpdatedLastName(originalLastName);
 
-    if (updatedMajor !== originalMajor) setOriginalMajor(updatedMajor);
+    if (updatedMajor !== originalMajor) setUpdatedMajor(originalMajor);
 
     if (updatedGraduationYear !== originalGraduationYear)
-      setOriginalGraduationYear(updatedGraduationYear);
+      setUpdatedGraduationYear(originalGraduationYear);
 
     if (updatedCurrentEmployer !== originalCurrentEmployer)
-      setOriginalCurrentEmployer(updatedCurrentEmployer);
+      setUpdatedCurrentEmployer(originalCurrentEmployer);
 
     if (updatedCurrentRole !== originalCurrentRole)
-      setOriginalCurrentRole(updatedCurrentRole);
+      setUpdatedCurrentRole(originalCurrentRole);
 
-    if (updatedCollege !== originalCollege) setOriginalCollege(updatedCollege);
+    if (updatedCollege !== originalCollege) setUpdatedCollege(originalCollege);
 
     if (updatedCollegeOf !== originalCollegeOf)
-      setOriginalCollegeOf(updatedCollegeOf);
+      setUpdatedCollegeOf(originalCollegeOf);
 
     if (updatedInterests !== originalInterests)
-      setOriginalInterests(updatedInterests);
+      setUpdatedInterests(originalInterests);
 
     if (updatedOrganizations !== originalOrganizations)
-      setOriginalOrganizations(updatedOrganizations);
+      setUpdatedOrganizations(originalOrganizations);
 
     if (updatedGraduateDegree !== originalGraduateDegree)
-      setOriginalGraduateDegree(updatedGraduateDegree);
+      setUpdatedGraduateDegree(originalGraduateDegree);
 
     if (updatedPhoneNumber !== originalPhoneNumber)
-      setOriginalPhoneNumber(updatedPhoneNumber);
+      setUpdatedPhoneNumber(originalPhoneNumber);
 
     if (updatedDiscoveryMethod !== originalDiscoveryMethod)
+      setUpdatedDiscoveryMethod(originalDiscoveryMethod);
+  }
+
+  function setOriginalToUpdated() {
+    if (originalFirstName !== updatedFirstName)
+      setOriginalFirstName(updatedFirstName);
+
+    if (originalLastName !== updatedLastName) setOriginalLastName(updatedLastName);
+
+    if (originalMajor !== updatedMajor) setOriginalMajor(updatedMajor);
+
+    if (originalGraduationYear !== updatedGraduationYear)
+      setOriginalGraduationYear(updatedGraduationYear);
+
+    if (originalCurrentEmployer !== updatedCurrentEmployer)
+      setOriginalCurrentEmployer(updatedCurrentEmployer);
+
+    if (originalCurrentRole !== updatedCurrentRole)
+      setOriginalCurrentRole(updatedCurrentRole);
+
+    if (originalCollege !== updatedCollege) setOriginalCollege(updatedCollege);
+
+    if (originalCollegeOf !== updatedCollegeOf)
+      setOriginalCollegeOf(updatedCollegeOf);
+
+    if (originalInterests !== updatedInterests)
+      setOriginalInterests(updatedInterests);
+
+    if (originalOrganizations !== updatedOrganizations)
+      setOriginalOrganizations(updatedOrganizations);
+
+    if (originalGraduateDegree !== updatedGraduateDegree)
+      setOriginalGraduateDegree(updatedGraduateDegree);
+
+    if (originalPhoneNumber !== updatedPhoneNumber)
+      setOriginalPhoneNumber(updatedPhoneNumber);
+
+    if (originalDiscoveryMethod !== updatedDiscoveryMethod)
       setOriginalDiscoveryMethod(updatedDiscoveryMethod);
   }
 
@@ -326,16 +368,19 @@ function ProfileDrawer(props: Props) {
   // End Handle Change Functions For User Info
 
   function handleEditClick() {
+    setUpdatedToOriginal();
     setEdit(true);
   }
 
   function handleSaveClick() {
     setEdit(false);
     updateNewUserInfoToServer();
+    setOriginalToUpdated();
   }
 
   function handleCancelClick() {
     setEdit(false);
+    setUpdatedToOriginal();
   }
 
   function renderProfilePicture() {
@@ -427,7 +472,7 @@ function ProfileDrawer(props: Props) {
         />
         <UserInfoTextField
           label="Graduation Year"
-          value={updatedGraduationYear}
+          value={`${updatedGraduationYear}`}
           onChange={handleGraduationYearChange}
         />
         <UserInfoTextField
@@ -440,11 +485,15 @@ function ProfileDrawer(props: Props) {
           value={updatedCurrentRole}
           onChange={handleCurrentRoleChange}
         />
-        <UserInfoTextField
-          label="University"
+        <Select
+          className={styles.selectCollege}
+          variant="outlined"
           value={updatedCollege}
           onChange={handleCollegeChange}
-        />
+          label="University"
+        >
+          <MenuItem value={'Purdue'}>Purdue</MenuItem>
+        </Select>
         <Select
           className={styles.selectCollege}
           variant="outlined"

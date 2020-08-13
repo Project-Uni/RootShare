@@ -19,6 +19,49 @@ export function getCurrentUser(user, callback) {
   );
 }
 
+export function getProfileInformation(userID, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'universities',
+        localField: 'university',
+        foreignField: '_id',
+        as: 'university',
+      },
+    },
+    { $unwind: '$university' },
+    {
+      $project: {
+        _id: '$_id',
+        email: '$email',
+        firstName: '$firstName',
+        lastName: '$lastName',
+        major: '$major',
+        graduationYear: '$graduationYear',
+        work: '$work',
+        position: '$position',
+        university: {
+          universityName: '$university.universityName',
+        },
+        department: '$department',
+        interests: '$interests',
+        organizations: '$organizations',
+        phoneNumber: '$phoneNumber',
+        discoveryMethod: '$discoveryMethod',
+        graduateSchool: '$graduateSchool',
+      },
+    },
+  ])
+    .exec()
+    .then((user) => {
+      if (!user || user.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(sendPacket(1, 'Send user profile info', { user: user[0] }));
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
+
 // TODO: either send these in chunks or store all connections in redux when user logs in
 export function getConnections(userID, callback) {
   const lookupConnections = {
