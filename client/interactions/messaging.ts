@@ -3,7 +3,7 @@ import log from '../helpers/logger';
 
 const mongoose = require('mongoose');
 
-import { User, Conversation, Message } from '../models';
+import { Conversation, Message } from '../models';
 
 module.exports = {
   createThread: (req, io, callback) => {
@@ -134,7 +134,7 @@ module.exports = {
       participants: userID,
     })
       .populate('lastMessage')
-      .populate('participants');
+      .populate('participants', '_id firstName lastName');
 
     if (userConversations === undefined || userConversations === null)
       return callback(
@@ -147,10 +147,12 @@ module.exports = {
 
   getLatestMessages: async (userID, conversationID, maxMessages = 200, callback) => {
     Conversation.findById(conversationID, async (err, conversation) => {
-      if (err || conversation === undefined || conversation === null) {
+      if (err) {
         log('error', err);
-        return callback(sendPacket(-1, 'Could not find Conversation'));
+        return callback(sendPacket(-1, err));
       }
+      if (!conversation)
+        return callback(sendPacket(0, 'Could not find Conversation'));
 
       Message.aggregate([
         { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
@@ -190,22 +192,19 @@ module.exports = {
         return callback(sendPacket(-1, 'Could not find message to like'));
 
       const alreadyLiked = message.likes.includes(userID);
-      let likeCount = message.likes.length;
 
-      if (liked && !alreadyLiked) {
-        message.likes.push(userID);
-        likeCount++;
-      } else if (!liked && alreadyLiked) {
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
         message.likes.splice(message.likes.indexOf(userID), 1);
-        likeCount--;
-      }
 
-      message.save((err) => {
+      message.save((err, message) => {
         if (err) return callback(sendPacket(-1, err));
+        if (!message)
+          return callback(sendPacket(-1, 'There was an error saving the like'));
 
         io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
           messageID: message._id,
-          numLikes: likeCount,
+          numLikes: message.likes.length,
         });
         callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
       });

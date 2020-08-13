@@ -3,8 +3,10 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
   createEvent,
-  getAllEvents,
+  getAllEventsAdmin,
+  getAllEventsUser,
   getWebinarDetails,
+  updateRSVP,
 } from '../interactions/streaming/event';
 
 import { updateAttendingList } from '../interactions/user';
@@ -23,12 +25,16 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, async (req, res) => {
+  app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
       );
-    await getAllEvents((packet) => res.json(packet));
+    getAllEventsAdmin((packet) => res.json(packet));
+  });
+
+  app.get('/api/webinar/getAllEventsUser', isAuthenticatedWithJWT, (req, res) => {
+    getAllEventsUser(req.user._id, (packet) => res.json(packet));
   });
 
   app.get(
@@ -41,6 +47,12 @@ module.exports = (app) => {
       });
     }
   );
+
+  app.post('/api/webinar/updateRSVP', isAuthenticatedWithJWT, (req, res) => {
+    updateRSVP(req.user._id, req.body.webinarID, req.body.didRSVP, (packet) => {
+      res.json(packet);
+    });
+  });
 
   app.post(
     '/api/webinar/updateAttendeeList',

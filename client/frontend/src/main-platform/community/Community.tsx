@@ -14,7 +14,7 @@ import CommunityBody from './components/CommunityBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
-} from '../../types/constants';
+} from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

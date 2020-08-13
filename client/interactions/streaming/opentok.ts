@@ -1,6 +1,5 @@
 const OpenTok = require('opentok');
-
-import { Webinar, User } from '../../models';
+import { Webinar } from '../../models';
 import axios from 'axios';
 const jwt = require('njwt');
 
