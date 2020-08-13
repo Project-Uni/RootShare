@@ -640,8 +640,7 @@ function ProfileDrawer(props: Props) {
       <div>
         {imageLoaded && returnProfilePicture()}
         {returnNameAndEmail()}
-        {!edit && returnStatic()}
-        {edit && returnUpdate()}
+        {edit ? returnUpdate() : returnStatic()}
       </div>
       <div className={styles.logoutButtonWrapper}>{returnLogoutButton()}</div>
     </div>
