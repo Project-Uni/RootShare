@@ -300,7 +300,7 @@ function HypeAdditionalInfo(props: Props) {
                 disabled={loading}
                 onClick={handleContinue}
               >
-                Continue
+                Continue To Event
               </Button>
             ) : (
               <Button
