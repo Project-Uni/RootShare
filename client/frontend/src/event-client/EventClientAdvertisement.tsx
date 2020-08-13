@@ -12,7 +12,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-const AD_CYCLE_TIME = 3;
+const AD_CYCLE_TIME = 15;
 
 type Props = {
   height: number;

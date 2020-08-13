@@ -47,8 +47,8 @@ function LandingHead(props: Props) {
           </a>
         </div>
         <div className={styles.loginButton}>
-          <Link to="../login" style={{ textDecoration: 'none' }}>
-            <RSText type="head" size={15} color={colors.primaryText}>
+          <Link to="/login" style={{ textDecoration: 'none' }}>
+            <RSText type="subhead" size={15} color={colors.primaryText}>
               Login
             </RSText>
           </Link>

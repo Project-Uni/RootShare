@@ -7,7 +7,6 @@ import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { updateUser } from './redux/actions/user';
 
-import HypeLanding from './hype-page/hype-landing/HypeLanding';
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
@@ -19,7 +18,7 @@ import SocketManager from './main-platform/SocketManager';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
-import LandingPage from './landing-new/LandingPage';
+import LandingPage from './landing-page/LandingPage';
 
 import {
   Homepage,
@@ -54,7 +53,7 @@ function App(props: Props) {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
-            <Route exact path="/" component={HypeLanding} />
+            <Route exact path="/" component={LandingPage} />
             <Route
               exact
               path="/profile/externalRegister"
@@ -78,9 +77,7 @@ function App(props: Props) {
             <Route exact path="/community/:orgID" component={Community} />
             <Route exact path="/library" component={StreamLibrary} />
             <Route exact path="/connections" component={Connections} />
-            // TODO: Delete '/landing/new' and redirect path to source '/' before
-            launch
-            <Route exact path="/landing/new" component={LandingPage} />
+
             <Route component={PageNotFound} />
           </Switch>
         </div>
