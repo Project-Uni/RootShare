@@ -96,11 +96,11 @@ type Props = {
 function SingleEvent(props: Props) {
   const styles = useStyles();
   const [RSVP, setRSVP] = useState(false);
-  const [eventTime, setEventTime] = useState<Date>(new Date());
 
   const { event } = props;
-  setEventTime(new Date(event.dateTime));
+  const eventTime = new Date(event.dateTime);
   const eventHost: HostType = event.host as HostType;
+  const hideRSVPToggle = event.userSpeaker || eventHost._id === props.user._id;
 
   useEffect(() => {
     if (!props.event.userRSVP) setRSVP(props.event.userRSVP);
@@ -125,7 +125,6 @@ function SingleEvent(props: Props) {
     if (data['success'] === 1) setRSVP(data['content']['newRSVP']);
   }
 
-  const hideRSVPToggle = event.userSpeaker || eventHost._id === props.user._id;
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
