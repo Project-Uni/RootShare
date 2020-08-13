@@ -9,6 +9,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    backgroundSize: 'cover',
   },
 }));
 
@@ -39,11 +40,7 @@ function EventClientAdvertisement(props: Props) {
       <div
         className={styles.adbox}
         style={{ backgroundImage: `url(${props.advertisements[currentAdIndex]})` }}
-      >
-        <p style={{ margin: 0 }}>
-          <b>Advertisement</b>
-        </p>
-      </div>
+      ></div>
     </div>
   );
 }
