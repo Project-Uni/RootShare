@@ -5,10 +5,6 @@ var University = mongoose.model('universities');
 var bCrypt = require('bcryptjs');
 import log from '../helpers/logger';
 
-var {
-  sendConfirmationEmail,
-} = require('../interactions/registration/email-confirmation');
-
 module.exports = function (passport) {
   passport.use(
     'local-signup',
@@ -51,7 +47,6 @@ module.exports = function (passport) {
                   return done(err);
                 }
 
-                sendConfirmationEmail(email);
                 return done(null, newUser, {
                   message: 'User Registration Succesful!',
                 });
