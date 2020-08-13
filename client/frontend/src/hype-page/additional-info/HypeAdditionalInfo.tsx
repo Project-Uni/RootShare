@@ -4,7 +4,7 @@ import { Button, Typography } from '@material-ui/core';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions';
 
 import HypeHeader from '../headerFooter/HypeHeader';
 import HypeFooter from '../headerFooter/HypeFooter';

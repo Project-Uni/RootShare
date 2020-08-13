@@ -15,7 +15,7 @@ import {
 
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/makeRequest';
+import { makeRequest } from '../../helpers/functions';
 
 import HypeHeader from '../headerFooter/HypeHeader';
 import HypeFooter from '../headerFooter/HypeFooter';
