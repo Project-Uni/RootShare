@@ -7,10 +7,6 @@ import jwt = require('jsonwebtoken');
 
 import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
-var {
-  sendConfirmationEmail,
-} = require('../interactions/registration/email-confirmation');
-
 module.exports = function (passport) {
   passport.use(
     'local-signup',
@@ -52,8 +48,6 @@ module.exports = function (passport) {
                 if (err) {
                   return done(err);
                 }
-
-                sendConfirmationEmail(email);
 
                 const userTokenInfo = {};
                 for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)

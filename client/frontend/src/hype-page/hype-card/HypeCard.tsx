@@ -12,7 +12,7 @@ const useStyles = makeStyles((_: any) => ({
     backgroundColor: colors.second,
   },
   linearProgressBg: {
-    backgroundColor: colors.second,
+    backgroundColor: 'lightgrey',
   },
   linearProgressRoot: {
     height: 5,

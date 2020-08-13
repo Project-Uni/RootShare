@@ -1,103 +1,116 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { colors } from "../../theme/Colors";
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import SingleEvent from "./SingleEvent";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+
+import { BsPencilSquare } from 'react-icons/bs';
+import { IconButton } from '@material-ui/core';
+
+import { makeRequest } from '../../helpers/functions';
+import { EventType } from '../../helpers/types';
+
+import { colors } from '../../theme/Colors';
+import RSText from '../../base-components/RSText';
+import SingleEvent from './SingleEvent';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: "400px",
-    display: "flex",
-    flexDirection: "column",
+    width: '400px',
+    display: 'flex',
+    flexDirection: 'column',
     height: window.innerHeight - 60,
   },
+  eventsTitle: {
+    height: '25px',
+    marginBottom: 20,
+    marginTop: 20,
+    margin: 'auto',
+    display: 'inline-block',
+    color: colors.primaryText,
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
   textFieldContainer: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: 'flex',
+    justifyContent: 'space-between',
     background: colors.primaryText,
-    borderTop: "2px solid " + colors.primaryText,
+    borderTop: '2px solid ' + colors.primaryText,
     color: colors.secondary,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
-  connectionContainer: {
+  eventContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     //background: colors.secondary,
-    overflow: "scroll",
+    overflow: 'scroll',
     label: colors.primaryText,
+    borderTopStyle: 'solid',
+    borderTopColor: colors.primaryText,
+    borderTopWidth: '1px',
+    marginTop: '-2px',
   },
 }));
 
-type Props = {};
+type Props = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 function CalendarDrawer(props: Props) {
   const styles = useStyles();
-  const [message, setMessage] = useState("");
 
-  function testRenderConnections() {
-    const output = [];
-    for (let i = 0; i < 20; i++) {
-      output.push(
-        <div >
-          <SingleEvent
-            eventID="1001"
-            eventName="SMIT IS EVEN NICER. #69"
-            eventDescription="14"
-            organization="RootShare"
-            day="25"
-            month="DEC"
-            year="2020"
-            time="6"
-            ampm="PM"
-            timezone="EST"
-            picture="babyboilers.png"
-          />
-        </div>
-      )
-      output.push(
-        <div >
-          <SingleEvent
-            eventID="1001"
-            eventName="Ashwin Is Really Cool"
-            eventDescription="14"
-            organization="Definitely Not Ashwin"
-            day="15"
-            month="AUG"
-            year="2020"
-            time="5"
-            ampm="PM"
-            timezone="EST"
-            picture="babyboilers.png"
-          />
-        </div>
-      )
-      output.push(
-        <div >
-          <SingleEvent
-            eventID="1001"
-            eventName="Jackson Is VERY Cool"
-            eventDescription="14"
-            organization="Jackson McCluskey"
-            day="23"
-            month="SEP"
-            year="2020"
-            time="4"
-            ampm="PM"
-            timezone="EST"
-            picture="babyboilers.png"
-          />
-        </div>
-      )
-    }
+  const [events, setEvents] = useState<EventType[]>([]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  async function fetchEvents() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/webinar/getAllEventsUser',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] === 1) setEvents(data['content']['webinars']);
+  }
+
+  function renderEvents() {
+    const output: any[] = [];
+    events.forEach((event) => {
+      output.push(<SingleEvent event={event} />);
+    });
+
     return output;
   }
+
   return (
     <div className={styles.wrapper}>
-      <div className={styles.connectionContainer}>{testRenderConnections()}</div>
+      <div className={styles.header}>
+        <RSText bold size={16} className={styles.eventsTitle}>
+          Upcoming Events
+        </RSText>
+      </div>
+      <div className={styles.eventContainer}>{renderEvents()}</div>
     </div>
   );
 }
 
-export default CalendarDrawer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CalendarDrawer);
