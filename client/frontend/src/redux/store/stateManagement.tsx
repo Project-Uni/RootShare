@@ -1,10 +1,13 @@
-import log from '../../helpers/logger';
+import { log } from '../../helpers/functions';
 const STATE_NAME = 'RootShare:state';
 
 const initializeState = () => ({
   user: {},
   accessToken: '',
   refreshToken: '',
+  messageSocket: {},
+  conversations: [],
+  newMessage: {},
 });
 
 const saveState = (state: { [key: string]: any }) => {

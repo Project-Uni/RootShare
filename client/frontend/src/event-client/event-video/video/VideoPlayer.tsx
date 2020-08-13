@@ -1,6 +1,7 @@
 import React from 'react';
 import videojs from 'video.js';
-import '../../../../node_modules/video.js/dist/video-js.css';
+import 'video.js/dist/video-js.css';
+import '@videojs/themes/dist/fantasy/index.css';
 
 interface Props {
   src: string;
@@ -35,6 +36,14 @@ export default class VideoPlayer extends React.Component<Props> {
           // Handle on player ready here
         }
       );
+
+      this.player.landscapeFullscreen({
+        fullscreen: {
+          enterOnRotate: true,
+          alwaysInLandscapeMode: true,
+          iOS: true,
+        },
+      });
     } catch (err) {
       // Handle error here
     }
@@ -54,14 +63,19 @@ export default class VideoPlayer extends React.Component<Props> {
   // wrap the player in a div with a `data-vjs-player` attribute
   // so videojs won't create additional wrapper in the DOM
   // see https://github.com/videojs/video.js/pull/3856
+
   render() {
+    const fs: boolean = !!document.fullscreenElement;
+    const videoWidth = fs ? '100%' : this.props.width;
+    const videoHeight = fs ? '100%' : this.props.height;
+
     return (
       <div>
-        <div data-vjs-player>
+        <div data-vjs-player style={{ width: videoWidth, height: videoHeight }}>
           <video
             ref={(node) => (this.videoNode = node)}
-            className="video-js"
-            style={{ width: this.props.width, height: this.props.height }}
+            className="video-js vjs-theme-fantasy"
+            style={{ width: videoWidth, height: videoHeight }}
           ></video>
         </div>
       </div>

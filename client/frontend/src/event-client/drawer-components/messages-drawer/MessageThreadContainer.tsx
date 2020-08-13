@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 import { TextField, IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -7,11 +6,16 @@ import { MdSend } from 'react-icons/md';
 import { FaRegSmile } from 'react-icons/fa';
 import { IoIosArrowBack } from 'react-icons/io';
 
-import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
+import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/functions';
+
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
 import MessageTextField from './MessageTextField';
+import RSText from '../../../base-components/RSText';
+
+import { colors } from '../../../theme/Colors';
+import { MessageType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -21,9 +25,9 @@ const useStyles = makeStyles((_: any) => ({
     height: '100%',
   },
   headerParticipants: {
-    display: 'flex',
     justifyContent: 'center',
-    height: '25px',
+    wordWrap: 'break-word',
+    maxWidth: 315,
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',
@@ -103,15 +107,17 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: any;
-  conversation: any;
-  messages: any[];
+  conversation: ConversationType;
+  messages: MessageType[];
+  addMessage: (message: MessageType) => void;
+  addMessageErr: (tempID: number) => void;
   returnToConversations: () => void;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
-
-  const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
     scrollToBottom();
@@ -129,7 +135,11 @@ function MessageThreadContainer(props: Props) {
 
       output.push(
         props.user._id === message.sender ? (
-          <SingleSelfMessage key={message._id} user={props.user} message={message} />
+          <SingleSelfMessage
+            key={message._id || message.tempID}
+            user={props.user}
+            message={message}
+          />
         ) : (
           <SingleOtherMessage
             key={message._id}
@@ -144,11 +154,33 @@ function MessageThreadContainer(props: Props) {
     return output;
   }
 
-  function handleSendMessage(message: string) {
-    axios.post('/api/messaging/sendMessage', {
+  async function handleSendMessage(message: string) {
+    const tempID = new Date().toISOString();
+    const newMessage = {
       conversationID: props.conversation._id,
-      message: message,
-    });
+      sender: props.user._id,
+      senderName: `${props.user.firstName} ${props.user.lastName}`,
+      content: message,
+      createdAt: new Date(),
+      tempID: tempID,
+    };
+    props.addMessage(newMessage as MessageType);
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/messaging/sendMessage',
+      {
+        conversationID: props.conversation._id,
+        message: message,
+        tempID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1 && data['content']['tempID'])
+      props.addMessageErr(data['content']['tempID']);
   }
 
   function joinUserNames(users: any, delimiter: string) {
@@ -197,4 +229,15 @@ function MessageThreadContainer(props: Props) {
   );
 }
 
-export default MessageThreadContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MessageThreadContainer);

@@ -14,11 +14,12 @@ import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import Login from './login/Login';
 import ResetPassword from './login/ResetPassword';
+import SocketManager from './main-platform/SocketManager';
 
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
-import LandingNew from './landing-new/LandingNew';
+import LandingPage from './landing-new/LandingPage';
 
 import {
   Homepage,
@@ -49,6 +50,7 @@ type Props = {
 function App(props: Props) {
   return (
     <div className="App">
+      <SocketManager />
       <Router history={history}>
         <div className="wrapper">
           <Switch>
@@ -66,10 +68,8 @@ function App(props: Props) {
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
-
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
-
             <Route exact path="/home" component={Homepage} />
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
@@ -78,9 +78,9 @@ function App(props: Props) {
             <Route exact path="/community/:orgID" component={Community} />
             <Route exact path="/library" component={StreamLibrary} />
             <Route exact path="/connections" component={Connections} />
-
-            <Route exact path="/landing/new" component={LandingNew} />
-
+            // TODO: Delete '/landing/new' and redirect path to source '/' before
+            launch
+            <Route exact path="/landing/new" component={LandingPage} />
             <Route component={PageNotFound} />
           </Switch>
         </div>

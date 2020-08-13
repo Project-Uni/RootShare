@@ -1,13 +1,20 @@
 import sendPacket from '../helpers/sendPacket';
 
-const mongoose = require('mongoose');
-const User = mongoose.model('users');
+import { User } from '../models';
 
 module.exports = {
   getUserData: (callback) => {
     User.find(
       {},
-      ['firstName', 'lastName', 'createdAt', 'accountType'],
+      [
+        'firstName',
+        'lastName',
+        'createdAt',
+        'accountType',
+        'email',
+        'phoneNumber',
+        'graduationYear',
+      ],
       (err, users) => {
         if (err || users === undefined || users === null) {
           return callback(sendPacket(-1, 'Could not find users'));

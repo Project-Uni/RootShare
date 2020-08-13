@@ -1,9 +1,5 @@
-const mongoose = require('mongoose');
-const Webinar = mongoose.model('webinars');
-
-import sendPacket from '../helpers/sendPacket';
-import { USER_LEVEL } from '../types/types';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { isEventHost, isEventSpeaker } from './middleware/eventAuthentication';
 
 const {
   getOpenTokSessionID,
@@ -13,16 +9,14 @@ const {
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
-import { createEvent, getWebinarDetails } from '../interactions/streaming/event';
-
 module.exports = (app) => {
   app.post(
     '/webinar/getOpenTokSessionID',
     isAuthenticatedWithJWT,
+    isEventSpeaker,
     async (req, res) => {
       const { webinarID } = req.body;
-      const packet = await getOpenTokSessionID(webinarID);
-      res.json(packet);
+      getOpenTokSessionID(webinarID, (packet) => res.json(packet));
     }
   );
 
@@ -32,21 +26,32 @@ module.exports = (app) => {
     res.json(packet);
   });
 
-  app.post('/webinar/startStreaming', isAuthenticatedWithJWT, async (req, res) => {
-    const { webinarID } = req.body;
-    const packet = await startStreaming(webinarID);
-    res.json(packet);
-  });
+  app.post(
+    '/webinar/startStreaming',
+    isAuthenticatedWithJWT,
+    isEventHost,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      const packet = await startStreaming(webinarID);
+      res.json(packet);
+    }
+  );
 
-  app.post('/webinar/stopStreaming', isAuthenticatedWithJWT, async (req, res) => {
-    const { webinarID } = req.body;
-    const packet = await stopStreaming(webinarID);
-    res.json(packet);
-  });
+  app.post(
+    '/webinar/stopStreaming',
+    isAuthenticatedWithJWT,
+    isEventHost,
+    async (req, res) => {
+      const { webinarID } = req.body;
+      const packet = await stopStreaming(webinarID);
+      res.json(packet);
+    }
+  );
 
   app.post(
     '/webinar/changeBroadcastLayout',
     isAuthenticatedWithJWT,
+    isEventSpeaker,
     async (req, res) => {
       const { webinarID, type, streamID } = req.body;
       await changeBroadcastLayout(webinarID, type, streamID, (packet) => {

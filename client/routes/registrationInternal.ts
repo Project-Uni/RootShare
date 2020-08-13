@@ -1,5 +1,4 @@
 var passport = require('passport');
-const mongoose = require('mongoose');
 
 import { isAuthenticated } from '../passport/middleware/isAuthenticated';
 var isConfirmed = require('./middleware/isConfirmed');
@@ -17,8 +16,6 @@ var {
   completeRegistrationRequired,
   userExists,
 } = require('../interactions/registration/registration-data');
-
-var User = mongoose.model('users');
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
@@ -191,18 +188,17 @@ module.exports = (app) => {
     log('info', `User accessed secure-confirmed endpoint`);
   });
 
-
   app.post('/auth/sendPasswordReset', (req, res) => {
-    if (!req.body.email) return res.send(sendPacket(-1, 'No email to send link to'));
+    if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));
 
     sendPasswordResetLink(req.body.email, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 
   app.post('/auth/updatePassword', (req, res) => {
     updatePassword(req.body.emailToken, req.body.newPassword, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 

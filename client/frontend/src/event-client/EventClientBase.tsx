@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/makeRequest';
+import { makeRequest } from '../helpers/functions';
 
 import RSText from '../base-components/RSText';
 
@@ -16,14 +15,24 @@ import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
+import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile/EventWatcherMobile';
 
 import EventClientAdvertisement from './EventClientAdvertisement';
-import EventClientMessageContainer from './event-messages/EventMessageContainer';
+import EventMessageContainer from './event-messages/EventMessageContainer';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
 
 import { colors } from '../theme/Colors';
+import { EventType } from '../helpers/types';
+
+import socketIOClient from 'socket.io-client';
+import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
+
+const WEBINAR_CACHE_IP =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8003'
+    : 'https://cache.rootshare.io';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -38,7 +47,7 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  right: {},
+  right: { height: '100%' },
   adContainer: {
     width: '100%',
     display: 'flex',
@@ -61,6 +70,10 @@ type Props = {
 
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
+var socket: SocketIOClient.Socket;
+var speaking_token: string;
+var sessionID: string;
+
 function EventClientBase(props: Props) {
   const styles = useStyles();
 
@@ -69,7 +82,9 @@ function EventClientBase(props: Props) {
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
 
-  const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+  const [webinarData, setWebinarData] = useState<EventType | {}>({});
+
+  const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -114,7 +129,7 @@ function EventClientBase(props: Props) {
       setWebinarData(webinar);
       setTimeout(() => {
         setPageMode(webinar);
-      }, 500);
+      }, 100);
     }
   }
 
@@ -124,31 +139,104 @@ function EventClientBase(props: Props) {
     setAdLoaded(true);
   }
 
-  function setPageMode(webinar: { [key: string]: any }) {
-    if (props.user._id === webinar['host']) {
+  function setPageMode(webinar: EventType) {
+    if (props.user._id === webinar.host) {
       setEventMode('admin');
       return;
     } else {
-      for (let i = 0; i < webinar['speakers'].length; i++) {
-        if (props.user._id === webinar['speakers'][i]) {
+      for (let i = 0; i < webinar.speakers.length; i++) {
+        if (props.user._id === webinar.speakers[i]) {
           setEventMode('speaker');
           return;
         }
       }
     }
+    updateAttendeeList(webinar['_id']);
     setEventMode('viewer');
   }
 
+  function updateAttendeeList(webinarID: string) {
+    initializeSocket(webinarID);
+
+    makeRequest(
+      'POST',
+      '/api/webinar/updateAttendeeList',
+      {
+        webinarID: webinarID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
+  function initializeSocket(webinarID: string) {
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+    socket.emit('new-user', {
+      webinarID: webinarID,
+      userID: props.user._id,
+      firstName: props.user.firstName,
+      lastName: props.user.lastName,
+      email: props.user.email,
+    });
+
+    socket.on(
+      'speaking-invite',
+      (data: { speaking_token: string; sessionID: string }) => {
+        speaking_token = data.speaking_token;
+        console.log(
+          'Received invitation to speak with speaking_token:',
+          speaking_token
+        );
+        sessionID = data.sessionID;
+        setShowSpeakingInvite(true);
+      }
+    );
+
+    socket.on('speaking-revoke', () => {
+      speaking_token = '';
+      sessionID = '';
+      setEventMode('viewer');
+      alert('You have been removed as a speaker');
+    });
+
+    socket.on('speaking-token-rejected', () => {
+      alert('There was an error adding you as a speaker');
+    });
+
+    socket.on('speaking-token-accepted', () => {
+      setEventMode('speaker');
+    });
+
+    socket.on('event-started', () => {
+      alert('The event has started');
+      fetchEventInfo();
+    });
+  }
+
+  function onAcceptSpeakingInvite() {
+    socket.emit('speaking-invite-accepted', { speaking_token });
+    setShowSpeakingInvite(false);
+  }
+
+  function onRejectSpeakingInvite() {
+    socket.emit('speaking-invite-rejected');
+    setShowSpeakingInvite(false);
+  }
+
   function renderVideoArea() {
+    const currWebinarData = webinarData as EventType;
     if (eventMode === 'viewer')
       return (
-        <EventWatcherVideoContainer muxPlaybackID={webinarData.muxPlaybackID} />
+        <EventWatcherVideoContainer muxPlaybackID={currWebinarData.muxPlaybackID} />
       );
     else
       return (
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarData}
+          speaking_token={speaking_token}
+          sessionID={sessionID}
         />
       );
   }
@@ -174,22 +262,45 @@ function EventClientBase(props: Props) {
     return check;
   }
 
-  if (checkMobile()) {
-    return (
-      <div className={styles.wrapper}>
-        {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-        <HypeHeader />
-        <RSText type="subhead" size={16}>
-          The live event feature is currently not available on mobile. Please switch
-          to a desktop.
-        </RSText>
-      </div>
-    );
-  }
+  const webinarEvent = webinarData as EventType;
+  if (checkMobile())
+    if (eventMode === 'viewer')
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <EventWatcherMobile muxPlaybackID={webinarEvent.muxPlaybackID} />
+          <div className={styles.adContainer}>
+            {adLoaded && (
+              <EventClientAdvertisement
+                height={60}
+                width={window.innerWidth}
+                advertisements={advertisements}
+              />
+            )}
+          </div>
+        </div>
+      );
+    else
+      return (
+        <div className={styles.wrapper}>
+          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <HypeHeader />
+          <RSText type="subhead" size={16}>
+            Video conference feature is currently not available on mobile. Please
+            switch to a desktop.
+          </RSText>
+        </div>
+      );
 
+  const currConversationID = webinarEvent.conversation as string;
   return (
-    <div className={styles.wrapper}>
+    <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <SpeakingInviteDialog
+        open={showSpeakingInvite}
+        onReject={onRejectSpeakingInvite}
+        onAccept={onAcceptSpeakingInvite}
+      />
       <EventClientHeader minWidth={minHeaderWidth} />
       <div className={styles.body}>
         <div className={styles.left}>
@@ -207,7 +318,7 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventClientMessageContainer />
+          <EventMessageContainer conversationID={currConversationID} />
         </div>
       </div>
     </div>

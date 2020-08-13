@@ -5,8 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/makeRequest';
-import { colors } from '../../theme/Colors';
+import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -15,7 +14,7 @@ import ProfileBody from './components/ProfileBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
-} from '../../types/constants';
+} from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+concurrently "cd client; npm run startDev" "cd client/frontend; npm start" "cd webinar; npm run startDev"

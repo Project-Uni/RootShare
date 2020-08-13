@@ -1,24 +1,18 @@
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
-import axios from 'axios';
 
 const mongoose = require('mongoose');
-const User = mongoose.model('users');
-const Conversation = mongoose.model('conversations');
-const Message = mongoose.model('messages');
+
+import { Conversation, Message } from '../models';
 
 module.exports = {
   createThread: (req, io, callback) => {
-    const { message, recipients } = req.body;
+    const { message, tempID, recipients } = req.body;
     const { _id: userID, firstName } = req.user;
 
-    if (recipients === undefined)
-      return callback(sendPacket(-1, 'Could not find conversation'));
-
     let newConversation = new Conversation();
-    newConversation.participants = recipients;
-    newConversation.participants.push(userID);
-    newConversation.timeCreated = new Date();
+    newConversation.participants = module.exports.fixRecipients(recipients, userID);
+
     newConversation.save((err, conversation) => {
       if (err) {
         log('error', err);
@@ -33,10 +27,26 @@ module.exports = {
         firstName,
         conversationID,
         message,
+        tempID,
         io,
         callback
       );
     });
+  },
+
+  fixRecipients: (recipients, userID) => {
+    if (recipients === undefined) return [];
+
+    let hasSelf = false;
+    for (let i = 0; i < recipients.length; i++) {
+      if (recipients[i].localeCompare(userID) === 0) {
+        hasSelf = true;
+        break;
+      }
+    }
+
+    if (!hasSelf) return recipients.concat(userID);
+    return recipients;
   },
 
   removeConversation: (conversationID, callback) => {
@@ -46,11 +56,11 @@ module.exports = {
     });
   },
 
-  sendMessage: (userID, userName, conversationID, message, io, callback) => {
+  sendMessage: (userID, userName, conversationID, message, tempID, io, callback) => {
     Conversation.findById(conversationID, (err, currConversation) => {
       if (err || conversationID === undefined || currConversation === null) {
         log('error', err);
-        return callback(sendPacket(-1, 'Could not find conversation'));
+        return callback(sendPacket(-1, 'Could not find conversation', { tempID }));
       }
 
       let newMessage = new Message();
@@ -58,11 +68,12 @@ module.exports = {
       newMessage.sender = userID;
       newMessage.senderName = userName;
       newMessage.content = message;
-      newMessage.timeCreated = new Date();
       newMessage.save((err) => {
         if (err) {
           log('error', err);
-          return callback(sendPacket(-1, 'There was an error saving the message'));
+          return callback(
+            sendPacket(-1, 'There was an error saving the message', { tempID })
+          );
         }
 
         let isNewConversation = false;
@@ -73,7 +84,7 @@ module.exports = {
           if (err) {
             log('error', err);
             return callback(
-              sendPacket(1, 'There was an error updating the conversation')
+              sendPacket(-1, 'There was an error updating the conversation')
             );
           }
 
@@ -90,9 +101,13 @@ module.exports = {
               );
             });
           }
+
+          let jsonNewMessage = newMessage.toObject();
+          jsonNewMessage.tempID = tempID;
+
           io.in(`CONVERSATION_${newMessage.conversationID}`).emit(
             'newMessage',
-            newMessage
+            jsonNewMessage
           );
           return callback(sendPacket(1, 'Message sent', { currConversation }));
         });
@@ -102,14 +117,13 @@ module.exports = {
 
   getLatestThreads: async (userID, callback) => {
     function timeStampCompare(ObjectA, ObjectB) {
-      const a =
-        ObjectA.lastMessage !== undefined
-          ? ObjectA.lastMessage.timeCreated
-          : ObjectA.timeCreated;
-      const b =
-        ObjectB.lastMessage !== undefined
-          ? ObjectB.lastMessage.timeCreated
-          : ObjectB.timeCreated;
+      const a = !ObjectA.lastMessage
+        ? ObjectA.createdAt
+        : ObjectA.lastMessage.createdAt;
+
+      const b = !ObjectB.lastMessage
+        ? ObjectB.createdAt
+        : ObjectB.lastMessage.createdAt;
 
       if (a < b) return 1;
       if (b < a) return -1;
@@ -120,7 +134,7 @@ module.exports = {
       participants: userID,
     })
       .populate('lastMessage')
-      .populate('participants');
+      .populate('participants', '_id firstName lastName');
 
     if (userConversations === undefined || userConversations === null)
       return callback(
@@ -131,32 +145,82 @@ module.exports = {
     callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
   },
 
-  getLatestMessages: async (userID, conversationID, callback) => {
-    Conversation.findById(conversationID, (err, conversation) => {
-      if (err || conversation === undefined || conversation === null) {
+  getLatestMessages: async (userID, conversationID, maxMessages = 200, callback) => {
+    Conversation.findById(conversationID, async (err, conversation) => {
+      if (err) {
         log('error', err);
-        return callback(sendPacket(-1, 'Could not find Conversation'));
+        return callback(sendPacket(-1, err));
       }
+      if (!conversation)
+        return callback(sendPacket(0, 'Could not find Conversation'));
 
-      Message.find(
-        { conversationID },
-        ['sender', 'senderName', 'content', 'timeCreated'],
-        (err, messages) => {
-          if (err || messages === undefined || messages === null) {
-            log('error', err);
-            return callback(sendPacket(-1, 'Could not find Messages'));
-          }
-
-          return callback(
+      Message.aggregate([
+        { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
+        { $sort: { createdAt: -1 } },
+        { $limit: maxMessages },
+        { $sort: { createdAt: 1 } },
+        {
+          $project: {
+            numLikes: { $size: '$likes' },
+            liked: { $in: [mongoose.Types.ObjectId(userID), '$likes'] },
+            conversationID: '$conversationID',
+            senderName: '$senderName',
+            sender: '$sender',
+            content: '$content',
+            createdAt: '$createdAt',
+          },
+        },
+      ])
+        .exec()
+        .then((messages) => {
+          if (!messages) return callback(sendPacket(-1, 'Could not find Messages'));
+          callback(
             sendPacket(1, 'Sending Conversation and Messages', {
               conversation,
               messages,
             })
           );
-        }
-      ).sort({ timeCreated: 'ascending' });
+        })
+        .catch((err) => callback(sendPacket(-1, err)));
     });
   },
+
+  updateLike: (userID, messageID, liked, io, callback) => {
+    Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!message)
+        return callback(sendPacket(-1, 'Could not find message to like'));
+
+      const alreadyLiked = message.likes.includes(userID);
+
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
+        message.likes.splice(message.likes.indexOf(userID), 1);
+
+      message.save((err, message) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!message)
+          return callback(sendPacket(-1, 'There was an error saving the like'));
+
+        io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
+          messageID: message._id,
+          numLikes: message.likes.length,
+        });
+        callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
+      });
+    });
+  },
+
+  getLiked: (userID, messageID, callback) => {
+    Message.findById(messageID, ['content', 'likes'], (err, message) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!message) return callback(sendPacket(-1, 'Could not find message'));
+
+      const liked = message.likes.includes(userID);
+      callback(sendPacket(1, 'Sending liked value', { liked: liked }));
+    });
+  },
+
   connectSocketToConversations: (socket, conversations) => {
     conversations.forEach((conversation) => {
       socket.join(`CONVERSATION_${conversation._id}`);

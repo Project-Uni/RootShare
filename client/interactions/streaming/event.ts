@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
-const Webinar = mongoose.model('webinars');
-const User = mongoose.model('users');
+import { Webinar, Conversation, User } from '../../models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
 
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
-const { createNewOpenTokSession } = require('./opentok');
 import { formatTime, formatDate } from '../../helpers/dateFormat';
 
 let ses = new aws.SES({
@@ -21,26 +19,33 @@ export async function createEvent(
 ) {
   if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
 
-  const newWebinar = new Webinar({
-    title: eventBody['title'],
-    brief_description: eventBody['brief_description'],
-    full_description: eventBody['full_description'],
-    host: eventBody['host']['_id'],
-    speakers: eventBody['speakers'],
-    dateTime: eventBody['dateTime'],
+  const newEventConversation = new Conversation({
+    participants: [],
   });
+  newEventConversation.save((err, conversation) => {
+    if (err || conversation === undefined || conversation === null)
+      return callback(sendPacket(-1, 'Failed to create event conversation'));
 
-  newWebinar.save((err, webinar) => {
-    if (err) return callback(sendPacket(0, 'Failed to create webinar'));
-    const createdOpenTokSession = createNewOpenTokSession(webinar);
-    if (createdOpenTokSession) {
+    const newWebinar = new Webinar({
+      title: eventBody['title'],
+      brief_description: eventBody['brief_description'],
+      full_description: eventBody['full_description'],
+      host: eventBody['host']['_id'],
+      speakers: eventBody['speakers'],
+      dateTime: eventBody['dateTime'],
+      conversation: newEventConversation._id,
+    });
+    newWebinar.save((err, webinar) => {
+      if (err || webinar === undefined || webinar === null)
+        return callback(sendPacket(-1, 'Failed to create webinar'));
+
       callback(sendPacket(1, 'Successfully created webinar', webinar));
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
         eventBody['host']['email']
       );
-    } else callback(sendPacket(1, 'Failed to create OpenTok Session'));
+    });
   });
 }
 
@@ -54,6 +59,14 @@ function updateEvent(eventBody, callback) {
     webinar.host = eventBody['host']['_id'];
     webinar.speakers = eventBody['speakers'];
     webinar.dateTime = eventBody['dateTime'];
+
+    if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000) {
+      webinar.opentokSessionID = undefined;
+      webinar.opentokBroadcastID = undefined;
+      webinar.muxStreamKey = undefined;
+      webinar.muxLiveStreamID = undefined;
+      webinar.muxPlaybackID = undefined;
+    }
 
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
@@ -77,50 +90,185 @@ export function timeStampCompare(ObjectA, ObjectB) {
   return 0;
 }
 
-export async function getAllEvents(callback) {
-  const webinars = await Webinar.find()
-    .populate('host', 'firstName lastName email')
-    .populate('speakers', 'firstName lastName email');
+export async function getAllEventsAdmin(callback) {
+  Webinar.aggregate([
+    { $match: { dateTime: { $gt: new Date() } } },
+    { $sort: { createdAt: 1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'host',
+        foreignField: '_id',
+        as: 'host',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'speakers',
+        foreignField: '_id',
+        as: 'speakers',
+      },
+    },
+    { $unwind: '$host' },
+    {
+      $addFields: {
+        speakers: {
+          $map: {
+            input: '$speakers',
+            in: {
+              _id: '$$this._id',
+              firstName: '$$this.firstName',
+              lastName: '$$this.lastName',
+              email: '$$this.email',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        host: {
+          _id: '$host._id',
+          firstName: '$host.firstName',
+          lastName: '$host.lastName',
+          email: '$host.email',
+        },
+        speakers: '$speakers',
+        title: '$title',
+        brief_description: '$brief_description',
+        full_description: '$full_description',
+        dateTime: '$dateTime',
+      },
+    },
+  ])
+    .exec()
+    .then((webinars) => {
+      if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
+      callback(
+        sendPacket(1, 'Sending Events', {
+          webinars,
+        })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
 
-  if (!webinars) return callback(sendPacket(-1, 'Could not retrieve events'));
+export async function getAllEventsUser(userID, callback) {
+  Webinar.aggregate([
+    { $match: { dateTime: { $gt: new Date() } } },
+    { $sort: { createdAt: 1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'host',
+        foreignField: '_id',
+        as: 'host',
+      },
+    },
+    { $unwind: '$host' },
+    {
+      $project: {
+        userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
+        host: {
+          _id: '$host._id',
+          firstName: '$host.firstName',
+          lastName: '$host.lastName',
+        },
+        title: '$title',
+        brief_description: '$brief_description',
+        full_description: '$full_description',
+        availableCommunities: '$availableCommunities',
+        conversation: '$conversation',
+        dateTime: '$dateTime',
+      },
+    },
+  ])
+    .exec()
+    .then((webinars) => {
+      if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
 
-  webinars.sort(timeStampCompare);
-  const upcoming = webinars.filter((webinar) => webinar.dateTime > new Date());
-  return callback(sendPacket(1, 'Sending back all events', { webinars: upcoming }));
+      return addUserRSVP(userID, webinars, callback);
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
+
+function addUserRSVP(userID, webinars, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    { $project: { RSVPWebinars: '$RSVPWebinars' } },
+  ])
+    .exec()
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(-1, 'Could not find User'));
+      let RSVPWebinars = users[0].RSVPWebinars;
+      for (let i = 0; i < RSVPWebinars.length; i++) {
+        RSVPWebinars[i] = RSVPWebinars[i].toString();
+      }
+      webinars.forEach((webinar) => {
+        webinar.userRSVP =
+          RSVPWebinars && RSVPWebinars.includes(webinar._id.toString());
+      });
+
+      return callback(sendPacket(1, 'Sending Events', { webinars }));
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export async function getWebinarDetails(userID, webinarID, callback) {
-  Webinar.findById(webinarID, (err, webinar) => {
-    if (err) {
-      log('error', err);
-      return callback(sendPacket(-1, 'There was an error finding webinar'));
-    } else if (!webinar || webinar === undefined || webinar == null) {
-      return callback(sendPacket(0, 'No webinar exists with this ID'));
-    }
+  Webinar.findById(
+    webinarID,
+    [
+      'title',
+      'brief_description',
+      'full_description',
+      'host',
+      'speakers',
+      'dateTime',
+      'conversation',
+      'muxPlaybackID',
+    ],
+    (err, webinar) => {
+      if (err) {
+        log('error', err);
+        return callback(sendPacket(-1, 'There was an error finding webinar'));
+      } else if (!webinar || webinar === undefined || webinar == null) {
+        return callback(sendPacket(0, 'No webinar exists with this ID'));
+      }
 
-    if (checkUserIsSpeaker(userID, webinar))
-      return callback(
-        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
-      );
-    else {
-      webinar.opentokSessionID = undefined;
-      webinar.opentokBroadcastID = undefined;
-      webinar.muxStreamKey = undefined;
-      webinar.muxLiveStreamID = undefined;
       return callback(
         sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
       );
     }
-  });
+  );
 }
 
-function checkUserIsSpeaker(userID, webinar) {
-  if (userID === webinar.host) return;
-  webinar.speakers.forEach((speaker) => {
-    if (userID === speaker) return true;
-  });
+export function updateRSVP(userID, webinarID, didRSVP, callback) {
+  User.findById(userID, ['RSVPWebinars'], (err, user) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!user)
+      return callback(sendPacket(-1, 'Could not find user to RSVP to the webinar'));
 
-  return false;
+    let RSVPWebinars = formatElementsToStrings(user.RSVPWebinars);
+    const alreadyRSVPUser = RSVPWebinars.includes(webinarID);
+
+    if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
+    else if (!didRSVP && alreadyRSVPUser)
+      user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
+
+    user.save((err, user) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!user)
+        return callback(sendPacket(-1, 'Could not save user RSVP to the webinar'));
+
+      callback(
+        sendPacket(1, 'Updated RSVP state', {
+          newRSVP: didRSVP,
+        })
+      );
+    });
+  });
 }
 
 function sendEventEmailConfirmation(
@@ -182,4 +330,13 @@ function sendEventEmailConfirmation(
     .catch((err) => {
       log('error', err);
     });
+}
+
+function formatElementsToStrings(array) {
+  let newArray = [];
+  array.forEach((element) => {
+    newArray.push(element.toString());
+  });
+
+  return newArray;
 }

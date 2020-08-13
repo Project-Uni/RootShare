@@ -39,7 +39,7 @@ const MIN_WIDTH = 1345;
 
 type Props = {};
 
-function LandingNew(props: Props) {
+function LandingPage(props: Props) {
   const styles = useStyles();
   const [desktopMode, setDesktopMode] = useState(window.innerWidth >= MIN_WIDTH);
   const [height, setHeight] = useState(
@@ -78,4 +78,4 @@ function LandingNew(props: Props) {
   );
 }
 
-export default LandingNew;
+export default LandingPage;

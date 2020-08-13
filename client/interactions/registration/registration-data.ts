@@ -1,13 +1,12 @@
-var mongoose = require('mongoose');
-var User = mongoose.model('users');
-var University = mongoose.model('universities');
+import { User, University } from '../../models';
+
 import log from '../../helpers/logger';
 import sendPacket from '../../helpers/sendPacket';
 
 module.exports = {
   completeRegistrationDetails: async (userData, email) => {
     const user = await User.findOne({ email: email });
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
       return sendPacket(0, 'Unable to find user.');
     }
@@ -39,7 +38,7 @@ module.exports = {
   completeRegistrationRequired: async (userData, email) => {
     const user = await User.findOne({ email: email });
 
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
       return sendPacket(0, 'Unable to find user.');
     }
@@ -72,7 +71,7 @@ module.exports = {
   userExists: async (email) => {
     let user = await User.findOne({ email: email });
 
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       return false;
     } else {
       return true;
