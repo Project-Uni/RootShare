@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Stepper, Step, StepLabel } from '@material-ui/core';
 
@@ -45,7 +49,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function HypeRegistration(props: Props) {
   const styles = useStyles();
@@ -233,6 +241,25 @@ function HypeRegistration(props: Props) {
           return;
         }
 
+        const {
+          _id,
+          email,
+          accessToken,
+          refreshToken,
+          privilegeLevel,
+          accountType,
+        } = data['content'];
+        props.updateUser({
+          firstName,
+          lastName,
+          _id,
+          email,
+          privilegeLevel,
+          accountType,
+        });
+        props.updateAccessToken(accessToken);
+        props.updateRefreshToken(refreshToken);
+
         const newStep = currentStep + 1;
         setCurrentStep(newStep);
       }
@@ -240,7 +267,7 @@ function HypeRegistration(props: Props) {
   }
 
   function handleStep3NextButtonClick() {
-    window.location.href = '/profile/initialize';
+    window.location.href = '/register/initialize';
   }
 
   function getStepContent(step: Number) {
@@ -341,7 +368,7 @@ function HypeRegistration(props: Props) {
               <GoogleButton />
             </div> */}
             <div className={styles.googleDiv}>
-              <LinkedInButton />
+              <LinkedInButton message={'Register With LinkedIn'} />
             </div>
             <RSText
               type="other"
@@ -362,4 +389,22 @@ function HypeRegistration(props: Props) {
   );
 }
 
-export default HypeRegistration;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeRegistration);
