@@ -18,7 +18,10 @@ module.exports = (passport) => {
       {
         clientID: LINKEDIN_KEY,
         clientSecret: LINKEDIN_SECRET,
-        callbackURL: 'https://rootshare.io/auth/callback/linkedin',
+        callbackURL:
+          process.env.NODE_ENV === 'dev'
+            ? '/auth/callback/linkedin'
+            : 'https://rootshare.io/auth/callback/linkedin',
         scope: ['r_emailaddress', 'r_liteprofile'],
         state: true,
       },
