@@ -102,6 +102,7 @@ const useStyles = makeStyles((_: any) => ({
     color: 'grey',
     marginBottom: 18,
     paddingRight: 1,
+    visibility: 'hidden',
   },
 }));
 
