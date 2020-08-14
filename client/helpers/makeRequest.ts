@@ -1,5 +1,6 @@
 import axios from 'axios';
 import log from './logger';
+import { JWT_TOKEN_FIELDS } from '../types/types';
 
 type Config = {
   headers: {
@@ -16,7 +17,7 @@ function getServerPath(serverName: string) {
   else if (serverName === 'webinarCache')
     return process.env.NODE_ENV === 'dev'
       ? 'http://localhost:8003'
-      : 'http://3.135.226.61:8003';
+      : 'https://cache.rootshare.io';
   else return 'ERROR';
 }
 
@@ -41,7 +42,15 @@ export default function makeRequest(
       Authorization: `Bearer ${accessToken}`,
     },
   };
-  if (user) config.headers.user = JSON.stringify(user);
+  if (user) {
+    if (user) {
+      const userWithJWTFields = {};
+      for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++) {
+        userWithJWTFields[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
+      }
+      config.headers.user = JSON.stringify(userWithJWTFields);
+    }
+  }
 
   if (method == 'GET') {
     return axios

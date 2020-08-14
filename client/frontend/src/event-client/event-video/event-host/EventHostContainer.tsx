@@ -137,6 +137,10 @@ function EventHostContainer(props: Props) {
           props.accessToken,
           props.refreshToken
         );
+        if (!streamStarted) {
+          alert('There was an error starting the stream. Please try again.');
+          return;
+        }
         if (streamStarted && someoneSharingScreen !== '') {
           changeBroadcastLayout(
             'horizontalPresentation',
@@ -290,6 +294,10 @@ function EventHostContainer(props: Props) {
               updateVideoElements,
               screenShareTearDown
             );
+            if (!publisher) {
+              alert(`Couldn't add video to the session. Please try again.`);
+              return new Publisher();
+            }
 
             session.publish(publisher, (err) => {
               if (err) return log('error', err.message);

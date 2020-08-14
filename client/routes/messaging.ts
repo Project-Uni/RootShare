@@ -1,4 +1,3 @@
-import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -33,26 +32,25 @@ module.exports = (app, io) => {
   app.post('/api/messaging/sendMessage', isAuthenticatedWithJWT, (req, res) => {
     sendMessage(
       req.user._id,
-      `${req.user.firstName} ${req.user.lastName}`,
       req.body.conversationID,
       req.body.message,
       req.body.tempID,
       io,
       (packet) => {
-        res.send(packet);
+        res.json(packet);
       }
     );
   });
 
   app.post('/api/messaging/createThread', isAuthenticatedWithJWT, (req, res) => {
     createThread(req, io, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 
   app.get('/api/messaging/getLatestThreads', isAuthenticatedWithJWT, (req, res) => {
     getLatestThreads(req.user._id, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 
@@ -65,7 +63,7 @@ module.exports = (app, io) => {
         req.body.conversationID,
         req.body.maxMessages,
         (packet) => {
-          res.send(packet);
+          res.json(packet);
         }
       );
     }
@@ -73,13 +71,13 @@ module.exports = (app, io) => {
 
   app.post('/api/messaging/updateLike', isAuthenticatedWithJWT, (req, res) => {
     updateLike(req.user._id, req.body.messageID, req.body.liked, io, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 
   app.post('/api/messaging/getLiked', isAuthenticatedWithJWT, (req, res) => {
     getLiked(req.user._id, req.body.conversationID, (packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 };

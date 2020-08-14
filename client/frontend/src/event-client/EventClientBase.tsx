@@ -21,10 +21,10 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import SampleEventAd from '../images/sample_event_ad.png';
-import SampleAd2 from '../images/sampleAd2.png';
+import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
 
 import { colors } from '../theme/Colors';
+import { EventType } from '../helpers/types';
 
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
@@ -32,7 +32,7 @@ import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitation
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8003'
-    : 'http://3.135.226.61:8003';
+    : 'https://cache.rootshare.io';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -83,7 +83,7 @@ function EventClientBase(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
-  const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
+  const [webinarData, setWebinarData] = useState<EventType | {}>({});
 
   const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
@@ -135,18 +135,18 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds() {
-    const ads = [SampleEventAd, SampleAd2];
+    const ads = [BabyBoilersBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
 
-  function setPageMode(webinar: { [key: string]: any }) {
-    if (props.user._id === webinar['host']) {
+  function setPageMode(webinar: EventType) {
+    if (props.user._id === webinar.host) {
       setEventMode('admin');
       return;
     } else {
-      for (let i = 0; i < webinar['speakers'].length; i++) {
-        if (props.user._id === webinar['speakers'][i]) {
+      for (let i = 0; i < webinar.speakers.length; i++) {
+        if (props.user._id === webinar.speakers[i]) {
           setEventMode('speaker');
           return;
         }
@@ -213,6 +213,10 @@ function EventClientBase(props: Props) {
       alert('The event has started');
       fetchEventInfo();
     });
+
+    socket.on('removed-from-event', () => {
+      window.location.href = '/';
+    });
   }
 
   function onAcceptSpeakingInvite() {
@@ -230,9 +234,10 @@ function EventClientBase(props: Props) {
   }
 
   function renderVideoArea() {
+    const currWebinarData = webinarData as EventType;
     if (eventMode === 'viewer')
       return (
-        <EventWatcherVideoContainer muxPlaybackID={webinarData.muxPlaybackID} />
+        <EventWatcherVideoContainer muxPlaybackID={currWebinarData.muxPlaybackID} />
       );
     else
       return (
@@ -271,8 +276,7 @@ function EventClientBase(props: Props) {
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-
-          <EventWatcherMobile muxPlaybackID={webinarData.muxPlaybackID} />
+          <EventWatcherMobile muxPlaybackID={webinarEvent.muxPlaybackID} />
           <div className={styles.adContainer}>
             {adLoaded && (
               <EventClientAdvertisement
@@ -297,6 +301,7 @@ function EventClientBase(props: Props) {
       );
   }
 
+  const currConversationID = webinarEvent.conversation as string;
   return (
     <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
@@ -327,7 +332,11 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventMessageContainer conversationID={webinarData.conversation} />
+          <EventMessageContainer
+            conversationID={currConversationID}
+            isHost={eventMode === 'admin'}
+            webinarID={(webinarData as EventType)._id}
+          />
         </div>
       </div>
     </div>

@@ -10,6 +10,8 @@ import { makeRequest } from '../helpers/functions';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
+import LinkedInButton from '../hype-page/hype-registration/LinkedInButton';
+import { colors } from '../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -28,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     marginBottom: 20,
     height: 40,
-    background: 'rgb(30, 67, 201)',
+    background: colors.primary,
     color: 'white',
     '&:hover': {
       background: 'lightblue',
@@ -38,6 +40,11 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
     },
+  },
+  linkedinWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
 }));
 
@@ -61,7 +68,8 @@ function Login(props: Props) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/';
+  const redirectUrl =
+    query && query[1] !== '/login' ? query[1] : '/event/5f30b4488e8fb07262044e9f';
 
   useEffect(() => {
     checkAuth();
@@ -164,6 +172,9 @@ function Login(props: Props) {
           >
             Login
           </Button>
+          <div className={styles.linkedinWrapper}>
+            <LinkedInButton message={'Login With LinkedIn'} width={300} />
+          </div>
           <Link
             href={undefined}
             className={styles.forgotPassword}

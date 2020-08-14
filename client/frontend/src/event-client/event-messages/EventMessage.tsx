@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { IconButton, Menu, MenuItem } from '@material-ui/core';
-import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
 
-import { makeRequest } from '../../helpers/functions';
+import { makeStyles } from '@material-ui/core/styles';
+import { Slide, Menu, MenuItem } from '@material-ui/core';
+import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { MessageType } from '../../helpers/types';
-import { getConversationTime } from '../../helpers/functions';
+import { makeRequest, getConversationTime } from '../../helpers/functions';
 
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
-
-const options = ['Connect', 'Cancel'];
+import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
 
 const ITEM_HEIGHT = 48;
 
@@ -101,10 +100,10 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   message: MessageType;
-  handleConnect?: (userID: string) => boolean;
-  connected?: boolean;
   accessToken: string;
   refreshToken: string;
+  isHost?: boolean;
+  handleRemoveUser?: (userID: string) => Promise<-1 | 0 | 1>;
 };
 
 function EventMessage(props: Props) {
@@ -112,6 +111,11 @@ function EventMessage(props: Props) {
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
   const [loadingLike, setLoadingLike] = useState(false);
   const open = Boolean(anchorEl);
 
@@ -158,29 +162,82 @@ function EventMessage(props: Props) {
     setAnchorEl(null);
   }
 
-  function handleConnect() {
-    const sender = props.message.sender as string;
-    props.handleConnect && props.handleConnect(sender);
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
+  async function handleConnect() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestID: props.message.sender as string,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     setAnchorEl(null);
+
+    if (data['success'] === 1) setSnackbarMode('success');
+    else if (data['success'] === 0) setSnackbarMode('notify');
+    else setSnackbarMode('error');
+
+    setSnackbarMessage(data['message']);
+    setTransition(() => slideLeft);
+  }
+
+  async function handleRemoveUser() {
+    setAnchorEl(null);
+    if (
+      !window.confirm('Are you sure you want to remove this user from the stream?')
+    )
+      return;
+
+    if (props.handleRemoveUser) {
+      const success = await props.handleRemoveUser(props.message.sender as string);
+
+      if (success === 1) {
+        setSnackbarMode('notify');
+        setSnackbarMessage('Successfully removed user from stream');
+        setTransition(() => slideLeft);
+      } else if (success == 0) {
+        setSnackbarMode('notify');
+        setSnackbarMessage('User has already left the event');
+        setTransition(() => slideLeft);
+      } else {
+        setSnackbarMode('error');
+        setSnackbarMessage(
+          'There was an error trying to remove this user. Please try again'
+        );
+        setTransition(() => slideLeft);
+      }
+    }
   }
 
   function renderOptions() {
-    const output = [];
-    for (let i = 0; i < options.length; i++) {
-      output.push(
-        <MenuItem
-          key={options[i]}
-          onClick={options[i] === 'Cancel' ? handleClose : handleConnect}
-        >
-          {options[i]}
-        </MenuItem>
-      );
-    }
-    return output;
+    return (
+      <div>
+        <MenuItem onClick={handleConnect}>Connect</MenuItem>
+        {props.isHost && (
+          <MenuItem onClick={handleRemoveUser}>
+            <RSText color={colors.brightError} size={12}>
+              Remove
+            </RSText>
+          </MenuItem>
+        )}
+      </div>
+    );
   }
 
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <div className={styles.left}>
         <div className={styles.top}>
           <RSText bold className={styles.senderName}>

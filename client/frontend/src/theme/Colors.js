@@ -7,6 +7,7 @@ const colors = {
   secondaryText: '#6D738E', // Light-Grey
   error: '#440C16', // Dark Red
   brightError: '#900C1C', // Red
+  success: '#4BB543', // Green
 
   // DARK TO LIGHT COLOR PALETTE BELOW
 

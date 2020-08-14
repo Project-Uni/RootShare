@@ -19,6 +19,8 @@ import SocketManager from './main-platform/SocketManager';
 import UserCount from './admin-utility/UserCount';
 import AdminEventCreator from './admin-utility/AdminEventCreator';
 
+import LandingPage from './landing-page/LandingPage';
+
 import {
   Homepage,
   Discover,
@@ -52,24 +54,27 @@ function App(props: Props) {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
+            {/* <Route exact path="/" component={LandingPage} /> */}
             <Route exact path="/" component={HypeLanding} />
             <Route
               exact
-              path="/profile/externalRegister"
+              path="/register/external"
               component={HypeExternalMissingInfo}
             />
-            <Route exact path="/profile/initialize" component={HypeAdditionalInfo} />
             <Route
               exact
-              path="/profile/resetPassword/:emailtoken"
+              path="/register/initialize"
+              component={HypeAdditionalInfo}
+            />
+            <Route
+              exact
+              path="/register/resetPassword/:emailtoken"
               component={ResetPassword}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
-
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
-
             <Route exact path="/home" component={Homepage} />
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />

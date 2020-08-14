@@ -17,8 +17,8 @@ let ses = new aws.SES({
 export function updatePassword(emailToken, newPassword, callback) {
   let emailAddress = convertTokenToEmail(emailToken);
   User.findOne({ email: emailAddress }, (err, currUser) => {
-    if (err || currUser === undefined || currUser === null)
-      return callback(sendPacket(-1, 'User code invalid'));
+    if (err) return callback(-1, err);
+    if (!currUser) return callback(sendPacket(0, 'User code invalid'));
 
     currUser.hashedPassword = createHash(newPassword);
     currUser.save(function (err) {
@@ -34,7 +34,7 @@ export function sendPasswordResetLink(emailAddress, callback) {
       return callback(sendPacket(0, "Can't reset password for this email"));
 
     const emailToken = convertEmailToToken(emailAddress);
-    const resetPasswordLink = `https://rootshare.io/profile/resetPassword/${emailToken}`;
+    const resetPasswordLink = `https://rootshare.io/register/resetPassword/${emailToken}`;
     const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
 
     var params = {

@@ -45,7 +45,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 const server = http.createServer(app);
 const io = socketIO(server);

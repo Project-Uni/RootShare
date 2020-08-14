@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useEffect } from 'react';
+import queryString from 'query-string';
+import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+
+import { makeStyles } from '@material-ui/core/styles';
 import {
   FormControl,
   MenuItem,
@@ -7,65 +11,72 @@ import {
   InputLabel,
   FormHelperText,
   Button,
-} from "@material-ui/core";
+} from '@material-ui/core';
 
-import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { makeRequest } from '../../helpers/functions';
 
-import HypeHeader from "../headerFooter/HypeHeader";
-import HypeFooter from "../headerFooter/HypeFooter";
-import HypeCard from "../hype-card/HypeCard";
-import UniversityAutocomplete from "../hype-registration/UniversityAutocomplete";
+import HypeHeader from '../headerFooter/HypeHeader';
+import HypeFooter from '../headerFooter/HypeFooter';
+import HypeCard from '../hype-card/HypeCard';
+import UniversityAutocomplete from '../hype-registration/UniversityAutocomplete';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
   },
   tabDesc: {
-    fontSize: "13pt",
-    margin: "0px",
-    fontWeight: "bold",
-    fontfamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
-    marginTop: "20px",
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
+    marginTop: '20px',
   },
   autocompleteDiv: {
-    marginLeft: "25px",
-    marginTop: "20px",
+    marginLeft: '25px',
+    marginTop: '20px',
   },
   universityStanding: {
-    fontSize: "13pt",
-    margin: "0px",
-    fontWeight: "bold",
-    fontfamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
     marginTop: -15,
   },
   selectDiv: {
-    display: "flex",
-    justifyContent: "left",
-    marginLeft: "25px",
+    display: 'flex',
+    justifyContent: 'left',
+    marginLeft: '25px',
   },
   statusField: {
-    width: "200px",
-    marginTop: "20px",
-    marginBottom: "20px",
+    width: '200px',
+    marginTop: '20px',
+    marginBottom: '20px',
   },
   buttonDiv: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginLeft: "20px",
-    marginRight: "20px",
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginLeft: '20px',
+    marginRight: '20px',
   },
 }));
 
-type Props = {};
+type Props = {
+  location: any;
+
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
@@ -73,20 +84,48 @@ function HypeExternalMissingInfo(props: Props) {
   const [landingRedirect, setLandingRedirect] = useState(false);
   const [additionalRedirect, setAdditionalRedirect] = useState(false);
 
-  const [university, setUniversity] = useState("Purdue");
-  const [standing, setStanding] = useState("");
-  const [universityErr, setUniversityErr] = useState("");
-  const [standingErr, setStandingErr] = useState("");
+  const [university, setUniversity] = useState('Purdue');
+  const [standing, setStanding] = useState('');
+  const [universityErr, setUniversityErr] = useState('');
+  const [standingErr, setStandingErr] = useState('');
 
-  async function getCurrentUser() {
-    const { data } = await axios.get("/auth/curr-user/load");
-    if (data["success"] === 1) {
-      if (data["content"]["externalComplete"]) setAdditionalRedirect(true);
+  const values = queryString.parse(props.location.search);
+  const accessToken = values.accessToken as string;
+  const refreshToken = values.refreshToken as string;
+
+  async function checkCompletedRegistration() {
+    const { data } = await makeRequest(
+      'POST',
+      '/auth/getRegistrationInfo',
+      {},
+      true,
+      accessToken,
+      refreshToken
+    );
+    if (data['success'] === 1) {
+      if (data['content']['externalComplete']) setAdditionalRedirect(true);
+    } else setLandingRedirect(true);
+  }
+
+  async function checkAuth() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      accessToken,
+      refreshToken
+    );
+    if (data['success'] === 1) {
+      props.updateUser({ ...data['content'] });
+      props.updateAccessToken(accessToken);
+      props.updateRefreshToken(refreshToken);
     } else setLandingRedirect(true);
   }
 
   useEffect(() => {
-    getCurrentUser();
+    checkAuth();
+    checkCompletedRegistration();
   }, []);
 
   function handleUniversityChange(event: any) {
@@ -95,7 +134,7 @@ function HypeExternalMissingInfo(props: Props) {
 
   function handleUniversityAutocompleteChange(_: any, newValue: any) {
     if (newValue === null) {
-      setUniversity("");
+      setUniversity('');
     } else setUniversity(newValue);
   }
 
@@ -109,26 +148,30 @@ function HypeExternalMissingInfo(props: Props) {
     setTimeout(async () => {
       setLoading(false);
       if (standing.length === 0) {
-        setStandingErr("Standing is required");
+        setStandingErr('Standing is required');
         hasErr = true;
-      } else setStandingErr("");
+      } else setStandingErr('');
 
       if (university.length === 0) {
-        setUniversityErr("University is required");
+        setUniversityErr('University is required');
         hasErr = true;
-      } else setUniversityErr("");
+      } else setUniversityErr('');
 
       if (hasErr) return;
 
-      const { data } = await axios.post(
-        "/auth/complete-registration/required",
+      const { data } = await makeRequest(
+        'POST',
+        '/auth/complete-registration/required',
         {
           university: university,
           accountType: standing,
-        }
+        },
+        true,
+        accessToken,
+        refreshToken
       );
       if (data.success === 1) {
-        window.location.href = "/profile/initialize";
+        window.location.href = '/register/initialize';
       }
     }, 1000);
   }
@@ -141,14 +184,10 @@ function HypeExternalMissingInfo(props: Props) {
           <FormControl
             variant="outlined"
             className={styles.statusField}
-            error={standingErr !== ""}
+            error={standingErr !== ''}
           >
             <InputLabel>Standing</InputLabel>
-            <Select
-              value={standing}
-              onChange={handleStandingChange}
-              label="Age"
-            >
+            <Select value={standing} onChange={handleStandingChange} label="Age">
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="alumni">Alumni</MenuItem>
               <MenuItem value="faculty">Faculty</MenuItem>
@@ -164,7 +203,7 @@ function HypeExternalMissingInfo(props: Props) {
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
-      {additionalRedirect && <Redirect to="/profile/initialize" />}
+      {additionalRedirect && <Redirect to="/register/initialize" />}
       <HypeHeader />
       <div className={styles.body}>
         <HypeCard
@@ -201,4 +240,22 @@ function HypeExternalMissingInfo(props: Props) {
   );
 }
 
-export default HypeExternalMissingInfo;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeExternalMissingInfo);

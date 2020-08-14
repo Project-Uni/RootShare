@@ -6,7 +6,7 @@ import sendPacket from '../../helpers/sendPacket';
 module.exports = {
   completeRegistrationDetails: async (userData, email) => {
     const user = await User.findOne({ email: email });
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
       return sendPacket(0, 'Unable to find user.');
     }
@@ -21,7 +21,6 @@ module.exports = {
     user.interests = userData['interests'];
     user.graduateSchool = userData['graduateSchool'];
     user.discoveryMethod = userData['discoveryMethod'];
-    console.log(userData['discoveryMethod']);
 
     let outerErr = null;
     await user.save((err) => {
@@ -38,7 +37,7 @@ module.exports = {
   completeRegistrationRequired: async (userData, email) => {
     const user = await User.findOne({ email: email });
 
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
       return sendPacket(0, 'Unable to find user.');
     }
@@ -71,7 +70,7 @@ module.exports = {
   userExists: async (email) => {
     let user = await User.findOne({ email: email });
 
-    if (!user || user === undefined || user === null) {
+    if (!user) {
       return false;
     } else {
       return true;

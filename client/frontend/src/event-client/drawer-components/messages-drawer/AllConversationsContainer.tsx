@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import RSText from '../../../base-components/RSText';
 import { BsPencilSquare } from 'react-icons/bs';
@@ -12,12 +12,7 @@ import SingleConversation from './SingleConversation';
 import CreateNewConversation from './CreateNewConversation';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
+  wrapper: {},
   conversationsTitle: {
     height: '25px',
     marginBottom: 20,
@@ -40,15 +35,19 @@ const useStyles = makeStyles((_: any) => ({
   },
   conversationsContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     background: colors.secondary,
     overflow: 'scroll',
     label: colors.primaryText,
-    // paddingTop: '10px',
     borderTopStyle: 'solid',
     borderTopColor: colors.primaryText,
     borderTopWidth: '1px',
     marginTop: '-2px',
+  },
+  loadingIndicator: {
+    marginTop: 40,
   },
 }));
 
@@ -62,8 +61,6 @@ function AllConversationsContainer(props: Props) {
   const styles = useStyles();
 
   const [newConversation, setNewConversation] = useState(false);
-
-  useEffect(() => {}, []);
 
   function renderLatestConversations() {
     let output: any[] = [];
@@ -80,8 +77,6 @@ function AllConversationsContainer(props: Props) {
 
     return output;
   }
-
-  function createNewThread() {}
 
   return newConversation ? (
     <CreateNewConversation

@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
-import RSText from "../../base-components/RSText";
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 30,
   },
   body: {
-    display: "flex",
-    justifyContent: "center",
+    display: 'flex',
+    justifyContent: 'center',
   },
   text: {
-    fontFamily: "Ubuntu",
+    fontFamily: 'Ubuntu',
   },
 }));
 
 type Props = {
-  mode: "desktop" | "mobile";
+  mode: 'desktop' | 'mobile';
   eventMonth: number; // 0-11
   eventDay: number; // 1-31
   eventYear: number; // YYYY
@@ -34,17 +34,9 @@ function HypeEventCountdown(props: Props) {
     seconds: 0,
   });
 
-  const bigTextSize = props.mode === "desktop" ? 80 : 36;
-  const smallTextSize = props.mode === "desktop" ? 32 : 16;
-  const dayTimeMargin = props.mode === "desktop" ? 30 : 15;
-
-  const eventDate = new Date(
-    props.eventYear,
-    props.eventMonth,
-    props.eventDay,
-    props.eventHour,
-    props.eventMinute
-  );
+  const bigTextSize = props.mode === 'desktop' ? 80 : 36;
+  const smallTextSize = props.mode === 'desktop' ? 32 : 16;
+  const dayTimeMargin = props.mode === 'desktop' ? 30 : 15;
 
   useEffect(() => {
     setTimeout(() => {
@@ -58,6 +50,14 @@ function HypeEventCountdown(props: Props) {
     minutes: number;
     seconds: number;
   } {
+    let eventDate = new Date();
+    eventDate.setUTCFullYear(props.eventYear);
+    eventDate.setUTCMonth(props.eventMonth);
+    eventDate.setUTCDate(props.eventDay);
+    eventDate.setUTCHours(props.eventHour);
+    eventDate.setUTCMinutes(props.eventMinute);
+    eventDate.setUTCSeconds(0);
+
     const timeDiffRaw = +eventDate - +new Date();
     let timeDiff = { ...remainingTime };
     if (timeDiffRaw > 0) {
@@ -78,21 +78,19 @@ function HypeEventCountdown(props: Props) {
     return timeDiff;
   }
 
-  function renderSingleTimeObject(
-    name: "days" | "hours" | "minutes" | "seconds"
-  ) {
+  function renderSingleTimeObject(name: 'days' | 'hours' | 'minutes' | 'seconds') {
     let value: any = remainingTime[name];
     if (
-      (name === "hours" || name === "minutes" || name === "seconds") &&
+      (name === 'hours' || name === 'minutes' || name === 'seconds') &&
       value < 10
     ) {
-      value = "0" + value;
+      value = '0' + value;
     }
     return (
       <div
         style={{
-          marginRight: name === "days" ? dayTimeMargin : 0,
-          marginLeft: name === "hours" ? dayTimeMargin : 0,
+          marginRight: name === 'days' ? dayTimeMargin : 0,
+          marginLeft: name === 'hours' ? dayTimeMargin : 0,
         }}
       >
         <RSText bold type="other" size={bigTextSize} className={styles.text}>
@@ -111,16 +109,16 @@ function HypeEventCountdown(props: Props) {
         COUNTDOWN TO LAUNCH
       </RSText>
       <div className={styles.body}>
-        {renderSingleTimeObject("days")}
-        {renderSingleTimeObject("hours")}
+        {renderSingleTimeObject('days')}
+        {renderSingleTimeObject('hours')}
         <RSText bold type="other" size={bigTextSize} className={styles.text}>
           :
         </RSText>
-        {renderSingleTimeObject("minutes")}
+        {renderSingleTimeObject('minutes')}
         <RSText bold type="other" size={bigTextSize} className={styles.text}>
           :
         </RSText>
-        {renderSingleTimeObject("seconds")}
+        {renderSingleTimeObject('seconds')}
       </div>
     </div>
   );

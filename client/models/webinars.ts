@@ -23,6 +23,7 @@ var webinarSchema = new Schema(
     hostCommunity: { type: Schema.ObjectId, ref: 'communities' },
     private: { type: Boolean },
     //TODO - Add field for image
+    blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
   },
   { timestamps: true }
 );
