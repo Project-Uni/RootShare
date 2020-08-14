@@ -8,7 +8,6 @@ const useStyles = makeStyles((theme) => ({
   googlePaper: {
     display: 'flex',
     alignItems: 'center',
-    width: '250px',
     height: '50px',
     backgroundColor: 'rgb(14, 118, 168)',
     '&:hover': {
@@ -42,13 +41,18 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = {
   message: string;
+  width?: number;
 };
 
 export default function LinkedInButton(props: Props) {
   const styles = useStyles();
 
   return (
-    <Paper className={styles.googlePaper} elevation={3}>
+    <Paper
+      className={styles.googlePaper}
+      elevation={3}
+      style={{ width: props.width || 250 }}
+    >
       <a href="/auth/login/linkedin" className={styles.googleLink}>
         <img src={linkedInLogo} alt="Google logo" className={styles.logoStyle} />
 
