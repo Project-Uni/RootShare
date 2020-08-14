@@ -103,7 +103,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   isHost?: boolean;
-  handleRemoveUser?: (userID: string) => Promise<boolean>;
+  handleRemoveUser?: (userID: string) => Promise<-1 | 0 | 1>;
 };
 
 function EventMessage(props: Props) {
