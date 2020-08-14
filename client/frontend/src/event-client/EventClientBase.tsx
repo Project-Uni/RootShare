@@ -211,6 +211,10 @@ function EventClientBase(props: Props) {
       alert('The event has started');
       fetchEventInfo();
     });
+
+    socket.on('removed-from-event', () => {
+      window.location.href = '/';
+    });
   }
 
   function onAcceptSpeakingInvite() {
@@ -317,7 +321,11 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventMessageContainer conversationID={currConversationID} />
+          <EventMessageContainer
+            conversationID={currConversationID}
+            isHost={eventMode === 'admin'}
+            webinarID={(webinarData as EventType)._id}
+          />
         </div>
       </div>
     </div>
