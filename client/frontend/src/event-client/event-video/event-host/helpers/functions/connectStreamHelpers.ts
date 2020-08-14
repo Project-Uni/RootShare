@@ -40,6 +40,7 @@ export async function getOpenTokToken(
     refreshToken
   );
   if (data['success'] !== 1) {
+    alert('Could not connect to session. Please try again');
     return false;
   }
   return data['content']['token'];

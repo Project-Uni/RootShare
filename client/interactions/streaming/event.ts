@@ -151,7 +151,7 @@ export async function getAllEventsAdmin(callback) {
         })
       );
     })
-    .catch();
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export async function getAllEventsUser(userID, callback) {

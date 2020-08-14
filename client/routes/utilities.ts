@@ -6,7 +6,7 @@ const { getUserData } = require('../interactions/utilities');
 module.exports = (app) => {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
     getUserData((packet) => {
-      res.send(packet);
+      res.json(packet);
     });
   });
 };

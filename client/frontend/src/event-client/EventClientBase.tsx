@@ -20,8 +20,7 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 
-import SampleEventAd from '../images/sample_event_ad.png';
-import SampleAd2 from '../images/sampleAd2.png';
+import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
 
 import { colors } from '../theme/Colors';
 import { EventType } from '../helpers/types';
@@ -32,7 +31,7 @@ import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitation
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8003'
-    : 'http://3.135.226.61:8003';
+    : 'https://cache.rootshare.io';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -134,7 +133,7 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds() {
-    const ads = [SampleEventAd, SampleAd2];
+    const ads = [BabyBoilersBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
