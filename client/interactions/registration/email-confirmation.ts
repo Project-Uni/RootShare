@@ -75,66 +75,66 @@ module.exports = {
       });
   },
 
-  sendLaunchEventInvitation: async (emailAddress) => {
-    const currDate = new Date();
-    const dayBeforeEvent = new Date('August 13, 2020 16:00:00');
-    const endOfEvent = new Date('August 15, 2020 01:00:00');
-    if (currDate < dayBeforeEvent || currDate > endOfEvent) return;
+  // sendLaunchEventInvitation: async (emailAddress) => {
+  //   const currDate = new Date();
+  //   const dayBeforeEvent = new Date('August 13, 2020 16:00:00');
+  //   const endOfEvent = new Date('August 15, 2020 01:00:00');
+  //   if (currDate < dayBeforeEvent || currDate > endOfEvent) return;
 
-    const eventID = '5f30b4488e8fb07262044e9f'; // Note: This ID shouldn't change
-    const eventLink = `https://www.rootshare.io/event/${eventID}`;
-    let webinarData = await Webinar.findById(eventID);
-    if (!webinarData)
-      webinarData = {
-        title: 'Baby Boiler Event',
-        brief_description: `RootShare's Event to Kickoff our First Launch!`,
-        full_description: `Attend this online event as Purdue University's very own Baby Boilers join Chris Hartley to share their Purdue story. Kick back, relax, and hear E'Twaun Moore, Robbie Hummel, and JaJuan Johnson chat it up like the good ole days.`,
-      };
+  //   const eventID = '5f30b4488e8fb07262044e9f'; // Note: This ID shouldn't change
+  //   const eventLink = `https://www.rootshare.io/event/${eventID}`;
+  //   let webinarData = await Webinar.findById(eventID);
+  //   if (!webinarData)
+  //     webinarData = {
+  //       title: 'Baby Boiler Event',
+  //       brief_description: `RootShare's Event to Kickoff our First Launch!`,
+  //       full_description: `Attend this online event as Purdue University's very own Baby Boilers join Chris Hartley to share their Purdue story. Kick back, relax, and hear E'Twaun Moore, Robbie Hummel, and JaJuan Johnson chat it up like the good ole days.`,
+  //     };
 
-    const body = `
-  <h1 style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['title']}</h1>
+  //   const body = `
+  // <h1 style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['title']}</h1>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['brief_description']}</p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['brief_description']}</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['full_description']}</p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}>${webinarData['full_description']}</p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can access the event at ${eventLink}</p>
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On Friday, August 14th at 7PM EST<b></p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can access the event at ${eventLink}</p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On Friday, August 14th at 7PM EST<b></p>
 
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>See you there!</p>
-  <p style={{fontSize: 14, fontFamily: 'Arial'}}>-The RootShare Team</p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}>See you there!</p>
+  // <p style={{fontSize: 14, fontFamily: 'Arial'}}>-The RootShare Team</p>
 
-  `;
+  // `;
 
-    var params = {
-      Destination: {
-        ToAddresses: [emailAddress],
-      },
-      Source: `RootShare Team <dev@rootshare.io>`,
-      ReplyToAddresses: [],
-      Message: {
-        Body: {
-          Html: {
-            Charset: 'UTF-8',
-            Data: body,
-          },
-        },
-        Subject: {
-          Data: 'Baby Boiler Event Invite',
-        },
-      },
-    };
+  //   var params = {
+  //     Destination: {
+  //       ToAddresses: [emailAddress],
+  //     },
+  //     Source: `RootShare Team <dev@rootshare.io>`,
+  //     ReplyToAddresses: [],
+  //     Message: {
+  //       Body: {
+  //         Html: {
+  //           Charset: 'UTF-8',
+  //           Data: body,
+  //         },
+  //       },
+  //       Subject: {
+  //         Data: 'Baby Boiler Event Invite',
+  //       },
+  //     },
+  //   };
 
-    ses
-      .sendEmail(params)
-      .promise()
-      .then((data) => {
-        // log('info', data)
-      })
-      .catch((err) => {
-        log('error', err);
-      });
-  },
+  //   ses
+  //     .sendEmail(params)
+  //     .promise()
+  //     .then((data) => {
+  //       // log('info', data)
+  //     })
+  //     .catch((err) => {
+  //       log('error', err);
+  //     });
+  // },
 
   convertEmailToToken: (emailAddress) => {
     let token = cryptr.encrypt(emailAddress);
