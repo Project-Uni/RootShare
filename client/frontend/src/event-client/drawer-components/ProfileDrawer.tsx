@@ -179,7 +179,11 @@ function ProfileDrawer(props: Props) {
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/getProfilePicture/${props.user._id}`
+      `/api/getProfilePicture/${props.user._id}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
     );
 
     if (data['success'] === 1) {
