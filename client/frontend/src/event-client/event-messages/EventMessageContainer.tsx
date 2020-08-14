@@ -37,6 +37,7 @@ type Props = {
   refreshToken: string;
   newMessage: MessageType;
   messageSocket: SocketIOClient.Socket;
+  isHost?: boolean;
 };
 
 function EventMessageContainer(props: Props) {
