@@ -202,7 +202,7 @@ module.exports = (app) => {
     });
   });
 
-  app.get('/auth/logout', (req, res) => {
+  app.post('/auth/logout', (req, res) => {
     let email = req.user.email;
     req.logout();
     res.json(sendPacket(1, 'Successfully logged out'));

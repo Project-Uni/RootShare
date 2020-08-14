@@ -85,21 +85,25 @@ export function updateProfileInformation(userID, profileData, callback) {
       if (err) return callback(sendPacket(-1, err));
       if (!user) return callback(sendPacket(0, 'Could not find user'));
 
-      user.firstName = profileData['firstName'];
-      user.lastName = profileData['lastName'];
-      user.major = profileData['major'];
-      user.graduationYear = profileData['graduationYear'];
-      user.work = profileData['work'];
-      user.position = profileData['position'];
-      user.university = profileData['university'];
-      user.department = profileData['department'];
-      user.interests = profileData['interests'];
-      user.organizations = profileData['organizations'];
-      user.graduateSchool = profileData['graduateSchool'];
-      user.phoneNumber = profileData['phoneNumber'];
-      user.discoveryMethod = profileData['discoveryMethod'];
+      if (profileData['firstName']) user.firstName = profileData['firstName'];
+      if (profileData['lastName']) user.lastName = profileData['lastName'];
+      if (profileData['major']) user.major = profileData['major'];
+      if (profileData['graduationYear'])
+        user.graduationYear = profileData['graduationYear'];
+      if (profileData['work']) user.work = profileData['work'];
+      if (profileData['position']) user.position = profileData['position'];
+      if (profileData['university']) user.university = profileData['university'];
+      if (profileData['department']) user.department = profileData['department'];
+      if (profileData['interests']) user.interests = profileData['interests'];
+      if (profileData['organizations'])
+        user.organizations = profileData['organizations'];
+      if (profileData['graduateSchool'])
+        user.graduateSchool = profileData['graduateSchool'];
+      if (profileData['phoneNumber']) user.phoneNumber = profileData['phoneNumber'];
+      if (profileData['discoveryMethod'])
+        user.discoveryMethod = profileData['discoveryMethod'];
       user.save((err) => {
-        if (err) return callback(sendPacket(-1, "Couldn't save user profile"));
+        if (err) return callback(sendPacket(-1, err));
         return callback(sendPacket(1, 'Successfully updated user profile!'));
       });
     }
