@@ -54,6 +54,14 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     size: 20,
   },
+  pendingContainer: {
+    maxHeight: 194,
+    overflow: 'scroll',
+    borderTopStyle: 'solid',
+    borderTopColor: colors.primary,
+    borderTopWidth: '2px',
+    marginTop: 5,
+  },
 }));
 
 type Props = {
@@ -142,14 +150,8 @@ function ConnectionsDrawer(props: Props) {
     const output: any = [];
     if (pending.length === 0) return;
 
-    output.push(
-      <div className={styles.sectionHeader}>
-        <RSText className={styles.sectionName}>Pending</RSText>
-      </div>
-    );
-
-    const numSuggestions = pending.length > 4 ? 4 : pending.length;
-    for (let i = 0; i < numSuggestions; i++) {
+    const numPendingDisplayed = pending.length > 4 ? 4 : pending.length;
+    for (let i = 0; i < numPendingDisplayed; i++) {
       const currPending = pending[i];
       output.push(
         <SinglePendingConnection
@@ -166,7 +168,14 @@ function ConnectionsDrawer(props: Props) {
         />
       );
     }
-    return output;
+    return (
+      <div>
+        <div className={styles.sectionHeader}>
+          <RSText className={styles.sectionName}>Pending | {pending.length}</RSText>
+        </div>
+        <div className={styles.pendingContainer}>{output}</div>
+      </div>
+    );
   }
 
   function renderSuggestions() {
@@ -179,8 +188,8 @@ function ConnectionsDrawer(props: Props) {
       </div>
     );
 
-    const numSuggestions = suggestions.length > 4 ? 4 : suggestions.length;
-    for (let i = 0; i < numSuggestions; i++) {
+    const numSuggestionsDisplayed = suggestions.length > 4 ? 4 : suggestions.length;
+    for (let i = 0; i < numSuggestionsDisplayed; i++) {
       const currSuggestion = suggestions[i];
       output.push(
         <SingleSuggestion
