@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, ButtonGroup, Button } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
@@ -10,11 +10,9 @@ const useStyles = makeStyles((_: any) => ({
   footer: {
     marginTop: '5px',
     background: colors.second,
-    width: '100vw',
   },
   footerContainer: {
     flex: 1,
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -29,14 +27,29 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {};
 
+const MIN_WIDTH = 450;
+
 function LandingFooter(props: Props) {
   const styles = useStyles();
+
+  const [width, setWidth] = useState(
+    window.innerWidth > MIN_WIDTH ? window.innerWidth : MIN_WIDTH
+  );
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  function handleResize() {
+    if (window.innerWidth > MIN_WIDTH) setWidth(window.innerWidth);
+  }
+
   return (
-    <AppBar position="static" className={styles.footer}>
+    <AppBar position="static" className={styles.footer} style={{ width }}>
       <Toolbar>
         <div className={styles.footerContainer}>
           <ButtonGroup variant="text" aria-label="text primary button group">
-            <Button>
+            {/* <Button>
               <RSText type="body" size={12} color={colors.primaryText}>
                 ABOUT
               </RSText>
@@ -60,7 +73,7 @@ function LandingFooter(props: Props) {
               <RSText type="body" size={12} color={colors.primaryText}>
                 LANGUAGE
               </RSText>
-            </Button>
+            </Button> */}
             <a href="https://www.instagram.com/rootshare/">
               <FaInstagram
                 color={colors.primaryText}

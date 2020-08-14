@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Typography } from '@material-ui/core';
 import { Redirect } from 'react-router-dom';
-import axios from 'axios';
+import { connect } from 'react-redux';
+
+import { makeRequest } from '../../helpers/functions';
 
 import HypeHeader from '../headerFooter/HypeHeader';
 import HypeFooter from '../headerFooter/HypeFooter';
@@ -42,7 +44,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
@@ -73,8 +78,15 @@ function HypeAdditionalInfo(props: Props) {
 
   const redirectURL = '/event/5f30b4488e8fb07262044e9f';
 
-  async function getCurrentUser() {
-    const { data } = await axios.get('/auth/curr-user/load');
+  async function checkCompletedRegistration() {
+    const { data } = await makeRequest(
+      'POST',
+      '/auth/getRegistrationInfo',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     if (data['success'] === 1) {
       if (!data['content']['externalComplete']) {
         setExternalRedirect(true);
@@ -86,7 +98,7 @@ function HypeAdditionalInfo(props: Props) {
   }
 
   useEffect(() => {
-    getCurrentUser();
+    checkCompletedRegistration();
   }, []);
 
   function handleMajorChange(event: any) {
@@ -156,19 +168,26 @@ function HypeAdditionalInfo(props: Props) {
       } else setPhoneNumErr('');
 
       if (hasErr) return;
-      const { data } = await axios.post('/auth/complete-registration/details', {
-        email: currentUser,
-        major: major,
-        graduationYear: graduationYear,
-        work: work,
-        position: position,
-        department: college,
-        organizations: organizations.split(','),
-        interests: interests.split(','),
-        phoneNumber: phoneNumber,
-        graduateSchool: hasGradDegree ? graduateSchool : '',
-        discoveryMethod: discoveryMethod,
-      });
+      const { data } = await makeRequest(
+        'POST',
+        '/auth/complete-registration/details',
+        {
+          email: currentUser,
+          major: major,
+          graduationYear: graduationYear,
+          work: work,
+          position: position,
+          department: college,
+          organizations: organizations.split(','),
+          interests: interests.split(','),
+          phoneNumber: phoneNumber,
+          graduateSchool: hasGradDegree ? graduateSchool : '',
+          discoveryMethod: discoveryMethod,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
       if (data['success'] !== 1) {
         setUpdateErr(true);
       } else {
@@ -218,7 +237,7 @@ function HypeAdditionalInfo(props: Props) {
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
-      {externalRedirect && <Redirect to="/profile/externalRegister" />}
+      {externalRedirect && <Redirect to="/register/external" />}
 
       <HypeHeader />
       <div className={styles.body}>
@@ -281,7 +300,7 @@ function HypeAdditionalInfo(props: Props) {
                 disabled={loading}
                 onClick={handleContinue}
               >
-                Continue
+                Continue To Event
               </Button>
             ) : (
               <Button
@@ -302,4 +321,15 @@ function HypeAdditionalInfo(props: Props) {
   );
 }
 
-export default HypeAdditionalInfo;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HypeAdditionalInfo);

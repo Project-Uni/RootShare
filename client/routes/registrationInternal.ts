@@ -1,6 +1,9 @@
 var passport = require('passport');
 
-import { isAuthenticated } from '../passport/middleware/isAuthenticated';
+import {
+  isAuthenticated,
+  isAuthenticatedWithJWT,
+} from '../passport/middleware/isAuthenticated';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
@@ -70,7 +73,7 @@ module.exports = (app) => {
               lastName: user.lastName,
               email: user.email,
               _id: user._id,
-              privilegeLevel: user.privilegeLevel || 1,
+              privilegeLevel: 1,
               accountType: user.accountType,
               accessToken: info['jwtAccessToken'],
               refreshToken: info['jwtRefreshToken'],
@@ -99,25 +102,33 @@ module.exports = (app) => {
     }
   });
 
-  app.post('/auth/complete-registration/required', async (req, res) => {
-    const result = await completeRegistrationRequired(req.body, req.user.email);
+  app.post(
+    '/auth/complete-registration/required',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const result = await completeRegistrationRequired(req.body, req.user.email);
 
-    if (result['success'] === 1) {
-      log('info', `Completed required registration for ${req.user.email}`);
+      if (result['success'] === 1) {
+        log('info', `Completed required registration for ${req.user.email}`);
+      }
+      return res.json(result);
     }
-    return res.json(result);
-  });
+  );
 
-  app.post('/auth/complete-registration/details', async (req, res) => {
-    const result = await completeRegistrationDetails(req.body, req.user.email);
+  app.post(
+    '/auth/complete-registration/details',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const result = await completeRegistrationDetails(req.body, req.user.email);
 
-    if (result['success'] === 1) {
-      log('info', `Completed registration details for ${req.user.email}`);
+      if (result['success'] === 1) {
+        log('info', `Completed registration details for ${req.user.email}`);
+      }
+      return res.json(result);
     }
-    return res.json(result);
-  });
+  );
 
-  app.get('/auth/curr-user/load', isAuthenticated, async (req, res) => {
+  app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
     const email = req.user.email;
     const regComplete = req.user.work !== undefined;
     const externalComplete = req.user.university !== undefined;
@@ -150,7 +161,7 @@ module.exports = (app) => {
           log('error', `Failed serializing ${user.email}`);
         }
         log('info', `Confirmed user ${user.email}`);
-        return res.redirect('/profile/initialize');
+        return res.redirect('/register/initialize');
       });
     } else {
       res.json(sendPacket(-1, 'There was an error processing your request'));
@@ -170,7 +181,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/auth/confirmation-resend', isAuthenticated, (req, res) => {
+  app.get('/auth/confirmation-resend', isAuthenticatedWithJWT, (req, res) => {
     let email = req.user.email;
     if (email) {
       sendConfirmationEmail(email);
@@ -182,7 +193,7 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/auth/secure-unconfirmed', isAuthenticated, (req, res) => {
+  app.get('/auth/secure-unconfirmed', isAuthenticatedWithJWT, (req, res) => {
     res.json(
       sendPacket(
         1,
@@ -192,15 +203,20 @@ module.exports = (app) => {
     log('info', `User accessed secure-unconfirmed endpoint`);
   });
 
-  app.get('/auth/secure-confirmed', isAuthenticated, isConfirmed, (req, res) => {
-    res.json(
-      sendPacket(
-        1,
-        'Successfully accessed secure endpoint! Account has been confirmed'
-      )
-    );
-    log('info', `User accessed secure-confirmed endpoint`);
-  });
+  app.get(
+    '/auth/secure-confirmed',
+    isAuthenticatedWithJWT,
+    isConfirmed,
+    (req, res) => {
+      res.json(
+        sendPacket(
+          1,
+          'Successfully accessed secure endpoint! Account has been confirmed'
+        )
+      );
+      log('info', `User accessed secure-confirmed endpoint`);
+    }
+  );
 
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));
