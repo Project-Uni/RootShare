@@ -193,19 +193,25 @@ function EventMessage(props: Props) {
       !window.confirm('Are you sure you want to remove this user from the stream?')
     )
       return;
-    if (
-      props.handleRemoveUser &&
-      (await props.handleRemoveUser(props.message._id))
-    ) {
-      setSnackbarMode('notify');
-      setSnackbarMessage('Successfully removed user from stream');
-      setTransition(() => slideLeft);
-    } else {
-      setSnackbarMode('error');
-      setSnackbarMessage(
-        'There was an error trying to remove this user. Please try again'
-      );
-      setTransition(() => slideLeft);
+
+    if (props.handleRemoveUser) {
+      const success = await props.handleRemoveUser(props.message.sender as string);
+
+      if (success === 1) {
+        setSnackbarMode('notify');
+        setSnackbarMessage('Successfully removed user from stream');
+        setTransition(() => slideLeft);
+      } else if (success == 0) {
+        setSnackbarMode('notify');
+        setSnackbarMessage('User has already left the event');
+        setTransition(() => slideLeft);
+      } else {
+        setSnackbarMode('error');
+        setSnackbarMessage(
+          'There was an error trying to remove this user. Please try again'
+        );
+        setTransition(() => slideLeft);
+      }
     }
   }
 
