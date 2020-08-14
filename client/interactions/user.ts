@@ -42,14 +42,15 @@ export function getProfileInformation(userID, callback) {
         work: '$work',
         position: '$position',
         university: {
+          _id: '$university._id',
           universityName: '$university.universityName',
         },
         department: '$department',
         interests: '$interests',
         organizations: '$organizations',
+        graduateSchool: '$graduateSchool',
         phoneNumber: '$phoneNumber',
         discoveryMethod: '$discoveryMethod',
-        graduateSchool: '$graduateSchool',
       },
     },
   ])
@@ -60,6 +61,49 @@ export function getProfileInformation(userID, callback) {
       return callback(sendPacket(1, 'Send user profile info', { user: user[0] }));
     })
     .catch((err) => callback(sendPacket(-1, err)));
+}
+
+export function updateProfileInformation(userID, profileData, callback) {
+  User.findById(
+    userID,
+    [
+      'firstName',
+      'lastName',
+      'major',
+      'graduationYear',
+      'work',
+      'position',
+      'university',
+      'department',
+      'interests',
+      'organizations',
+      'graduateSchool',
+      'phoneNumber',
+      'discoveryMethod',
+    ],
+    (err, user) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!user) return callback(sendPacket(0, 'Could not find user'));
+
+      user.firstName = profileData['firstName'];
+      user.lastName = profileData['lastName'];
+      user.major = profileData['major'];
+      user.graduationYear = profileData['graduationYear'];
+      user.work = profileData['work'];
+      user.position = profileData['position'];
+      user.university = profileData['university'];
+      user.department = profileData['department'];
+      user.interests = profileData['interests'];
+      user.organizations = profileData['organizations'];
+      user.graduateSchool = profileData['graduateSchool'];
+      user.phoneNumber = profileData['phoneNumber'];
+      user.discoveryMethod = profileData['discoveryMethod'];
+      user.save((err) => {
+        if (err) return callback(sendPacket(-1, "Couldn't save user profile"));
+        return callback(sendPacket(1, 'Successfully updated user profile!'));
+      });
+    }
+  );
 }
 
 // TODO: either send these in chunks or store all connections in redux when user logs in

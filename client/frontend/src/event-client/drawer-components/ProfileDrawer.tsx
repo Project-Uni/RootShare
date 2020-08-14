@@ -151,6 +151,7 @@ function ProfileDrawer(props: Props) {
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
   const [fetchingErr, setFetchingErr] = useState(false);
+  const [updateErr, setUpdateErr] = useState(false);
 
   useEffect(() => {
     getProfile();
@@ -208,20 +209,31 @@ function ProfileDrawer(props: Props) {
   // Changed User Information
   // Constant Variables For Changed Info
 
-  function updateNewUserInfoToServer() {
-    console.log(updatedFirstName);
-    console.log(updatedLastName);
-    console.log(updatedMajor);
-    console.log(updatedGraduationYear);
-    console.log(updatedCurrentEmployer);
-    console.log(updatedCurrentRole);
-    console.log(updatedCollege);
-    console.log(updatedCollegeOf);
-    console.log(updatedInterests);
-    console.log(updatedOrganizations);
-    console.log(updatedGraduateDegree);
-    console.log(updatedPhoneNumber);
-    console.log(updatedDiscoveryMethod);
+  async function updateNewUserInfoToServer() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/updateProfile',
+      {
+        firstName: updatedFirstName,
+        lastName: updatedLastName,
+        major: updatedMajor,
+        graduationYear: updatedGraduationYear,
+        work: updatedCurrentEmployer,
+        position: updatedCurrentRole,
+        university: updatedCollege,
+        department: updatedCollegeOf,
+        interests: updatedInterests,
+        organizations: updatedOrganizations,
+        graduateSchool: updatedGraduateDegree,
+        phoneNumber: updatedPhoneNumber,
+        discoveryMethod: updatedDiscoveryMethod,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) setUpdateErr(true);
   }
 
   function setUpdatedToOriginal() {
