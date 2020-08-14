@@ -1,5 +1,9 @@
 import { MessageType, ConversationType } from '../../helpers/types';
-import { UPDATE_CONVERSATIONS, UPDATE_NEW_MESSAGE } from '../actions/message';
+import {
+  UPDATE_CONVERSATIONS,
+  UPDATE_NEW_MESSAGE,
+  RESET_NEW_MESSAGE,
+} from '../actions/message';
 
 export function conversationsReducer(
   state = [],
@@ -16,12 +20,14 @@ export function conversationsReducer(
 
 export function newMessageReducer(
   state = '',
-  data: { type: string; payload: { newMessage: MessageType } }
+  data: { type: string; payload: { newMessage?: MessageType } }
 ) {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_NEW_MESSAGE:
-      return payload.newMessage;
+      return payload.newMessage!;
+    case RESET_NEW_MESSAGE:
+      return payload;
     default:
       return state;
   }
