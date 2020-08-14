@@ -19,7 +19,7 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
-import WelcomeModal from './WelcomeModal';
+import EventWelcomeModal from './EventWelcomeModal';
 
 import SampleEventAd from '../images/sample_event_ad.png';
 import SampleAd2 from '../images/sampleAd2.png';
@@ -81,6 +81,7 @@ function EventClientBase(props: Props) {
   const [adLoaded, setAdLoaded] = useState(false);
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [webinarData, setWebinarData] = useState<{ [key: string]: any }>({});
 
@@ -224,6 +225,10 @@ function EventClientBase(props: Props) {
     setShowSpeakingInvite(false);
   }
 
+  function handleWelcomeModalAck() {
+    setShowWelcomeModal(false);
+  }
+
   function renderVideoArea() {
     if (eventMode === 'viewer')
       return (
@@ -266,6 +271,12 @@ function EventClientBase(props: Props) {
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+          <EventWelcomeModal
+            open={showWelcomeModal}
+            onAck={handleWelcomeModalAck}
+            isMobile={true}
+            maxWidth={275}
+          />
           <EventWatcherMobile muxPlaybackID={webinarData.muxPlaybackID} />
           <div className={styles.adContainer}>
             {adLoaded && (
@@ -292,8 +303,8 @@ function EventClientBase(props: Props) {
 
   return (
     <div id="wrapper" className={styles.wrapper}>
-      {<WelcomeModal />}
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <EventWelcomeModal open={showWelcomeModal} onAck={handleWelcomeModalAck} />
       <SpeakingInviteDialog
         open={showSpeakingInvite}
         onReject={onRejectSpeakingInvite}
