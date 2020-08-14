@@ -7,6 +7,7 @@ import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { updateUser } from './redux/actions/user';
 
+import HypeLanding from './hype-page/hype-landing/HypeLanding';
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
@@ -53,7 +54,8 @@ function App(props: Props) {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
-            <Route exact path="/" component={LandingPage} />
+            {/* <Route exact path="/" component={LandingPage} /> */}
+            <Route exact path="/" component={HypeLanding} />
             <Route
               exact
               path="/profile/externalRegister"
