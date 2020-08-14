@@ -50,11 +50,9 @@ function EventWelcomeModal(props: Props) {
           }}
         >
           <RSText color={colors.primaryText}>
-            Nicotine... I'm a fiend... Hittin' it... Since 17... Without it... I'm so
-            mean... Don't do drugs... You'll get addicted... But I didn't listen...
-            Now I need... NICOTINE YA YA YA... YA YA YA... NICOTINE... YA YA YA...
-            YA... YA... YA... GO OUT AND BUY A MOTHAFUCKIN LYCHEE PUFF PLUS
-            YAYAYAYAYA
+            We're excited to have you on our platform. Thank you for your support as
+            we continue to grow and develop. Big things are coming, so stay tuned for
+            updates. Enjoy the event!
           </RSText>
         </div>
       </DialogContent>
