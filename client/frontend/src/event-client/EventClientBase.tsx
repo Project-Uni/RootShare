@@ -317,7 +317,10 @@ function EventClientBase(props: Props) {
           )}
         </div>
         <div className={styles.right}>
-          <EventMessageContainer conversationID={currConversationID} />
+          <EventMessageContainer
+            conversationID={currConversationID}
+            isHost={eventMode === 'admin'}
+          />
         </div>
       </div>
     </div>

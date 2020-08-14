@@ -102,6 +102,8 @@ type Props = {
   message: MessageType;
   accessToken: string;
   refreshToken: string;
+  isHost?: boolean;
+  handleRemoveUser?: (userID: string) => boolean;
 };
 
 function EventMessage(props: Props) {
@@ -185,11 +187,32 @@ function EventMessage(props: Props) {
     setTransition(() => slideLeft);
   }
 
+  function handleRemoveUser() {
+    setAnchorEl(null);
+    if (props.handleRemoveUser && props.handleRemoveUser(props.message._id)) {
+      setSnackbarMode('notify');
+      setSnackbarMessage('Successfully removed user from stream');
+      setTransition(() => slideLeft);
+    } else {
+      setSnackbarMode('error');
+      setSnackbarMessage(
+        'There was an error trying to remove this user. Please try again'
+      );
+      setTransition(() => slideLeft);
+    }
+  }
+
   function renderOptions() {
     return (
       <div>
         <MenuItem onClick={handleConnect}>Connect</MenuItem>
-        <MenuItem onClick={handleClose}>Cancel</MenuItem>
+        {props.isHost && (
+          <MenuItem onClick={handleRemoveUser}>
+            <RSText color={colors.brightError} size={12}>
+              Remove
+            </RSText>
+          </MenuItem>
+        )}
       </div>
     );
   }

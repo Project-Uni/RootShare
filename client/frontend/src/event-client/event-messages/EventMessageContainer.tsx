@@ -190,6 +190,10 @@ function EventMessageContainer(props: Props) {
       addMessageErr(data['content']['tempID']);
   }
 
+  function handleRemoveUser(userID: string) {
+    return false;
+  }
+
   function renderMessages() {
     const numMessages = messages.length;
     if (numMessages === 0) return;
@@ -207,6 +211,8 @@ function EventMessageContainer(props: Props) {
             message={message}
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
+            isHost={props.isHost}
+            handleRemoveUser={handleRemoveUser}
           />
         ) : (
           <MyEventMessage
