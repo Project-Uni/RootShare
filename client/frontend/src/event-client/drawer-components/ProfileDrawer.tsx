@@ -22,9 +22,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   profilePictureContainer: {
     marginTop: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   profilePicture: {
     border: `3px solid ${colors.primaryText}`,
@@ -41,9 +38,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     marginTop: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    textAlign: 'center',
   },
   static: {
     marginTop: 20,
@@ -659,8 +654,13 @@ function ProfileDrawer(props: Props) {
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
       <div>
-        {imageLoaded && renderProfilePicture()}
-        {renderNameAndEmail()}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {imageLoaded && renderProfilePicture()}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {renderNameAndEmail()}
+        </div>
+
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
       <div className={styles.logoutButtonWrapper}>
