@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
+
 import CommunityWow from '../../images/CommunityWow.png';
 
 const useStyles = makeStyles((_: any) => ({

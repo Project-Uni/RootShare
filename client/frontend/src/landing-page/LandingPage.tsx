@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { Redirect } from 'react-router-dom';
+
+import { connect } from 'react-redux';
+import { updateUser } from '../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+
+import { makeRequest } from '../helpers/functions';
+
 import LandingHead from './landing-components/LandingHead';
 import LandingBody from './landing-components/LandingBody';
 import LandingFooter from './landing-components/LandingFooter';
@@ -37,18 +46,45 @@ const useStyles = makeStyles((_: any) => ({
 const MIN_HEIGHT = 825;
 const MIN_WIDTH = 1345;
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+};
 
 function LandingPage(props: Props) {
   const styles = useStyles();
   const [desktopMode, setDesktopMode] = useState(window.innerWidth >= MIN_WIDTH);
+  const [redirectHome, setRedirectHome] = useState(false);
+
   const [height, setHeight] = useState(
     window.innerHeight >= MIN_HEIGHT ? window.innerHeight : MIN_HEIGHT
   );
 
+  const redirectURL = '/event/5f30b4488e8fb07262044e9f';
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    checkAuth();
   }, []);
+
+  async function checkAuth() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getCurrent',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] === 1) {
+      props.updateUser({ ...data['content'] });
+      setRedirectHome(true);
+    }
+  }
 
   function handleResize() {
     setDesktopMode(window.innerWidth >= MIN_WIDTH);
@@ -60,6 +96,7 @@ function LandingPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {redirectHome && <Redirect to={redirectURL} />}
       <LandingHead />
       <div className={styles.body}>
         <div className={styles.left}>{desktopMode && <LandingBody />}</div>
@@ -78,4 +115,26 @@ function LandingPage(props: Props) {
   );
 }
 
-export default LandingPage;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(LandingPage);

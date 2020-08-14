@@ -136,7 +136,7 @@ function ProfileDrawer(props: Props) {
   const [originalFirstName, setOriginalFirstName] = useState('');
   const [originalLastName, setOriginalLastName] = useState('');
   const [originalMajor, setOriginalMajor] = useState('');
-  const [originalGraduationYear, setOriginalGraduationYear] = useState(0);
+  const [originalGraduationYear, setOriginalGraduationYear] = useState<number>();
   const [originalCurrentEmployer, setOriginalCurrentEmployer] = useState('');
   const [originalCurrentRole, setOriginalCurrentRole] = useState('');
   const [originalCollege, setOriginalCollege] = useState<UniversityType>();
@@ -150,7 +150,7 @@ function ProfileDrawer(props: Props) {
   const [updatedFirstName, setUpdatedFirstName] = useState('');
   const [updatedLastName, setUpdatedLastName] = useState('');
   const [updatedMajor, setUpdatedMajor] = useState('');
-  const [updatedGraduationYear, setUpdatedGraduationYear] = useState(0);
+  const [updatedGraduationYear, setUpdatedGraduationYear] = useState<number>();
   const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
   const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
   const [updatedCollege, setUpdatedCollege] = useState<UniversityType>();
@@ -493,7 +493,7 @@ function ProfileDrawer(props: Props) {
         />
         <UserInfoTextField
           label="Graduation Year"
-          value={updatedGraduationYear?.toString()}
+          value={updatedGraduationYear ? updatedGraduationYear.toString() : ''}
           onChange={handleGraduationYearChange}
           type="number"
         />
