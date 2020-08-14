@@ -119,10 +119,6 @@ function CreateNewConversation(props: Props) {
     });
   }
 
-  function handleEmojiClick() {
-    console.log('Clicked on emoji button');
-  }
-
   function handleRecipientChange(event: any, newValue: any[]) {
     let newList: any[] = [];
     newValue.forEach((user: any) => {
