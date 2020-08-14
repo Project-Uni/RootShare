@@ -16,7 +16,7 @@ import HypeRegistration from '../hype-page/hype-registration/HypeRegistration';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    height: '100vh',
+    minHeight: '100vh',
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'column',
