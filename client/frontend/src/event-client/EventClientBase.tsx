@@ -266,17 +266,12 @@ function EventClientBase(props: Props) {
     return check;
   }
 
-  if (checkMobile())
+  if (checkMobile()) {
     if (eventMode === 'viewer')
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-          <EventWelcomeModal
-            open={showWelcomeModal}
-            onAck={handleWelcomeModalAck}
-            isMobile={true}
-            maxWidth={275}
-          />
+
           <EventWatcherMobile muxPlaybackID={webinarData.muxPlaybackID} />
           <div className={styles.adContainer}>
             {adLoaded && (
@@ -300,11 +295,11 @@ function EventClientBase(props: Props) {
           </RSText>
         </div>
       );
+  }
 
   return (
     <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-      <EventWelcomeModal open={showWelcomeModal} onAck={handleWelcomeModalAck} />
       <SpeakingInviteDialog
         open={showSpeakingInvite}
         onReject={onRejectSpeakingInvite}
@@ -316,6 +311,11 @@ function EventClientBase(props: Props) {
           {renderVideoArea()}
           {eventMode === 'viewer' && (
             <div className={styles.adContainer}>
+              <EventWelcomeModal
+                open={showWelcomeModal}
+                onAck={handleWelcomeModalAck}
+              />
+
               {adLoaded && (
                 <EventClientAdvertisement
                   height={125}

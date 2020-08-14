@@ -1,5 +1,4 @@
 import React from 'react';
-import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Dialog,
@@ -14,15 +13,11 @@ import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
   paper: {
     background: colors.second,
   },
-  dialogText: {
-    color: colors.primaryText,
-  },
-  messageText: {
-    color: colors.primaryText,
+  mobileText: {
+    marginTop: 20,
   },
   okButton: {
     color: colors.primaryText,
@@ -42,8 +37,8 @@ function EventWelcomeModal(props: Props) {
 
   return (
     <Dialog open={props.open} PaperComponent={PaperComponent}>
-      <DialogTitle className={styles.dialogText} id="draggable-title">
-        <RSText type="head" size={16} bold>
+      <DialogTitle>
+        <RSText type="head" size={16} bold color={colors.primaryText}>
           Welcome to RootShare!
         </RSText>
       </DialogTitle>
@@ -54,7 +49,7 @@ function EventWelcomeModal(props: Props) {
             maxWidth: props.maxWidth || 500,
           }}
         >
-          <RSText className={styles.messageText}>
+          <RSText color={colors.primaryText}>
             Nicotine... I'm a fiend... Hittin' it... Since 17... Without it... I'm so
             mean... Don't do drugs... You'll get addicted... But I didn't listen...
             Now I need... NICOTINE YA YA YA... YA YA YA... NICOTINE... YA YA YA...
