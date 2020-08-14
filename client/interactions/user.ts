@@ -19,48 +19,30 @@ export function getCurrentUser(user, callback) {
   );
 }
 
-export function getProfileInformation(userID, callback) {
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'universities',
-        localField: 'university',
-        foreignField: '_id',
-        as: 'university',
-      },
-    },
-    { $unwind: '$university' },
-    {
-      $project: {
-        _id: '$_id',
-        email: '$email',
-        firstName: '$firstName',
-        lastName: '$lastName',
-        major: '$major',
-        graduationYear: '$graduationYear',
-        work: '$work',
-        position: '$position',
-        university: {
-          _id: '$university._id',
-          universityName: '$university.universityName',
-        },
-        department: '$department',
-        interests: '$interests',
-        organizations: '$organizations',
-        graduateSchool: '$graduateSchool',
-        phoneNumber: '$phoneNumber',
-        discoveryMethod: '$discoveryMethod',
-      },
-    },
-  ])
-    .exec()
-    .then((user) => {
-      if (!user || user.length === 0)
-        return callback(sendPacket(0, "Couldn't find user"));
-      return callback(sendPacket(1, 'Send user profile info', { user: user[0] }));
-    })
-    .catch((err) => callback(sendPacket(-1, err)));
+export async function getProfileInformation(userID, callback) {
+  try {
+    const user = await User.findById(userID, [
+      'email',
+      'firstName',
+      'lastName',
+      'major',
+      'graduationYear',
+      'work',
+      'position',
+      'university',
+      'department',
+      'interests',
+      'organizations',
+      'graduateSchool',
+      'phoneNumber',
+      'discoveryMethod',
+    ]).populate({ path: 'university', select: 'universityName' });
+
+    if (!user) return callback(sendPacket(0, "Couldn't find user"));
+    return callback(sendPacket(1, 'Sending user data', { user }));
+  } catch (err) {
+    return callback(sendPacket(-1, err));
+  }
 }
 
 export function updateProfileInformation(userID, profileData, callback) {
