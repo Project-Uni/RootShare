@@ -41,7 +41,7 @@ type Props = {
   onChange: (event: any) => any;
   width?: number;
   className?: string;
-  type?: string;
+  type?: 'search' | 'number';
   children?: any;
 };
 

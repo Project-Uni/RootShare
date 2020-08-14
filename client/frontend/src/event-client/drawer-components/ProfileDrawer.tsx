@@ -8,13 +8,20 @@ import { Button } from '@material-ui/core';
 
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { updateConversations, resetNewMessage } from '../../redux/actions/message';
+import { resetMessageSocket } from '../../redux/actions/sockets';
 import { colors } from '../../theme/Colors';
 import UserInfoTextField from './UserInfoTextField';
 import RSText from '../../base-components/RSText';
 import ProfilePicture from '../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../helpers/functions';
-import { UserType, UniversityType } from '../../helpers/types';
+import {
+  UserType,
+  UniversityType,
+  ConversationType,
+  MessageType,
+} from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -117,6 +124,9 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
+  updateConversations: (conversations: ConversationType[]) => void;
+  resetNewMessage: () => void;
+  resetMessageSocket: () => void;
 };
 
 function ProfileDrawer(props: Props) {
@@ -156,7 +166,6 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
-  const [landingRedirect, setLandingRedirect] = useState(false);
   //TODO: Keep as is for now. Will update to show error in the future
   const [fetchingErr, setFetchingErr] = useState(false);
   const [updateErr, setUpdateErr] = useState(false);
@@ -220,7 +229,10 @@ function ProfileDrawer(props: Props) {
     props.updateUser({});
     props.updateAccessToken('');
     props.updateRefreshToken('');
-    setLandingRedirect(true);
+    props.updateConversations([]);
+    props.resetNewMessage();
+    props.resetMessageSocket();
+    window.location.href = '/';
   }
 
   async function updateNewUserInfoToServer() {
@@ -247,8 +259,8 @@ function ProfileDrawer(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
-    if (data['success'] !== 1) setUpdateErr(true);
+    if (data['success'] === 1) setOriginalToUpdated();
+    else setUpdateErr(true);
   }
 
   function setUpdatedToOriginal() {
@@ -391,7 +403,6 @@ function ProfileDrawer(props: Props) {
   function handleSaveClick() {
     setEdit(false);
     updateNewUserInfoToServer();
-    setOriginalToUpdated();
   }
 
   function handleCancelClick() {
@@ -652,7 +663,6 @@ function ProfileDrawer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {landingRedirect && <Redirect to="/" />}
       <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {imageLoaded && renderProfilePicture()}
@@ -693,6 +703,15 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     updateRefreshToken: (refreshToken: string) => {
       dispatch(updateRefreshToken(refreshToken));
+    },
+    updateConversations: (conversations: ConversationType[]) => {
+      dispatch(updateConversations(conversations));
+    },
+    resetNewMessage: () => {
+      dispatch(resetNewMessage());
+    },
+    resetMessageSocket: () => {
+      dispatch(resetMessageSocket());
     },
   };
 };

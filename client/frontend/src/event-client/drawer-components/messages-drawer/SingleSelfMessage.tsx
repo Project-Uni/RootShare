@@ -12,7 +12,7 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     justifyContent: 'flex-end',
-    float: 'right',
+    alignSelf: 'flex-end',
     width: '80%',
     background: colors.secondary,
   },
