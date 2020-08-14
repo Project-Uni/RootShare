@@ -187,7 +187,7 @@ function MyEventMessage(props: Props) {
             size={17}
           />
 
-          <Menu
+          {/* <Menu
             id="long-menu"
             anchorEl={anchorEl}
             keepMounted
@@ -209,7 +209,7 @@ function MyEventMessage(props: Props) {
                 {option}
               </MenuItem>
             ))}
-          </Menu>
+          </Menu> */}
           {liked ? (
             <FaStar onClick={handleLikeClicked} className={styles.star} size={20} />
           ) : (
