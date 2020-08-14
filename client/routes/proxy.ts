@@ -167,19 +167,20 @@ module.exports = (app) => {
   );
 
   app.post(
-    '/proxy/webinar/removeViewer',
+    '/proxy/webinar/removeViewerFromStream',
     isAuthenticatedWithJWT,
     isEventHost,
     async (req, res) => {
       const { userID, webinarID } = req.body;
-      if (!userID) return res.json(sendPacket(-1, 'userID not in request body'));
+      if (!userID || !webinarID)
+        return res.json(sendPacket(-1, 'userID or webinarID not in request body'));
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
 
       const data = await makeRequest(
         'webinarCache',
-        'api/removeViewer',
+        'api/removeViewerFromStream',
         'POST',
         {
           userID,

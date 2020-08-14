@@ -78,4 +78,18 @@ module.exports = (app, webinarCache: WebinarCache) => {
       sendPacket(1, 'Successfully updated connectionID for guest speaker')
     );
   });
+
+  app.post('/api/removeViewerFromStream', isAuthenticatedWithJWT, (req, res) => {
+    const { userID, webinarID } = req.body;
+    if (!userID || !webinarID)
+      return res.json(
+        sendPacket(-1, 'userID or webinarID missing from request body')
+      );
+
+    if (!(webinarID in webinarCache)) {
+      //TODO - Check waitingRoom
+    }
+
+    return res.json(sendPacket(1, 'Test worked'));
+  });
 };
