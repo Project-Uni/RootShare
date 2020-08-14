@@ -320,6 +320,7 @@ function EventClientBase(props: Props) {
           <EventMessageContainer
             conversationID={currConversationID}
             isHost={eventMode === 'admin'}
+            webinarID={(webinarData as EventType)._id}
           />
         </div>
       </div>

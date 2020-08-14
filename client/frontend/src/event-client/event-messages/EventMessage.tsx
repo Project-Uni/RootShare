@@ -103,7 +103,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   isHost?: boolean;
-  handleRemoveUser?: (userID: string) => boolean;
+  handleRemoveUser?: (userID: string) => Promise<boolean>;
 };
 
 function EventMessage(props: Props) {
@@ -187,9 +187,16 @@ function EventMessage(props: Props) {
     setTransition(() => slideLeft);
   }
 
-  function handleRemoveUser() {
+  async function handleRemoveUser() {
     setAnchorEl(null);
-    if (props.handleRemoveUser && props.handleRemoveUser(props.message._id)) {
+    if (
+      !window.confirm('Are you sure you want to remove this user from the stream?')
+    )
+      return;
+    if (
+      props.handleRemoveUser &&
+      (await props.handleRemoveUser(props.message._id))
+    ) {
       setSnackbarMode('notify');
       setSnackbarMessage('Successfully removed user from stream');
       setTransition(() => slideLeft);

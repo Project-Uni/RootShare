@@ -38,6 +38,7 @@ type Props = {
   newMessage: MessageType;
   messageSocket: SocketIOClient.Socket;
   isHost?: boolean;
+  webinarID: string;
 };
 
 function EventMessageContainer(props: Props) {
@@ -190,8 +191,18 @@ function EventMessageContainer(props: Props) {
       addMessageErr(data['content']['tempID']);
   }
 
-  function handleRemoveUser(userID: string) {
-    return false;
+  async function handleRemoveUser(userID: string) {
+    const { data } = await makeRequest(
+      'POST',
+      '/proxy/webinar/removeViewerFromStream',
+      { userID, webinarID: props.webinarID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success !== 1) return false;
+    return true;
   }
 
   function renderMessages() {

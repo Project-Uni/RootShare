@@ -165,4 +165,37 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
+
+  app.post(
+    '/proxy/webinar/removeViewer',
+    isAuthenticatedWithJWT,
+    isEventHost,
+    async (req, res) => {
+      const { userID, webinarID } = req.body;
+      if (!userID) return res.json(sendPacket(-1, 'userID not in request body'));
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+
+      const data = await makeRequest(
+        'webinarCache',
+        'api/removeViewer',
+        'POST',
+        {
+          userID,
+          webinarID,
+        },
+        true,
+        accessToken,
+        '',
+        req.user
+      );
+      if (data.success !== 1) log('error', data.message);
+      else {
+        //TODO - Add user to list of blocked users and prevent them from re-entering the event
+        log('info', `Successfully removed user ${userID} from ${webinarID}`);
+      }
+      return res.json(data);
+    }
+  );
 };
