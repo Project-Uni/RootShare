@@ -105,6 +105,7 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     alignSelf: 'center',
     marginTop: 40,
+    color: colors.secondaryText,
   },
 }));
 
@@ -232,7 +233,6 @@ function MessageThreadContainer(props: Props) {
             className={styles.loadingIndicator}
             size={75}
             thickness={2}
-            color="primary"
           />
         ) : (
           renderLatestMessages()
