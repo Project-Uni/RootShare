@@ -38,9 +38,9 @@ module.exports = (app, webinarCache: WebinarCache) => {
 
     const speakerID = webinarCache[webinarID].guestSpeaker._id;
 
-    if (!webinarCache[webinarID].guestSpeaker.connection?.connectionId) {
-      return res.json(sendPacket(0, 'Still waiting for connection to initialize'));
-    }
+    // if (!webinarCache[webinarID].guestSpeaker.connection?.connectionId) {
+    //   return res.json(sendPacket(0, 'Still waiting for connection to initialize'));
+    // }
 
     delete webinarCache[webinarID].guestSpeaker;
     delete webinarCache[webinarID].speakingToken;
