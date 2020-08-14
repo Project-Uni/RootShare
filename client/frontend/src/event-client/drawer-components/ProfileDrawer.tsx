@@ -128,7 +128,7 @@ function ProfileDrawer(props: Props) {
   const [originalGraduationYear, setOriginalGraduationYear] = useState(0);
   const [originalCurrentEmployer, setOriginalCurrentEmployer] = useState('');
   const [originalCurrentRole, setOriginalCurrentRole] = useState('');
-  const [originalCollege, setOriginalCollege] = useState('');
+  const [originalCollege, setOriginalCollege] = useState<UniversityType>();
   const [originalCollegeOf, setOriginalCollegeOf] = useState('');
   const [originalInterests, setOriginalInterests] = useState('');
   const [originalOrganizations, setOriginalOrganizations] = useState('');
@@ -142,7 +142,7 @@ function ProfileDrawer(props: Props) {
   const [updatedGraduationYear, setUpdatedGraduationYear] = useState(0);
   const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
   const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
-  const [updatedCollege, setUpdatedCollege] = useState('');
+  const [updatedCollege, setUpdatedCollege] = useState<UniversityType>();
   const [updatedCollegeOf, setUpdatedCollegeOf] = useState('');
   const [updatedInterests, setUpdatedInterests] = useState('');
   const [updatedOrganizations, setUpdatedOrganizations] = useState('');
@@ -150,6 +150,7 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  //TODO: Keep as is for now. Will update to show error in the future
   const [fetchingErr, setFetchingErr] = useState(false);
   const [updateErr, setUpdateErr] = useState(false);
 
@@ -189,15 +190,13 @@ function ProfileDrawer(props: Props) {
   }
 
   function setOriginalUserInfo(user: UserType) {
-    const university = user.university as UniversityType;
-
     setOriginalFirstName(user.firstName);
     setOriginalLastName(user.lastName);
     setOriginalMajor(user.major);
     setOriginalGraduationYear(user.graduationYear);
     setOriginalCurrentEmployer(user.work);
     setOriginalCurrentRole(user.position);
-    setOriginalCollege(university.universityName);
+    setOriginalCollege(user.university as UniversityType);
     setOriginalCollegeOf(user.department);
     setOriginalInterests(user.interests.join(','));
     setOriginalOrganizations(user.organizations.join(','));
@@ -220,10 +219,10 @@ function ProfileDrawer(props: Props) {
         graduationYear: updatedGraduationYear,
         work: updatedCurrentEmployer,
         position: updatedCurrentRole,
-        university: updatedCollege,
+        university: updatedCollege?._id,
         department: updatedCollegeOf,
-        interests: updatedInterests,
-        organizations: updatedOrganizations,
+        interests: updatedInterests.split(','),
+        organizations: updatedOrganizations.split(','),
         graduateSchool: updatedGraduateDegree,
         phoneNumber: updatedPhoneNumber,
         discoveryMethod: updatedDiscoveryMethod,
@@ -233,6 +232,7 @@ function ProfileDrawer(props: Props) {
       props.refreshToken
     );
 
+    console.log(data);
     if (data['success'] !== 1) setUpdateErr(true);
   }
 
@@ -253,7 +253,8 @@ function ProfileDrawer(props: Props) {
     if (updatedCurrentRole !== originalCurrentRole)
       setUpdatedCurrentRole(originalCurrentRole);
 
-    if (updatedCollege !== originalCollege) setUpdatedCollege(originalCollege);
+    if (updatedCollege?._id !== originalCollege?._id)
+      setUpdatedCollege(originalCollege);
 
     if (updatedCollegeOf !== originalCollegeOf)
       setUpdatedCollegeOf(originalCollegeOf);
@@ -291,7 +292,8 @@ function ProfileDrawer(props: Props) {
     if (originalCurrentRole !== updatedCurrentRole)
       setOriginalCurrentRole(updatedCurrentRole);
 
-    if (originalCollege !== updatedCollege) setOriginalCollege(updatedCollege);
+    if (originalCollege?._id !== updatedCollege?._id)
+      setOriginalCollege(updatedCollege);
 
     if (originalCollegeOf !== updatedCollegeOf)
       setOriginalCollegeOf(updatedCollegeOf);
@@ -313,67 +315,54 @@ function ProfileDrawer(props: Props) {
   }
 
   function handleUpdatedFirstNameChange(event: any) {
-    console.log('Handling first name change...');
     setUpdatedFirstName(event.target.value);
   }
 
   function handleLastNameChange(event: any) {
-    console.log('Handling last name change...');
     setUpdatedLastName(event.target.value);
   }
 
   function handleMajorChange(event: any) {
-    console.log('Handling major change...');
     setUpdatedMajor(event.target.value);
   }
 
   function handleGraduationYearChange(event: any) {
-    console.log('Handling grad year change...');
     setUpdatedGraduationYear(event.target.value);
   }
 
   function handleCurrentEmployerChange(event: any) {
-    console.log('Handling current employer change...');
     setUpdatedCurrentEmployer(event.target.value);
   }
 
   function handleCurrentRoleChange(event: any) {
-    console.log('Handling current role change...');
     setUpdatedCurrentRole(event.target.value);
   }
 
   function handleCollegeChange(event: any) {
-    console.log('Handling college change...');
     setUpdatedCollege(event.target.value);
   }
 
   function handleCollegeOfChange(event: any) {
-    console.log('Handling college of change...');
     setUpdatedCollegeOf(event.target.value);
   }
 
   function handleInterestsChange(event: any) {
-    console.log('Handling interests change...');
     setUpdatedInterests(event.target.value);
   }
 
   function handleOrganizationsChange(event: any) {
-    console.log('Handling organizations change...');
     setUpdatedOrganizations(event.target.value);
   }
 
   function handleGraduateDegreeChange(event: any) {
-    console.log('Handling graduate degree change...');
     setUpdatedGraduateDegree(event.target.value);
   }
 
   function handlePhoneNumberChange(event: any) {
-    console.log('Handling phone number change...');
     setUpdatedPhoneNumber(event.target.value);
   }
 
   function handleDiscoveryMethodChange(event: any) {
-    console.log('Handling discovery method change...');
     setUpdatedDiscoveryMethod(event.target.value);
   }
 
@@ -484,8 +473,9 @@ function ProfileDrawer(props: Props) {
         />
         <UserInfoTextField
           label="Graduation Year"
-          value={`${updatedGraduationYear}`}
+          value={updatedGraduationYear?.toString()}
           onChange={handleGraduationYearChange}
+          type="number"
         />
         <UserInfoTextField
           label="Current Employer"
@@ -500,7 +490,7 @@ function ProfileDrawer(props: Props) {
         <Select
           className={styles.selectCollege}
           variant="outlined"
-          value={updatedCollege}
+          value={updatedCollege?.universityName}
           onChange={handleCollegeChange}
           label="University"
         >
@@ -537,6 +527,7 @@ function ProfileDrawer(props: Props) {
           label="Phone Number"
           value={updatedPhoneNumber}
           onChange={handlePhoneNumberChange}
+          type="number"
         />
         <UserInfoTextField
           label="Discovery Method"
@@ -588,7 +579,7 @@ function ProfileDrawer(props: Props) {
           color={colors.primaryText}
           className={styles.staticIndividual}
         >
-          University: {originalCollege}
+          University: {originalCollege?.universityName}
         </RSText>
         <RSText
           type="body"

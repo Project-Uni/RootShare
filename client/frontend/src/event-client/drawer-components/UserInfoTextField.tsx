@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 import { colors } from '../../theme/Colors';
-import { StringDecoder } from 'string_decoder';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: { marginTop: 20 },
@@ -42,6 +41,8 @@ type Props = {
   onChange: (event: any) => any;
   width?: number;
   className?: string;
+  type?: string;
+  children?: any;
 };
 
 function UserInfoTextField(props: Props) {
@@ -49,8 +50,8 @@ function UserInfoTextField(props: Props) {
   return (
     <div className={[styles.wrapper, props.className].join(' ')}>
       <TextField
-        multiline
-        type="search"
+        multiline={!props.type}
+        type={props.type ? props.type : 'search'}
         label={props.label}
         variant="outlined"
         className={styles.textField}
