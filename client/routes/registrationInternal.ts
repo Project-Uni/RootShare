@@ -92,7 +92,7 @@ module.exports = (app) => {
 
   app.post('/auth/signup/user-exists', async (req, res) => {
     let email = req.body.email;
-    let check = await userExists(email);
+    let check = await userExists(email.toLowerCase());
     if (check) {
       res.json(sendPacket(0, 'User with this email already exists'));
       log('error', `User tried creating a duplicate account with ${email}`);
@@ -133,7 +133,7 @@ module.exports = (app) => {
     const regComplete = req.user.work !== undefined;
     const externalComplete = req.user.university !== undefined;
 
-    let check = await userExists(email);
+    let check = await userExists(email.toLowerCase());
     if (check) {
       res.json(
         sendPacket(1, 'Sending back current user', {
@@ -221,7 +221,7 @@ module.exports = (app) => {
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));
 
-    sendPasswordResetLink(req.body.email, (packet) => {
+    sendPasswordResetLink(req.body.email.toLowerCase(), (packet) => {
       res.json(packet);
     });
   });

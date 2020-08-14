@@ -22,7 +22,7 @@ module.exports = (passport) => {
         state: true,
       },
       async function (accessToken, refreshToken, profile, done) {
-        let email = profile.emails[0].value;
+        let email = profile.emails[0].value.toLowerCase();
         let linkedinID = profile.id;
         let firstName = profile.name.givenName;
         let lastName = profile.name.familyName;
