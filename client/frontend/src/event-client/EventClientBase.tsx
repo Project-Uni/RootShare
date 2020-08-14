@@ -211,6 +211,10 @@ function EventClientBase(props: Props) {
       alert('The event has started');
       fetchEventInfo();
     });
+
+    socket.on('removed-from-event', () => {
+      window.location.href = '/';
+    });
   }
 
   function onAcceptSpeakingInvite() {
