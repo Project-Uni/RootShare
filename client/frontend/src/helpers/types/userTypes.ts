@@ -12,7 +12,7 @@ export type UserType = {
   graduationYear: number;
   department: string;
   major: string;
-  phoneNumber: String;
+  phoneNumber: string;
   organizations: string[];
   work: string;
   position: string;

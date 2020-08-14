@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
+
+import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-import RSText from '../../base-components/RSText';
-import { connect } from 'react-redux';
-import { makeRequest } from '../../helpers/functions/makeRequest';
-import { colors } from '../../theme/Colors';
-import { Select, MenuItem } from '@material-ui/core';
-import UserInfoTextField from './UserInfoTextField';
 
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { updateConversations, resetNewMessage } from '../../redux/actions/message';
+import { resetMessageSocket } from '../../redux/actions/sockets';
+import { colors } from '../../theme/Colors';
+import UserInfoTextField from './UserInfoTextField';
+import RSText from '../../base-components/RSText';
 import ProfilePicture from '../../base-components/ProfilePicture';
+
+import { makeRequest } from '../../helpers/functions';
+import {
+  UserType,
+  UniversityType,
+  ConversationType,
+  MessageType,
+} from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -65,6 +78,11 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     color: colors.primaryText,
   },
+  logoutErr: {
+    width: '361px',
+    marginTop: 10,
+    color: colors.brightError,
+  },
   buttonWrapper: {
     marginLeft: -20,
     marginBottom: 10,
@@ -108,6 +126,12 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
+  updateConversations: (conversations: ConversationType[]) => void;
+  resetNewMessage: () => void;
+  resetMessageSocket: () => void;
 };
 
 function ProfileDrawer(props: Props) {
@@ -122,10 +146,10 @@ function ProfileDrawer(props: Props) {
   const [originalFirstName, setOriginalFirstName] = useState('');
   const [originalLastName, setOriginalLastName] = useState('');
   const [originalMajor, setOriginalMajor] = useState('');
-  const [originalGraduationYear, setOriginalGraduationYear] = useState('');
+  const [originalGraduationYear, setOriginalGraduationYear] = useState<number>();
   const [originalCurrentEmployer, setOriginalCurrentEmployer] = useState('');
   const [originalCurrentRole, setOriginalCurrentRole] = useState('');
-  const [originalCollege, setOriginalCollege] = useState('');
+  const [originalCollege, setOriginalCollege] = useState<UniversityType>();
   const [originalCollegeOf, setOriginalCollegeOf] = useState('');
   const [originalInterests, setOriginalInterests] = useState('');
   const [originalOrganizations, setOriginalOrganizations] = useState('');
@@ -136,10 +160,10 @@ function ProfileDrawer(props: Props) {
   const [updatedFirstName, setUpdatedFirstName] = useState('');
   const [updatedLastName, setUpdatedLastName] = useState('');
   const [updatedMajor, setUpdatedMajor] = useState('');
-  const [updatedGraduationYear, setUpdatedGraduationYear] = useState('');
+  const [updatedGraduationYear, setUpdatedGraduationYear] = useState<number>();
   const [updatedCurrentEmployer, setUpdatedCurrentEmployer] = useState('');
   const [updatedCurrentRole, setUpdatedCurrentRole] = useState('');
-  const [updatedCollege, setUpdatedCollege] = useState('');
+  const [updatedCollege, setUpdatedCollege] = useState<UniversityType>();
   const [updatedCollegeOf, setUpdatedCollegeOf] = useState('');
   const [updatedInterests, setUpdatedInterests] = useState('');
   const [updatedOrganizations, setUpdatedOrganizations] = useState('');
@@ -147,8 +171,13 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  //TODO: Keep as is for now. Will update to show error in the future
+  const [fetchingErr, setFetchingErr] = useState(false);
+  const [updateErr, setUpdateErr] = useState(false);
+  const [logoutErr, setLogoutErr] = useState(false);
+
   useEffect(() => {
-    setOriginalUserInfo();
+    getProfile();
     getCurrentProfilePicture();
   }, []);
 
@@ -168,164 +197,211 @@ function ProfileDrawer(props: Props) {
     setCurrentPicture(imageData);
   }
 
-  // Set All Initial User Info
-  // TODO: Map From Server From Specific User Instead Of Ashwin's Info
+  async function getProfile() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getProfile',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-  function setOriginalUserInfo() {
-    setOriginalFirstName(props.user.firstName);
-    setOriginalLastName(props.user.lastName);
-    setOriginalMajor('Computer Science');
-    setOriginalGraduationYear('2020');
-    setOriginalCurrentEmployer('AutoZone');
-    setOriginalCurrentRole('Senior Lead Software Engineer');
-    setOriginalCollege('Purdue University');
-    setOriginalCollegeOf('College of Science');
-    setOriginalInterests('Baddies, Hoes, Thots');
-    setOriginalOrganizations('PIKE, Volleyball, APhi Sexers');
-    setOriginalGraduateDegree('No');
-    setOriginalPhoneNumber('4086449017');
-    setOriginalDiscoveryMethod('Creator of Platform');
-
-    setUpdatedFirstName(props.user.firstName);
-    setUpdatedLastName(props.user.lastName);
-    setUpdatedMajor('Computer Science');
-    setUpdatedGraduationYear('2020');
-    setUpdatedCurrentEmployer('AutoZone');
-    setUpdatedCurrentRole('Senior Lead Software Engineer');
-    setUpdatedCollege('Purdue University');
-    setUpdatedCollegeOf('College of Science');
-    setUpdatedInterests('Baddies, Hoes, Thots');
-    setUpdatedOrganizations('PIKE, Volleyball, APhi Sexers');
-    setUpdatedGraduateDegree('No');
-    setUpdatedPhoneNumber('4086449017');
-    setUpdatedDiscoveryMethod('Creator of Platform');
+    if (data['success'] === 1) setOriginalUserInfo(data['content']['user']);
+    else setFetchingErr(true);
   }
 
-  // Changed User Information
-  // Constant Variables For Changed Info
+  function setOriginalUserInfo(user: UserType) {
+    setOriginalFirstName(user.firstName);
+    setOriginalLastName(user.lastName);
+    setOriginalMajor(user.major);
+    setOriginalGraduationYear(user.graduationYear);
+    setOriginalCurrentEmployer(user.work);
+    setOriginalCurrentRole(user.position);
+    setOriginalCollege(user.university as UniversityType);
+    setOriginalCollegeOf(user.department);
+    setOriginalInterests(user.interests.join(','));
+    setOriginalOrganizations(user.organizations.join(','));
+    setOriginalGraduateDegree(user.graduateSchool);
+    setOriginalPhoneNumber(user.phoneNumber);
+    setOriginalDiscoveryMethod(user.discoveryMethod);
+  }
 
-  function updateNewUserInfoToServer() {
-    // TODO: Make service request here
+  async function handleLogout() {
+    const { data } = await makeRequest('POST', '/auth/logout');
+    if (data['success'] !== 1) return setLogoutErr(true);
 
-    console.log(updatedFirstName);
-    console.log(updatedLastName);
-    console.log(updatedMajor);
-    console.log(updatedGraduationYear);
-    console.log(updatedCurrentEmployer);
-    console.log(updatedCurrentRole);
-    console.log(updatedCollege);
-    console.log(updatedCollegeOf);
-    console.log(updatedInterests);
-    console.log(updatedOrganizations);
-    console.log(updatedGraduateDegree);
-    console.log(updatedPhoneNumber);
-    console.log(updatedDiscoveryMethod);
+    props.updateUser({});
+    props.updateAccessToken('');
+    props.updateRefreshToken('');
+    props.updateConversations([]);
+    props.resetNewMessage();
+    props.resetMessageSocket();
+    window.location.href = '/';
+  }
 
+  async function updateNewUserInfoToServer() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/updateProfile',
+      {
+        firstName: updatedFirstName,
+        lastName: updatedLastName,
+        major: updatedMajor,
+        graduationYear: updatedGraduationYear,
+        work: updatedCurrentEmployer,
+        position: updatedCurrentRole,
+        university: updatedCollege?._id,
+        department: updatedCollegeOf,
+        interests: updatedInterests.split(','),
+        organizations: updatedOrganizations.split(','),
+        graduateSchool: updatedGraduateDegree,
+        phoneNumber: updatedPhoneNumber,
+        discoveryMethod: updatedDiscoveryMethod,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setOriginalToUpdated();
+    else setUpdateErr(true);
+  }
+
+  function setUpdatedToOriginal() {
     if (updatedFirstName !== originalFirstName)
-      setOriginalFirstName(updatedFirstName);
+      setUpdatedFirstName(originalFirstName);
 
-    if (updatedLastName !== originalLastName) setOriginalLastName(updatedLastName);
+    if (updatedLastName !== originalLastName) setUpdatedLastName(originalLastName);
 
-    if (updatedMajor !== originalMajor) setOriginalMajor(updatedMajor);
+    if (updatedMajor !== originalMajor) setUpdatedMajor(originalMajor);
 
     if (updatedGraduationYear !== originalGraduationYear)
-      setOriginalGraduationYear(updatedGraduationYear);
+      setUpdatedGraduationYear(originalGraduationYear);
 
     if (updatedCurrentEmployer !== originalCurrentEmployer)
-      setOriginalCurrentEmployer(updatedCurrentEmployer);
+      setUpdatedCurrentEmployer(originalCurrentEmployer);
 
     if (updatedCurrentRole !== originalCurrentRole)
-      setOriginalCurrentRole(updatedCurrentRole);
+      setUpdatedCurrentRole(originalCurrentRole);
 
-    if (updatedCollege !== originalCollege) setOriginalCollege(updatedCollege);
+    if (updatedCollege?._id !== originalCollege?._id)
+      setUpdatedCollege(originalCollege);
 
     if (updatedCollegeOf !== originalCollegeOf)
-      setOriginalCollegeOf(updatedCollegeOf);
+      setUpdatedCollegeOf(originalCollegeOf);
 
     if (updatedInterests !== originalInterests)
-      setOriginalInterests(updatedInterests);
+      setUpdatedInterests(originalInterests);
 
     if (updatedOrganizations !== originalOrganizations)
-      setOriginalOrganizations(updatedOrganizations);
+      setUpdatedOrganizations(originalOrganizations);
 
     if (updatedGraduateDegree !== originalGraduateDegree)
-      setOriginalGraduateDegree(updatedGraduateDegree);
+      setUpdatedGraduateDegree(originalGraduateDegree);
 
     if (updatedPhoneNumber !== originalPhoneNumber)
-      setOriginalPhoneNumber(updatedPhoneNumber);
+      setUpdatedPhoneNumber(originalPhoneNumber);
 
     if (updatedDiscoveryMethod !== originalDiscoveryMethod)
+      setUpdatedDiscoveryMethod(originalDiscoveryMethod);
+  }
+
+  function setOriginalToUpdated() {
+    if (originalFirstName !== updatedFirstName)
+      setOriginalFirstName(updatedFirstName);
+
+    if (originalLastName !== updatedLastName) setOriginalLastName(updatedLastName);
+
+    if (originalMajor !== updatedMajor) setOriginalMajor(updatedMajor);
+
+    if (originalGraduationYear !== updatedGraduationYear)
+      setOriginalGraduationYear(updatedGraduationYear);
+
+    if (originalCurrentEmployer !== updatedCurrentEmployer)
+      setOriginalCurrentEmployer(updatedCurrentEmployer);
+
+    if (originalCurrentRole !== updatedCurrentRole)
+      setOriginalCurrentRole(updatedCurrentRole);
+
+    if (originalCollege?._id !== updatedCollege?._id)
+      setOriginalCollege(updatedCollege);
+
+    if (originalCollegeOf !== updatedCollegeOf)
+      setOriginalCollegeOf(updatedCollegeOf);
+
+    if (originalInterests !== updatedInterests)
+      setOriginalInterests(updatedInterests);
+
+    if (originalOrganizations !== updatedOrganizations)
+      setOriginalOrganizations(updatedOrganizations);
+
+    if (originalGraduateDegree !== updatedGraduateDegree)
+      setOriginalGraduateDegree(updatedGraduateDegree);
+
+    if (originalPhoneNumber !== updatedPhoneNumber)
+      setOriginalPhoneNumber(updatedPhoneNumber);
+
+    if (originalDiscoveryMethod !== updatedDiscoveryMethod)
       setOriginalDiscoveryMethod(updatedDiscoveryMethod);
   }
 
   function handleUpdatedFirstNameChange(event: any) {
-    console.log('Handling first name change...');
     setUpdatedFirstName(event.target.value);
   }
 
   function handleLastNameChange(event: any) {
-    console.log('Handling last name change...');
     setUpdatedLastName(event.target.value);
   }
 
   function handleMajorChange(event: any) {
-    console.log('Handling major change...');
     setUpdatedMajor(event.target.value);
   }
 
   function handleGraduationYearChange(event: any) {
-    console.log('Handling grad year change...');
     setUpdatedGraduationYear(event.target.value);
   }
 
   function handleCurrentEmployerChange(event: any) {
-    console.log('Handling current employer change...');
     setUpdatedCurrentEmployer(event.target.value);
   }
 
   function handleCurrentRoleChange(event: any) {
-    console.log('Handling current role change...');
     setUpdatedCurrentRole(event.target.value);
   }
 
   function handleCollegeChange(event: any) {
-    console.log('Handling college change...');
     setUpdatedCollege(event.target.value);
   }
 
   function handleCollegeOfChange(event: any) {
-    console.log('Handling college of change...');
     setUpdatedCollegeOf(event.target.value);
   }
 
   function handleInterestsChange(event: any) {
-    console.log('Handling interests change...');
     setUpdatedInterests(event.target.value);
   }
 
   function handleOrganizationsChange(event: any) {
-    console.log('Handling organizations change...');
     setUpdatedOrganizations(event.target.value);
   }
 
   function handleGraduateDegreeChange(event: any) {
-    console.log('Handling graduate degree change...');
     setUpdatedGraduateDegree(event.target.value);
   }
 
   function handlePhoneNumberChange(event: any) {
-    console.log('Handling phone number change...');
     setUpdatedPhoneNumber(event.target.value);
   }
 
   function handleDiscoveryMethodChange(event: any) {
-    console.log('Handling discovery method change...');
     setUpdatedDiscoveryMethod(event.target.value);
   }
 
   // End Handle Change Functions For User Info
 
   function handleEditClick() {
+    setUpdatedToOriginal();
     setEdit(true);
   }
 
@@ -336,6 +412,7 @@ function ProfileDrawer(props: Props) {
 
   function handleCancelClick() {
     setEdit(false);
+    setUpdatedToOriginal();
   }
 
   function renderProfilePicture() {
@@ -427,8 +504,9 @@ function ProfileDrawer(props: Props) {
         />
         <UserInfoTextField
           label="Graduation Year"
-          value={updatedGraduationYear}
+          value={updatedGraduationYear ? updatedGraduationYear.toString() : ''}
           onChange={handleGraduationYearChange}
+          type="number"
         />
         <UserInfoTextField
           label="Current Employer"
@@ -440,11 +518,15 @@ function ProfileDrawer(props: Props) {
           value={updatedCurrentRole}
           onChange={handleCurrentRoleChange}
         />
-        <UserInfoTextField
-          label="University"
-          value={updatedCollege}
+        <Select
+          className={styles.selectCollege}
+          variant="outlined"
+          value={updatedCollege?.universityName}
           onChange={handleCollegeChange}
-        />
+          label="University"
+        >
+          <MenuItem value={'Purdue'}>Purdue</MenuItem>
+        </Select>
         <Select
           className={styles.selectCollege}
           variant="outlined"
@@ -476,6 +558,7 @@ function ProfileDrawer(props: Props) {
           label="Phone Number"
           value={updatedPhoneNumber}
           onChange={handlePhoneNumberChange}
+          type="number"
         />
         <UserInfoTextField
           label="Discovery Method"
@@ -527,7 +610,7 @@ function ProfileDrawer(props: Props) {
           color={colors.primaryText}
           className={styles.staticIndividual}
         >
-          University: {originalCollege}
+          University: {originalCollege?.universityName}
         </RSText>
         <RSText
           type="body"
@@ -591,7 +674,12 @@ function ProfileDrawer(props: Props) {
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
       <div className={styles.logoutButtonWrapper}>
-        <Button className={styles.logoutButton}>LOGOUT</Button>
+        <Button
+          className={logoutErr ? styles.logoutErr : styles.logoutButton}
+          onClick={handleLogout}
+        >
+          {logoutErr ? 'ERROR LOGGING OUT' : 'LOGOUT'}
+        </Button>
       </div>
     </div>
   );
@@ -606,7 +694,26 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+    updateConversations: (conversations: ConversationType[]) => {
+      dispatch(updateConversations(conversations));
+    },
+    resetNewMessage: () => {
+      dispatch(resetNewMessage());
+    },
+    resetMessageSocket: () => {
+      dispatch(resetMessageSocket());
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileDrawer);

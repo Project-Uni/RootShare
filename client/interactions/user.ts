@@ -19,6 +19,79 @@ export function getCurrentUser(user, callback) {
   );
 }
 
+export async function getProfileInformation(userID, callback) {
+  try {
+    const user = await User.findById(userID, [
+      'email',
+      'firstName',
+      'lastName',
+      'major',
+      'graduationYear',
+      'work',
+      'position',
+      'university',
+      'department',
+      'interests',
+      'organizations',
+      'graduateSchool',
+      'phoneNumber',
+      'discoveryMethod',
+    ]).populate({ path: 'university', select: 'universityName' });
+
+    if (!user) return callback(sendPacket(0, "Couldn't find user"));
+    return callback(sendPacket(1, 'Sending user data', { user }));
+  } catch (err) {
+    return callback(sendPacket(-1, err));
+  }
+}
+
+export function updateProfileInformation(userID, profileData, callback) {
+  User.findById(
+    userID,
+    [
+      'firstName',
+      'lastName',
+      'major',
+      'graduationYear',
+      'work',
+      'position',
+      'university',
+      'department',
+      'interests',
+      'organizations',
+      'graduateSchool',
+      'phoneNumber',
+      'discoveryMethod',
+    ],
+    (err, user) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!user) return callback(sendPacket(0, 'Could not find user'));
+
+      if (profileData['firstName']) user.firstName = profileData['firstName'];
+      if (profileData['lastName']) user.lastName = profileData['lastName'];
+      if (profileData['major']) user.major = profileData['major'];
+      if (profileData['graduationYear'])
+        user.graduationYear = profileData['graduationYear'];
+      if (profileData['work']) user.work = profileData['work'];
+      if (profileData['position']) user.position = profileData['position'];
+      if (profileData['university']) user.university = profileData['university'];
+      if (profileData['department']) user.department = profileData['department'];
+      if (profileData['interests']) user.interests = profileData['interests'];
+      if (profileData['organizations'])
+        user.organizations = profileData['organizations'];
+      if (profileData['graduateSchool'])
+        user.graduateSchool = profileData['graduateSchool'];
+      if (profileData['phoneNumber']) user.phoneNumber = profileData['phoneNumber'];
+      if (profileData['discoveryMethod'])
+        user.discoveryMethod = profileData['discoveryMethod'];
+      user.save((err) => {
+        if (err) return callback(sendPacket(-1, err));
+        return callback(sendPacket(1, 'Successfully updated user profile!'));
+      });
+    }
+  );
+}
+
 // TODO: either send these in chunks or store all connections in redux when user logs in
 export function getConnections(userID, callback) {
   const lookupConnections = {
