@@ -19,6 +19,7 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
+import EventWelcomeModal from './EventWelcomeModal';
 
 import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
 
@@ -80,6 +81,7 @@ function EventClientBase(props: Props) {
   const [adLoaded, setAdLoaded] = useState(false);
   const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [webinarData, setWebinarData] = useState<EventType | {}>({});
 
@@ -227,6 +229,10 @@ function EventClientBase(props: Props) {
     setShowSpeakingInvite(false);
   }
 
+  function handleWelcomeModalAck() {
+    setShowWelcomeModal(false);
+  }
+
   function renderVideoArea() {
     const currWebinarData = webinarData as EventType;
     if (eventMode === 'viewer')
@@ -266,7 +272,8 @@ function EventClientBase(props: Props) {
   }
 
   const webinarEvent = webinarData as EventType;
-  if (checkMobile())
+
+  if (checkMobile()) {
     if (eventMode === 'viewer')
       return (
         <div className={styles.wrapper}>
@@ -294,6 +301,7 @@ function EventClientBase(props: Props) {
           </RSText>
         </div>
       );
+  }
 
   const currConversationID = webinarEvent.conversation as string;
   return (
@@ -310,6 +318,11 @@ function EventClientBase(props: Props) {
           {renderVideoArea()}
           {eventMode === 'viewer' && (
             <div className={styles.adContainer}>
+              <EventWelcomeModal
+                open={showWelcomeModal}
+                onAck={handleWelcomeModalAck}
+              />
+
               {adLoaded && (
                 <EventClientAdvertisement
                   height={125}
