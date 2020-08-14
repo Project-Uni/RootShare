@@ -19,7 +19,10 @@ module.exports = function (passport) {
         process.nextTick(function () {
           // check in mongo if a user with username exists or not
           email = email.toLowerCase();
-          User.findOne({ email: email }, function (err, user) {
+          User.findOne({ email: { $regex: email, $options: 'i' } }, function (
+            err,
+            user
+          ) {
             if (err) return done(err);
             if (!user) return done(null, false, { message: 'User Not Found' });
 
