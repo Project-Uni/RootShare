@@ -8,10 +8,6 @@ import jwt = require('jsonwebtoken');
 import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
 module.exports = (passport) => {
-  // const callbackURL =
-  //   process.env.NODE_ENV && process.env.NODE_ENV === "dev"
-  //     ? "/auth/callback/linkedin"
-  //     : "https://rootshare.io/auth/callback/linkedin";
   passport.use(
     'linkedin-login',
     new LinkedInStrategy(
