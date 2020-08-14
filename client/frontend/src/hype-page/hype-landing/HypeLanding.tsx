@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import HypeDesktopBody from './HypeDesktopBody';
 import HypeMobileBody from './HypeMobileBody';
 import HypeHeader from '../headerFooter/HypeHeader';
+import LandingHead from '../../landing-page/landing-components/LandingHead';
 import HypeFooter from '../headerFooter/HypeFooter';
 import HypeParticipatingOrganizations from './HypeParticipatingOrganizations';
 import HypeEventCountdown from './HypeEventCountdown';
@@ -43,7 +44,7 @@ function HypeLanding(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <HypeHeader />
+      <LandingHead />
 
       {desktopMode ? (
         <HypeDesktopBody eventDescription={eventDescription} />
