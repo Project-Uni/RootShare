@@ -271,6 +271,8 @@ function EventClientBase(props: Props) {
     return check;
   }
 
+  const webinarEvent = webinarData as EventType;
+
   if (checkMobile()) {
     if (eventMode === 'viewer')
       return (
