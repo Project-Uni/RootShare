@@ -191,11 +191,12 @@ module.exports = (app) => {
         '',
         req.user
       );
+
+      //NOTE: -1 means invalid webinarID, 0 means could not find user (user left stream already), 1 means successfully removed user
       if (data.success !== 1) log('error', data.message);
-      else {
-        //TODO - Add user to list of blocked users and prevent them from re-entering the event
-        log('info', `Successfully removed user ${userID} from ${webinarID}`);
-      }
+      else log('info', `Successfully removed user ${userID} from ${webinarID}`);
+
+      //TODO - If data.success === 0 | 1 : Add user to list of blocked users and prevent them from re-entering the event
       return res.json(data);
     }
   );
