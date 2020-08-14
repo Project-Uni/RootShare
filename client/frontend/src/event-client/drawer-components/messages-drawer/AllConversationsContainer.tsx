@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import RSText from '../../../base-components/RSText';
 import { BsPencilSquare } from 'react-icons/bs';
-import { IconButton, CircularProgress } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../theme/Colors';
 
@@ -61,11 +61,6 @@ function AllConversationsContainer(props: Props) {
   const styles = useStyles();
 
   const [newConversation, setNewConversation] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (props.conversations && props.conversations.length > 0) setLoading(false);
-  }, [props.conversations]);
 
   function renderLatestConversations() {
     let output: any[] = [];
@@ -109,16 +104,7 @@ function AllConversationsContainer(props: Props) {
       </div>
 
       <div className={styles.conversationsContainer}>
-        {loading ? (
-          <CircularProgress
-            className={styles.loadingIndicator}
-            size={200}
-            thickness={1.5}
-            color="primary"
-          />
-        ) : (
-          renderLatestConversations()
-        )}
+        {renderLatestConversations()}
       </div>
     </div>
   );

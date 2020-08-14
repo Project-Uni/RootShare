@@ -230,8 +230,8 @@ function MessageThreadContainer(props: Props) {
         {loading ? (
           <CircularProgress
             className={styles.loadingIndicator}
-            size={200}
-            thickness={1.5}
+            size={75}
+            thickness={2}
             color="primary"
           />
         ) : (
