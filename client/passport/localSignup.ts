@@ -16,6 +16,7 @@ module.exports = function (passport) {
       function (req, email, password, done) {
         function findOrCreateUser() {
           // find a user in Mongo with provided email address
+          email = email.toLowerCase();
           User.findOne({ email: email }, async function (err, user) {
             if (err) {
               return done(err);
