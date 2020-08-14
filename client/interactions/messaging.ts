@@ -286,5 +286,6 @@ function stringsToUserIDs(array) {
 }
 
 function userIsParticipant(userID, participants) {
-  return participants.includes(userID);
+  // Prevents infiltration to private convos, but allows sending event messages
+  return participants.includes(userID) || participants.length === 0;
 }
