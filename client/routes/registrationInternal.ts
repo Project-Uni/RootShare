@@ -205,7 +205,7 @@ module.exports = (app) => {
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));
 
-    sendPasswordResetLink(req.body.email, (packet) => {
+    sendPasswordResetLink(req.body.email.toLowerCase(), (packet) => {
       res.json(packet);
     });
   });
