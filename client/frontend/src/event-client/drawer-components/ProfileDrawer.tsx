@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { colors } from '../../theme/Colors';
 import UserInfoTextField from './UserInfoTextField';
 import RSText from '../../base-components/RSText';
@@ -68,6 +71,11 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     color: colors.primaryText,
   },
+  logoutErr: {
+    width: '361px',
+    marginTop: 10,
+    color: colors.brightError,
+  },
   buttonWrapper: {
     marginLeft: -20,
     marginBottom: 10,
@@ -111,6 +119,9 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  updateUser: (userInfo: { [key: string]: any }) => void;
+  updateAccessToken: (accessToken: string) => void;
+  updateRefreshToken: (refreshToken: string) => void;
 };
 
 function ProfileDrawer(props: Props) {
@@ -150,9 +161,11 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  const [landingRedirect, setLandingRedirect] = useState(false);
   //TODO: Keep as is for now. Will update to show error in the future
   const [fetchingErr, setFetchingErr] = useState(false);
   const [updateErr, setUpdateErr] = useState(false);
+  const [logoutErr, setLogoutErr] = useState(false);
 
   useEffect(() => {
     getProfile();
@@ -205,8 +218,15 @@ function ProfileDrawer(props: Props) {
     setOriginalDiscoveryMethod(user.discoveryMethod);
   }
 
-  // Changed User Information
-  // Constant Variables For Changed Info
+  async function handleLogout() {
+    const { data } = await makeRequest('POST', '/auth/logout');
+    if (data['success'] !== 1) return setLogoutErr(true);
+
+    props.updateUser({});
+    props.updateAccessToken('');
+    props.updateRefreshToken('');
+    setLandingRedirect(true);
+  }
 
   async function updateNewUserInfoToServer() {
     const { data } = await makeRequest(
@@ -637,13 +657,19 @@ function ProfileDrawer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      {landingRedirect && <Redirect to="/" />}
       <div>
         {imageLoaded && renderProfilePicture()}
         {renderNameAndEmail()}
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
       <div className={styles.logoutButtonWrapper}>
-        <Button className={styles.logoutButton}>LOGOUT</Button>
+        <Button
+          className={logoutErr ? styles.logoutErr : styles.logoutButton}
+          onClick={handleLogout}
+        >
+          {logoutErr ? 'ERROR LOGGING OUT' : 'LOGOUT'}
+        </Button>
       </div>
     </div>
   );
@@ -658,7 +684,17 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+    updateAccessToken: (accessToken: string) => {
+      dispatch(updateAccessToken(accessToken));
+    },
+    updateRefreshToken: (refreshToken: string) => {
+      dispatch(updateRefreshToken(refreshToken));
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileDrawer);
