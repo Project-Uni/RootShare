@@ -293,16 +293,7 @@ function HypeAdditionalInfo(props: Props) {
             </p>
           )}
           <div className={styles.buttonDiv}>
-            {regCompleted ? (
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={loading}
-                onClick={handleContinue}
-              >
-                Continue To Event
-              </Button>
-            ) : (
+            {regCompleted && (
               <Button
                 variant="contained"
                 color="primary"
