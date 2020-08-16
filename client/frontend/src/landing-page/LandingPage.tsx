@@ -58,33 +58,14 @@ type Props = {
 function LandingPage(props: Props) {
   const styles = useStyles();
   const [desktopMode, setDesktopMode] = useState(window.innerWidth >= MIN_WIDTH);
-  const [redirectHome, setRedirectHome] = useState(false);
 
   const [height, setHeight] = useState(
     window.innerHeight >= MIN_HEIGHT ? window.innerHeight : MIN_HEIGHT
   );
 
-  const redirectURL = '/event/5f30b4488e8fb07262044e9f';
-
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    checkAuth();
   }, []);
-
-  async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
-    }
-  }
 
   function handleResize() {
     setDesktopMode(window.innerWidth >= MIN_WIDTH);
@@ -96,7 +77,6 @@ function LandingPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to={redirectURL} />}
       <LandingHead />
       <div className={styles.body}>
         <div className={styles.left}>{desktopMode && <LandingBody />}</div>

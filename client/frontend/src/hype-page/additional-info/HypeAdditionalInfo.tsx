@@ -76,7 +76,7 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  const redirectURL = '/event/5f30b4488e8fb07262044e9f';
+  const redirectURL = '/home';
 
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
