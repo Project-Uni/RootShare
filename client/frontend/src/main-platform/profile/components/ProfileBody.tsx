@@ -8,8 +8,8 @@ import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { WelcomeMessage, UserPost } from '../../reusable-components';
-import { DhruvHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { UserType, UniversityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
@@ -30,6 +30,9 @@ const useStyles = makeStyles((_: any) => ({
   coverPhoto: {
     background: colors.bright,
     height: 200,
+  },
+  profilePictureContainer: {
+    marginTop: 20,
   },
   profilePicture: {
     height: 175,
@@ -67,10 +70,12 @@ type Props = {
 
 function ProfileBody(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+
+  const [currentPicture, setCurrentPicture] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
 
+  const [loading, setLoading] = useState(true);
   const [fetchingErr, setFetchingErr] = useState(false);
 
   useEffect(() => {
@@ -78,7 +83,10 @@ function ProfileBody(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (props.profileID) fetchProfile();
+    if (props.profileID) {
+      fetchProfile();
+      getCurrentProfilePicture();
+    }
   }, [props.profileID]);
 
   async function fetchProfile() {
@@ -102,11 +110,37 @@ function ProfileBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
+  async function getCurrentProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/getProfilePicture/${props.profileID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
+  }
+
+  function updateCurrentPicture(imageData: string) {
+    setCurrentPicture(imageData);
+  }
+
   function renderImages() {
     return (
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
-        <img src={DhruvHeadshot} className={styles.profilePicture} />
+        <ProfilePicture
+          className={styles.profilePictureContainer}
+          pictureStyle={styles.profilePicture}
+          editable
+          height={150}
+          width={150}
+          borderRadius={150}
+          currentPicture={currentPicture}
+          updateCurrentPicture={updateCurrentPicture}
+        />
       </div>
     );
   }
@@ -134,7 +168,7 @@ function ProfileBody(props: Props) {
         <UserPost
           userID={'testID'}
           userName="Dhruv Patel"
-          profilePicture={DhruvHeadshot}
+          profilePicture={currentPicture}
           timestamp="July 14th, 2020 6:52 PM"
           message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
           likeCount={109}

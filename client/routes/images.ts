@@ -63,7 +63,6 @@ module.exports = (app) => {
       }
 
       const imageURL = await retrieveSignedUrl('profile', pictureFileName);
-      console.log('imageURL', imageURL);
 
       if (!imageURL) {
         return res.json(sendPacket(0, 'No profile image found for user'));
