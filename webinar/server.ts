@@ -50,7 +50,7 @@ const WAITING_ROOM_TIMEOUT = 1000 * 60 * 60 * 1; // 1 HOUR
 const WAITING_ROOM_CLEANUP_INTERVAL = 1000 * 60 * 5; // 5 MINUTES
 
 require('./routes/cache')(app, io, webinarCache, waitingRooms);
-require('./routes/user')(app, webinarCache);
+require('./routes/user')(app, webinarCache, waitingRooms);
 
 require('./socket/socketSetup')(io, webinarCache, waitingRooms);
 

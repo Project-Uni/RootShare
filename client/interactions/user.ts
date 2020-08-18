@@ -497,7 +497,7 @@ function createConnectionRequest(userID, requestUserID, callback) {
             if (!requestedUser)
               return callback(sendPacket(0, 'Could not save request TO user'));
 
-            callback(sendPacket(1, 'Saved new Connection Request'));
+            callback(sendPacket(1, 'Connection request has been sent!'));
           });
         });
       });

@@ -18,18 +18,21 @@ module.exports = function (passport) {
       function (req, email, password, done) {
         process.nextTick(function () {
           // check in mongo if a user with username exists or not
-          User.findOne({ email: email }, function (err, user) {
+          email = email.toLowerCase();
+          User.findOne({ email: { $regex: email, $options: 'i' } }, function (
+            err,
+            user
+          ) {
             if (err) return done(err);
-            if (!user || user === undefined || user === null) {
-              return done(null, false, { message: 'User Not Found' });
-            }
+            if (!user) return done(null, false, { message: 'User Not Found' });
+
             if (user.hashedPassword === undefined) {
               return done(null, false, {
                 message: 'User has not signed up locally',
               });
             }
             if (!isValidPassword(user, password)) {
-              return done(null, false, { message: 'Invalid Password.' });
+              return done(null, false, { message: 'Invalid Password' });
             }
 
             const userTokenInfo = {};

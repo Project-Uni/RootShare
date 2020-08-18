@@ -48,26 +48,30 @@ module.exports = (app) => {
     }
   );
 
-  app.get('/api/getProfilePicture/:userID', async (req, res) => {
-    const { userID } = req.params;
-    let pictureFileName = `${req.user._id}_profile.jpeg`;
+  app.get(
+    '/api/getProfilePicture/:userID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      let pictureFileName = `${req.user._id}_profile.jpeg`;
 
-    try {
-      const user = await User.findById(userID);
-      if (user.profilePicture) pictureFileName = user.profilePicture;
-    } catch (err) {
-      log('err', err);
+      try {
+        const user = await User.findById(userID);
+        if (user.profilePicture) pictureFileName = user.profilePicture;
+      } catch (err) {
+        log('err', err);
+      }
+
+      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+      console.log('imageURL', imageURL);
+
+      if (!imageURL) {
+        return res.json(sendPacket(0, 'No profile image found for user'));
+      }
+
+      return res.json(
+        sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
+      );
     }
-
-    const imageURL = await retrieveSignedUrl('profile', pictureFileName);
-    console.log('imageURL', imageURL);
-
-    if (!imageURL) {
-      return res.json(sendPacket(0, 'No profile image found for user'));
-    }
-
-    return res.json(
-      sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
-    );
-  });
+  );
 };

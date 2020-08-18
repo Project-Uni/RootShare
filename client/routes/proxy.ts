@@ -165,4 +165,39 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
+
+  app.post(
+    '/proxy/webinar/removeViewerFromStream',
+    isAuthenticatedWithJWT,
+    isEventHost,
+    async (req, res) => {
+      const { userID, webinarID } = req.body;
+      if (!userID || !webinarID)
+        return res.json(sendPacket(-1, 'userID or webinarID not in request body'));
+
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+
+      const data = await makeRequest(
+        'webinarCache',
+        'api/removeViewerFromStream',
+        'POST',
+        {
+          userID,
+          webinarID,
+        },
+        true,
+        accessToken,
+        '',
+        req.user
+      );
+
+      //NOTE: -1 means invalid webinarID, 0 means could not find user (user left stream already), 1 means successfully removed user
+      if (data.success !== 1) log('error', data.message);
+      else log('info', `Successfully removed user ${userID} from ${webinarID}`);
+
+      //TODO - If data.success === 0 | 1 : Add user to list of blocked users and prevent them from re-entering the event
+      return res.json(data);
+    }
+  );
 };

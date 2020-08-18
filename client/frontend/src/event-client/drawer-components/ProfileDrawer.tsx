@@ -29,9 +29,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   profilePictureContainer: {
     marginTop: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   profilePicture: {
     border: `3px solid ${colors.primaryText}`,
@@ -48,9 +45,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     marginTop: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    textAlign: 'center',
   },
   static: {
     marginTop: 20,
@@ -184,7 +179,11 @@ function ProfileDrawer(props: Props) {
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/getProfilePicture/${props.user._id}`
+      `/api/getProfilePicture/${props.user._id}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
     );
 
     if (data['success'] === 1) {
@@ -671,8 +670,13 @@ function ProfileDrawer(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div>
-        {imageLoaded && renderProfilePicture()}
-        {renderNameAndEmail()}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {imageLoaded && renderProfilePicture()}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {renderNameAndEmail()}
+        </div>
+
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
       <div className={styles.logoutButtonWrapper}>

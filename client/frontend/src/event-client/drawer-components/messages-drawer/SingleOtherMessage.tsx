@@ -8,7 +8,7 @@ import { MessageType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    float: 'left',
+    alignSelf: 'flex-start',
     width: '80%',
     background: colors.secondary,
   },

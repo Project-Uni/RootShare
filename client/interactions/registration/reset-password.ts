@@ -34,7 +34,7 @@ export function sendPasswordResetLink(emailAddress, callback) {
       return callback(sendPacket(0, "Can't reset password for this email"));
 
     const emailToken = convertEmailToToken(emailAddress);
-    const resetPasswordLink = `https://rootshare.io/profile/resetPassword/${emailToken}`;
+    const resetPasswordLink = `https://rootshare.io/register/resetPassword/${emailToken}`;
     const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
 
     var params = {
