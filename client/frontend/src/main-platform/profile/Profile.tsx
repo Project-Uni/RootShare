@@ -52,11 +52,7 @@ function Profile(props: Props) {
     window.addEventListener('resize', handleResize);
 
     checkAuth().then(async (authenticated) => {
-      if (authenticated) {
-        console.log('User is authenticated');
-      } else {
-        setLoginRedirect(true);
-      }
+      if (!authenticated) setLoginRedirect(true);
     });
   }, []);
 

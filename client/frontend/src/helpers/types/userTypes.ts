@@ -17,6 +17,7 @@ export type UserType = {
   work: string;
   position: string;
   interests: string[];
+  bio: string;
   graduateSchool: string;
   discoveryMethod: string;
   sendEmails: boolean;
@@ -27,6 +28,9 @@ export type UserType = {
   pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
+  numConnections?: number;
+  numMutual?: number;
+  numCommunities?: number;
 };
 
 export type ConnectionRequestType = {

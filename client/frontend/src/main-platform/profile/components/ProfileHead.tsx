@@ -48,7 +48,7 @@ type Props = {
   company: string;
   bio: string;
   numConnections: number;
-  numMutualConnections: number;
+  numMutualConnections?: number;
   numCommunities: number;
 };
 
@@ -88,14 +88,16 @@ function ProfileHead(props: Props) {
         >
           {props.numConnections} Connections
         </RSText>
-        <RSText
-          type="subhead"
-          size={12}
-          color={colors.second}
-          className={styles.numbers}
-        >
-          {props.numMutualConnections} Mutual
-        </RSText>
+        {props.numMutualConnections && (
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.second}
+            className={styles.numbers}
+          >
+            {props.numMutualConnections} Mutual
+          </RSText>
+        )}
         <RSText
           type="subhead"
           size={12}

@@ -19,10 +19,55 @@ export function getCurrentUser(user, callback) {
   );
 }
 
-export async function getProfileInformation(userID, callback) {
+export async function getPrivateProfileInformation(userID, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'universities',
+        localField: 'university',
+        foreignField: '_id',
+        as: 'university',
+      },
+    },
+    { $unwind: '$university' },
+    {
+      $project: {
+        email: '$email',
+        firstName: '$firstName',
+        lastName: '$lastName',
+        major: '$major',
+        graduationYear: '$graduationYear',
+        work: '$work',
+        position: '$position',
+        department: '$department',
+        interests: '$interests',
+        organizations: '$organizations',
+        graduateSchool: '$graduateSchool',
+        phoneNumber: '$phoneNumber',
+        discoveryMethod: '$discoveryMethod',
+        numConnections: { $size: '$connections' },
+        numCommunities: { $size: '$joinedCommunities' },
+        university: {
+          _id: '$university._id',
+          universityName: '$university.universityName',
+        },
+      },
+    },
+  ])
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(
+        sendPacket(1, 'Sending personal user data', { user: users[0] })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
+
+export async function getPublicProfileInformation(userID, callback) {
   try {
     const user = await User.findById(userID, [
-      'email',
       'firstName',
       'lastName',
       'major',
@@ -33,13 +78,10 @@ export async function getProfileInformation(userID, callback) {
       'department',
       'interests',
       'organizations',
-      'graduateSchool',
-      'phoneNumber',
-      'discoveryMethod',
     ]).populate({ path: 'university', select: 'universityName' });
 
     if (!user) return callback(sendPacket(0, "Couldn't find user"));
-    return callback(sendPacket(1, 'Sending user data', { user }));
+    return callback(sendPacket(1, 'Sending public user data', { user }));
   } catch (err) {
     return callback(sendPacket(-1, err));
   }
