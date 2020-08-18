@@ -44,6 +44,7 @@ export async function getPrivateProfileInformation(userID, callback) {
         interests: '$interests',
         organizations: '$organizations',
         graduateSchool: '$graduateSchool',
+        bio: '$bio',
         phoneNumber: '$phoneNumber',
         discoveryMethod: '$discoveryMethod',
         numConnections: { $size: '$connections' },
@@ -78,6 +79,7 @@ export async function getPublicProfileInformation(userID, callback) {
       'department',
       'interests',
       'organizations',
+      'bio',
     ]).populate({ path: 'university', select: 'universityName' });
 
     if (!user) return callback(sendPacket(0, "Couldn't find user"));
@@ -132,6 +134,19 @@ export function updateProfileInformation(userID, profileData, callback) {
       });
     }
   );
+}
+
+export function updateUserBio(userID, newBio, callback) {
+  User.findById(userID, ['bio'], (err, user) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!user) return callback(sendPacket(0, 'Could not find User'));
+
+    user.bio = newBio;
+    user.save((err) => {
+      if (err) return callback(sendPacket(-1, err));
+      return callback(sendPacket(1, "Updated user's bio"));
+    });
+  });
 }
 
 // TODO: either send these in chunks or store all connections in redux when user logs in

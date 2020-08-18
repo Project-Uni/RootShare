@@ -7,6 +7,7 @@ import {
   getPrivateProfileInformation,
   getPublicProfileInformation,
   updateProfileInformation,
+  updateUserBio,
   getConnections,
   getConnectionSuggestions,
   getPendingRequests,
@@ -33,6 +34,10 @@ module.exports = (app) => {
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {
     updateProfileInformation(req.user._id, req.body, (packet) => res.json(packet));
+  });
+
+  app.post('/user/updateBio', isAuthenticatedWithJWT, (req, res) => {
+    updateUserBio(req.user._id, req.body.newBio, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {

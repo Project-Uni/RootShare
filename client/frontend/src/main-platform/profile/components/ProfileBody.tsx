@@ -216,6 +216,9 @@ function ProfileBody(props: Props) {
             numConnections={profile.numConnections!}
             numMutualConnections={profile.numMutual}
             numCommunities={profile.numCommunities!}
+            editable={props.profileID === 'user'}
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
           />
           {renderRegisteredEvents()}
           <RSText
