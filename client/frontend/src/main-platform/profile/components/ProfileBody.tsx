@@ -11,7 +11,12 @@ import { WelcomeMessage, UserPost } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { UserType, UniversityType, EventType } from '../../../helpers/types';
+import {
+  UserType,
+  UniversityType,
+  EventType,
+  HostType,
+} from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
@@ -135,7 +140,6 @@ function ProfileBody(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setEvents(data['content']['events']);
   }
 
@@ -162,16 +166,35 @@ function ProfileBody(props: Props) {
   }
 
   function renderRegisteredEvents() {
-    const output = [];
-    for (let i = 0; i < 4; i++)
+    const output: any = [];
+
+    events.forEach((event) => {
       output.push(
         <ProfileEvent
-          title="The Baby Boilers Are Back"
-          date="Aug 14, 2020"
-          participationType="SPEAKER"
+          key={event._id}
+          profileID={props.profileID}
+          event={event}
           style={styles.event}
         />
       );
+      output.push(
+        <ProfileEvent
+          key={event._id}
+          profileID={props.profileID}
+          event={event}
+          style={styles.event}
+        />
+      );
+      output.push(
+        <ProfileEvent
+          key={event._id}
+          profileID={props.profileID}
+          event={event}
+          style={styles.event}
+        />
+      );
+    });
+
     return (
       <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
     );

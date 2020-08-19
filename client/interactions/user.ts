@@ -90,15 +90,57 @@ export async function getPublicProfileInformation(userID, callback) {
 }
 
 export function getUserEvents(userID, callback) {
-  callback(sendPacket(1, 'TESSTTTT'));
-  // User.aggregate([
-  //   { $match: { _id: mongoose.Types.ObjectId(userID) } },
-  //   {$lookup: {
-  //     from: 'webinars',
-  //     localField: 'RSVPWebinars',
-  //     foreignField:
-  //   }},
-  // ])
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'webinars',
+        let: { rsvps: '$RSVPWebinars' },
+        pipeline: [
+          { $match: { $expr: { $in: ['$_id', '$$rsvps'] } } },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'host',
+              foreignField: '_id',
+              as: 'host',
+            },
+          },
+          { $unwind: '$host' },
+          {
+            $project: {
+              _id: '$_id',
+              title: '$title',
+              brief_description: '$brief_description',
+              full_description: '$full_description',
+              dateTime: '$dateTime',
+              userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
+              host: {
+                _id: '$host._id',
+                firstName: '$host.firstName',
+                lastName: '$host.lastName',
+              },
+            },
+          },
+        ],
+        as: 'RSVPWebinars',
+      },
+    },
+    {
+      $project: {
+        RSVPWebinars: '$RSVPWebinars',
+      },
+    },
+  ])
+    .exec()
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Could not find User's Events"));
+      return callback(
+        sendPacket(1, "Sending User's Events", { events: users[0].RSVPWebinars })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function updateProfileInformation(userID, profileData, callback) {
