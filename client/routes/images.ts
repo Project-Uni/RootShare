@@ -53,14 +53,15 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      let pictureFileName = `${req.user._id}_profile.jpeg`;
-
-      try {
-        const user = await User.findById(userID);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
-      } catch (err) {
-        log('err', err);
-      }
+      let pictureFileName = ``;
+      if (userID === 'user') pictureFileName = `${req.user._id}_profile.jpeg`;
+      else
+        try {
+          const user = await User.findById(userID);
+          if (user.profilePicture) pictureFileName = user.profilePicture;
+        } catch (err) {
+          log('err', err);
+        }
 
       const imageURL = await retrieveSignedUrl('profile', pictureFileName);
 

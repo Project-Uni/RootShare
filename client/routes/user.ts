@@ -6,6 +6,7 @@ import {
   getCurrentUser,
   getPrivateProfileInformation,
   getPublicProfileInformation,
+  getUserEvents,
   updateProfileInformation,
   updateUserBio,
   getConnections,
@@ -30,6 +31,12 @@ module.exports = (app) => {
     if (req.body.userID === 'user')
       getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
     else getPublicProfileInformation(req.body.userID, (packet) => res.json(packet));
+  });
+
+  app.post('/user/Events', isAuthenticatedWithJWT, (req, res) => {
+    let userID = req.body.userID;
+    if (userID === 'user') userID = req.user._id;
+    getUserEvents(userID, (packet) => res.json(packet));
   });
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {

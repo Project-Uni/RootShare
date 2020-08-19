@@ -186,7 +186,7 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={handleImageClick}
+          onClick={props.editable ? handleImageClick : undefined}
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -200,7 +200,7 @@ function ProfilePicture(props: Props) {
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
-              onClick={handleImageClick}
+              onClick={props.editable ? handleImageClick : undefined}
             />
           )}
         </div>

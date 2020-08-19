@@ -239,16 +239,19 @@ function ProfileHead(props: Props) {
               {originalBio}
             </RSText>
 
-            {(hoverBio || !originalBio || originalBio.length === 0) && (
-              <CreateIcon fontSize="small" className={styles.editIcon} />
-            )}
+            {(hoverBio || !originalBio || originalBio.length === 0) &&
+              props.editable && (
+                <CreateIcon fontSize="small" className={styles.editIcon} />
+              )}
           </div>
         )}
       </div>
       <div className={styles.headRight}>
-        <Button variant="contained" className={styles.connectButton} size="large">
-          Connect
-        </Button>
+        {props.editable || (
+          <Button variant="contained" className={styles.connectButton} size="large">
+            Connect
+          </Button>
+        )}
         <RSText
           type="subhead"
           size={12}
@@ -257,7 +260,7 @@ function ProfileHead(props: Props) {
         >
           {props.numConnections} Connections
         </RSText>
-        {props.numMutualConnections && (
+        {props.editable || (
           <RSText
             type="subhead"
             size={12}

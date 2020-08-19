@@ -11,7 +11,7 @@ import { WelcomeMessage, UserPost } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { UserType, UniversityType } from '../../../helpers/types';
+import { UserType, UniversityType, EventType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
@@ -74,6 +74,7 @@ function ProfileBody(props: Props) {
 
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
+  const [events, setEvents] = useState<EventType[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [fetchingErr, setFetchingErr] = useState(false);
@@ -86,6 +87,7 @@ function ProfileBody(props: Props) {
     if (props.profileID) {
       fetchProfile();
       getCurrentProfilePicture();
+      fetchEvents();
     }
   }, [props.profileID]);
 
@@ -123,6 +125,20 @@ function ProfileBody(props: Props) {
     if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
   }
 
+  async function fetchEvents() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/Events',
+      { userID: props.profileID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log(data);
+    if (data['success'] === 1) setEvents(data['content']['events']);
+  }
+
   function updateCurrentPicture(imageData: string) {
     setCurrentPicture(imageData);
   }
@@ -134,7 +150,7 @@ function ProfileBody(props: Props) {
         <ProfilePicture
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable
+          editable={props.profileID === 'user'}
           height={150}
           width={150}
           borderRadius={150}

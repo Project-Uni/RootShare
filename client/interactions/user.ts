@@ -89,6 +89,18 @@ export async function getPublicProfileInformation(userID, callback) {
   }
 }
 
+export function getUserEvents(userID, callback) {
+  callback(sendPacket(1, 'TESSTTTT'));
+  // User.aggregate([
+  //   { $match: { _id: mongoose.Types.ObjectId(userID) } },
+  //   {$lookup: {
+  //     from: 'webinars',
+  //     localField: 'RSVPWebinars',
+  //     foreignField:
+  //   }},
+  // ])
+}
+
 export function updateProfileInformation(userID, profileData, callback) {
   User.findById(
     userID,
