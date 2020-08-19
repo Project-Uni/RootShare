@@ -39,7 +39,7 @@ export async function createEvent(
       if (err || !webinar)
         return callback(sendPacket(-1, 'Failed to create webinar'));
 
-      addRSVPs(webinar._id, webinar.speakers.concat(webinar.host));
+      addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
       callback(sendPacket(1, 'Successfully created webinar', webinar));
       sendEventEmailConfirmation(
         webinar,
@@ -54,7 +54,7 @@ function updateEvent(eventBody, callback) {
   Webinar.findById(eventBody['editEvent'], (err, webinar) => {
     if (err || !webinar)
       return callback(sendPacket(-1, "Couldn't find event to update"));
-    removeRSVPs(webinar._id, webinar.speakers.concat(webinar.host));
+    removeRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
     webinar.title = eventBody['title'];
     webinar.brief_description = eventBody['brief_description'];
     webinar.full_description = eventBody['full_description'];
@@ -73,7 +73,7 @@ function updateEvent(eventBody, callback) {
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
 
-      addRSVPs(webinar._id, webinar.speakers.concat(webinar.host));
+      addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
@@ -86,54 +86,78 @@ function updateEvent(eventBody, callback) {
 
 function addRSVPs(webinarID, speakers) {
   const speakerIDs = formatElementsToObjectIds(speakers);
-  User.find(
-    {
-      _id: {
-        $in: speakerIDs,
-      },
-    },
-    ['RSVPWebinars'],
-    (err, users) => {
-      if (err) return log('error', err);
-      if (!users) return log('error', `Couldn't get users to update RSVP for event`);
 
-      users.forEach((user) => {
-        if (user.RSVPWebinars) user.RSVPWebinars.push(webinarID);
-        else user.RSVPWebinars = [webinarID];
-        user.save((err) => {
-          if (err) log('error', err);
-        });
-      });
-    }
-  );
+  Webinar.findById(webinarID, ['RSVPs'], (err, webinar) => {
+    if (err) return log('error', err);
+    if (!webinar) return log('error', 'Could not find webinar');
+
+    webinar.RSVPs = webinar.RSVPs.concat(speakers);
+    webinar.save((err) => {
+      if (err) return log('error', err);
+
+      User.find(
+        {
+          _id: {
+            $in: speakerIDs,
+          },
+        },
+        ['RSVPWebinars'],
+        (err, users) => {
+          if (err) return log('error', err);
+          if (!users)
+            return log('error', `Couldn't get users to update RSVP for event`);
+
+          users.forEach((user) => {
+            if (user.RSVPWebinars) user.RSVPWebinars.push(webinarID);
+            else user.RSVPWebinars = [webinarID];
+            user.save((err) => {
+              if (err) log('error', err);
+            });
+          });
+        }
+      );
+    });
+  });
 }
 
 function removeRSVPs(webinarID, oldSpeakers) {
   const oldSpeakerIDs = formatElementsToObjectIds(oldSpeakers);
-  User.find(
-    {
-      _id: {
-        $in: oldSpeakerIDs,
-      },
-    },
-    ['RSVPWebinars'],
-    (err, users) => {
-      if (err) return log('error', err);
-      if (!users) return log('error', `Couldn't get users to update RSVP for event`);
 
-      users.forEach((user) => {
-        if (user.RSVPWebinars) {
-          const eventIndex = user.RSVPWebinars.indexOf(
-            mongoose.Types.ObjectId(webinarID)
-          );
-          if (eventIndex !== -1) user.RSVPWebinars.splice(eventIndex, 1);
-          user.save((err) => {
-            if (err) log('error', err);
+  Webinar.findById(webinarID, ['RSVPs'], (err, webinar) => {
+    if (err) return log('error', err);
+    if (!webinar) return log('error', 'Could not find webinar');
+
+    webinar.RSVPs = webinar.RSVPs.filter((user) => !oldSpeakers.includes(user));
+    webinar.save((err) => {
+      if (err) return log('error', err);
+
+      User.find(
+        {
+          _id: {
+            $in: oldSpeakerIDs,
+          },
+        },
+        ['RSVPWebinars'],
+        (err, users) => {
+          if (err) return log('error', err);
+          if (!users)
+            return log('error', `Couldn't get users to update RSVP for event`);
+
+          users.forEach((user) => {
+            if (user.RSVPWebinars) {
+              const eventIndex = user.RSVPWebinars.indexOf(
+                mongoose.Types.ObjectId(webinarID)
+              );
+              if (eventIndex !== -1) user.RSVPWebinars.splice(eventIndex, 1);
+              user.save((err) => {
+                if (err) log('error', err);
+              });
+            }
           });
         }
-      });
-    }
-  );
+      );
+    });
+  });
 }
 
 export function timeStampCompare(ObjectA, ObjectB) {
@@ -403,4 +427,8 @@ function formatElementsToObjectIds(array) {
   });
 
   return newArray;
+}
+function formatSpeakers(speakers, host) {
+  if (speakers.includes(host)) return speakers;
+  else return speakers.concat(host);
 }
