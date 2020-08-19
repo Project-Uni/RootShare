@@ -9,7 +9,6 @@ var {
   confirmUser,
   unsubscribeUser,
   sendConfirmationEmail,
-  sendLaunchEventInvitation,
 } = require('../interactions/registration/email-confirmation');
 var {
   sendPasswordResetLink,
@@ -66,7 +65,6 @@ module.exports = (app) => {
           }
           log('info', `Successfully created account for ${user.email}`);
           sendConfirmationEmail(user.email);
-          sendLaunchEventInvitation(user.email);
           return res.json(
             sendPacket(1, 'Successfully signed up', {
               firstName: user.firstName,

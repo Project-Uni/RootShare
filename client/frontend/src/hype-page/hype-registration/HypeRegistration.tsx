@@ -350,7 +350,7 @@ function HypeRegistration(props: Props) {
               Back
             </Button>
           ) : (
-            <Button></Button>
+            <span />
           )}
           <Button
             variant="contained"
