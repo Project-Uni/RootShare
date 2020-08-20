@@ -22,6 +22,26 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primary,
     marginTop: 100,
   },
+  body: {
+    flex: 1,
+    paddingTop: 15,
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingBottom: 15,
+  },
+  pageTitleDiv: {
+    textAlign: 'left',
+  },
+  contentBody: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  contentBodyRight: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'flex-start',
+    border: '1px solid red',
+  },
 }));
 
 //TODO - Update user type
@@ -82,8 +102,18 @@ function AdminCommunityManager(props: Props) {
 
   function renderPageContent() {
     return (
-      <div>
-        <p>I am the correct page</p>
+      <div className={styles.body}>
+        <div className={styles.pageTitleDiv}>
+          <RSText size={24} type="head" bold>
+            Manage Communities
+          </RSText>
+        </div>
+        <div className={styles.contentBody}>
+          <p>Create a new community</p>
+          <div className={styles.contentBodyRight}>
+            <p>Existing Communities</p>
+          </div>
+        </div>
       </div>
     );
   }
