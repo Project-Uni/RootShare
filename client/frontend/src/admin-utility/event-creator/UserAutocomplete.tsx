@@ -4,9 +4,9 @@ import { Autocomplete } from '@material-ui/lab';
 import { TextField } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
-import { makeRequest } from '../helpers/functions';
+import { makeRequest } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({}));
 

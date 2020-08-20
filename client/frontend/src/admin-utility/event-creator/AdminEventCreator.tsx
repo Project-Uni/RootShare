@@ -14,17 +14,17 @@ import DateFnsUtils from '@date-io/date-fns';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { updateUser } from '../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
-import RootShareLogoFull from '../images/RootShareLogoFull.png';
-import HypeHeader from '../hype-page/headerFooter/HypeHeader';
-import RSText from '../base-components/RSText';
+import RootShareLogoFull from '../../images/RootShareLogoFull.png';
+import HypeHeader from '../../hype-page/headerFooter/HypeHeader';
+import RSText from '../../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
 
-import { EventType, HostType, SpeakerType } from '../helpers/types';
-import { makeRequest, log } from '../helpers/functions';
+import { EventType, HostType, SpeakerType } from '../../helpers/types';
+import { makeRequest, log } from '../../helpers/functions';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
