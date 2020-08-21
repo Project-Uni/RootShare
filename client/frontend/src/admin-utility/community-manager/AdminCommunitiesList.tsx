@@ -30,6 +30,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+const COLUMNS = ['University', 'Type', 'Members', 'Admin', 'Private'];
+
 type Props = {};
 
 function AdminCommunitiesList(props: Props) {
@@ -55,31 +57,13 @@ function AdminCommunitiesList(props: Props) {
             Community
           </RSText>
         </TableCell>
-        <TableCell align="right">
-          <RSText bold type="body">
-            University
-          </RSText>
-        </TableCell>
-        <TableCell align="right">
-          <RSText bold type="body">
-            Type
-          </RSText>
-        </TableCell>
-        <TableCell align="right">
-          <RSText bold type="body">
-            Members
-          </RSText>
-        </TableCell>
-        <TableCell align="right">
-          <RSText bold type="body">
-            Admin
-          </RSText>
-        </TableCell>
-        <TableCell align="right">
-          <RSText bold type="body">
-            Private
-          </RSText>
-        </TableCell>
+        {COLUMNS.map((column) => (
+          <TableCell align="right">
+            <RSText bold type="body">
+              {column}
+            </RSText>
+          </TableCell>
+        ))}
       </TableHead>
     );
   }
