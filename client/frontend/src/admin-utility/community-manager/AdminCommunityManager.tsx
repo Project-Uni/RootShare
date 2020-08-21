@@ -22,7 +22,9 @@ import { colors } from '../../theme/Colors';
 const MIN_ACCESS_LEVEL = 6;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    minWidth: 1077,
+  },
   loadingIndicator: {
     color: colors.primary,
     marginTop: 100,
@@ -184,7 +186,7 @@ function AdminCommunityManager(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/community" />}
-      <EventClientHeader showNavigationWidth={9999} />
+      <EventClientHeader showNavigationWidth={9999} minWidth={1077} />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}
