@@ -132,6 +132,13 @@ function AdminCommunityManager(props: Props) {
     setEditingCommunity({});
   }
 
+  function onUpdateCommunity() {
+    setCommunitiesLoading(true);
+    fetchCommunities().then(() => {
+      setCommunitiesLoading(false);
+    });
+  }
+
   function renderInvalid() {
     return (
       <RSText type="subhead" size={32} bold>
@@ -160,6 +167,7 @@ function AdminCommunityManager(props: Props) {
                 : undefined
             }
             onCancelEdit={onCancelEdit}
+            onUpdateCommunity={onUpdateCommunity}
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList

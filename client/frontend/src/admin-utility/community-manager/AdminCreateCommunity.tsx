@@ -89,6 +89,7 @@ type Props = {
   refreshToken: string;
   appendNewCommunity: (community: Community) => any;
   onCancelEdit: () => any;
+  onUpdateCommunity: () => any;
 };
 
 function AdminCreateCommunity(props: Props) {
@@ -261,6 +262,7 @@ function AdminCreateCommunity(props: Props) {
       setIsPrivate('no');
       setServerMessage(`s:Successfully created community ${name}`);
       props.onCancelEdit();
+      props.onUpdateCommunity();
     } else {
       setServerMessage(`f:${data.message}`);
     }
