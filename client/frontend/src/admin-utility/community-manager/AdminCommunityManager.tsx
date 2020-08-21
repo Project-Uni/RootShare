@@ -20,10 +20,11 @@ import AdminCommunitiesList from './AdminCommunitiesList';
 import { colors } from '../../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
+const MIN_PAGE_WIDTH = 1077;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    minWidth: 1077,
+    minWidth: MIN_PAGE_WIDTH,
   },
   loadingIndicator: {
     color: colors.primary,
@@ -186,7 +187,7 @@ function AdminCommunityManager(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/community" />}
-      <EventClientHeader showNavigationWidth={9999} minWidth={1077} />
+      <EventClientHeader showNavigationWidth={9999} minWidth={MIN_PAGE_WIDTH} />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}
