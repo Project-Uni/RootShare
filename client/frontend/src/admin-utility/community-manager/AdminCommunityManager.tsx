@@ -125,8 +125,11 @@ function AdminCommunityManager(props: Props) {
   }
 
   function editCommunity(community: Community) {
-    console.log('Editing community:', community);
     setEditingCommunity(community);
+  }
+
+  function onCancelEdit() {
+    setEditingCommunity({});
   }
 
   function renderInvalid() {
@@ -156,6 +159,7 @@ function AdminCommunityManager(props: Props) {
                 ? (editingCommunity as Community)
                 : undefined
             }
+            onCancelEdit={onCancelEdit}
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList

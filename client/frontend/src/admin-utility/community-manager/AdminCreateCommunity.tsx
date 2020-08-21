@@ -46,6 +46,10 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     marginTop: 30,
   },
+  cancelButton: {
+    width: 400,
+    marginTop: 20,
+  },
   communitySelect: {
     width: 225,
     textAlign: 'left',
@@ -84,6 +88,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   appendNewCommunity: (community: Community) => any;
+  onCancelEdit: () => any;
 };
 
 function AdminCreateCommunity(props: Props) {
@@ -111,8 +116,28 @@ function AdminCreateCommunity(props: Props) {
       setAdmin(editingCommunity.admin);
       setType(editingCommunity.type);
       setIsPrivate(editingCommunity.private ? 'yes' : 'no');
+
+      setNameErr('');
+      setDescErr('');
+      setAdminErr('');
+      setTypeErr('');
     }
   }, [props.editing]);
+
+  function onCancelEdit() {
+    setName('');
+    setDesc('');
+    setAdmin({});
+    setType('');
+    setIsPrivate('no');
+
+    setNameErr('');
+    setDescErr('');
+    setAdminErr('');
+    setTypeErr('');
+
+    props.onCancelEdit();
+  }
 
   function handleNameChange(event: any) {
     setName(event.target.value);
@@ -340,6 +365,7 @@ function AdminCreateCommunity(props: Props) {
       >
         {renderServerMessage()}
         {renderBody()}
+
         <Button
           className={styles.createButton}
           size="large"
@@ -347,6 +373,15 @@ function AdminCreateCommunity(props: Props) {
         >
           {props.editing ? 'Save Changes' : 'Create Community'}
         </Button>
+        {props.editing && (
+          <Button
+            size="large"
+            className={styles.cancelButton}
+            onClick={onCancelEdit}
+          >
+            Cancel Update
+          </Button>
+        )}
       </HypeCard>
     </div>
   );
