@@ -88,19 +88,13 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
-  loading?: boolean;
 };
 
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
-  const [descSubstr, setDescSubstr] = useState('');
 
-  useEffect(() => {
-    if (!props.loading) {
-      setDescSubstr(props.description.substr(0, MAX_DESC_LEN));
-    }
-  }, [props.loading]);
+  const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
   function handleSeeClicked() {
     setShowFullDesc(!showFullDesc);

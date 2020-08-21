@@ -114,7 +114,6 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
-              loading={props.loading}
             />
             {locked ? renderLocked() : renderTabs()}
           </>
