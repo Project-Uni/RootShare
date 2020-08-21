@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -35,6 +36,10 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 50,
     objectFit: 'cover',
   },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 50,
+  },
 }));
 
 type Props = {
@@ -56,30 +61,17 @@ type Props = {
 
 function CommunityBody(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const locked =
     props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
-      setLoading(false);
-    });
   }, []);
-
-  async function fetchData() {
-    console.log('Fetching data');
-  }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function renderProfileAndBackground() {
@@ -108,26 +100,25 @@ function CommunityBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {/* {showWelcomeModal && (
-        <WelcomeMessage
-          title="Community"
-          message="This is a community. You can talk with other people who are also involved in this community."
-          onClose={closeWelcomeMessage}
-        />
-      )} */}
       <div className={styles.body}>
         {renderProfileAndBackground()}
-        <CommunityGeneralInfo
-          status={props.status}
-          name={props.name}
-          numMembers={props.numMembers}
-          numMutual={props.numMutual}
-          type={props.type}
-          private={props.private}
-          description={props.description}
-          loading={props.loading}
-        />
-        {locked ? renderLocked() : renderTabs()}
+        {props.loading ? (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        ) : (
+          <>
+            <CommunityGeneralInfo
+              status={props.status}
+              name={props.name}
+              numMembers={props.numMembers}
+              numMutual={props.numMutual}
+              type={props.type}
+              private={props.private}
+              description={props.description}
+              loading={props.loading}
+            />
+            {locked ? renderLocked() : renderTabs()}
+          </>
+        )}
       </div>
     </div>
   );

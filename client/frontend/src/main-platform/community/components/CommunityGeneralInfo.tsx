@@ -101,7 +101,6 @@ function CommunityGeneralInfo(props: Props) {
       setDescSubstr(props.description.substr(0, MAX_DESC_LEN));
     }
   }, [props.loading]);
-  // const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
   function handleSeeClicked() {
     setShowFullDesc(!showFullDesc);
