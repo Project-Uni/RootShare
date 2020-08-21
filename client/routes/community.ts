@@ -1,9 +1,8 @@
 import sendPacket from '../helpers/sendPacket';
-import { Community } from '../models';
-import { getCommunityValueFromType } from '../models/communities';
-
-import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import log from '../helpers/logger';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+
+import { createNewCommunity } from '../interactions/community';
 
 export default function communityRoutes(app) {
   app.post(
@@ -11,7 +10,14 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { name, description, adminID, type, isPrivate } = req.body;
-      if (!name || !description || !adminID || !type || !isPrivate)
+      if (
+        !name ||
+        !description ||
+        !adminID ||
+        !type ||
+        isPrivate === null ||
+        isPrivate === undefined
+      )
         return res.json(
           sendPacket(
             -1,
@@ -19,33 +25,15 @@ export default function communityRoutes(app) {
           )
         );
 
-      const communityTypeValue = getCommunityValueFromType(type);
-      if (!communityTypeValue) {
-        return res.json(sendPacket(0, 'Invalid community type'));
-      }
-
-      //TODO - Add check to see if community with same name already exists
-
-      const newCommunity = new Community({
+      const data = await createNewCommunity(
         name,
         description,
-        type: communityTypeValue,
-        private: isPrivate,
-        admin: adminID,
-      });
+        adminID,
+        type,
+        isPrivate
+      );
 
-      try {
-        const savedCommunity = await newCommunity.save();
-        log('info', `Successfully created community ${name}`);
-        return res.json(
-          sendPacket(1, 'Successfully created new community', {
-            community: savedCommunity,
-          })
-        );
-      } catch (err) {
-        log('error', err);
-        return res.json(sendPacket(0, `Failed to create community ${name}`));
-      }
+      return res.json(data);
     }
   );
 }
