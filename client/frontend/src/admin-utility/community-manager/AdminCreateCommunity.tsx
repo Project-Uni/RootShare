@@ -17,6 +17,7 @@ import RSText from '../../base-components/RSText';
 import UserAutocomplete from '../event-creator/UserAutocomplete';
 
 import { colors } from '../../theme/Colors';
+import { makeRequest } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: { marginTop: 20 },
@@ -42,6 +43,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 400,
     background: colors.bright,
     color: colors.primaryText,
+    marginTop: 30,
   },
   communitySelect: {
     width: 225,
@@ -51,6 +53,10 @@ const useStyles = makeStyles((_: any) => ({
     width: 400,
     display: 'flex',
     justifyContent: 'flex-start',
+  },
+  privateSelect: {
+    width: 150,
+    textAlign: 'left',
   },
 }));
 
@@ -83,8 +89,10 @@ function AdminCreateCommunity(props: Props) {
   const [desc, setDesc] = useState('');
   const [admin, setAdmin] = useState<HostType | {}>({});
   const [type, setType] = useState('');
+  const [isPrivate, setIsPrivate] = useState('no');
 
   const [adminErr, setAdminErr] = useState('');
+  const [serverMessage, setServerMessage] = useState('');
 
   function handleNameChange(event: any) {
     setName(event.target.value);
@@ -105,6 +113,30 @@ function AdminCreateCommunity(props: Props) {
   function handleCommunityTypeChange(event: any) {
     setType(event.target.value);
   }
+
+  function handlePrivateChange(event: any) {
+    setIsPrivate(event.target.value);
+  }
+
+  async function handleCreateCommunity() {
+    setLoading(true);
+    const { data } = await makeRequest('POST', '/api/admin/community/create', {
+      name,
+      desc,
+      adminID: (admin as HostType)._id,
+      type,
+      isPrivate,
+    });
+
+    if (data.success === 1) {
+      setServerMessage(`s:${data.message}`);
+    } else {
+      setServerMessage(`f:${data.message}`);
+    }
+    setLoading(false);
+  }
+
+  function handleEditCommunity() {}
 
   function renderAdmin() {
     const currAdmin = admin as HostType;
@@ -138,6 +170,20 @@ function AdminCreateCommunity(props: Props) {
                 {communityType}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+      </div>
+    );
+  }
+
+  function renderPrivateSelect() {
+    return (
+      <div className={styles.communitySelectDiv}>
+        <FormControl className={styles.privateSelect} variant="outlined">
+          <InputLabel id="demo-simple-select-label">Private</InputLabel>
+          <Select value={isPrivate} onChange={handlePrivateChange}>
+            <MenuItem value={'yes'}>Yes</MenuItem>
+            <MenuItem value={'no'}>No</MenuItem>
           </Select>
         </FormControl>
       </div>
@@ -185,9 +231,14 @@ function AdminCreateCommunity(props: Props) {
           Community Type
         </RSText>
         {renderCommunityTypeSelect()}
+
+        <RSText type="body" bold size={12} className={styles.fieldLabel}>
+          Private
+        </RSText>
+        {renderPrivateSelect()}
       </div>
 
-      //Remaining Fields: Admin, Private, Type
+      //Remaining Fields: Private
     );
   }
   return (
@@ -198,7 +249,11 @@ function AdminCreateCommunity(props: Props) {
         headerText={props.editing ? 'Edit Community' : 'Create a New Community'}
       >
         {renderBody()}
-        <Button className={styles.createButton} size="large">
+        <Button
+          className={styles.createButton}
+          size="large"
+          onClick={props.editing ? handleEditCommunity : handleCreateCommunity}
+        >
           {props.editing ? 'Save Changes' : 'Create Community'}
         </Button>
       </HypeCard>
