@@ -298,7 +298,7 @@ function AdminCreateCommunity(props: Props) {
           variant="outlined"
           error={typeErr !== ''}
         >
-          <InputLabel id="demo-simple-select-label">Type</InputLabel>
+          <InputLabel>Type</InputLabel>
           <Select value={type} onChange={handleCommunityTypeChange}>
             {COMMUNITY_TYPES.map((communityType) => (
               <MenuItem value={communityType} key={communityType}>
@@ -316,7 +316,7 @@ function AdminCreateCommunity(props: Props) {
     return (
       <div className={styles.communitySelectDiv}>
         <FormControl className={styles.privateSelect} variant="outlined">
-          <InputLabel id="demo-simple-select-label">Private</InputLabel>
+          <InputLabel>Private</InputLabel>
           <Select value={isPrivate} onChange={handlePrivateChange}>
             <MenuItem value={'yes'}>Yes</MenuItem>
             <MenuItem value={'no'}>No</MenuItem>
