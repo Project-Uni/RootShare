@@ -8,6 +8,7 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  FormHelperText,
 } from '@material-ui/core';
 
 import { HostType } from '../../helpers/types';
@@ -91,8 +92,12 @@ function AdminCreateCommunity(props: Props) {
   const [type, setType] = useState('');
   const [isPrivate, setIsPrivate] = useState('no');
 
-  const [adminErr, setAdminErr] = useState('');
   const [serverMessage, setServerMessage] = useState('');
+
+  const [nameErr, setNameErr] = useState('');
+  const [descErr, setDescErr] = useState('');
+  const [adminErr, setAdminErr] = useState('');
+  const [typeErr, setTypeErr] = useState('');
 
   function handleNameChange(event: any) {
     setName(event.target.value);
@@ -118,14 +123,44 @@ function AdminCreateCommunity(props: Props) {
     setIsPrivate(event.target.value);
   }
 
+  function validateInput() {
+    let hasErr = false;
+    if (name === '') {
+      setNameErr('Name is required.');
+      hasErr = true;
+    } else setNameErr('');
+
+    if (desc === '') {
+      setDescErr('Description is required.');
+      hasErr = true;
+    } else setDescErr('');
+
+    if (Object.keys(admin).length === 0) {
+      setAdminErr('Community admin is required.');
+      hasErr = true;
+    } else setAdminErr('');
+
+    if (type === '') {
+      setTypeErr('Community type is required.');
+      hasErr = true;
+    } else setTypeErr('');
+
+    return hasErr;
+  }
+
   async function handleCreateCommunity() {
     setLoading(true);
+    const hasErrors = validateInput();
+    if (hasErrors) return;
+
+    const isPrivateBool = isPrivate === 'yes' ? true : false;
+
     const { data } = await makeRequest('POST', '/api/admin/community/create', {
       name,
       desc,
       adminID: (admin as HostType)._id,
       type,
-      isPrivate,
+      isPrivate: isPrivateBool,
     });
 
     if (data.success === 1) {
@@ -162,7 +197,11 @@ function AdminCreateCommunity(props: Props) {
   function renderCommunityTypeSelect() {
     return (
       <div className={styles.communitySelectDiv}>
-        <FormControl className={styles.communitySelect} variant="outlined">
+        <FormControl
+          className={styles.communitySelect}
+          variant="outlined"
+          error={typeErr !== ''}
+        >
           <InputLabel id="demo-simple-select-label">Type</InputLabel>
           <Select value={type} onChange={handleCommunityTypeChange}>
             {COMMUNITY_TYPES.map((communityType) => (
@@ -171,6 +210,7 @@ function AdminCreateCommunity(props: Props) {
               </MenuItem>
             ))}
           </Select>
+          {typeErr !== '' && <FormHelperText>{typeErr}</FormHelperText>}
         </FormControl>
       </div>
     );
@@ -221,6 +261,8 @@ function AdminCreateCommunity(props: Props) {
           label="Community Name"
           className={styles.textField}
           onChange={handleNameChange}
+          error={nameErr !== ''}
+          helperText={nameErr !== '' ? nameErr : null}
         />
 
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
@@ -233,6 +275,8 @@ function AdminCreateCommunity(props: Props) {
           className={styles.textField}
           multiline
           onChange={handleDescChange}
+          error={descErr !== ''}
+          helperText={descErr !== '' ? descErr : null}
         />
 
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
