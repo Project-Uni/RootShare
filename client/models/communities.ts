@@ -14,7 +14,7 @@ const CommunitySchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },
-    type: { type: Number, required: true, message: 'Type is required' },
+    type: { type: String, required: true, message: 'Type is required' },
     description: {
       type: String,
       required: true,

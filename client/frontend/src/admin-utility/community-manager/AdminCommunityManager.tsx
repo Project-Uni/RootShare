@@ -10,6 +10,8 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/functions';
 
+import { Community } from '../../helpers/types';
+
 import RSText from '../../base-components/RSText';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import AdminCreateCommunity from './AdminCreateCommunity';
@@ -63,7 +65,7 @@ function AdminCommunityManager(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
-  const [communities, setCommunities] = useState<{ [key: string]: any }[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
   const [communitiesLoading, setCommunitiesLoading] = useState(true);
 
   useEffect(() => {
@@ -109,8 +111,11 @@ function AdminCommunityManager(props: Props) {
       props.refreshToken
     );
 
-    console.log('Data:', data);
-    setCommunities(data.content['communities']);
+    if (data.success === 1) {
+      setCommunities(data.content['communities']);
+    } else {
+      alert('There was an error fetching the list of communities.');
+    }
   }
 
   function renderInvalid() {
@@ -135,8 +140,10 @@ function AdminCommunityManager(props: Props) {
             refreshToken={props.refreshToken}
           />
           <div className={styles.contentBodyRight}>
-            {/* <p>Existing Communities</p> */}
-            <AdminCommunitiesList />
+            <AdminCommunitiesList
+              communities={communities}
+              loading={communitiesLoading}
+            />
           </div>
         </div>
       </div>

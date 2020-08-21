@@ -11,6 +11,8 @@ import {
   Paper,
 } from '@material-ui/core';
 
+import { Community } from '../../helpers/types';
+
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
@@ -32,22 +34,13 @@ const useStyles = makeStyles((_: any) => ({
 
 const COLUMNS = ['University', 'Type', 'Members', 'Admin', 'Private'];
 
-type Props = {};
+type Props = {
+  communities: Community[];
+  loading?: boolean;
+};
 
 function AdminCommunitiesList(props: Props) {
   const styles = useStyles();
-
-  const communities: { [key: string]: any }[] = [];
-  for (let i = 0; i < 10; i++) {
-    communities.push({
-      name: 'Test Community',
-      admin: 'Ashwin Mahesh',
-      members: 790,
-      type: 'Social',
-      private: true,
-      university: 'Purdue University',
-    });
-  }
 
   function renderTableHead() {
     return (
@@ -71,7 +64,7 @@ function AdminCommunitiesList(props: Props) {
   function renderTableBody() {
     return (
       <TableBody>
-        {communities.map((community) => (
+        {props.communities.map((community) => (
           <TableRow key={community.name}>
             <TableCell>
               <a
@@ -86,16 +79,18 @@ function AdminCommunitiesList(props: Props) {
               </a>
             </TableCell>
             <TableCell align="right">
-              <RSText>{community.university}</RSText>
+              <RSText>{community.university.universityName}</RSText>
             </TableCell>
             <TableCell align="right">
               <RSText>{community.type}</RSText>
             </TableCell>
             <TableCell align="right">
-              <RSText>{community.members}</RSText>
+              <RSText>{(community.members as any[]).length}</RSText>
             </TableCell>
             <TableCell align="right">
-              <RSText>{community.admin}</RSText>
+              <RSText>
+                {community.admin.firstName} {community.admin.lastName}
+              </RSText>
             </TableCell>
             <TableCell align="right">
               <RSText>{community.private ? 'True' : 'False'}</RSText>

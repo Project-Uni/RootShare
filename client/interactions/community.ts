@@ -2,7 +2,7 @@ import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { Community } from '../models';
-import { getCommunityValueFromType } from '../models/communities';
+
 import { COMMUNITY_TYPE } from '../types/types';
 
 export async function createNewCommunity(
@@ -12,17 +12,12 @@ export async function createNewCommunity(
   type: COMMUNITY_TYPE,
   isPrivate: boolean
 ) {
-  const communityTypeValue = getCommunityValueFromType(type);
-  if (!communityTypeValue) {
-    return sendPacket(0, 'Invalid community type');
-  }
-
   //TODO - Add check to see if community with same name already exists
 
   const newCommunity = new Community({
     name,
     description,
-    type: communityTypeValue,
+    type,
     private: isPrivate,
     admin: adminID,
   });
@@ -47,7 +42,14 @@ export async function retrieveAllCommunities() {
       'private',
       'type',
       'university',
-    ]);
+      'members', //TODO - Replace this with a count of all the members in the future
+    ])
+      .populate({ path: 'university', select: 'universityName' })
+      .populate({
+        path: 'admin',
+        select: ['_id', 'firstName', 'lastName', 'email'],
+      });
+
     log('info', `Retrieved ${communities.length} communities`);
     return sendPacket(1, 'Successfully retrieved all communities', { communities });
   } catch (err) {
