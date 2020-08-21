@@ -110,7 +110,10 @@ function AdminCommunityManager(props: Props) {
           </RSText>
         </div>
         <div className={styles.contentBody}>
-          <AdminCreateCommunity />
+          <AdminCreateCommunity
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
+          />
           <div className={styles.contentBodyRight}>
             <p>Existing Communities</p>
           </div>

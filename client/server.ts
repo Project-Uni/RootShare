@@ -10,6 +10,8 @@ import * as path from 'path';
 
 import { rateLimiter } from './middleware';
 
+import communityRoutes from './routes/community';
+
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
 const http = require('http');
@@ -63,6 +65,8 @@ require('./routes/mocks')(app);
 require('./routes/proxy')(app);
 
 require('./routes/images')(app);
+communityRoutes(app);
+
 require('./config/setup')(passport);
 
 app.use(express.static(path.join('./', '/frontend/build')));

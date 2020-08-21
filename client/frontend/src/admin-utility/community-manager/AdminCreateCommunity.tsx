@@ -80,6 +80,8 @@ const COMMUNITY_TYPES = [
 
 type Props = {
   editing?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function AdminCreateCommunity(props: Props) {
@@ -155,15 +157,27 @@ function AdminCreateCommunity(props: Props) {
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
 
-    const { data } = await makeRequest('POST', '/api/admin/community/create', {
-      name,
-      desc,
-      adminID: (admin as HostType)._id,
-      type,
-      isPrivate: isPrivateBool,
-    });
+    const { data } = await makeRequest(
+      'POST',
+      '/api/admin/community/create',
+      {
+        name,
+        description: desc,
+        adminID: (admin as HostType)._id,
+        type,
+        isPrivate: isPrivateBool,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
     if (data.success === 1) {
+      setName('');
+      setDesc('');
+      setAdmin({});
+      setType('');
+      setIsPrivate('no');
       setServerMessage(`s:Successfully created community ${name}`);
     } else {
       setServerMessage(`f:${data.message}`);

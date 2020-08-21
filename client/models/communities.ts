@@ -20,7 +20,14 @@ const CommunitySchema = new mongoose.Schema(
       required: true,
       message: 'Description is required.',
     },
-    //TODO - Add fields for profile pic and background Image
+    university: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'universities',
+      required: true,
+      default: '5eb89c308cc6636630c1311f',
+    },
+    profilePicture: { type: String },
+    //TODO - Add fields for background Image
   },
   { timestamps: true }
 );
