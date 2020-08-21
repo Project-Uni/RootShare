@@ -38,3 +38,20 @@ export async function createNewCommunity(
     return sendPacket(0, `Failed to create community ${name}`);
   }
 }
+
+export async function retrieveAllCommunities() {
+  try {
+    const communities = await Community.find({}, [
+      'name',
+      'admin',
+      'private',
+      'type',
+      'university',
+    ]);
+    log('info', `Retrieved ${communities.length} communities`);
+    return sendPacket(1, 'Successfully retrieved all communities', { communities });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

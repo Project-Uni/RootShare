@@ -62,10 +62,15 @@ function AdminCommunityManager(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
+  const [communities, setCommunities] = useState<{ [key: string]: any }[]>([]);
+  const [communitiesLoading, setCommunitiesLoading] = useState(true);
+
   useEffect(() => {
     checkAuth().then(async (authorized) => {
       if (authorized) {
-        //TODO - fetch communities
+        fetchCommunities().then(() => {
+          setCommunitiesLoading(false);
+        });
       }
       setLoading(false);
     });
@@ -91,6 +96,20 @@ function AdminCommunityManager(props: Props) {
       }
     }
     return true;
+  }
+
+  async function fetchCommunities() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/admin/communities',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log('Data:', data);
+    setCommunities(data.content['communities']);
   }
 
   function renderInvalid() {

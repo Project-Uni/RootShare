@@ -314,10 +314,9 @@ function AdminCreateCommunity(props: Props) {
         </RSText>
         {renderPrivateSelect()}
       </div>
-
-      //Remaining Fields: Private
     );
   }
+
   return (
     <div className={styles.wrapper}>
       <HypeCard
