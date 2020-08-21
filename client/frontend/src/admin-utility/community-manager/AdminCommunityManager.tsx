@@ -13,6 +13,7 @@ import { colors } from '../../theme/Colors';
 
 import RSText from '../../base-components/RSText';
 import EventClientHeader from '../../event-client/EventClientHeader';
+import AdminCreateCommunity from './AdminCreateCommunity';
 
 const MIN_ACCESS_LEVEL = 6;
 
@@ -109,7 +110,7 @@ function AdminCommunityManager(props: Props) {
           </RSText>
         </div>
         <div className={styles.contentBody}>
-          <p>Create a new community</p>
+          <AdminCreateCommunity />
           <div className={styles.contentBodyRight}>
             <p>Existing Communities</p>
           </div>
