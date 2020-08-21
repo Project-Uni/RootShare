@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
@@ -88,13 +88,20 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  loading?: boolean;
 };
 
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [descSubstr, setDescSubstr] = useState('');
 
-  const descSubstr = props.description.substr(0, MAX_DESC_LEN);
+  useEffect(() => {
+    if (!props.loading) {
+      setDescSubstr(props.description.substr(0, MAX_DESC_LEN));
+    }
+  }, [props.loading]);
+  // const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
   function handleSeeClicked() {
     setShowFullDesc(!showFullDesc);

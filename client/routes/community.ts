@@ -6,6 +6,7 @@ import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
+  getCommunityInformation,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -92,4 +93,14 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.get(
+    '/api/community/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getCommunityInformation(communityID);
+      return res.json(packet);
+    }
+  );
 }

@@ -15,6 +15,7 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
+import { Community } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -39,11 +40,15 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
-function Community(props: Props) {
+function CommunityDetails(props: Props) {
   const styles = useStyles();
 
+  const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
 
   const orgID = props.match.params['orgID'];
 
@@ -52,7 +57,9 @@ function Community(props: Props) {
 
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
-        console.log('User is authenticated');
+        fetchCommunityInfo().then(() => {
+          setLoading(false);
+        });
       } else {
         setLoginRedirect(true);
       }
@@ -81,6 +88,22 @@ function Community(props: Props) {
     return true;
   }
 
+  async function fetchCommunityInfo() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/community/${orgID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setCommunityInfo(data.content['community']);
+    } else {
+      setShowInvalid(true);
+    }
+  }
+
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
@@ -89,18 +112,13 @@ function Community(props: Props) {
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         <CommunityBody
           status="PENDING"
-          name="Rootshare"
-          numMembers={7042}
+          name={(communityInfo as Community).name}
+          numMembers={(communityInfo as Community).members?.length || 0}
           numMutual={58}
-          type="Business"
-          private
-          description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
-          experiences post-graduation. Robbie has played in the NBA for a season or
-          two, and played overseas for multiple. He is involved with startups now.
-          Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
-          currently on the New Orleans Pelicans and is having great success. The first
-          45 minutes will be dedicated to the three talking about their experiences.
-          The remaining 15 minutes will be dedicated to questions from the fans.`}
+          type={(communityInfo as Community).type}
+          private={(communityInfo as Community).private}
+          description={(communityInfo as Community).description}
+          loading={loading}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
@@ -130,4 +148,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Community);
+export default connect(mapStateToProps, mapDispatchToProps)(CommunityDetails);

@@ -28,7 +28,7 @@ import {
   Discover,
   Events,
   Profile,
-  Community,
+  CommunityDetails,
   YourCommunities,
   StreamLibrary,
   Connections,
@@ -84,7 +84,7 @@ function App(props: Props) {
             <Route exact path="/events" component={Events} />
             <Route exact path="/profile/:profileID" component={Profile} />
             <Route exact path="/communities" component={YourCommunities} />
-            <Route exact path="/community/:orgID" component={Community} />
+            <Route exact path="/community/:orgID" component={CommunityDetails} />
             <Route exact path="/library" component={StreamLibrary} />
             <Route exact path="/connections" component={Connections} />
 

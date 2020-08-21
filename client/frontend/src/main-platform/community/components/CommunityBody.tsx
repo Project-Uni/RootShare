@@ -51,6 +51,7 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  loading?: boolean;
 };
 
 function CommunityBody(props: Props) {
@@ -124,6 +125,7 @@ function CommunityBody(props: Props) {
           type={props.type}
           private={props.private}
           description={props.description}
+          loading={props.loading}
         />
         {locked ? renderLocked() : renderTabs()}
       </div>

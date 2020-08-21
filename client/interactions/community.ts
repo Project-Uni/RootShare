@@ -86,3 +86,32 @@ export async function editCommunity(
     return sendPacket(-1, err);
   }
 }
+
+export async function getCommunityInformation(communityID: string) {
+  try {
+    const community = await Community.findById(communityID, [
+      'name',
+      'description',
+      'admin',
+      'private',
+      'type',
+      'members',
+      'university',
+      'profilePicture',
+    ])
+      .populate({ path: 'university', select: 'universityName' })
+      .populate({
+        path: 'admin',
+        select: ['_id', 'firstName', 'lastName', 'email'],
+      })
+      .populate({ path: 'members', select: '_id' });
+    log(
+      'info',
+      `Successfully retrieved community information for ${community.name}`
+    );
+    return sendPacket(1, 'Successfully retrieved community', { community });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
