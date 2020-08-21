@@ -10,6 +10,7 @@ import CommunityGeneralInfo from './CommunityGeneralInfo';
 
 import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const HEADER_HEIGHT = 60;
 
@@ -27,7 +28,28 @@ const useStyles = makeStyles((_: any) => ({
     height: 200,
     objectFit: 'cover',
   },
+  // profilePicture: {
+  //   // height: 175,
+  //   // width: 175,
+  //   // borderRadius: 100,
+  //   marginTop: -88,
+  //   border: `8px solid ${colors.primaryText}`,
+  //   marginLeft: 50,
+  //   objectFit: 'cover',
+  // },
+  profilePictureWrapper: {
+    marginTop: -88,
+    marginLeft: 50,
+  },
   profilePicture: {
+    border: `8px solid ${colors.primaryText}`,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 50,
+  },
+  loadingProfilePicture: {
+    background: colors['tint-three'],
     height: 175,
     width: 175,
     borderRadius: 100,
@@ -35,10 +57,6 @@ const useStyles = makeStyles((_: any) => ({
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
     objectFit: 'cover',
-  },
-  loadingIndicator: {
-    color: colors.primary,
-    marginTop: 50,
   },
 }));
 
@@ -78,7 +96,18 @@ function CommunityBody(props: Props) {
     return (
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
-        <img src={BabyBoilersBanner} className={styles.profilePicture} />
+        {props.loading ? (
+          <div className={[styles.loadingProfilePicture].join(' ')}></div>
+        ) : (
+          <ProfilePicture
+            height={175}
+            width={175}
+            borderRadius={100}
+            className={styles.profilePictureWrapper}
+            pictureStyle={styles.profilePicture}
+            //editable = if admin
+          />
+        )}
       </div>
     );
   }
