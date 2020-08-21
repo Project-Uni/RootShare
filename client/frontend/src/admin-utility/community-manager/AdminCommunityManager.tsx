@@ -13,6 +13,8 @@ import { makeRequest } from '../../helpers/functions';
 import RSText from '../../base-components/RSText';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import AdminCreateCommunity from './AdminCreateCommunity';
+import AdminCommunitiesList from './AdminCommunitiesList';
+
 import { colors } from '../../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
@@ -41,7 +43,6 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     display: 'flex',
     justifyContent: 'flex-start',
-    border: '1px solid red',
   },
 }));
 
@@ -134,7 +135,8 @@ function AdminCommunityManager(props: Props) {
             refreshToken={props.refreshToken}
           />
           <div className={styles.contentBodyRight}>
-            <p>Existing Communities</p>
+            {/* <p>Existing Communities</p> */}
+            <AdminCommunitiesList />
           </div>
         </div>
       </div>
