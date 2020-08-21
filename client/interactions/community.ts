@@ -24,6 +24,7 @@ export async function createNewCommunity(
 
   try {
     const savedCommunity = await newCommunity.save();
+
     log('info', `Successfully created community ${name}`);
     return sendPacket(1, 'Successfully created new community', {
       community: savedCommunity,

@@ -118,6 +118,14 @@ function AdminCommunityManager(props: Props) {
     }
   }
 
+  function appendNewCommunity(community: Community) {
+    setCommunities((prevState) => [...prevState, community]);
+  }
+
+  function editCommunity(_id: string) {
+    console.log('Editing community:', _id);
+  }
+
   function renderInvalid() {
     return (
       <RSText type="subhead" size={32} bold>
@@ -138,11 +146,13 @@ function AdminCommunityManager(props: Props) {
           <AdminCreateCommunity
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
+            appendNewCommunity={appendNewCommunity}
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList
               communities={communities}
               loading={communitiesLoading}
+              editCommunity={editCommunity}
             />
           </div>
         </div>

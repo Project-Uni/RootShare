@@ -11,7 +11,7 @@ import {
   FormHelperText,
 } from '@material-ui/core';
 
-import { HostType } from '../../helpers/types';
+import { HostType, Community } from '../../helpers/types';
 
 import HypeCard from '../../hype-page/hype-card/HypeCard';
 import RSText from '../../base-components/RSText';
@@ -82,6 +82,7 @@ type Props = {
   editing?: boolean;
   accessToken: string;
   refreshToken: string;
+  appendNewCommunity: (community: Community) => any;
 };
 
 function AdminCreateCommunity(props: Props) {
@@ -179,6 +180,7 @@ function AdminCreateCommunity(props: Props) {
       setType('');
       setIsPrivate('no');
       setServerMessage(`s:Successfully created community ${name}`);
+      props.appendNewCommunity(data.content['community']);
     } else {
       setServerMessage(`f:${data.message}`);
     }
