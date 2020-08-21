@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   TextField,
@@ -102,6 +102,17 @@ function AdminCreateCommunity(props: Props) {
   const [descErr, setDescErr] = useState('');
   const [adminErr, setAdminErr] = useState('');
   const [typeErr, setTypeErr] = useState('');
+
+  useEffect(() => {
+    if (props.editing && props.editingCommunity) {
+      const { editingCommunity } = props;
+      setName(editingCommunity.name);
+      setDesc(editingCommunity.description);
+      setAdmin(editingCommunity.admin);
+      setType(editingCommunity.type);
+      setIsPrivate(editingCommunity.private ? 'yes' : 'no');
+    }
+  }, [props.editing]);
 
   function handleNameChange(event: any) {
     setName(event.target.value);

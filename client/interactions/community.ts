@@ -39,6 +39,7 @@ export async function retrieveAllCommunities() {
   try {
     const communities = await Community.find({}, [
       'name',
+      'description',
       'admin',
       'private',
       'type',

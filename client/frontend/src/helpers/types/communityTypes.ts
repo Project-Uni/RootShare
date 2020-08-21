@@ -1,6 +1,7 @@
 export type Community = {
   _id: string;
   name: string;
+  description: string;
   admin: {
     [key: string]: any;
     _id: string;
