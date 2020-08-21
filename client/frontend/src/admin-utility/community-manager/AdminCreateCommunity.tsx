@@ -224,7 +224,11 @@ function AdminCreateCommunity(props: Props) {
     setLoading(false);
   }
 
-  function handleEditCommunity() {}
+  function handleEditCommunity() {
+    alert(
+      'This feature has not yet been implemented. Please be patient as we continue to develop it.'
+    );
+  }
 
   function renderAdmin() {
     const currAdmin = admin as HostType;

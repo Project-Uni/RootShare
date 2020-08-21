@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress,
 } from '@material-ui/core';
 
 import { Community } from '../../helpers/types';
@@ -29,6 +30,10 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
       textDecoration: 'underline',
     },
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 100,
   },
 }));
 
@@ -104,12 +109,16 @@ function AdminCommunitiesList(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <TableContainer component={Paper}>
-        <Table className={styles.tableContainer}>
-          {renderTableHead()}
-          {renderTableBody()}
-        </Table>
-      </TableContainer>
+      {props.loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : (
+        <TableContainer component={Paper}>
+          <Table className={styles.tableContainer}>
+            {renderTableHead()}
+            {renderTableBody()}
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 }
