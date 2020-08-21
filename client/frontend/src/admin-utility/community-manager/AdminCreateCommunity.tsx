@@ -129,7 +129,7 @@ function AdminCreateCommunity(props: Props) {
     });
 
     if (data.success === 1) {
-      setServerMessage(`s:${data.message}`);
+      setServerMessage(`s:Successfully created community ${name}`);
     } else {
       setServerMessage(`f:${data.message}`);
     }
@@ -186,6 +186,25 @@ function AdminCreateCommunity(props: Props) {
             <MenuItem value={'no'}>No</MenuItem>
           </Select>
         </FormControl>
+      </div>
+    );
+  }
+
+  function renderServerMessage() {
+    if (serverMessage === '') return null;
+    const messageType = serverMessage.substr(0, 1); //  's' if success, 'f' if error
+    const messageContent = serverMessage.substr(2, serverMessage.length - 2);
+
+    return (
+      <div style={{ width: 400, textAlign: 'left', marginTop: 10 }}>
+        <RSText
+          type="body"
+          size={14}
+          bold
+          color={messageType === 's' ? colors.success : colors.brightError}
+        >
+          {messageContent}
+        </RSText>
       </div>
     );
   }
@@ -248,6 +267,7 @@ function AdminCreateCommunity(props: Props) {
         loading={loading}
         headerText={props.editing ? 'Edit Community' : 'Create a New Community'}
       >
+        {renderServerMessage()}
         {renderBody()}
         <Button
           className={styles.createButton}
