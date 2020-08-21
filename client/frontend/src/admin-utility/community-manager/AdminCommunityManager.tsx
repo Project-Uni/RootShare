@@ -68,6 +68,8 @@ function AdminCommunityManager(props: Props) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communitiesLoading, setCommunitiesLoading] = useState(true);
 
+  const [editingCommunity, setEditingCommunity] = useState<Community | {}>({});
+
   useEffect(() => {
     checkAuth().then(async (authorized) => {
       if (authorized) {
@@ -122,8 +124,9 @@ function AdminCommunityManager(props: Props) {
     setCommunities((prevState) => [...prevState, community]);
   }
 
-  function editCommunity(_id: string) {
-    console.log('Editing community:', _id);
+  function editCommunity(community: Community) {
+    console.log('Editing community:', community);
+    setEditingCommunity(community);
   }
 
   function renderInvalid() {
@@ -147,6 +150,12 @@ function AdminCommunityManager(props: Props) {
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
             appendNewCommunity={appendNewCommunity}
+            editing={Object.keys(editingCommunity).length > 0}
+            editingCommunity={
+              Object.keys(editingCommunity).length > 0
+                ? (editingCommunity as Community)
+                : undefined
+            }
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList

@@ -37,7 +37,7 @@ const COLUMNS = ['University', 'Type', 'Members', 'Admin', 'Private'];
 type Props = {
   communities: Community[];
   loading?: boolean;
-  editCommunity: (_id: string) => any;
+  editCommunity: (community: Community) => any;
 };
 
 function AdminCommunitiesList(props: Props) {
@@ -71,7 +71,7 @@ function AdminCommunitiesList(props: Props) {
               <a
                 href={undefined}
                 onClick={() => {
-                  props.editCommunity(community._id);
+                  props.editCommunity(community);
                 }}
               >
                 <RSText className={styles.communityName} bold color={colors.primary}>

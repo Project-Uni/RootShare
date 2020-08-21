@@ -80,6 +80,7 @@ const COMMUNITY_TYPES = [
 
 type Props = {
   editing?: boolean;
+  editingCommunity?: Community;
   accessToken: string;
   refreshToken: string;
   appendNewCommunity: (community: Community) => any;
