@@ -59,3 +59,30 @@ export async function retrieveAllCommunities() {
     return sendPacket(-1, err);
   }
 }
+
+export async function editCommunity(
+  _id: string,
+  name: string,
+  description: string,
+  adminID: string,
+  type: COMMUNITY_TYPE,
+  isPrivate: boolean
+) {
+  try {
+    const community = await Community.findById({ _id });
+    community.name = name;
+    community.description = description;
+    community.admin = adminID;
+    community.type = type;
+    community.private = isPrivate;
+
+    const savedCommunity = await community.save();
+    log('info', `Successfully updated community ${name}`);
+    return sendPacket(1, 'Successfully updated community', {
+      community: savedCommunity,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

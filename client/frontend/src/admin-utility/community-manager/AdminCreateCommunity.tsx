@@ -191,7 +191,10 @@ function AdminCreateCommunity(props: Props) {
   async function handleCreateCommunity() {
     setLoading(true);
     const hasErrors = validateInput();
-    if (hasErrors) return;
+    if (hasErrors) {
+      setLoading(false);
+      return;
+    }
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
 
@@ -224,10 +227,44 @@ function AdminCreateCommunity(props: Props) {
     setLoading(false);
   }
 
-  function handleEditCommunity() {
-    alert(
-      'This feature has not yet been implemented. Please be patient as we continue to develop it.'
+  async function handleEditCommunity() {
+    setLoading(true);
+    const hasErrors = validateInput();
+    if (hasErrors) {
+      setLoading(false);
+      return;
+    }
+
+    const isPrivateBool = isPrivate === 'yes' ? true : false;
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/admin/community/edit',
+      {
+        _id: (props.editingCommunity as Community)._id,
+        name,
+        description: desc,
+        adminID: (admin as HostType)._id,
+        type,
+        isPrivate: isPrivateBool,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
     );
+
+    if (data.success === 1) {
+      setName('');
+      setDesc('');
+      setAdmin({});
+      setType('');
+      setIsPrivate('no');
+      setServerMessage(`s:Successfully created community ${name}`);
+      props.onCancelEdit();
+    } else {
+      setServerMessage(`f:${data.message}`);
+    }
+    setLoading(false);
   }
 
   function renderAdmin() {

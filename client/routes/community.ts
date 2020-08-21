@@ -5,6 +5,7 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   createNewCommunity,
   retrieveAllCommunities,
+  editCommunity,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -35,7 +36,7 @@ export default function communityRoutes(app) {
           )
         );
 
-      const data = await createNewCommunity(
+      const packet = await createNewCommunity(
         name,
         description,
         adminID,
@@ -43,17 +44,52 @@ export default function communityRoutes(app) {
         isPrivate
       );
 
-      return res.json(data);
+      return res.json(packet);
     }
   );
 
-  app.get('/api/admin/communities', isAuthenticatedWithJWT, async (req, res) => {
+  app.get('/api/admin/community/all', isAuthenticatedWithJWT, async (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(-1, 'User is not authorized to perform this action')
       );
 
     const packet = await retrieveAllCommunities();
+    return res.json(packet);
+  });
+
+  app.post('/api/admin/community/edit', isAuthenticatedWithJWT, async (req, res) => {
+    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      return res.json(
+        sendPacket(-1, 'User is not authorized to perform this action')
+      );
+
+    const { _id, name, description, adminID, type, isPrivate } = req.body;
+    if (
+      !_id ||
+      !name ||
+      !description ||
+      !adminID ||
+      !type ||
+      isPrivate === null ||
+      isPrivate === undefined
+    )
+      return res.json(
+        sendPacket(
+          -1,
+          'name, description, adminID, type, or isPrivate missing from request body.'
+        )
+      );
+
+    const packet = await editCommunity(
+      _id,
+      name,
+      description,
+      adminID,
+      type,
+      isPrivate
+    );
+
     return res.json(packet);
   });
 }
