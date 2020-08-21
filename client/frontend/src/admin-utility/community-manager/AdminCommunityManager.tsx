@@ -9,11 +9,11 @@ import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/functions';
-import { colors } from '../../theme/Colors';
 
 import RSText from '../../base-components/RSText';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import AdminCreateCommunity from './AdminCreateCommunity';
+import { colors } from '../../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
 

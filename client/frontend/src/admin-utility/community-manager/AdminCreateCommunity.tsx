@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton } from '@material-ui/core';
+import {
+  TextField,
+  IconButton,
+  Button,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+} from '@material-ui/core';
+
+import { HostType } from '../../helpers/types';
 
 import HypeCard from '../../hype-page/hype-card/HypeCard';
 import RSText from '../../base-components/RSText';
 import UserAutocomplete from '../event-creator/UserAutocomplete';
-import { HostType } from '../../helpers/types';
+
+import { colors } from '../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: { marginTop: 20 },
@@ -27,6 +38,20 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'center',
     marginBottom: 10,
   },
+  createButton: {
+    width: 400,
+    background: colors.bright,
+    color: colors.primaryText,
+  },
+  communitySelect: {
+    width: 225,
+    textAlign: 'left',
+  },
+  communitySelectDiv: {
+    width: 400,
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
 }));
 
 type CommunityType =
@@ -36,6 +61,15 @@ type CommunityType =
   | 'Athletics'
   | 'Student Organization'
   | 'Academic';
+
+const COMMUNITY_TYPES = [
+  'Social',
+  'Business',
+  'Just for Fun',
+  'Athletics',
+  'Student Organization',
+  'Academic',
+];
 
 type Props = {
   editing?: boolean;
@@ -48,6 +82,7 @@ function AdminCreateCommunity(props: Props) {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [admin, setAdmin] = useState<HostType | {}>({});
+  const [type, setType] = useState('');
 
   const [adminErr, setAdminErr] = useState('');
 
@@ -67,6 +102,10 @@ function AdminCreateCommunity(props: Props) {
     }
   }
 
+  function handleCommunityTypeChange(event: any) {
+    setType(event.target.value);
+  }
+
   function renderAdmin() {
     const currAdmin = admin as HostType;
     return (
@@ -84,6 +123,23 @@ function AdminCreateCommunity(props: Props) {
         >
           <RSText type="subhead">X</RSText>
         </IconButton>
+      </div>
+    );
+  }
+
+  function renderCommunityTypeSelect() {
+    return (
+      <div className={styles.communitySelectDiv}>
+        <FormControl className={styles.communitySelect} variant="outlined">
+          <InputLabel id="demo-simple-select-label">Type</InputLabel>
+          <Select value={type} onChange={handleCommunityTypeChange}>
+            {COMMUNITY_TYPES.map((communityType) => (
+              <MenuItem value={communityType} key={communityType}>
+                {communityType}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
     );
   }
@@ -124,6 +180,11 @@ function AdminCreateCommunity(props: Props) {
           label="Admin"
           err={adminErr}
         />
+
+        <RSText type="body" bold size={12} className={styles.fieldLabel}>
+          Community Type
+        </RSText>
+        {renderCommunityTypeSelect()}
       </div>
 
       //Remaining Fields: Admin, Private, Type
@@ -134,9 +195,12 @@ function AdminCreateCommunity(props: Props) {
       <HypeCard
         width={440}
         loading={loading}
-        headerText={props.editing ? 'Edit Community' : 'Create a new Community'}
+        headerText={props.editing ? 'Edit Community' : 'Create a New Community'}
       >
         {renderBody()}
+        <Button className={styles.createButton} size="large">
+          {props.editing ? 'Save Changes' : 'Create Community'}
+        </Button>
       </HypeCard>
     </div>
   );
