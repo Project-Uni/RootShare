@@ -98,7 +98,7 @@ export default function communityRoutes(app) {
   });
 
   app.get(
-    '/api/community/:communityID',
+    '/api/community/:communityID/info',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
@@ -108,7 +108,7 @@ export default function communityRoutes(app) {
   );
 
   app.get(
-    '/api/community/:communityID/:newStatus',
+    '/api/community/:communityID/updateStatus/:newStatus',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID, newStatus } = req.params;
@@ -124,7 +124,6 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
-      console.log('Hitting function');
       const { communityID } = req.params;
       const packet = await getAllPendingMembers(communityID);
       return res.json(packet);

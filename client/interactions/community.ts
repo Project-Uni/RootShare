@@ -266,7 +266,7 @@ export async function joinCommunity(
 
 export async function getAllPendingMembers(communityID: string) {
   try {
-    const pendingMembers = await Community.findById({ communityID })
+    const pendingMembers = await Community.findById(communityID)
       .select(['pendingMembers'])
       .populate({
         path: 'pendingMembers',

@@ -120,7 +120,7 @@ function CommunityGeneralInfo(props: Props) {
   async function handleJoinClick() {
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${props.communityID}/join`,
+      `/api/community/${props.communityID}/updateStatus/join`,
       {},
       true,
       props.accessToken,

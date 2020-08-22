@@ -95,7 +95,7 @@ function CommunityDetails(props: Props) {
   async function fetchCommunityInfo() {
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${orgID}`,
+      `/api/community/${orgID}/info`,
       {},
       true,
       props.accessToken,

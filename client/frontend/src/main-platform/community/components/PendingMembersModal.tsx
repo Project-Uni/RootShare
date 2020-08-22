@@ -54,7 +54,6 @@ function PendingMembersModal(props: Props) {
   }, [props.open]);
 
   async function fetchPendingUsers() {
-    console.log('Calling fetch function. CommunityID:', props.communityID);
     const { data } = await makeRequest(
       'GET',
       `/api/community/${props.communityID}/pending`,
