@@ -49,6 +49,9 @@ function CommunityDetails(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
+  const [communityStatus, setCommunityStatus] = useState<
+    'PENDING' | 'JOINED' | 'OPEN'
+  >('OPEN');
 
   const orgID = props.match.params['orgID'];
 
@@ -99,9 +102,21 @@ function CommunityDetails(props: Props) {
     );
     if (data.success === 1) {
       setCommunityInfo(data.content['community']);
+      initializeCommunityStatus(data.content['community']);
     } else {
       setShowInvalid(true);
     }
+  }
+
+  function initializeCommunityStatus(communityDetails: Community) {
+    if (
+      communityDetails.admin._id === props.user._id ||
+      communityDetails.members.indexOf(props.user._id) !== -1
+    )
+      setCommunityStatus('JOINED');
+    else if (communityDetails.pendingMembers.indexOf(props.user._id) !== -1)
+      setCommunityStatus('PENDING');
+    else setCommunityStatus('OPEN');
   }
 
   return (
@@ -111,7 +126,7 @@ function CommunityDetails(props: Props) {
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         <CommunityBody
-          status="OPEN"
+          status={communityStatus}
           name={(communityInfo as Community).name}
           numMembers={(communityInfo as Community).members?.length || 0}
           numMutual={58}

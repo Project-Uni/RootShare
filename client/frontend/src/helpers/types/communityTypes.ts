@@ -13,7 +13,8 @@ export type Community = {
     _id: string;
     universityName: string;
   };
-  members: any[]; //TODO - This might change
+  members: string[];
+  pendingMembers: string[];
   private: boolean;
   type:
     | 'Social'

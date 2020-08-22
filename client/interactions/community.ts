@@ -44,7 +44,8 @@ export async function retrieveAllCommunities() {
       'private',
       'type',
       'university',
-      'members', //TODO - Replace this with a count of all the members in the future
+      'members',
+      'pendingMembers',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
@@ -96,6 +97,7 @@ export async function getCommunityInformation(communityID: string) {
       'private',
       'type',
       'members',
+      'pendingMembers',
       'university',
       'profilePicture',
     ])
@@ -103,8 +105,8 @@ export async function getCommunityInformation(communityID: string) {
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
-      })
-      .populate({ path: 'members', select: '_id' });
+      });
+
     log(
       'info',
       `Successfully retrieved community information for ${community.name}`

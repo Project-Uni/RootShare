@@ -112,7 +112,6 @@ export default function communityRoutes(app) {
       const { communityID, newStatus } = req.params;
       if (newStatus === 'join') {
         const packet = await joinCommunity(communityID, req.user._id);
-        console.log('Packet:', packet);
         return res.json(packet);
       }
     }
