@@ -5,6 +5,8 @@ import { Community, User } from '../models';
 
 import { COMMUNITY_TYPE } from '../types/types';
 
+import { retrieveSignedUrl } from '../helpers/S3';
+
 export async function createNewCommunity(
   name: string,
   description: string,
@@ -274,9 +276,30 @@ export async function getAllPendingMembers(communityID: string) {
       }).pendingMembers;
 
     console.log('Pending members:', pendingMembers);
-    for (let i = 0; i < pendingMembers.length; i++) {}
+    for (let i = 0; i < pendingMembers.length; i++) {
+      let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
-    return sendPacket(1, 'Test worked');
+      try {
+        const user = await User.findById(pendingMembers[i]._id);
+        if (user.profilePicture) pictureFileName = user.profilePicture;
+      } catch (err) {
+        log('err', err);
+      }
+
+      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+      if (imageURL) {
+        pendingMembers[i].profilePicture = imageURL;
+      }
+    }
+
+    log(
+      'info',
+      `Successfully retrieved all pending members for community ${communityID}`
+    );
+
+    return sendPacket(1, 'Successfully retrieved all pending members', {
+      pendingMembers,
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
