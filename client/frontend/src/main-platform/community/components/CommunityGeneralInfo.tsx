@@ -174,15 +174,15 @@ function CommunityGeneralInfo(props: Props) {
         </div>
         <div className={styles.right}>
           {renderButton()}
-          <RSText type="body" size={14} color={colors.second} bold>
+          <RSText type="body" size={12} color={colors.second}>
             {props.numMembers} Members
           </RSText>
           {props.isAdmin && (
-            <RSText type="body" size={14} color={colors.second} bold>
+            <RSText type="body" size={12} color={colors.second}>
               {props.numPending} Pending
             </RSText>
           )}
-          <RSText type="body" size={14} color={colors.second} bold>
+          <RSText type="body" size={12} color={colors.second}>
             {props.numMutual} Mutual
           </RSText>
         </div>
