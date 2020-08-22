@@ -61,6 +61,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  communityID: string;
   status: 'JOINED' | 'PENDING' | 'OPEN';
   name: string;
   description: string;
@@ -75,6 +76,8 @@ type Props = {
     | 'Academic';
   private?: boolean;
   loading?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function CommunityBody(props: Props) {
@@ -136,6 +139,7 @@ function CommunityBody(props: Props) {
         ) : (
           <>
             <CommunityGeneralInfo
+              communityID={props.communityID}
               status={props.status}
               name={props.name}
               numMembers={props.numMembers}
@@ -143,6 +147,8 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
             />
             {locked ? renderLocked() : renderTabs()}
           </>

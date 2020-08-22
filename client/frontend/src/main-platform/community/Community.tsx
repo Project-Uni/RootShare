@@ -111,7 +111,7 @@ function CommunityDetails(props: Props) {
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         <CommunityBody
-          status="PENDING"
+          status="OPEN"
           name={(communityInfo as Community).name}
           numMembers={(communityInfo as Community).members?.length || 0}
           numMutual={58}
@@ -119,6 +119,9 @@ function CommunityDetails(props: Props) {
           private={(communityInfo as Community).private}
           description={(communityInfo as Community).description}
           loading={loading}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
+          communityID={(communityInfo as Community)._id}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>

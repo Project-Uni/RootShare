@@ -6,6 +6,7 @@ import { FaLock } from 'react-icons/fa';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { Button } from '@material-ui/core';
+import { makeRequest } from '../../../helpers/functions';
 
 const MAX_DESC_LEN = 275;
 
@@ -75,6 +76,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  communityID: string;
   status: 'JOINED' | 'PENDING' | 'OPEN';
   name: string;
   description: string;
@@ -88,6 +90,8 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function CommunityGeneralInfo(props: Props) {
@@ -100,12 +104,26 @@ function CommunityGeneralInfo(props: Props) {
     setShowFullDesc(!showFullDesc);
   }
 
+  async function handleJoinClick() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/community/${props.communityID}/join`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log('Data:', data);
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
         <Button
           className={[styles.button, styles.joinButton].join(' ')}
           size="large"
+          onClick={handleJoinClick}
         >
           Join
         </Button>

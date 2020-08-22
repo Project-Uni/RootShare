@@ -7,6 +7,7 @@ import {
   retrieveAllCommunities,
   editCommunity,
   getCommunityInformation,
+  joinCommunity,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -101,6 +102,19 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const packet = await getCommunityInformation(communityID);
       return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/:newStatus',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID, newStatus } = req.params;
+      if (newStatus === 'join') {
+        const packet = await joinCommunity(communityID, req.user._id);
+        console.log('Packet:', packet);
+        return res.json(packet);
+      }
     }
   );
 }
