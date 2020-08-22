@@ -39,7 +39,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-const COLUMNS = ['University', 'Type', 'Members', 'Admin', 'Private'];
+const COLUMNS = ['University', 'Type', 'Members', 'Pending', 'Admin', 'Private'];
 
 type Props = {
   communities: Community[];
@@ -120,7 +120,10 @@ function AdminCommunitiesList(props: Props) {
               <RSText>{community.type}</RSText>
             </TableCell>
             <TableCell align="right">
-              <RSText>{(community.members as any[]).length}</RSText>
+              <RSText>{community.members.length}</RSText>
+            </TableCell>
+            <TableCell align="right">
+              <RSText>{community.pendingMembers.length}</RSText>
             </TableCell>
             <TableCell align="right">
               <RSText>
