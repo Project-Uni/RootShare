@@ -63,6 +63,8 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  type: 'profile' | 'community';
+  _id?: string; //Required for community
   accessToken: string;
   refreshToken: string;
   className?: string;
@@ -72,7 +74,7 @@ type Props = {
   height: number;
   width: number;
   borderRadius?: number;
-  borderWidth?: number;
+  borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
 };
 
@@ -153,9 +155,14 @@ function ProfilePicture(props: Props) {
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
+    const path =
+      props.type === 'profile'
+        ? '/api/profile/updateProfilePicture'
+        : `/api/community/${props._id}/updateProfilePicture`;
+
     const { data } = await makeRequest(
       'POST',
-      '/api/profile/updateProfilePicture',
+      path,
       {
         image: imageData,
       },

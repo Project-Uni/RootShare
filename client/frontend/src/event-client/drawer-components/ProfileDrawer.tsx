@@ -418,6 +418,7 @@ function ProfileDrawer(props: Props) {
     return (
       <div>
         <ProfilePicture
+          type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
           editable
@@ -426,6 +427,7 @@ function ProfileDrawer(props: Props) {
           borderRadius={150}
           currentPicture={currentPicture}
           updateCurrentPicture={updateCurrentPicture}
+          borderWidth={3}
         />
       </div>
     );

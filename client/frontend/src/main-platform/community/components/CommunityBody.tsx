@@ -94,6 +94,7 @@ function CommunityBody(props: Props) {
           <div className={[styles.loadingProfilePicture].join(' ')}></div>
         ) : (
           <ProfilePicture
+            type="community"
             height={175}
             width={175}
             borderRadius={100}
@@ -101,6 +102,7 @@ function CommunityBody(props: Props) {
             pictureStyle={styles.profilePicture}
             editable={props.isAdmin}
             borderWidth={8}
+            _id={props.communityID}
           />
         )}
       </div>
