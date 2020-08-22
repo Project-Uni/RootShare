@@ -46,7 +46,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: -88,
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
-    objectFit: 'cover',
   },
 }));
 
@@ -69,6 +68,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
+  isAdmin?: boolean;
 };
 
 function CommunityBody(props: Props) {
@@ -99,7 +99,7 @@ function CommunityBody(props: Props) {
             borderRadius={100}
             className={styles.profilePictureWrapper}
             pictureStyle={styles.profilePicture}
-            //editable = if admin
+            editable={props.isAdmin}
           />
         )}
       </div>
@@ -141,6 +141,7 @@ function CommunityBody(props: Props) {
               accessToken={props.accessToken}
               refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
+              isAdmin={props.isAdmin}
             />
             {locked ? renderLocked() : renderTabs()}
           </>

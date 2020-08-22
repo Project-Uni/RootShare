@@ -90,6 +90,7 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  isAdmin?: boolean;
   accessToken: string;
   refreshToken: string;
   updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
@@ -148,7 +149,7 @@ function CommunityGeneralInfo(props: Props) {
           size="large"
           className={[styles.button, styles.joinedButton].join(' ')}
         >
-          MEMBER
+          {props.isAdmin ? 'Admin' : 'Member'}
         </Button>
       );
   }

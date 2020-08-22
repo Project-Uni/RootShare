@@ -52,6 +52,7 @@ function CommunityDetails(props: Props) {
   const [communityStatus, setCommunityStatus] = useState<
     'PENDING' | 'JOINED' | 'OPEN'
   >('OPEN');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const orgID = props.match.params['orgID'];
 
@@ -109,10 +110,10 @@ function CommunityDetails(props: Props) {
   }
 
   function initializeCommunityStatus(communityDetails: Community) {
-    if (
-      communityDetails.admin._id === props.user._id ||
-      communityDetails.members.indexOf(props.user._id) !== -1
-    )
+    if (communityDetails.admin._id === props.user._id) {
+      setIsAdmin(true);
+      setCommunityStatus('JOINED');
+    } else if (communityDetails.members.indexOf(props.user._id) !== -1)
       setCommunityStatus('JOINED');
     else if (communityDetails.pendingMembers.indexOf(props.user._id) !== -1)
       setCommunityStatus('PENDING');
@@ -142,6 +143,7 @@ function CommunityDetails(props: Props) {
           refreshToken={props.refreshToken}
           communityID={(communityInfo as Community)._id}
           updateCommunityStatus={updateCommunityStatus}
+          isAdmin={isAdmin}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
