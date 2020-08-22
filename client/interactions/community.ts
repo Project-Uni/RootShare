@@ -132,6 +132,8 @@ export async function joinCommunity(
       var userUpdatePromise;
       var communityUpdatePromise;
       var isMember = true;
+      var newStatus = '';
+
       //Update community DB entry
       if (
         community.members.indexOf(userID) === -1 &&
@@ -159,6 +161,8 @@ export async function joinCommunity(
                 'There was an error pushing to user to list of community members'
               );
             });
+
+          newStatus = 'JOINED';
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
@@ -179,6 +183,8 @@ export async function joinCommunity(
                 'There was an error pushing to user to list of community pending members'
               );
             });
+
+          newStatus = 'PENDING';
         }
       }
 
@@ -208,6 +214,8 @@ export async function joinCommunity(
                 'There was an error adding community to joined list for user'
               );
             });
+
+          newStatus = 'JOINED';
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
@@ -228,6 +236,8 @@ export async function joinCommunity(
                 'There was an error adding community to pending list for user'
               );
             });
+
+          newStatus = 'PENDING';
         }
       }
 
@@ -236,7 +246,8 @@ export async function joinCommunity(
           (values) => {
             return sendPacket(
               1,
-              `Successfully updated ${user.firstName} ${user.lastName} for community ${community.name}`
+              `Successfully updated ${user.firstName} ${user.lastName} for community ${community.name}`,
+              { newStatus }
             );
           }
         );

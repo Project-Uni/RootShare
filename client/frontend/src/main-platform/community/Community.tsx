@@ -119,6 +119,10 @@ function CommunityDetails(props: Props) {
     else setCommunityStatus('OPEN');
   }
 
+  function updateCommunityStatus(newStatus: 'OPEN' | 'JOINED' | 'PENDING') {
+    setCommunityStatus(newStatus);
+  }
+
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
@@ -137,6 +141,7 @@ function CommunityDetails(props: Props) {
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           communityID={(communityInfo as Community)._id}
+          updateCommunityStatus={updateCommunityStatus}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>

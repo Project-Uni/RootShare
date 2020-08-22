@@ -92,6 +92,7 @@ type Props = {
   private?: boolean;
   accessToken: string;
   refreshToken: string;
+  updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
 };
 
 function CommunityGeneralInfo(props: Props) {
@@ -113,8 +114,12 @@ function CommunityGeneralInfo(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-
-    console.log('Data:', data);
+    if (data.success === -1) {
+      return alert(
+        'There was an error while trying to join this community. Please try again later.'
+      );
+    }
+    if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
   }
 
   function renderButton() {

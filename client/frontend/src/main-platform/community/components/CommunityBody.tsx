@@ -5,10 +5,8 @@ import { CircularProgress } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
-import { WelcomeMessage } from '../../reusable-components';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
 
-import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -28,15 +26,7 @@ const useStyles = makeStyles((_: any) => ({
     height: 200,
     objectFit: 'cover',
   },
-  // profilePicture: {
-  //   // height: 175,
-  //   // width: 175,
-  //   // borderRadius: 100,
-  //   marginTop: -88,
-  //   border: `8px solid ${colors.primaryText}`,
-  //   marginLeft: 50,
-  //   objectFit: 'cover',
-  // },
+
   profilePictureWrapper: {
     marginTop: -88,
     marginLeft: 50,
@@ -78,6 +68,7 @@ type Props = {
   loading?: boolean;
   accessToken: string;
   refreshToken: string;
+  updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
 };
 
 function CommunityBody(props: Props) {
@@ -149,6 +140,7 @@ function CommunityBody(props: Props) {
               description={props.description}
               accessToken={props.accessToken}
               refreshToken={props.refreshToken}
+              updateCommunityStatus={props.updateCommunityStatus}
             />
             {locked ? renderLocked() : renderTabs()}
           </>
