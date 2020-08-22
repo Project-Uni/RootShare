@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { Button } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
+import { makeRequest } from '../../../helpers/functions';
+
+import PendingMembersModal from './PendingMembersModal';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import { Button } from '@material-ui/core';
-import { makeRequest } from '../../../helpers/functions';
 
 const MAX_DESC_LEN = 275;
 
@@ -107,6 +109,7 @@ type Props = {
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
@@ -132,7 +135,11 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   function handlePendingClicked() {
-    console.log('Pending requests clicked');
+    setShowPendingModal(true);
+  }
+
+  function handlePendingModalClose() {
+    setShowPendingModal(false);
   }
 
   function renderButton() {
@@ -168,6 +175,10 @@ function CommunityGeneralInfo(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      <PendingMembersModal
+        open={showPendingModal}
+        handleClose={handlePendingModalClose}
+      />
       <div className={styles.top}>
         <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
