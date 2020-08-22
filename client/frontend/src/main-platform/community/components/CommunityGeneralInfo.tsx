@@ -73,6 +73,13 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  memberCountLink: {
+    textDecoration: 'none',
+    '&:hover': {
+      cursor: 'pointer',
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -124,6 +131,10 @@ function CommunityGeneralInfo(props: Props) {
     if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
   }
 
+  function handlePendingClicked() {
+    console.log('Pending requests clicked');
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
@@ -154,6 +165,7 @@ function CommunityGeneralInfo(props: Props) {
         </Button>
       );
   }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
@@ -174,15 +186,21 @@ function CommunityGeneralInfo(props: Props) {
         </div>
         <div className={styles.right}>
           {renderButton()}
-          <RSText type="body" size={12} color={colors.second}>
+          <RSText type="body" size={12} color={colors.second} bold>
             {props.numMembers} Members
           </RSText>
           {props.isAdmin && (
-            <RSText type="body" size={12} color={colors.second}>
-              {props.numPending} Pending
-            </RSText>
+            <a
+              href={undefined}
+              onClick={handlePendingClicked}
+              className={styles.memberCountLink}
+            >
+              <RSText type="body" size={12} color={colors.second} bold>
+                {props.numPending} Pending
+              </RSText>
+            </a>
           )}
-          <RSText type="body" size={12} color={colors.second}>
+          <RSText type="body" size={12} color={colors.second} bold>
             {props.numMutual} Mutual
           </RSText>
         </div>
