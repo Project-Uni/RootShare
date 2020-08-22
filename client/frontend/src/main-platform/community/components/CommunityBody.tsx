@@ -4,6 +4,8 @@ import { CircularProgress } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
+import { makeRequest } from '../../../helpers/functions';
+
 import { colors } from '../../../theme/Colors';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
 
@@ -74,6 +76,7 @@ type Props = {
 function CommunityBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
+  const [currentProfile, setCurrentProfile] = useState<string>();
 
   const locked =
     props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
@@ -82,8 +85,31 @@ function CommunityBody(props: Props) {
     window.addEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!props.loading) getProfilePicture();
+  }, [props.loading]);
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
+  }
+
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/community/${props.communityID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) {
+      setCurrentProfile(data['content']['imageURL']);
+    }
+  }
+
+  function updateCurrentProfilePicture(imageData: string) {
+    setCurrentProfile(imageData);
   }
 
   function renderProfileAndBackground() {
@@ -94,6 +120,7 @@ function CommunityBody(props: Props) {
           <div className={[styles.loadingProfilePicture].join(' ')}></div>
         ) : (
           <ProfilePicture
+            currentPicture={currentProfile}
             type="community"
             height={175}
             width={175}
@@ -103,6 +130,7 @@ function CommunityBody(props: Props) {
             editable={props.isAdmin}
             borderWidth={8}
             _id={props.communityID}
+            updateCurrentPicture={updateCurrentProfilePicture}
           />
         )}
       </div>
