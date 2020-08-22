@@ -239,7 +239,6 @@ export async function joinCommunity(
           }
         );
       } else {
-        console.log('Hitting last part');
         return sendPacket(
           0,
           `User is already a part of community ${community.name}`
