@@ -15,7 +15,7 @@ import { User } from '../models';
 
 module.exports = (app) => {
   app.post(
-    '/api/profile/updateProfilePicture',
+    '/api/images/profile/updateProfilePicture',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
@@ -49,7 +49,7 @@ module.exports = (app) => {
   );
 
   app.get(
-    '/api/getProfilePicture/:userID',
+    '/api/images/profile/:userID',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
