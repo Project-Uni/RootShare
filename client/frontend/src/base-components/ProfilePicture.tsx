@@ -72,6 +72,7 @@ type Props = {
   height: number;
   width: number;
   borderRadius?: number;
+  borderWidth?: number;
   updateCurrentPicture?: (imageData: string) => any;
 };
 
@@ -195,8 +196,8 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16,
-                left: Math.floor(props.width / 2) - 16,
+                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
+                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
@@ -237,7 +238,13 @@ function ProfilePicture(props: Props) {
             />
             {loading && (
               <div style={{ position: 'relative', height: 0, width: 0 }}>
-                <div style={{ position: 'absolute', bottom: 200, left: 200 }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 200,
+                    left: 200,
+                  }}
+                >
                   <CircularProgress size={100} className={styles.loadingIndicator} />
                 </div>
               </div>

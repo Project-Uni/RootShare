@@ -100,6 +100,7 @@ function CommunityBody(props: Props) {
             className={styles.profilePictureWrapper}
             pictureStyle={styles.profilePicture}
             editable={props.isAdmin}
+            borderWidth={8}
           />
         )}
       </div>
