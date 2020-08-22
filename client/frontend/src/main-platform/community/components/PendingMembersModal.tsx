@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Modal, IconButton } from '@material-ui/core';
+import { Modal, IconButton, CircularProgress } from '@material-ui/core';
+
+import { connect } from 'react-redux';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 500,
     background: colors.primaryText,
   },
+
   top: {
     textAlign: 'left',
     flex: 1,
@@ -20,22 +24,57 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 15,
     marginRight: 15,
   },
+  loadingWrapper: {
+    height: 400,
+  },
+  loadingIndicator: {
+    marginTop: 80,
+    color: colors.primary,
+  },
 }));
 
 type Props = {
   open: boolean;
   handleClose: () => any;
+  communityID: string;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function PendingMembersModal(props: Props) {
   const styles = useStyles();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (props.open) {
+      fetchPendingUsers().then(() => {
+        setLoading(false);
+      });
+    }
+  }, [props.open]);
+
+  async function fetchPendingUsers() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/community/:communityID/pending',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log('Data:', data);
+  }
+
   return (
     <Modal open={props.open}>
       <div
-        className={styles.wrapper}
+        className={[styles.wrapper, loading ? styles.loadingWrapper : null].join(
+          ' '
+        )}
         style={{
           position: 'absolute',
-          bottom: `${50}%`,
+          top: `${50}%`,
           left: `${50}%`,
           transform: `translate(-${50}%, -${50}%)`,
         }}
@@ -48,9 +87,32 @@ function PendingMembersModal(props: Props) {
             X
           </IconButton>
         </div>
+        {loading ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <CircularProgress size={85} className={styles.loadingIndicator} />
+          </div>
+        ) : (
+          <p>Users</p>
+        )}
       </div>
     </Modal>
   );
 }
 
-export default PendingMembersModal;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PendingMembersModal);

@@ -177,6 +177,7 @@ function CommunityGeneralInfo(props: Props) {
     <div className={styles.wrapper}>
       <PendingMembersModal
         open={showPendingModal}
+        communityID={props.communityID}
         handleClose={handlePendingModalClose}
       />
       <div className={styles.top}>
