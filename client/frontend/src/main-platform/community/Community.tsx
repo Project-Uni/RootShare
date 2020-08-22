@@ -134,6 +134,7 @@ function CommunityDetails(props: Props) {
           status={communityStatus}
           name={(communityInfo as Community).name}
           numMembers={(communityInfo as Community).members?.length || 0}
+          numPending={(communityInfo as Community).pendingMembers?.length || 0}
           numMutual={58}
           type={(communityInfo as Community).type}
           private={(communityInfo as Community).private}

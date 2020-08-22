@@ -81,6 +81,7 @@ type Props = {
   name: string;
   description: string;
   numMembers: number;
+  numPending: number;
   numMutual: number;
   type:
     | 'Social'
@@ -176,6 +177,11 @@ function CommunityGeneralInfo(props: Props) {
           <RSText type="body" size={14} color={colors.second} bold>
             {props.numMembers} Members
           </RSText>
+          {props.isAdmin && (
+            <RSText type="body" size={14} color={colors.second} bold>
+              {props.numPending} Pending
+            </RSText>
+          )}
           <RSText type="body" size={14} color={colors.second} bold>
             {props.numMutual} Mutual
           </RSText>

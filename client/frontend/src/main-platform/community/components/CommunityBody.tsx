@@ -58,6 +58,7 @@ type Props = {
   description: string;
   numMembers: number;
   numMutual: number;
+  numPending: number;
   type:
     | 'Social'
     | 'Business'
@@ -165,6 +166,7 @@ function CommunityBody(props: Props) {
               status={props.status}
               name={props.name}
               numMembers={props.numMembers}
+              numPending={props.numPending}
               numMutual={props.numMutual}
               type={props.type}
               private={props.private}
