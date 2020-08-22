@@ -263,3 +263,22 @@ export async function joinCommunity(
     return sendPacket(-1, err);
   }
 }
+
+export async function getAllPendingMembers(communityID: string) {
+  try {
+    const pendingMembers = await Community.findById({ communityID })
+      .select(['pendingMembers'])
+      .populate({
+        path: 'pendingMembers',
+        select: ['_id', 'firstName', 'lastName', 'profilePicture'],
+      }).pendingMembers;
+
+    console.log('Pending members:', pendingMembers);
+    for (let i = 0; i < pendingMembers.length; i++) {}
+
+    return sendPacket(1, 'Test worked');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

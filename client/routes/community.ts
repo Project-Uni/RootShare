@@ -1,6 +1,7 @@
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
   createNewCommunity,
@@ -8,6 +9,7 @@ import {
   editCommunity,
   getCommunityInformation,
   joinCommunity,
+  getAllPendingMembers,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -114,6 +116,18 @@ export default function communityRoutes(app) {
         const packet = await joinCommunity(communityID, req.user._id);
         return res.json(packet);
       }
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/pending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      console.log('Hitting function');
+      const { communityID } = req.params;
+      const packet = await getAllPendingMembers(communityID);
+      return res.json(packet);
     }
   );
 }
