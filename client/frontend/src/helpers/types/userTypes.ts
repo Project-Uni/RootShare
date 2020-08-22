@@ -39,3 +39,5 @@ export type ConnectionRequestType = {
   to: string | UserType;
   createdAt: Date;
 };
+
+export type ProfileType = 'SELF' | 'CONNECTION' | 'TO' | 'FROM' | 'PUBLIC';

@@ -14,7 +14,7 @@ import {
   ChrisHeadshot,
 } from '../../../images/team';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 const VERTICAL_PADDING_TOTAL = 40;
 
 const useStyles = makeStyles((_: any) => ({

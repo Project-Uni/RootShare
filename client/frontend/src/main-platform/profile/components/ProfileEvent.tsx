@@ -8,7 +8,11 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 import { EventType, HostType } from '../../../helpers/types';
-import { formatDatePretty } from '../../../helpers/functions';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -27,11 +31,9 @@ const useStyles = makeStyles((_: any) => ({
   detailsWrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 10,
     paddingRight: 10,
-    marginLeft: 40,
   },
   left: {
     display: 'flex',
@@ -40,14 +42,20 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'flex-start',
     textAlign: 'left',
   },
+  eventTime: {
+    marginTop: -7,
+    marginBottom: 10,
+  },
   right: {
-    marginRight: 28,
+    marginRight: 30,
   },
   removeButton: {
-    background: colors.fifth,
+    color: colors.error,
+    background: colors.primaryText,
     height: 30,
   },
   descriptions: {
+    color: colors.secondaryText,
     marginTop: 4,
     marginBottom: 6,
   },
@@ -57,6 +65,9 @@ type Props = {
   profileID: string;
   event: EventType;
   style?: any;
+  accessToken: string;
+  refreshToken: string;
+  removeEvent: (eventID: string) => void;
 };
 
 function ProfileEvent(props: Props) {
@@ -64,7 +75,9 @@ function ProfileEvent(props: Props) {
 
   const [showEventDetails, setShowEventDetails] = useState(false);
 
-  const eventDate = formatDatePretty(new Date(props.event.dateTime)); //Aug 14, 2020
+  const eventDateTime = new Date(props.event.dateTime);
+  const eventDate = formatDatePretty(eventDateTime); //Aug 14, 2020
+  const eventTime = formatTime(eventDateTime);
   const host = props.event.host as HostType;
   let participationType: 'ATTENDEE' | 'SPEAKER' | 'HOST' = 'ATTENDEE';
   if (props.event.userSpeaker) participationType = 'SPEAKER';
@@ -74,10 +87,37 @@ function ProfileEvent(props: Props) {
     setShowEventDetails(!showEventDetails);
   }
 
+  async function removeEvent() {
+    props.removeEvent(props.event._id);
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/webinar/updateRSVP',
+      {
+        webinarID: props.event._id,
+        didRSVP: false,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log(data);
+  }
+
   function renderDetails() {
     return (
       <div className={styles.detailsWrapper}>
         <div className={styles.left}>
+          <RSText
+            type="body"
+            size={11}
+            italic
+            color={colors.secondaryText}
+            className={styles.eventTime}
+          >
+            @ {eventTime}
+          </RSText>
           <RSText
             type="body"
             size={12}
@@ -97,15 +137,19 @@ function ProfileEvent(props: Props) {
           </RSText>
         </div>
         <div className={styles.right}>
-          <Button className={styles.removeButton}>REMOVE</Button>
+          {participationType === 'ATTENDEE' && (
+            <Button className={styles.removeButton} onClick={removeEvent}>
+              REMOVE
+            </Button>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={[styles.compactWrapper, props.style || null].join(' ')}>
+    <div className={[styles.wrapper, props.style || null].join(' ')}>
+      <div className={styles.compactWrapper}>
         <div
           style={{
             display: 'flex',

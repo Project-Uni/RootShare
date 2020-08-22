@@ -15,11 +15,11 @@ import {
   UserType,
   UniversityType,
   EventType,
-  HostType,
+  ProfileType,
 } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,17 +51,18 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 0,
     marginLeft: 39,
     marginRight: 0,
-    borderTop: `1px solid ${colors.fourth}`,
+    borderTop: `1px solid #c5c5c5`,
   },
   post: {
-    // marginTop: 1,
     borderBottom: `1px solid ${colors.fourth}`,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
-    background: colors.primaryText,
+    paddingTop: 15,
+    paddingBottom: 15,
+    background: colors.secondary,
     borderBottom: `1px solid ${colors.fourth}`,
     borderTop: `1px solid ${colors.fourth}`,
   },
@@ -69,8 +70,10 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   profileID: string;
+  currentProfileType: ProfileType;
   accessToken: string;
   refreshToken: string;
+  updateProfileType: (newType: ProfileType) => void;
 };
 
 function ProfileBody(props: Props) {
@@ -154,7 +157,7 @@ function ProfileBody(props: Props) {
         <ProfilePicture
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={props.profileID === 'user'}
+          editable={props.currentProfileType === 'SELF'}
           height={150}
           width={150}
           borderRadius={150}
@@ -166,31 +169,36 @@ function ProfileBody(props: Props) {
   }
 
   function renderRegisteredEvents() {
+    function removeEvent(eventID: string) {
+      let removeIndex = -1;
+      for (let i = 0; i < events.length; i++) {
+        if (events[i]._id === eventID) {
+          removeIndex = i;
+          break;
+        }
+      }
+
+      if (removeIndex !== -1)
+        setEvents((prevEvents) => {
+          let newEvents = prevEvents.slice();
+          newEvents.splice(removeIndex, 1);
+          console.log(newEvents);
+          return newEvents;
+        });
+    }
+
     const output: any = [];
 
     events.forEach((event) => {
       output.push(
         <ProfileEvent
           key={event._id}
-          profileID={props.profileID}
+          profileID={(profileState as UserType)._id}
           event={event}
           style={styles.event}
-        />
-      );
-      output.push(
-        <ProfileEvent
-          key={event._id}
-          profileID={props.profileID}
-          event={event}
-          style={styles.event}
-        />
-      );
-      output.push(
-        <ProfileEvent
-          key={event._id}
-          profileID={props.profileID}
-          event={event}
-          style={styles.event}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
+          removeEvent={removeEvent}
         />
       );
     });
@@ -246,7 +254,7 @@ function ProfileBody(props: Props) {
           {renderImages()}
           <ProfileHead
             name={`${profile.firstName} ${profile.lastName}`}
-            userID={profile._id}
+            profileID={profile._id}
             university={university.universityName}
             graduationYear={profile.graduationYear}
             position={profile.position}
@@ -255,16 +263,17 @@ function ProfileBody(props: Props) {
             numConnections={profile.numConnections!}
             numMutualConnections={profile.numMutual}
             numCommunities={profile.numCommunities!}
-            editable={props.profileID === 'user'}
+            currentProfileType={props.currentProfileType}
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
+            updateProfileType={props.updateProfileType}
           />
           {renderRegisteredEvents()}
           <RSText
             type="head"
             size={24}
             bold
-            color={colors.second}
+            color={colors.primaryText}
             className={styles.rootshares}
           >
             {profile.firstName}'s RootShares
@@ -276,7 +285,7 @@ function ProfileBody(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} style={{ height: height }}>
       {loading ? (
         <CircularProgress />
       ) : fetchingErr ? (

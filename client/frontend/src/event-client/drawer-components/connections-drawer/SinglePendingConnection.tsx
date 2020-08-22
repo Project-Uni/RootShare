@@ -20,6 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 7,
   },
   left: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -35,7 +36,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: -20,
   },
   right: {
-    marginLeft: 'auto',
+    alignSelf: 'end',
+    marginRight: 11,
   },
   picture: {
     marginLeft: 4,
@@ -171,7 +173,7 @@ function SinglePendingConnection(props: Props) {
             size="small"
             onClick={() => respondRequest(true)}
           >
-            Connect
+            Accept
           </Button>
         </div>
       </div>

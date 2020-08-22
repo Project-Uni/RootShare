@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField } from '@material-ui/core';
+import { Button, TextField, Menu, MenuItem } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+
 import { makeRequest } from '../../../helpers/functions';
+import { ProfileType, ConnectionRequestType } from '../../../helpers/types';
+
+const ITEM_HEIGHT = 28;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -22,17 +26,39 @@ const useStyles = makeStyles((_: any) => ({
   },
   headRight: {
     textAlign: 'left',
-    width: 125,
+  },
+  connectionButtonContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  allConnectionButtons: {
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 15,
   },
   connectButton: {
     color: colors.primaryText,
     background: colors.bright,
-    paddingLeft: 25,
-    paddingRight: 25,
-    marginBottom: 15,
     '&:hover': {
       background: colors.primary,
     },
+  },
+  removeConnectionButton: {
+    color: colors.primaryText,
+    background: 'gray',
+  },
+  acceptConnectionButton: {
+    color: colors.primaryText,
+    background: colors.bright,
+    marginLeft: 7,
+  },
+  pendingConnectionButton: {
+    color: colors.primaryText,
+    background: colors.secondary,
+  },
+  connectedConnectionButton: {
+    color: colors.primaryText,
+    background: colors.secondary,
   },
   bioContainer: {
     display: 'flex',
@@ -102,7 +128,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  userID: string;
+  profileID: string;
   name: string;
   university: string;
   graduationYear: number;
@@ -112,7 +138,8 @@ type Props = {
   numConnections: number;
   numMutualConnections?: number;
   numCommunities: number;
-  editable?: boolean;
+  currentProfileType: ProfileType;
+  updateProfileType: (newType: ProfileType) => void;
 
   accessToken: string;
   refreshToken: string;
@@ -123,30 +150,96 @@ function ProfileHead(props: Props) {
 
   const [hoverBio, setHoverBio] = useState(false);
   const [editBio, setEditBio] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const [originalBio, setOriginalBio] = useState('');
   const [updatedBio, setUpdatedBio] = useState('');
+
+  const [connection, setConnection] = useState<ConnectionRequestType>();
+  // TODO: use this to lock accept/remove buttons until the request ID has been loaded
+  const [loadingConnection, setLoadingConnection] = useState(true);
+
+  const menuOpen = Boolean(anchorEl);
 
   useEffect(() => {
     setOriginalBio(props.bio);
   }, [props.bio]);
 
-  function handleMouseOver() {
-    setHoverBio(true);
+  useEffect(() => {
+    if (
+      props.currentProfileType === 'TO' ||
+      props.currentProfileType === 'FROM' ||
+      props.currentProfileType === 'CONNECTION'
+    )
+      fetchConnection();
+  }, [props.currentProfileType]);
+
+  async function fetchConnection() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/getConnectionWithUser',
+      { requestUserID: props.profileID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log(data);
+    if (data['success'] === 1) setConnection(data['content']['connection']);
   }
 
-  function handleMouseLeave() {
-    setHoverBio(false);
+  async function requestConnection() {
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   '/user/requestConnection',
+    //   {
+    //     requestUserID: props.profileID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    // TODO: add snackbar notification
+
+    // if (data['success'] === 1) props.updateProfileType()
+    props.updateProfileType('TO');
   }
 
-  function startEditingBio() {
-    setUpdatedBio(originalBio);
-    setEditBio(true);
+  async function removeConnection() {
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   '/user/respondConnection',
+    //   {
+    //     requestID: connection?._id,
+    //     accepted: false,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    // TODO: add snackbar notification
+
+    // if (data['success'] === 1) props.updateProfileType()
+    props.updateProfileType('PUBLIC');
+    setAnchorEl(null);
   }
 
-  function cancelEditingBio() {
-    setEditBio(false);
-    setUpdatedBio(originalBio);
+  async function acceptConnection() {
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   '/user/respondConnection',
+    //   {
+    //     requestID: connection?._id,
+    //     accepted: true,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    // TODO: add snackbar notification
+
+    // if (data['success'] === 1) props.updateProfileType()
+    props.updateProfileType('CONNECTION');
   }
 
   async function submitEditedBio() {
@@ -166,9 +259,37 @@ function ProfileHead(props: Props) {
     );
   }
 
+  ////// END REQUEST FUNCTIONS
+  ////// START HANLDER FUNCTIONS
+
+  function handleMouseOver() {
+    setHoverBio(true);
+  }
+
+  function handleMouseLeave() {
+    setHoverBio(false);
+  }
+
+  function startEditingBio() {
+    setUpdatedBio(originalBio);
+    setEditBio(true);
+  }
+
+  function cancelEditingBio() {
+    setEditBio(false);
+    setUpdatedBio(originalBio);
+  }
+
   function handleBioChange(event: any) {
     setUpdatedBio(event.target.value);
   }
+
+  function handleOptionsClick(event: any) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  ////// END HANDLER FUNCTIONS
+  ////// START RENDERS
 
   function renderEditTextField() {
     return (
@@ -199,6 +320,81 @@ function ProfileHead(props: Props) {
     );
   }
 
+  function renderOptions() {
+    return (
+      <div>
+        {props.currentProfileType === 'TO' && (
+          <MenuItem onClick={removeConnection}>Remove Connection Request</MenuItem>
+        )}
+        {props.currentProfileType === 'CONNECTION' && (
+          <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
+        )}
+      </div>
+    );
+  }
+
+  function renderConnectionButton() {
+    if (props.currentProfileType === 'SELF') return;
+
+    let buttonStyles = [styles.allConnectionButtons];
+    let buttonText = 'Connect';
+    let clickHandler: any = requestConnection;
+
+    if (props.currentProfileType === 'TO') {
+      buttonStyles.push(styles.pendingConnectionButton);
+      buttonText = 'Requested';
+      clickHandler = handleOptionsClick;
+    } else if (props.currentProfileType === 'FROM') {
+      buttonStyles.push(styles.removeConnectionButton);
+      buttonText = 'Remove';
+      clickHandler = removeConnection;
+    } else if (props.currentProfileType === 'CONNECTION') {
+      buttonStyles.push(styles.connectedConnectionButton);
+      buttonText = 'Connected';
+      clickHandler = handleOptionsClick;
+    } else buttonStyles.push(styles.connectButton);
+
+    return (
+      <div className={styles.connectionButtonContainer}>
+        <Button
+          variant="contained"
+          className={buttonStyles.join(' ')}
+          onClick={clickHandler}
+          size="large"
+        >
+          {buttonText}
+        </Button>
+        <Menu
+          id="long-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={menuOpen}
+          onClose={() => setAnchorEl(null)}
+          PaperProps={{
+            style: {
+              maxHeight: ITEM_HEIGHT * 4.5,
+            },
+          }}
+        >
+          {renderOptions()}
+        </Menu>
+        {props.currentProfileType === 'FROM' && (
+          <Button
+            variant="contained"
+            className={[
+              styles.allConnectionButtons,
+              styles.acceptConnectionButton,
+            ].join(' ')}
+            onClick={acceptConnection}
+            size="large"
+          >
+            Accept
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
@@ -226,8 +422,12 @@ function ProfileHead(props: Props) {
         ) : (
           <div
             className={styles.bioContainer}
-            onMouseEnter={props.editable ? handleMouseOver : undefined}
-            onMouseLeave={props.editable ? handleMouseLeave : undefined}
+            onMouseEnter={
+              props.currentProfileType === 'SELF' ? handleMouseOver : undefined
+            }
+            onMouseLeave={
+              props.currentProfileType === 'SELF' ? handleMouseLeave : undefined
+            }
             onClick={startEditingBio}
           >
             <RSText
@@ -240,18 +440,14 @@ function ProfileHead(props: Props) {
             </RSText>
 
             {(hoverBio || !originalBio || originalBio.length === 0) &&
-              props.editable && (
+              props.currentProfileType === 'SELF' && (
                 <CreateIcon fontSize="small" className={styles.editIcon} />
               )}
           </div>
         )}
       </div>
       <div className={styles.headRight}>
-        {props.editable || (
-          <Button variant="contained" className={styles.connectButton} size="large">
-            Connect
-          </Button>
-        )}
+        {renderConnectionButton()}
         <RSText
           type="subhead"
           size={12}
@@ -260,7 +456,7 @@ function ProfileHead(props: Props) {
         >
           {props.numConnections} Connections
         </RSText>
-        {props.editable || (
+        {props.currentProfileType === 'SELF' || (
           <RSText
             type="subhead"
             size={12}

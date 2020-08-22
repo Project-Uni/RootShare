@@ -117,7 +117,6 @@ function EventMessage(props: Props) {
     'success' | 'error' | 'notify' | null
   >(null);
   const [loadingLike, setLoadingLike] = useState(false);
-  const open = Boolean(anchorEl);
 
   const menuOpen = Boolean(anchorEl);
 
@@ -171,7 +170,7 @@ function EventMessage(props: Props) {
       'POST',
       '/user/requestConnection',
       {
-        requestID: props.message.sender as string,
+        requestUserID: props.message.sender as string,
       },
       true,
       props.accessToken,

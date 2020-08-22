@@ -324,29 +324,50 @@ export async function getWebinarDetails(userID, webinarID, callback) {
 }
 
 export function updateRSVP(userID, webinarID, didRSVP, callback) {
-  User.findById(userID, ['RSVPWebinars'], (err, user) => {
-    if (err) return callback(sendPacket(-1, err));
-    if (!user)
-      return callback(sendPacket(-1, 'Could not find user to RSVP to the webinar'));
+  canUpdateRSVP(userID, webinarID, (packet) => {
+    if (packet.success !== 1) return callback(packet);
 
-    let RSVPWebinars = formatElementsToStrings(user.RSVPWebinars);
-    const alreadyRSVPUser = RSVPWebinars.includes(webinarID);
-
-    if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
-    else if (!didRSVP && alreadyRSVPUser)
-      user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
-
-    user.save((err, user) => {
+    User.findById(userID, ['RSVPWebinars'], (err, user) => {
       if (err) return callback(sendPacket(-1, err));
       if (!user)
-        return callback(sendPacket(-1, 'Could not save user RSVP to the webinar'));
+        return callback(
+          sendPacket(-1, 'Could not find user to RSVP to the webinar')
+        );
 
-      callback(
-        sendPacket(1, 'Updated RSVP state', {
-          newRSVP: didRSVP,
-        })
-      );
+      let RSVPWebinars = formatElementsToStrings(user.RSVPWebinars);
+      const alreadyRSVPUser = RSVPWebinars.includes(webinarID);
+
+      if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
+      else if (!didRSVP && alreadyRSVPUser)
+        user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
+
+      user.save((err, user) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!user)
+          return callback(sendPacket(-1, 'Could not save user RSVP to the webinar'));
+
+        callback(
+          sendPacket(1, 'Updated RSVP state', {
+            newRSVP: didRSVP,
+          })
+        );
+      });
     });
+  });
+}
+
+function canUpdateRSVP(userID, webinarID, callback) {
+  Webinar.findById(webinarID, ['host', 'speakers'], (err, webinar) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!webinar) return callback(sendPacket(0, "Webinar doesn't exist"));
+
+    if (
+      webinar.speakers.includes(userID) ||
+      userID.toString() === webinar.host.toString()
+    )
+      return callback(sendPacket(0, 'User cannot update RSVP'));
+
+    return callback(sendPacket(1, 'User can update RSVP'));
   });
 }
 

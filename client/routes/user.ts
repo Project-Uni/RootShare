@@ -14,6 +14,8 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
+  checkConnectedWithUser,
+  getConnectionWithUser,
 } from '../interactions/user';
 
 import log from '../helpers/logger';
@@ -56,7 +58,7 @@ module.exports = (app) => {
   });
 
   app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
-    requestConnection(req.user._id, req.body.requestID, (packet) =>
+    requestConnection(req.user._id, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
@@ -67,6 +69,18 @@ module.exports = (app) => {
       req.body.requestID,
       req.body.accepted,
       (packet) => res.json(packet)
+    );
+  });
+
+  app.post('/user/checkConnectedWithUser', isAuthenticatedWithJWT, (req, res) => {
+    checkConnectedWithUser(req.user._id, req.body.requestUserID, (packet) =>
+      res.json(packet)
+    );
+  });
+
+  app.post('/user/getConnectionWithUser', isAuthenticatedWithJWT, (req, res) => {
+    getConnectionWithUser(req.user._id, req.body.requestUserID, (packet) =>
+      res.json(packet)
     );
   });
 
