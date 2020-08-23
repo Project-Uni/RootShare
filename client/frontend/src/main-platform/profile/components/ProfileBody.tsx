@@ -195,6 +195,7 @@ function ProfileBody(props: Props) {
           profileID={(profileState as UserType)._id}
           event={event}
           style={styles.event}
+          currentProfileType={props.currentProfileType}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           removeEvent={removeEvent}

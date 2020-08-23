@@ -7,7 +7,7 @@ import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-import { EventType, HostType } from '../../../helpers/types';
+import { EventType, HostType, ProfileType } from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
@@ -67,6 +67,7 @@ type Props = {
   style?: any;
   accessToken: string;
   refreshToken: string;
+  currentProfileType: ProfileType;
   removeEvent: (eventID: string) => void;
 };
 
@@ -118,6 +119,7 @@ function ProfileEvent(props: Props) {
           >
             @ {eventTime}
           </RSText>
+
           <RSText
             type="body"
             size={12}
@@ -136,13 +138,15 @@ function ProfileEvent(props: Props) {
             {props.event.full_description}
           </RSText>
         </div>
-        <div className={styles.right}>
-          {participationType === 'ATTENDEE' && (
-            <Button className={styles.removeButton} onClick={removeEvent}>
-              REMOVE
-            </Button>
-          )}
-        </div>
+        {props.currentProfileType === 'SELF' && (
+          <div className={styles.right}>
+            {participationType === 'ATTENDEE' && (
+              <Button className={styles.removeButton} onClick={removeEvent}>
+                REMOVE
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     );
   }

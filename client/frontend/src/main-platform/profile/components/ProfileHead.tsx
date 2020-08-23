@@ -60,7 +60,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     background: colors.secondary,
   },
-  bioContainer: {
+  selfBioContainer: {
     display: 'flex',
     marginTop: 7,
     '&:hover': {
@@ -155,6 +155,7 @@ function ProfileHead(props: Props) {
   const [originalBio, setOriginalBio] = useState('');
   const [updatedBio, setUpdatedBio] = useState('');
 
+  const [numConnections, setNumConnections] = useState(0);
   const [connection, setConnection] = useState<ConnectionRequestType>();
   // TODO: use this to lock accept/remove buttons until the request ID has been loaded
   const [loadingConnection, setLoadingConnection] = useState(true);
@@ -164,6 +165,10 @@ function ProfileHead(props: Props) {
   useEffect(() => {
     setOriginalBio(props.bio);
   }, [props.bio]);
+
+  useEffect(() => {
+    setNumConnections(props.numConnections);
+  }, [props.numConnections]);
 
   useEffect(() => {
     if (
@@ -202,7 +207,7 @@ function ProfileHead(props: Props) {
     if (data['success'] === 1) props.updateProfileType();
   }
 
-  async function removeConnection() {
+  async function declineConnection() {
     const { data } = await makeRequest(
       'POST',
       '/user/respondConnection',
@@ -232,7 +237,32 @@ function ProfileHead(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) props.updateProfileType();
+    if (data['success'] === 1) {
+      props.updateProfileType();
+      setNumConnections((prevNumConnections) => prevNumConnections + 1);
+    }
+  }
+
+  async function removeConnection() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: connection?._id,
+        accepted: false,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) {
+      props.updateProfileType();
+      setNumConnections((prevNumConnections) =>
+        prevNumConnections - 1 >= 0 ? prevNumConnections - 1 : 0
+      );
+    }
+    setAnchorEl(null);
   }
 
   async function submitEditedBio() {
@@ -317,7 +347,7 @@ function ProfileHead(props: Props) {
     return (
       <div>
         {props.currentProfileType === 'TO' && (
-          <MenuItem onClick={removeConnection}>Remove Connection Request</MenuItem>
+          <MenuItem onClick={declineConnection}>Remove Connection Request</MenuItem>
         )}
         {props.currentProfileType === 'CONNECTION' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
@@ -340,7 +370,7 @@ function ProfileHead(props: Props) {
     } else if (props.currentProfileType === 'FROM') {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
-      clickHandler = removeConnection;
+      clickHandler = declineConnection;
     } else if (props.currentProfileType === 'CONNECTION') {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
@@ -388,6 +418,38 @@ function ProfileHead(props: Props) {
     );
   }
 
+  function renderSelfBio() {
+    return (
+      <div
+        className={styles.selfBioContainer}
+        onMouseEnter={handleMouseOver}
+        onMouseLeave={handleMouseLeave}
+        onClick={startEditingBio}
+      >
+        <RSText
+          type="subhead"
+          size={14}
+          color={colors.second}
+          className={styles.bio}
+        >
+          {originalBio}
+        </RSText>
+
+        {(hoverBio || !originalBio || originalBio.length === 0) && (
+          <CreateIcon fontSize="small" className={styles.editIcon} />
+        )}
+      </div>
+    );
+  }
+
+  function renderOtherBio() {
+    return (
+      <RSText type="subhead" size={14} color={colors.second} className={styles.bio}>
+        {originalBio}
+      </RSText>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
@@ -412,31 +474,10 @@ function ProfileHead(props: Props) {
               </Button>
             </div>
           </div>
+        ) : props.currentProfileType === 'SELF' ? (
+          renderSelfBio()
         ) : (
-          <div
-            className={styles.bioContainer}
-            onMouseEnter={
-              props.currentProfileType === 'SELF' ? handleMouseOver : undefined
-            }
-            onMouseLeave={
-              props.currentProfileType === 'SELF' ? handleMouseLeave : undefined
-            }
-            onClick={startEditingBio}
-          >
-            <RSText
-              type="subhead"
-              size={14}
-              color={colors.second}
-              className={styles.bio}
-            >
-              {originalBio}
-            </RSText>
-
-            {(hoverBio || !originalBio || originalBio.length === 0) &&
-              props.currentProfileType === 'SELF' && (
-                <CreateIcon fontSize="small" className={styles.editIcon} />
-              )}
-          </div>
+          renderOtherBio()
         )}
       </div>
       <div className={styles.headRight}>
@@ -447,7 +488,7 @@ function ProfileHead(props: Props) {
           color={colors.second}
           className={styles.numbers}
         >
-          {props.numConnections} Connections
+          {numConnections} Connections
         </RSText>
         {props.currentProfileType === 'SELF' || (
           <RSText
