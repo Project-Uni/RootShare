@@ -73,7 +73,7 @@ type Props = {
   currentProfileType: ProfileType;
   accessToken: string;
   refreshToken: string;
-  updateProfileType: (newType: ProfileType) => void;
+  updateProfileType: () => void;
 };
 
 function ProfileBody(props: Props) {
@@ -182,7 +182,6 @@ function ProfileBody(props: Props) {
         setEvents((prevEvents) => {
           let newEvents = prevEvents.slice();
           newEvents.splice(removeIndex, 1);
-          console.log(newEvents);
           return newEvents;
         });
     }

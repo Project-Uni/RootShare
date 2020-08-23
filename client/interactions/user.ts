@@ -60,33 +60,55 @@ export async function getPrivateProfileInformation(userID, callback) {
       if (!users || users.length === 0)
         return callback(sendPacket(0, "Couldn't find user"));
       return callback(
-        sendPacket(1, 'Sending personal user data', { user: users[0] })
+        sendPacket(1, 'Sending personal user information', { user: users[0] })
       );
     })
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export async function getPublicProfileInformation(userID, callback) {
-  try {
-    const user = await User.findById(userID, [
-      'firstName',
-      'lastName',
-      'major',
-      'graduationYear',
-      'work',
-      'position',
-      'university',
-      'department',
-      'interests',
-      'organizations',
-      'bio',
-    ]).populate({ path: 'university', select: 'universityName' });
-
-    if (!user) return callback(sendPacket(0, "Couldn't find user"));
-    return callback(sendPacket(1, 'Sending public user data', { user }));
-  } catch (err) {
-    return callback(sendPacket(-1, err));
-  }
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'universities',
+        localField: 'university',
+        foreignField: '_id',
+        as: 'university',
+      },
+    },
+    { $unwind: '$university' },
+    {
+      $project: {
+        email: '$email',
+        firstName: '$firstName',
+        lastName: '$lastName',
+        major: '$major',
+        graduationYear: '$graduationYear',
+        work: '$work',
+        position: '$position',
+        department: '$department',
+        interests: '$interests',
+        organizations: '$organizations',
+        graduateSchool: '$graduateSchool',
+        bio: '$bio',
+        numConnections: { $size: '$connections' },
+        numCommunities: { $size: '$joinedCommunities' },
+        university: {
+          _id: '$university._id',
+          universityName: '$university.universityName',
+        },
+      },
+    },
+  ])
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(
+        sendPacket(1, 'Sending public user information', { user: users[0] })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function getUserEvents(userID, callback) {
@@ -473,7 +495,7 @@ export function getPendingRequests(userID, callback) {
 }
 
 export function requestConnection(userID, requestUserID, callback) {
-  getConnectionWithUser(userID, requestUserID, (packet) => {
+  checkConnectedWithUser(userID, requestUserID, (packet) => {
     if (packet.success !== 1 || packet.content.connected !== 'PUBLIC')
       return callback(packet);
 
@@ -534,8 +556,6 @@ export function respondConnection(userID, requestID, accepted, callback) {
 
     const isRequestee = userID.toString().localeCompare(request['to']) === 0;
     const isRequester = userID.toString().localeCompare(request['from']) === 0;
-    if (request.accepted)
-      return callback(sendPacket(0, 'Connection Request has already been accepted'));
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request, callback);
     else if (accepted && isRequestee)
@@ -611,7 +631,7 @@ function removeConnectionRequest(request, callback) {
         ],
       },
     },
-    ['pendingConnections'],
+    ['connections', 'pendingConnections'],
     async (err, users) => {
       if (err) return callback(sendPacket(-1, err));
       if (!users || users.length !== 2)
@@ -620,17 +640,34 @@ function removeConnectionRequest(request, callback) {
         );
 
       for (let i = 0; i < 2; i++) {
-        // Checks that request exists in array
-        const removeIndex = users[i].pendingConnections.indexOf(request._id);
-        if (removeIndex === -1) continue;
+        // Checks if request exists in pending array and removes it
+        if (users[i].pendingConnections) {
+          const removePendingIndex = users[i].pendingConnections.indexOf(
+            request._id
+          );
+          if (removePendingIndex !== -1) {
+            users[i].pendingConnections.splice(removePendingIndex, 1);
+            try {
+              await users[i].save();
+            } catch (err) {
+              log('error', `Couldn't save User`);
+              if (err) return callback(sendPacket(-1, err));
+            }
+          }
+        }
 
-        // Remove Request from each User's pending
-        users[i].pendingConnections.splice(removeIndex, 1);
-        try {
-          await users[i].save();
-        } catch (err) {
-          log('error', `Couldn't save User`);
-          if (err) return callback(sendPacket(-1, err));
+        // Checks if request exists in connections array and removes it
+        if (users[i].connections) {
+          const removeConnectionIndex = users[i].connections.indexOf(request._id);
+          if (removeConnectionIndex !== -1) {
+            users[i].connections.splice(removeConnectionIndex, 1);
+            try {
+              await users[i].save();
+            } catch (err) {
+              log('error', `Couldn't save User`);
+              if (err) return callback(sendPacket(-1, err));
+            }
+          }
         }
       }
 

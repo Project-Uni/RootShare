@@ -81,7 +81,6 @@ function Profile(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setCurrentProfileType(data['content']['connected']);
   }
 
@@ -114,9 +113,7 @@ function Profile(props: Props) {
         <ProfileBody
           profileID={profileID}
           currentProfileType={currentProfileType}
-          updateProfileType={(newType: ProfileType) =>
-            setCurrentProfileType(newType)
-          }
+          updateProfileType={updateProfileType}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>

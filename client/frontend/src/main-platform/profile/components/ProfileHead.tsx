@@ -139,7 +139,7 @@ type Props = {
   numMutualConnections?: number;
   numCommunities: number;
   currentProfileType: ProfileType;
-  updateProfileType: (newType: ProfileType) => void;
+  updateProfileType: () => void;
 
   accessToken: string;
   refreshToken: string;
@@ -184,62 +184,55 @@ function ProfileHead(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setConnection(data['content']['connection']);
   }
 
   async function requestConnection() {
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   '/user/requestConnection',
-    //   {
-    //     requestUserID: props.profileID,
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
-    // TODO: add snackbar notification
+    const { data } = await makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestUserID: props.profileID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-    // if (data['success'] === 1) props.updateProfileType()
-    props.updateProfileType('TO');
+    if (data['success'] === 1) props.updateProfileType();
   }
 
   async function removeConnection() {
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   '/user/respondConnection',
-    //   {
-    //     requestID: connection?._id,
-    //     accepted: false,
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
-    // TODO: add snackbar notification
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: connection?._id,
+        accepted: false,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-    // if (data['success'] === 1) props.updateProfileType()
-    props.updateProfileType('PUBLIC');
+    if (data['success'] === 1) props.updateProfileType();
     setAnchorEl(null);
   }
 
   async function acceptConnection() {
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   '/user/respondConnection',
-    //   {
-    //     requestID: connection?._id,
-    //     accepted: true,
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
-    // TODO: add snackbar notification
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: connection?._id,
+        accepted: true,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
-    // if (data['success'] === 1) props.updateProfileType()
-    props.updateProfileType('CONNECTION');
+    if (data['success'] === 1) props.updateProfileType();
   }
 
   async function submitEditedBio() {
