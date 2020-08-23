@@ -5,6 +5,9 @@ var University = mongoose.model('universities');
 var bCrypt = require('bcryptjs');
 import jwt = require('jsonwebtoken');
 
+const {
+  sendConfirmationEmail,
+} = require('../interactions/registration/email-confirmation');
 import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
 
 module.exports = function (passport) {
@@ -24,7 +27,7 @@ module.exports = function (passport) {
               return done(err);
             }
             if (user) {
-              return done(null, false, { message: 'User Already Exists.' });
+              return done(null, false, { message: 'Email Already Exists.' });
             } else {
               // if there is no user with that email, create new
               var newUser = new User();
@@ -62,6 +65,8 @@ module.exports = function (passport) {
                   userTokenInfo,
                   process.env.JWT_REFRESH_SECRET
                 );
+
+                sendConfirmationEmail(email);
                 return done(null, newUser, {
                   message: 'User Registration Succesful!',
                   jwtAccessToken,

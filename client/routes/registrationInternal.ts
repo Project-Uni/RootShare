@@ -64,7 +64,7 @@ module.exports = (app) => {
             log('error', `Failed serializing ${user.email}`);
           }
           log('info', `Successfully created account for ${user.email}`);
-          sendConfirmationEmail(user.email);
+
           return res.json(
             sendPacket(1, 'Successfully signed up', {
               firstName: user.firstName,

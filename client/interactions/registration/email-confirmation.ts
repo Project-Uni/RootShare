@@ -145,6 +145,7 @@ module.exports = {
     let emailAddress;
     try {
       emailAddress = cryptr.decrypt(emailToken);
+      emailAddress = emailAddress.toString().toLowerCase();
       return emailAddress;
     } catch {
       return null;
