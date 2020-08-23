@@ -268,14 +268,13 @@ export async function joinCommunity(
 
 export async function getAllPendingMembers(communityID: string) {
   try {
-    const pendingMembers = await Community.findById(communityID)
+    const { pendingMembers } = await Community.findById(communityID)
       .select(['pendingMembers'])
       .populate({
         path: 'pendingMembers',
         select: ['_id', 'firstName', 'lastName', 'profilePicture'],
-      }).pendingMembers;
+      });
 
-    console.log('Pending members:', pendingMembers);
     for (let i = 0; i < pendingMembers.length; i++) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
