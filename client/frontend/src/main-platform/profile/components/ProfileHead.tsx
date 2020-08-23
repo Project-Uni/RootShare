@@ -8,7 +8,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 import { makeRequest } from '../../../helpers/functions';
-import { ProfileType, ConnectionRequestType } from '../../../helpers/types';
+import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 
 const ITEM_HEIGHT = 28;
 
@@ -138,8 +138,8 @@ type Props = {
   numConnections: number;
   numMutualConnections?: number;
   numCommunities: number;
-  currentProfileType: ProfileType;
-  updateProfileType: () => void;
+  currentProfileState: ProfileState;
+  updateProfileState: () => void;
 
   accessToken: string;
   refreshToken: string;
@@ -172,12 +172,12 @@ function ProfileHead(props: Props) {
 
   useEffect(() => {
     if (
-      props.currentProfileType === 'TO' ||
-      props.currentProfileType === 'FROM' ||
-      props.currentProfileType === 'CONNECTION'
+      props.currentProfileState === 'TO' ||
+      props.currentProfileState === 'FROM' ||
+      props.currentProfileState === 'CONNECTION'
     )
       fetchConnection();
-  }, [props.currentProfileType]);
+  }, [props.currentProfileState]);
 
   async function fetchConnection() {
     const { data } = await makeRequest(
@@ -204,7 +204,7 @@ function ProfileHead(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) props.updateProfileType();
+    if (data['success'] === 1) props.updateProfileState();
   }
 
   async function declineConnection() {
@@ -220,7 +220,7 @@ function ProfileHead(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) props.updateProfileType();
+    if (data['success'] === 1) props.updateProfileState();
     setAnchorEl(null);
   }
 
@@ -238,7 +238,7 @@ function ProfileHead(props: Props) {
     );
 
     if (data['success'] === 1) {
-      props.updateProfileType();
+      props.updateProfileState();
       setNumConnections((prevNumConnections) => prevNumConnections + 1);
     }
   }
@@ -257,7 +257,7 @@ function ProfileHead(props: Props) {
     );
 
     if (data['success'] === 1) {
-      props.updateProfileType();
+      props.updateProfileState();
       setNumConnections((prevNumConnections) =>
         prevNumConnections - 1 >= 0 ? prevNumConnections - 1 : 0
       );
@@ -346,10 +346,10 @@ function ProfileHead(props: Props) {
   function renderOptions() {
     return (
       <div>
-        {props.currentProfileType === 'TO' && (
+        {props.currentProfileState === 'TO' && (
           <MenuItem onClick={declineConnection}>Remove Connection Request</MenuItem>
         )}
-        {props.currentProfileType === 'CONNECTION' && (
+        {props.currentProfileState === 'CONNECTION' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
         )}
       </div>
@@ -357,21 +357,21 @@ function ProfileHead(props: Props) {
   }
 
   function renderConnectionButton() {
-    if (props.currentProfileType === 'SELF') return;
+    if (props.currentProfileState === 'SELF') return;
 
     let buttonStyles = [styles.allConnectionButtons];
     let buttonText = 'Connect';
     let clickHandler: any = requestConnection;
 
-    if (props.currentProfileType === 'TO') {
+    if (props.currentProfileState === 'TO') {
       buttonStyles.push(styles.pendingConnectionButton);
       buttonText = 'Requested';
       clickHandler = handleOptionsClick;
-    } else if (props.currentProfileType === 'FROM') {
+    } else if (props.currentProfileState === 'FROM') {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
       clickHandler = declineConnection;
-    } else if (props.currentProfileType === 'CONNECTION') {
+    } else if (props.currentProfileState === 'CONNECTION') {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
       clickHandler = handleOptionsClick;
@@ -401,7 +401,7 @@ function ProfileHead(props: Props) {
         >
           {renderOptions()}
         </Menu>
-        {props.currentProfileType === 'FROM' && (
+        {props.currentProfileState === 'FROM' && (
           <Button
             variant="contained"
             className={[
@@ -474,7 +474,7 @@ function ProfileHead(props: Props) {
               </Button>
             </div>
           </div>
-        ) : props.currentProfileType === 'SELF' ? (
+        ) : props.currentProfileState === 'SELF' ? (
           renderSelfBio()
         ) : (
           renderOtherBio()
@@ -490,7 +490,7 @@ function ProfileHead(props: Props) {
         >
           {numConnections} Connections
         </RSText>
-        {props.currentProfileType === 'SELF' || (
+        {props.currentProfileState === 'SELF' || (
           <RSText
             type="subhead"
             size={12}

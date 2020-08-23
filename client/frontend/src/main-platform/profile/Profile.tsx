@@ -15,7 +15,7 @@ import {
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
 import { makeRequest } from '../../helpers/functions';
-import { ProfileType } from '../../helpers/types';
+import { ProfileState } from '../../helpers/types';
 
 const HEADER_HEIGHT = 64;
 
@@ -48,7 +48,7 @@ function Profile(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
-  const [currentProfileType, setCurrentProfileType] = useState<ProfileType>(
+  const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
     'PUBLIC'
   );
 
@@ -61,27 +61,12 @@ function Profile(props: Props) {
     checkAuth().then(async (authenticated) => {
       if (!authenticated) setLoginRedirect(true);
     });
-    updateProfileType();
+    updateProfileState();
   }, []);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
-  }
-
-  async function updateProfileType() {
-    if (profileID === 'user') return setCurrentProfileType('SELF');
-
-    const { data } = await makeRequest(
-      'POST',
-      '/user/checkConnectedWithUser',
-      { requestUserID: profileID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) setCurrentProfileType(data['content']['connected']);
   }
 
   async function checkAuth() {
@@ -102,6 +87,21 @@ function Profile(props: Props) {
     return true;
   }
 
+  async function updateProfileState() {
+    if (profileID === 'user') return setCurrentProfileState('SELF');
+
+    const { data } = await makeRequest(
+      'POST',
+      '/user/checkConnectedWithUser',
+      { requestUserID: profileID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setCurrentProfileState(data['content']['connected']);
+  }
+
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/profile/${profileID}`} />}
@@ -112,8 +112,8 @@ function Profile(props: Props) {
         )}
         <ProfileBody
           profileID={profileID}
-          currentProfileType={currentProfileType}
-          updateProfileType={updateProfileType}
+          currentProfileState={currentProfileState}
+          updateProfileState={updateProfileState}
         />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>

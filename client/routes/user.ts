@@ -29,10 +29,11 @@ module.exports = (app) => {
     getConnections(req.user._id, (packet) => res.json(packet));
   });
 
-  app.post('/user/getProfile', isAuthenticatedWithJWT, (req, res) => {
-    if (req.body.userID === 'user')
+  app.get('/api/user/profile/:userID', isAuthenticatedWithJWT, (req, res) => {
+    if (req.params.userID === 'user')
       getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
-    else getPublicProfileInformation(req.body.userID, (packet) => res.json(packet));
+    else
+      getPublicProfileInformation(req.params.userID, (packet) => res.json(packet));
   });
 
   app.post('/user/Events', isAuthenticatedWithJWT, (req, res) => {

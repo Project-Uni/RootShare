@@ -198,11 +198,9 @@ function ProfileDrawer(props: Props) {
 
   async function getProfile() {
     const { data } = await makeRequest(
-      'POST',
-      '/user/getProfile',
-      {
-        userID: 'user',
-      },
+      'GET',
+      '/api/user/profile/user',
+      {},
       true,
       props.accessToken,
       props.refreshToken

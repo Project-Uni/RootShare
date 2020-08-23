@@ -1,7 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-
-import { Connection } from '../models';
 
 const { getUserData } = require('../interactions/utilities');
 

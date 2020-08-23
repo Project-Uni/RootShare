@@ -15,7 +15,7 @@ import {
   UserType,
   UniversityType,
   EventType,
-  ProfileType,
+  ProfileState,
 } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
@@ -70,10 +70,10 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   profileID: string;
-  currentProfileType: ProfileType;
+  currentProfileState: ProfileState;
   accessToken: string;
   refreshToken: string;
-  updateProfileType: () => void;
+  updateProfileState: () => void;
 };
 
 function ProfileBody(props: Props) {
@@ -101,11 +101,9 @@ function ProfileBody(props: Props) {
 
   async function fetchProfile() {
     const { data } = await makeRequest(
-      'POST',
-      '/user/getProfile',
-      {
-        userID: props.profileID,
-      },
+      'GET',
+      `/api/user/profile/${props.profileID}`,
+      {},
       true,
       props.accessToken,
       props.refreshToken
@@ -157,7 +155,7 @@ function ProfileBody(props: Props) {
         <ProfilePicture
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={props.currentProfileType === 'SELF'}
+          editable={props.currentProfileState === 'SELF'}
           height={150}
           width={150}
           borderRadius={150}
@@ -195,7 +193,7 @@ function ProfileBody(props: Props) {
           profileID={(profileState as UserType)._id}
           event={event}
           style={styles.event}
-          currentProfileType={props.currentProfileType}
+          currentProfileState={props.currentProfileState}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           removeEvent={removeEvent}
@@ -263,10 +261,10 @@ function ProfileBody(props: Props) {
             numConnections={profile.numConnections!}
             numMutualConnections={profile.numMutual}
             numCommunities={profile.numCommunities!}
-            currentProfileType={props.currentProfileType}
+            currentProfileState={props.currentProfileState}
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
-            updateProfileType={props.updateProfileType}
+            updateProfileState={props.updateProfileState}
           />
           {renderRegisteredEvents()}
           <RSText

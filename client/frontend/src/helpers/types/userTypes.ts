@@ -40,4 +40,4 @@ export type ConnectionRequestType = {
   createdAt: Date;
 };
 
-export type ProfileType = 'SELF' | 'CONNECTION' | 'TO' | 'FROM' | 'PUBLIC';
+export type ProfileState = 'SELF' | 'CONNECTION' | 'TO' | 'FROM' | 'PUBLIC';
