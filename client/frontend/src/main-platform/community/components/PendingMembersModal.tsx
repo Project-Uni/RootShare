@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Modal, IconButton, CircularProgress } from '@material-ui/core';
+import { MdErrorOutline } from 'react-icons/md';
 
 import { connect } from 'react-redux';
+
+import SinglePendingMember from './SinglePendingMember';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -31,7 +34,18 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 80,
     color: colors.primary,
   },
+  errorText: {
+    marginLeft: 20,
+  },
+  singleMember: { marginBottom: 15 },
 }));
+
+type PendingUser = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture?: string;
+};
 
 type Props = {
   open: boolean;
@@ -44,6 +58,8 @@ type Props = {
 function PendingMembersModal(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
+  const [showServerErr, setShowServerErr] = useState(false);
+  const [pendingMembers, setPendingMembers] = useState<PendingUser[]>([]);
 
   useEffect(() => {
     if (props.open) {
@@ -63,7 +79,70 @@ function PendingMembersModal(props: Props) {
       props.refreshToken
     );
 
-    console.log('Data:', data);
+    if (data.success !== 1) {
+      setShowServerErr(true);
+    } else {
+      setPendingMembers(data.content['pendingMembers']);
+    }
+  }
+
+  function handleAcceptUser(_id: string) {
+    console.log('Accepting user', _id);
+  }
+
+  function handleRejectUser(_id: string) {
+    console.log('Reject user:', _id);
+  }
+
+  function renderServerErr() {
+    return (
+      <div
+        style={{
+          paddingLeft: 20,
+          paddingRight: 20,
+          paddingBottom: 20,
+          display: 'flex',
+        }}
+      >
+        <MdErrorOutline color={colors.brightError} size={50} />
+        <RSText size={14} className={styles.errorText}>
+          There was an error retrieving the list of pending members.
+        </RSText>
+      </div>
+    );
+  }
+
+  function renderPendingList() {
+    const output = [];
+
+    // for (let i = 0; i < pendingMembers.length; i++) {
+    //   output.push(
+    //     <SinglePendingMember
+    //       firstName={pendingMembers[i].firstName}
+    //       lastName={pendingMembers[i].lastName}
+    //       _id={pendingMembers[i]._id}
+    //       profilePicture={pendingMembers[i].profilePicture}
+    //       className={styles.singleMember}
+    //       onAccept = { handleAcceptUser };
+    //       onReject = { handleRejectUser };
+    //     />
+    //   );
+    // }
+    for (let i = 0; i < 10; i++) {
+      output.push(
+        <SinglePendingMember
+          firstName={pendingMembers[0].firstName}
+          lastName={pendingMembers[0].lastName}
+          _id={pendingMembers[0]._id}
+          profilePicture={pendingMembers[0].profilePicture}
+          className={styles.singleMember}
+          onAccept={handleAcceptUser}
+          onReject={handleRejectUser}
+        />
+      );
+    }
+
+    return <div style={{ maxHeight: 500, overflow: 'scroll' }}>{output}</div>;
   }
 
   return (
@@ -96,8 +175,10 @@ function PendingMembersModal(props: Props) {
           >
             <CircularProgress size={85} className={styles.loadingIndicator} />
           </div>
+        ) : showServerErr ? (
+          renderServerErr()
         ) : (
-          <p>Users</p>
+          renderPendingList()
         )}
       </div>
     </Modal>
