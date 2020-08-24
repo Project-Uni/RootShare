@@ -40,7 +40,7 @@ module.exports = (passport) => {
             linkedinID
           );
 
-          const JWT = generateJWT(user);
+          const JWT = generateJWT(newUser);
           sendConfirmationEmail(email);
           return done(null, newUser, {
             message: 'User Registration with LinkedIn Succesful!',
