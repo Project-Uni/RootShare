@@ -134,6 +134,22 @@ function CommunityGeneralInfo(props: Props) {
     if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
   }
 
+  async function handleLeaveClick() {
+    if (window.confirm('Are you sure you want to leave this community?')) {
+      const { data } = await makeRequest(
+        'GET',
+        `/api/community/${props.communityID}/leave`,
+        {},
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      if (data.success === 1) {
+        props.updateCommunityStatus('OPEN');
+      }
+    }
+  }
+
   function handlePendingClicked() {
     setShowPendingModal(true);
   }
@@ -167,6 +183,7 @@ function CommunityGeneralInfo(props: Props) {
         <Button
           size="large"
           className={[styles.button, styles.joinedButton].join(' ')}
+          onClick={!props.isAdmin ? handleLeaveClick : undefined}
         >
           {props.isAdmin ? 'Admin' : 'Member'}
         </Button>
