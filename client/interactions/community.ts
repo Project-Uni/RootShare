@@ -363,3 +363,30 @@ export async function acceptPendingMember(communityID: string, userID: string) {
     return sendPacket(-1, err);
   }
 }
+
+export async function leaveCommunity(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { members: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { joinedCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `User ${userID} left community ${communityID}`);
+        return sendPacket(1, 'Successfully left community');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

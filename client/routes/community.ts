@@ -12,6 +12,7 @@ import {
   getAllPendingMembers,
   rejectPendingMember,
   acceptPendingMember,
+  leaveCommunity,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -158,6 +159,18 @@ export default function communityRoutes(app) {
         return res.json(sendPacket(-1, 'userID missing from request body'));
 
       const packet = await acceptPendingMember(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/leave',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await leaveCommunity(communityID, userID);
       return res.json(packet);
     }
   );
