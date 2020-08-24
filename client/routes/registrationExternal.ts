@@ -2,6 +2,7 @@ var passport = require('passport');
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
+import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
 module.exports = (app) => {
   app.get(
@@ -33,5 +34,29 @@ module.exports = (app) => {
         log('error', `User linkedin login-signup errored`);
       }
     })(req, res);
+  });
+
+  app.get('/auth/reset/Google/:token', async (req, res) => {
+    resetLockAuth(req.params.token, 'Reset', 'Google', (packet) => {
+      res.json(packet);
+    });
+  });
+
+  app.get('/auth/lock/Google/:token', async (req, res) => {
+    resetLockAuth(req.params.token, 'Locked', 'Google', (packet) => {
+      res.json(packet);
+    });
+  });
+
+  app.get('/auth/reset/LinkedIn/:token', async (req, res) => {
+    resetLockAuth(req.params.token, 'Reset', 'LinkedIn', (packet) => {
+      res.json(packet);
+    });
+  });
+
+  app.get('/auth/lock/LinkedIn/:token', async (req, res) => {
+    resetLockAuth(req.params.token, 'Locked', 'LinkedIn', (packet) => {
+      res.json(packet);
+    });
   });
 };
