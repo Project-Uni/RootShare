@@ -86,12 +86,30 @@ function PendingMembersModal(props: Props) {
     }
   }
 
-  function handleAcceptUser(_id: string) {
-    console.log('Accepting user', _id);
+  async function handleAcceptUser(_id: string) {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/acceptPending`,
+      { userID: _id },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log('Data: ', data);
   }
 
-  function handleRejectUser(_id: string) {
-    console.log('Reject user:', _id);
+  async function handleRejectUser(_id: string) {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/rejectPending`,
+      { userID: _id },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log('Data: ', data);
   }
 
   function renderServerErr() {
@@ -114,27 +132,23 @@ function PendingMembersModal(props: Props) {
 
   function renderPendingList() {
     const output = [];
+    if (pendingMembers.length === 0) {
+      output.push(
+        <div
+          style={{ paddingLeft: 15, paddingRight: 15, paddingBottom: 20, flex: 1 }}
+        >
+          <RSText size={14}>There no pending requests.</RSText>
+        </div>
+      );
+    }
 
-    // for (let i = 0; i < pendingMembers.length; i++) {
-    //   output.push(
-    //     <SinglePendingMember
-    //       firstName={pendingMembers[i].firstName}
-    //       lastName={pendingMembers[i].lastName}
-    //       _id={pendingMembers[i]._id}
-    //       profilePicture={pendingMembers[i].profilePicture}
-    //       className={styles.singleMember}
-    //       onAccept = { handleAcceptUser };
-    //       onReject = { handleRejectUser };
-    //     />
-    //   );
-    // }
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < pendingMembers.length; i++) {
       output.push(
         <SinglePendingMember
-          firstName={pendingMembers[0].firstName}
-          lastName={pendingMembers[0].lastName}
-          _id={pendingMembers[0]._id}
-          profilePicture={pendingMembers[0].profilePicture}
+          firstName={pendingMembers[i].firstName}
+          lastName={pendingMembers[i].lastName}
+          _id={pendingMembers[i]._id}
+          profilePicture={pendingMembers[i].profilePicture}
           className={styles.singleMember}
           onAccept={handleAcceptUser}
           onReject={handleRejectUser}

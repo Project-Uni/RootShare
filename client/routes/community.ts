@@ -10,6 +10,8 @@ import {
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
+  rejectPendingMember,
+  acceptPendingMember,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -126,6 +128,36 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const packet = await getAllPendingMembers(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/rejectPending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { userID } = req.body;
+      if (!userID)
+        return res.json(sendPacket(-1, 'userID missing from request body'));
+
+      const packet = await rejectPendingMember(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/acceptPending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { userID } = req.body;
+      if (!userID)
+        return res.json(sendPacket(-1, 'userID missing from request body'));
+
+      const packet = await acceptPendingMember(communityID, userID);
       return res.json(packet);
     }
   );

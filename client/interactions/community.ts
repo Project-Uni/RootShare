@@ -279,7 +279,9 @@ export async function getAllPendingMembers(communityID: string) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
       try {
-        const user = await User.findById(pendingMembers[i]._id);
+        const user = await User.findById(pendingMembers[i]._id).select([
+          'profilePicture',
+        ]);
         if (user.profilePicture) pictureFileName = user.profilePicture;
       } catch (err) {
         log('err', err);
@@ -299,6 +301,63 @@ export async function getAllPendingMembers(communityID: string) {
     return sendPacket(1, 'Successfully retrieved all pending members', {
       pendingMembers,
     });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function rejectPendingMember(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { pendingCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `Rejected user ${userID} from community ${communityID}`);
+        return sendPacket(1, 'Successfully rejected pending request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function acceptPendingMember(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      {
+        $pull: { pendingCommunities: communityID },
+        $push: { joinedCommunities: communityID },
+      }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `Accepted user ${userID} into community ${communityID}`);
+        return sendPacket(1, 'Successfully accepted pending request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
