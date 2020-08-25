@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+import mongoose = require('mongoose');
 const { DB_KEY } = require('../../keys/keys.json');
 import log from '../helpers/logger';
 
