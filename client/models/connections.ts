@@ -1,10 +1,10 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
 var connectionSchema = new Schema(
   {
-    from: { type: Schema.ObjectId, ref: 'users' },
-    to: { type: Schema.ObjectId, ref: 'users' },
+    from: { type: Types.ObjectId, ref: 'users' },
+    to: { type: Types.ObjectId, ref: 'users' },
     accepted: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }

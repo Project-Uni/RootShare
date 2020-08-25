@@ -1,17 +1,18 @@
-const mongoose = require('mongoose');
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 import { COMMUNITY_TYPE, CommunityMap } from '../types/types';
 
-const CommunitySchema = new mongoose.Schema(
+const CommunitySchema = new Schema(
   {
     name: {
       type: String,
       required: true,
       message: 'Name is required for community',
     },
-    admin: { type: mongoose.Schema.ObjectId, ref: 'users', required: true },
+    admin: { type: Types.ObjectId, ref: 'users', required: true },
     private: { type: Boolean, default: false, required: true },
     members: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      type: [{ type: Types.ObjectId, ref: 'users' }],
       default: [],
     },
     type: { type: Number, required: true, message: 'Type is required' },

@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
-const PostSchema = new mongoose.Schema(
+const PostSchema = new Schema(
   {
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: Types.ObjectId,
       ref: 'users',
       required: true,
       message: 'User is required',
@@ -14,10 +15,10 @@ const PostSchema = new mongoose.Schema(
       message: 'Message is required',
     },
     likes: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      type: [{ type: Types.ObjectId, ref: 'users' }],
       default: [],
     },
-    community: { type: mongoose.Schema.ObjectId, ref: 'communities' },
+    community: { type: Types.ObjectId, ref: 'communities' },
   },
   { timestamps: true }
 );

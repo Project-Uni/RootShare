@@ -1,12 +1,12 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
 var userSchema = new Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    university: { type: Schema.ObjectId, ref: 'universities' },
+    university: { type: Types.ObjectId, ref: 'universities' },
     accountType: { type: String },
     privilegeLevel: { type: Number, default: 1 },
     hashedPassword: String,
@@ -26,22 +26,22 @@ var userSchema = new Schema(
     confirmed: { type: Boolean, required: true, default: false },
     verified: { type: Boolean, required: true, default: false },
     RSVPWebinars: {
-      type: [{ type: Schema.ObjectId, ref: 'webinars' }],
+      type: [{ type: Types.ObjectId, ref: 'webinars' }],
     },
     attendedWebinars: {
-      type: [{ type: Schema.ObjectId, ref: 'webinars' }],
+      type: [{ type: Types.ObjectId, ref: 'webinars' }],
     },
     connections: {
-      type: [{ type: Schema.ObjectId, ref: 'connections' }],
+      type: [{ type: Types.ObjectId, ref: 'connections' }],
     },
     pendingConnections: {
-      type: [{ type: Schema.ObjectId, ref: 'connections' }],
+      type: [{ type: Types.ObjectId, ref: 'connections' }],
     },
     joinedCommunities: {
-      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+      type: [{ type: Types.ObjectId, ref: 'communities' }],
     },
     pendingCommunities: {
-      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+      type: [{ type: Types.ObjectId, ref: 'communities' }],
     },
     //TODO - Add fields for background image
     profilePicture: { type: String },

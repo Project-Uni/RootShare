@@ -1,10 +1,10 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
 var conversationSchema = new Schema(
   {
-    participants: [{ type: Schema.ObjectId, ref: 'users', required: true }],
-    lastMessage: { type: Schema.ObjectId, ref: 'messages' },
+    participants: [{ type: Types.ObjectId, ref: 'users', required: true }],
+    lastMessage: { type: Types.ObjectId, ref: 'messages' },
   },
   { timestamps: true }
 );

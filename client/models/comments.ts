@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
-const CommentSchema = new mongoose.Schema(
+const CommentSchema = new Schema(
   {
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: Types.ObjectId,
       ref: 'users',
       required: true,
       message: 'User is required',
@@ -13,9 +14,9 @@ const CommentSchema = new mongoose.Schema(
       required: true,
       message: 'Message is required',
     },
-    likes: { type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }] },
+    likes: { type: [{ type: Types.ObjectId, ref: 'users' }] },
     post: {
-      type: mongoose.Schema.ObjectId,
+      type: Types.ObjectId,
       ref: 'posts',
       required: true,
       message: 'Post is required to create a comment',

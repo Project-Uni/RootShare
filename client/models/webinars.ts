@@ -1,14 +1,14 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
 var webinarSchema = new Schema(
   {
     title: { type: String },
     brief_description: { type: String },
     full_description: { type: String },
-    host: { type: Schema.ObjectId, ref: 'users' },
-    speakers: [{ type: Schema.ObjectId, ref: 'users' }],
-    conversation: { type: Schema.ObjectId, ref: 'conversations' },
+    host: { type: Types.ObjectId, ref: 'users' },
+    speakers: [{ type: Types.ObjectId, ref: 'users' }],
+    conversation: { type: Types.ObjectId, ref: 'conversations' },
     // attendees: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
     attendees: { type: {}, default: {} },
     dateTime: { type: Date },
@@ -18,12 +18,12 @@ var webinarSchema = new Schema(
     muxLiveStreamID: String,
     muxPlaybackID: String,
     availableCommunities: {
-      type: [{ type: Schema.ObjectId, ref: 'communities' }],
+      type: [{ type: Types.ObjectId, ref: 'communities' }],
     },
-    hostCommunity: { type: Schema.ObjectId, ref: 'communities' },
+    hostCommunity: { type: Types.ObjectId, ref: 'communities' },
     private: { type: Boolean },
     //TODO - Add field for image
-    blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
+    blockedUsers: [{ type: Types.ObjectId, ref: 'users' }],
   },
   { timestamps: true }
 );

@@ -1,17 +1,17 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
 var messageSchema = new Schema(
   {
     conversationID: {
-      type: Schema.ObjectId,
+      type: Types.ObjectId,
       ref: 'conversations',
       required: true,
     },
     senderName: { type: String, required: true },
-    sender: { type: Schema.ObjectId, ref: 'users', required: true },
+    sender: { type: Types.ObjectId, ref: 'users', required: true },
     content: { type: String, required: true },
-    likes: [{ type: Schema.ObjectId, ref: 'users' }],
+    likes: [{ type: Types.ObjectId, ref: 'users' }],
   },
   { timestamps: true }
 );
