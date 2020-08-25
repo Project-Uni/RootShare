@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     height: '50px',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     '&:hover': {
       backgroundColor: 'rgb(230,230,230)',
     },
@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme) => ({
   googleText: {
     display: 'inline-block',
     flex: 1,
-    fontFamily: 'Arial',
-    color: 'black',
+    fontFamily: 'Roboto',
+    color: '#888888',
   },
   googleLink: {
     display: 'flex',
@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
       color: 'inherit',
     },
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
 }));
 
@@ -50,7 +51,9 @@ export default function GoogleButton(props: Props) {
     >
       <a href="/auth/login/google" className={styles.googleLink}>
         <img src={googleLogo} alt="Google logo" />
-        {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}
+        <p className={styles.googleText}>
+          {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}
+        </p>
       </a>
     </Paper>
   );
