@@ -136,7 +136,7 @@ export function sendExternalAdditionConfirmation(
     .sendEmail(params)
     .promise()
     .then((data) => {
-      log('info', 'EMAIL SENT' + emailAddress);
+      // log('info', 'EMAIL SENT ' + emailAddress);
     })
     .catch((err) => {
       log('error', err);
