@@ -1,4 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
+import { log, sendPacket } from '../helpers/functions';
 import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -12,8 +12,6 @@ import {
   requestConnection,
   respondConnection,
 } from '../interactions/user';
-
-import log from '../helpers/logger';
 
 module.exports = (app) => {
   app.get('/user/getCurrent', isAuthenticatedWithJWT, (req, res) => {

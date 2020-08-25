@@ -206,6 +206,7 @@ function HypeExternalMissingInfo(props: Props) {
         {
           university: university,
           accountType: standing,
+          password,
         },
         true,
         accessToken,

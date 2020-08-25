@@ -1,14 +1,19 @@
 import { User } from '../../models';
 
 const Cryptr = require('cryptr');
-
 const { CRYPT_SECRET } = require('../../../keys/keys.json');
 const cryptr = new Cryptr(CRYPT_SECRET);
-var bCrypt = require('bcryptjs');
+
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
-import log from '../../helpers/logger';
-import sendPacket from '../../helpers/sendPacket';
+
+import {
+  log,
+  sendPacket,
+  hashPassword,
+  convertEmailToToken,
+  convertTokenToEmail,
+} from '../../helpers/functions';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
@@ -20,7 +25,7 @@ export function updatePassword(emailToken, newPassword, callback) {
     if (err) return callback(-1, err);
     if (!currUser) return callback(sendPacket(0, 'User code invalid'));
 
-    currUser.hashedPassword = createHash(newPassword);
+    currUser.hashedPassword = hashPassword(newPassword);
     currUser.save(function (err) {
       if (err) return callback(sendPacket(-1, "Could not save user's new password"));
       return callback(sendPacket(1, 'Password update successful!'));
@@ -70,23 +75,4 @@ export function emailIsValid(emailAddress, callback) {
         user.hashedPassword !== undefined
     );
   });
-}
-
-function convertEmailToToken(emailAddress) {
-  let token = cryptr.encrypt(emailAddress);
-  return token;
-}
-
-function convertTokenToEmail(emailToken) {
-  let emailAddress;
-  try {
-    emailAddress = cryptr.decrypt(emailToken);
-    return emailAddress;
-  } catch {
-    return null;
-  }
-}
-
-function createHash(password) {
-  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { COMMUNITY_TYPE, CommunityMap } from '../types/types';
+import { COMMUNITY_TYPE, CommunityMap } from '../helpers/types';
 
 const CommunitySchema = new mongoose.Schema(
   {

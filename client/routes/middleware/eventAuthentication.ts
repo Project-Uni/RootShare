@@ -1,4 +1,4 @@
-import sendPacket from '../../helpers/sendPacket';
+import { sendPacket } from '../../helpers/functions';
 const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
 

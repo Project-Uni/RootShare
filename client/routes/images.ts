@@ -1,14 +1,12 @@
-const fs = require('fs');
-
-import log from '../helpers/logger';
-import sendPacket from '../helpers/sendPacket';
-
 import {
+  log,
+  sendPacket,
   uploadFile,
   retrieveFile,
   retrieveSignedUrl,
   decodeBase64Image,
-} from '../helpers/S3';
+} from '../helpers/functions';
+
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import { User } from '../models';

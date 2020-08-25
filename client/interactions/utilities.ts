@@ -1,4 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
+import { sendPacket } from '../helpers/functions';
 
 import { User } from '../models';
 

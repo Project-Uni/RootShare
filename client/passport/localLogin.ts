@@ -1,10 +1,9 @@
 const LocalStrategy = require('passport-local').Strategy;
 import mongoose = require('mongoose');
-import bCrypt = require('bcryptjs');
 
 const User = mongoose.model('users');
 
-import { generateJWT } from '../helpers/generateJWT';
+import { generateJWT, isValidPassword } from '../helpers/functions';
 
 module.exports = function (passport) {
   passport.use(
@@ -42,12 +41,4 @@ module.exports = function (passport) {
       }
     )
   );
-
-  var isValidPassword = function (user, password) {
-    if (password === user.hashedPassword) {
-      return true;
-    }
-
-    return bCrypt.compareSync(password, user.hashedPassword);
-  };
 };

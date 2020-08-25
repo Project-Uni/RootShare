@@ -1,8 +1,8 @@
 import AWS = require('aws-sdk');
 
-const AWSKeys = require('../../keys/aws_key.json');
+const AWSKeys = require('../../../keys/aws_key.json');
 
-import log from '../helpers/logger';
+import { log } from './logger';
 
 const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,

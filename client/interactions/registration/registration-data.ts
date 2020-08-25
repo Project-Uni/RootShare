@@ -1,7 +1,6 @@
 import { User, University } from '../../models';
 
-import log from '../../helpers/logger';
-import sendPacket from '../../helpers/sendPacket';
+import { log, sendPacket, hashPassword } from '../../helpers/functions';
 
 module.exports = {
   completeRegistrationDetails: async (userData, email) => {
@@ -47,13 +46,14 @@ module.exports = {
       universityName: universityName,
     });
 
-    if (!university || university === undefined || university === null) {
+    if (!university) {
       log('USER ERROR', `University Not Found: ${universityName}`);
       return sendPacket(0, `Unable to find university: ${universityName}`);
     }
 
     user.university = university;
     user.accountType = userData['accountType'];
+    user.hashedPassword = hashPassword(userData['password']);
 
     let outerErr = null;
     await user.save((err) => {
