@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     flex: 1,
     fontFamily: 'Roboto',
-    color: '#888888',
+    color: '#707070',
   },
   googleLink: {
     display: 'flex',
