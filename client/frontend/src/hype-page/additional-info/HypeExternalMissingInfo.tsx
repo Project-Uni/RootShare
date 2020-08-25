@@ -11,6 +11,7 @@ import {
   InputLabel,
   FormHelperText,
   Button,
+  TextField,
 } from '@material-ui/core';
 
 import { updateUser } from '../../redux/actions/user';
@@ -31,7 +32,7 @@ const useStyles = makeStyles((_: any) => ({
     minHeight: '100vh',
   },
   tabDesc: {
-    fontSize: '13pt',
+    fontSize: '12pt',
     margin: '0px',
     fontWeight: 'bold',
     fontfamily: 'Ubuntu',
@@ -44,7 +45,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: '20px',
   },
   universityStanding: {
-    fontSize: '13pt',
+    fontSize: '12pt',
     margin: '0px',
     fontWeight: 'bold',
     fontfamily: 'Ubuntu',
@@ -61,6 +62,24 @@ const useStyles = makeStyles((_: any) => ({
     width: '200px',
     marginTop: '20px',
     marginBottom: '20px',
+  },
+  passwordDesc: {
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
+    marginTop: '15px',
+    paddingTop: 10,
+    borderTopStyle: 'solid',
+    borderTopWidth: 1,
+    borderTopColor: 'gray',
+  },
+  textField: {
+    width: '325px',
+    marginTop: '20px',
+    marginBottom: '10px',
   },
   buttonDiv: {
     display: 'flex',
@@ -86,8 +105,12 @@ function HypeExternalMissingInfo(props: Props) {
 
   const [university, setUniversity] = useState('Purdue');
   const [standing, setStanding] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [universityErr, setUniversityErr] = useState('');
   const [standingErr, setStandingErr] = useState('');
+  const [passwordErr, setPasswordErr] = useState('');
+  const [confirmErr, setConfirmErr] = useState('');
 
   const values = queryString.parse(props.location.search);
   const accessToken = values.accessToken as string;
@@ -142,6 +165,14 @@ function HypeExternalMissingInfo(props: Props) {
     setStanding(event.target.value);
   }
 
+  function handlePasswordChange(event: any) {
+    setPassword(event.target.value);
+  }
+
+  function handleConfirmPasswordChange(event: any) {
+    setConfirmPassword(event.target.value);
+  }
+
   function handleSubmit() {
     setLoading(true);
     let hasErr = false;
@@ -156,6 +187,16 @@ function HypeExternalMissingInfo(props: Props) {
         setUniversityErr('University is required');
         hasErr = true;
       } else setUniversityErr('');
+
+      if (password.length > 0 && password.length < 8) {
+        setPasswordErr('Password must be at least 8 characters');
+        hasErr = true;
+      } else setPasswordErr('');
+
+      if (confirmPassword !== password) {
+        setConfirmErr('Passwords must match');
+        hasErr = true;
+      } else setConfirmErr('');
 
       if (hasErr) return;
 
@@ -200,6 +241,40 @@ function HypeExternalMissingInfo(props: Props) {
     );
   }
 
+  function renderIntenalPasswordInputs() {
+    return (
+      <div>
+        <p className={styles.passwordDesc}>
+          Optionally set a password for logging in with RootShare
+        </p>
+        <p className={styles.tabDesc}>Password:</p>
+        <TextField
+          label="Password"
+          variant="outlined"
+          className={styles.textField}
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          error={passwordErr !== ''}
+          helperText={passwordErr}
+          autoComplete="new-password"
+        />
+
+        <p className={styles.tabDesc}>Confirm Password:</p>
+        <TextField
+          label="Confirm"
+          variant="outlined"
+          className={styles.textField}
+          type="password"
+          value={confirmPassword}
+          onChange={handleConfirmPasswordChange}
+          error={confirmErr !== ''}
+          helperText={confirmErr}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       {landingRedirect && <Redirect to="/" />}
@@ -223,6 +298,7 @@ function HypeExternalMissingInfo(props: Props) {
             />
           </div>
           {renderUniversityStandingSelect()}
+          {renderIntenalPasswordInputs()}
           <div className={styles.buttonDiv}>
             <Button
               variant="contained"
