@@ -365,7 +365,7 @@ function HypeRegistration(props: Props) {
         {currentStep === 0 && (
           <>
             <div className={styles.externalDiv}>
-              <GoogleButton messageType={'login'} />
+              <GoogleButton messageType={'signup'} />
             </div>
             <div className={styles.externalDiv}>
               <LinkedInButton messageType={'signup'} />
