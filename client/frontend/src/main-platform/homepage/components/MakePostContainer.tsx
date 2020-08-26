@@ -74,6 +74,10 @@ function MakePostContainer(props: Props) {
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [serverMessage, setServerMessage] = useState<{
+    status: 0 | 1;
+    message: string;
+  }>();
 
   function handleMessageChange(event: any) {
     setMessage(event.target.value);
@@ -96,6 +100,12 @@ function MakePostContainer(props: Props) {
     console.log(data);
 
     if (data.success === 1) {
+      setServerMessage({ status: 1, message: 'Successfully created post.' });
+    } else {
+      setServerMessage({
+        status: 0,
+        message: 'There was an error creating your post.',
+      });
     }
   }
 
