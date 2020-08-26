@@ -5,6 +5,7 @@ import { FaCamera } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 
+import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 //FOR TESTING PURPOSE
@@ -53,7 +54,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonContainer: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
   },
   disabledButton: {
@@ -85,6 +87,7 @@ function MakePostContainer(props: Props) {
 
   async function handlePostClicked() {
     setLoading(true);
+    setServerMessage(undefined);
 
     const { data } = await makeRequest(
       'POST',
@@ -100,12 +103,19 @@ function MakePostContainer(props: Props) {
     console.log(data);
 
     if (data.success === 1) {
+      setMessage('');
       setServerMessage({ status: 1, message: 'Successfully created post.' });
+      setTimeout(() => {
+        setServerMessage(undefined);
+      }, 5000);
     } else {
       setServerMessage({
         status: 0,
         message: 'There was an error creating your post.',
       });
+      setTimeout(() => {
+        setServerMessage(undefined);
+      }, 10000);
     }
   }
 
@@ -129,22 +139,36 @@ function MakePostContainer(props: Props) {
         </div>
       </div>
       <div className={styles.buttonContainer}>
-        <Button
-          className={loading ? styles.disabledButton : styles.button}
-          onClick={handleImageClicked}
-          disabled={loading}
-        >
-          <FaCamera size={12} color={colors.primaryText} />
-          <span style={{ marginLeft: 10 }} />
-          Image
-        </Button>
-        <Button
-          className={loading ? styles.disabledButton : styles.button}
-          onClick={handlePostClicked}
-          disabled={loading}
-        >
-          Post
-        </Button>
+        {serverMessage ? (
+          <RSText
+            color={serverMessage.status === 1 ? colors.success : colors.brightError}
+            italic
+          >
+            {serverMessage.message}
+          </RSText>
+        ) : (
+          <span />
+        )}
+        <div>
+          <Button
+            className={loading ? styles.disabledButton : styles.button}
+            onClick={handleImageClicked}
+            disabled={loading}
+          >
+            <FaCamera size={12} color={colors.primaryText} />
+            <span style={{ marginLeft: 10 }} />
+            Image
+          </Button>
+          <Button
+            className={
+              loading || message === '' ? styles.disabledButton : styles.button
+            }
+            onClick={handlePostClicked}
+            disabled={loading || message === ''}
+          >
+            Post
+          </Button>
+        </div>
       </div>
     </div>
   );
