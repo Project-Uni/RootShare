@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button } from '@material-ui/core';
 import { FaCamera } from 'react-icons/fa';
+
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 
 //FOR TESTING PURPOSE
 import { AshwinHeadshot } from '../../../images/team';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   postProfilePic: {
@@ -62,15 +65,43 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  postValue: string;
-  onChange: (event: any) => void;
-  onPost: () => any;
-  onUploadImage: () => any;
-  loading: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function MakePostContainer(props: Props) {
   const styles = useStyles();
+
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  function handleMessageChange(event: any) {
+    setMessage(event.target.value);
+  }
+
+  async function handlePostClicked() {
+    setLoading(true);
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/posts/create',
+      { message },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    setLoading(false);
+
+    console.log(data);
+
+    if (data.success === 1) {
+    }
+  }
+
+  function handleImageClicked() {
+    console.log('Clicked image');
+  }
 
   return (
     <div className={styles.messageAreaWrapper}>
@@ -82,25 +113,25 @@ function MakePostContainer(props: Props) {
             placeholder="Whats on your mind Ashwin?"
             multiline
             className={styles.newPostTextField}
-            value={props.postValue}
-            onChange={props.onChange}
+            value={message}
+            onChange={handleMessageChange}
           />
         </div>
       </div>
       <div className={styles.buttonContainer}>
         <Button
-          className={props.loading ? styles.disabledButton : styles.button}
-          onClick={props.onUploadImage}
-          disabled={props.loading}
+          className={loading ? styles.disabledButton : styles.button}
+          onClick={handleImageClicked}
+          disabled={loading}
         >
           <FaCamera size={12} color={colors.primaryText} />
           <span style={{ marginLeft: 10 }} />
           Image
         </Button>
         <Button
-          className={props.loading ? styles.disabledButton : styles.button}
-          onClick={props.onPost}
-          disabled={props.loading}
+          className={loading ? styles.disabledButton : styles.button}
+          onClick={handlePostClicked}
+          disabled={loading}
         >
           Post
         </Button>
@@ -109,4 +140,15 @@ function MakePostContainer(props: Props) {
   );
 }
 
-export default MakePostContainer;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MakePostContainer);

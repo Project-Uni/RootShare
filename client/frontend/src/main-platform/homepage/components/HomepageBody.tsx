@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
-import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/functions';
-
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
@@ -36,10 +33,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  accessToken: string;
-  refreshToken: string;
-};
+type Props = {};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
@@ -48,8 +42,6 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [postValue, setPostValue] = useState('');
-  const [postLoading, setPostLoading] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -71,34 +63,6 @@ function HomepageBody(props: Props) {
 
   function closeWelcomeMessage() {
     setShowWelcomeModal(false);
-  }
-
-  function handlePostValueChange(event: any) {
-    setPostValue(event.target.value);
-  }
-
-  function handleImageUpload() {
-    console.log('Uploading image');
-  }
-
-  async function handleSubmitPost() {
-    setPostLoading(true);
-
-    const { data } = await makeRequest(
-      'POST',
-      '/api/posts/create',
-      { message: postValue },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    setPostLoading(false);
-
-    console.log(data);
-
-    if (data.success === 1) {
-    }
   }
 
   function handleDiscoverClick() {
@@ -137,13 +101,7 @@ function HomepageBody(props: Props) {
           buttonAction={handleDiscoverClick}
         />
       )}
-      <MakePostContainer
-        postValue={postValue}
-        onChange={handlePostValueChange}
-        onPost={handleSubmitPost}
-        onUploadImage={handleImageUpload}
-        loading={postLoading}
-      />
+      <MakePostContainer />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (
@@ -153,15 +111,4 @@ function HomepageBody(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);
+export default HomepageBody;
