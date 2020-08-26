@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
@@ -371,6 +372,23 @@ export async function rejectPendingMember(communityID: string, userID: string) {
 }
 
 export async function acceptPendingMember(communityID: string, userID: string) {
+  try {
+    const community = await Community.findOne({
+      _id: communityID,
+      pendingMembers: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+    });
+    if (!community) {
+      log(
+        'info',
+        `Could not find pending request for user ${userID} in ${communityID}`
+      );
+      return sendPacket(0, 'Could not find pending request for user in community');
+    }
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error');
+  }
+
   try {
     const communityPromise = Community.updateOne(
       { _id: communityID },
