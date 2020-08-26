@@ -18,6 +18,12 @@ const PostSchema = new mongoose.Schema(
       default: [],
     },
     community: { type: mongoose.Schema.ObjectId, ref: 'communities' },
+    university: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'universities',
+      required: true,
+      default: '5eb89c308cc6636630c1311f',
+    },
   },
   { timestamps: true }
 );

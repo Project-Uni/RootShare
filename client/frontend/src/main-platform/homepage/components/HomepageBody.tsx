@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
+import { connect } from 'react-redux';
+import { makeRequest } from '../../../helpers/functions';
+
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
@@ -33,7 +36,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
@@ -43,6 +49,7 @@ function HomepageBody(props: Props) {
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [postValue, setPostValue] = useState('');
+  const [postLoading, setPostLoading] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -74,8 +81,24 @@ function HomepageBody(props: Props) {
     console.log('Uploading image');
   }
 
-  function handleSubmitPost() {
-    console.log('Submitting post');
+  async function handleSubmitPost() {
+    setPostLoading(true);
+
+    const { data } = await makeRequest(
+      'POST',
+      '/api/posts/create',
+      { message: postValue },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    setPostLoading(false);
+
+    console.log(data);
+
+    if (data.success === 1) {
+    }
   }
 
   function handleDiscoverClick() {
@@ -119,6 +142,7 @@ function HomepageBody(props: Props) {
         onChange={handlePostValueChange}
         onPost={handleSubmitPost}
         onUploadImage={handleImageUpload}
+        loading={postLoading}
       />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
@@ -129,4 +153,15 @@ function HomepageBody(props: Props) {
   );
 }
 
-export default HomepageBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);

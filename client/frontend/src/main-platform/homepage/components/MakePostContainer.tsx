@@ -53,6 +53,12 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     marginTop: 10,
   },
+  disabledButton: {
+    background: 'lightgrey',
+    color: colors.primaryText,
+    marginLeft: 10,
+    marginRight: 1,
+  },
 }));
 
 type Props = {
@@ -60,10 +66,12 @@ type Props = {
   onChange: (event: any) => void;
   onPost: () => any;
   onUploadImage: () => any;
+  loading: boolean;
 };
 
 function MakePostContainer(props: Props) {
   const styles = useStyles();
+
   return (
     <div className={styles.messageAreaWrapper}>
       <div className={styles.messageArea}>
@@ -80,12 +88,20 @@ function MakePostContainer(props: Props) {
         </div>
       </div>
       <div className={styles.buttonContainer}>
-        <Button className={styles.button} onClick={props.onUploadImage}>
+        <Button
+          className={props.loading ? styles.disabledButton : styles.button}
+          onClick={props.onUploadImage}
+          disabled={props.loading}
+        >
           <FaCamera size={12} color={colors.primaryText} />
           <span style={{ marginLeft: 10 }} />
           Image
         </Button>
-        <Button className={styles.button} onClick={props.onPost}>
+        <Button
+          className={props.loading ? styles.disabledButton : styles.button}
+          onClick={props.onPost}
+          disabled={props.loading}
+        >
           Post
         </Button>
       </div>

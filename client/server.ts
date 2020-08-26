@@ -8,6 +8,8 @@ import passport = require('passport');
 import log, { initializeDirectory } from './helpers/logger';
 import * as path from 'path';
 
+import postRoutes from './routes/posts';
+
 import { rateLimiter } from './middleware';
 
 const mongoConfig = require('./config/mongoConfig');
@@ -63,6 +65,7 @@ require('./routes/mocks')(app);
 require('./routes/proxy')(app);
 
 require('./routes/images')(app);
+postRoutes(app);
 require('./config/setup')(passport);
 
 app.use(express.static(path.join('./', '/frontend/build')));
