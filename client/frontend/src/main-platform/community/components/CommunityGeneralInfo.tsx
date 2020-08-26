@@ -145,7 +145,33 @@ function CommunityGeneralInfo(props: Props) {
         props.refreshToken
       );
       if (data.success === 1) {
-        props.updateCommunityStatus('OPEN');
+        props.updateCommunityStatus(data.content['newStatus']);
+      } else {
+        alert('There was an error trying to leave the community');
+      }
+    }
+  }
+
+  async function handlePendingButtonClick() {
+    if (
+      window.confirm(
+        'Are you sure you want to cancel your request to join the community?'
+      )
+    ) {
+      const { data } = await makeRequest(
+        'GET',
+        `/api/community/${props.communityID}/cancelPending`,
+        {},
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      if (data.success === 1) {
+        props.updateCommunityStatus(data.content['newStatus']);
+      } else {
+        alert(
+          'There was an error trying to cancel the pending request. Please try again later'
+        );
       }
     }
   }
@@ -174,6 +200,7 @@ function CommunityGeneralInfo(props: Props) {
         <Button
           className={[styles.button, styles.pendingButton].join(' ')}
           size="large"
+          onClick={handlePendingButtonClick}
         >
           Pending
         </Button>

@@ -13,6 +13,7 @@ import {
   rejectPendingMember,
   acceptPendingMember,
   leaveCommunity,
+  cancelCommunityPendingRequest,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -171,6 +172,18 @@ export default function communityRoutes(app) {
       const userID = req.user._id;
 
       const packet = await leaveCommunity(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/cancelPending',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await cancelCommunityPendingRequest(communityID, userID);
       return res.json(packet);
     }
   );

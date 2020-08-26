@@ -415,7 +415,39 @@ export async function leaveCommunity(communityID: string, userID: string) {
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `User ${userID} left community ${communityID}`);
-        return sendPacket(1, 'Successfully left community');
+        return sendPacket(1, 'Successfully left community', { newStatus: 'OPEN' });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export function cancelCommunityPendingRequest(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { pendingCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log(
+          'info',
+          `User ${userID} cancelled pending request for community ${communityID}`
+        );
+        return sendPacket(1, 'Successfully cancelled pending request', {
+          newStatus: 'OPEN',
+        });
       })
       .catch((err) => {
         log('error', err);
