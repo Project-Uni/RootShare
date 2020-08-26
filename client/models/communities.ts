@@ -14,24 +14,13 @@ const CommunitySchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },
-    pendingMembers: {
-      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
-      default: [],
-    },
-    type: { type: String, required: true, message: 'Type is required' },
+    type: { type: Number, required: true, message: 'Type is required' },
     description: {
       type: String,
       required: true,
       message: 'Description is required.',
     },
-    university: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'universities',
-      required: true,
-      default: '5eb89c308cc6636630c1311f',
-    },
-    profilePicture: { type: String },
-    //TODO - Add fields for background Image
+    //TODO - Add fields for profile pic and background Image
   },
   { timestamps: true }
 );

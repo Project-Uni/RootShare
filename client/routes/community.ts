@@ -105,7 +105,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const packet = await getCommunityInformation(communityID);
+      const packet = await getCommunityInformation(communityID, req.user._id);
       return res.json(packet);
     }
   );

@@ -53,6 +53,7 @@ function CommunityDetails(props: Props) {
     'PENDING' | 'JOINED' | 'OPEN'
   >('OPEN');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
   const orgID = props.match.params['orgID'];
 
@@ -104,6 +105,7 @@ function CommunityDetails(props: Props) {
     if (data.success === 1) {
       setCommunityInfo(data.content['community']);
       initializeCommunityStatus(data.content['community']);
+      setMutualConnections(data.content['mutualConnections']);
     } else {
       setShowInvalid(true);
     }
@@ -135,7 +137,7 @@ function CommunityDetails(props: Props) {
           name={(communityInfo as Community).name}
           numMembers={(communityInfo as Community).members?.length || 0}
           numPending={(communityInfo as Community).pendingMembers?.length || 0}
-          numMutual={58}
+          numMutual={mutualConnections.length}
           type={(communityInfo as Community).type}
           private={(communityInfo as Community).private}
           description={(communityInfo as Community).description}

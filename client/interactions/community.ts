@@ -90,9 +90,9 @@ export async function editCommunity(
   }
 }
 
-export async function getCommunityInformation(communityID: string) {
+export async function getCommunityInformation(communityID: string, userID: string) {
   try {
-    const community = await Community.findById(communityID, [
+    const communityPromise = Community.findById(communityID, [
       'name',
       'description',
       'admin',
@@ -107,13 +107,49 @@ export async function getCommunityInformation(communityID: string) {
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
-      });
+      })
+      .exec();
 
-    log(
-      'info',
-      `Successfully retrieved community information for ${community.name}`
-    );
-    return sendPacket(1, 'Successfully retrieved community', { community });
+    const userPromise = User.findById(userID)
+      .select('connections')
+      .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
+      .exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then(([community, user]) => {
+        //Calculating Mutual Connections
+        const connections = user['connections'].reduce((output, connection) => {
+          if (connection.accepted) {
+            const otherID =
+              connection['from'].toString() != userID.toString()
+                ? connection['from']
+                : connection['to'];
+
+            output.push(otherID.toString());
+          }
+          return output;
+        }, []);
+
+        const members = community.members.map((member) => member.toString());
+
+        const mutualConnections = members.filter((member) => {
+          if (connections.indexOf(member) !== -1) return true;
+          return false;
+        });
+
+        log(
+          'info',
+          `Successfully retrieved community information for ${community.name}`
+        );
+        return sendPacket(1, 'Successfully retrieved community', {
+          community,
+          mutualConnections,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
