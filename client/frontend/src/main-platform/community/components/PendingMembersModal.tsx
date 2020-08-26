@@ -96,7 +96,22 @@ function PendingMembersModal(props: Props) {
       props.refreshToken
     );
 
-    console.log('Data: ', data);
+    if (data.success === 1) {
+      let spliceIndex: number = -1;
+
+      for (let i = 0; i < pendingMembers.length; i++) {
+        if (pendingMembers[i]._id === _id) {
+          spliceIndex = i;
+          break;
+        }
+      }
+
+      if (spliceIndex > -1) {
+        const newPending = pendingMembers.slice();
+        newPending.splice(spliceIndex, 1);
+        setPendingMembers(newPending);
+      }
+    }
   }
 
   async function handleRejectUser(_id: string) {
@@ -109,7 +124,26 @@ function PendingMembersModal(props: Props) {
       props.refreshToken
     );
 
-    console.log('Data: ', data);
+    if (data.success === 1) {
+      let spliceIndex: number = -1;
+      for (let i = 0; i < pendingMembers.length; i++) {
+        if (pendingMembers[i]._id === _id) {
+          spliceIndex = i;
+          break;
+        }
+      }
+
+      if (spliceIndex > -1) {
+        const newPending = pendingMembers.slice();
+        newPending.splice(spliceIndex, 1);
+        setPendingMembers(newPending);
+      }
+    }
+  }
+
+  function handleClose() {
+    setPendingMembers([]);
+    props.handleClose();
   }
 
   function renderServerErr() {
@@ -176,7 +210,7 @@ function PendingMembersModal(props: Props) {
           <RSText type="head" size={15} bold>
             Pending Members
           </RSText>
-          <IconButton onClick={props.handleClose} size="medium">
+          <IconButton onClick={handleClose} size="medium">
             X
           </IconButton>
         </div>
