@@ -19,6 +19,7 @@ import {
   UserCount,
   AdminEventCreator,
   AdminCommunityManager,
+  AdminHub,
 } from './admin-utility';
 
 import LandingPage from './landing-page/LandingPage';
@@ -75,6 +76,7 @@ function App(props: Props) {
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
 
+            <Route exact path="/admin" component={AdminHub} />
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
             <Route exact path="/admin/community" component={AdminCommunityManager} />
