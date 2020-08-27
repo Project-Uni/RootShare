@@ -34,11 +34,11 @@ function EventWatcherVideoContainer(props: Props) {
   const [videoData, setVideoData] = useState('');
   const [playerWidth, setPlayerWidth] = useState(
     window.innerWidth > MIN_WINDOW_WIDTH
-      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH - 2
+      ? window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH
       : MIN_WINDOW_WIDTH - EVENT_MESSAGES_CONTAINER_WIDTH
   );
   const [playerHeight, setPlayerHeight] = useState(
-    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT - 2
+    window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT
   );
 
   useEffect(() => {
@@ -48,9 +48,9 @@ function EventWatcherVideoContainer(props: Props) {
 
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH) {
-      setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH - 2);
+      setPlayerWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
     }
-    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT - 2);
+    setPlayerHeight(window.innerHeight - AD_CONTAINER_HEIGHT - HEADER_HEIGHT);
   }
 
   async function updateVideoData(muxPlaybackID: string) {
@@ -72,7 +72,10 @@ function EventWatcherVideoContainer(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{ height: playerHeight, width: playerWidth }}
+    >
       {videoData !== '' ? (
         <VideoPlayer src={videoData} height={playerHeight} width={playerWidth} />
       ) : (
