@@ -99,7 +99,7 @@ function AdminCreateCommunity(props: Props) {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [admin, setAdmin] = useState<HostType | {}>({});
-  const [type, setType] = useState('');
+  const [type, setType] = useState<CommunityType>();
   const [isPrivate, setIsPrivate] = useState('no');
 
   const [serverMessage, setServerMessage] = useState('');
@@ -129,7 +129,7 @@ function AdminCreateCommunity(props: Props) {
     setName('');
     setDesc('');
     setAdmin({});
-    setType('');
+    setType(undefined);
     setIsPrivate('no');
 
     setNameErr('');
@@ -181,7 +181,7 @@ function AdminCreateCommunity(props: Props) {
       hasErr = true;
     } else setAdminErr('');
 
-    if (type === '') {
+    if (!type) {
       setTypeErr('Community type is required.');
       hasErr = true;
     } else setTypeErr('');
@@ -218,7 +218,7 @@ function AdminCreateCommunity(props: Props) {
       setName('');
       setDesc('');
       setAdmin({});
-      setType('');
+      setType(undefined);
       setIsPrivate('no');
       setServerMessage(`s:Successfully created community ${name}`);
       props.appendNewCommunity(data.content['community']);
@@ -258,7 +258,7 @@ function AdminCreateCommunity(props: Props) {
       setName('');
       setDesc('');
       setAdmin({});
-      setType('');
+      setType(undefined);
       setIsPrivate('no');
       setServerMessage(`s:Successfully created community ${name}`);
       props.onCancelEdit();
