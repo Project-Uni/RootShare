@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Grid } from '@material-ui/core';
+
+import { RiCommunityLine } from 'react-icons/ri';
+import { BsPeopleFill } from 'react-icons/bs';
+import { MdEvent } from 'react-icons/md';
 
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -19,6 +23,39 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: colors.primary,
     marginTop: 100,
+  },
+  pageTitleDiv: {
+    justifyContent: 'flex-start',
+    display: 'flex',
+    flex: 1,
+  },
+  body: {
+    paddingTop: 20,
+    paddingLeft: 30,
+    paddingRight: 40,
+    paddingBottom: 20,
+  },
+  grid: {
+    marginTop: 30,
+  },
+  iconBackground: {
+    background: colors.primary,
+    borderRadius: 100,
+    padding: 20,
+  },
+  pageLink: {
+    textDecoration: 'none',
+    '&:visited': {
+      color: 'inherit',
+    },
+  },
+  pageName: {
+    marginTop: 15,
+    width: 150,
+  },
+  pageNameDiv: {
+    display: 'flex',
+    justifyContent: 'center',
   },
 }));
 
@@ -39,6 +76,24 @@ function AdminHub(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
+
+  const pages = [
+    {
+      title: 'Community Manager',
+      icon: <RiCommunityLine color={colors.primaryText} size={150} />,
+      link: '/admin/community',
+    },
+    {
+      title: 'User Manager',
+      icon: <BsPeopleFill color={colors.primaryText} size={150} />,
+      link: '/admin/count',
+    },
+    {
+      title: 'Event Manager',
+      icon: <MdEvent color={colors.primaryText} size={150} />,
+      link: '/admin/createEvent',
+    },
+  ];
 
   useEffect(() => {
     checkAuth().then((authorized) => {
@@ -76,8 +131,40 @@ function AdminHub(props: Props) {
     );
   }
 
+  function renderLinks() {
+    const output = [];
+    for (let i = 0; i < pages.length; i++) {
+      output.push(
+        <Grid item xs={12} sm={6} md={3}>
+          <div style={{ display: 'inline-block' }}>
+            <a href={pages[i].link} className={styles.pageLink}>
+              <div className={styles.iconBackground}>{pages[i].icon}</div>
+              <div className={styles.pageNameDiv}>
+                <RSText type="body" bold size={14} className={styles.pageName}>
+                  {pages[i].title}
+                </RSText>
+              </div>
+            </a>
+          </div>
+        </Grid>
+      );
+    }
+    return output;
+  }
+
   function renderPageContent() {
-    return <p>Content</p>;
+    return (
+      <div className={styles.body}>
+        <div className={styles.pageTitleDiv}>
+          <RSText type="head" size={24} bold>
+            Admin Hub
+          </RSText>
+        </div>
+        <Grid container spacing={3} className={styles.grid}>
+          {renderLinks()}
+        </Grid>
+      </div>
+    );
   }
 
   return (
