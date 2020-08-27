@@ -78,7 +78,7 @@ function App(props: Props) {
 
             <Route exact path="/admin" component={AdminHub} />
             <Route exact path="/admin/count" component={UserCount} />
-            <Route exact path="/admin/createEvent" component={AdminEventCreator} />
+            <Route exact path="/admin/event" component={AdminEventCreator} />
             <Route exact path="/admin/community" component={AdminCommunityManager} />
 
             <Route exact path="/home" component={Homepage} />

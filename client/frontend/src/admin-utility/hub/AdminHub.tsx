@@ -91,7 +91,7 @@ function AdminHub(props: Props) {
     {
       title: 'Event Manager',
       icon: <MdEvent color={colors.primaryText} size={150} />,
-      link: '/admin/createEvent',
+      link: '/admin/event',
     },
   ];
 
