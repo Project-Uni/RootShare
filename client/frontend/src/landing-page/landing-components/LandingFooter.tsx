@@ -49,11 +49,14 @@ function LandingFooter(props: Props) {
       <Toolbar>
         <div className={styles.footerContainer}>
           <ButtonGroup variant="text" aria-label="text primary button group">
-            {/* <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
-                ABOUT
-              </RSText>
-            </Button>
+          <a href='mailto:dev@rootshare.io' style={{ textDecoration: 'none' }}>
+          <Button>
+            <RSText type="body" size={12} color={colors.primaryText}>
+              CONTACT
+            </RSText>
+          </Button>
+          </a>
+            {/*
             <Button>
               <RSText type="body" size={12} color={colors.primaryText}>
                 HELP
