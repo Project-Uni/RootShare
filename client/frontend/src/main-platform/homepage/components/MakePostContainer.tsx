@@ -64,9 +64,13 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
     marginRight: 1,
   },
+  serverMessage: {
+    marginLeft: 60,
+  }
 }));
 
 type Props = {
+  appendNewPost: (post: { [key: string]: any }) => any; //TODO: Define Post Type
   accessToken: string;
   refreshToken: string;
 };
@@ -100,14 +104,13 @@ function MakePostContainer(props: Props) {
 
     setLoading(false);
 
-    console.log(data);
-
     if (data.success === 1) {
       setMessage('');
       setServerMessage({ status: 1, message: 'Successfully created post.' });
       setTimeout(() => {
         setServerMessage(undefined);
       }, 5000);
+      props.appendNewPost(data.content['newPost']);
     } else {
       setServerMessage({
         status: 0,
@@ -141,6 +144,7 @@ function MakePostContainer(props: Props) {
       <div className={styles.buttonContainer}>
         {serverMessage ? (
           <RSText
+            className={styles.serverMessage}
             color={serverMessage.status === 1 ? colors.success : colors.brightError}
             italic
           >
