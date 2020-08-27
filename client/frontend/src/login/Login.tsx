@@ -16,7 +16,6 @@ import { colors } from '../theme/Colors';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     height: window.innerHeight,
-    width: window.innerWidth,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
