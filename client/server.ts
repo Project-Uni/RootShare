@@ -65,6 +65,8 @@ require('./routes/mocks')(app);
 require('./routes/proxy')(app);
 
 require('./routes/images')(app);
+
+//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
 communityRoutes(app);
 
 require('./config/setup')(passport);
