@@ -3,9 +3,12 @@ const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json');
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 import log from '../helpers/logger';
-import jwt = require('jsonwebtoken');
+import { generateJWT } from '../helpers/generateJWT';
 
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
+const {
+  sendConfirmationEmail,
+  sendExternalAdditionConfirmation,
+} = require('../interactions/registration/email-confirmation');
 
 module.exports = (passport) => {
   passport.use(
@@ -28,7 +31,7 @@ module.exports = (passport) => {
         let lastName = profile.name.familyName;
 
         const user = await User.findOne({ email: email });
-        if (!user || user === undefined || user === null) {
+        if (!user) {
           log('LINKEDIN REG', `New email address, creating account with ${email}`);
           let newUser = await createNewUserLinkedIn(
             firstName,
@@ -37,53 +40,41 @@ module.exports = (passport) => {
             linkedinID
           );
 
-          const userTokenInfo = {};
-          for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
-            userTokenInfo[JWT_TOKEN_FIELDS[i]] = newUser[JWT_TOKEN_FIELDS[i]];
-          const jwtAccessToken = jwt.sign(
-            userTokenInfo,
-            process.env.JWT_ACCESS_SECRET
-            // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
-          );
-          const jwtRefreshToken = jwt.sign(
-            userTokenInfo,
-            process.env.JWT_REFRESH_SECRET
-          );
+          const JWT = generateJWT(newUser);
+          sendConfirmationEmail(email);
           return done(null, newUser, {
             message: 'User Registration with LinkedIn Succesful!',
-            jwtAccessToken,
-            jwtRefreshToken,
+            jwtAccessToken: JWT.accessToken,
+            jwtRefreshToken: JWT.refreshToken,
           });
         }
 
         if (user.linkedinID === undefined) {
-          log('LINKEDIN REG', 'Account has not been set up with LinkedIn');
-          return done(null, false, {
-            message: 'Account has not been set up with LinkedIn',
+          log('LINKEDIN REG', 'Found user and adding LinkedIn ID');
+          user.linkedinID = linkedinID;
+          user.save();
+
+          const JWT = generateJWT(user);
+          sendExternalAdditionConfirmation(email, 'LinkedIn');
+          return done(null, user, {
+            message: 'User Login with LinkedIn Succesful!',
+            jwtAccessToken: JWT.accessToken,
+            jwtRefreshToken: JWT.refreshToken,
           });
         }
+
         if (!isValidLinkedInID(user, linkedinID)) {
           log('LINKEDIN REG ERROR', 'Invalid LinkedIn Account');
           return done(null, false, { message: 'Invalid LinkedIn Account' }); // redirect back to login page
         }
 
         log('LINKEDIN REG', 'Found user and sending back!');
-        const userTokenInfo = {};
-        for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
-          userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
-        const jwtAccessToken = jwt.sign(
-          userTokenInfo,
-          process.env.JWT_ACCESS_SECRET
-          // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
-        );
-        const jwtRefreshToken = jwt.sign(
-          userTokenInfo,
-          process.env.JWT_REFRESH_SECRET
-        );
+
+        const JWT = generateJWT(user);
         return done(null, user, {
           message: 'User Login with LinkedIn Succesful!',
-          jwtAccessToken,
-          jwtRefreshToken,
+          jwtAccessToken: JWT.accessToken,
+          jwtRefreshToken: JWT.refreshToken,
         });
       }
     )
@@ -102,7 +93,6 @@ module.exports = (passport) => {
     newUser.lastName = lastName;
     newUser.email = email;
     newUser.linkedinID = linkedinID;
-    newUser.confirmed = true;
 
     // save the user
     await newUser.save((err) => {
