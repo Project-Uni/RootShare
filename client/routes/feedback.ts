@@ -1,6 +1,9 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { Express } from 'express';
+import log from '../helpers/logger';
+
 import { request } from '@octokit/request';
+
+import { Express } from 'express';
 
 const PROJECT_OWNER = 'Project-Uni';
 const REPO = 'RootShare';
@@ -13,27 +16,17 @@ export default function feedbackRoutes(app: Express) {
     org: 'Project-Uni',
   });
 
-  app.get('/api/feedback/test', async (req, res) => {
-    const result = await requestWithAuth('GET /orgs/:org/repos');
-    return res.json({ message: 'Hello', result });
-  });
-
-  app.get('/api/feedback/testGetIssues', async (req, res) => {
-    const result = await requestWithAuth(
-      `GET /repos/${PROJECT_OWNER}/${REPO}/issues`
-    );
-    return res.json({ result });
-  });
-
   app.get('/api/feedback/testCreateIssues', async (req, res) => {
     const result = await requestWithAuth(
       `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
       {
         title: 'Test New Issue',
         body: 'I am testing to see if I can programmatically create a new issue',
-        label: 'Bug',
+        labels: ['Bug'],
+        assignees: ['caitecap'],
       }
     );
+    log('github', `Created new reported bug: title`);
     return res.json({ result });
   });
 }
