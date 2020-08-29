@@ -1,4 +1,3 @@
-import sendPacket from '../helpers/sendPacket';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { User } from '../models';
 
@@ -20,20 +19,20 @@ module.exports = (app) => {
   });
 };
 
-async function phasedEmergencyEmailRollout(message) {
+export async function phasedEmergencyEmailRollout(subject: string, message: string) {
   const users = await User.find({}, ['email']).exec();
   var i;
   for (i = 0; i < users.length - (users.length % 25); i += 25) {
     for (let j = i; j < i + 25; j++) {
       const email = users[j].email;
-      sendEmail(email, message);
+      sendEmail(email, subject, message);
     }
     await sleep(2);
   }
   if (i < users.length) {
     for (i; i < users.length; i++) {
       const email = users[i].email;
-      sendEmail(email, message);
+      sendEmail(email, subject, message);
     }
   }
   return true;
@@ -43,7 +42,7 @@ function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
-function sendEmail(email, message) {
+function sendEmail(email, subject, message) {
   var params = {
     Destination: {
       ToAddresses: [email],
@@ -58,7 +57,7 @@ function sendEmail(email, message) {
         },
       },
       Subject: {
-        Data: `Don't miss tonight's Baby Boiler 2-hour event! (details inside)`,
+        Data: subject,
       },
     },
   };
