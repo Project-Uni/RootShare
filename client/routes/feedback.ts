@@ -1,6 +1,7 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
+const { GITHUB_OAUTH } = require('../../keys/keys.json');
 
 import { request } from '@octokit/request';
 
@@ -12,7 +13,7 @@ const REPO = 'RootShare';
 export default function feedbackRoutes(app: Express) {
   const requestWithAuth = request.defaults({
     headers: {
-      authorization: 'token 5caa93d5d50ee0bf44a45e23d7fca5a2d544b337',
+      authorization: `token ${GITHUB_OAUTH}`,
     },
     org: 'Project-Uni',
   });
