@@ -36,8 +36,8 @@ module.exports = (app) => {
       getPublicProfileInformation(req.params.userID, (packet) => res.json(packet));
   });
 
-  app.post('/user/Events', isAuthenticatedWithJWT, (req, res) => {
-    let userID = req.body.userID;
+  app.post('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
+    let userID = req.params.userID;
     if (userID === 'user') userID = req.user._id;
     getUserEvents(userID, (packet) => res.json(packet));
   });

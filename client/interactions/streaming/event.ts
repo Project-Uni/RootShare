@@ -54,6 +54,9 @@ function updateEvent(eventBody, callback) {
   Webinar.findById(eventBody['editEvent'], (err, webinar) => {
     if (err || !webinar)
       return callback(sendPacket(-1, "Couldn't find event to update"));
+    // TODO: Calling remove and add RSVPs this way causes some sort of race
+    //       conditions (sometimes dups still show up because of this).
+    //       Make them run synchronously another to avoid this
     removeRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
     webinar.title = eventBody['title'];
     webinar.brief_description = eventBody['brief_description'];

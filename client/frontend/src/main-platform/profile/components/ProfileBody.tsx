@@ -148,7 +148,7 @@ function ProfileBody(props: Props) {
     setCurrentPicture(imageData);
   }
 
-  function renderImages() {
+  function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
@@ -249,7 +249,7 @@ function ProfileBody(props: Props) {
           />
         )} */}
         <div className={styles.body}>
-          {renderImages()}
+          {renderProfileAndBackground()}
           <ProfileHead
             name={`${profile.firstName} ${profile.lastName}`}
             profileID={profile._id}

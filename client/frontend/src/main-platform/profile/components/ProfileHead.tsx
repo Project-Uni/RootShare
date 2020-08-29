@@ -347,7 +347,7 @@ function ProfileHead(props: Props) {
     return (
       <div>
         {props.currentProfileState === 'TO' && (
-          <MenuItem onClick={declineConnection}>Remove Connection Request</MenuItem>
+          <MenuItem onClick={declineConnection}>Cancel Request</MenuItem>
         )}
         {props.currentProfileState === 'CONNECTION' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
