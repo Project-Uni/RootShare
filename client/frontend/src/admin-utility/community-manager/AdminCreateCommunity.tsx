@@ -65,6 +65,14 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type CommunityType =
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';
+
 const COMMUNITY_TYPES = [
   'Social',
   'Business',
