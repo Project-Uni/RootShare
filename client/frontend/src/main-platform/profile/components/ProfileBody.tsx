@@ -133,9 +133,9 @@ function ProfileBody(props: Props) {
 
   async function fetchEvents() {
     const { data } = await makeRequest(
-      'POST',
-      '/user/Events',
-      { userID: props.profileID },
+      'GET',
+      `/api/user/events/${props.profileID}`,
+      {},
       true,
       props.accessToken,
       props.refreshToken
