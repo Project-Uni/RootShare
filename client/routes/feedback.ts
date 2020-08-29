@@ -41,11 +41,13 @@ export default function feedbackRoutes(app: Express) {
       );
 
     const body = generateGithubIssueContent(category, message, req.user);
+
+    //TODO - Figure out failure responses for the API request
     const result = await requestWithAuth(
       `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
       {
-        title: 'Test New Issue',
-        body: 'I am testing to see if I can programmatically create a new issue',
+        title,
+        body,
         labels: ['Bug'],
         assignees: ['caitecap'],
       }
