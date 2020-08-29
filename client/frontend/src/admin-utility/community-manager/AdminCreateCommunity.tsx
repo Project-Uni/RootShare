@@ -91,10 +91,13 @@ function AdminCreateCommunity(props: Props) {
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [admin, setAdmin] = useState<HostType | {}>({});
-  const [type, setType] = useState('');
+  const [type, setType] = useState<CommunityType>();
   const [isPrivate, setIsPrivate] = useState('no');
 
-  const [serverMessage, setServerMessage] = useState('');
+  const [serverMessage, setServerMessage] = useState<{
+    success: boolean;
+    message: string;
+  }>();
 
   const [nameErr, setNameErr] = useState('');
   const [descErr, setDescErr] = useState('');
@@ -121,7 +124,7 @@ function AdminCreateCommunity(props: Props) {
     setName('');
     setDesc('');
     setAdmin({});
-    setType('');
+    setType(undefined);
     setIsPrivate('no');
 
     setNameErr('');
@@ -173,7 +176,7 @@ function AdminCreateCommunity(props: Props) {
       hasErr = true;
     } else setAdminErr('');
 
-    if (type === '') {
+    if (!type) {
       setTypeErr('Community type is required.');
       hasErr = true;
     } else setTypeErr('');
@@ -210,12 +213,15 @@ function AdminCreateCommunity(props: Props) {
       setName('');
       setDesc('');
       setAdmin({});
-      setType('');
+      setType(undefined);
       setIsPrivate('no');
-      setServerMessage(`s:Successfully created community ${name}`);
+      setServerMessage({
+        success: true,
+        message: `Successfully created community ${name}`,
+      });
       props.appendNewCommunity(data.content['community']);
     } else {
-      setServerMessage(`f:${data.message}`);
+      setServerMessage({ success: false, message: `${data.message}` });
     }
     setLoading(false);
   }
@@ -250,13 +256,16 @@ function AdminCreateCommunity(props: Props) {
       setName('');
       setDesc('');
       setAdmin({});
-      setType('');
+      setType(undefined);
       setIsPrivate('no');
-      setServerMessage(`s:Successfully created community ${name}`);
+      setServerMessage({
+        success: true,
+        message: `Successfully created community ${name}`,
+      });
       props.onCancelEdit();
       props.onUpdateCommunity();
     } else {
-      setServerMessage(`f:${data.message}`);
+      setServerMessage({ success: false, message: `${data.message}` });
     }
     setLoading(false);
   }
@@ -319,9 +328,9 @@ function AdminCreateCommunity(props: Props) {
   }
 
   function renderServerMessage() {
-    if (serverMessage === '') return null;
-    const messageType = serverMessage.substr(0, 1); //  's' if success, 'f' if error
-    const messageContent = serverMessage.substr(2, serverMessage.length - 2);
+    if (!serverMessage) return null;
+    const messageType = serverMessage.success ? 'success' : 'fail'; //  's' if success, 'f' if error
+    const messageContent = serverMessage.message;
 
     return (
       <div style={{ width: 400, textAlign: 'left', marginTop: 10 }}>
@@ -329,7 +338,7 @@ function AdminCreateCommunity(props: Props) {
           type="body"
           size={14}
           bold
-          color={messageType === 's' ? colors.success : colors.brightError}
+          color={messageType === 'success' ? colors.success : colors.brightError}
         >
           {messageContent}
         </RSText>

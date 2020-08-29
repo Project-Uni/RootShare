@@ -1,11 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-// import googleLogo from "../../images/google.svg";
 import linkedInLogo from '../../images/linkedIn.png';
 
+const LOGIN_MESSAGE = 'Login with LinkedIn';
+const SIGNUP_MESSAGE = 'Sign up with LinkedIn';
+
 const useStyles = makeStyles((theme) => ({
-  googlePaper: {
+  linkedinPaper: {
     display: 'flex',
     alignItems: 'center',
     height: '50px',
@@ -14,14 +16,14 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgb(12, 93, 133)',
     },
   },
-  googleText: {
+  linkedinText: {
     display: 'inline-block',
     flex: 1,
     fontFamily: 'Arial',
     color: 'white',
     fontWeight: 'bold',
   },
-  googleLink: {
+  linkedinLink: {
     display: 'flex',
     textDecoration: 'none',
     width: '100%',
@@ -40,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Props = {
-  message: string;
+  messageType: 'login' | 'signup';
   width?: number;
 };
 
@@ -49,14 +51,16 @@ export default function LinkedInButton(props: Props) {
 
   return (
     <Paper
-      className={styles.googlePaper}
+      className={styles.linkedinPaper}
       elevation={3}
       style={{ width: props.width || 250 }}
     >
-      <a href="/auth/login/linkedin" className={styles.googleLink}>
+      <a href="/auth/login/linkedin" className={styles.linkedinLink}>
         <img src={linkedInLogo} alt="Google logo" className={styles.logoStyle} />
 
-        <p className={styles.googleText}>{props.message}</p>
+        <p className={styles.linkedinText}>
+          {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}
+        </p>
       </a>
     </Paper>
   );

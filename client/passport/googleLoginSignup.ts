@@ -1,5 +1,5 @@
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
-const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json');
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = require('../../keys/keys.json');
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 import log from '../helpers/logger';
@@ -12,67 +12,65 @@ const {
 
 module.exports = (passport) => {
   passport.use(
-    'linkedin-login',
-    new LinkedInStrategy(
+    'google-login',
+    new GoogleStrategy(
       {
-        clientID: LINKEDIN_KEY,
-        clientSecret: LINKEDIN_SECRET,
+        clientID: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_CLIENT_SECRET,
         callbackURL:
           process.env.NODE_ENV === 'dev'
-            ? '/auth/callback/linkedin'
-            : 'https://rootshare.io/auth/callback/linkedin',
-        scope: ['r_emailaddress', 'r_liteprofile'],
-        state: true,
+            ? '/auth/callback/google'
+            : 'https://rootshare.io/auth/callback/google',
       },
       async function (accessToken, refreshToken, profile, done) {
         let email = profile.emails[0].value.toLowerCase();
-        let linkedinID = profile.id;
+        let googleID = profile.id;
         let firstName = profile.name.givenName;
         let lastName = profile.name.familyName;
 
         const user = await User.findOne({ email: email });
         if (!user) {
-          log('LINKEDIN REG', `New email address, creating account with ${email}`);
-          let newUser = await createNewUserLinkedIn(
+          log('GOOGLE REG', `New email address, creating account with ${email}`);
+          let newUser = await createNewUserGoogle(
             firstName,
             lastName,
             email,
-            linkedinID
+            googleID
           );
 
           const JWT = generateJWT(newUser);
           sendConfirmationEmail(email);
           return done(null, newUser, {
-            message: 'User Registration with LinkedIn Succesful!',
+            message: 'User Registration with Google Succesful!',
             jwtAccessToken: JWT.accessToken,
             jwtRefreshToken: JWT.refreshToken,
           });
         }
 
-        if (user.linkedinID === undefined) {
-          log('LINKEDIN REG', 'Found user and adding LinkedIn ID');
-          user.linkedinID = linkedinID;
+        if (user.googleID === undefined) {
+          log('GOOGLE REG', 'Found user and adding Google ID');
+          user.googleID = googleID;
           user.save();
 
           const JWT = generateJWT(user);
-          sendExternalAdditionConfirmation(email, 'LinkedIn');
+          sendExternalAdditionConfirmation(email, 'Google');
           return done(null, user, {
-            message: 'User Login with LinkedIn Succesful!',
+            message: 'User Login with Google Succesful!',
             jwtAccessToken: JWT.accessToken,
             jwtRefreshToken: JWT.refreshToken,
           });
         }
 
-        if (!isValidLinkedInID(user, linkedinID)) {
-          log('LINKEDIN REG ERROR', 'Invalid LinkedIn Account');
-          return done(null, false, { message: 'Invalid LinkedIn Account' }); // redirect back to login page
+        if (!isValidGoogleID(user, googleID)) {
+          log('Google REG ERROR', 'Invalid Google Account');
+          return done(null, false, { message: 'Invalid Google Account' }); // redirect back to login page
         }
 
-        log('LINKEDIN REG', 'Found user and sending back!');
+        log('GOOGLE REG', 'Found user and sending back!');
 
         const JWT = generateJWT(user);
         return done(null, user, {
-          message: 'User Login with LinkedIn Succesful!',
+          message: 'User Login with Google Succesful!',
           jwtAccessToken: JWT.accessToken,
           jwtRefreshToken: JWT.refreshToken,
         });
@@ -80,11 +78,11 @@ module.exports = (passport) => {
     )
   );
 
-  var isValidLinkedInID = (user, linkedinID) => {
-    return user.linkedinID.localeCompare(linkedinID) === 0;
+  var isValidGoogleID = (user, googleID) => {
+    return user.googleID.localeCompare(googleID) === 0;
   };
 
-  var createNewUserLinkedIn = async (firstName, lastName, email, linkedinID) => {
+  var createNewUserGoogle = async (firstName, lastName, email, googleID) => {
     // create the user
     var newUser = new User();
 
@@ -92,7 +90,7 @@ module.exports = (passport) => {
     newUser.firstName = firstName;
     newUser.lastName = lastName;
     newUser.email = email;
-    newUser.linkedinID = linkedinID;
+    newUser.googleID = googleID;
 
     // save the user
     await newUser.save((err) => {
@@ -101,7 +99,7 @@ module.exports = (passport) => {
         throw err;
       }
     });
-    log('LINKEDIN REG', 'User Registration Succesful!');
+    log('GOOGLE REG', 'User Registration Succesful!');
     return newUser;
   };
 };
