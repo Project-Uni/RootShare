@@ -18,20 +18,21 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
     // not final color
-    borderRadius: 5,
+    borderRadius: 1,
     paddingBottom: 4,
-    margin: 10,
+    marginTop: 10,
+    marginBottom: 10,
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.bright,
+    background: colors.primaryText,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
     //borderRadius: 10,
   },
   left: {
-    color: colors.secondary,
+    color: colors.second,
     marginTop: 30,
     marginRight: 10,
   },
@@ -41,11 +42,11 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 18,
     marginBottom: -7,
     display: 'inline-block',
-    color: colors.secondary,
+    color: colors.second,
   },
   organization: {
     marginLeft: 54,
-    color: colors.secondary,
+    color: colors.second,
     marginTop: 30,
   },
   bottom: {
@@ -61,18 +62,18 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: -50,
     marginLeft: 10,
     display: 'inline-block',
-    color: colors.primaryText,
+    color: colors.second,
   },
   date: {
-    alignRight: 5,
-    marginTop: 12,
+    alignRight: 10,
     marginRight: 10,
+    marginTop: 12,
     display: 'inline-block',
-    color: colors.primaryText,
+    color: colors.second,
   },
   RSVPIcon: {
     marginRight: -5,
-    color: colors.primaryText,
+    color: colors.secondary,
     marginBottom: 0,
   },
   banner: {
