@@ -89,78 +89,38 @@ function updateEvent(eventBody, callback) {
 
 function addRSVPs(webinarID, speakers) {
   const speakerIDs = formatElementsToObjectIds(speakers);
-
-  Webinar.findById(webinarID, ['RSVPs'], (err, webinar) => {
-    if (err) return log('error', err);
-    if (!webinar) return log('error', 'Could not find webinar');
-
-    webinar.RSVPs = webinar.RSVPs.concat(speakers);
-    webinar.save((err) => {
-      if (err) return log('error', err);
-
-      User.find(
-        {
-          _id: {
-            $in: speakerIDs,
-          },
-        },
-        ['RSVPWebinars'],
-        (err, users) => {
-          if (err) return log('error', err);
-          if (!users)
-            return log('error', `Couldn't get users to update RSVP for event`);
-
-          users.forEach((user) => {
-            if (user.RSVPWebinars) user.RSVPWebinars.push(webinarID);
-            else user.RSVPWebinars = [webinarID];
-            user.save((err) => {
-              if (err) log('error', err);
-            });
-          });
-        }
-      );
-    });
-  });
+  const webinarPromise = Webinar.updateOne(
+    { _id: webinarID },
+    { $addToSet: { RSVPs: { $each: speakers } } }
+  ).exec();
+  const userPromise = User.updateMany(
+    { _id: { $in: speakerIDs } },
+    { $addToSet: { RSVPWebinars: webinarID.toString() } }
+  ).exec();
+  return Promise.all([webinarPromise, userPromise])
+    .then(([webinar, user]) => {
+      log('info', 'Successfully added RSVPs');
+    })
+    .catch((err) => log('err', err));
 }
 
 function removeRSVPs(webinarID, oldSpeakers) {
   const oldSpeakerIDs = formatElementsToObjectIds(oldSpeakers);
 
-  Webinar.findById(webinarID, ['RSVPs'], (err, webinar) => {
-    if (err) return log('error', err);
-    if (!webinar) return log('error', 'Could not find webinar');
+  const webinarPromise = Webinar.updateOne(
+    { _id: webinarID },
+    { $pull: { RSVPs: { $in: oldSpeakers } } }
+  ).exec();
+  const userPromise = User.updateMany(
+    { _id: { $in: oldSpeakerIDs } },
+    { $pull: { RSVPWebinars: webinarID.toString() } }
+  ).exec();
 
-    webinar.RSVPs = webinar.RSVPs.filter((user) => !oldSpeakers.includes(user));
-    webinar.save((err) => {
-      if (err) return log('error', err);
-
-      User.find(
-        {
-          _id: {
-            $in: oldSpeakerIDs,
-          },
-        },
-        ['RSVPWebinars'],
-        (err, users) => {
-          if (err) return log('error', err);
-          if (!users)
-            return log('error', `Couldn't get users to update RSVP for event`);
-
-          users.forEach((user) => {
-            if (user.RSVPWebinars) {
-              const eventIndex = user.RSVPWebinars.indexOf(
-                mongoose.Types.ObjectId(webinarID)
-              );
-              if (eventIndex !== -1) user.RSVPWebinars.splice(eventIndex, 1);
-              user.save((err) => {
-                if (err) log('error', err);
-              });
-            }
-          });
-        }
-      );
-    });
-  });
+  return Promise.all([webinarPromise, userPromise])
+    .then(([webinar, user]) => {
+      log('info', 'Successfully removed RSVPs');
+    })
+    .catch((err) => log('err', err));
 }
 
 export function timeStampCompare(ObjectA, ObjectB) {
