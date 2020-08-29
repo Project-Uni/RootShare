@@ -17,6 +17,7 @@ export default function feedbackRoutes(app: Express) {
     org: 'Project-Uni',
   });
 
+  //TODO - Remove this route after integrating with UI
   app.get('/api/feedback/testCreateIssues', async (req, res) => {
     const result = await requestWithAuth(
       `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
@@ -52,6 +53,7 @@ export default function feedbackRoutes(app: Express) {
         assignees: ['caitecap'],
       }
     );
+
     log('github', `Created new reported bug: ${title}`);
     return res.json(sendPacket(1, 'Successfully reported your bug'));
   });
@@ -63,15 +65,15 @@ function generateGithubIssueContent(
   user: { [key: string]: any }
 ) {
   const output = `
-  **${category}**\n\n
+  **Category - ${category}**\n
   
-  **Description**\n
+  **Description**
   ${message}\n\n
 
-  **Reporter**\n
+  **Reporter**
   ${user.firstName} ${user.lastName}\n
-  **Contact:**\n
-  ${user.email}\n
+  **Contact:**
+  ${user.email}
   ${user.phoneNumber || ''}
   `;
 
