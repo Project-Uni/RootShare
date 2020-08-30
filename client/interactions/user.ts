@@ -4,6 +4,8 @@ import { User, Connection, Webinar } from '../models';
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
+import { retrieveSignedUrl } from '../helpers/S3'
+
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
 
@@ -637,4 +639,40 @@ export async function updateAttendingList(
     log('error', err);
     return callback(sendPacket(0, 'Error retrieving user or webinar'));
   }
+}
+
+export async function getConnectionsFullData(userID: string){
+    try{
+        const { connections, joinedCommunities } = await User.findOne({_id: userID}, ["connections", "joinedCommunities"])
+                .populate({path : "connections", select : ["from", "to"]})
+
+        const connectionIDs = connections.reduce((output, connection) => {
+            const otherID =
+                connection['from'].toString() != userID.toString()
+                    ? connection['from']
+                    : connection['to']
+
+                output.push(otherID);
+
+                return output
+        }, [])
+
+        const connectionsWithData = await User.find({_id: {$in: connectionIDs} }, ["firstName", "lastName", "graduationYear", "university", "work", "position", "connections", "joinedCommunities", "profilePicture"])
+                .populate({path : "university", select : ["universityName"]})
+                .populate({path : "connections", select : ["from", "to"]})
+
+        for (let i = 0; i<connectionsWithData.length; i++){
+            if (connectionsWithData[i].profilePicture){
+                    const imageURL = await retrieveSignedUrl('profile', connectionsWithData[i].profilePicture)
+                    if (imageURL) connectionsWithData[i].profilePicture = imageURL
+            }
+        }
+
+        return sendPacket(1,"successfully retrieved all connections", {connections : connectionsWithData})
+
+    } catch(err){
+        log("error", err)
+        return sendPacket(-1, err)
+    }
+
 }

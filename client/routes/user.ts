@@ -11,12 +11,13 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
+  getConnectionsFullData,
 } from '../interactions/user';
 
 import log from '../helpers/logger';
 
 module.exports = (app) => {
-  app.get('/user/getCurrent', isAuthenticatedWithJWT, (req, res) => {
+  app.get('/user/getCurrent', (req, res) => {
     return getCurrentUser(req.user, (packet) => res.json(packet));
   });
 
@@ -38,6 +39,12 @@ module.exports = (app) => {
 
   app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
     getPendingRequests(req.user._id, (packet) => res.json(packet));
+  });
+
+  app.get('/api/user/:userID/connections', isAuthenticatedWithJWT, async (req, res) => {
+    const { userID } = req.params
+    const packet = await getConnectionsFullData(userID)
+    return res.json(packet)
   });
 
   app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {

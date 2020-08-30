@@ -5,9 +5,13 @@ import { TextField, IconButton } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
+import { connect } from 'react-redux';
+
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { SmitHeadshot } from '../../../images/team';
+
+import { makeRequest } from '../../../helpers/functions'
 
 const HEADER_HEIGHT = 60;
 
@@ -40,7 +44,11 @@ const useStyles = makeStyles((_: any) => ({
   }
 }));
 
-type Props = {};
+type Props = {
+    user: { [key: string]: any };
+    accessToken: string;
+    refreshToken: string;
+};
 
 function ConnectionsBody(props: Props) {
   const styles = useStyles();
@@ -58,7 +66,8 @@ function ConnectionsBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+      const { data } = await makeRequest('GET', `/api/user/${props.user._id}/connections`,{}, true, props.accessToken, props.refreshToken)
+      console.log(data)
   }
 
   function handleResize() {
@@ -131,4 +140,16 @@ function ConnectionsBody(props: Props) {
   );
 }
 
-export default ConnectionsBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+      user: state.user,
+      accessToken: state.accessToken,
+      refreshToken: state.refreshToken,
+    };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConnectionsBody);
