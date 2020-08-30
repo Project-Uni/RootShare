@@ -57,6 +57,7 @@ function ConnectionsBody(props: Props) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
+  const [connections, setConnections] = useState<{[key : string] : any}>([]) //TODO: add type to connection
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -67,6 +68,9 @@ function ConnectionsBody(props: Props) {
 
   async function fetchData() {
       const { data } = await makeRequest('GET', `/api/user/${props.user._id}/connections`,{}, true, props.accessToken, props.refreshToken)
+      if (data.success === 1){
+          setConnections(data.content["connections"])
+      }
       console.log(data)
   }
 
@@ -104,6 +108,7 @@ function ConnectionsBody(props: Props) {
 
   function renderConnections() {
     const output = [];
+    /*
     for (let i = 0; i < 10; i++)
       output.push(
         <UserHighlight
@@ -120,6 +125,25 @@ function ConnectionsBody(props: Props) {
           connected
         />
       );
+     */
+    //TODO: Add logic in case an optional field does not exist
+    for (let i = 0; i < connections.length; i++){
+        output.push(
+            <UserHighlight
+                name={`${connections[i].firstName} ${connections[i].lastName}`}
+                userID={connections[i]._id}
+                profilePic={connections[i].profilePicture}
+                university={connections[i].university.universityName}
+                graduationYear={connections[i].graduationYear}
+                position={connections[i].position}
+                company={connections[i].company}
+                mutualConnections={32}
+                mutualCommunities={4}
+                style={styles.connectionStyle}
+                connected={true}
+            />
+        )
+    }
     return output;
   }
 
