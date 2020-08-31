@@ -92,8 +92,12 @@ function EventMessageContainer(props: Props) {
   function updateLikes() {
     if (likeUpdate === undefined) return;
     const { messageID } = likeUpdate;
-    messages.forEach((message) => {
-      if (message._id === messageID) message.numLikes = likeUpdate.numLikes;
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.slice();
+      newMessages.forEach((message) => {
+        if (message._id === messageID) message.numLikes = likeUpdate.numLikes;
+      });
+      return newMessages;
     });
   }
 
