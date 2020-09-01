@@ -31,7 +31,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: '20px',
     marginRight: '20px',
   },
-  googleDiv: {
+  externalDiv: {
     display: 'flex',
     justifyContent: 'center',
     marginTop: '20px',
@@ -350,7 +350,7 @@ function HypeRegistration(props: Props) {
               Back
             </Button>
           ) : (
-            <Button></Button>
+            <span />
           )}
           <Button
             variant="contained"
@@ -364,11 +364,11 @@ function HypeRegistration(props: Props) {
 
         {currentStep === 0 && (
           <>
-            {/* <div className={styles.googleDiv}>
-              <GoogleButton />
-            </div> */}
-            <div className={styles.googleDiv}>
-              <LinkedInButton message={'Register With LinkedIn'} />
+            <div className={styles.externalDiv}>
+              <GoogleButton messageType={'signup'} />
+            </div>
+            <div className={styles.externalDiv}>
+              <LinkedInButton messageType={'signup'} />
             </div>
             <RSText
               type="other"

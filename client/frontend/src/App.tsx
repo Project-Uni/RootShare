@@ -7,7 +7,6 @@ import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { updateUser } from './redux/actions/user';
 
-import HypeLanding from './hype-page/hype-landing/HypeLanding';
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
@@ -16,8 +15,11 @@ import Login from './login/Login';
 import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
-import UserCount from './admin-utility/UserCount';
-import AdminEventCreator from './admin-utility/AdminEventCreator';
+import {
+  UserCount,
+  AdminEventCreator,
+  AdminCommunityManager,
+} from './admin-utility';
 
 import LandingPage from './landing-page/LandingPage';
 
@@ -54,8 +56,7 @@ function App(props: Props) {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
-            {/* <Route exact path="/" component={LandingPage} /> */}
-            <Route exact path="/" component={HypeLanding} />
+            <Route exact path="/" component={LandingPage} />
             <Route
               exact
               path="/register/external"
@@ -73,8 +74,11 @@ function App(props: Props) {
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
+
             <Route exact path="/admin/count" component={UserCount} />
             <Route exact path="/admin/createEvent" component={AdminEventCreator} />
+            <Route exact path="/admin/community" component={AdminCommunityManager} />
+
             <Route exact path="/home" component={Homepage} />
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
