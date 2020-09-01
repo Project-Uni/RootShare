@@ -179,11 +179,15 @@ function EventMessage(props: Props) {
     );
     setAnchorEl(null);
 
+    setSnackbarMessage(data['message']);
+
     if (data['success'] === 1) setSnackbarMode('success');
     else if (data['success'] === 0) setSnackbarMode('notify');
-    else setSnackbarMode('error');
+    else {
+      setSnackbarMode('error');
+      setSnackbarMessage('There was an error requesting the connection');
+    }
 
-    setSnackbarMessage(data['message']);
     setTransition(() => slideLeft);
   }
 

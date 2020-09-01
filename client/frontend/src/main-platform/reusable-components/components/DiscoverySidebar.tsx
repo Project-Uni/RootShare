@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
+import { Slide } from '@material-ui/core';
+import { TransitionProps } from '@material-ui/core/transitions';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import DiscoverySinglePerson from './DiscoverySinglePerson';
 import DiscoveryCommunity from './DiscoveryCommunity';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 import { UserType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
@@ -39,6 +43,12 @@ function DiscoverySidebar(props: Props) {
   );
   const [recommendedPeople, setRecommendedPeople] = useState<UserType[]>([]);
   const [recommendedCommunities, setRecommendedCommunities] = useState([]);
+
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -91,6 +101,19 @@ function DiscoverySidebar(props: Props) {
     );
   }
 
+  function setNotification(
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) {
+    function slideLeft(props: TransitionProps) {
+      return <Slide {...props} direction="left" />;
+    }
+
+    setSnackbarMode(successMode);
+    setSnackbarMessage(message);
+    setTransition(() => slideLeft);
+  }
+
   function renderPeople() {
     function removeSuggestion(userID: string) {
       let newSuggestions = recommendedPeople.slice();
@@ -114,13 +137,13 @@ function DiscoverySidebar(props: Props) {
       people.push(
         <DiscoverySinglePerson
           key={currSuggestion._id}
-          userID={currSuggestion._id}
+          userID={currSuggestion['_id']}
           name={`${currSuggestion['firstName']} ${currSuggestion['lastName']}`}
           position={currSuggestion['position']}
           company={currSuggestion['work']}
           numMutualConnections={currSuggestion['numMutualConnections']}
-          _id={currSuggestion['_id']}
           removeSuggestion={removeSuggestion}
+          setNotification={setNotification}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
         />
@@ -132,6 +155,12 @@ function DiscoverySidebar(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       {renderCommunities()}
       {renderPeople()}
     </div>

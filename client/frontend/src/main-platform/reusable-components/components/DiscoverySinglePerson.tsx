@@ -57,7 +57,10 @@ type Props = {
   company: string;
   numMutualConnections: number;
   removeSuggestion: (userID: string) => void;
-  _id: string;
+  setNotification: (
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) => void;
 
   accessToken: string;
   refreshToken: string;
@@ -66,8 +69,8 @@ type Props = {
 function DiscoverySinglePerson(props: Props) {
   const styles = useStyles();
 
-  const [visible, setVisible] = useState(true);
   const [profilePic, setProfilePic] = useState();
+  const [visible, setVisible] = useState(true);
 
   const numMutualConnections = props.numMutualConnections || 0;
 
@@ -85,7 +88,6 @@ function DiscoverySinglePerson(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setProfilePic(data['content']['imageURL']);
   }
 
@@ -96,15 +98,35 @@ function DiscoverySinglePerson(props: Props) {
     }, 500);
   }
 
-  function connect() {
-    //TODO
+  async function requestConnection() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestID: props.userID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) {
+      props.setNotification('success', data['message']);
+      removeSuggestion();
+    } else if (data['success'] === 0) {
+      props.setNotification('notify', data['message']);
+      removeSuggestion();
+    } else {
+      props.setNotification('error', 'There was an error requesting the connection');
+      setVisible(true);
+    }
   }
 
   return (
     <div className={styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.singlePersonWrapper}>
-          <a href={`/profile/${props._id}`} className={styles.personLink}>
+          <a href={`/profile/${props.userID}`} className={styles.personLink}>
             <ProfilePicture
               editable={false}
               height={80}
@@ -114,7 +136,7 @@ function DiscoverySinglePerson(props: Props) {
             />
           </a>
           <div className={styles.textContainer}>
-            <a href={`/profile/${props._id}`} className={styles.personLink}>
+            <a href={`/profile/${props.userID}`} className={styles.personLink}>
               <RSText type="body" color={colors.primaryText} size={13} bold>
                 {props.name}
               </RSText>
@@ -138,7 +160,11 @@ function DiscoverySinglePerson(props: Props) {
           >
             Remove
           </Button>
-          <Button className={styles.connectButton} size="small" onClick={connect}>
+          <Button
+            className={styles.connectButton}
+            size="small"
+            onClick={requestConnection}
+          >
             Connect
           </Button>
         </div>
