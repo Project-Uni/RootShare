@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+
 import RSText from '../../../base-components/RSText';
-
 import { colors } from '../../../theme/Colors';
-
 import DiscoverySinglePerson from './DiscoverySinglePerson';
 import DiscoveryCommunity from './DiscoveryCommunity';
-import {
-  AshwinHeadshot,
-  SmitHeadshot,
-  JacksonHeadshot,
-  DhruvHeadshot,
-  ChrisHeadshot,
-} from '../../../images/team';
+
+import { UserType } from '../../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 const VERTICAL_PADDING_TOTAL = 40;
@@ -30,15 +26,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type PEOPLE = {
-  name: string;
-  profilePic: any;
-  _id: string;
-  position: string;
-  company: string;
-  mutualConnections: number;
+type Props = {
+  accessToken: string;
+  refreshToken: string;
 };
-type Props = {};
 
 function DiscoverySidebar(props: Props) {
   const styles = useStyles();
@@ -46,7 +37,7 @@ function DiscoverySidebar(props: Props) {
   const [height, setHeight] = useState(
     window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL
   );
-  const [recommendedPeople, setRecommendedPeople] = useState<PEOPLE[]>([]);
+  const [recommendedPeople, setRecommendedPeople] = useState<UserType[]>([]);
   const [recommendedCommunities, setRecommendedCommunities] = useState([]);
 
   useEffect(() => {
@@ -58,49 +49,17 @@ function DiscoverySidebar(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL);
   }
 
-  function getRecommendations() {
-    const recPeople: PEOPLE[] = [];
-    recPeople.push({
-      name: 'Ashwin Mahesh',
-      profilePic: AshwinHeadshot,
-      position: 'Head of Product',
-      company: 'RootShare',
-      mutualConnections: 32,
-      _id: 'testID1',
-    });
-    recPeople.push({
-      name: 'Smit Desai',
-      profilePic: SmitHeadshot,
-      position: 'Head of Architecture',
-      company: 'RootShare',
-      mutualConnections: 78,
-      _id: 'testID2',
-    });
-    recPeople.push({
-      name: 'Jackson McCluskey',
-      profilePic: JacksonHeadshot,
-      position: 'Head of Digital Strategy',
-      company: 'RootShare',
-      mutualConnections: 64,
-      _id: 'testID3',
-    });
-    recPeople.push({
-      name: 'Dhruv Patel',
-      profilePic: DhruvHeadshot,
-      position: 'Chief Operating Officer',
-      company: 'RootShare',
-      mutualConnections: 400,
-      _id: 'testID4',
-    });
-    recPeople.push({
-      name: 'Chris Hartley',
-      profilePic: ChrisHeadshot,
-      position: 'Chief Executive Officer',
-      company: 'RootShare',
-      mutualConnections: 500,
-      _id: 'testID5',
-    });
-    setRecommendedPeople(recPeople);
+  async function getRecommendations() {
+    const { data } = await makeRequest(
+      'GET',
+      '/user/getConnectionSuggestions',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setRecommendedPeople(data['content']['suggestions']);
   }
 
   function renderCommunities() {
@@ -133,41 +92,43 @@ function DiscoverySidebar(props: Props) {
   }
 
   function renderPeople() {
-    const people = [];
-    for (let i = 0; i < recommendedPeople.length; i++) {
+    function removeSuggestion(userID: string) {
+      let newSuggestions = recommendedPeople.slice();
+      for (let i = 0; i < recommendedPeople.length; i++) {
+        const currUser = recommendedPeople[i];
+        if (currUser._id === userID) {
+          newSuggestions.splice(i, 1);
+          setRecommendedPeople(newSuggestions);
+          return;
+        }
+      }
+    }
+
+    const people: any = [];
+    if (recommendedPeople.length === 0) return;
+
+    const numSuggestionsDisplayed =
+      recommendedPeople.length > 6 ? 6 : recommendedPeople.length;
+    for (let i = 0; i < numSuggestionsDisplayed; i++) {
+      const currSuggestion = recommendedPeople[i];
       people.push(
         <DiscoverySinglePerson
-          name={recommendedPeople[i]['name']}
-          profilePic={recommendedPeople[i]['profilePic']}
-          position={recommendedPeople[i]['position']}
-          company={recommendedPeople[i]['company']}
-          mutualConnections={recommendedPeople[i]['mutualConnections']}
-          _id={recommendedPeople[i]['_id']}
-          onRemove={(key: string) => {
-            console.log('Clicking remove for', key);
-          }}
-          onConnect={(key: string) => {
-            console.log('Clicking connect for', key);
-          }}
+          userID={currSuggestion._id}
+          name={`${currSuggestion['firstName']} ${currSuggestion['lastName']}`}
+          position={currSuggestion['position']}
+          company={currSuggestion['work']}
+          numMutualConnections={currSuggestion['numMutualConnections']}
+          _id={currSuggestion['_id']}
+          removeSuggestion={removeSuggestion}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }
-    //End of test code
-    return (
-      <div>
-        <RSText
-          size={18}
-          type="head"
-          bold
-          color={colors.primaryText}
-          className={styles.pplForYouText}
-        >
-          People for you
-        </RSText>
-        {people}
-      </div>
-    );
+
+    return people;
   }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {renderCommunities()}
@@ -176,4 +137,15 @@ function DiscoverySidebar(props: Props) {
   );
 }
 
-export default DiscoverySidebar;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DiscoverySidebar);

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Button } from '@material-ui/core';
+
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,23 +47,66 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  userID: string;
   name: string;
-  profilePic: any;
   position: string;
   company: string;
-  mutualConnections: number;
-  onRemove: (key: any) => any;
-  onConnect: (key: any) => any;
+  numMutualConnections: number;
+  removeSuggestion: (userID: string) => void;
   _id: string;
+
+  accessToken: string;
+  refreshToken: string;
 };
 
 function DiscoverySinglePerson(props: Props) {
   const styles = useStyles();
+
+  const [visible, setVisible] = useState(true);
+  const [profilePic, setProfilePic] = useState();
+
+  const numMutualConnections = props.numMutualConnections || 0;
+
+  useEffect(() => {
+    fetchProfilePic();
+  }, [props.userID]);
+
+  async function fetchProfilePic() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/getProfilePicture/${props.userID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    console.log(data);
+    if (data['success'] === 1) setProfilePic(data['content']['imageURL']);
+  }
+
+  function removeSuggestion() {
+    setVisible(false);
+    setTimeout(() => {
+      props.removeSuggestion(props.userID);
+    }, 500);
+  }
+
+  function connect() {
+    //TODO
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.singlePersonWrapper}>
         <a href={`/profile/${props._id}`} className={styles.personLink}>
-          <img src={props.profilePic} style={{ height: 80, borderRadius: 50 }} />
+          <ProfilePicture
+            editable={false}
+            height={80}
+            width={80}
+            borderRadius={50}
+            currentPicture={profilePic}
+          />
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props._id}`} className={styles.personLink}>
@@ -74,7 +121,7 @@ function DiscoverySinglePerson(props: Props) {
             {props.company}
           </RSText>
           <RSText type="body" color={colors.secondaryText} size={10}>
-            {props.mutualConnections} Mutual Connections
+            {numMutualConnections} Mutual Connections
           </RSText>
         </div>
       </div>
@@ -82,15 +129,11 @@ function DiscoverySinglePerson(props: Props) {
         <Button
           className={styles.removeButton}
           size="small"
-          onClick={props.onRemove}
+          onClick={removeSuggestion}
         >
           Remove
         </Button>
-        <Button
-          className={styles.connectButton}
-          size="small"
-          onClick={props.onConnect}
-        >
+        <Button className={styles.connectButton} size="small" onClick={connect}>
           Connect
         </Button>
       </div>

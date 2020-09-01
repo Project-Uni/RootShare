@@ -27,6 +27,8 @@ export type UserType = {
   pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
+  profilePic: string;
+  numMutualConnections: number;
 };
 
 export type ConnectionRequestType = {
