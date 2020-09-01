@@ -118,6 +118,7 @@ function ProfileBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
+  //TODO - Update With New Profile Picture API Route after merging in communities PR
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
