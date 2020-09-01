@@ -44,6 +44,10 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     marginTop: 7,
   },
+  fadeOut: {
+    opacity: 0,
+    transition: 'opacity 0.5s',
+  },
 }));
 
 type Props = {
@@ -98,44 +102,46 @@ function DiscoverySinglePerson(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.singlePersonWrapper}>
-        <a href={`/profile/${props._id}`} className={styles.personLink}>
-          <ProfilePicture
-            editable={false}
-            height={80}
-            width={80}
-            borderRadius={50}
-            currentPicture={profilePic}
-          />
-        </a>
-        <div className={styles.textContainer}>
+      <div className={visible ? '' : styles.fadeOut}>
+        <div className={styles.singlePersonWrapper}>
           <a href={`/profile/${props._id}`} className={styles.personLink}>
-            <RSText type="body" color={colors.primaryText} size={13} bold>
-              {props.name}
-            </RSText>
+            <ProfilePicture
+              editable={false}
+              height={80}
+              width={80}
+              borderRadius={50}
+              currentPicture={profilePic}
+            />
           </a>
-          <RSText type="body" color={colors.secondaryText} italic size={11}>
-            {props.position}
-          </RSText>
-          <RSText type="body" color={colors.secondaryText} italic size={11}>
-            {props.company}
-          </RSText>
-          <RSText type="body" color={colors.secondaryText} size={10}>
-            {numMutualConnections} Mutual Connections
-          </RSText>
+          <div className={styles.textContainer}>
+            <a href={`/profile/${props._id}`} className={styles.personLink}>
+              <RSText type="body" color={colors.primaryText} size={13} bold>
+                {props.name}
+              </RSText>
+            </a>
+            <RSText type="body" color={colors.secondaryText} italic size={11}>
+              {props.position}
+            </RSText>
+            <RSText type="body" color={colors.secondaryText} italic size={11}>
+              {props.company}
+            </RSText>
+            <RSText type="body" color={colors.secondaryText} size={10}>
+              {numMutualConnections} Mutual Connections
+            </RSText>
+          </div>
         </div>
-      </div>
-      <div className={styles.buttonContainer}>
-        <Button
-          className={styles.removeButton}
-          size="small"
-          onClick={removeSuggestion}
-        >
-          Remove
-        </Button>
-        <Button className={styles.connectButton} size="small" onClick={connect}>
-          Connect
-        </Button>
+        <div className={styles.buttonContainer}>
+          <Button
+            className={styles.removeButton}
+            size="small"
+            onClick={removeSuggestion}
+          >
+            Remove
+          </Button>
+          <Button className={styles.connectButton} size="small" onClick={connect}>
+            Connect
+          </Button>
+        </div>
       </div>
     </div>
   );

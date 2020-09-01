@@ -113,6 +113,7 @@ function DiscoverySidebar(props: Props) {
       const currSuggestion = recommendedPeople[i];
       people.push(
         <DiscoverySinglePerson
+          key={currSuggestion._id}
           userID={currSuggestion._id}
           name={`${currSuggestion['firstName']} ${currSuggestion['lastName']}`}
           position={currSuggestion['position']}
