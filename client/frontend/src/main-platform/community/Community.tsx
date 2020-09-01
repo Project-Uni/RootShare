@@ -15,7 +15,7 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
-import { Community } from '../../helpers/types';
+import { Community, CommunityStatus } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -49,9 +49,7 @@ function CommunityDetails(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
-  const [communityStatus, setCommunityStatus] = useState<
-    'PENDING' | 'JOINED' | 'OPEN'
-  >('OPEN');
+  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>('OPEN');
   const [isAdmin, setIsAdmin] = useState(false);
 
   const orgID = props.match.params['orgID'];
@@ -120,7 +118,7 @@ function CommunityDetails(props: Props) {
     else setCommunityStatus('OPEN');
   }
 
-  function updateCommunityStatus(newStatus: 'OPEN' | 'JOINED' | 'PENDING') {
+  function updateCommunityStatus(newStatus: CommunityStatus) {
     setCommunityStatus(newStatus);
   }
 

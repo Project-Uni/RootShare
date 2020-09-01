@@ -12,6 +12,8 @@ import CommunityGeneralInfo from './CommunityGeneralInfo';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
+import { CommunityStatus } from '../../../helpers/types/communityTypes';
+
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
@@ -53,7 +55,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
@@ -70,7 +72,7 @@ type Props = {
   loading?: boolean;
   accessToken: string;
   refreshToken: string;
-  updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
+  updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
 };
 
