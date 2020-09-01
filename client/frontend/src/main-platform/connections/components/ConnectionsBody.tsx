@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton } from '@material-ui/core';
+import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { Autocomplete } from "@material-ui/lab";
+import { TextField, IconButton } from "@material-ui/core";
 
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch } from "react-icons/fa";
 
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 
-import { colors } from '../../../theme/Colors';
-import { WelcomeMessage, UserHighlight } from '../../reusable-components';
-import { SmitHeadshot } from '../../../images/team';
+import { colors } from "../../../theme/Colors";
+import { WelcomeMessage, UserHighlight } from "../../reusable-components";
+import { SmitHeadshot } from "../../../images/team";
 
-import { makeRequest } from '../../../helpers/functions'
+import { makeRequest } from "../../../helpers/functions";
 
 const HEADER_HEIGHT = 60;
 
@@ -19,7 +19,7 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
     background: colors.fourth,
-    overflow: 'scroll',
+    overflow: "scroll",
   },
   body: {},
   searchBar: {
@@ -27,8 +27,8 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
   },
   searchBarContainer: {
-    display: 'flex',
-    justifyContent: 'flex-start',
+    display: "flex",
+    justifyContent: "flex-start",
     marginLeft: 1,
     marginRight: 1,
     background: colors.primaryText,
@@ -41,13 +41,13 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchIcon: {
     marginRight: 10,
-  }
+  },
 }));
 
 type Props = {
-    user: { [key: string]: any };
-    accessToken: string;
-    refreshToken: string;
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
 };
 
 function ConnectionsBody(props: Props) {
@@ -56,22 +56,39 @@ function ConnectionsBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
-  const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
-  const [connections, setConnections] = useState<{[key : string] : any}>([]) //TODO: add type to connection
+  const [autocompleteResults, setAutocompleteResults] = useState([
+    "Smit Desai",
+  ]);
+  const [connections, setConnections] = useState<{ [key: string]: any }>([]); //TODO: add type to connection
+  const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>(
+    []
+  );
+  const [joinedCommunities, setJoinedCommunities] = useState<{
+    [key: string]: any;
+  }>([]);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     fetchData().then(() => {
       setLoading(false);
     });
   }, []);
 
   async function fetchData() {
-      const { data } = await makeRequest('GET', `/api/user/${props.user._id}/connections`,{}, true, props.accessToken, props.refreshToken)
-      if (data.success === 1){
-          setConnections(data.content["connections"])
-      }
-      console.log(data)
+    const { data } = await makeRequest(
+      "GET",
+      `/api/user/${props.user._id}/connections`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setConnections(data.content["connections"]);
+      setConnectionIDs(data.content["connectionIDs"]);
+      setJoinedCommunities(data.content["joinedCommunities"]);
+    }
+    console.log(data);
   }
 
   function handleResize() {
@@ -95,12 +112,16 @@ function ConnectionsBody(props: Props) {
               {...params}
               label="Search your connections"
               variant="outlined"
-              InputProps={{ ...params.InputProps, type: 'search' }}
+              InputProps={{ ...params.InputProps, type: "search" }}
             />
           )}
         />
         <IconButton>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+          <FaSearch
+            size={22}
+            color={colors.primary}
+            className={styles.searchIcon}
+          />
         </IconButton>
       </div>
     );
@@ -127,22 +148,43 @@ function ConnectionsBody(props: Props) {
       );
      */
     //TODO: Add logic in case an optional field does not exist
-    for (let i = 0; i < connections.length; i++){
-        output.push(
-            <UserHighlight
-                name={`${connections[i].firstName} ${connections[i].lastName}`}
-                userID={connections[i]._id}
-                profilePic={connections[i].profilePicture}
-                university={connections[i].university.universityName}
-                graduationYear={connections[i].graduationYear}
-                position={connections[i].position}
-                company={connections[i].company}
-                mutualConnections={32}
-                mutualCommunities={4}
-                style={styles.connectionStyle}
-                connected={true}
-            />
-        )
+
+    for (let i = 0; i < connections.length; i++) {
+      const connectionIDs_2 = connections[i].connections.reduce(
+        (output, connection) => {
+          const otherID =
+            connection["from"].toString() != connections[i].toString()
+              ? connection["from"]
+              : connection["to"];
+
+          output.push(otherID);
+
+          return output;
+        },
+        []
+      );
+      let mutualConnections = connectionIDs.filter((x) =>
+        connectionIDs_2.includes(x)
+      );
+      let mutualCommunities = joinedCommunities.filter((x) =>
+        connections[i].joinedCommunities.includes(x)
+      );
+      console.log(mutualCommunities);
+      output.push(
+        <UserHighlight
+          name={`${connections[i].firstName} ${connections[i].lastName}`}
+          userID={connections[i]._id}
+          profilePic={connections[i].profilePicture}
+          university={connections[i].university.universityName}
+          graduationYear={connections[i].graduationYear}
+          position={connections[i].position}
+          company={connections[i].company}
+          mutualConnections={mutualConnections.length}
+          mutualCommunities={mutualCommunities.length}
+          style={styles.connectionStyle}
+          connected={true}
+        />
+      );
     }
     return output;
   }
@@ -166,10 +208,10 @@ function ConnectionsBody(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
-      user: state.user,
-      accessToken: state.accessToken,
-      refreshToken: state.refreshToken,
-    };
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
