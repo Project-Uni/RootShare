@@ -105,6 +105,7 @@ export default function communityRoutes(app) {
     }
   );
 
+  //TODO - Change this route to a POST route since it is updating data not just retrieving it
   app.get(
     '/api/community/:communityID/:newStatus',
     isAuthenticatedWithJWT,
