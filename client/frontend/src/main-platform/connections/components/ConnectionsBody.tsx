@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
@@ -18,7 +18,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -29,7 +29,7 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 1,
+    marginLeft: 10,
     marginRight: 1,
     background: colors.primaryText,
   },
@@ -41,6 +41,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchIcon: {
     marginRight: 10,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 60,
   },
 }));
 
@@ -147,19 +151,21 @@ function ConnectionsBody(props: Props) {
         connections[i].joinedCommunities.includes(x)
       );
       output.push(
-        <UserHighlight
-          name={`${connections[i].firstName} ${connections[i].lastName}`}
-          userID={connections[i]._id}
-          profilePic={connections[i].profilePicture}
-          university={connections[i].university.universityName}
-          graduationYear={connections[i].graduationYear}
-          position={connections[i].position}
-          company={connections[i].work}
-          mutualConnections={mutualConnections.length}
-          mutualCommunities={mutualCommunities.length}
-          style={styles.connectionStyle}
-          connected={true}
-        />
+        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
+          <UserHighlight
+            name={`${connections[i].firstName} ${connections[i].lastName}`}
+            userID={connections[i]._id}
+            profilePic={connections[i].profilePicture}
+            university={connections[i].university.universityName}
+            graduationYear={connections[i].graduationYear}
+            position={connections[i].position}
+            company={connections[i].work}
+            mutualConnections={mutualConnections.length}
+            mutualCommunities={mutualCommunities.length}
+            style={styles.connectionStyle}
+            connected={true}
+          />
+        </div>
       );
     }
     return output;
@@ -176,7 +182,11 @@ function ConnectionsBody(props: Props) {
       )}
       <div className={styles.body}>
         {renderSearchArea()}
-        {renderConnections()}
+        {loading ? (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        ) : (
+          renderConnections()
+        )}
       </div>
     </div>
   );
