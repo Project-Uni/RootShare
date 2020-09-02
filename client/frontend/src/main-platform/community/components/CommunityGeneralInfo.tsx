@@ -10,6 +10,8 @@ import PendingMembersModal from './PendingMembersModal';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
+import { CommunityStatus } from '../../../helpers/types/communityTypes';
+
 const MAX_DESC_LEN = 275;
 
 const useStyles = makeStyles((_: any) => ({
@@ -86,7 +88,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
@@ -103,7 +105,7 @@ type Props = {
   isAdmin?: boolean;
   accessToken: string;
   refreshToken: string;
-  updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
+  updateCommunityStatus: (newStatus: CommunityStatus) => any;
 };
 
 function CommunityGeneralInfo(props: Props) {
