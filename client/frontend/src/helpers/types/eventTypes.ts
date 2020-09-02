@@ -16,6 +16,8 @@ export type EventType = {
   conversation: string | ConversationType;
   dateTime: Date;
   muxPlaybackID: string;
+  isDev?: boolean;
+  isPrivate?: boolean;
 };
 
 export type HostType = {

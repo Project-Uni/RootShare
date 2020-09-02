@@ -261,6 +261,8 @@ function AdminEventCreator(props: Props) {
     setEventDateTime(event.dateTime);
     setHost(event.host);
     setSpeakers(event.speakers as SpeakerType[]);
+    setIsPrivate(event.isPrivate ? 'yes' : 'no');
+    setIsDev(event.isDev ? 'yes' : 'no');
   }
 
   async function handleSubmit() {
@@ -355,6 +357,8 @@ function AdminEventCreator(props: Props) {
     setBriefDescErr('');
     setFullDescErr('');
     setEditEvent('');
+    setIsDev('no');
+    setIsPrivate('no');
   }
 
   function removeSpeaker(index: number) {
