@@ -32,6 +32,16 @@ const CommunitySchema = new mongoose.Schema(
     },
     profilePicture: { type: String },
     //TODO - Add fields for background Image
+    followedByCommunities: [{ type: mongoose.Types.ObjectId, ref: 'communities' }],
+    followingCommunities: [{ types: mongoose.Types.ObjectId, ref: 'communities' }],
+    pendingCommunityFollowRequests: [
+      { types: mongoose.Types.ObjectId, ref: 'communities' },
+    ],
+    internalCurrentMemberPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    internalAlumniPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    externalPost: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    broadcastedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    subcommunities: [{ type: mongoose.Types.ObjectId, ref: 'communities' }],
   },
   { timestamps: true }
 );
