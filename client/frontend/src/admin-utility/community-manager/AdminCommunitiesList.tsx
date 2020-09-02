@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -8,6 +8,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
+  TableFooter,
   Paper,
   CircularProgress,
 } from '@material-ui/core';
@@ -37,7 +39,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-const COLUMNS = ['University', 'Type', 'Members', 'Admin', 'Private'];
+const COLUMNS = ['University', 'Type', 'Members', 'Pending', 'Admin', 'Private'];
 
 type Props = {
   communities: Community[];
@@ -47,6 +49,33 @@ type Props = {
 
 function AdminCommunitiesList(props: Props) {
   const styles = useStyles();
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [currPage, setCurrPage] = useState(0);
+
+  function handlePageChange(
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) {
+    setCurrPage(newPage);
+  }
+
+  function handleRowsChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
+    setItemsPerPage(parseInt(event.target.value, 10));
+    setCurrPage(0);
+  }
+
+  function getPageContent() {
+    if (itemsPerPage > 0) {
+      return props.communities.slice(
+        currPage * itemsPerPage,
+        currPage * itemsPerPage + itemsPerPage
+      );
+    } else {
+      return props.communities;
+    }
+  }
 
   function renderTableHead() {
     return (
@@ -70,7 +99,7 @@ function AdminCommunitiesList(props: Props) {
   function renderTableBody() {
     return (
       <TableBody>
-        {props.communities.map((community) => (
+        {getPageContent().map((community) => (
           <TableRow key={community.name}>
             <TableCell>
               <a
@@ -91,7 +120,10 @@ function AdminCommunitiesList(props: Props) {
               <RSText>{community.type}</RSText>
             </TableCell>
             <TableCell align="right">
-              <RSText>{(community.members as any[]).length}</RSText>
+              <RSText>{community.members.length}</RSText>
+            </TableCell>
+            <TableCell align="right">
+              <RSText>{community.pendingMembers.length}</RSText>
             </TableCell>
             <TableCell align="right">
               <RSText>
@@ -117,6 +149,18 @@ function AdminCommunitiesList(props: Props) {
             {renderTableHead()}
             {renderTableBody()}
           </Table>
+
+          <TableFooter>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50]}
+              component="div"
+              count={props.communities.length}
+              rowsPerPage={itemsPerPage}
+              page={currPage}
+              onChangePage={handlePageChange}
+              onChangeRowsPerPage={handleRowsChange}
+            />
+          </TableFooter>
         </TableContainer>
       )}
     </div>

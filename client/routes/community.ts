@@ -6,6 +6,8 @@ import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
+  getCommunityInformation,
+  joinCommunity,
 } from '../interactions/community';
 
 import { USER_LEVEL } from '../types/types';
@@ -92,4 +94,27 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.get(
+    '/api/community/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getCommunityInformation(communityID);
+      return res.json(packet);
+    }
+  );
+
+  //TODO - Change this route to a POST route since it is updating data not just retrieving it
+  app.get(
+    '/api/community/:communityID/:newStatus',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID, newStatus } = req.params;
+      if (newStatus === 'join') {
+        const packet = await joinCommunity(communityID, req.user._id);
+        return res.json(packet);
+      }
+    }
+  );
 }

@@ -14,6 +14,10 @@ const CommunitySchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },
+    pendingMembers: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      default: [],
+    },
     type: { type: String, required: true, message: 'Type is required' },
     description: {
       type: String,
