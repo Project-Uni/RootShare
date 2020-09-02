@@ -154,7 +154,7 @@ function ConnectionsBody(props: Props) {
           university={connections[i].university.universityName}
           graduationYear={connections[i].graduationYear}
           position={connections[i].position}
-          company={connections[i].company}
+          company={connections[i].work}
           mutualConnections={mutualConnections.length}
           mutualCommunities={mutualCommunities.length}
           style={styles.connectionStyle}
