@@ -125,22 +125,25 @@ function ConnectionsBody(props: Props) {
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
       const connectionIDs_2 = connections[i].connections.reduce(
-        (output, connection) => {
+        (
+          extractedConnections: string[],
+          connection: { from: string; to: string }
+        ) => {
           const otherID =
             connection['from'].toString() != connections[i].toString()
               ? connection['from']
               : connection['to'];
 
-          output.push(otherID);
+          extractedConnections.push(otherID);
 
-          return output;
+          return extractedConnections;
         },
         []
       );
-      let mutualConnections = connectionIDs.filter((x) =>
+      let mutualConnections = connectionIDs.filter((x: string) =>
         connectionIDs_2.includes(x)
       );
-      let mutualCommunities = joinedCommunities.filter((x) =>
+      let mutualCommunities = joinedCommunities.filter((x: string) =>
         connections[i].joinedCommunities.includes(x)
       );
       output.push(
