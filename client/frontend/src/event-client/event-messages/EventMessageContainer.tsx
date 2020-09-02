@@ -63,7 +63,7 @@ function EventMessageContainer(props: Props) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]);
 
   useEffect(() => {
     updateLikes();
