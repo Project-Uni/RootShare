@@ -166,24 +166,24 @@ function ProfileBody(props: Props) {
     );
   }
 
-  function renderRegisteredEvents() {
-    function removeEvent(eventID: string) {
-      let removeIndex = -1;
-      for (let i = 0; i < events.length; i++) {
-        if (events[i]._id === eventID) {
-          removeIndex = i;
-          break;
-        }
+  function removeEvent(eventID: string) {
+    let removeIndex = -1;
+    for (let i = 0; i < events.length; i++) {
+      if (events[i]._id === eventID) {
+        removeIndex = i;
+        break;
       }
-
-      if (removeIndex !== -1)
-        setEvents((prevEvents) => {
-          let newEvents = prevEvents.slice();
-          newEvents.splice(removeIndex, 1);
-          return newEvents;
-        });
     }
 
+    if (removeIndex !== -1)
+      setEvents((prevEvents) => {
+        let newEvents = prevEvents.slice();
+        newEvents.splice(removeIndex, 1);
+        return newEvents;
+      });
+  }
+
+  function renderRegisteredEvents() {
     const output: any = [];
 
     events.forEach((event) => {
@@ -287,7 +287,9 @@ function ProfileBody(props: Props) {
       {loading ? (
         <CircularProgress />
       ) : fetchingErr ? (
-        <div>TODO: FORMAT THIS. THERE HAS BEEN AN ERROR</div>
+        <RSText size={32} type="head" color={colors.error}>
+          THERE WAS AN ERROR GETTING THE USER'S PROFILE
+        </RSText>
       ) : (
         renderProfile()
       )}

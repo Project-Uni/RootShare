@@ -67,6 +67,12 @@ export async function getPrivateProfileInformation(userID, callback) {
 }
 
 export async function getPublicProfileInformation(userID, callback) {
+  try {
+    mongoose.Types.ObjectId(userID);
+  } catch (err) {
+    return callback(sendPacket(-1, err));
+  }
+
   User.aggregate([
     { $match: { _id: mongoose.Types.ObjectId(userID) } },
     {

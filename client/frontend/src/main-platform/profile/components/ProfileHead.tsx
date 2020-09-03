@@ -152,7 +152,7 @@ function ProfileHead(props: Props) {
   const [editBio, setEditBio] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const [originalBio, setOriginalBio] = useState('');
+  const [originalBio, setOriginalBio] = useState(props.bio);
   const [updatedBio, setUpdatedBio] = useState('');
 
   const [numConnections, setNumConnections] = useState(0);
@@ -161,10 +161,6 @@ function ProfileHead(props: Props) {
   const [loadingConnection, setLoadingConnection] = useState(true);
 
   const menuOpen = Boolean(anchorEl);
-
-  useEffect(() => {
-    setOriginalBio(props.bio);
-  }, [props.bio]);
 
   useEffect(() => {
     setNumConnections(props.numConnections);
