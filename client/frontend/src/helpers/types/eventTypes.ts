@@ -31,3 +31,9 @@ export type SpeakerType = {
   lastName: string;
   email: string;
 };
+
+export type MuxMetaDataType = {
+  viewerUserID: string;
+  webinarID: string;
+  eventTitle: string;
+};

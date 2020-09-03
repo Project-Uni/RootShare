@@ -8,6 +8,7 @@ import VideoPlayer from '../video/VideoPlayer';
 import { log } from '../../../helpers/functions';
 import { connect } from 'react-redux';
 import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
+import { MuxMetaDataType } from '../../../helpers/types';
 
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
@@ -27,6 +28,7 @@ type Props = {
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
   muxPlaybackID: string;
+  muxMetaData: MuxMetaDataType;
 };
 
 function EventWatcherVideoContainer(props: Props) {
@@ -77,7 +79,12 @@ function EventWatcherVideoContainer(props: Props) {
       style={{ height: playerHeight, width: playerWidth }}
     >
       {videoData !== '' ? (
-        <VideoPlayer src={videoData} height={playerHeight} width={playerWidth} />
+        <VideoPlayer
+          src={videoData}
+          height={playerHeight}
+          width={playerWidth}
+          muxMetaData={props.muxMetaData}
+        />
       ) : (
         <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />
       )}
