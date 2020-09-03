@@ -772,7 +772,7 @@ export async function updateAttendingList(
     let userPromise = User.findById(userID).exec();
     let webinarPromise = Webinar.findById(webinarID).exec();
 
-    Promise.all([userPromise, webinarPromise]).then((values) => {
+    return Promise.all([userPromise, webinarPromise]).then((values) => {
       const [user, webinar] = values;
       if (user) {
         if (user.attendedWebinars) {
@@ -792,6 +792,7 @@ export async function updateAttendingList(
         }
       }
       //TODO - decide which method for setting is better and stick with it
+      //TODO - mark attendees as modified
       if (webinar) {
         if (webinar.attendees) {
           if (!(userID in webinar)) webinar.attendees[userID] = 1;
@@ -801,7 +802,7 @@ export async function updateAttendingList(
       const userSavePromise = user.save();
       const webinarSavePromise = webinar.save();
 
-      Promise.all([userSavePromise, webinarSavePromise]).then(
+      return Promise.all([userSavePromise, webinarSavePromise]).then(
         ([savedUser, savedWebinar]) => {
           return callback(
             sendPacket(

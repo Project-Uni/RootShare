@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { colors } from '../theme/Colors';
+import { colors } from '../../theme/Colors';
 
 import AdminSingleEvent from './AdminSingleEvent';
-import RSText from '../base-components/RSText';
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

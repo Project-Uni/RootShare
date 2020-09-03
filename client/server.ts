@@ -10,6 +10,9 @@ import * as path from 'path';
 
 import { rateLimiter } from './middleware';
 
+import communityRoutes from './routes/community';
+import feedbackRoutes from './routes/feedback';
+
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
 const http = require('http');
@@ -63,6 +66,11 @@ require('./routes/mocks')(app);
 require('./routes/proxy')(app);
 
 require('./routes/images')(app);
+
+//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
+communityRoutes(app);
+feedbackRoutes(app);
+
 require('./config/setup')(passport);
 
 app.use(express.static(path.join('./', '/frontend/build')));

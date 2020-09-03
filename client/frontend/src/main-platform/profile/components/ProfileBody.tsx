@@ -121,7 +121,7 @@ function ProfileBody(props: Props) {
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/getProfilePicture/${props.profileID}`,
+      `/api/images/profile/${props.profileID}`,
       {},
       true,
       props.accessToken,
@@ -153,6 +153,7 @@ function ProfileBody(props: Props) {
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
         <ProfilePicture
+          type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
           editable={props.currentProfileState === 'SELF'}

@@ -27,7 +27,10 @@ function EventClientEmptyVideoPlayer(props: Props) {
   const styles = useStyles();
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{ height: props.height, width: props.width }}
+    >
       <div
         className={styles.videoContent}
         style={{ height: props.height, width: props.width }}
