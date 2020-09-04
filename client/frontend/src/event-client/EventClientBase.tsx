@@ -21,7 +21,6 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-// import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
 import KramerBanner from '../images/kramerBanner.png';
 
 import { colors } from '../theme/Colors';
