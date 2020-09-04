@@ -12,6 +12,7 @@ import {
   updateAccessToken,
   updateRefreshToken,
 } from '../../../../redux/actions/token';
+import { MuxMetaDataType } from '../../../../helpers/types';
 
 const MOBILE_AD_CONTAINER_HEIGHT = 60;
 const HEADER_HEIGHT = 60;
@@ -26,6 +27,7 @@ type Props = {
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
   muxPlaybackID: string;
+  muxMetaData: MuxMetaDataType;
 };
 
 function EventWatcherMobile(props: Props) {
@@ -68,7 +70,12 @@ function EventWatcherMobile(props: Props) {
     <div className={styles.wrapper}>
       <EventMobileHeader />
       {videoData !== '' ? (
-        <VideoPlayer src={videoData} height={playerHeight} width={playerWidth} />
+        <VideoPlayer
+          src={videoData}
+          height={playerHeight}
+          width={playerWidth}
+          muxMetaData={props.muxMetaData}
+        />
       ) : (
         <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />
       )}
