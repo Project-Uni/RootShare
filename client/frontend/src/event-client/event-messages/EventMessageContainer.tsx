@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
+import { Slide } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
 import { colors } from '../../theme/Colors';
 import EventMessageTextField from './EventMessageTextField';
+import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
 
 import { MessageType, LikeUpdateType } from '../../helpers/types';
-import { makeRequest } from '../../helpers/functions';
+import { makeRequest, cropText } from '../../helpers/functions';
 
 const HEADER_HEIGHT = 64;
 const MAX_MESSAGES = 40;
@@ -48,13 +51,19 @@ function EventMessageContainer(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [likeUpdate, setLikeUpdate] = useState<LikeUpdateType>();
 
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages.length]);
 
   useEffect(() => {
     updateLikes();
@@ -91,9 +100,29 @@ function EventMessageContainer(props: Props) {
 
   function updateLikes() {
     if (likeUpdate === undefined) return;
-    const { messageID } = likeUpdate;
-    messages.forEach((message) => {
-      if (message._id === messageID) message.numLikes = likeUpdate.numLikes;
+
+    setMessages((prevMessages) => {
+      let newMessages = prevMessages.slice();
+      newMessages.forEach((message) => {
+        if (message._id === likeUpdate.messageID) {
+          message.numLikes = likeUpdate.numLikes;
+          if (
+            message.sender === props.user._id &&
+            likeUpdate.liker !== props.user._id &&
+            likeUpdate.liked
+          ) {
+            setSnackbarMode('success');
+            setSnackbarMessage(
+              `${likeUpdate.likerName} liked your message: "${cropText(
+                message.content,
+                20
+              )}"`
+            );
+            setTransition(() => slideLeft);
+          }
+        }
+      });
+      return newMessages;
     });
   }
 
@@ -243,8 +272,18 @@ function EventMessageContainer(props: Props) {
     eventMessageContainer?.scrollTo(0, eventMessageContainer?.scrollHeight);
   }
 
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <div id="eventMessageContainer" className={styles.messageContainer}>
         {renderMessages()}
       </div>
