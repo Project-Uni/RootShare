@@ -69,7 +69,9 @@ function Login(props: Props) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
+  // const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
+  const redirectUrl =
+    query && query[1] !== '/login' ? query[1] : '/event/5f51bfe807cca3036eb5451a';
 
   useEffect(() => {
     checkAuth();
