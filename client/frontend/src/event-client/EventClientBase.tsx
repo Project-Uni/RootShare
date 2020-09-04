@@ -21,7 +21,8 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
+// import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
+import KramerBanner from '../images/kramerBanner.png';
 
 import { colors } from '../theme/Colors';
 import { EventType } from '../helpers/types';
@@ -135,7 +136,7 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds() {
-    const ads = [BabyBoilersBanner];
+    const ads = [KramerBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
