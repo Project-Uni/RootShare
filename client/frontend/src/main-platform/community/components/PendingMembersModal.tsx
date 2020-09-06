@@ -49,8 +49,9 @@ type PendingUser = {
 
 type Props = {
   open: boolean;
-  handleClose: () => any;
   communityID: string;
+  handleClose: () => any;
+  decreasePendingCount: () => any;
   accessToken: string;
   refreshToken: string;
 };
@@ -111,6 +112,7 @@ function PendingMembersModal(props: Props) {
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
       }
+      props.decreasePendingCount();
     }
   }
 
@@ -138,6 +140,7 @@ function PendingMembersModal(props: Props) {
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
       }
+      props.decreasePendingCount();
     }
   }
 

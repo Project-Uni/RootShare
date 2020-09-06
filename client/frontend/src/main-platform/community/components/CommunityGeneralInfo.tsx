@@ -112,6 +112,7 @@ function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [numPending, setNumPending] = useState(props.numPending);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
@@ -186,6 +187,10 @@ function CommunityGeneralInfo(props: Props) {
     setShowPendingModal(false);
   }
 
+  function decreasePendingCount() {
+    setNumPending(numPending - 1);
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
@@ -225,6 +230,7 @@ function CommunityGeneralInfo(props: Props) {
         open={showPendingModal}
         communityID={props.communityID}
         handleClose={handlePendingModalClose}
+        decreasePendingCount={decreasePendingCount}
       />
       <div className={styles.top}>
         <div className={styles.left}>
@@ -254,7 +260,7 @@ function CommunityGeneralInfo(props: Props) {
               className={styles.memberCountLink}
             >
               <RSText type="body" size={12} color={colors.second} bold>
-                {props.numPending} Pending
+                {numPending} Pending
               </RSText>
             </a>
           )}
