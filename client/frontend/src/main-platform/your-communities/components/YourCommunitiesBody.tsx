@@ -11,6 +11,8 @@ import CommunityOverview from './CommunityOverview';
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
+import { CommunityType } from '../../../helpers/types';
+
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
@@ -44,10 +46,11 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type YourCommunities_Community = {
+  _id: string;
   name: string;
   description: string;
   private: boolean;
-  type: string;
+  type: CommunityType;
   profilePicture?: string;
   numMembers: number;
   numMutual: number;
@@ -102,24 +105,55 @@ function YourCommunitiesBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function renderCommunities() {
+  function renderJoinedCommunities() {
     const output = [];
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < joinedCommunities.length; i++) {
       output.push(
         <CommunityOverview
-          communityID="testCommID"
-          name="RootShare"
-          private
+          communityID={joinedCommunities[i]._id}
+          name={joinedCommunities[i].name}
+          private={joinedCommunities[i].private}
           style={styles.singleCommunity}
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          type="Business"
-          memberCount={7054}
-          mutualMemberCount={68}
-          profilePicture={PurdueHypeBanner}
+          description={joinedCommunities[i].description}
+          type={joinedCommunities[i].type}
+          memberCount={joinedCommunities[i].numMembers}
+          mutualMemberCount={joinedCommunities[i].numMutual}
+          profilePicture={joinedCommunities[i].profilePicture}
           joinedDate="April 29, 2020"
         />
       );
+    }
     return output;
+  }
+
+  function renderPendingCommunities() {
+    const output = [];
+    for (let i = 0; i < pendingCommunities.length; i++) {
+      output.push(
+        <CommunityOverview
+          communityID={pendingCommunities[i]._id}
+          name={pendingCommunities[i].name}
+          private={pendingCommunities[i].private}
+          style={styles.singleCommunity}
+          description={pendingCommunities[i].description}
+          type={pendingCommunities[i].type}
+          memberCount={pendingCommunities[i].numMembers}
+          mutualMemberCount={pendingCommunities[i].numMutual}
+          profilePicture={pendingCommunities[i].profilePicture}
+          joinedDate="April 29, 2020"
+        />
+      );
+    }
+    return output;
+  }
+
+  function renderCommunities() {
+    return (
+      <>
+        {renderJoinedCommunities()}
+        {renderPendingCommunities()}
+      </>
+    );
   }
 
   return (
