@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
@@ -15,7 +16,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -34,8 +35,23 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 1,
     marginBottom: 1,
     borderRadius: 1,
+    borderTop: `1px solid ${colors.fourth}`,
+  },
+  loadingIndicator: {
+    marginTop: 80,
+    color: colors.primary,
   },
 }));
+
+type YourCommunities_Community = {
+  name: string;
+  description: string;
+  private: boolean;
+  type: string;
+  profilePicture?: string;
+  numMembers: number;
+  numMutual: number;
+};
 
 type Props = {
   user: { [key: string]: any };
@@ -48,6 +64,13 @@ function YourCommunitiesBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const [joinedCommunities, setJoinedCommunities] = useState<
+    YourCommunities_Community[]
+  >([]);
+  const [pendingCommunities, setPendingCommunities] = useState<
+    YourCommunities_Community[]
+  >([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -65,6 +88,10 @@ function YourCommunitiesBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+    if (data.success === 1) {
+      setJoinedCommunities(data.content['joinedCommunities']);
+      setPendingCommunities(data.content['pendingCommunities']);
+    }
   }
 
   function handleResize() {
@@ -104,7 +131,13 @@ function YourCommunitiesBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}>{renderCommunities()}</div>
+      <div className={styles.body}>
+        {loading ? (
+          <CircularProgress className={styles.loadingIndicator} size={100} />
+        ) : (
+          renderCommunities()
+        )}
+      </div>
     </div>
   );
 }
