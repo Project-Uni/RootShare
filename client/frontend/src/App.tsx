@@ -15,12 +15,6 @@ import Login from './login/Login';
 import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
-import {
-  UserCount,
-  AdminEventCreator,
-  AdminCommunityManager,
-} from './admin-utility';
-
 import LandingPage from './landing-page/LandingPage';
 
 import {
@@ -33,6 +27,8 @@ import {
   StreamLibrary,
   Connections,
 } from './main-platform';
+
+import { AdminRoutes } from './routes';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -75,9 +71,7 @@ function App(props: Props) {
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route exact path="/login" component={Login} />
 
-            <Route exact path="/admin/count" component={UserCount} />
-            <Route exact path="/admin/createEvent" component={AdminEventCreator} />
-            <Route exact path="/admin/community" component={AdminCommunityManager} />
+            <Route path="/admin" component={AdminRoutes} />
 
             <Route exact path="/home" component={Homepage} />
             <Route exact path="/discover" component={Discover} />
