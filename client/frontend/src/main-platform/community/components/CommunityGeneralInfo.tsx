@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Button, Menu, MenuItem } from '@material-ui/core';
 
-import { Button } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
 import { makeRequest } from '../../../helpers/functions';
@@ -114,6 +114,7 @@ function CommunityGeneralInfo(props: Props) {
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
   const [numMembers, setNumMembers] = useState(props.numMembers);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
@@ -162,27 +163,25 @@ function CommunityGeneralInfo(props: Props) {
     }
   }
 
-  async function handlePendingButtonClick() {
-    if (
-      window.confirm(
-        'Are you sure you want to cancel your request to join the community?'
-      )
-    ) {
-      const { data } = await makeRequest(
-        'POST',
-        `/api/community/${props.communityID}/cancelPending`,
-        {},
-        true,
-        props.accessToken,
-        props.refreshToken
+  async function handlePendingButtonClick(event: any) {
+    setMenuAnchorEl(event.currentTarget);
+  }
+
+  async function handleCancelPendingRequest() {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/cancelPending`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+    } else {
+      alert(
+        'There was an error trying to cancel the pending request. Please try again later'
       );
-      if (data.success === 1) {
-        props.updateCommunityStatus(data.content['newStatus']);
-      } else {
-        alert(
-          'There was an error trying to cancel the pending request. Please try again later'
-        );
-      }
     }
   }
 
@@ -215,13 +214,22 @@ function CommunityGeneralInfo(props: Props) {
       );
     else if (props.status === 'PENDING')
       return (
-        <Button
-          className={[styles.button, styles.pendingButton].join(' ')}
-          size="large"
-          onClick={handlePendingButtonClick}
-        >
-          Pending
-        </Button>
+        <>
+          <Button
+            className={[styles.button, styles.pendingButton].join(' ')}
+            size="large"
+            onClick={handlePendingButtonClick}
+          >
+            Pending
+          </Button>
+          <Menu
+            open={Boolean(menuAnchorEl)}
+            anchorEl={menuAnchorEl}
+            onClose={() => setMenuAnchorEl(null)}
+          >
+            <MenuItem onClick={handleCancelPendingRequest}>Cancel Request</MenuItem>
+          </Menu>
+        </>
       );
     else
       return (
