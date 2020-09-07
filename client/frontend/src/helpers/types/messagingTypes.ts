@@ -22,5 +22,8 @@ export type ConversationType = {
 
 export type LikeUpdateType = {
   messageID: string | MessageType;
+  liked: boolean;
   numLikes: number;
+  liker: string;
+  likerName: string;
 };

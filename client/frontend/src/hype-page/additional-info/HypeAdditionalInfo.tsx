@@ -76,7 +76,7 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  const redirectURL = '/home';
+  const redirectURL = '/event/5f502ef670f5ff2eaa1f8e9a';
 
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
@@ -294,15 +294,14 @@ function HypeAdditionalInfo(props: Props) {
           )}
           <div className={styles.buttonDiv}>
             {regCompleted ? (
-              // <Button
-              //   variant="contained"
-              //   color="primary"
-              //   disabled={loading}
-              //   onClick={handleContinue}
-              // >
-              //   Continue
-              // </Button>
-              <span />
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                onClick={handleContinue}
+              >
+                Continue
+              </Button>
             ) : (
               <Button
                 variant="contained"
