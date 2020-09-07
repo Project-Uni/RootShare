@@ -163,6 +163,7 @@ function ProfileBody(props: Props) {
           borderRadius={150}
           currentPicture={currentPicture}
           updateCurrentPicture={updateCurrentPicture}
+          zoomOnClick={props.currentProfileState !== 'SELF'}
         />
       </div>
     );
