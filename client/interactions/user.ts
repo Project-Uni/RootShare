@@ -958,11 +958,15 @@ export async function getConnectionsFullData(userID: string) {
 
     for (let i = 0; i < connectionsWithData.length; i++) {
       if (connectionsWithData[i].profilePicture) {
-        const imageURL = await retrieveSignedUrl(
-          'profile',
-          connectionsWithData[i].profilePicture
-        );
-        if (imageURL) connectionsWithData[i].profilePicture = imageURL;
+        try {
+          const imageURL = await retrieveSignedUrl(
+            'profile',
+            connectionsWithData[i].profilePicture
+          );
+          if (imageURL) connectionsWithData[i].profilePicture = imageURL;
+        } catch (err) {
+          log('error', err);
+        }
       }
     }
 
