@@ -692,6 +692,7 @@ export async function getUserCommunities(userID: string) {
       });
 
       const cleanedCommunity = {
+        _id: joinedCommunities[i]._id,
         name: joinedCommunities[i].name,
         description: joinedCommunities[i].description,
         private: joinedCommunities[i].private,
@@ -725,6 +726,7 @@ export async function getUserCommunities(userID: string) {
       });
 
       const cleanedCommunity = {
+        _id: pendingCommunities[i]._id,
         name: pendingCommunities[i].name,
         description: pendingCommunities[i].description,
         private: pendingCommunities[i].private,

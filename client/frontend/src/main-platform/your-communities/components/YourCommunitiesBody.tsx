@@ -119,7 +119,7 @@ function YourCommunitiesBody(props: Props) {
           memberCount={joinedCommunities[i].numMembers}
           mutualMemberCount={joinedCommunities[i].numMutual}
           profilePicture={joinedCommunities[i].profilePicture}
-          joinedDate="April 29, 2020"
+          status="joined"
         />
       );
     }
@@ -140,7 +140,7 @@ function YourCommunitiesBody(props: Props) {
           memberCount={pendingCommunities[i].numMembers}
           mutualMemberCount={pendingCommunities[i].numMutual}
           profilePicture={pendingCommunities[i].profilePicture}
-          joinedDate="April 29, 2020"
+          status="pending"
         />
       );
     }
