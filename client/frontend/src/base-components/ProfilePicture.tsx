@@ -63,6 +63,8 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  type: 'profile' | 'community';
+  _id?: string; //Required for community
   accessToken: string;
   refreshToken: string;
   className?: string;
@@ -72,6 +74,7 @@ type Props = {
   height: number;
   width: number;
   borderRadius?: number;
+  borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
 };
 
@@ -152,9 +155,14 @@ function ProfilePicture(props: Props) {
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
+    const path =
+      props.type === 'profile'
+        ? '/api/images/profile/updateProfilePicture'
+        : `/api/images/community/${props._id}/updateProfilePicture`;
+
     const { data } = await makeRequest(
       'POST',
-      '/api/profile/updateProfilePicture',
+      path,
       {
         image: imageData,
       },
@@ -186,7 +194,7 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={handleImageClick}
+          onClick={props.editable ? handleImageClick : undefined}
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -195,12 +203,12 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16,
-                left: Math.floor(props.width / 2) - 16,
+                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
+                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
-              onClick={handleImageClick}
+              onClick={props.editable ? handleImageClick : undefined}
             />
           )}
         </div>
@@ -237,7 +245,13 @@ function ProfilePicture(props: Props) {
             />
             {loading && (
               <div style={{ position: 'relative', height: 0, width: 0 }}>
-                <div style={{ position: 'absolute', bottom: 200, left: 200 }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 200,
+                    left: 200,
+                  }}
+                >
                   <CircularProgress size={100} className={styles.loadingIndicator} />
                 </div>
               </div>

@@ -40,7 +40,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   width: number;
   loading: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   headerText: string;
   backArrow?: 'link' | 'action';
   backArrowLink?: string;

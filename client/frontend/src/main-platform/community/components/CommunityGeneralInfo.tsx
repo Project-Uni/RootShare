@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
@@ -6,6 +6,9 @@ import { FaLock } from 'react-icons/fa';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { Button } from '@material-ui/core';
+import { makeRequest } from '../../../helpers/functions';
+
+import { CommunityStatus } from '../../../helpers/types/communityTypes';
 
 const MAX_DESC_LEN = 275;
 
@@ -75,10 +78,12 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  communityID: string;
+  status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
+  numPending: number;
   numMutual: number;
   type:
     | 'Social'
@@ -88,6 +93,10 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  isAdmin?: boolean;
+  accessToken: string;
+  refreshToken: string;
+  updateCommunityStatus: (newStatus: CommunityStatus) => any;
 };
 
 function CommunityGeneralInfo(props: Props) {
@@ -100,12 +109,30 @@ function CommunityGeneralInfo(props: Props) {
     setShowFullDesc(!showFullDesc);
   }
 
+  async function handleJoinClick() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/community/${props.communityID}/join`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === -1) {
+      return alert(
+        'There was an error while trying to join this community. Please try again later.'
+      );
+    }
+    if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
         <Button
           className={[styles.button, styles.joinButton].join(' ')}
           size="large"
+          onClick={handleJoinClick}
         >
           Join
         </Button>
@@ -125,7 +152,7 @@ function CommunityGeneralInfo(props: Props) {
           size="large"
           className={[styles.button, styles.joinedButton].join(' ')}
         >
-          MEMBER
+          {props.isAdmin ? 'Admin' : 'Member'}
         </Button>
       );
   }
@@ -152,6 +179,11 @@ function CommunityGeneralInfo(props: Props) {
           <RSText type="body" size={14} color={colors.second} bold>
             {props.numMembers} Members
           </RSText>
+          {props.isAdmin && (
+            <RSText type="body" size={14} color={colors.second} bold>
+              {props.numPending} Pending
+            </RSText>
+          )}
           <RSText type="body" size={14} color={colors.second} bold>
             {props.numMutual} Mutual
           </RSText>

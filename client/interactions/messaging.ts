@@ -177,26 +177,35 @@ export function getLatestMessages(
 }
 
 export function updateLike(userID, messageID, liked, io, callback) {
-  Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
+  User.findById(userID, ['firstName', 'lastName'], (err, user) => {
     if (err) return callback(sendPacket(-1, err));
-    if (!message) return callback(sendPacket(-1, 'Could not find message to like'));
+    if (!user) return callback(sendPacket(0, 'Could not find User'));
 
-    const alreadyLiked = message.likes.includes(userID);
-
-    if (liked && !alreadyLiked) message.likes.push(userID);
-    else if (!liked && alreadyLiked)
-      message.likes.splice(message.likes.indexOf(userID), 1);
-
-    message.save((err, message) => {
+    Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
       if (err) return callback(sendPacket(-1, err));
       if (!message)
-        return callback(sendPacket(-1, 'There was an error saving the like'));
+        return callback(sendPacket(-1, 'Could not find message to like'));
 
-      io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
-        messageID: message._id,
-        numLikes: message.likes.length,
+      const alreadyLiked = message.likes.includes(userID);
+
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
+        message.likes.splice(message.likes.indexOf(userID), 1);
+
+      message.save((err, message) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!message)
+          return callback(sendPacket(-1, 'There was an error saving the like'));
+
+        io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
+          messageID: message._id,
+          numLikes: message.likes.length,
+          liked,
+          liker: userID,
+          likerName: `${user.firstName} ${user.lastName}`,
+        });
+        callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
       });
-      callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
     });
   });
 }

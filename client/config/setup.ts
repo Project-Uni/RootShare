@@ -1,5 +1,3 @@
-import { link } from 'fs';
-
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
@@ -8,9 +6,11 @@ const localSignup = require('../passport/localSignup');
 const linkedinLoginSignup = require('../passport/linkedinLoginSignup');
 const googleLoginSignup = require('../passport/googleLoginSignup');
 
-module.exports = function (passport) {
+import { PassportStatic } from 'passport';
+
+module.exports = function (passport: PassportStatic) {
   // Passport needs to be able to serialize and deserialize users to support persistent login sessions
-  passport.serializeUser(function (user, done) {
+  passport.serializeUser(function (user: { [key: string]: any }, done) {
     done(null, user._id);
   });
 
