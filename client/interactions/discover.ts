@@ -133,12 +133,46 @@ export async function populateDiscoverForUser(userID: string) {
             work: users[i].work,
             position: users[i].position,
             graduationYear: users[i].graduationYear,
-            profilePicture: profilePicture,
+            profilePicture,
             numMutualConnections: mutualConnections.length,
             numMutualCommunities: mutualCommunities.length,
           };
 
           users[i] = cleanedUser;
+        }
+
+        //Cleaning communities array
+        for (let i = 0; i < communities.length; i++) {
+          const mutualMembers = connections.filter((connection) => {
+            return communities[i].members.indexOf(connection) !== -1;
+          });
+
+          //Getting profile picture
+          let profilePicture = undefined;
+          if (communities[i].profilePicture) {
+            try {
+              const signedImageURL = await retrieveSignedUrl(
+                'communityProfile',
+                communities[i].profilePicture
+              );
+              if (signedImageURL) profilePicture = signedImageURL;
+            } catch (err) {
+              log('error', err);
+            }
+          }
+
+          const cleanedCommunity = {
+            name: communities[i].name,
+            type: communities[i].type,
+            description: communities[i].description,
+            private: communities[i].private,
+            university: communities[i].university,
+            profilePicture,
+            numMembers: communities[i].members.length,
+            numMutual: mutualMembers.length,
+          };
+
+          communities[i] = cleanedCommunity;
         }
 
         return sendPacket(
