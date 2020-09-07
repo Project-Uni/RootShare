@@ -4,9 +4,7 @@ import { Webinar, Conversation, User } from '../../models';
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
 
-import log from '../../helpers/logger';
-import sendPacket from '../../helpers/sendPacket';
-import { formatTime, formatDate } from '../../helpers/dateFormat';
+import { log, sendPacket, formatTime, formatDate } from '../../helpers/functions';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',

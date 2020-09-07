@@ -1,13 +1,13 @@
-import { User, Webinar } from '../../models';
+import { User } from '../../models';
 
-const Cryptr = require('cryptr');
-
-const { CRYPT_SECRET } = require('../../../keys/keys.json');
-const cryptr = new Cryptr(CRYPT_SECRET);
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
-import log from '../../helpers/logger';
-import sendPacket from '../../helpers/sendPacket';
+import {
+  log,
+  sendPacket,
+  convertEmailToToken,
+  convertTokenToEmail,
+} from '../../helpers/functions';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
@@ -203,19 +203,3 @@ export function sendExternalAdditionConfirmation(
 //       log('error', err);
 //     });
 // },
-
-function convertEmailToToken(emailAddress) {
-  let token = cryptr.encrypt(emailAddress);
-  return token;
-}
-
-function convertTokenToEmail(emailToken) {
-  let emailAddress;
-  try {
-    emailAddress = cryptr.decrypt(emailToken);
-    emailAddress = emailAddress.toString().toLowerCase();
-    return emailAddress;
-  } catch {
-    return null;
-  }
-}

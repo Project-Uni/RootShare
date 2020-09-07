@@ -1,6 +1,6 @@
 import axios from 'axios';
-import log from './logger';
-import { JWT_TOKEN_FIELDS } from '../types/types';
+import { log } from './logger';
+import { JWT_TOKEN_FIELDS } from '../types';
 
 type Config = {
   headers: {
@@ -21,7 +21,7 @@ function getServerPath(serverName: string) {
   else return 'ERROR';
 }
 
-export default function makeRequest(
+export function makeRequest(
   server: 'client' | 'balancer' | 'ranker' | 'webinarCache',
   route: String,
   method: 'GET' | 'POST' = 'GET',
