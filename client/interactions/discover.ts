@@ -1,20 +1,27 @@
-import { log, sendPacket } from '../helpers/functions';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User, Community } from '../models';
 
 const NUM_RETRIEVED = 20;
 
 export async function populateDiscoverForUser(userID: string) {
-  const numUsers = Math.floor(Math.random() * 10) + 5;
+  const numUsers = Math.floor(Math.random() * 4) + 12;
   const numCommunities = NUM_RETRIEVED - numUsers;
 
-  // const communitiesPromise = User.aggregate({ $match: { $not: {$in: {joinedCommunities: }} } });
   try {
     //getting connection ids for user
-    const { connections, pendingConnections, university } = await User.findById(
-      userID
-    )
-      .select(['connections', 'pendingConnections', 'university'])
+    const {
+      connections,
+      pendingConnections,
+      university,
+      joinedCommunities,
+    } = await User.findById(userID)
+      .select([
+        'connections',
+        'pendingConnections',
+        'university',
+        'joinedCommunities',
+      ])
       .exec();
 
     //Getting random sample of users that current user has not connected / requested to connect with
@@ -94,7 +101,46 @@ export async function populateDiscoverForUser(userID: string) {
     ]).exec();
 
     return Promise.all([communityPromise, userPromise])
-      .then(([communities, users]) => {
+      .then(async ([communities, users]) => {
+        //Cleaning users array
+        for (let i = 0; i < users.length; i++) {
+          //Calculating mutual connections and communities
+          const mutualConnections = connections.filter((connection) => {
+            return users[i].connections.indexOf(connection) !== -1;
+          });
+          const mutualCommunities = joinedCommunities.filter((community) => {
+            return users[i].joinedCommunities.indexOf(community) !== -1;
+          });
+
+          //Getting profile picture
+          let profilePicture = undefined;
+          if (users[i].profilePicture) {
+            try {
+              const signedImageURL = await retrieveSignedUrl(
+                'profile',
+                users[i].profilePicture
+              );
+              if (signedImageURL) profilePicture = signedImageURL;
+            } catch (err) {
+              log('error', err);
+            }
+          }
+
+          const cleanedUser = {
+            firstName: users[i].firstName,
+            lastName: users[i].lastName,
+            university: users[i].university,
+            work: users[i].work,
+            position: users[i].position,
+            graduationYear: users[i].graduationYear,
+            profilePicture: profilePicture,
+            numMutualConnections: mutualConnections.length,
+            numMutualCommunities: mutualCommunities.length,
+          };
+
+          users[i] = cleanedUser;
+        }
+
         return sendPacket(
           1,
           'Successfully retrieved users and communities for population',
