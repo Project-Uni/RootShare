@@ -144,22 +144,24 @@ function CommunityGeneralInfo(props: Props) {
     }
   }
 
+  function handleMemberClick(event: any) {
+    setMenuAnchorEl(event.currentTarget);
+  }
+
   async function handleLeaveClick() {
-    if (window.confirm('Are you sure you want to leave this community?')) {
-      const { data } = await makeRequest(
-        'POST',
-        `/api/community/${props.communityID}/leave`,
-        {},
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
-      if (data.success === 1) {
-        props.updateCommunityStatus(data.content['newStatus']);
-        updateMemberCount(-1);
-      } else {
-        alert('There was an error trying to leave the community');
-      }
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/leave`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+      updateMemberCount(-1);
+    } else {
+      alert('There was an error trying to leave the community');
     }
   }
 
@@ -233,13 +235,24 @@ function CommunityGeneralInfo(props: Props) {
       );
     else
       return (
-        <Button
-          size="large"
-          className={[styles.button, styles.joinedButton].join(' ')}
-          onClick={!props.isAdmin ? handleLeaveClick : undefined}
-        >
-          {props.isAdmin ? 'Admin' : 'Member'}
-        </Button>
+        <>
+          <Button
+            size="large"
+            className={[styles.button, styles.joinedButton].join(' ')}
+            onClick={!props.isAdmin ? handleMemberClick : undefined}
+          >
+            {props.isAdmin ? 'Admin' : 'Member'}
+          </Button>
+          {!props.isAdmin && (
+            <Menu
+              open={Boolean(menuAnchorEl)}
+              anchorEl={menuAnchorEl}
+              onClose={() => setMenuAnchorEl(null)}
+            >
+              <MenuItem onClick={handleLeaveClick}>Leave Community</MenuItem>
+            </Menu>
+          )}
+        </>
       );
   }
 
