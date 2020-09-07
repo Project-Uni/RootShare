@@ -61,6 +61,11 @@ const useStyles = makeStyles((_: any) => ({
   pendingStatus: {
     background: colors.secondaryText,
   },
+  nameHover: {
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -83,16 +88,27 @@ function CommunityOverview(props: Props) {
 
   function renderName() {
     return (
-      <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <RSText type="head" size={14} color={colors.second}>
-            {props.name}
-          </RSText>
-          {props.private && (
-            <FaLock color={colors.secondaryText} size={14} className={styles.lock} />
-          )}
-        </div>
-      </a>
+      <div style={{ display: 'inline-block' }}>
+        <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <RSText
+              type="head"
+              size={14}
+              color={colors.second}
+              className={styles.nameHover}
+            >
+              {props.name}
+            </RSText>
+            {props.private && (
+              <FaLock
+                color={colors.secondaryText}
+                size={14}
+                className={styles.lock}
+              />
+            )}
+          </div>
+        </a>
+      </div>
     );
   }
 
