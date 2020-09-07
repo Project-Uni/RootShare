@@ -1,9 +1,12 @@
+const mongoose = require('mongoose');
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { Community, User } from '../models';
 
 import { COMMUNITY_TYPE } from '../types/types';
+
+import { retrieveSignedUrl } from '../helpers/S3';
 
 export async function createNewCommunity(
   name: string,
@@ -88,9 +91,9 @@ export async function editCommunity(
   }
 }
 
-export async function getCommunityInformation(communityID: string) {
+export async function getCommunityInformation(communityID: string, userID: string) {
   try {
-    const community = await Community.findById(communityID, [
+    const communityPromise = Community.findById(communityID, [
       'name',
       'description',
       'admin',
@@ -105,13 +108,49 @@ export async function getCommunityInformation(communityID: string) {
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
-      });
+      })
+      .exec();
 
-    log(
-      'info',
-      `Successfully retrieved community information for ${community.name}`
-    );
-    return sendPacket(1, 'Successfully retrieved community', { community });
+    const userPromise = User.findById(userID)
+      .select('connections')
+      .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
+      .exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then(([community, user]) => {
+        //Calculating Mutual Connections
+        const connections = user['connections'].reduce((output, connection) => {
+          if (connection.accepted) {
+            const otherID =
+              connection['from'].toString() != userID.toString()
+                ? connection['from']
+                : connection['to'];
+
+            output.push(otherID.toString());
+          }
+          return output;
+        }, []);
+
+        const members = community.members.map((member) => member.toString());
+
+        const mutualConnections = members.filter((member) => {
+          if (connections.indexOf(member) !== -1) return true;
+          return false;
+        });
+
+        log(
+          'info',
+          `Successfully retrieved community information for ${community.name}`
+        );
+        return sendPacket(1, 'Successfully retrieved community', {
+          community,
+          mutualConnections,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -258,6 +297,180 @@ export async function joinCommunity(
         );
       }
     });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getAllPendingMembers(communityID: string) {
+  try {
+    const { pendingMembers } = await Community.findById(communityID)
+      .select(['pendingMembers'])
+      .populate({
+        path: 'pendingMembers',
+        select: ['_id', 'firstName', 'lastName', 'profilePicture'],
+      });
+
+    for (let i = 0; i < pendingMembers.length; i++) {
+      let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
+
+      try {
+        const user = await User.findById(pendingMembers[i]._id).select([
+          'profilePicture',
+        ]);
+        if (user.profilePicture) pictureFileName = user.profilePicture;
+      } catch (err) {
+        log('err', err);
+      }
+
+      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+      if (imageURL) {
+        pendingMembers[i].profilePicture = imageURL;
+      }
+    }
+
+    log(
+      'info',
+      `Successfully retrieved all pending members for community ${communityID}`
+    );
+
+    return sendPacket(1, 'Successfully retrieved all pending members', {
+      pendingMembers,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function rejectPendingMember(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { pendingCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `Rejected user ${userID} from community ${communityID}`);
+        return sendPacket(1, 'Successfully rejected pending request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function acceptPendingMember(communityID: string, userID: string) {
+  try {
+    const community = await Community.findOne({
+      _id: communityID,
+      pendingMembers: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+    });
+    if (!community) {
+      log(
+        'info',
+        `Could not find pending request for user ${userID} in ${communityID}`
+      );
+      return sendPacket(0, 'Could not find pending request for user in community');
+    }
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error');
+  }
+
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      {
+        $pull: { pendingCommunities: communityID },
+        $push: { joinedCommunities: communityID },
+      }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `Accepted user ${userID} into community ${communityID}`);
+        return sendPacket(1, 'Successfully accepted pending request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function leaveCommunity(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { members: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { joinedCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log('info', `User ${userID} left community ${communityID}`);
+        return sendPacket(1, 'Successfully left community', { newStatus: 'OPEN' });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export function cancelCommunityPendingRequest(communityID: string, userID: string) {
+  try {
+    const communityPromise = Community.updateOne(
+      { _id: communityID },
+      { $pull: { pendingMembers: userID } }
+    ).exec();
+
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $pull: { pendingCommunities: communityID } }
+    ).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then((values) => {
+        log(
+          'info',
+          `User ${userID} cancelled pending request for community ${communityID}`
+        );
+        return sendPacket(1, 'Successfully cancelled pending request', {
+          newStatus: 'OPEN',
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
