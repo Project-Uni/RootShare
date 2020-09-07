@@ -490,7 +490,7 @@ function ProfileHead(props: Props) {
           color={colors.second}
           className={styles.numbers}
         >
-          {numConnections} Connections
+          {numConnections || 0} Connections
         </RSText>
         {props.currentProfileState === 'SELF' || (
           <RSText
@@ -499,7 +499,7 @@ function ProfileHead(props: Props) {
             color={colors.second}
             className={styles.numbers}
           >
-            {props.numMutualConnections} Mutual
+            {props.numMutualConnections || 0} Mutual
           </RSText>
         )}
         <RSText
@@ -508,7 +508,7 @@ function ProfileHead(props: Props) {
           color={colors.second}
           className={styles.numbers}
         >
-          {props.numCommunities} Communities
+          {props.numCommunities || 0} Communities
         </RSText>
       </div>
     </div>
