@@ -40,7 +40,7 @@ module.exports = (app) => {
 
 export async function phasedEmergencyEmailRollout(subject: string, message: string) {
   const users = await User.find({}, ['email']).exec();
-  for (let i = 0; i < 1033; i++) {
+  for (let i = 0; i < users.length; i++) {
     const email = users[i].email;
     try {
       sendEmail(email, subject, message);
