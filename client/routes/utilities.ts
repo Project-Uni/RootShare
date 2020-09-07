@@ -17,24 +17,42 @@ module.exports = (app) => {
       res.json(packet);
     });
   });
+
+  //TODO - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
+  app.get('/api/emergency/dontUse/phasedEmail', async (req, res) => {
+    const subject = `RootShare Presents: Chris Kramer All-Access`;
+    const message = `
+      <h3>The Purdue Days, Basketball, and What Comes Next</h3>
+      <h4>Join us today, September 4th, at 7pm EST to get the inside scoop from one of Purdue's top basketball players in history. Hear from Chris Kramer on how he juggled academics, athletics and his faith on his journey to success.</h4>
+      <h3>Special Hosts: Chris Hartley & Robbie Hummel</h3>
+      <p>Kramer will be joined by former Boiler Ball players Chris Hartley
+      and Robbie Hummel for a night you won't want to miss!</p>
+      <p><b>Log into your Rootshare account to access the Live Event <a href='https://rootshare.io/event/5f502ef670f5ff2eaa1f8e9a'>here</a></b></p>
+      <p>Or visit https://rootshare.io/event/5f502ef670f5ff2eaa1f8e9a.</p>
+
+      <p>Thanks!</p>
+      <p><b>The RootShare Team</b></p>
+    `;
+    const response = await phasedEmergencyEmailRollout(subject, message);
+    return res.send(response);
+  });
 };
 
 export async function phasedEmergencyEmailRollout(subject: string, message: string) {
   const users = await User.find({}, ['email']).exec();
-  var i;
-  for (i = 0; i < users.length - (users.length % 25); i += 25) {
-    for (let j = i; j < i + 25; j++) {
-      const email = users[j].email;
+  for (let i = 0; i < 1033; i++) {
+    const email = users[i].email;
+    try {
       sendEmail(email, subject, message);
+    } catch (err) {
+      log('error', err);
     }
-    await sleep(2);
-  }
-  if (i < users.length) {
-    for (i; i < users.length; i++) {
-      const email = users[i].email;
-      sendEmail(email, subject, message);
+    if (i % 25 === 0) {
+      log('info', `Sent batch ${Math.ceil(i / 25)} of emergency emails`);
+      await sleep(2);
     }
   }
+  log('info', `Successfully sent email ${subject} to all users`);
   return true;
 }
 
