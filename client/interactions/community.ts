@@ -29,6 +29,11 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
+    const adminUpdate = await User.updateOne(
+      { _id: adminID },
+      { $push: { joinedCommunities: savedCommunity._id } }
+    ).exec();
+
     log('info', `Successfully created community ${name}`);
     return sendPacket(1, 'Successfully created new community', {
       community: savedCommunity,
