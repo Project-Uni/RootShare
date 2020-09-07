@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
-import { User, Connection, Webinar } from '../models';
+import { User, Connection, Webinar, Community } from '../models';
 
 import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
+
+import { retrieveSignedUrl } from '../helpers/S3';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -645,20 +647,49 @@ export async function getUserCommunities(userID: string) {
     const communitySelectFields = ['name', 'private', ''];
     console.log('UserID:', userID);
     const user = await User.findById(userID)
-      .select(['joinedCommunities', 'pendingCommunities'])
+      .select(['joinedCommunities', 'pendingCommunities', 'connections'])
       .exec();
-    // console.log('user:', user);
+
     const joinedCommunityIds = user['joinedCommunities'];
     const pendingCommunityIds = user['pendingCommunities'];
-    console.log(joinedCommunityIds);
-    console.log(pendingCommunityIds);
-    //   .populate({ path: 'joinCommunities', select: ['nam'] })
-    //   .populate({ path: 'pendingCommunities', select: [] });
-    // const user = await User.aggregate([
-    //   { $match: { _id: userID } },
-    //   { $project: { members: { $size: '$members' } } },
-    // ]);
-    return sendPacket(1, 'Test successful');
+
+    const joinedCommunitiesPromise = Community.aggregate([
+      { $match: { _id: { $in: joinedCommunityIds } } },
+      {
+        $project: {
+          members: { $size: '$members' },
+          type: '$type',
+          description: '$description',
+          name: '$name',
+          private: '$private',
+          profilePicture: '$profilePicture',
+        },
+      },
+    ]).exec();
+
+    const pendingCommunitiesPromise = Community.aggregate([
+      { $match: { _id: { $in: pendingCommunityIds } } },
+      {
+        $project: {
+          members: { $size: '$members' },
+          type: '$type',
+          description: '$description',
+          name: '$name',
+          private: '$private',
+          profilePicture: '$profilePicture',
+        },
+      },
+    ]).exec();
+
+    Promise.all([joinedCommunitiesPromise, pendingCommunitiesPromise])
+      .then(([joinedCommunities]) => {
+        console.log('Joined Communities:', joinedCommunities);
+        return sendPacket(1, 'Test successful');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
