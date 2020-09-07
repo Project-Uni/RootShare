@@ -187,8 +187,8 @@ function CommunityGeneralInfo(props: Props) {
     setShowPendingModal(false);
   }
 
-  function decreasePendingCount() {
-    setNumPending(numPending - 1);
+  function updatePendingCount(newNumPending: number) {
+    setNumPending(newNumPending);
   }
 
   function renderButton() {
@@ -230,7 +230,7 @@ function CommunityGeneralInfo(props: Props) {
         open={showPendingModal}
         communityID={props.communityID}
         handleClose={handlePendingModalClose}
-        decreasePendingCount={decreasePendingCount}
+        updatePendingCount={updatePendingCount}
       />
       <div className={styles.top}>
         <div className={styles.left}>

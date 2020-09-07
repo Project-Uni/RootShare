@@ -51,7 +51,7 @@ type Props = {
   open: boolean;
   communityID: string;
   handleClose: () => any;
-  decreasePendingCount: () => any;
+  updatePendingCount: (numPending: number) => any;
   accessToken: string;
   refreshToken: string;
 };
@@ -111,8 +111,8 @@ function PendingMembersModal(props: Props) {
         const newPending = pendingMembers.slice();
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
+        props.updatePendingCount(newPending.length);
       }
-      props.decreasePendingCount();
     }
   }
 
@@ -139,12 +139,14 @@ function PendingMembersModal(props: Props) {
         const newPending = pendingMembers.slice();
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
+        props.updatePendingCount(newPending.length);
       }
-      props.decreasePendingCount();
     }
   }
 
   function handleClose() {
+    props.updatePendingCount(pendingMembers.length);
+    setLoading(true);
     setPendingMembers([]);
     props.handleClose();
   }
@@ -211,7 +213,8 @@ function PendingMembersModal(props: Props) {
       >
         <div className={styles.top}>
           <RSText type="head" size={15} bold>
-            Pending Members
+            {!loading && pendingMembers.length} Pending Member
+            {pendingMembers.length !== 1 && 's'}
           </RSText>
           <IconButton onClick={handleClose} size="medium">
             X
