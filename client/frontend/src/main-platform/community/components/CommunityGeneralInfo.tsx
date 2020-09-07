@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Button, Menu, MenuItem } from '@material-ui/core';
 
-import { Button } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
 import { makeRequest } from '../../../helpers/functions';
@@ -9,6 +9,8 @@ import { makeRequest } from '../../../helpers/functions';
 import PendingMembersModal from './PendingMembersModal';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+
+import { CommunityStatus } from '../../../helpers/types/communityTypes';
 
 const MAX_DESC_LEN = 275;
 
@@ -86,7 +88,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
@@ -103,13 +105,16 @@ type Props = {
   isAdmin?: boolean;
   accessToken: string;
   refreshToken: string;
-  updateCommunityStatus: (newStatus: 'JOINED' | 'PENDING' | 'OPEN') => any;
+  updateCommunityStatus: (newStatus: CommunityStatus) => any;
 };
 
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [numPending, setNumPending] = useState(props.numPending);
+  const [numMembers, setNumMembers] = useState(props.numMembers);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
@@ -118,9 +123,10 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   async function handleJoinClick() {
+    setMenuAnchorEl(null);
     const { data } = await makeRequest(
-      'GET',
-      `/api/community/${props.communityID}/updateStatus/join`,
+      'POST',
+      `/api/community/${props.communityID}/join`,
       {},
       true,
       props.accessToken,
@@ -131,48 +137,54 @@ function CommunityGeneralInfo(props: Props) {
         'There was an error while trying to join this community. Please try again later.'
       );
     }
-    if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
-  }
-
-  async function handleLeaveClick() {
-    if (window.confirm('Are you sure you want to leave this community?')) {
-      const { data } = await makeRequest(
-        'GET',
-        `/api/community/${props.communityID}/leave`,
-        {},
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
-      if (data.success === 1) {
-        props.updateCommunityStatus(data.content['newStatus']);
-      } else {
-        alert('There was an error trying to leave the community');
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+      if (data.content['newStatus'] === 'JOINED') {
+        updateMemberCount(1);
       }
     }
   }
 
-  async function handlePendingButtonClick() {
-    if (
-      window.confirm(
-        'Are you sure you want to cancel your request to join the community?'
-      )
-    ) {
-      const { data } = await makeRequest(
-        'GET',
-        `/api/community/${props.communityID}/cancelPending`,
-        {},
-        true,
-        props.accessToken,
-        props.refreshToken
+  function handleMemberClick(event: any) {
+    setMenuAnchorEl(event.currentTarget);
+  }
+
+  async function handleLeaveClick() {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/leave`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+      updateMemberCount(-1);
+    } else {
+      alert('There was an error trying to leave the community');
+    }
+  }
+
+  async function handlePendingButtonClick(event: any) {
+    setMenuAnchorEl(event.currentTarget);
+  }
+
+  async function handleCancelPendingRequest() {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/cancelPending`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+    } else {
+      alert(
+        'There was an error trying to cancel the pending request. Please try again later'
       );
-      if (data.success === 1) {
-        props.updateCommunityStatus(data.content['newStatus']);
-      } else {
-        alert(
-          'There was an error trying to cancel the pending request. Please try again later'
-        );
-      }
     }
   }
 
@@ -182,6 +194,14 @@ function CommunityGeneralInfo(props: Props) {
 
   function handlePendingModalClose() {
     setShowPendingModal(false);
+  }
+
+  function updatePendingCount(newNumPending: number) {
+    setNumPending(newNumPending);
+  }
+
+  function updateMemberCount(value: 1 | -1) {
+    setNumMembers(numMembers + value);
   }
 
   function renderButton() {
@@ -197,23 +217,43 @@ function CommunityGeneralInfo(props: Props) {
       );
     else if (props.status === 'PENDING')
       return (
-        <Button
-          className={[styles.button, styles.pendingButton].join(' ')}
-          size="large"
-          onClick={handlePendingButtonClick}
-        >
-          Pending
-        </Button>
+        <>
+          <Button
+            className={[styles.button, styles.pendingButton].join(' ')}
+            size="large"
+            onClick={handlePendingButtonClick}
+          >
+            Pending
+          </Button>
+          <Menu
+            open={Boolean(menuAnchorEl)}
+            anchorEl={menuAnchorEl}
+            onClose={() => setMenuAnchorEl(null)}
+          >
+            <MenuItem onClick={handleCancelPendingRequest}>Cancel Request</MenuItem>
+          </Menu>
+        </>
       );
     else
       return (
-        <Button
-          size="large"
-          className={[styles.button, styles.joinedButton].join(' ')}
-          onClick={!props.isAdmin ? handleLeaveClick : undefined}
-        >
-          {props.isAdmin ? 'Admin' : 'Member'}
-        </Button>
+        <>
+          <Button
+            size="large"
+            className={[styles.button, styles.joinedButton].join(' ')}
+            onClick={!props.isAdmin ? handleMemberClick : undefined}
+          >
+            {props.isAdmin ? 'Admin' : 'Member'}
+          </Button>
+          {!props.isAdmin && (
+            <Menu
+              open={Boolean(menuAnchorEl)}
+              anchorEl={menuAnchorEl}
+              onClose={() => setMenuAnchorEl(null)}
+            >
+              <MenuItem onClick={handleLeaveClick}>Leave Community</MenuItem>
+            </Menu>
+          )}
+        </>
       );
   }
 
@@ -223,6 +263,8 @@ function CommunityGeneralInfo(props: Props) {
         open={showPendingModal}
         communityID={props.communityID}
         handleClose={handlePendingModalClose}
+        updatePendingCount={updatePendingCount}
+        updateMemberCount={updateMemberCount}
       />
       <div className={styles.top}>
         <div className={styles.left}>
@@ -243,7 +285,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.right}>
           {renderButton()}
           <RSText type="body" size={12} color={colors.second} bold>
-            {props.numMembers} Members
+            {numMembers} Members
           </RSText>
           {props.isAdmin && (
             <a
@@ -252,7 +294,7 @@ function CommunityGeneralInfo(props: Props) {
               className={styles.memberCountLink}
             >
               <RSText type="body" size={12} color={colors.second} bold>
-                {props.numPending} Pending
+                {numPending} Pending
               </RSText>
             </a>
           )}

@@ -111,15 +111,13 @@ export default function communityRoutes(app) {
     }
   );
 
-  app.get(
-    '/api/community/:communityID/updateStatus/:newStatus',
+  app.post(
+    '/api/community/:communityID/join',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { communityID, newStatus } = req.params;
-      if (newStatus === 'join') {
-        const packet = await joinCommunity(communityID, req.user._id);
-        return res.json(packet);
-      }
+      const { communityID } = req.params;
+      const packet = await joinCommunity(communityID, req.user._id);
+      return res.json(packet);
     }
   );
 
@@ -164,7 +162,7 @@ export default function communityRoutes(app) {
     }
   );
 
-  app.get(
+  app.post(
     '/api/community/:communityID/leave',
     isAuthenticatedWithJWT,
     async (req, res) => {
@@ -176,7 +174,7 @@ export default function communityRoutes(app) {
     }
   );
 
-  app.get(
+  app.post(
     '/api/community/:communityID/cancelPending',
     isAuthenticatedWithJWT,
     async (req, res) => {

@@ -15,7 +15,8 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
-import { Community } from '../../helpers/types';
+import { Community, CommunityStatus } from '../../helpers/types';
+import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -49,9 +50,7 @@ function CommunityDetails(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
-  const [communityStatus, setCommunityStatus] = useState<
-    'PENDING' | 'JOINED' | 'OPEN'
-  >('OPEN');
+  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>('OPEN');
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
@@ -122,8 +121,18 @@ function CommunityDetails(props: Props) {
     else setCommunityStatus('OPEN');
   }
 
-  function updateCommunityStatus(newStatus: 'OPEN' | 'JOINED' | 'PENDING') {
+  function updateCommunityStatus(newStatus: CommunityStatus) {
     setCommunityStatus(newStatus);
+  }
+
+  function renderInvalid() {
+    return (
+      <div style={{ marginTop: 30, marginLeft: 60, marginRight: 60 }}>
+        <RSText type="head" size={24} bold>
+          The community you are trying to reach does not exist.
+        </RSText>
+      </div>
+    );
   }
 
   return (
@@ -132,22 +141,26 @@ function CommunityDetails(props: Props) {
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
-        <CommunityBody
-          status={communityStatus}
-          name={(communityInfo as Community).name}
-          numMembers={(communityInfo as Community).members?.length || 0}
-          numPending={(communityInfo as Community).pendingMembers?.length || 0}
-          numMutual={mutualConnections.length}
-          type={(communityInfo as Community).type}
-          private={(communityInfo as Community).private}
-          description={(communityInfo as Community).description}
-          loading={loading}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
-          communityID={(communityInfo as Community)._id}
-          updateCommunityStatus={updateCommunityStatus}
-          isAdmin={isAdmin}
-        />
+        {showInvalid ? (
+          renderInvalid()
+        ) : (
+          <CommunityBody
+            status={communityStatus}
+            name={(communityInfo as Community).name}
+            numMembers={(communityInfo as Community).members?.length || 0}
+            numPending={(communityInfo as Community).pendingMembers?.length || 0}
+            numMutual={mutualConnections.length}
+            type={(communityInfo as Community).type}
+            private={(communityInfo as Community).private}
+            description={(communityInfo as Community).description}
+            loading={loading}
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
+            communityID={(communityInfo as Community)._id}
+            updateCommunityStatus={updateCommunityStatus}
+            isAdmin={isAdmin}
+          />
+        )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

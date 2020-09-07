@@ -24,3 +24,5 @@ export type Community = {
     | 'Student Organization'
     | 'Academic';
 };
+
+export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';
