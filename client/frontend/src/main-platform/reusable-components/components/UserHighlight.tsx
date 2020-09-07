@@ -89,7 +89,8 @@ function UserHighlight(props: Props) {
             </RSText>
           </a>
           <RSText type="subhead" size={12} color={colors.secondaryText}>
-            {props.university + ' ' + props.graduationYear}
+            {props.university}
+            {props.graduationYear ? ' ' + props.graduationYear : null}
           </RSText>
           <RSText
             type="subhead"

@@ -127,7 +127,7 @@ function ConnectionsBody(props: Props) {
 
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
-      const potential_MutualConnections = connections[i].connections.reduce(
+      const potentialMutualConnections = connections[i].connections.reduce(
         (
           extractedConnections: string[],
           connection: { from: string; to: string }
@@ -144,7 +144,7 @@ function ConnectionsBody(props: Props) {
         []
       );
       let mutualConnections = connectionIDs.filter((x: string) =>
-        potential_MutualConnections.includes(x)
+        potentialMutualConnections.includes(x)
       );
       let mutualCommunities = joinedCommunities.filter((x: string) =>
         connections[i].joinedCommunities.includes(x)
