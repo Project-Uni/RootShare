@@ -150,8 +150,8 @@ function YourCommunitiesBody(props: Props) {
   function renderCommunities() {
     return (
       <>
-        {renderJoinedCommunities()}
         {renderPendingCommunities()}
+        {renderJoinedCommunities()}
       </>
     );
   }
