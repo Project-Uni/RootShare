@@ -37,15 +37,11 @@ const useStyles = makeStyles((_: any) => ({
     height: 200,
   },
   profilePictureContainer: {
-    marginTop: 20,
+    marginTop: -88,
+    marginLeft: 50,
   },
   profilePicture: {
-    height: 175,
-    width: 175,
-    borderRadius: 100,
-    marginTop: -88,
     border: `8px solid ${colors.primaryText}`,
-    marginLeft: 50,
   },
   event: {
     marginTop: 0,
@@ -164,6 +160,7 @@ function ProfileBody(props: Props) {
           currentPicture={currentPicture}
           updateCurrentPicture={updateCurrentPicture}
           zoomOnClick={props.currentProfileState !== 'SELF'}
+          borderWidth={8}
         />
       </div>
     );
