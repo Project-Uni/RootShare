@@ -8,6 +8,7 @@ const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,
   secretAccessKey: AWSKeys.secretAccessKey,
   apiVersion: '2006-03-01',
+  signatureVersion: 'v4',
 });
 
 const BUCKET = 'rootshare-profile-images';

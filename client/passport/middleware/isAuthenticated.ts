@@ -24,6 +24,7 @@ export function isAuthenticatedWithJWT(req, res, next) {
   } catch {
     return res.json(sendPacket(-1, 'Invalid access token'));
   }
+
   //JWT Auth, checking if user info in request matches JWT
   for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++) {
     const tokenValue = user[JWT_TOKEN_FIELDS[i]].toString();

@@ -9,7 +9,7 @@ var webinarSchema = new Schema(
     host: { type: Schema.ObjectId, ref: 'users' },
     speakers: [{ type: Schema.ObjectId, ref: 'users' }],
     conversation: { type: Schema.ObjectId, ref: 'conversations' },
-    // attendees: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
+    RSVPs: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
     attendees: { type: {}, default: {} },
     dateTime: { type: Date },
     opentokSessionID: String,

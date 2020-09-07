@@ -52,7 +52,9 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      let pictureFileName = `${userID}_profile.jpeg`;
+      let pictureFileName = ``;
+      if (userID === 'user') pictureFileName = `${req.user._id}_profile.jpeg`;
+      else pictureFileName = `${userID}_profile.jpeg`;
 
       try {
         const user = await User.findById(userID);
