@@ -109,7 +109,7 @@ function SingleSuggestion(props: Props) {
       'POST',
       '/user/requestConnection',
       {
-        requestID: props.suggestedUser._id,
+        requestUserID: props.suggestedUser._id,
       },
       true,
       props.accessToken,

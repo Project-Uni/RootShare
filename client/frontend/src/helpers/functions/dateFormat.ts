@@ -16,6 +16,11 @@ export function formatDate(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 }
 
+export function formatDatePretty(date: Date) {
+  const monthName = monthDict[date.getMonth()];
+  return `${monthName} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
 export function getConversationTime(date: Date) {
   const now = new Date();
   const messageYear = date.getFullYear();
