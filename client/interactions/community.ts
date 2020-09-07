@@ -23,6 +23,7 @@ export async function createNewCommunity(
     type,
     private: isPrivate,
     admin: adminID,
+    members: [adminID],
   });
 
   try {
