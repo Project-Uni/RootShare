@@ -64,11 +64,13 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  userID: string;
   communityID: string;
   name: string;
   description: string;
   private?: boolean;
   type: CommunityType;
+  admin: string;
   memberCount: number;
   mutualMemberCount: number;
   profilePicture?: any;
@@ -150,7 +152,11 @@ function CommunityOverview(props: Props) {
               props.status === 'joined' ? styles.joinedStatus : styles.pendingStatus,
             ].join(' ')}
           >
-            {props.status === 'joined' ? 'MEMBER' : 'PENDING'}
+            {props.status === 'pending'
+              ? 'PENDING'
+              : props.admin === props.userID
+              ? 'ADMIN'
+              : 'MEMBER'}
           </RSText>
         </div>
 

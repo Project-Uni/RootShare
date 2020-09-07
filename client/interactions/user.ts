@@ -827,6 +827,7 @@ export async function getUserCommunities(userID: string) {
       'members',
       'type',
       'profilePicture',
+      'admin',
     ];
 
     const user = await User.findById(userID)
@@ -871,6 +872,7 @@ export async function getUserCommunities(userID: string) {
         description: joinedCommunities[i].description,
         private: joinedCommunities[i].private,
         type: joinedCommunities[i].type,
+        admin: joinedCommunities[i].admin,
         profilePicture: joinedCommunities[i].profilePicture,
         numMembers: joinedCommunities[i].members.length,
         numMutual: mutualConnections.length,
@@ -905,6 +907,7 @@ export async function getUserCommunities(userID: string) {
         description: pendingCommunities[i].description,
         private: pendingCommunities[i].private,
         type: pendingCommunities[i].type,
+        admin: pendingCommunities[i].admin,
         profilePicture: pendingCommunities[i].profilePicture,
         numMembers: pendingCommunities[i].members.length,
         numMutual: mutualConnections.length,

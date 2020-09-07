@@ -51,6 +51,7 @@ type YourCommunities_Community = {
   description: string;
   private: boolean;
   type: CommunityType;
+  admin: string;
   profilePicture?: string;
   numMembers: number;
   numMutual: number;
@@ -110,12 +111,14 @@ function YourCommunitiesBody(props: Props) {
     for (let i = 0; i < joinedCommunities.length; i++) {
       output.push(
         <CommunityOverview
+          userID={props.user._id}
           communityID={joinedCommunities[i]._id}
           name={joinedCommunities[i].name}
           private={joinedCommunities[i].private}
           style={styles.singleCommunity}
           description={joinedCommunities[i].description}
           type={joinedCommunities[i].type}
+          admin={joinedCommunities[i].admin}
           memberCount={joinedCommunities[i].numMembers}
           mutualMemberCount={joinedCommunities[i].numMutual}
           profilePicture={joinedCommunities[i].profilePicture}
@@ -131,12 +134,14 @@ function YourCommunitiesBody(props: Props) {
     for (let i = 0; i < pendingCommunities.length; i++) {
       output.push(
         <CommunityOverview
+          userID={props.user._id}
           communityID={pendingCommunities[i]._id}
           name={pendingCommunities[i].name}
           private={pendingCommunities[i].private}
           style={styles.singleCommunity}
           description={pendingCommunities[i].description}
           type={pendingCommunities[i].type}
+          admin={joinedCommunities[i].admin}
           memberCount={pendingCommunities[i].numMembers}
           mutualMemberCount={pendingCommunities[i].numMutual}
           profilePicture={pendingCommunities[i].profilePicture}
