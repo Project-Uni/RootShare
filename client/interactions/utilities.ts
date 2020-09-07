@@ -35,7 +35,7 @@ export function getUserData(callback) {
   );
 }
 
-export function countAccountType(users) {
+function countAccountType(users) {
   const accountTypes = ['student', 'alumni', 'faculty', 'fan'];
   let accountCounts = [0, 0, 0, 0];
   const numTypes = accountTypes.length;
@@ -62,4 +62,20 @@ export function countAccountType(users) {
   }
 
   return retCounts;
+}
+
+export function extractOtherUserIDFromConnections(
+  userID,
+  connectionsDBArray: [{ [key: string]: any; from: string; to: string }]
+): string[] {
+  const connections = connectionsDBArray.reduce((output, connection) => {
+    const otherID =
+      connection['from'].toString() != userID.toString()
+        ? connection['from']
+        : connection['to'];
+
+    output.push(otherID.toString());
+    return output;
+  }, []);
+  return connections;
 }

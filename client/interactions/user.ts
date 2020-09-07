@@ -5,6 +5,7 @@ import sendPacket from '../helpers/sendPacket';
 import log from '../helpers/logger';
 
 import { retrieveSignedUrl } from '../helpers/S3';
+import { extractOtherUserIDFromConnections } from './utilities';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -648,10 +649,20 @@ export async function getUserCommunities(userID: string) {
     console.log('UserID:', userID);
     const user = await User.findById(userID)
       .select(['joinedCommunities', 'pendingCommunities', 'connections'])
+      .populate({ path: 'connections', select: ['from', 'to'] })
       .exec();
+
+    if (!user) return sendPacket(0, `Could find user with id ${userID}`);
 
     const joinedCommunityIds = user['joinedCommunities'];
     const pendingCommunityIds = user['pendingCommunities'];
+
+    const connections = extractOtherUserIDFromConnections(
+      userID,
+      user['connections']
+    );
+
+    console.log('Connections:', connections);
 
     const joinedCommunitiesPromise = Community.aggregate([
       { $match: { _id: { $in: joinedCommunityIds } } },
