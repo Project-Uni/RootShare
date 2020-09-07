@@ -18,7 +18,7 @@ module.exports = (app) => {
     });
   });
 
-  //TODO - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
+  //NOTE - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
   app.get('/api/emergency/dontUse/phasedEmail', async (req, res) => {
     const subject = `RootShare Presents: Chris Kramer All-Access`;
     const message = `
