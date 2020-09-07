@@ -113,6 +113,7 @@ function CommunityGeneralInfo(props: Props) {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
+  const [numMembers, setNumMembers] = useState(props.numMembers);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
@@ -122,8 +123,8 @@ function CommunityGeneralInfo(props: Props) {
 
   async function handleJoinClick() {
     const { data } = await makeRequest(
-      'GET',
-      `/api/community/${props.communityID}/updateStatus/join`,
+      'POST',
+      `/api/community/${props.communityID}/join`,
       {},
       true,
       props.accessToken,
@@ -134,13 +135,18 @@ function CommunityGeneralInfo(props: Props) {
         'There was an error while trying to join this community. Please try again later.'
       );
     }
-    if (data.success === 1) props.updateCommunityStatus(data.content['newStatus']);
+    if (data.success === 1) {
+      props.updateCommunityStatus(data.content['newStatus']);
+      if (data.content['newStatus'] === 'JOINED') {
+        updateMemberCount(1);
+      }
+    }
   }
 
   async function handleLeaveClick() {
     if (window.confirm('Are you sure you want to leave this community?')) {
       const { data } = await makeRequest(
-        'GET',
+        'POST',
         `/api/community/${props.communityID}/leave`,
         {},
         true,
@@ -149,6 +155,7 @@ function CommunityGeneralInfo(props: Props) {
       );
       if (data.success === 1) {
         props.updateCommunityStatus(data.content['newStatus']);
+        updateMemberCount(-1);
       } else {
         alert('There was an error trying to leave the community');
       }
@@ -162,7 +169,7 @@ function CommunityGeneralInfo(props: Props) {
       )
     ) {
       const { data } = await makeRequest(
-        'GET',
+        'POST',
         `/api/community/${props.communityID}/cancelPending`,
         {},
         true,
@@ -189,6 +196,10 @@ function CommunityGeneralInfo(props: Props) {
 
   function updatePendingCount(newNumPending: number) {
     setNumPending(newNumPending);
+  }
+
+  function updateMemberCount(value: 1 | -1) {
+    setNumMembers(numMembers + value);
   }
 
   function renderButton() {
@@ -231,6 +242,7 @@ function CommunityGeneralInfo(props: Props) {
         communityID={props.communityID}
         handleClose={handlePendingModalClose}
         updatePendingCount={updatePendingCount}
+        updateMemberCount={updateMemberCount}
       />
       <div className={styles.top}>
         <div className={styles.left}>
@@ -251,7 +263,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.right}>
           {renderButton()}
           <RSText type="body" size={12} color={colors.second} bold>
-            {props.numMembers} Members
+            {numMembers} Members
           </RSText>
           {props.isAdmin && (
             <a

@@ -52,6 +52,7 @@ type Props = {
   communityID: string;
   handleClose: () => any;
   updatePendingCount: (numPending: number) => any;
+  updateMemberCount: (value: 1 | -1) => any;
   accessToken: string;
   refreshToken: string;
 };
@@ -112,6 +113,7 @@ function PendingMembersModal(props: Props) {
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
         props.updatePendingCount(newPending.length);
+        props.updateMemberCount(1);
       }
     }
   }
@@ -191,6 +193,7 @@ function PendingMembersModal(props: Props) {
           className={styles.singleMember}
           onAccept={handleAcceptUser}
           onReject={handleRejectUser}
+          key={pendingMembers[i]._id}
         />
       );
     }
