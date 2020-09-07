@@ -639,3 +639,28 @@ export async function updateAttendingList(
     return callback(sendPacket(0, 'Error retrieving user or webinar'));
   }
 }
+
+export async function getUserCommunities(userID: string) {
+  try {
+    const communitySelectFields = ['name', 'private', ''];
+    console.log('UserID:', userID);
+    const user = await User.findById(userID)
+      .select(['joinedCommunities', 'pendingCommunities'])
+      .exec();
+    // console.log('user:', user);
+    const joinedCommunityIds = user['joinedCommunities'];
+    const pendingCommunityIds = user['pendingCommunities'];
+    console.log(joinedCommunityIds);
+    console.log(pendingCommunityIds);
+    //   .populate({ path: 'joinCommunities', select: ['nam'] })
+    //   .populate({ path: 'pendingCommunities', select: [] });
+    // const user = await User.aggregate([
+    //   { $match: { _id: userID } },
+    //   { $project: { members: { $size: '$members' } } },
+    // ]);
+    return sendPacket(1, 'Test successful');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

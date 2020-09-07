@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { connect } from 'react-redux';
+
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
+import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 
@@ -34,7 +37,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
@@ -50,7 +57,14 @@ function YourCommunitiesBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.user._id}/communities/all`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
   }
 
   function handleResize() {
@@ -95,4 +109,16 @@ function YourCommunitiesBody(props: Props) {
   );
 }
 
-export default YourCommunitiesBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(YourCommunitiesBody);
