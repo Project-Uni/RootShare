@@ -7,16 +7,16 @@ import { CSVDownload } from 'react-csv';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import RootShareLogoFull from '../images/RootShareLogoFull.png';
+import RootShareLogoFull from '../../images/RootShareLogoFull.png';
 
-import HypeHeader from '../hype-page/headerFooter/HypeHeader';
-import RSText from '../base-components/RSText';
+import HypeHeader from '../../hype-page/headerFooter/HypeHeader';
+import RSText from '../../base-components/RSText';
 import AccountTypePieChart from './AccountTypePieChart';
 
-import { updateUser } from '../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/functions';
-import { colors } from '../theme/Colors';
+import { updateUser } from '../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { makeRequest } from '../../helpers/functions';
+import { colors } from '../../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;
 
