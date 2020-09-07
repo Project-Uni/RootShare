@@ -316,10 +316,8 @@ export async function getAllPendingMembers(communityID: string) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
       try {
-        const user = await User.findById(pendingMembers[i]._id).select([
-          'profilePicture',
-        ]);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
+        if (pendingMembers[i].profilePicture)
+          pictureFileName = pendingMembers[i].profilePicture;
       } catch (err) {
         log('err', err);
       }
