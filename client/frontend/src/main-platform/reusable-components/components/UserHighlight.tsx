@@ -97,7 +97,8 @@ function UserHighlight(props: Props) {
             color={colors.secondaryText}
             className={styles.name}
           >
-            {props.position + ', ' + props.company}
+            {props.position ? props.position : null}
+            {props.company ? ', ' + props.company : null}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
             {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}

@@ -88,7 +88,6 @@ function ConnectionsBody(props: Props) {
       setConnectionIDs(data.content['connectionIDs']);
       setJoinedCommunities(data.content['joinedCommunities']);
     }
-    console.log(data);
   }
 
   function handleResize() {
@@ -128,7 +127,7 @@ function ConnectionsBody(props: Props) {
 
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
-      const connectionIDs_2 = connections[i].connections.reduce(
+      const potential_mutualConnections = connections[i].connections.reduce(
         (
           extractedConnections: string[],
           connection: { from: string; to: string }
@@ -145,7 +144,7 @@ function ConnectionsBody(props: Props) {
         []
       );
       let mutualConnections = connectionIDs.filter((x: string) =>
-        connectionIDs_2.includes(x)
+        potential_mutualConnections.includes(x)
       );
       let mutualCommunities = joinedCommunities.filter((x: string) =>
         connections[i].joinedCommunities.includes(x)
