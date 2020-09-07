@@ -110,7 +110,7 @@ function EventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [transition, setTransition] = useState<any>();
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarMode, setSnackbarMode] = useState<

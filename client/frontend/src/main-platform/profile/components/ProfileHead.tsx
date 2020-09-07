@@ -150,7 +150,7 @@ function ProfileHead(props: Props) {
 
   const [hoverBio, setHoverBio] = useState(false);
   const [editBio, setEditBio] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const [originalBio, setOriginalBio] = useState(props.bio);
   const [updatedBio, setUpdatedBio] = useState('');
