@@ -70,6 +70,7 @@ function UserHighlight(props: Props) {
       <div className={styles.left}>
         <a href={`/profile/${props.userID}`}>
           <ProfilePicture
+            type="profile"
             currentPicture={props.profilePic}
             height={70}
             width={70}
