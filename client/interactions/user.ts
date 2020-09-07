@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
 
-import { log, sendPacket } from '../helpers/functions';
-
-import { retrieveSignedUrl } from '../helpers/S3';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));

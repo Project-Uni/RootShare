@@ -1,10 +1,9 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import log from '../helpers/logger';
-import sendPacket from '../helpers/sendPacket';
+import { log, sendPacket } from '../helpers/functions';
+
 const { GITHUB_OAUTH } = require('../../keys/keys.json');
 
 import { request } from '@octokit/request';
-
 import { Express } from 'express';
 
 const PROJECT_OWNER = 'Project-Uni';
