@@ -37,7 +37,7 @@ module.exports = (app) => {
   });
 
   app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
-    let userID = req.params.userID;
+    let { userID } = req.params;
     if (userID === 'user') userID = req.user._id;
     getUserEvents(userID, (packet) => res.json(packet));
   });

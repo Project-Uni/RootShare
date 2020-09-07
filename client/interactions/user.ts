@@ -220,15 +220,10 @@ export function updateProfileInformation(userID, profileData, callback) {
 }
 
 export function updateUserBio(userID, newBio, callback) {
-  User.findById(userID, ['bio'], (err, user) => {
+  User.updateOne({ _id: userID }, { bio: newBio }, (err, update) => {
     if (err) return callback(sendPacket(-1, err));
-    if (!user) return callback(sendPacket(0, 'Could not find User'));
-
-    user.bio = newBio;
-    user.save((err) => {
-      if (err) return callback(sendPacket(-1, err));
-      return callback(sendPacket(1, "Updated user's bio"));
-    });
+    if (update.n === 0) return callback(sendPacket(0, 'Could not find User'));
+    return callback(sendPacket(1, "Updated user's bio"));
   });
 }
 
