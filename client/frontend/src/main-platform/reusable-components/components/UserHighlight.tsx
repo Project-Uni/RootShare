@@ -5,6 +5,8 @@ import { Button } from '@material-ui/core';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -20,9 +22,9 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    height: 70,
-    width: 70,
-    borderRadius: 50,
+    // height: 70,
+    // width: 70,
+    // borderRadius: 50,
     border: `1px solid ${colors.primaryText}`,
   },
   connectButton: {
@@ -49,7 +51,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   style?: any;
   userID: string;
-  profilePic: any;
+  profilePic?: any;
   name: string;
   university: string;
   graduationYear: number;
@@ -62,11 +64,19 @@ type Props = {
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
+
   return (
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div className={styles.left}>
         <a href={`/profile/${props.userID}`}>
-          <img src={props.profilePic} className={styles.profilePic} />
+          <ProfilePicture
+            type="profile"
+            currentPicture={props.profilePic}
+            height={70}
+            width={70}
+            borderRadius={50}
+            className={styles.profilePic}
+          />
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
@@ -80,7 +90,8 @@ function UserHighlight(props: Props) {
             </RSText>
           </a>
           <RSText type="subhead" size={12} color={colors.secondaryText}>
-            {props.university + ' ' + props.graduationYear}
+            {props.university}
+            {props.graduationYear ? ' ' + props.graduationYear : null}
           </RSText>
           <RSText
             type="subhead"
@@ -88,7 +99,9 @@ function UserHighlight(props: Props) {
             color={colors.secondaryText}
             className={styles.name}
           >
-            {props.position + ', ' + props.company}
+            {props.position ? props.position : null}
+            {props.position && props.company ? ', ' : null}
+            {props.company ? props.company : null}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
             {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
