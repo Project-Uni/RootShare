@@ -60,7 +60,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     background: colors.secondary,
   },
-  selfBioContainer: {
+  selfBioWrapper: {
     display: 'flex',
     marginTop: 7,
     '&:hover': {
@@ -415,9 +415,11 @@ function ProfileHead(props: Props) {
   }
 
   function renderSelfBio() {
+    const showIcon =
+      hoverBio || !originalBio || originalBio.length === 0 ? 'visible' : 'hidden';
     return (
       <div
-        className={styles.selfBioContainer}
+        className={styles.selfBioWrapper}
         onMouseEnter={handleMouseOver}
         onMouseLeave={handleMouseLeave}
         onClick={startEditingBio}
@@ -430,10 +432,11 @@ function ProfileHead(props: Props) {
         >
           {originalBio}
         </RSText>
-
-        {(hoverBio || !originalBio || originalBio.length === 0) && (
-          <CreateIcon fontSize="small" className={styles.editIcon} />
-        )}
+        <CreateIcon
+          fontSize="small"
+          className={styles.editIcon}
+          style={{ visibility: showIcon }}
+        />
       </div>
     );
   }
@@ -452,11 +455,14 @@ function ProfileHead(props: Props) {
         <RSText type="head" size={24} bold color={colors.second}>
           {props.name}
         </RSText>
+        {props.university && (
+          <RSText type="subhead" size={14} color={colors.secondaryText}>
+            {`${props.university} ${props.graduationYear || ''}`}
+          </RSText>
+        )}
         <RSText type="subhead" size={14} color={colors.secondaryText}>
-          {props.university + ' ' + props.graduationYear}
-        </RSText>
-        <RSText type="subhead" size={14} color={colors.secondaryText}>
-          {props.position + ', ' + props.company}
+          {`${(props.position && `${props.position}, `) || ''} ${props.company ||
+            ''}`}
         </RSText>
         {editBio ? (
           <div className={styles.bioEditContainer}>

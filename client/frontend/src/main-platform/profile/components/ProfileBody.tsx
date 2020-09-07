@@ -261,7 +261,7 @@ function ProfileBody(props: Props) {
             company={profile.work}
             bio={profile.bio}
             numConnections={profile.numConnections!}
-            numMutualConnections={profile.numMutual}
+            numMutualConnections={profile.numMutual!}
             numCommunities={profile.numCommunities!}
             currentProfileState={props.currentProfileState}
             accessToken={props.accessToken}
