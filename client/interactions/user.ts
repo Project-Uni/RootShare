@@ -645,6 +645,7 @@ export async function updateAttendingList(
 
 export async function getUserCommunities(userID: string) {
   try {
+    //Getting correct values from database
     const communitySelectFields = [
       'name',
       'description',
@@ -663,15 +664,13 @@ export async function getUserCommunities(userID: string) {
 
     if (!user) return sendPacket(0, `Could find user with id ${userID}`);
 
-    // const joinedCommunityIds = user['joinedCommunities'];
-    // const pendingCommunityIds = user['pendingCommunities'];
-
     const { joinedCommunities, pendingCommunities } = user;
     const connections = extractOtherUserIDFromConnections(
       userID,
       user['connections']
     );
 
+    //Cleaning up joined and pending communities
     for (let i = 0; i < joinedCommunities.length; i++) {
       //Updating Profile Picture
       if (joinedCommunities[i].profilePicture) {
@@ -697,9 +696,9 @@ export async function getUserCommunities(userID: string) {
         description: joinedCommunities[i].description,
         private: joinedCommunities[i].private,
         type: joinedCommunities[i].type,
-        numMutual: mutualConnections.length,
-        numMembers: joinedCommunities[i].members.length,
         profilePicture: joinedCommunities[i].profilePicture,
+        numMembers: joinedCommunities[i].members.length,
+        numMutual: mutualConnections.length,
       };
 
       joinedCommunities[i] = cleanedCommunity;
@@ -725,10 +724,17 @@ export async function getUserCommunities(userID: string) {
         return pendingCommunities[i].members.indexOf(connection) !== -1;
       });
 
-      pendingCommunities[i].numMutual = mutualConnections.length;
-      pendingCommunities[i].numMembers = pendingCommunities[i].members.length;
+      const cleanedCommunity = {
+        name: pendingCommunities[i].name,
+        description: pendingCommunities[i].description,
+        private: pendingCommunities[i].private,
+        type: pendingCommunities[i].type,
+        profilePicture: pendingCommunities[i].profilePicture,
+        numMembers: pendingCommunities[i].members.length,
+        numMutual: mutualConnections.length,
+      };
 
-      console.log('Updated Pending Community:', pendingCommunities[i]);
+      pendingCommunities[i] = cleanedCommunity;
     }
 
     return sendPacket(
@@ -736,45 +742,6 @@ export async function getUserCommunities(userID: string) {
       'Successfully retrieved all joined and pending communities.',
       { joinedCommunities, pendingCommunities }
     );
-
-    // const joinedCommunitiesPromise = Community.aggregate([
-    //   { $match: { _id: { $in: joinedCommunityIds } } },
-    //   {
-    //     $project: {
-    //       members: { $size: '$members' },
-    //       type: '$type',
-    //       description: '$description',
-    //       name: '$name',
-    //       private: '$private',
-    //       profilePicture: '$profilePicture',
-    //     },
-    //   },
-    // ]).exec();
-
-    // const pendingCommunitiesPromise = Community.aggregate([
-    //   { $match: { _id: { $in: pendingCommunityIds } } },
-    //   {
-    //     $project: {
-    //       members: { $size: '$members' },
-    //       type: '$type',
-    //       description: '$description',
-    //       name: '$name',
-    //       private: '$private',
-    //       profilePicture: '$profilePicture',
-    //     },
-    //   },
-    // ]).exec();
-
-    // Promise.all([joinedCommunitiesPromise, pendingCommunitiesPromise])
-    //   .then(([joinedCommunities]) => {
-    //     console.log('Joined Communities:', joinedCommunities);
-    //     return sendPacket(1, 'Test successful');
-    //   })
-    //   .catch((err) => {
-    //     log('error', err);
-    //     return sendPacket(-1, err);
-    //   });
-    // return sendPacket(1, 'true');
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
