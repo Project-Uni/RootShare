@@ -123,6 +123,7 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   async function handleJoinClick() {
+    setMenuAnchorEl(null);
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/join`,
