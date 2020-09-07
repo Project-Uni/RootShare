@@ -12,6 +12,7 @@ import { rateLimiter } from './middleware';
 
 import communityRoutes from './routes/community';
 import feedbackRoutes from './routes/feedback';
+import discoverRoutes from './routes/discover';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -70,6 +71,7 @@ require('./routes/images')(app);
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
 communityRoutes(app);
 feedbackRoutes(app);
+discoverRoutes(app);
 
 require('./config/setup')(passport);
 

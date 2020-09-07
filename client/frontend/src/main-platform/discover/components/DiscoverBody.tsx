@@ -5,6 +5,8 @@ import { TextField, IconButton } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
+import { connect } from 'react-redux';
+
 import { colors } from '../../../theme/Colors';
 import {
   WelcomeMessage,
@@ -13,7 +15,7 @@ import {
 } from '../../reusable-components';
 import { ReniHeadshot } from '../../../images/team';
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
-import { ColorFillDimensions } from '@styled-icons/boxicons-solid/ColorFill';
+import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 
@@ -47,7 +49,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 function DiscoverBody(props: Props) {
   const styles = useStyles();
@@ -64,7 +69,15 @@ function DiscoverBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'GET',
+      '/api/discover/populate',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    console.log('Data:', data);
   }
 
   function handleResize() {
@@ -179,4 +192,15 @@ function DiscoverBody(props: Props) {
   );
 }
 
-export default DiscoverBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DiscoverBody);
