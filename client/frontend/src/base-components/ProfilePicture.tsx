@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
 import {
   Dialog,
@@ -87,6 +88,7 @@ function ProfilePicture(props: Props) {
   const [croppedImageURL, setCroppedImageURL] = useState<string>();
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -105,8 +107,12 @@ function ProfilePicture(props: Props) {
     setHovering(false);
   }
 
-  function handleImageClick() {
+  function handleSelfImageClick() {
     fileUploader.current?.click();
+  }
+
+  function handleOtherImageClick() {
+    if (props.currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -194,7 +200,7 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={props.editable ? handleImageClick : undefined}
+          onClick={props.editable ? handleSelfImageClick : handleOtherImageClick}
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -208,7 +214,7 @@ function ProfilePicture(props: Props) {
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
-              onClick={props.editable ? handleImageClick : undefined}
+              onClick={props.editable ? handleSelfImageClick : undefined}
             />
           )}
         </div>
@@ -220,6 +226,13 @@ function ProfilePicture(props: Props) {
           accept="image/x-png, image/jpeg"
           onChange={handleImageUpload}
         />
+        <ModalGateway>
+          {isViewerOpen && (
+            <Modal onClose={() => setIsViewerOpen(false)}>
+              <Carousel views={[{ source: props.currentPicture }]} />
+            </Modal>
+          )}
+        </ModalGateway>
       </div>
     );
   }

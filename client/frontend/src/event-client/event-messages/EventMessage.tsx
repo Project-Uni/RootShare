@@ -110,14 +110,13 @@ function EventMessage(props: Props) {
   const styles = useStyles();
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [transition, setTransition] = useState<any>();
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarMode, setSnackbarMode] = useState<
     'success' | 'error' | 'notify' | null
   >(null);
   const [loadingLike, setLoadingLike] = useState(false);
-  const open = Boolean(anchorEl);
 
   const menuOpen = Boolean(anchorEl);
 
@@ -171,7 +170,7 @@ function EventMessage(props: Props) {
       'POST',
       '/user/requestConnection',
       {
-        requestID: props.message.sender as string,
+        requestUserID: props.message.sender as string,
       },
       true,
       props.accessToken,

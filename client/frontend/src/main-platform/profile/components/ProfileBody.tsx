@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { WelcomeMessage, UserPost } from '../../reusable-components';
-import { DhruvHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
-const HEADER_HEIGHT = 60;
+import {
+  UserType,
+  UniversityType,
+  EventType,
+  ProfileState,
+} from '../../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
+
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
+  },
+  profileWrapper: {
     background: colors.primaryText,
     overflow: 'scroll',
     borderLeft: `1px solid ${colors.fourth}`,
@@ -22,6 +35,9 @@ const useStyles = makeStyles((_: any) => ({
   coverPhoto: {
     background: colors.bright,
     height: 200,
+  },
+  profilePictureContainer: {
+    marginTop: 20,
   },
   profilePicture: {
     height: 175,
@@ -35,17 +51,18 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 0,
     marginLeft: 39,
     marginRight: 0,
-    borderTop: `1px solid ${colors.fourth}`,
+    borderTop: `1px solid #c5c5c5`,
   },
   post: {
-    // marginTop: 1,
     borderBottom: `1px solid ${colors.fourth}`,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10,
-    background: colors.primaryText,
+    paddingTop: 15,
+    paddingBottom: 15,
+    background: colors.secondary,
     borderBottom: `1px solid ${colors.fourth}`,
     borderTop: `1px solid ${colors.fourth}`,
   },
@@ -53,53 +70,139 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   profileID: string;
+  currentProfileState: ProfileState;
+  accessToken: string;
+  refreshToken: string;
+  updateProfileState: () => void;
 };
 
 function ProfileBody(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const [currentPicture, setCurrentPicture] = useState<string>();
+  const [profileState, setProfileState] = useState<UserType>();
+  const [events, setEvents] = useState<EventType[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [fetchingErr, setFetchingErr] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
-      setLoading(false);
-    });
   }, []);
 
-  async function fetchData() {
-    console.log('Fetching data');
+  useEffect(() => {
+    if (props.profileID) {
+      fetchProfile();
+      getCurrentProfilePicture();
+      fetchEvents();
+    }
+  }, [props.profileID]);
+
+  async function fetchProfile() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/profile/${props.profileID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setProfileState(data['content']['user']);
+    else setFetchingErr(true);
+    setLoading(false);
   }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
+  //TODO - Update With New Profile Picture API Route after merging in communities PR
+  async function getCurrentProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/profile/${props.profileID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
+  }
+
+  async function fetchEvents() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/events/${props.profileID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setEvents(data['content']['events']);
+  }
+
+  function updateCurrentPicture(imageData: string) {
+    setCurrentPicture(imageData);
   }
 
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
-        <img src={DhruvHeadshot} className={styles.profilePicture} />
+        <ProfilePicture
+          type="profile"
+          className={styles.profilePictureContainer}
+          pictureStyle={styles.profilePicture}
+          editable={props.currentProfileState === 'SELF'}
+          height={150}
+          width={150}
+          borderRadius={150}
+          currentPicture={currentPicture}
+          updateCurrentPicture={updateCurrentPicture}
+        />
       </div>
     );
   }
 
+  function removeEvent(eventID: string) {
+    let removeIndex = -1;
+    for (let i = 0; i < events.length; i++) {
+      if (events[i]._id === eventID) {
+        removeIndex = i;
+        break;
+      }
+    }
+
+    if (removeIndex !== -1)
+      setEvents((prevEvents) => {
+        let newEvents = prevEvents.slice();
+        newEvents.splice(removeIndex, 1);
+        return newEvents;
+      });
+  }
+
   function renderRegisteredEvents() {
-    const output = [];
-    for (let i = 0; i < 4; i++)
+    const output: any = [];
+
+    events.forEach((event) => {
       output.push(
         <ProfileEvent
-          title="The Baby Boilers Are Back"
-          date="Aug 14, 2020"
-          participationType="SPEAKER"
+          key={event._id}
+          profileID={(profileState as UserType)._id}
+          event={event}
           style={styles.event}
+          currentProfileState={props.currentProfileState}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
+          removeEvent={removeEvent}
         />
       );
+    });
+
     return (
       <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
     );
@@ -112,7 +215,7 @@ function ProfileBody(props: Props) {
         <UserPost
           userID={'testID'}
           userName="Dhruv Patel"
-          profilePicture={DhruvHeadshot}
+          profilePicture={currentPicture}
           timestamp="July 14th, 2020 6:52 PM"
           message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
           likeCount={109}
@@ -134,45 +237,77 @@ function ProfileBody(props: Props) {
     );
   }
 
+  function renderProfile() {
+    const profile = profileState as UserType;
+    const university = profile.university as UniversityType;
+
+    return (
+      <div className={styles.profileWrapper} style={{ height: height }}>
+        {/* {showWelcomeModal && (
+          <WelcomeMessage
+            title="Profile"
+            message="See detailed information about each user, what organizations they have joined, and what virtual events they will attend."
+            onClose={closeWelcomeMessage}
+          />
+        )} */}
+        <div className={styles.body}>
+          {renderProfileAndBackground()}
+          <ProfileHead
+            name={`${profile.firstName} ${profile.lastName}`}
+            profileID={profile._id}
+            university={university.universityName}
+            graduationYear={profile.graduationYear}
+            position={profile.position}
+            company={profile.work}
+            bio={profile.bio}
+            numConnections={profile.numConnections!}
+            numMutualConnections={profile.numMutual!}
+            numCommunities={profile.numCommunities!}
+            currentProfileState={props.currentProfileState}
+            accessToken={props.accessToken}
+            refreshToken={props.refreshToken}
+            updateProfileState={props.updateProfileState}
+          />
+          {renderRegisteredEvents()}
+          <RSText
+            type="head"
+            size={24}
+            bold
+            color={colors.primaryText}
+            className={styles.rootshares}
+          >
+            {profile.firstName}'s RootShares
+          </RSText>
+          {renderPosts()}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {/* {showWelcomeModal && (
-        <WelcomeMessage
-          title="Profile"
-          message="See detailed information about each user, what organizations they have joined, and what virtual events they will attend."
-          onClose={closeWelcomeMessage}
-        />
-      )} */}
-      <div className={styles.body}>
-        {renderProfileAndBackground()}
-        <ProfileHead
-          name="Dhruv Patel"
-          userID="testID"
-          university="Purdue University"
-          graduationYear={2020}
-          position="Chief Operating Officer"
-          company="RootShare"
-          bio="Hello! My name is Dhruv Patel and I am a big fan of Roots! I love roots so
-          much that I started a company where we can all share our roots. I hope you
-          guys enjoy my profile! Big Root guy here."
-          numConnections={804}
-          numMutualConnections={78}
-          numCommunities={6}
-        />
-        {renderRegisteredEvents()}
-        <RSText
-          type="head"
-          size={24}
-          bold
-          color={colors.second}
-          className={styles.rootshares}
-        >
-          Dhruv's RootShares
+      {loading ? (
+        <CircularProgress />
+      ) : fetchingErr ? (
+        <RSText size={32} type="head" color={colors.error}>
+          THERE WAS AN ERROR GETTING THE USER'S PROFILE
         </RSText>
-        {renderPosts()}
-      </div>
+      ) : (
+        renderProfile()
+      )}
     </div>
   );
 }
 
-export default ProfileBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileBody);
