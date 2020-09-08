@@ -22,6 +22,7 @@ import {
 } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
+import RSText from '../../../base-components/RSText';
 
 const HEADER_HEIGHT = 60;
 
@@ -58,6 +59,9 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     marginTop: 80,
     color: colors.primary,
+  },
+  noResultsText: {
+    marginTop: 25,
   },
 }));
 
@@ -150,7 +154,8 @@ function DiscoverBody(props: Props) {
   }
 
   function validateSearchQuery() {
-    const cleanedQuery = searchValue.trim();
+    const withRemoved = searchValue.replace(/\?/g, ' ');
+    const cleanedQuery = withRemoved.trim();
     if (cleanedQuery.length < 3) {
       setSearchErr('Please search for atleast 3 characters.');
       return false;
@@ -189,26 +194,6 @@ function DiscoverBody(props: Props) {
       event.preventDefault();
       makeSearch();
     }
-  }
-
-  function renderSearchArea() {
-    return (
-      <div className={styles.searchBarContainer}>
-        <TextField
-          label="Search for users and communities"
-          className={styles.searchBar}
-          variant="outlined"
-          value={searchValue}
-          onChange={handleSearchChange}
-          error={searchErr !== ''}
-          helperText={searchErr}
-          onKeyDown={handleKeyDown}
-        />
-        <IconButton onClick={makeSearch}>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
-        </IconButton>
-      </div>
-    );
   }
 
   function generateResults(users: DiscoverUser[], communities: DiscoverCommunity[]) {
@@ -254,6 +239,39 @@ function DiscoverBody(props: Props) {
     return output;
   }
 
+  function renderSearchArea() {
+    return (
+      <div className={styles.searchBarContainer}>
+        <TextField
+          label="Search for users and communities"
+          className={styles.searchBar}
+          variant="outlined"
+          value={searchValue}
+          onChange={handleSearchChange}
+          error={searchErr !== ''}
+          helperText={searchErr}
+          onKeyDown={handleKeyDown}
+        />
+        <IconButton onClick={makeSearch}>
+          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+        </IconButton>
+      </div>
+    );
+  }
+
+  function renderNoResults() {
+    return (
+      <RSText
+        type="head"
+        size={18}
+        color={colors.primary}
+        className={styles.noResultsText}
+      >
+        No results found.
+      </RSText>
+    );
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -268,7 +286,9 @@ function DiscoverBody(props: Props) {
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          <div className={styles.resultsContainer}>{renderList}</div>
+          <div className={styles.resultsContainer}>
+            {renderList.length > 0 ? renderList : renderNoResults()}
+          </div>
         )}
       </div>
     </div>
