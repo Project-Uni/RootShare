@@ -41,4 +41,12 @@ export type ConnectionRequestType = {
   createdAt: Date;
 };
 
-export type ProfileState = 'SELF' | 'CONNECTION' | 'TO' | 'FROM' | 'PUBLIC';
+export type ProfileState =
+  | 'SELF'
+  | 'CONNECTION'
+  | 'TO'
+  | 'FROM'
+  | 'PUBLIC'
+  | 'PENDING';
+
+//NOTE - Pending added for general display when figuring out from / to not needed

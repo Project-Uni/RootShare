@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { extractOtherUserIDFromConnections } from './utilities';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -813,6 +814,116 @@ export async function updateAttendingList(
   }
 }
 
+export async function getUserCommunities(userID: string) {
+  try {
+    //Getting correct values from database
+    const communitySelectFields = [
+      'name',
+      'description',
+      'private',
+      'members',
+      'type',
+      'profilePicture',
+      'admin',
+    ];
+
+    const user = await User.findById(userID)
+      .select(['joinedCommunities', 'pendingCommunities', 'connections'])
+      .populate({ path: 'connections', select: ['from', 'to'] })
+      .populate({ path: 'joinedCommunities', select: communitySelectFields })
+      .populate({ path: 'pendingCommunities', select: communitySelectFields })
+      .exec();
+
+    if (!user) return sendPacket(0, `Could find user with id ${userID}`);
+
+    const { joinedCommunities, pendingCommunities } = user;
+    const connections = extractOtherUserIDFromConnections(
+      userID,
+      user['connections']
+    );
+
+    //Cleaning up joined and pending communities
+    for (let i = 0; i < joinedCommunities.length; i++) {
+      //Updating Profile Picture
+      if (joinedCommunities[i].profilePicture) {
+        try {
+          const signedProfilePicture = await retrieveSignedUrl(
+            'communityProfile',
+            joinedCommunities[i].profilePicture
+          );
+          if (signedProfilePicture)
+            joinedCommunities[i].profilePicture = signedProfilePicture;
+        } catch (err) {
+          log('error', err);
+        }
+      }
+
+      //Calculating Mutual Connections
+      const mutualConnections = connections.filter((connection) => {
+        return joinedCommunities[i].members.indexOf(connection) !== -1;
+      });
+
+      const cleanedCommunity = {
+        _id: joinedCommunities[i]._id,
+        name: joinedCommunities[i].name,
+        description: joinedCommunities[i].description,
+        private: joinedCommunities[i].private,
+        type: joinedCommunities[i].type,
+        admin: joinedCommunities[i].admin,
+        profilePicture: joinedCommunities[i].profilePicture,
+        numMembers: joinedCommunities[i].members.length,
+        numMutual: mutualConnections.length,
+      };
+
+      joinedCommunities[i] = cleanedCommunity;
+    }
+
+    for (let i = 0; i < pendingCommunities.length; i++) {
+      //Updating Profile Picture
+      if (pendingCommunities[i].profilePicture) {
+        try {
+          const signedProfilePicture = await retrieveSignedUrl(
+            'communityProfile',
+            pendingCommunities[i].profilePicture
+          );
+          if (signedProfilePicture)
+            pendingCommunities[i].profilePicture = signedProfilePicture;
+        } catch (err) {
+          log('error', err);
+        }
+      }
+
+      //Calculating Mutual Connections
+      const mutualConnections = connections.filter((connection) => {
+        return pendingCommunities[i].members.indexOf(connection) !== -1;
+      });
+
+      const cleanedCommunity = {
+        _id: pendingCommunities[i]._id,
+        name: pendingCommunities[i].name,
+        description: pendingCommunities[i].description,
+        private: pendingCommunities[i].private,
+        type: pendingCommunities[i].type,
+        admin: pendingCommunities[i].admin,
+        profilePicture: pendingCommunities[i].profilePicture,
+        numMembers: pendingCommunities[i].members.length,
+        numMutual: mutualConnections.length,
+      };
+
+      pendingCommunities[i] = cleanedCommunity;
+    }
+
+    return sendPacket(
+      1,
+      'Successfully retrieved all joined and pending communities.',
+      { joinedCommunities, pendingCommunities }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 export async function getConnectionsFullData(userID: string) {
   try {
     const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
@@ -847,11 +958,15 @@ export async function getConnectionsFullData(userID: string) {
 
     for (let i = 0; i < connectionsWithData.length; i++) {
       if (connectionsWithData[i].profilePicture) {
-        const imageURL = await retrieveSignedUrl(
-          'profile',
-          connectionsWithData[i].profilePicture
-        );
-        if (imageURL) connectionsWithData[i].profilePicture = imageURL;
+        try {
+          const imageURL = await retrieveSignedUrl(
+            'profile',
+            connectionsWithData[i].profilePicture
+          );
+          if (imageURL) connectionsWithData[i].profilePicture = imageURL;
+        } catch (err) {
+          log('error', err);
+        }
       }
     }
 

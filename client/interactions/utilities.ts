@@ -2,63 +2,80 @@ import { sendPacket } from '../helpers/functions';
 
 import { User } from '../models';
 
-module.exports = {
-  getUserData: (callback) => {
-    User.find(
-      {},
-      [
-        'firstName',
-        'lastName',
-        'createdAt',
-        'accountType',
-        'email',
-        'phoneNumber',
-        'graduationYear',
-      ],
-      (err, users) => {
-        if (err || users === undefined || users === null) {
-          return callback(sendPacket(-1, 'Could not find users'));
-        }
+export function getUserData(callback) {
+  User.find(
+    {},
+    [
+      'firstName',
+      'lastName',
+      'createdAt',
+      'accountType',
+      'email',
+      'phoneNumber',
+      'graduationYear',
+    ],
+    (err, users) => {
+      if (err || users === undefined || users === null) {
+        return callback(sendPacket(-1, 'Could not find users'));
+      }
 
-        const {
+      const { studentCount, alumniCount, facultyCount, fanCount } = countAccountType(
+        users
+      );
+      return callback(
+        sendPacket(1, 'Found users', {
+          users,
           studentCount,
           alumniCount,
           facultyCount,
           fanCount,
-        } = module.exports.countAccountType(users);
-        return callback(
-          sendPacket(1, 'Found users', {
-            users,
-            studentCount,
-            alumniCount,
-            facultyCount,
-            fanCount,
-          })
-        );
-      }
-    );
-  },
+        })
+      );
+    }
+  );
+}
 
-  countAccountType: (users) => {
-    const accountTypes = ['student', 'alumni', 'faculty', 'fan'];
-    let accountCounts = [0, 0, 0, 0];
-    const numTypes = accountTypes.length;
+function countAccountType(users) {
+  const accountTypes = ['student', 'alumni', 'faculty', 'fan'];
+  let accountCounts = [0, 0, 0, 0];
+  const numTypes = accountTypes.length;
 
-    for (let i = 0; i < users.length; i++) {
-      const userAccountType = users[i].accountType;
-      for (let j = 0; j < numTypes; j++) {
-        const checkAccountType = accountTypes[j];
-        if (checkAccountType.localeCompare(userAccountType) === 0) {
-          accountCounts[j]++;
-        }
+  for (let i = 0; i < users.length; i++) {
+    const userAccountType = users[i].accountType;
+    for (let j = 0; j < numTypes; j++) {
+      const checkAccountType = accountTypes[j];
+      if (checkAccountType.localeCompare(userAccountType) === 0) {
+        accountCounts[j]++;
       }
     }
+  }
 
-    let retCounts = {};
-    for (let i = 0; i < numTypes; i++) {
-      retCounts[`${accountTypes[i]}Count`] = accountCounts[i];
-    }
+  const retCounts = {
+    studentCount: 0,
+    alumniCount: 0,
+    facultyCount: 0,
+    fanCount: 0,
+  };
 
-    return retCounts;
-  },
-};
+  for (let i = 0; i < numTypes; i++) {
+    retCounts[`${accountTypes[i]}Count`] = accountCounts[i];
+  }
+
+  return retCounts;
+}
+
+export function extractOtherUserIDFromConnections(
+  userID,
+  connectionsDBArray: [{ [key: string]: any; from: string; to: string }]
+): string[] {
+  const connections = connectionsDBArray.reduce((output, connection) => {
+    const otherID =
+      connection['from'].toString() != userID.toString()
+        ? connection['from']
+        : connection['to'];
+
+    output.push(otherID.toString());
+    return output;
+  }, []);
+  return connections;
+}
