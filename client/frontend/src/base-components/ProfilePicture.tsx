@@ -77,6 +77,7 @@ type Props = {
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
+  zoomOnClick?: boolean;
 };
 
 function ProfilePicture(props: Props) {
@@ -200,7 +201,13 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={props.editable ? handleSelfImageClick : handleOtherImageClick}
+          onClick={
+            props.editable
+              ? handleSelfImageClick
+              : props.zoomOnClick
+              ? handleOtherImageClick
+              : undefined
+          }
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -214,7 +221,13 @@ function ProfilePicture(props: Props) {
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
-              onClick={props.editable ? handleSelfImageClick : undefined}
+              onClick={
+                props.editable
+                  ? handleSelfImageClick
+                  : props.zoomOnClick
+                  ? handleOtherImageClick
+                  : undefined
+              }
             />
           )}
         </div>

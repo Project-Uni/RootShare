@@ -14,6 +14,7 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
+  getUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
   getConnectionsFullData,
@@ -130,4 +131,14 @@ module.exports = (app) => {
       );
     });
   });
+
+  app.get(
+    '/api/user/:userID/communities/all',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      const packet = await getUserCommunities(userID);
+      return res.json(packet);
+    }
+  );
 };
