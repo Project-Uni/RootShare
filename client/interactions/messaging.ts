@@ -1,5 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
 
 const mongoose = require('mongoose');
 

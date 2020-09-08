@@ -134,6 +134,7 @@ function CommunityBody(props: Props) {
             borderWidth={8}
             _id={props.communityID}
             updateCurrentPicture={updateCurrentProfilePicture}
+            zoomOnClick={!props.isAdmin}
           />
         )}
       </div>

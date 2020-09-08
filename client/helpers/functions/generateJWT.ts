@@ -1,4 +1,4 @@
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types';
 import jwt = require('jsonwebtoken');
 
 export function generateJWT(user) {

@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
+
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
+import { makeRequest } from '../../../helpers/functions';
+
+import { CommunityType } from '../../../helpers/types';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -31,16 +37,44 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 1,
     marginBottom: 1,
     borderRadius: 1,
+    borderTop: `1px solid ${colors.fourth}`,
+  },
+  loadingIndicator: {
+    marginTop: 80,
+    color: colors.primary,
   },
 }));
 
-type Props = {};
+type YourCommunities_Community = {
+  _id: string;
+  name: string;
+  description: string;
+  private: boolean;
+  type: CommunityType;
+  admin: string;
+  profilePicture?: string;
+  numMembers: number;
+  numMutual: number;
+};
+
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const [joinedCommunities, setJoinedCommunities] = useState<
+    YourCommunities_Community[]
+  >([]);
+  const [pendingCommunities, setPendingCommunities] = useState<
+    YourCommunities_Community[]
+  >([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -50,7 +84,18 @@ function YourCommunitiesBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.user._id}/communities/all`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setJoinedCommunities(data.content['joinedCommunities']);
+      setPendingCommunities(data.content['pendingCommunities']);
+    }
   }
 
   function handleResize() {
@@ -61,24 +106,59 @@ function YourCommunitiesBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function renderCommunities() {
+  function renderJoinedCommunities() {
     const output = [];
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < joinedCommunities.length; i++) {
       output.push(
         <CommunityOverview
-          communityID="testCommID"
-          name="RootShare"
-          private
+          userID={props.user._id}
+          communityID={joinedCommunities[i]._id}
+          name={joinedCommunities[i].name}
+          private={joinedCommunities[i].private}
           style={styles.singleCommunity}
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          type="Business"
-          memberCount={7054}
-          mutualMemberCount={68}
-          profilePicture={PurdueHypeBanner}
-          joinedDate="April 29, 2020"
+          description={joinedCommunities[i].description}
+          type={joinedCommunities[i].type}
+          admin={joinedCommunities[i].admin}
+          memberCount={joinedCommunities[i].numMembers}
+          mutualMemberCount={joinedCommunities[i].numMutual}
+          profilePicture={joinedCommunities[i].profilePicture}
+          status="joined"
         />
       );
+    }
     return output;
+  }
+
+  function renderPendingCommunities() {
+    const output = [];
+    for (let i = 0; i < pendingCommunities.length; i++) {
+      output.push(
+        <CommunityOverview
+          userID={props.user._id}
+          communityID={pendingCommunities[i]._id}
+          name={pendingCommunities[i].name}
+          private={pendingCommunities[i].private}
+          style={styles.singleCommunity}
+          description={pendingCommunities[i].description}
+          type={pendingCommunities[i].type}
+          admin={joinedCommunities[i].admin}
+          memberCount={pendingCommunities[i].numMembers}
+          mutualMemberCount={pendingCommunities[i].numMutual}
+          profilePicture={pendingCommunities[i].profilePicture}
+          status="pending"
+        />
+      );
+    }
+    return output;
+  }
+
+  function renderCommunities() {
+    return (
+      <>
+        {renderPendingCommunities()}
+        {renderJoinedCommunities()}
+      </>
+    );
   }
 
   return (
@@ -90,9 +170,27 @@ function YourCommunitiesBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}>{renderCommunities()}</div>
+      <div className={styles.body}>
+        {loading ? (
+          <CircularProgress className={styles.loadingIndicator} size={100} />
+        ) : (
+          renderCommunities()
+        )}
+      </div>
     </div>
   );
 }
 
-export default YourCommunitiesBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(YourCommunitiesBody);

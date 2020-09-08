@@ -1,4 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
+import { log, sendPacket } from '../helpers/functions';
 import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -14,12 +14,11 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
+  getUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
   getConnectionsFullData,
 } from '../interactions/user';
-
-import log from '../helpers/logger';
 
 module.exports = (app) => {
   app.get('/user/getCurrent', (req, res) => {
@@ -132,4 +131,14 @@ module.exports = (app) => {
       );
     });
   });
+
+  app.get(
+    '/api/user/:userID/communities/all',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      const packet = await getUserCommunities(userID);
+      return res.json(packet);
+    }
+  );
 };

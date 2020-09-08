@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 
 import { Community, User } from '../models';
-
-import { COMMUNITY_TYPE } from '../types/types';
-
-import { retrieveSignedUrl } from '../helpers/S3';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { COMMUNITY_TYPE } from '../helpers/types';
 
 export async function createNewCommunity(
   name: string,
@@ -335,10 +331,8 @@ export async function getAllPendingMembers(communityID: string) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
       try {
-        const user = await User.findById(pendingMembers[i]._id).select([
-          'profilePicture',
-        ]);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
+        if (pendingMembers[i].profilePicture)
+          pictureFileName = pendingMembers[i].profilePicture;
       } catch (err) {
         log('err', err);
       }

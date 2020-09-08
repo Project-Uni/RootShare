@@ -7,9 +7,9 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-import log from '../helpers/logger';
+import { log } from '../helpers/functions';
 
-const { getUserData } = require('../interactions/utilities');
+import { getUserData } from '../interactions/utilities';
 
 module.exports = (app) => {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
