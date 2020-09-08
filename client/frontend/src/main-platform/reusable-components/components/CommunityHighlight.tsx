@@ -6,6 +6,7 @@ import { FaLock } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const MAX_DESC_LEN = 200;
 
@@ -24,10 +25,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    height: 70,
-    width: 70,
-    borderRadius: 50,
-    border: `1px solid ${colors.primaryText}`,
+    border: `1px solid ${colors.bright}`,
   },
   connectButton: {
     background: colors.bright,
@@ -59,10 +57,14 @@ const useStyles = makeStyles((_: any) => ({
   lock: {
     marginLeft: 10,
   },
+  name: {
+    '&:hover': { textDecoration: 'underline' },
+  },
 }));
 
 type Props = {
   style?: any;
+  userID: string;
   communityID: string;
   private?: boolean;
   name: string;
@@ -78,6 +80,7 @@ type Props = {
   mutualMemberCount: number;
   status: 'JOINED' | 'PENDING' | 'OPEN';
   profilePicture: any;
+  admin: string;
 };
 
 function CommunityHighlight(props: Props) {
@@ -92,8 +95,8 @@ function CommunityHighlight(props: Props) {
       return <Button className={styles.pendingButton}>Pending</Button>;
     else
       return (
-        <RSText color={colors.primaryText} size={12}>
-          MEMBER
+        <RSText color={colors.primary} size={12}>
+          {props.userID === props.admin ? 'ADMIN' : 'MEMBER'}
         </RSText>
       );
   }
@@ -102,12 +105,25 @@ function CommunityHighlight(props: Props) {
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div className={styles.left}>
         <a href={`/community/${props.communityID}`}>
-          <img src={props.profilePicture} className={styles.profilePic} />
+          <ProfilePicture
+            type="community"
+            height={70}
+            width={70}
+            borderRadius={50}
+            borderWidth={1}
+            currentPicture={props.profilePicture}
+            pictureStyle={styles.profilePic}
+          />
         </a>
         <div className={styles.textContainer}>
           <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <RSText type="head" size={13} color={colors.second}>
+              <RSText
+                type="head"
+                size={13}
+                color={colors.second}
+                className={styles.name}
+              >
                 {props.name}
               </RSText>
               {props.private && (
@@ -142,7 +158,9 @@ function CommunityHighlight(props: Props) {
           </RSText>
         </div>
       </div>
-      <div style={{ width: 125 }}>{renderButton()}</div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {renderButton()}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,432 @@
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+
+import { User, Community } from '../models';
+
+const MAX_RETRIEVED = 20;
+
+export async function populateDiscoverForUser(userID: string) {
+  const numUsers = Math.floor(Math.random() * 4) + 12;
+  const numCommunities = MAX_RETRIEVED - numUsers;
+
+  try {
+    //getting connection ids for user
+    const user = await User.findById(userID)
+      .select([
+        'connections',
+        'pendingConnections',
+        'university',
+        'joinedCommunities',
+      ])
+      .exec();
+
+    if (!user) return sendPacket(0, 'No user found with provided ID');
+    const { connections, pendingConnections, university, joinedCommunities } = user;
+
+    //Getting random sample of users that current user has not connected / requested to connect with
+    const userPromise = User.aggregate([
+      {
+        $match: {
+          $and: [
+            { connections: { $not: { $in: connections } } },
+            { pendingConnections: { $not: { $in: pendingConnections } } },
+            { university: { $eq: university } },
+          ],
+        },
+      },
+      { $sample: { size: numUsers } },
+      {
+        $lookup: {
+          from: 'universities',
+          localField: 'university',
+          foreignField: '_id',
+          as: 'university',
+        },
+      },
+      { $unwind: '$university' },
+      {
+        $project: {
+          firstName: '$firstName',
+          lastName: '$lastName',
+          university: {
+            _id: '$university._id',
+            universityName: '$university.universityName',
+          },
+          work: '$work',
+          position: '$position',
+          graduationYear: '$graduationYear',
+          profilePicture: '$profilePicture',
+          joinedCommunities: '$joinedCommunities',
+          connections: '$connections',
+          pendingConnections: '$pendingConnections',
+        },
+      },
+    ]).exec();
+
+    //Getting random sample of communities that user has not joined / requested to join
+    const communityPromise = Community.aggregate([
+      {
+        $match: {
+          $and: [
+            { members: { $not: { $eq: userID } } },
+            { pendingMembers: { $not: { $eq: userID } } },
+            { university: { $eq: university } },
+          ],
+        },
+      },
+      { $sample: { size: numCommunities } },
+      {
+        $lookup: {
+          from: 'universities',
+          localField: 'university',
+          foreignField: '_id',
+          as: 'university',
+        },
+      },
+      { $unwind: '$university' },
+      {
+        $project: {
+          name: '$name',
+          type: '$type',
+          description: '$description',
+          private: '$private',
+          members: '$members',
+          profilePicture: '$profilePicture',
+          university: {
+            _id: '$university._id',
+            universityName: '$university.universityName',
+          },
+          admin: '$admin',
+        },
+      },
+    ]).exec();
+
+    return Promise.all([communityPromise, userPromise])
+      .then(async ([communities, users]) => {
+        //Cleaning users array
+        for (let i = 0; i < users.length; i++) {
+          const cleanedUser = await addCalulculatedUserFields(
+            connections,
+            joinedCommunities,
+            users[i]
+          );
+          users[i] = cleanedUser;
+        }
+
+        //Cleaning communities array
+        for (let i = 0; i < communities.length; i++) {
+          const cleanedCommunity = await addCalculatedCommunityFields(
+            connections,
+            communities[i]
+          );
+          communities[i] = cleanedCommunity;
+        }
+
+        log('info', `Pre-populated discovery page for user ${userID}`);
+
+        return sendPacket(
+          1,
+          'Successfully retrieved users and communities for population',
+          { communities, users }
+        );
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function exactMatchSearchFor(userID: string, query: string) {
+  const USER_LIMIT = 15;
+  const COMMUNITY_LIMIT = 5;
+
+  const cleanedQuery = query.trim();
+  if (cleanedQuery.length < 3)
+    return sendPacket(0, 'Query is too short to provide accurate search');
+
+  const terms = query.split(' ');
+  const userSearchConditions: { [key: string]: any }[] = [];
+  if (terms.length === 1) {
+    try {
+      userSearchConditions.push({ firstName: new RegExp(terms[0], 'gi') });
+      userSearchConditions.push({ email: new RegExp(terms[0], 'gi') });
+      userSearchConditions.push({ lastName: new RegExp(terms[0], 'gi') });
+    } catch (err) {
+      log(
+        'error',
+        `There was an error with the regular expression made from the query: ${err}`
+      );
+      return sendPacket(
+        -1,
+        'There was an error with the regular expression made from the query'
+      );
+    }
+  } else {
+    try {
+      userSearchConditions.push({
+        $and: [
+          { firstName: new RegExp(terms[0], 'gi') },
+          { lastName: new RegExp(terms[1], 'gi') },
+        ],
+      });
+    } catch (err) {
+      log(
+        'error',
+        `There was an error with the regular expression made from the query: ${err}`
+      );
+      return sendPacket(
+        -1,
+        'There was an error with the regular expression made from the query'
+      );
+    }
+  }
+
+  try {
+    const currentUserPromise = User.findById(userID)
+      .select([
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'pendingCommunities',
+      ])
+      .exec();
+
+    const userPromise = User.find({ $or: userSearchConditions })
+      .select([
+        'firstName',
+        'lastName',
+        'university',
+        'work',
+        'position',
+        'graduationYear',
+        'profilePicture',
+        'joinedCommunities',
+        'connections',
+        'pendingConnections',
+        'pendingCommunities',
+      ])
+      .limit(USER_LIMIT)
+      .populate({ path: 'university', select: ['universityName'] })
+      .exec();
+
+    const communityPromise = Community.find({
+      name: new RegExp(cleanedQuery, 'gi'),
+    })
+      .select([
+        'name',
+        'type',
+        'description',
+        'private',
+        'members',
+        'profilePicture',
+        'university',
+        'admin',
+      ])
+      .limit(COMMUNITY_LIMIT)
+      .populate({ path: 'university', select: ['universityName'] })
+      .exec();
+
+    return Promise.all([currentUserPromise, userPromise, communityPromise])
+      .then(async ([currentUser, users, communities]) => {
+        if (!currentUser) return sendPacket(0, 'Could not find current user entry');
+
+        for (let i = 0; i < users.length; i++) {
+          const cleanedUser = await addCalulculatedUserFields(
+            currentUser.connections,
+            currentUser.joinedCommunities,
+            users[i]
+          );
+          getUserToUserRelationship(
+            currentUser.connections,
+            currentUser.pendingConnections,
+            users[i],
+            cleanedUser
+          );
+          users[i] = cleanedUser;
+        }
+
+        //Cleaning communities array
+        for (let i = 0; i < communities.length; i++) {
+          const cleanedCommunity = await addCalculatedCommunityFields(
+            currentUser.connections,
+            communities[i]
+          );
+          getUserToCommunityRelationship(
+            currentUser.joinedCommunities,
+            currentUser.pendingCommunities,
+            communities[i],
+            cleanedCommunity
+          );
+          communities[i] = cleanedCommunity;
+        }
+
+        log(
+          'info',
+          `Successfully retrieved all matching users and communities for query: ${query}`
+        );
+
+        return sendPacket(
+          1,
+          'Successfully retrieved all users and communities for query',
+          { users, communities }
+        );
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+//HELPERS
+
+async function addCalulculatedUserFields(
+  currentUserConnections: string[],
+  currentUserJoinedCommunities: string[],
+  otherUser: {
+    [key: string]: any;
+    _id: string;
+    profilePicture?: string;
+    connections: string[];
+    joinedCommunities: string[];
+  }
+) {
+  //Calculating mutual connections and communities
+  const mutualConnections = currentUserConnections.filter((connection) => {
+    return otherUser.connections.indexOf(connection) !== -1;
+  });
+  const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
+    return otherUser.joinedCommunities.indexOf(community) !== -1;
+  });
+
+  //Getting profile picture
+  let profilePicture = undefined;
+  if (otherUser.profilePicture) {
+    try {
+      const signedImageURL = await retrieveSignedUrl(
+        'profile',
+        otherUser.profilePicture
+      );
+      if (signedImageURL) profilePicture = signedImageURL;
+    } catch (err) {
+      log('error', err);
+    }
+  }
+
+  const cleanedUser = {
+    _id: otherUser._id,
+    firstName: otherUser.firstName,
+    lastName: otherUser.lastName,
+    university: otherUser.university,
+    work: otherUser.work,
+    position: otherUser.position,
+    graduationYear: otherUser.graduationYear,
+    profilePicture,
+    numMutualConnections: mutualConnections.length,
+    numMutualCommunities: mutualCommunities.length,
+    status: 'PUBLIC',
+  };
+
+  return cleanedUser;
+}
+
+async function addCalculatedCommunityFields(
+  currentUserConnections: string[],
+  community: {
+    [key: string]: any;
+    _id: string;
+    admin: string;
+  }
+) {
+  const mutualMembers = currentUserConnections.filter((connection) => {
+    return community.members.indexOf(connection) !== -1;
+  });
+
+  //Getting profile picture
+  let profilePicture = undefined;
+  if (community.profilePicture) {
+    try {
+      const signedImageURL = await retrieveSignedUrl(
+        'communityProfile',
+        community.profilePicture
+      );
+      if (signedImageURL) profilePicture = signedImageURL;
+    } catch (err) {
+      log('error', err);
+    }
+  }
+
+  const cleanedCommunity = {
+    _id: community._id,
+    name: community.name,
+    type: community.type,
+    description: community.description,
+    private: community.private,
+    university: community.university,
+    profilePicture,
+    admin: community.admin,
+    numMembers: community.members.length,
+    numMutual: mutualMembers.length,
+    status: 'OPEN',
+  };
+
+  return cleanedCommunity;
+}
+
+function getUserToUserRelationship(
+  currentUserConnections,
+  currentUserPendingConnections,
+  originalOtherUser: {
+    [key: string]: any;
+    _id: string;
+    pendingConnections: string[];
+    joinedCommunities: string[];
+  },
+  cleanedOtherUser: {
+    [key: string]: any;
+    _id: string;
+    status: string;
+  }
+) {
+  for (let i = 0; i < currentUserConnections.length; i++) {
+    if (originalOtherUser.connections.indexOf(currentUserConnections[i]) !== -1) {
+      cleanedOtherUser.status = 'CONNECTION';
+      return;
+    }
+  }
+
+  for (let i = 0; i < currentUserPendingConnections.length; i++) {
+    if (
+      originalOtherUser.pendingConnections.indexOf(
+        currentUserPendingConnections[i]
+      ) !== -1
+    ) {
+      cleanedOtherUser.status = 'PENDING';
+      return;
+    }
+  }
+}
+
+function getUserToCommunityRelationship(
+  currentUserJoinedCommunities: string[],
+  currentUserPendingCommunities: string[],
+  originalCommunity: {
+    [key: string]: any;
+    _id: string;
+  },
+  cleanedCommunity: {
+    [key: string]: any;
+    status: string;
+  }
+) {
+  if (currentUserJoinedCommunities.indexOf(originalCommunity._id) !== -1)
+    cleanedCommunity.status = 'JOINED';
+  else if (currentUserPendingCommunities.indexOf(originalCommunity._id) !== -1)
+    cleanedCommunity.status = 'PENDING';
+}
