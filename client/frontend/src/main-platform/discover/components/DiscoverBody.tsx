@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Autocomplete } from '@material-ui/lab';
 import { TextField, IconButton, CircularProgress } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
@@ -13,6 +12,7 @@ import {
   ProfileState,
   CommunityStatus,
 } from '../../../helpers/types';
+import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 import { colors } from '../../../theme/Colors';
 import {
@@ -131,7 +131,7 @@ function DiscoverBody(props: Props) {
   async function makeSearch() {
     setLoading(true);
     const cleanedQuery = validateSearchQuery();
-    if (!cleanedQuery) return;
+    if (!cleanedQuery) return setLoading(false);
 
     const query = qs.stringify({ query: cleanedQuery });
     const { data } = await makeRequest(
@@ -184,6 +184,13 @@ function DiscoverBody(props: Props) {
     setSearchValue(event.target.value);
   }
 
+  function handleKeyDown(event: any) {
+    if (event.keyCode === ENTER_KEYCODE) {
+      event.preventDefault();
+      makeSearch();
+    }
+  }
+
   function renderSearchArea() {
     return (
       <div className={styles.searchBarContainer}>
@@ -195,6 +202,7 @@ function DiscoverBody(props: Props) {
           onChange={handleSearchChange}
           error={searchErr !== ''}
           helperText={searchErr}
+          onKeyDown={handleKeyDown}
         />
         <IconButton onClick={makeSearch}>
           <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
