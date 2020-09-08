@@ -14,7 +14,7 @@ import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host
 import { UserType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 const VERTICAL_PADDING_TOTAL = 40;
 
 const useStyles = makeStyles((_: any) => ({

@@ -132,7 +132,7 @@ type Props = {
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
   const [currentPicture, setCurrentPicture] = useState<string>();
-  const [imageLoaded, setImagedLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
 
   // Original User Information
@@ -179,7 +179,7 @@ function ProfileDrawer(props: Props) {
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/getProfilePicture/${props.user._id}`,
+      `/api/images/profile/${props.user._id}`,
       {},
       true,
       props.accessToken,
@@ -189,7 +189,7 @@ function ProfileDrawer(props: Props) {
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['imageURL']);
     }
-    setImagedLoaded(true);
+    setImageLoaded(true);
   }
 
   function updateCurrentPicture(imageData: string) {
@@ -199,7 +199,7 @@ function ProfileDrawer(props: Props) {
   async function getProfile() {
     const { data } = await makeRequest(
       'GET',
-      '/user/getProfile',
+      '/api/user/profile/user',
       {},
       true,
       props.accessToken,
@@ -418,6 +418,7 @@ function ProfileDrawer(props: Props) {
     return (
       <div>
         <ProfilePicture
+          type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
           editable
@@ -426,6 +427,7 @@ function ProfileDrawer(props: Props) {
           borderRadius={150}
           currentPicture={currentPicture}
           updateCurrentPicture={updateCurrentPicture}
+          borderWidth={3}
         />
       </div>
     );

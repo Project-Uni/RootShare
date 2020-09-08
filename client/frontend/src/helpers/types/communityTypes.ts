@@ -13,7 +13,8 @@ export type Community = {
     _id: string;
     universityName: string;
   };
-  members: number | any[];
+  members: string[];
+  pendingMembers: string[];
   private: boolean;
   type:
     | 'Social'
@@ -23,3 +24,5 @@ export type Community = {
     | 'Student Organization'
     | 'Academic';
 };
+
+export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';

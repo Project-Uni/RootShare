@@ -5,7 +5,7 @@ import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
 import passport = require('passport');
-import log, { initializeDirectory } from './helpers/logger';
+import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 
 import { rateLimiter } from './middleware';

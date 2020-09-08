@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
 import {
   Dialog,
@@ -63,6 +64,8 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  type: 'profile' | 'community';
+  _id?: string; //Required for community
   accessToken: string;
   refreshToken: string;
   className?: string;
@@ -72,6 +75,7 @@ type Props = {
   height: number;
   width: number;
   borderRadius?: number;
+  borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
 };
 
@@ -84,6 +88,7 @@ function ProfilePicture(props: Props) {
   const [croppedImageURL, setCroppedImageURL] = useState<string>();
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -102,8 +107,12 @@ function ProfilePicture(props: Props) {
     setHovering(false);
   }
 
-  function handleImageClick() {
+  function handleSelfImageClick() {
     fileUploader.current?.click();
+  }
+
+  function handleOtherImageClick() {
+    if (props.currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -152,9 +161,14 @@ function ProfilePicture(props: Props) {
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
+    const path =
+      props.type === 'profile'
+        ? '/api/images/profile/updateProfilePicture'
+        : `/api/images/community/${props._id}/updateProfilePicture`;
+
     const { data } = await makeRequest(
       'POST',
-      '/api/profile/updateProfilePicture',
+      path,
       {
         image: imageData,
       },
@@ -186,7 +200,7 @@ function ProfilePicture(props: Props) {
           }}
           onMouseEnter={props.editable ? handleMouseOver : undefined}
           onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={handleImageClick}
+          onClick={props.editable ? handleSelfImageClick : handleOtherImageClick}
         />
         <div className={styles.cameraContainer}>
           {hovering && (
@@ -195,12 +209,12 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16,
-                left: Math.floor(props.width / 2) - 16,
+                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
+                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
-              onClick={handleImageClick}
+              onClick={props.editable ? handleSelfImageClick : undefined}
             />
           )}
         </div>
@@ -212,6 +226,13 @@ function ProfilePicture(props: Props) {
           accept="image/x-png, image/jpeg"
           onChange={handleImageUpload}
         />
+        <ModalGateway>
+          {isViewerOpen && (
+            <Modal onClose={() => setIsViewerOpen(false)}>
+              <Carousel views={[{ source: props.currentPicture }]} />
+            </Modal>
+          )}
+        </ModalGateway>
       </div>
     );
   }
@@ -237,7 +258,13 @@ function ProfilePicture(props: Props) {
             />
             {loading && (
               <div style={{ position: 'relative', height: 0, width: 0 }}>
-                <div style={{ position: 'absolute', bottom: 200, left: 200 }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 200,
+                    left: 200,
+                  }}
+                >
                   <CircularProgress size={100} className={styles.loadingIndicator} />
                 </div>
               </div>

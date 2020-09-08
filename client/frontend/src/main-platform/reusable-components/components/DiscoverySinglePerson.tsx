@@ -129,6 +129,7 @@ function DiscoverySinglePerson(props: Props) {
           <a href={`/profile/${props.userID}`} className={styles.personLink}>
             <ProfilePicture
               editable={false}
+              type={'profile'}
               height={80}
               width={80}
               borderRadius={50}

@@ -2,11 +2,9 @@ var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
 var User = mongoose.model('users');
 var University = mongoose.model('universities');
-var bCrypt = require('bcryptjs');
 
 import { sendConfirmationEmail } from '../interactions/registration/email-confirmation';
-import { generateJWT } from '../helpers/generateJWT';
-
+import { generateJWT, hashPassword } from '../helpers/functions';
 module.exports = function (passport) {
   passport.use(
     'local-signup',
@@ -28,7 +26,7 @@ module.exports = function (passport) {
             newUser.firstName = req.body.firstName;
             newUser.lastName = req.body.lastName;
             newUser.email = email;
-            newUser.hashedPassword = createHash(password);
+            newUser.hashedPassword = hashPassword(password);
             newUser.accountType = req.body.accountType;
 
             let university = await University.findOne({
@@ -59,9 +57,4 @@ module.exports = function (passport) {
       }
     )
   );
-
-  // Generates hash using bCrypt
-  var createHash = function (password) {
-    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
-  };
 };

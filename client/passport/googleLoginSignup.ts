@@ -2,8 +2,7 @@ const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = require('../../keys/keys.json');
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
-import log from '../helpers/logger';
-import { generateJWT } from '../helpers/generateJWT';
+import { log, generateJWT } from '../helpers/functions';
 
 const {
   sendConfirmationEmail,

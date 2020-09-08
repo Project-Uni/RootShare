@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 const { DB_KEY } = require('../../keys/keys.json');
-import log from '../helpers/logger';
+import { log } from '../helpers/functions';
 
 const uri = `mongodb+srv://dbUser1:${DB_KEY}@clusteru-xuq4v.mongodb.net/test?retryWrites=true&w=majority`;
 

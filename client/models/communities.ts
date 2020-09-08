@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { COMMUNITY_TYPE, CommunityMap } from '../types/types';
+import { COMMUNITY_TYPE, CommunityMap } from '../helpers/types';
 
 const CommunitySchema = new mongoose.Schema(
   {
@@ -11,6 +11,10 @@ const CommunitySchema = new mongoose.Schema(
     admin: { type: mongoose.Schema.ObjectId, ref: 'users', required: true },
     private: { type: Boolean, default: false, required: true },
     members: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
+      default: [],
+    },
+    pendingMembers: {
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },

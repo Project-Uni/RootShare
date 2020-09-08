@@ -1,14 +1,21 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
+import { USER_LEVEL } from '../helpers/types';
+
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
+  getCommunityInformation,
+  joinCommunity,
+  getAllPendingMembers,
+  rejectPendingMember,
+  acceptPendingMember,
+  leaveCommunity,
+  cancelCommunityPendingRequest,
 } from '../interactions/community';
-
-import { USER_LEVEL } from '../types/types';
 
 export default function communityRoutes(app) {
   app.post(
@@ -92,4 +99,89 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.get(
+    '/api/community/:communityID/info',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getCommunityInformation(communityID, req.user._id);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/join',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await joinCommunity(communityID, req.user._id);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/pending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getAllPendingMembers(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/rejectPending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { userID } = req.body;
+      if (!userID)
+        return res.json(sendPacket(-1, 'userID missing from request body'));
+
+      const packet = await rejectPendingMember(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/acceptPending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { userID } = req.body;
+      if (!userID)
+        return res.json(sendPacket(-1, 'userID missing from request body'));
+
+      const packet = await acceptPendingMember(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/leave',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await leaveCommunity(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/cancelPending',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await cancelCommunityPendingRequest(communityID, userID);
+      return res.json(packet);
+    }
+  );
 }
