@@ -43,8 +43,10 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     marginLeft: 1,
     marginRight: 1,
+    marginTop: 8,
     background: colors.primaryText,
   },
   resultsContainer: {
@@ -63,6 +65,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   noResultsText: {
     marginTop: 25,
+  },
+  searchButton: {
+    marginTop: 7,
   },
 }));
 
@@ -253,7 +258,7 @@ function DiscoverBody(props: Props) {
           helperText={searchErr}
           onKeyDown={handleKeyDown}
         />
-        <IconButton onClick={makeSearch}>
+        <IconButton onClick={makeSearch} className={styles.searchButton}>
           <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
