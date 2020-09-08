@@ -57,6 +57,9 @@ const useStyles = makeStyles((_: any) => ({
   lock: {
     marginLeft: 10,
   },
+  name: {
+    '&:hover': { textDecoration: 'underline' },
+  },
 }));
 
 type Props = {
@@ -113,7 +116,12 @@ function CommunityHighlight(props: Props) {
         <div className={styles.textContainer}>
           <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <RSText type="head" size={13} color={colors.second}>
+              <RSText
+                type="head"
+                size={13}
+                color={colors.second}
+                className={styles.name}
+              >
                 {props.name}
               </RSText>
               {props.private && (

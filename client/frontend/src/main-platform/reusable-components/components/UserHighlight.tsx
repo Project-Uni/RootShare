@@ -22,9 +22,6 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    // height: 70,
-    // width: 70,
-    // borderRadius: 50,
     border: `1px solid ${colors.primaryText}`,
   },
   connectButton: {
@@ -38,6 +35,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   name: {
+    marginBottom: 3,
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+  work: {
     marginBottom: 3,
   },
   noUnderline: {
@@ -97,7 +100,7 @@ function UserHighlight(props: Props) {
             type="subhead"
             size={12}
             color={colors.secondaryText}
-            className={styles.name}
+            className={styles.work}
           >
             {props.position ? props.position : null}
             {props.position && props.company ? ', ' : null}
