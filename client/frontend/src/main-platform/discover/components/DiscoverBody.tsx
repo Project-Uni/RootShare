@@ -101,9 +101,7 @@ function DiscoverBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
-  const [communities, setCommunities] = useState<DiscoverCommunity[]>([]);
-  const [users, setUsers] = useState<DiscoverUser[]>([]);
-  // const [renderList, setRenderList] = useState<JSX.Element[]>([]);
+  const [renderList, setRenderList] = useState<JSX.Element[]>([]);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchErr, setSearchErr] = useState('');
@@ -125,8 +123,8 @@ function DiscoverBody(props: Props) {
       props.refreshToken
     );
     if (data.success === 1) {
-      setCommunities(data.content['communities']);
-      setUsers(data.content['users']);
+      const { users, communities } = data.content;
+      setRenderList(generateResults(users, communities));
     }
   }
 
@@ -145,8 +143,8 @@ function DiscoverBody(props: Props) {
       props.refreshToken
     );
     if (data.success === 1) {
-      setCommunities(data.content['communities']);
-      setUsers(data.content['users']);
+      const { users, communities } = data.content;
+      setRenderList(generateResults(users, communities));
     }
     setLoading(false);
   }
@@ -205,7 +203,7 @@ function DiscoverBody(props: Props) {
     );
   }
 
-  function renderResults() {
+  function generateResults(users: DiscoverUser[], communities: DiscoverCommunity[]) {
     const output = [];
     for (let i = 0; i < users.length; i++) {
       output.push(
@@ -262,7 +260,7 @@ function DiscoverBody(props: Props) {
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          <div className={styles.resultsContainer}>{renderResults()}</div>
+          <div className={styles.resultsContainer}>{renderList}</div>
         )}
       </div>
     </div>
