@@ -211,7 +211,7 @@ function DiscoverBody(props: Props) {
           userID={users[i]._id}
           name={`${users[i].firstName} ${users[i].lastName}`}
           profilePic={users[i].profilePicture}
-          university={users[i].university.universityName}
+          university={users[i].university?.universityName}
           graduationYear={users[i].graduationYear}
           position={users[i].position}
           company={users[i].work}
