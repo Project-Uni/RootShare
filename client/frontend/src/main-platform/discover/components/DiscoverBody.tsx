@@ -8,7 +8,11 @@ import { FaSearch } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import { CommunityType, ProfileState } from '../../../helpers/types';
+import {
+  CommunityType,
+  ProfileState,
+  CommunityStatus,
+} from '../../../helpers/types';
 
 import { colors } from '../../../theme/Colors';
 import {
@@ -67,6 +71,7 @@ type DiscoverCommunity = {
   profilePicture?: string;
   numMembers: number;
   numMutual: number;
+  status: CommunityStatus;
 };
 
 type DiscoverUser = {

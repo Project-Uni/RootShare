@@ -95,6 +95,7 @@ export async function populateDiscoverForUser(userID: string) {
             _id: '$university._id',
             universityName: '$university.universityName',
           },
+          admin: '$admin',
         },
       },
     ]).exec();
@@ -178,6 +179,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'joinedCommunities',
         'connections',
         'pendingConnections',
+        'pendingCommunities',
       ])
       .limit(USER_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
@@ -194,6 +196,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'members',
         'profilePicture',
         'university',
+        'admin',
       ])
       .limit(COMMUNITY_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
@@ -223,6 +226,12 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           const cleanedCommunity = await cleanCommunity(
             currentUser.connections,
             communities[i]
+          );
+          getUserToCommunityState(
+            currentUser.joinedCommunities,
+            currentUser.pendingCommunities,
+            communities[i],
+            cleanedCommunity
           );
           communities[i] = cleanedCommunity;
         }
@@ -312,6 +321,7 @@ async function cleanCommunity(
     university: { _id: string; universityName: string };
     profilePicture?: string;
     members: string[];
+    admin: string;
   }
 ) {
   const mutualMembers = currentUserConnections.filter((connection) => {
@@ -340,40 +350,25 @@ async function cleanCommunity(
     private: community.private,
     university: community.university,
     profilePicture,
+    admin: community.admin,
     numMembers: community.members.length,
     numMutual: mutualMembers.length,
+    status: 'OPEN',
   };
 
   return cleanedCommunity;
 }
 
-async function getUserToUserState(
+function getUserToUserState(
   currentUserConnections,
   currentUserPendingConnections,
   originalOtherUser: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    university: { _id: string; universityName: string };
-    work: string;
-    position: string;
-    graduationYear: number;
-    profilePicture?: string;
-    connections: string[];
+    [key: string]: any;
     pendingConnections: string[];
     joinedCommunities: string[];
   },
   cleanedOtherUser: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    university: { _id: string; universityName: string };
-    work: string;
-    position: string;
-    graduationYear: number;
-    profilePicture: string;
-    numMutualConnections: number;
-    numMutualCommunities: number;
+    [key: string]: any;
     status: string;
   }
 ) {
@@ -394,4 +389,22 @@ async function getUserToUserState(
       return;
     }
   }
+}
+
+function getUserToCommunityState(
+  currentUserJoinedCommunities: string[],
+  currentUserPendingCommunities: string[],
+  originalCommunity: {
+    [key: string]: any;
+    _id: string;
+  },
+  cleanedCommunity: {
+    [key: string]: any;
+    status: string;
+  }
+) {
+  if (currentUserJoinedCommunities.indexOf(originalCommunity._id) !== -1)
+    cleanedCommunity.status = 'JOINED';
+  else if (currentUserPendingCommunities.indexOf(originalCommunity._id) !== -1)
+    cleanedCommunity.status = 'PENDING';
 }
