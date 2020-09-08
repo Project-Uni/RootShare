@@ -290,16 +290,10 @@ async function addCalulculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
   otherUser: {
+    [key: string]: any;
     _id: string;
-    firstName: string;
-    lastName: string;
-    university: { _id: string; universityName: string };
-    work: string;
-    position: string;
-    graduationYear: number;
     profilePicture?: string;
     connections: string[];
-    pendingConnections: string[];
     joinedCommunities: string[];
   }
 ) {
@@ -345,14 +339,8 @@ async function addCalulculatedUserFields(
 async function addCalculatedCommunityFields(
   currentUserConnections: string[],
   community: {
+    [key: string]: any;
     _id: string;
-    name: string;
-    type: string;
-    description: string;
-    private: boolean;
-    university: { _id: string; universityName: string };
-    profilePicture?: string;
-    members: string[];
     admin: string;
   }
 ) {
@@ -396,11 +384,13 @@ function getUserToUserRelationship(
   currentUserPendingConnections,
   originalOtherUser: {
     [key: string]: any;
+    _id: string;
     pendingConnections: string[];
     joinedCommunities: string[];
   },
   cleanedOtherUser: {
     [key: string]: any;
+    _id: string;
     status: string;
   }
 ) {
