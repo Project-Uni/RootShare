@@ -104,39 +104,11 @@ export async function populateDiscoverForUser(userID: string) {
       .then(async ([communities, users]) => {
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
-          //Calculating mutual connections and communities
-          const mutualConnections = connections.filter((connection) => {
-            return users[i].connections.indexOf(connection) !== -1;
-          });
-          const mutualCommunities = joinedCommunities.filter((community) => {
-            return users[i].joinedCommunities.indexOf(community) !== -1;
-          });
-
-          //Getting profile picture
-          let profilePicture = undefined;
-          if (users[i].profilePicture) {
-            try {
-              const signedImageURL = await retrieveSignedUrl(
-                'profile',
-                users[i].profilePicture
-              );
-              if (signedImageURL) profilePicture = signedImageURL;
-            } catch (err) {
-              log('error', err);
-            }
-          }
-
-          const cleanedUser = {
-            firstName: users[i].firstName,
-            lastName: users[i].lastName,
-            university: users[i].university,
-            work: users[i].work,
-            position: users[i].position,
-            graduationYear: users[i].graduationYear,
-            profilePicture,
-            numMutualConnections: mutualConnections.length,
-            numMutualCommunities: mutualCommunities.length,
-          };
+          const cleanedUser = await cleanUser(
+            connections,
+            joinedCommunities,
+            users[i]
+          );
 
           users[i] = cleanedUser;
         }
@@ -189,4 +161,56 @@ export async function populateDiscoverForUser(userID: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+async function cleanUser(
+  currentUserConnections,
+  currentUserJoinedCommunities,
+  otherUser: {
+    firstName: string;
+    lastName: string;
+    university: { _id: string; universityName: string };
+    work: string;
+    position: string;
+    graduationYear: number;
+    profilePicture?: string;
+    connections: string[];
+    joinedCommunities: string[];
+  }
+) {
+  //Calculating mutual connections and communities
+  const mutualConnections = currentUserConnections.filter((connection) => {
+    return otherUser.connections.indexOf(connection) !== -1;
+  });
+  const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
+    return otherUser.joinedCommunities.indexOf(community) !== -1;
+  });
+
+  //Getting profile picture
+  let profilePicture = undefined;
+  if (otherUser.profilePicture) {
+    try {
+      const signedImageURL = await retrieveSignedUrl(
+        'profile',
+        otherUser.profilePicture
+      );
+      if (signedImageURL) profilePicture = signedImageURL;
+    } catch (err) {
+      log('error', err);
+    }
+  }
+
+  const cleanedUser = {
+    firstName: otherUser.firstName,
+    lastName: otherUser.lastName,
+    university: otherUser.university,
+    work: otherUser.work,
+    position: otherUser.position,
+    graduationYear: otherUser.graduationYear,
+    profilePicture,
+    numMutualConnections: mutualConnections.length,
+    numMutualCommunities: mutualCommunities.length,
+  };
+
+  return cleanedUser;
 }
