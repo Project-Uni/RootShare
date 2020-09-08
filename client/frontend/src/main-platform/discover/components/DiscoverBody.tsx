@@ -13,7 +13,6 @@ import {
   UserHighlight,
   CommunityHighlight,
 } from '../../reusable-components';
-import { ReniHeadshot } from '../../../images/team';
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
@@ -49,6 +48,29 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type DiscoverCommunity = {
+  name: string;
+  type: string;
+  description: string;
+  private: boolean;
+  university: { _id: string; universityName: string };
+  profilePicture?: string;
+  numMembers: number;
+  numMutual: number;
+};
+
+type DiscoverUser = {
+  firstName: string;
+  lastName: string;
+  university: string;
+  work?: string;
+  position?: string;
+  graduationYear?: number;
+  profilePicture?: string;
+  numMutualConnections: number;
+  numMutualCommunities: number;
+};
+
 type Props = {
   accessToken: string;
   refreshToken: string;
@@ -60,6 +82,9 @@ function DiscoverBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
+
+  const [communities, setCommunities] = useState<DiscoverCommunity[]>([]);
+  const [users, setUsers] = useState<DiscoverUser[]>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -77,7 +102,10 @@ function DiscoverBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-    console.log('Data:', data);
+    if (data.success === 1) {
+      setCommunities(data.content['communities']);
+      setUsers(data.content['users']);
+    }
   }
 
   function handleResize() {

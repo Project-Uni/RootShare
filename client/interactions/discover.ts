@@ -10,12 +10,7 @@ export async function populateDiscoverForUser(userID: string) {
 
   try {
     //getting connection ids for user
-    const {
-      connections,
-      pendingConnections,
-      university,
-      joinedCommunities,
-    } = await User.findById(userID)
+    const user = await User.findById(userID)
       .select([
         'connections',
         'pendingConnections',
@@ -23,6 +18,9 @@ export async function populateDiscoverForUser(userID: string) {
         'joinedCommunities',
       ])
       .exec();
+
+    if (!user) return sendPacket(0, 'No user found with provided ID');
+    const { connections, pendingConnections, university, joinedCommunities } = user;
 
     //Getting random sample of users that current user has not connected / requested to connect with
     const userPromise = User.aggregate([
