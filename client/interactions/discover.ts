@@ -2,11 +2,11 @@ import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User, Community } from '../models';
 
-const NUM_RETRIEVED = 20;
+const MAX_RETRIEVED = 20;
 
 export async function populateDiscoverForUser(userID: string) {
   const numUsers = Math.floor(Math.random() * 4) + 12;
-  const numCommunities = NUM_RETRIEVED - numUsers;
+  const numCommunities = MAX_RETRIEVED - numUsers;
 
   try {
     //getting connection ids for user
@@ -131,6 +131,12 @@ export async function populateDiscoverForUser(userID: string) {
     return sendPacket(-1, err);
   }
 }
+
+export async function exactMatchSearchFor(userID: string, query: string) {
+  return sendPacket(1, 'Test worked');
+}
+
+//HELPERS
 
 async function cleanUser(
   currentUserConnections,

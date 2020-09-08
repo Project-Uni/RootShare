@@ -95,7 +95,10 @@ function DiscoverBody(props: Props) {
 
   const [communities, setCommunities] = useState<DiscoverCommunity[]>([]);
   const [users, setUsers] = useState<DiscoverUser[]>([]);
+  // const [renderList, setRenderList] = useState<JSX.Element[]>([]);
+
   const [searchValue, setSearchValue] = useState('');
+  const [searchErr, setSearchErr] = useState('');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -120,7 +123,10 @@ function DiscoverBody(props: Props) {
   }
 
   async function makeSearch() {
-    const query = qs.stringify({ query: searchValue });
+    const cleanedQuery = validateSearchQuery();
+    if (!cleanedQuery) return;
+
+    const query = qs.stringify({ query: cleanedQuery });
     const { data } = await makeRequest(
       'GET',
       `/api/discover/search/v1/exactMatch?${query}`,
@@ -129,6 +135,16 @@ function DiscoverBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+  }
+
+  function validateSearchQuery() {
+    const cleanedQuery = searchValue.trim();
+    if (cleanedQuery.length < 3) {
+      setSearchErr('Please search for atleast 3 characters.');
+      return false;
+    }
+    setSearchErr('');
+    return cleanedQuery;
   }
 
   function handleResize() {
@@ -165,6 +181,8 @@ function DiscoverBody(props: Props) {
           variant="outlined"
           value={searchValue}
           onChange={handleSearchChange}
+          error={searchErr !== ''}
+          helperText={searchErr}
         />
         <IconButton onClick={makeSearch}>
           <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />

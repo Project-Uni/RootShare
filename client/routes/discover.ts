@@ -1,5 +1,8 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { populateDiscoverForUser } from '../interactions/discover';
+import {
+  populateDiscoverForUser,
+  exactMatchSearchFor,
+} from '../interactions/discover';
 import { sendPacket } from '../helpers/functions';
 
 export default function discoverRoutes(app) {
@@ -18,7 +21,7 @@ export default function discoverRoutes(app) {
         return res.json(sendPacket(0, 'Invalid query provided'));
       }
       const userID = req.user['_id'];
-      const packet = {};
+      const packet = await exactMatchSearchFor(userID, query);
       return res.json(packet);
     }
   );
