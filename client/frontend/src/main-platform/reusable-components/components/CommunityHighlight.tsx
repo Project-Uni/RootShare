@@ -158,7 +158,6 @@ function CommunityHighlight(props: Props) {
           </RSText>
         </div>
       </div>
-      {/* <div style={{ width: 125 }}> */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         {renderButton()}
       </div>

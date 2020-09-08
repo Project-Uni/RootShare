@@ -118,6 +118,8 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
+        log('info', `Pre-populated discovery page for user ${userID}`);
+
         return sendPacket(
           1,
           'Successfully retrieved users and communities for population',
@@ -145,16 +147,38 @@ export async function exactMatchSearchFor(userID: string, query: string) {
   const terms = query.split(' ');
   const userSearchConditions: { [key: string]: any }[] = [];
   if (terms.length === 1) {
-    userSearchConditions.push({ firstName: new RegExp(terms[0], 'gi') });
-    userSearchConditions.push({ email: new RegExp(terms[0], 'gi') });
-    userSearchConditions.push({ lastName: new RegExp(terms[0], 'gi') });
+    try {
+      userSearchConditions.push({ firstName: new RegExp(terms[0], 'gi') });
+      userSearchConditions.push({ email: new RegExp(terms[0], 'gi') });
+      userSearchConditions.push({ lastName: new RegExp(terms[0], 'gi') });
+    } catch (err) {
+      log(
+        'error',
+        `There was an error with the regular expression made from the query: ${err}`
+      );
+      return sendPacket(
+        -1,
+        'There was an error with the regular expression made from the query'
+      );
+    }
   } else {
-    userSearchConditions.push({
-      $and: [
-        { firstName: new RegExp(terms[0], 'gi') },
-        { lastName: new RegExp(terms[1], 'gi') },
-      ],
-    });
+    try {
+      userSearchConditions.push({
+        $and: [
+          { firstName: new RegExp(terms[0], 'gi') },
+          { lastName: new RegExp(terms[1], 'gi') },
+        ],
+      });
+    } catch (err) {
+      log(
+        'error',
+        `There was an error with the regular expression made from the query: ${err}`
+      );
+      return sendPacket(
+        -1,
+        'There was an error with the regular expression made from the query'
+      );
+    }
   }
 
   try {
@@ -235,6 +259,11 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           );
           communities[i] = cleanedCommunity;
         }
+
+        log(
+          'info',
+          `Successfully retrieved all matching users and communities for query: ${query}`
+        );
 
         return sendPacket(
           1,

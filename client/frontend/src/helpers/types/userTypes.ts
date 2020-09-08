@@ -48,4 +48,4 @@ export type ProfileState =
   | 'PUBLIC'
   | 'PENDING';
 
-//NOTE - Pending added for general display when figuring out from/to not needed
+//NOTE - Pending added for general display when figuring out from / to not needed
