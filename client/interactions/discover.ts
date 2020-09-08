@@ -136,6 +136,7 @@ async function cleanUser(
   currentUserConnections,
   currentUserJoinedCommunities,
   otherUser: {
+    _id: string;
     firstName: string;
     lastName: string;
     university: { _id: string; universityName: string };
@@ -170,6 +171,7 @@ async function cleanUser(
   }
 
   const cleanedUser = {
+    _id: otherUser._id,
     firstName: otherUser.firstName,
     lastName: otherUser.lastName,
     university: otherUser.university,
@@ -187,6 +189,7 @@ async function cleanUser(
 async function cleanCommunity(
   currentUserConnections: string[],
   community: {
+    _id: string;
     name: string;
     type: string;
     description: string;
@@ -215,6 +218,7 @@ async function cleanCommunity(
   }
 
   const cleanedCommunity = {
+    _id: community._id,
     name: community.name,
     type: community.type,
     description: community.description,

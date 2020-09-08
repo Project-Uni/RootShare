@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
@@ -13,6 +13,8 @@ import {
   UserHighlight,
   CommunityHighlight,
 } from '../../reusable-components';
+
+import { ReniHeadshot } from '../../../images/team';
 import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
@@ -21,7 +23,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -39,16 +41,21 @@ const useStyles = makeStyles((_: any) => ({
   },
   resultsContainer: {},
   singleResult: {
-    marginLeft: 1,
-    marginRight: 1,
-    marginBottom: 1,
+    borderBottom: `1px solid ${colors.fourth}`,
+    borderLeft: `1px solid ${colors.fourth}`,
+    borderRight: `1px solid ${colors.fourth}`,
   },
   searchIcon: {
     marginRight: 10,
   },
+  loadingIndicator: {
+    marginTop: 80,
+    color: colors.primary,
+  },
 }));
 
 type DiscoverCommunity = {
+  _id: string;
   name: string;
   type: string;
   description: string;
@@ -60,9 +67,10 @@ type DiscoverCommunity = {
 };
 
 type DiscoverUser = {
+  _id: string;
   firstName: string;
   lastName: string;
-  university: string;
+  university: { _id: string; universityName: string };
   work?: string;
   position?: string;
   graduationYear?: number;
@@ -115,6 +123,8 @@ function DiscoverBody(props: Props) {
   function closeWelcomeMessage() {
     setShowWelcomeModal(false);
   }
+
+  function randomShuffle(array: any[]) {}
 
   function renderSearchArea() {
     return (
@@ -203,6 +213,44 @@ function DiscoverBody(props: Props) {
     return output;
   }
 
+  function renderResults() {
+    const output = [];
+    for (let i = 0; i < users.length; i++) {
+      output.push(
+        <UserHighlight
+          style={styles.singleResult}
+          userID={users[i]._id}
+          name={`${users[i].firstName} ${users[i].lastName}`}
+          profilePic={users[i].profilePicture}
+          university={users[i].university.universityName}
+          graduationYear={users[i].graduationYear}
+          position={users[i].position}
+          company={users[i].work}
+          mutualConnections={users[i].numMutualConnections}
+          mutualCommunities={users[i].numMutualCommunities}
+          connected={true} //TODO - Fix
+        />
+      );
+    }
+
+    for (let i = 0; i < communities.length; i++) {
+      output.push(
+        <CommunityHighlight
+          style={styles.singleResult}
+          communityID={communities[i]._id}
+          private={communities[i].private}
+          name={communities[i].name}
+          type={communities[i].type}
+          description={communities[i].description}
+          profilePicture={communities[i].profilePicture}
+          memberCount={communities[i].numMembers}
+          mutualMemberCount={communities[i].numMutual}
+          status="OPEN" //TODO - Fix this
+        />
+      );
+    }
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
@@ -214,7 +262,11 @@ function DiscoverBody(props: Props) {
       )}
       <div className={styles.body}>
         {renderSearchArea()}
-        <div className={styles.resultsContainer}>{renderMockSearch()}</div>
+        {loading ? (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        ) : (
+          <div className={styles.resultsContainer}>{renderMockSearch()}</div>
+        )}
       </div>
     </div>
   );
