@@ -51,12 +51,12 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   style?: any;
   userID: string;
-  profilePic?: any;
+  profilePic?: string;
   name: string;
   university: string;
-  graduationYear: number;
-  position: string;
-  company: string;
+  graduationYear?: number;
+  position?: string;
+  company?: string;
   mutualConnections: number;
   mutualCommunities: number;
   connected?: boolean;

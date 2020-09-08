@@ -7,6 +7,8 @@ import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 
+import { CommunityType } from '../../../helpers/types';
+
 import { colors } from '../../../theme/Colors';
 import {
   WelcomeMessage,
@@ -14,8 +16,6 @@ import {
   CommunityHighlight,
 } from '../../reusable-components';
 
-import { ReniHeadshot } from '../../../images/team';
-import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
@@ -57,7 +57,7 @@ const useStyles = makeStyles((_: any) => ({
 type DiscoverCommunity = {
   _id: string;
   name: string;
-  type: string;
+  type: CommunityType;
   description: string;
   private: boolean;
   university: { _id: string; universityName: string };
@@ -124,7 +124,18 @@ function DiscoverBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function randomShuffle(array: any[]) {}
+  function randomShuffle(array: any[]) {
+    const iterations = 3;
+    for (let i = 0; i < iterations; i++) {
+      for (let j = 0; j < array.length; j++) {
+        const swapIndex = Math.floor(Math.random() * array.length);
+
+        const temp = array[swapIndex];
+        array[swapIndex] = array[j];
+        array[j] = temp;
+      }
+    }
+  }
 
   function renderSearchArea() {
     return (
@@ -148,69 +159,6 @@ function DiscoverBody(props: Props) {
         </IconButton>
       </div>
     );
-  }
-
-  function renderMockSearch() {
-    const output = [];
-    for (let i = 0; i < 3; i++) {
-      output.push(
-        <UserHighlight
-          style={styles.singleResult}
-          userID="testID"
-          name="Reni Patel"
-          profilePic={ReniHeadshot}
-          university="Purdue"
-          graduationYear={2020}
-          position="Head of Alumni Relations"
-          company="RootShare"
-          mutualConnections={178}
-          mutualCommunities={6}
-          connected={i % 2 === 1}
-        />
-      );
-      output.push(
-        <CommunityHighlight
-          style={styles.singleResult}
-          communityID="testID"
-          private
-          name={'RootShare'}
-          type="Business"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          profilePicture={PurdueHypeBanner}
-          memberCount={1498}
-          mutualMemberCount={52}
-          status="PENDING"
-        />
-      );
-      output.push(
-        <CommunityHighlight
-          style={styles.singleResult}
-          communityID="testID"
-          name={'RootShare'}
-          type="Business"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          profilePicture={PurdueHypeBanner}
-          memberCount={1498}
-          mutualMemberCount={52}
-          status="JOINED"
-        />
-      );
-      output.push(
-        <CommunityHighlight
-          style={styles.singleResult}
-          communityID="testID"
-          private
-          name={'RootShare'}
-          type="Business"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          profilePicture={PurdueHypeBanner}
-          memberCount={1498}
-          mutualMemberCount={52}
-          status="OPEN"
-        />
-      );
-    }
-    return output;
   }
 
   function renderResults() {
@@ -249,6 +197,9 @@ function DiscoverBody(props: Props) {
         />
       );
     }
+
+    randomShuffle(output);
+    return output;
   }
 
   return (
@@ -265,7 +216,7 @@ function DiscoverBody(props: Props) {
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          <div className={styles.resultsContainer}>{renderMockSearch()}</div>
+          <div className={styles.resultsContainer}>{renderResults()}</div>
         )}
       </div>
     </div>
