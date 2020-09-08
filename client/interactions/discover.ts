@@ -133,7 +133,76 @@ export async function populateDiscoverForUser(userID: string) {
 }
 
 export async function exactMatchSearchFor(userID: string, query: string) {
-  return sendPacket(1, 'Test worked');
+  const USER_LIMIT = 15;
+  const COMMUNITY_LIMIT = 5;
+
+  const cleanedQuery = query.trim();
+  if (cleanedQuery.length < 3)
+    return sendPacket(0, 'Query is too short to provide accurate search');
+
+  const terms = query.split(' ');
+  const userSearchConditions: [{ [key: string]: any }] = [
+    { firstName: new RegExp(terms[0], 'gi') },
+  ];
+  if (terms.length === 1) {
+    userSearchConditions.push({ email: new RegExp(terms[0], 'gi') });
+    userSearchConditions.push({ lastName: new RegExp(terms[0], 'gi') });
+  } else {
+    userSearchConditions.push({ lastName: new RegExp(terms[1], 'gi') });
+  }
+  //USER: First term = first Name or email, second term = last name
+  //COMMUNITY: All terms = name. if any of the terms are in the community name
+  try {
+    const userPromise = User.find({ $or: userSearchConditions })
+      .select([
+        'firstName',
+        'lastName',
+        'university',
+        'work',
+        'position',
+        'graduationYear',
+        'profilePicture',
+        'joinedCommunities',
+        'connections',
+      ])
+      .limit(USER_LIMIT)
+      .populate({ path: 'university', select: ['universityName'] })
+      .exec();
+
+    const communityPromise = Community.find({
+      name: new RegExp(cleanedQuery, 'gi'),
+    })
+      .select([
+        'name',
+        'type',
+        'description',
+        'private',
+        'members',
+        'profilePicture',
+        'university',
+      ])
+      .limit(COMMUNITY_LIMIT)
+      .populate({ path: 'university', select: ['universityName'] })
+      .exec();
+
+    return Promise.all([userPromise, communityPromise])
+      .then(([users, communities]) => {
+        //TODO - Cleanup users and communities and find status
+
+        return sendPacket(
+          1,
+          'Successfully retrieved all users and communities for query',
+          { users, communities }
+        );
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 //HELPERS

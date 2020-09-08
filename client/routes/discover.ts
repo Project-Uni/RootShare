@@ -16,10 +16,9 @@ export default function discoverRoutes(app) {
     '/api/discover/search/v1/exactMatch',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const query = req.query.query;
-      if (!query || query === '') {
-        return res.json(sendPacket(0, 'Invalid query provided'));
-      }
+      const query: string = req.query.query;
+      if (!query) return res.json(sendPacket(0, 'No query provided'));
+
       const userID = req.user['_id'];
       const packet = await exactMatchSearchFor(userID, query);
       return res.json(packet);
