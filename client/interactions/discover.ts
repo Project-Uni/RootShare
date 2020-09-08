@@ -57,6 +57,7 @@ export async function populateDiscoverForUser(userID: string) {
           profilePicture: '$profilePicture',
           joinedCommunities: '$joinedCommunities',
           connections: '$connections',
+          pendingConnections: '$pendingConnections',
         },
       },
     ]).exec();
@@ -103,7 +104,9 @@ export async function populateDiscoverForUser(userID: string) {
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
           const cleanedUser = await cleanUser(
+            userID,
             connections,
+            [],
             joinedCommunities,
             users[i]
           );
@@ -141,18 +144,30 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     return sendPacket(0, 'Query is too short to provide accurate search');
 
   const terms = query.split(' ');
-  const userSearchConditions: [{ [key: string]: any }] = [
-    { firstName: new RegExp(terms[0], 'gi') },
-  ];
+  const userSearchConditions: { [key: string]: any }[] = [];
   if (terms.length === 1) {
+    userSearchConditions.push({ firstName: new RegExp(terms[0], 'gi') });
     userSearchConditions.push({ email: new RegExp(terms[0], 'gi') });
     userSearchConditions.push({ lastName: new RegExp(terms[0], 'gi') });
   } else {
-    userSearchConditions.push({ lastName: new RegExp(terms[1], 'gi') });
+    userSearchConditions.push({
+      $and: [
+        { firstName: new RegExp(terms[0], 'gi') },
+        { lastName: new RegExp(terms[1], 'gi') },
+      ],
+    });
   }
-  //USER: First term = first Name or email, second term = last name
-  //COMMUNITY: All terms = name. if any of the terms are in the community name
+
   try {
+    const currentUserPromise = User.findById(userID)
+      .select([
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'pendingCommunities',
+      ])
+      .exec();
+
     const userPromise = User.find({ $or: userSearchConditions })
       .select([
         'firstName',
@@ -164,6 +179,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'profilePicture',
         'joinedCommunities',
         'connections',
+        'pendingConnections',
       ])
       .limit(USER_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
@@ -185,9 +201,30 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       .populate({ path: 'university', select: ['universityName'] })
       .exec();
 
-    return Promise.all([userPromise, communityPromise])
-      .then(([users, communities]) => {
+    return Promise.all([currentUserPromise, userPromise, communityPromise])
+      .then(async ([currentUser, users, communities]) => {
+        if (!currentUser) return sendPacket(0, 'Could not find current user entry');
         //TODO - Cleanup users and communities and find status
+
+        for (let i = 0; i < users.length; i++) {
+          const cleanedUser = await cleanUser(
+            userID,
+            currentUser.connections,
+            currentUser.pendingConnections,
+            currentUser.joinedCommunities,
+            users[i]
+          );
+          users[i] = cleanedUser;
+        }
+
+        //Cleaning communities array
+        for (let i = 0; i < communities.length; i++) {
+          const cleanedCommunity = await cleanCommunity(
+            currentUser.connections,
+            communities[i]
+          );
+          communities[i] = cleanedCommunity;
+        }
 
         return sendPacket(
           1,
@@ -208,8 +245,10 @@ export async function exactMatchSearchFor(userID: string, query: string) {
 //HELPERS
 
 async function cleanUser(
-  currentUserConnections,
-  currentUserJoinedCommunities,
+  currentUserID: string,
+  currentUserConnections: string[],
+  currentUserPendingConnections: string[],
+  currentUserJoinedCommunities: string[],
   otherUser: {
     _id: string;
     firstName: string;
@@ -220,6 +259,7 @@ async function cleanUser(
     graduationYear: number;
     profilePicture?: string;
     connections: string[];
+    pendingConnections: string[];
     joinedCommunities: string[];
   }
 ) {
@@ -230,6 +270,14 @@ async function cleanUser(
   const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
     return otherUser.joinedCommunities.indexOf(community) !== -1;
   });
+
+  //Getting current state
+  let status = 'PUBLIC';
+
+  if (currentUserConnections.indexOf(otherUser._id) !== -1) status = 'CONNECTION';
+  else if (currentUserPendingConnections.indexOf(otherUser._id) !== -1)
+    status = 'FROM';
+  else if (otherUser.pendingConnections.indexOf(currentUserID) !== -1) status = 'TO';
 
   //Getting profile picture
   let profilePicture = undefined;
@@ -256,6 +304,7 @@ async function cleanUser(
     profilePicture,
     numMutualConnections: mutualConnections.length,
     numMutualCommunities: mutualCommunities.length,
+    status,
   };
 
   return cleanedUser;

@@ -8,7 +8,7 @@ import { FaSearch } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import { CommunityType } from '../../../helpers/types';
+import { CommunityType, ProfileState } from '../../../helpers/types';
 
 import { colors } from '../../../theme/Colors';
 import {
@@ -80,6 +80,7 @@ type DiscoverUser = {
   profilePicture?: string;
   numMutualConnections: number;
   numMutualCommunities: number;
+  status: ProfileState;
 };
 
 type Props = {
