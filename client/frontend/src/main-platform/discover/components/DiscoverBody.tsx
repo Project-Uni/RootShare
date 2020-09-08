@@ -11,6 +11,7 @@ import {
   CommunityType,
   ProfileState,
   CommunityStatus,
+  UniversityType,
 } from '../../../helpers/types';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 
@@ -71,7 +72,7 @@ type DiscoverCommunity = {
   type: CommunityType;
   description: string;
   private: boolean;
-  university: { _id: string; universityName: string };
+  university: UniversityType;
   profilePicture?: string;
   admin: string;
   numMembers: number;
@@ -83,7 +84,7 @@ type DiscoverUser = {
   _id: string;
   firstName: string;
   lastName: string;
-  university: { _id: string; universityName: string };
+  university: UniversityType;
   work?: string;
   position?: string;
   graduationYear?: number;
