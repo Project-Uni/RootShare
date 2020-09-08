@@ -104,9 +104,7 @@ export async function populateDiscoverForUser(userID: string) {
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
           const cleanedUser = await cleanUser(
-            userID,
             connections,
-            [],
             joinedCommunities,
             users[i]
           );
@@ -204,13 +202,12 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     return Promise.all([currentUserPromise, userPromise, communityPromise])
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
-        //TODO - Cleanup users and communities and find status
 
+        console.log('CurrentUser Connections');
         for (let i = 0; i < users.length; i++) {
+          console.log('Other user:', users[i]);
           const cleanedUser = await cleanUser(
-            userID,
             currentUser.connections,
-            currentUser.pendingConnections,
             currentUser.joinedCommunities,
             users[i]
           );
@@ -245,9 +242,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
 //HELPERS
 
 async function cleanUser(
-  currentUserID: string,
   currentUserConnections: string[],
-  currentUserPendingConnections: string[],
   currentUserJoinedCommunities: string[],
   otherUser: {
     _id: string;
@@ -270,14 +265,6 @@ async function cleanUser(
   const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
     return otherUser.joinedCommunities.indexOf(community) !== -1;
   });
-
-  //Getting current state
-  let status = 'PUBLIC';
-
-  if (currentUserConnections.indexOf(otherUser._id) !== -1) status = 'CONNECTION';
-  else if (currentUserPendingConnections.indexOf(otherUser._id) !== -1)
-    status = 'FROM';
-  else if (otherUser.pendingConnections.indexOf(currentUserID) !== -1) status = 'TO';
 
   //Getting profile picture
   let profilePicture = undefined;
@@ -304,7 +291,7 @@ async function cleanUser(
     profilePicture,
     numMutualConnections: mutualConnections.length,
     numMutualCommunities: mutualCommunities.length,
-    status,
+    status: 'PUBLIC',
   };
 
   return cleanedUser;
@@ -354,4 +341,46 @@ async function cleanCommunity(
   };
 
   return cleanedCommunity;
+}
+
+async function getUserToUserState(
+  currentUserID,
+  currentUserConnections,
+  currentUserPendingConnections,
+  originalOtherUser: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    university: { _id: string; universityName: string };
+    work: string;
+    position: string;
+    graduationYear: number;
+    profilePicture?: string;
+    connections: string[];
+    pendingConnections: string[];
+    joinedCommunities: string[];
+  },
+  cleanedOtherUser: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    university: { _id: string; universityName: string };
+    work: string;
+    position: string;
+    graduationYear: string;
+    profilePicture: string;
+    numMutualConnections: number;
+    numMutualCommunities: number;
+    status: string;
+  }
+) {
+  //Getting current state
+  let status = 'PUBLIC';
+
+  if (currentUserConnections.indexOf(originalOtherUser._id) !== -1)
+    status = 'CONNECTION';
+  else if (currentUserPendingConnections.indexOf(originalOtherUser._id) !== -1)
+    status = 'FROM';
+  else if (originalOtherUser.pendingConnections.indexOf(currentUserID) !== -1)
+    status = 'TO';
 }
