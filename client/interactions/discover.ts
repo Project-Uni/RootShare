@@ -109,41 +109,12 @@ export async function populateDiscoverForUser(userID: string) {
             joinedCommunities,
             users[i]
           );
-
           users[i] = cleanedUser;
         }
 
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
-          const mutualMembers = connections.filter((connection) => {
-            return communities[i].members.indexOf(connection) !== -1;
-          });
-
-          //Getting profile picture
-          let profilePicture = undefined;
-          if (communities[i].profilePicture) {
-            try {
-              const signedImageURL = await retrieveSignedUrl(
-                'communityProfile',
-                communities[i].profilePicture
-              );
-              if (signedImageURL) profilePicture = signedImageURL;
-            } catch (err) {
-              log('error', err);
-            }
-          }
-
-          const cleanedCommunity = {
-            name: communities[i].name,
-            type: communities[i].type,
-            description: communities[i].description,
-            private: communities[i].private,
-            university: communities[i].university,
-            profilePicture,
-            numMembers: communities[i].members.length,
-            numMutual: mutualMembers.length,
-          };
-
+          const cleanedCommunity = await cleanCommunity(connections, communities[i]);
           communities[i] = cleanedCommunity;
         }
 
@@ -213,4 +184,48 @@ async function cleanUser(
   };
 
   return cleanedUser;
+}
+
+async function cleanCommunity(
+  currentUserConnections: string[],
+  community: {
+    name: string;
+    type: string;
+    description: string;
+    private: boolean;
+    university: { _id: string; universityName: string };
+    profilePicture?: string;
+    members: string[];
+  }
+) {
+  const mutualMembers = currentUserConnections.filter((connection) => {
+    return community.members.indexOf(connection) !== -1;
+  });
+
+  //Getting profile picture
+  let profilePicture = undefined;
+  if (community.profilePicture) {
+    try {
+      const signedImageURL = await retrieveSignedUrl(
+        'communityProfile',
+        community.profilePicture
+      );
+      if (signedImageURL) profilePicture = signedImageURL;
+    } catch (err) {
+      log('error', err);
+    }
+  }
+
+  const cleanedCommunity = {
+    name: community.name,
+    type: community.type,
+    description: community.description,
+    private: community.private,
+    university: community.university,
+    profilePicture,
+    numMembers: community.members.length,
+    numMutual: mutualMembers.length,
+  };
+
+  return cleanedCommunity;
 }
