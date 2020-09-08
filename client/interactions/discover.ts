@@ -104,7 +104,7 @@ export async function populateDiscoverForUser(userID: string) {
       .then(async ([communities, users]) => {
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
-          const cleanedUser = await cleanUser(
+          const cleanedUser = await addCalulculatedUserFields(
             connections,
             joinedCommunities,
             users[i]
@@ -114,7 +114,10 @@ export async function populateDiscoverForUser(userID: string) {
 
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
-          const cleanedCommunity = await cleanCommunity(connections, communities[i]);
+          const cleanedCommunity = await addCalculatedCommunityFields(
+            connections,
+            communities[i]
+          );
           communities[i] = cleanedCommunity;
         }
 
@@ -231,12 +234,12 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
         for (let i = 0; i < users.length; i++) {
-          const cleanedUser = await cleanUser(
+          const cleanedUser = await addCalulculatedUserFields(
             currentUser.connections,
             currentUser.joinedCommunities,
             users[i]
           );
-          getUserToUserState(
+          getUserToUserRelationship(
             currentUser.connections,
             currentUser.pendingConnections,
             users[i],
@@ -247,11 +250,11 @@ export async function exactMatchSearchFor(userID: string, query: string) {
 
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
-          const cleanedCommunity = await cleanCommunity(
+          const cleanedCommunity = await addCalculatedCommunityFields(
             currentUser.connections,
             communities[i]
           );
-          getUserToCommunityState(
+          getUserToCommunityRelationship(
             currentUser.joinedCommunities,
             currentUser.pendingCommunities,
             communities[i],
@@ -283,7 +286,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
 
 //HELPERS
 
-async function cleanUser(
+async function addCalulculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
   otherUser: {
@@ -339,7 +342,7 @@ async function cleanUser(
   return cleanedUser;
 }
 
-async function cleanCommunity(
+async function addCalculatedCommunityFields(
   currentUserConnections: string[],
   community: {
     _id: string;
@@ -388,7 +391,7 @@ async function cleanCommunity(
   return cleanedCommunity;
 }
 
-function getUserToUserState(
+function getUserToUserRelationship(
   currentUserConnections,
   currentUserPendingConnections,
   originalOtherUser: {
@@ -420,7 +423,7 @@ function getUserToUserState(
   }
 }
 
-function getUserToCommunityState(
+function getUserToCommunityRelationship(
   currentUserJoinedCommunities: string[],
   currentUserPendingCommunities: string[],
   originalCommunity: {
