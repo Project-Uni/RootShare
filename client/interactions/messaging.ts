@@ -300,15 +300,14 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
 
 function checkConversationExists(userID, recipients, callback) {
   const participants = recipients.concat(userID);
-  Conversation.find(
+  Conversation.findOne(
     { participants: { $all: participants } },
-    (err, conversations) => {
+    (err, conversation) => {
       if (err) return callback(sendPacket(-1, err));
-      if (!conversations || conversations.length === 0)
-        return callback(sendPacket(0, 'No matching Conversations'));
+      if (!conversation) return callback(sendPacket(0, 'No matching Conversations'));
       return callback(
         sendPacket(1, 'Sending existing Conversation', {
-          conversationID: conversations[0]._id,
+          conversationID: conversation._id,
         })
       );
     }
