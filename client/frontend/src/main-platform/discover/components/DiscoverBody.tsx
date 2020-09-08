@@ -69,6 +69,7 @@ type DiscoverCommunity = {
   private: boolean;
   university: { _id: string; universityName: string };
   profilePicture?: string;
+  admin: string;
   numMembers: number;
   numMutual: number;
   status: CommunityStatus;
@@ -129,6 +130,7 @@ function DiscoverBody(props: Props) {
   }
 
   async function makeSearch() {
+    setLoading(true);
     const cleanedQuery = validateSearchQuery();
     if (!cleanedQuery) return;
 
@@ -141,6 +143,11 @@ function DiscoverBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+    if (data.success === 1) {
+      setCommunities(data.content['communities']);
+      setUsers(data.content['users']);
+    }
+    setLoading(false);
   }
 
   function validateSearchQuery() {
