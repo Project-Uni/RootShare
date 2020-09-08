@@ -203,13 +203,17 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
-        console.log('CurrentUser Connections');
         for (let i = 0; i < users.length; i++) {
-          console.log('Other user:', users[i]);
           const cleanedUser = await cleanUser(
             currentUser.connections,
             currentUser.joinedCommunities,
             users[i]
+          );
+          getUserToUserState(
+            currentUser.connections,
+            currentUser.pendingConnections,
+            users[i],
+            cleanedUser
           );
           users[i] = cleanedUser;
         }
@@ -344,7 +348,6 @@ async function cleanCommunity(
 }
 
 async function getUserToUserState(
-  currentUserID,
   currentUserConnections,
   currentUserPendingConnections,
   originalOtherUser: {
@@ -367,20 +370,28 @@ async function getUserToUserState(
     university: { _id: string; universityName: string };
     work: string;
     position: string;
-    graduationYear: string;
+    graduationYear: number;
     profilePicture: string;
     numMutualConnections: number;
     numMutualCommunities: number;
     status: string;
   }
 ) {
-  //Getting current state
-  let status = 'PUBLIC';
+  for (let i = 0; i < currentUserConnections.length; i++) {
+    if (originalOtherUser.connections.indexOf(currentUserConnections[i]) !== -1) {
+      cleanedOtherUser.status = 'CONNECTION';
+      return;
+    }
+  }
 
-  if (currentUserConnections.indexOf(originalOtherUser._id) !== -1)
-    status = 'CONNECTION';
-  else if (currentUserPendingConnections.indexOf(originalOtherUser._id) !== -1)
-    status = 'FROM';
-  else if (originalOtherUser.pendingConnections.indexOf(currentUserID) !== -1)
-    status = 'TO';
+  for (let i = 0; i < currentUserPendingConnections.length; i++) {
+    if (
+      originalOtherUser.pendingConnections.indexOf(
+        currentUserPendingConnections[i]
+      ) !== -1
+    ) {
+      cleanedOtherUser.status = 'PENDING';
+      return;
+    }
+  }
 }
