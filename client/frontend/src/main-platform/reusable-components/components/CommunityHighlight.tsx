@@ -6,6 +6,7 @@ import { FaLock } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const MAX_DESC_LEN = 200;
 
@@ -24,10 +25,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    height: 70,
-    width: 70,
-    borderRadius: 50,
-    border: `1px solid ${colors.primaryText}`,
+    border: `1px solid ${colors.bright}`,
   },
   connectButton: {
     background: colors.bright,
@@ -102,7 +100,15 @@ function CommunityHighlight(props: Props) {
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div className={styles.left}>
         <a href={`/community/${props.communityID}`}>
-          <img src={props.profilePicture} className={styles.profilePic} />
+          <ProfilePicture
+            type="community"
+            height={70}
+            width={70}
+            borderRadius={50}
+            borderWidth={1}
+            currentPicture={props.profilePicture}
+            pictureStyle={styles.profilePic}
+          />
         </a>
         <div className={styles.textContainer}>
           <a href={`/community/${props.communityID}`} className={styles.noUnderline}>

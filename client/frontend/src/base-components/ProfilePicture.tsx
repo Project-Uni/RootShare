@@ -68,8 +68,8 @@ type Props = {
   _id?: string; //Required for community
   accessToken: string;
   refreshToken: string;
-  className?: string;
-  pictureStyle?: string;
+  className?: string; //Use this for margin and positioning
+  pictureStyle?: string; //The only thing this should be used for is adding border
   currentPicture?: any;
   editable?: boolean;
   height: number;
