@@ -7,7 +7,7 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-import log from '../helpers/logger';
+import { log } from '../helpers/functions';
 
 import { getUserData } from '../interactions/utilities';
 

@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
-import { User, Connection, Webinar, Community } from '../models';
+import { User, Connection, Webinar } from '../models';
 
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
-
-import { retrieveSignedUrl } from '../helpers/S3';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { extractOtherUserIDFromConnections } from './utilities';
 
 export function getCurrentUser(user, callback) {

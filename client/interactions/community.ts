@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 
 import { Community, User } from '../models';
-
-import { COMMUNITY_TYPE } from '../types/types';
-
-import { retrieveSignedUrl } from '../helpers/S3';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { COMMUNITY_TYPE } from '../helpers/types';
 
 export async function createNewCommunity(
   name: string,

@@ -1,7 +1,7 @@
 var passport = require('passport');
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { generateJWT } from '../helpers/generateJWT';
+import { log, sendPacket, generateJWT } from '../helpers/functions';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
@@ -17,9 +17,6 @@ var {
   completeRegistrationRequired,
   userExists,
 } = require('../interactions/registration/registration-data');
-
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 
 module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {

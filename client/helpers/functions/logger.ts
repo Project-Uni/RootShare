@@ -5,7 +5,7 @@ const LOGS_DIRECTORY = '../logs';
 const buffer = [];
 const MAX_BUFFER_LEN = 5;
 
-export default function log(title: string, message: string) {
+export function log(title: string, message: string) {
   if (process.env.NODE_ENV === 'dev')
     return console.log(`[${title.toUpperCase()}] ${message}`);
   writeLogToFile(`[${title.toUpperCase()}] ${message}`);

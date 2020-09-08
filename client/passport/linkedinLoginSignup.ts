@@ -2,8 +2,7 @@ const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const { LINKEDIN_KEY, LINKEDIN_SECRET } = require('../../keys/keys.json');
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
-import log from '../helpers/logger';
-import { generateJWT } from '../helpers/generateJWT';
+import { log, generateJWT } from '../helpers/functions';
 
 const {
   sendConfirmationEmail,
