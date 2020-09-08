@@ -162,7 +162,7 @@ function ConnectionsBody(props: Props) {
             mutualConnections={mutualConnections.length}
             mutualCommunities={mutualCommunities.length}
             style={styles.connectionStyle}
-            connected={true}
+            status="PUBLIC"
           />
         </div>
       );

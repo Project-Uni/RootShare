@@ -219,7 +219,7 @@ function DiscoverBody(props: Props) {
           company={users[i].work}
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
-          connected={true} //TODO - Fix
+          status={users[i].status}
         />
       );
     }

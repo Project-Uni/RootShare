@@ -7,6 +7,8 @@ import { colors } from '../../../theme/Colors';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
+import { ProfileState } from '../../../helpers/types';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -49,6 +51,9 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'none',
     },
   },
+  pendingStatus: {
+    background: colors.secondaryText,
+  },
 }));
 
 type Props = {
@@ -62,11 +67,32 @@ type Props = {
   company?: string;
   mutualConnections: number;
   mutualCommunities: number;
-  connected?: boolean;
+  status: ProfileState;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
+
+  function renderStatus() {
+    if (props.status === 'PUBLIC')
+      return <Button className={styles.connectButton}>Connect</Button>;
+    else if (props.status === 'CONNECTION')
+      return (
+        <RSText color={colors.primary} size={11}>
+          CONNECTED
+        </RSText>
+      );
+    else if (props.status === 'PENDING')
+      return (
+        <RSText
+          color={colors.primaryText}
+          size={11}
+          className={styles.pendingStatus}
+        >
+          PENDING
+        </RSText>
+      );
+  }
 
   return (
     <div className={[styles.wrapper, props.style || null].join(' ')}>
@@ -112,14 +138,8 @@ function UserHighlight(props: Props) {
           </RSText>
         </div>
       </div>
-      <div>
-        {!props.connected ? (
-          <Button className={styles.connectButton}>Connect</Button>
-        ) : (
-          <RSText color={colors.primaryText} size={11}>
-            CONNECTED
-          </RSText>
-        )}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {renderStatus()}
       </div>
     </div>
   );
