@@ -64,6 +64,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   style?: any;
+  userID: string;
   communityID: string;
   private?: boolean;
   name: string;
@@ -79,6 +80,7 @@ type Props = {
   mutualMemberCount: number;
   status: 'JOINED' | 'PENDING' | 'OPEN';
   profilePicture: any;
+  admin: string;
 };
 
 function CommunityHighlight(props: Props) {
@@ -93,8 +95,8 @@ function CommunityHighlight(props: Props) {
       return <Button className={styles.pendingButton}>Pending</Button>;
     else
       return (
-        <RSText color={colors.primaryText} size={12}>
-          MEMBER
+        <RSText color={colors.primary} size={12}>
+          {props.userID === props.admin ? 'ADMIN' : 'MEMBER'}
         </RSText>
       );
   }
@@ -156,7 +158,10 @@ function CommunityHighlight(props: Props) {
           </RSText>
         </div>
       </div>
-      <div style={{ width: 125 }}>{renderButton()}</div>
+      {/* <div style={{ width: 125 }}> */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {renderButton()}
+      </div>
     </div>
   );
 }

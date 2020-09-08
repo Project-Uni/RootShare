@@ -90,6 +90,7 @@ type DiscoverUser = {
 };
 
 type Props = {
+  user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
 };
@@ -227,6 +228,7 @@ function DiscoverBody(props: Props) {
     for (let i = 0; i < communities.length; i++) {
       output.push(
         <CommunityHighlight
+          userID={props.user._id}
           style={styles.singleResult}
           communityID={communities[i]._id}
           private={communities[i].private}
@@ -236,7 +238,8 @@ function DiscoverBody(props: Props) {
           profilePicture={communities[i].profilePicture}
           memberCount={communities[i].numMembers}
           mutualMemberCount={communities[i].numMutual}
-          status="OPEN" //TODO - Fix this
+          status={communities[i].status}
+          admin={communities[i].admin}
         />
       );
     }
@@ -268,6 +271,7 @@ function DiscoverBody(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };
