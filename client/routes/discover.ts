@@ -9,8 +9,4 @@ export default function discoverRoutes(app) {
     const packet = await populateDiscoverForUser(userID);
     return res.json(packet);
   });
-
-  app.get('/api/discover/test', (req, res) => {
-    return res.json({ test: 'Yes' });
-  });
 }
