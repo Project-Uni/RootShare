@@ -6,6 +6,7 @@ import { TextField, IconButton, CircularProgress } from '@material-ui/core';
 import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
+import qs from 'query-string';
 
 import { CommunityType } from '../../../helpers/types';
 
@@ -30,6 +31,7 @@ const useStyles = makeStyles((_: any) => ({
   searchBar: {
     flex: 1,
     marginRight: 10,
+    marginLeft: 15,
     background: colors.primaryText,
   },
   searchBarContainer: {
@@ -39,11 +41,12 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 1,
     background: colors.primaryText,
   },
-  resultsContainer: {},
+  resultsContainer: {
+    marginLeft: 1,
+    marginRight: 1,
+  },
   singleResult: {
     borderBottom: `1px solid ${colors.fourth}`,
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   searchIcon: {
     marginRight: 10,
@@ -89,10 +92,10 @@ function DiscoverBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [autocompleteResults, setAutocompleteResults] = useState([]);
 
   const [communities, setCommunities] = useState<DiscoverCommunity[]>([]);
   const [users, setUsers] = useState<DiscoverUser[]>([]);
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -116,6 +119,18 @@ function DiscoverBody(props: Props) {
     }
   }
 
+  async function makeSearch() {
+    const query = qs.stringify({ query: searchValue });
+    const { data } = await makeRequest(
+      'GET',
+      `/api/discover/search/v1/exactMatch?${query}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
@@ -137,24 +152,21 @@ function DiscoverBody(props: Props) {
     }
   }
 
+  function handleSearchChange(event: any) {
+    setSearchValue(event.target.value);
+  }
+
   function renderSearchArea() {
     return (
       <div className={styles.searchBarContainer}>
-        <Autocomplete
-          freeSolo
-          disableClearable
-          options={autocompleteResults}
+        <TextField
+          label="Search for users and communities"
           className={styles.searchBar}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Search for users or communities"
-              variant="outlined"
-              InputProps={{ ...params.InputProps, type: 'search' }}
-            />
-          )}
+          variant="outlined"
+          value={searchValue}
+          onChange={handleSearchChange}
         />
-        <IconButton>
+        <IconButton onClick={makeSearch}>
           <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
