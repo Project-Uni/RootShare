@@ -19,10 +19,16 @@ export async function createNewCommunity(
     type,
     private: isPrivate,
     admin: adminID,
+    members: [adminID],
   });
 
   try {
     const savedCommunity = await newCommunity.save();
+
+    const adminUpdate = await User.updateOne(
+      { _id: adminID },
+      { $push: { joinedCommunities: savedCommunity._id } }
+    ).exec();
 
     log('info', `Successfully created community ${name}`);
     return sendPacket(1, 'Successfully created new community', {
@@ -77,6 +83,19 @@ export async function editCommunity(
     community.private = isPrivate;
 
     const savedCommunity = await community.save();
+
+    if (community.members.indexOf(adminID) === -1) {
+      const communityPromise = Community.updateOne(
+        { _id },
+        { $push: { members: adminID } }
+      ).exec();
+      const userPromise = User.updateOne(
+        { _id: adminID },
+        { $push: { joinedCommunities: _id } }
+      ).exec();
+      await Promise.all([communityPromise, userPromise]);
+    }
+
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
       community: savedCommunity,
