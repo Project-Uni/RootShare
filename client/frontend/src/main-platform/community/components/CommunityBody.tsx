@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
+import { makeRequest } from '../../../helpers/functions';
+
 import { colors } from '../../../theme/Colors';
-import { WelcomeMessage } from '../../reusable-components';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
 
-import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { CommunityStatus } from '../../../helpers/types/communityTypes';
 
 const HEADER_HEIGHT = 60;
 
@@ -26,23 +30,37 @@ const useStyles = makeStyles((_: any) => ({
     height: 200,
     objectFit: 'cover',
   },
+
+  profilePictureWrapper: {
+    marginTop: -88,
+    marginLeft: 50,
+  },
   profilePicture: {
+    border: `8px solid ${colors.primaryText}`,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 50,
+  },
+  loadingProfilePicture: {
+    background: colors['tint-three'],
     height: 175,
     width: 175,
     borderRadius: 100,
     marginTop: -88,
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
-    objectFit: 'cover',
   },
 }));
 
 type Props = {
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  communityID: string;
+  status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
   numMutual: number;
+  numPending: number;
   type:
     | 'Social'
     | 'Business'
@@ -51,41 +69,74 @@ type Props = {
     | 'Student Organization'
     | 'Academic';
   private?: boolean;
+  loading?: boolean;
+  accessToken: string;
+  refreshToken: string;
+  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  isAdmin?: boolean;
 };
 
 function CommunityBody(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [currentProfile, setCurrentProfile] = useState<string>();
 
   const locked =
     props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
-      setLoading(false);
-    });
   }, []);
 
-  async function fetchData() {
-    console.log('Fetching data');
-  }
+  useEffect(() => {
+    if (!props.loading) getProfilePicture();
+  }, [props.loading]);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/community/${props.communityID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) {
+      setCurrentProfile(data['content']['imageURL']);
+    }
+  }
+
+  function updateCurrentProfilePicture(imageData: string) {
+    setCurrentProfile(imageData);
   }
 
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
         <div className={styles.coverPhoto}></div>
-        <img src={BabyBoilersBanner} className={styles.profilePicture} />
+        {props.loading ? (
+          <div className={[styles.loadingProfilePicture].join(' ')}></div>
+        ) : (
+          <ProfilePicture
+            currentPicture={currentProfile}
+            type="community"
+            height={175}
+            width={175}
+            borderRadius={100}
+            className={styles.profilePictureWrapper}
+            pictureStyle={styles.profilePicture}
+            editable={props.isAdmin}
+            borderWidth={8}
+            _id={props.communityID}
+            updateCurrentPicture={updateCurrentProfilePicture}
+            zoomOnClick={!props.isAdmin}
+          />
+        )}
       </div>
     );
   }
@@ -107,25 +158,30 @@ function CommunityBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {/* {showWelcomeModal && (
-        <WelcomeMessage
-          title="Community"
-          message="This is a community. You can talk with other people who are also involved in this community."
-          onClose={closeWelcomeMessage}
-        />
-      )} */}
       <div className={styles.body}>
         {renderProfileAndBackground()}
-        <CommunityGeneralInfo
-          status={props.status}
-          name={props.name}
-          numMembers={props.numMembers}
-          numMutual={props.numMutual}
-          type={props.type}
-          private={props.private}
-          description={props.description}
-        />
-        {locked ? renderLocked() : renderTabs()}
+        {props.loading ? (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        ) : (
+          <>
+            <CommunityGeneralInfo
+              communityID={props.communityID}
+              status={props.status}
+              name={props.name}
+              numMembers={props.numMembers}
+              numPending={props.numPending}
+              numMutual={props.numMutual}
+              type={props.type}
+              private={props.private}
+              description={props.description}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+              updateCommunityStatus={props.updateCommunityStatus}
+              isAdmin={props.isAdmin}
+            />
+            {locked ? renderLocked() : renderTabs()}
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,10 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import { Post } from '../models';
 
 export default function postsRoutes(app) {
-  app.post('/api/posts/create', isAuthenticatedWithJWT, async (req, res) => {
+  app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
     const { message } = req.body;
 
     if (!message) return res.json(sendPacket(-1, 'message is missing from request'));

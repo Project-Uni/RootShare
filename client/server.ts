@@ -5,12 +5,16 @@ import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
 import passport = require('passport');
-import log, { initializeDirectory } from './helpers/logger';
+import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 
 import postRoutes from './routes/posts';
 
 import { rateLimiter } from './middleware';
+
+import communityRoutes from './routes/community';
+import feedbackRoutes from './routes/feedback';
+import discoverRoutes from './routes/discover';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -65,7 +69,13 @@ require('./routes/mocks')(app);
 require('./routes/proxy')(app);
 
 require('./routes/images')(app);
+
+//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
+communityRoutes(app);
+feedbackRoutes(app);
+discoverRoutes(app);
 postRoutes(app);
+
 require('./config/setup')(passport);
 
 app.use(express.static(path.join('./', '/frontend/build')));

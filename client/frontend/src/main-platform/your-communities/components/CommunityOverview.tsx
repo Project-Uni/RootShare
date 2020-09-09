@@ -3,8 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
 
-import RSText from '../../../base-components/RSText';
+import { CommunityType } from '../../../helpers/types';
 import { colors } from '../../../theme/Colors';
+
+import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -17,12 +20,6 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
-  },
-  profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 100,
-    border: `1px solid ${colors.primaryText}`,
   },
   communityBody: {
     flex: 1,
@@ -50,25 +47,40 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     marginBottom: 8,
   },
+  countsAndStatusDiv: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  status: {
+    padding: '7px 10px',
+    borderRadius: 4,
+  },
+  joinedStatus: {
+    background: colors.primary,
+  },
+  pendingStatus: {
+    background: colors.secondaryText,
+  },
+  nameHover: {
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
+  userID: string;
   communityID: string;
   name: string;
   description: string;
   private?: boolean;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
+  admin: string;
   memberCount: number;
   mutualMemberCount: number;
-  profilePicture: any;
+  profilePicture?: any;
   style?: any;
-  joinedDate: string;
+  status: 'joined' | 'pending';
 };
 
 function CommunityOverview(props: Props) {
@@ -76,16 +88,27 @@ function CommunityOverview(props: Props) {
 
   function renderName() {
     return (
-      <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <RSText type="head" size={14} color={colors.second}>
-            {props.name}
-          </RSText>
-          {props.private && (
-            <FaLock color={colors.secondaryText} size={14} className={styles.lock} />
-          )}
-        </div>
-      </a>
+      <div style={{ display: 'inline-block' }}>
+        <a href={`/community/${props.communityID}`} className={styles.noUnderline}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <RSText
+              type="head"
+              size={14}
+              color={colors.second}
+              className={styles.nameHover}
+            >
+              {props.name}
+            </RSText>
+            {props.private && (
+              <FaLock
+                color={colors.secondaryText}
+                size={14}
+                className={styles.lock}
+              />
+            )}
+          </div>
+        </a>
+      </div>
     );
   }
 
@@ -124,11 +147,35 @@ function CommunityOverview(props: Props) {
   return (
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <a href={`/community/${props.communityID}`}>
-        <img src={props.profilePicture} className={styles.profilePic} />
+        <ProfilePicture
+          type="community"
+          currentPicture={props.profilePicture}
+          height={80}
+          width={80}
+          borderRadius={60}
+        />
       </a>
       <div className={styles.communityBody}>
         {renderName()}
-        {renderTypeAndCounts()}
+        <div className={styles.countsAndStatusDiv}>
+          {renderTypeAndCounts()}
+          <RSText
+            type="body"
+            size={12}
+            color={colors.primaryText}
+            className={[
+              styles.status,
+              props.status === 'joined' ? styles.joinedStatus : styles.pendingStatus,
+            ].join(' ')}
+          >
+            {props.status === 'pending'
+              ? 'PENDING'
+              : props.admin === props.userID
+              ? 'ADMIN'
+              : 'MEMBER'}
+          </RSText>
+        </div>
+
         <RSText
           type="body"
           size={12}
@@ -137,9 +184,10 @@ function CommunityOverview(props: Props) {
         >
           {props.description}
         </RSText>
-        <RSText color={colors.second} size={11} type="body">
+        {/* NOTE - Hiding this for now because our current database strategy doesn't support this */}
+        {/* <RSText color={colors.second} size={11} type="body">
           Joined {props.joinedDate}
-        </RSText>
+        </RSText> */}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button } from '@material-ui/core';
 import { FaCamera } from 'react-icons/fa';
@@ -8,15 +8,15 @@ import { connect } from 'react-redux';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-//FOR TESTING PURPOSE
-import { AshwinHeadshot } from '../../../images/team';
 import { makeRequest } from '../../../helpers/functions';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
-  postProfilePic: {
-    height: 50,
-    borderRadius: 50,
+  profilePictureContainer: {
     marginTop: 1,
+  },
+  profilePicture: {
+    border: `1px solid ${colors.primary}`,
   },
   messageAreaWrapper: {
     background: colors.primaryText,
@@ -66,10 +66,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   serverMessage: {
     marginLeft: 60,
-  }
+  },
 }));
 
 type Props = {
+  userID: string;
   appendNewPost: (post: { [key: string]: any }) => any; //TODO: Define Post Type
   accessToken: string;
   refreshToken: string;
@@ -80,13 +81,28 @@ function MakePostContainer(props: Props) {
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<string>();
   const [serverMessage, setServerMessage] = useState<{
     status: 0 | 1;
     message: string;
   }>();
 
-  function handleMessageChange(event: any) {
-    setMessage(event.target.value);
+  useEffect(() => {
+    getProfilePicture();
+  }, []);
+
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/profile/${props.userID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setProfilePicture(data.content['imageURL']);
+    }
   }
 
   async function handlePostClicked() {
@@ -95,7 +111,7 @@ function MakePostContainer(props: Props) {
 
     const { data } = await makeRequest(
       'POST',
-      '/api/posts/create',
+      '/api/posts/broadcast/user',
       { message },
       true,
       props.accessToken,
@@ -122,6 +138,10 @@ function MakePostContainer(props: Props) {
     }
   }
 
+  function handleMessageChange(event: any) {
+    setMessage(event.target.value);
+  }
+
   function handleImageClicked() {
     console.log('Clicked image');
   }
@@ -129,7 +149,15 @@ function MakePostContainer(props: Props) {
   return (
     <div className={styles.messageAreaWrapper}>
       <div className={styles.messageArea}>
-        <img src={AshwinHeadshot} className={styles.postProfilePic} alt="Profile" />
+        <ProfilePicture
+          height={50}
+          width={50}
+          borderRadius={50}
+          currentPicture={profilePicture}
+          type="profile"
+          className={styles.profilePictureContainer}
+          pictureStyle={styles.profilePicture}
+        />
         <div className={styles.textFieldContainer}>
           <TextField
             variant="outlined"

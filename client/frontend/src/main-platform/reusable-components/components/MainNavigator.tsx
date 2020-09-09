@@ -9,7 +9,7 @@ import { BsPersonFill } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 const TEXT_SIZE = 22;
 const ICON_SIZE = 32;
 

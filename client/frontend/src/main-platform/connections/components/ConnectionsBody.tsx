@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
+
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { SmitHeadshot } from '../../../images/team';
+
+import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -25,7 +29,7 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 1,
+    marginLeft: 10,
     marginRight: 1,
     background: colors.primaryText,
   },
@@ -37,10 +41,18 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchIcon: {
     marginRight: 10,
-  }
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 60,
+  },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function ConnectionsBody(props: Props) {
   const styles = useStyles();
@@ -49,6 +61,11 @@ function ConnectionsBody(props: Props) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
+  const [connections, setConnections] = useState<{ [key: string]: any }>([]); //TODO: add type to connection
+  const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
+  const [joinedCommunities, setJoinedCommunities] = useState<{
+    [key: string]: any;
+  }>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -58,7 +75,19 @@ function ConnectionsBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.user._id}/connections`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setConnections(data.content['connections']);
+      setConnectionIDs(data.content['connectionIDs']);
+      setJoinedCommunities(data.content['joinedCommunities']);
+    }
   }
 
   function handleResize() {
@@ -95,22 +124,49 @@ function ConnectionsBody(props: Props) {
 
   function renderConnections() {
     const output = [];
-    for (let i = 0; i < 10; i++)
-      output.push(
-        <UserHighlight
-          name="Smit Desai"
-          userID="testID"
-          profilePic={SmitHeadshot}
-          university="University of Illinois"
-          graduationYear={2020}
-          position="Head of Architecture"
-          company="RootShare"
-          mutualConnections={32}
-          mutualCommunities={4}
-          style={styles.connectionStyle}
-          connected
-        />
+
+    //TODO: Add logic in case an optional field does not exist
+    for (let i = 0; i < connections.length; i++) {
+      const potentialMutualConnections = connections[i].connections.reduce(
+        (
+          extractedConnections: string[],
+          connection: { from: string; to: string }
+        ) => {
+          const otherID =
+            connection['from'].toString() != connections[i].toString()
+              ? connection['from']
+              : connection['to'];
+
+          extractedConnections.push(otherID);
+
+          return extractedConnections;
+        },
+        []
       );
+      let mutualConnections = connectionIDs.filter((x: string) =>
+        potentialMutualConnections.includes(x)
+      );
+      let mutualCommunities = joinedCommunities.filter((x: string) =>
+        connections[i].joinedCommunities.includes(x)
+      );
+      output.push(
+        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
+          <UserHighlight
+            name={`${connections[i].firstName} ${connections[i].lastName}`}
+            userID={connections[i]._id}
+            profilePic={connections[i].profilePicture}
+            university={connections[i].university.universityName}
+            graduationYear={connections[i].graduationYear}
+            position={connections[i].position}
+            company={connections[i].work}
+            mutualConnections={mutualConnections.length}
+            mutualCommunities={mutualCommunities.length}
+            style={styles.connectionStyle}
+            status="CONNECTION"
+          />
+        </div>
+      );
+    }
     return output;
   }
 
@@ -125,10 +181,26 @@ function ConnectionsBody(props: Props) {
       )}
       <div className={styles.body}>
         {renderSearchArea()}
-        {renderConnections()}
+        {loading ? (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        ) : (
+          renderConnections()
+        )}
       </div>
     </div>
   );
 }
 
-export default ConnectionsBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConnectionsBody);

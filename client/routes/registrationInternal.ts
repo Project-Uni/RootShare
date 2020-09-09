@@ -1,9 +1,7 @@
 var passport = require('passport');
 
-import {
-  isAuthenticated,
-  isAuthenticatedWithJWT,
-} from '../passport/middleware/isAuthenticated';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { log, sendPacket, generateJWT } from '../helpers/functions';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
@@ -19,9 +17,6 @@ var {
   completeRegistrationRequired,
   userExists,
 } = require('../interactions/registration/registration-data');
-
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 
 module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
@@ -64,7 +59,7 @@ module.exports = (app) => {
             log('error', `Failed serializing ${user.email}`);
           }
           log('info', `Successfully created account for ${user.email}`);
-          sendConfirmationEmail(user.email);
+
           return res.json(
             sendPacket(1, 'Successfully signed up', {
               firstName: user.firstName,
@@ -159,7 +154,10 @@ module.exports = (app) => {
           log('error', `Failed serializing ${user.email}`);
         }
         log('info', `Confirmed user ${user.email}`);
-        return res.redirect('/register/initialize');
+        const JWT = generateJWT(user);
+        return res.redirect(
+          `/register/external?accessToken=${JWT.accessToken}&refreshToken=${JWT.refreshToken}`
+        );
       });
     } else {
       res.json(sendPacket(-1, 'There was an error processing your request'));

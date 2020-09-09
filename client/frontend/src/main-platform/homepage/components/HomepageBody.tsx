@@ -123,7 +123,7 @@ function HomepageBody(props: Props) {
           buttonAction={handleDiscoverClick}
         />
       )}
-      <MakePostContainer appendNewPost={appendNewPost} />
+      <MakePostContainer appendNewPost={appendNewPost} userID={props.user._id} />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (

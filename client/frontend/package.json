@@ -30,6 +30,7 @@
     "chart.js": "^2.9.3",
     "date-fns": "^2.14.0",
     "emoji-mart": "^3.0.0",
+    "moment": "^2.27.0",
     "query-string": "^6.13.1",
     "react": "^16.13.1",
     "react-chartjs-2": "^2.9.0",
@@ -39,6 +40,7 @@
     "react-ga": "^3.0.0",
     "react-icons": "^3.10.0",
     "react-image-crop": "^8.6.5",
+    "react-images": "^1.1.7",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
@@ -49,10 +51,12 @@
     "styled-icons": "^10.5.0",
     "typescript": "^3.7.5",
     "video.js": "^7.8.4",
-    "videojs-landscape-fullscreen": "^1.5.1"
+    "videojs-landscape-fullscreen": "^1.5.1",
+    "videojs-mux": "^3.1.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
+    "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
     "eslint-config-babel": "^9.0.0",
     "eslint-config-prettier": "^6.10.0",

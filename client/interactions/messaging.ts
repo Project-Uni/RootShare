@@ -1,5 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
 
 const mongoose = require('mongoose');
 
@@ -9,22 +8,35 @@ export function createThread(req, io, callback) {
   const { message, tempID, recipients } = req.body;
   const { _id: userID } = req.user;
 
-  checkUsersConnected(userID, recipients, (packet) => {
-    if (packet['success'] !== 1) return callback(packet);
+  checkConversationExists(userID, recipients, (packet) => {
+    if (packet['success'] === -1) return callback(packet);
+    if (packet['success'] === 1)
+      return sendMessage(
+        userID,
+        packet['content']['conversationID'],
+        message,
+        tempID,
+        io,
+        callback
+      );
 
-    let newConversation = new Conversation();
-    newConversation.participants = recipients.concat(userID);
+    checkUsersConnected(userID, recipients, (packet) => {
+      if (packet['success'] !== 1) return callback(packet);
 
-    newConversation.save((err, conversation) => {
-      if (err) {
-        log('error', err);
-        return callback(
-          sendPacket(-1, 'There was an error saving the conversation')
-        );
-      }
+      let newConversation = new Conversation();
+      newConversation.participants = recipients.concat(userID);
 
-      const { _id: conversationID } = conversation;
-      sendMessage(userID, conversationID, message, tempID, io, callback);
+      newConversation.save((err, conversation) => {
+        if (err) {
+          log('error', err);
+          return callback(
+            sendPacket(-1, 'There was an error saving the conversation')
+          );
+        }
+
+        const { _id: conversationID } = conversation;
+        sendMessage(userID, conversationID, message, tempID, io, callback);
+      });
     });
   });
 }
@@ -178,26 +190,35 @@ export function getLatestMessages(
 }
 
 export function updateLike(userID, messageID, liked, io, callback) {
-  Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
+  User.findById(userID, ['firstName', 'lastName'], (err, user) => {
     if (err) return callback(sendPacket(-1, err));
-    if (!message) return callback(sendPacket(-1, 'Could not find message to like'));
+    if (!user) return callback(sendPacket(0, 'Could not find User'));
 
-    const alreadyLiked = message.likes.includes(userID);
-
-    if (liked && !alreadyLiked) message.likes.push(userID);
-    else if (!liked && alreadyLiked)
-      message.likes.splice(message.likes.indexOf(userID), 1);
-
-    message.save((err, message) => {
+    Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
       if (err) return callback(sendPacket(-1, err));
       if (!message)
-        return callback(sendPacket(-1, 'There was an error saving the like'));
+        return callback(sendPacket(-1, 'Could not find message to like'));
 
-      io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
-        messageID: message._id,
-        numLikes: message.likes.length,
+      const alreadyLiked = message.likes.includes(userID);
+
+      if (liked && !alreadyLiked) message.likes.push(userID);
+      else if (!liked && alreadyLiked)
+        message.likes.splice(message.likes.indexOf(userID), 1);
+
+      message.save((err, message) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!message)
+          return callback(sendPacket(-1, 'There was an error saving the like'));
+
+        io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
+          messageID: message._id,
+          numLikes: message.likes.length,
+          liked,
+          liker: userID,
+          likerName: `${user.firstName} ${user.lastName}`,
+        });
+        callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
       });
-      callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
     });
   });
 }
@@ -274,6 +295,22 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
       else return callback(sendPacket(1, 'Connected to all users'));
     })
     .catch((err) => callback(sendPacket(-1, err)));
+}
+
+function checkConversationExists(userID, recipients, callback) {
+  const participants = recipients.concat(userID);
+  Conversation.findOne(
+    { participants: { $all: participants } },
+    (err, conversation) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!conversation) return callback(sendPacket(0, 'No matching Conversations'));
+      return callback(
+        sendPacket(1, 'Sending existing Conversation', {
+          conversationID: conversation._id,
+        })
+      );
+    }
+  );
 }
 
 function stringsToUserIDs(array) {

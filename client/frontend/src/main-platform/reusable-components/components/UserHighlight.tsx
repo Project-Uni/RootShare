@@ -5,6 +5,10 @@ import { Button } from '@material-ui/core';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { ProfileState } from '../../../helpers/types';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
@@ -20,9 +24,6 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    height: 70,
-    width: 70,
-    borderRadius: 50,
     border: `1px solid ${colors.primaryText}`,
   },
   connectButton: {
@@ -37,6 +38,12 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     marginBottom: 3,
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+  work: {
+    marginBottom: 3,
   },
   noUnderline: {
     textDecoration: 'none',
@@ -44,29 +51,61 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'none',
     },
   },
+  pendingStatus: {
+    background: colors.secondaryText,
+  },
 }));
 
 type Props = {
   style?: any;
   userID: string;
-  profilePic: any;
+  profilePic?: string;
   name: string;
   university: string;
-  graduationYear: number;
-  position: string;
-  company: string;
+  graduationYear?: number;
+  position?: string;
+  company?: string;
   mutualConnections: number;
   mutualCommunities: number;
-  connected?: boolean;
+  status: ProfileState;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
+
+  function renderStatus() {
+    if (props.status === 'PUBLIC')
+      return <Button className={styles.connectButton}>Connect</Button>;
+    else if (props.status === 'CONNECTION')
+      return (
+        <RSText color={colors.primary} size={11}>
+          CONNECTED
+        </RSText>
+      );
+    else if (props.status === 'PENDING')
+      return (
+        <RSText
+          color={colors.primaryText}
+          size={11}
+          className={styles.pendingStatus}
+        >
+          PENDING
+        </RSText>
+      );
+  }
+
   return (
     <div className={[styles.wrapper, props.style || null].join(' ')}>
       <div className={styles.left}>
         <a href={`/profile/${props.userID}`}>
-          <img src={props.profilePic} className={styles.profilePic} />
+          <ProfilePicture
+            type="profile"
+            currentPicture={props.profilePic}
+            height={70}
+            width={70}
+            borderRadius={50}
+            className={styles.profilePic}
+          />
         </a>
         <div className={styles.textContainer}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
@@ -80,15 +119,18 @@ function UserHighlight(props: Props) {
             </RSText>
           </a>
           <RSText type="subhead" size={12} color={colors.secondaryText}>
-            {props.university + ' ' + props.graduationYear}
+            {props.university}
+            {props.graduationYear ? ' ' + props.graduationYear : null}
           </RSText>
           <RSText
             type="subhead"
             size={12}
             color={colors.secondaryText}
-            className={styles.name}
+            className={styles.work}
           >
-            {props.position + ', ' + props.company}
+            {props.position ? props.position : null}
+            {props.position && props.company ? ', ' : null}
+            {props.company ? props.company : null}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
             {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
@@ -96,14 +138,8 @@ function UserHighlight(props: Props) {
           </RSText>
         </div>
       </div>
-      <div>
-        {!props.connected ? (
-          <Button className={styles.connectButton}>Connect</Button>
-        ) : (
-          <RSText color={colors.primaryText} size={11}>
-            CONNECTED
-          </RSText>
-        )}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {renderStatus()}
       </div>
     </div>
   );

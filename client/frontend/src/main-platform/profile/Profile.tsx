@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -15,6 +14,10 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
+import { makeRequest } from '../../helpers/functions';
+import { ProfileState } from '../../helpers/types';
+
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,7 +46,11 @@ function Profile(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
+  const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
+    'PUBLIC'
+  );
 
   //If it is the logged in user's, then profileID = 'user', else it is that user's ID
   const profileID = props.match.params['profileID'];
@@ -52,15 +59,13 @@ function Profile(props: Props) {
     window.addEventListener('resize', handleResize);
 
     checkAuth().then(async (authenticated) => {
-      if (authenticated) {
-        console.log('User is authenticated');
-      } else {
-        setLoginRedirect(true);
-      }
+      if (!authenticated) setLoginRedirect(true);
     });
+    updateProfileState();
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -82,15 +87,34 @@ function Profile(props: Props) {
     return true;
   }
 
+  async function updateProfileState() {
+    if (profileID === 'user') return setCurrentProfileState('SELF');
+
+    const { data } = await makeRequest(
+      'POST',
+      '/user/checkConnectedWithUser',
+      { requestUserID: profileID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) setCurrentProfileState(data['content']['connected']);
+  }
+
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/profile/${profileID}`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="profile" />
         )}
-        <ProfileBody profileID={profileID} />
+        <ProfileBody
+          profileID={profileID}
+          currentProfileState={currentProfileState}
+          updateProfileState={updateProfileState}
+        />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

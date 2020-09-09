@@ -21,10 +21,10 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import BabyBoilersBanner from '../images/BabyBoilersBanner.png';
+import KramerBanner from '../images/kramerBanner.png';
 
 import { colors } from '../theme/Colors';
-import { EventType } from '../helpers/types';
+import { EventType, MuxMetaDataType } from '../helpers/types';
 
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
@@ -84,6 +84,7 @@ function EventClientBase(props: Props) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [webinarData, setWebinarData] = useState<EventType | {}>({});
+  const [muxMetaData, setMuxMetaData] = useState<MuxMetaDataType>();
 
   const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
 
@@ -128,6 +129,11 @@ function EventClientBase(props: Props) {
     if (data['success'] === 1) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
+      setMuxMetaData({
+        viewerUserID: props.user._id,
+        webinarID: webinar._id,
+        eventTitle: webinar.title,
+      });
       setTimeout(() => {
         setPageMode(webinar);
       }, 100);
@@ -135,7 +141,7 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds() {
-    const ads = [BabyBoilersBanner];
+    const ads = [KramerBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
@@ -237,7 +243,10 @@ function EventClientBase(props: Props) {
     const currWebinarData = webinarData as EventType;
     if (eventMode === 'viewer')
       return (
-        <EventWatcherVideoContainer muxPlaybackID={currWebinarData.muxPlaybackID} />
+        <EventWatcherVideoContainer
+          muxPlaybackID={currWebinarData.muxPlaybackID}
+          muxMetaData={muxMetaData as MuxMetaDataType}
+        />
       );
     else
       return (
@@ -278,7 +287,10 @@ function EventClientBase(props: Props) {
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-          <EventWatcherMobile muxPlaybackID={webinarEvent.muxPlaybackID} />
+          <EventWatcherMobile
+            muxPlaybackID={webinarEvent.muxPlaybackID}
+            muxMetaData={muxMetaData as MuxMetaDataType}
+          />
           <div className={styles.adContainer}>
             {adLoaded && (
               <EventClientAdvertisement

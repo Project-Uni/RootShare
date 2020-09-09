@@ -1,11 +1,9 @@
 const LocalStrategy = require('passport-local').Strategy;
 import mongoose = require('mongoose');
-import bCrypt = require('bcryptjs');
-import jwt = require('jsonwebtoken');
 
 const User = mongoose.model('users');
 
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types/types';
+import { generateJWT, isValidPassword } from '../helpers/functions';
 
 module.exports = function (passport) {
   passport.use(
@@ -25,45 +23,22 @@ module.exports = function (passport) {
           ) {
             if (err) return done(err);
             if (!user) return done(null, false, { message: 'User Not Found' });
-
-            if (user.hashedPassword === undefined) {
+            if (user.hashedPassword === undefined)
               return done(null, false, {
                 message: 'User has not signed up locally',
               });
-            }
-            if (!isValidPassword(user, password)) {
+            if (!isValidPassword(user, password))
               return done(null, false, { message: 'Invalid Password' });
-            }
 
-            const userTokenInfo = {};
-            for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
-              userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
-            const jwtAccessToken = jwt.sign(
-              userTokenInfo,
-              process.env.JWT_ACCESS_SECRET
-              // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
-            );
-            const jwtRefreshToken = jwt.sign(
-              userTokenInfo,
-              process.env.JWT_REFRESH_SECRET
-            );
-
+            const JWT = generateJWT(user);
             return done(null, user, {
               message: 'Found user and logged in',
-              jwtAccessToken,
-              jwtRefreshToken,
+              jwtAccessToken: JWT.accessToken,
+              jwtRefreshToken: JWT.refreshToken,
             });
           });
         });
       }
     )
   );
-
-  var isValidPassword = function (user, password) {
-    if (password === user.hashedPassword) {
-      return true;
-    }
-
-    return bCrypt.compareSync(password, user.hashedPassword);
-  };
 };
