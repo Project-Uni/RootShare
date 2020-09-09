@@ -15,19 +15,23 @@ import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 64;
-const VERTICAL_PADDING_TOTAL = 40;
+const VERTICAL_PADDING_TOTAL = 0;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 270,
     background: colors.second,
     textAlign: 'left',
-    padding: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     overflow: 'scroll',
   },
   forYouText: {
-    marginTop: 15,
     textAlign: 'center',
+    width: 270,
+    background: colors.primary,
+    padding: 20,
+    marginLeft: -20,
   },
 }));
 
@@ -109,6 +113,7 @@ function DiscoverySidebar(props: Props) {
           profilePicture={currSuggestion.profilePicture}
           memberCount={currSuggestion.numMembers}
           mutualMemberCount={currSuggestion.numMutual}
+          isLast={i === numSuggestionsDisplayed - 1}
           removeSuggestion={removeCommunitySuggestion}
           setNotification={setNotification}
           accessToken={props.accessToken}
@@ -175,6 +180,7 @@ function DiscoverySidebar(props: Props) {
           position={currSuggestion.position}
           company={currSuggestion.work}
           numMutualConnections={currSuggestion.numMutualConnections}
+          isLast={i === numSuggestionsDisplayed - 1}
           removeSuggestion={removePersonSuggestion}
           setNotification={setNotification}
           accessToken={props.accessToken}
@@ -207,8 +213,8 @@ function DiscoverySidebar(props: Props) {
         mode={snackbarMode}
         handleClose={() => setSnackbarMode(null)}
       />
-      {renderCommunities()}
       {renderPeople()}
+      {renderCommunities()}
     </div>
   );
 }

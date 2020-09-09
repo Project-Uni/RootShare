@@ -15,6 +15,10 @@ const useStyles = makeStyles((_: any) => ({
     borderBottom: `1px solid ${colors.secondaryText}`,
     paddingBottom: 15,
   },
+  lastWrapper: {
+    marginTop: 15,
+    paddingBottom: 20,
+  },
   profileInfo: {
     display: 'flex',
     justifyContent: 'flex-start',
@@ -61,6 +65,7 @@ type Props = {
     successMode: 'success' | 'notify' | 'error',
     message: string
   ) => void;
+  isLast?: boolean;
 
   accessToken: string;
   refreshToken: string;
@@ -127,7 +132,7 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.profileInfo}>
           <a href={`/profile/${props.userID}`} className={styles.personLink}>

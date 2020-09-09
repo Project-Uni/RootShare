@@ -87,11 +87,11 @@ export async function editCommunity(
     if (community.members.indexOf(adminID) === -1) {
       const communityPromise = Community.updateOne(
         { _id },
-        { $push: { members: adminID } }
+        { $addToSet: { members: adminID } }
       ).exec();
       const userPromise = User.updateOne(
         { _id: adminID },
-        { $push: { joinedCommunities: _id } }
+        { $addToSet: { joinedCommunities: _id } }
       ).exec();
       await Promise.all([communityPromise, userPromise]);
     }
