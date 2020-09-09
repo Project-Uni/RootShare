@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
+import AlphaLogo from '../images/alpha.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -33,6 +34,10 @@ const useStyles = makeStyles((_: any) => ({
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
+  },
+  alpha: {
+    height: 24,
+    marginLeft: 5,
   },
 }));
 
@@ -125,7 +130,7 @@ function EventClientHeader(props: Props) {
     <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             {props.showNavigationWidth &&
               window.innerWidth < props.showNavigationWidth && (
                 <IconButton onClick={handleNavigationClick}>
@@ -134,11 +139,14 @@ function EventClientHeader(props: Props) {
               )}
 
             <a href="/">
-              <img
-                src={RootShareLogoWhite}
-                alt="RootShare"
-                className={styles.headerLogo}
-              />
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <img
+                  src={RootShareLogoWhite}
+                  alt="RootShare"
+                  className={styles.headerLogo}
+                />
+                <img src={AlphaLogo} alt="Alpha" className={styles.alpha} />
+              </div>
             </a>
           </div>
 
