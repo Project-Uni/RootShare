@@ -10,6 +10,7 @@ import { makeRequest } from '../../helpers/functions';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
+import BetaModal from './components/BetaModal';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -41,6 +42,8 @@ function Homepage(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const [showBetaModal, setShowBetaModal] = useState(true);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -85,9 +88,13 @@ function Homepage(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
-
-      {/* TODO?- Create Custom Header for Main Platform */}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
+      <BetaModal
+        open={showBetaModal}
+        onAck={() => {
+          setShowBetaModal(false);
+        }}
+      />
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
