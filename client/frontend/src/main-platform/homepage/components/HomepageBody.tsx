@@ -11,6 +11,7 @@ import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 import { JacksonHeadshot } from '../../../images/team';
+import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 
@@ -37,6 +38,12 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
+
+type PostType = {
+  [key: string]: any;
 };
 
 function HomepageBody(props: Props) {
@@ -46,20 +53,32 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [feed, setFeed] = useState<{ [key: string]: any }[]>([]);
+  const [serverErr, setServerErr] = useState(false);
+  const [generalFeed, setGeneralFeed] = useState<{ [key: string]: any }[]>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
+    getGeneralFeed().then(() => {
       setLoading(false);
     });
   }, []);
 
-  async function fetchData() {
-    setTimeout(() => {
-      console.log('Fetching data');
-      return true;
-    }, 1000);
+  async function getGeneralFeed() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/posts/feed/general',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      setGeneralFeed(data.content['posts']);
+      setServerErr(false);
+    } else {
+      setServerErr(true);
+    }
   }
 
   function handleResize() {
@@ -75,20 +94,20 @@ function HomepageBody(props: Props) {
   }
 
   function appendNewPost(post: { [key: string]: any }) {
-    setFeed((prevState) => prevState.concat(post));
+    setGeneralFeed((prevState) => prevState.concat(post));
   }
 
-  function renderFeed() {
+  function renderGeneralFeed() {
     const output = [];
-    for (let i = 0; i < feed.length; i++) {
+    for (let i = 0; i < generalFeed.length; i++) {
       output.push(
         <UserPost
           userID={props.user._id}
           userName={`${props.user.firstName} ${props.user.lastName}`}
-          timestamp={feed[i].createdAt}
+          timestamp={generalFeed[i].createdAt}
           profilePicture={JacksonHeadshot}
-          message={feed[i].message}
-          likeCount={feed[i].likes.length}
+          message={generalFeed[i].message}
+          likeCount={generalFeed[i].likes.length}
           commentCount={0}
         />
       );
@@ -111,8 +130,14 @@ function HomepageBody(props: Props) {
       <MakePostContainer appendNewPost={appendNewPost} userID={props.user._id} />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : !serverErr ? (
+        renderGeneralFeed()
       ) : (
-        renderFeed()
+        <div style={{ marginTop: 10 }}>
+          <RSText size={18} bold type="head" color={colors.primary}>
+            There was an error retrieving your posts.
+          </RSText>
+        </div>
       )}
     </div>
   );
@@ -121,6 +146,8 @@ function HomepageBody(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
   };
 };
 
