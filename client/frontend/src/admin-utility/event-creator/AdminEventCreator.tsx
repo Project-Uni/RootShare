@@ -22,7 +22,7 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
-import HypeHeader from '../../hype-page/headerFooter/HypeHeader';
+import EventClientHeader from '../../event-client/EventClientHeader';
 import RSText from '../../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
@@ -606,7 +606,7 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      <HypeHeader />
+      <EventClientHeader showNavigationWidth={9999} />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

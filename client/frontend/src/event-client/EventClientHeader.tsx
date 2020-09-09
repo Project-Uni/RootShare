@@ -130,7 +130,7 @@ function EventClientHeader(props: Props) {
     <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {props.showNavigationWidth &&
               window.innerWidth < props.showNavigationWidth && (
                 <IconButton onClick={handleNavigationClick}>
@@ -138,16 +138,16 @@ function EventClientHeader(props: Props) {
                 </IconButton>
               )}
 
-            <a href="/">
-              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <a href="/">
                 <img
                   src={RootShareLogoWhite}
                   alt="RootShare"
                   className={styles.headerLogo}
                 />
-                <img src={AlphaLogo} alt="Alpha" className={styles.alpha} />
-              </div>
-            </a>
+              </a>
+              <img src={AlphaLogo} alt="Alpha" className={styles.alpha} />
+            </div>
           </div>
 
           <div className={styles.icons}>{renderIcons()}</div>
