@@ -139,7 +139,7 @@ function EventClientHeader(props: Props) {
               )}
 
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-              <a href="/">
+              <a href="/home">
                 <img
                   src={RootShareLogoWhite}
                   alt="RootShare"
