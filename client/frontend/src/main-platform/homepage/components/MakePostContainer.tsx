@@ -11,6 +11,8 @@ import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/functions';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
+import { PostType } from '../../../helpers/types';
+
 const useStyles = makeStyles((_: any) => ({
   profilePictureContainer: {
     marginTop: 1,
@@ -71,7 +73,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   userID: string;
-  appendNewPost: (post: { [key: string]: any }) => any; //TODO: Define Post Type
+  appendNewPost: (post: PostType) => any; //TODO: Define Post Type
   accessToken: string;
   refreshToken: string;
 };

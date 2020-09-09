@@ -26,6 +26,7 @@ export async function getGeneralFeed(universityID: string) {
     const posts = await Post.find({ university: universityID })
       .sort({ createdAt: 'desc' })
       .limit(30)
+      .populate({ path: 'user', select: ['firstName, lastName', 'profilePicture'] })
       .exec();
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });

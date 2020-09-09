@@ -12,6 +12,7 @@ import MakePostContainer from './MakePostContainer';
 
 import { JacksonHeadshot } from '../../../images/team';
 import { makeRequest } from '../../../helpers/functions';
+import { PostType } from '../../../helpers/types';
 
 const HEADER_HEIGHT = 60;
 
@@ -42,10 +43,6 @@ type Props = {
   refreshToken: string;
 };
 
-type PostType = {
-  [key: string]: any;
-};
-
 function HomepageBody(props: Props) {
   const styles = useStyles();
 
@@ -54,7 +51,7 @@ function HomepageBody(props: Props) {
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
-  const [generalFeed, setGeneralFeed] = useState<{ [key: string]: any }[]>([]);
+  const [generalFeed, setGeneralFeed] = useState<PostType[]>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -93,7 +90,7 @@ function HomepageBody(props: Props) {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
-  function appendNewPost(post: { [key: string]: any }) {
+  function appendNewPost(post: PostType) {
     setGeneralFeed((prevState) => prevState.concat(post));
   }
 
