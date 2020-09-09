@@ -110,6 +110,9 @@ function DiscoverySidebar(props: Props) {
           memberCount={currSuggestion.numMembers}
           mutualMemberCount={currSuggestion.numMutual}
           removeSuggestion={removeCommunitySuggestion}
+          setNotification={setNotification}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }
@@ -168,6 +171,7 @@ function DiscoverySidebar(props: Props) {
           key={currSuggestion._id}
           userID={currSuggestion._id}
           name={`${currSuggestion.firstName} ${currSuggestion.lastName}`}
+          profilePicture={currSuggestion.profilePicture}
           position={currSuggestion.position}
           company={currSuggestion.work}
           numMutualConnections={currSuggestion.numMutualConnections}

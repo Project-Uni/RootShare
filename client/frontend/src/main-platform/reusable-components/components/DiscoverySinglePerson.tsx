@@ -52,6 +52,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   userID: string;
   name: string;
+  profilePicture?: string;
   position?: string;
   company?: string;
   numMutualConnections: number;
@@ -68,27 +69,9 @@ type Props = {
 function DiscoverySinglePerson(props: Props) {
   const styles = useStyles();
 
-  const [profilePic, setProfilePic] = useState();
   const [visible, setVisible] = useState(true);
 
   const numMutualConnections = props.numMutualConnections || 0;
-
-  useEffect(() => {
-    fetchProfilePic();
-  }, [props.userID]);
-
-  async function fetchProfilePic() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/getProfilePicture/${props.userID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) setProfilePic(data['content']['imageURL']);
-  }
 
   function removeSuggestion() {
     setVisible(false);
@@ -154,7 +137,7 @@ function DiscoverySinglePerson(props: Props) {
               height={80}
               width={80}
               borderRadius={50}
-              currentPicture={profilePic}
+              currentPicture={props.profilePicture}
             />
           </a>
           <div className={styles.textContainer}>
