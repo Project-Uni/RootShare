@@ -11,7 +11,7 @@ import DiscoverySinglePerson from './DiscoverySinglePerson';
 import DiscoveryCommunity from './DiscoveryCommunity';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
-import { UserType } from '../../../helpers/types';
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 64;
@@ -25,8 +25,9 @@ const useStyles = makeStyles((_: any) => ({
     padding: 20,
     overflow: 'scroll',
   },
-  pplForYouText: {
+  forYouText: {
     marginTop: 15,
+    textAlign: 'center',
   },
 }));
 
@@ -41,8 +42,10 @@ function DiscoverySidebar(props: Props) {
   const [height, setHeight] = useState(
     window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL
   );
-  const [recommendedPeople, setRecommendedPeople] = useState<UserType[]>([]);
-  const [recommendedCommunities, setRecommendedCommunities] = useState([]);
+  const [recommendedPeople, setRecommendedPeople] = useState<DiscoverUser[]>([]);
+  const [recommendedCommunities, setRecommendedCommunities] = useState<
+    DiscoverCommunity[]
+  >([]);
 
   const [transition, setTransition] = useState<any>();
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -62,38 +65,64 @@ function DiscoverySidebar(props: Props) {
   async function getRecommendations() {
     const { data } = await makeRequest(
       'GET',
-      '/user/getConnectionSuggestions',
+      '/api/discover/populate',
       {},
       true,
       props.accessToken,
       props.refreshToken
     );
 
-    if (data['success'] === 1) setRecommendedPeople(data['content']['suggestions']);
+    if (data['success'] === 1) {
+      const { users, communities } = data.content;
+      setRecommendedPeople(users);
+      setRecommendedCommunities(communities);
+    }
+  }
+
+  function removeCommunitySuggestion(communityID: string) {
+    let newSuggestions = recommendedCommunities.slice();
+    for (let i = 0; i < recommendedCommunities.length; i++) {
+      const currCommunity = recommendedCommunities[i];
+      if (currCommunity._id === communityID) {
+        newSuggestions.splice(i, 1);
+        setRecommendedCommunities(newSuggestions);
+        return;
+      }
+    }
   }
 
   function renderCommunities() {
-    //Test code
-    const communities = [];
-    for (let i = 0; i < 5; i++) {
-      let status: 'OPEN' | 'JOINED' | 'PENDING';
-      if (i % 3 == 0) status = 'OPEN';
-      else if (i % 3 == 2) status = 'PENDING';
-      else status = 'JOINED';
+    const communities: any = [];
+    if (recommendedCommunities.length === 0) return;
+
+    const numSuggestionsDisplayed =
+      recommendedCommunities.length > 6 ? 6 : recommendedCommunities.length;
+    for (let i = 0; i < numSuggestionsDisplayed; i++) {
+      const currSuggestion = recommendedCommunities[i];
       communities.push(
         <DiscoveryCommunity
-          communityID={'communityABC'}
-          status={status}
-          name="RootShare"
-          numMembers={7042}
-          numMutual={106}
+          key={currSuggestion._id}
+          communityID={currSuggestion._id}
+          private={currSuggestion.private}
+          name={currSuggestion.name}
+          type={currSuggestion.type}
+          profilePicture={currSuggestion.profilePicture}
+          memberCount={currSuggestion.numMembers}
+          mutualMemberCount={currSuggestion.numMutual}
+          removeSuggestion={removeCommunitySuggestion}
         />
       );
     }
 
     return (
       <div>
-        <RSText size={18} type="head" bold color={colors.primaryText}>
+        <RSText
+          size={18}
+          type="head"
+          bold
+          color={colors.primaryText}
+          className={styles.forYouText}
+        >
           Communities for you
         </RSText>
         {communities}
@@ -114,19 +143,19 @@ function DiscoverySidebar(props: Props) {
     setTransition(() => slideLeft);
   }
 
-  function renderPeople() {
-    function removeSuggestion(userID: string) {
-      let newSuggestions = recommendedPeople.slice();
-      for (let i = 0; i < recommendedPeople.length; i++) {
-        const currUser = recommendedPeople[i];
-        if (currUser._id === userID) {
-          newSuggestions.splice(i, 1);
-          setRecommendedPeople(newSuggestions);
-          return;
-        }
+  function removePersonSuggestion(userID: string) {
+    let newSuggestions = recommendedPeople.slice();
+    for (let i = 0; i < recommendedPeople.length; i++) {
+      const currUser = recommendedPeople[i];
+      if (currUser._id === userID) {
+        newSuggestions.splice(i, 1);
+        setRecommendedPeople(newSuggestions);
+        return;
       }
     }
+  }
 
+  function renderPeople() {
     const people: any = [];
     if (recommendedPeople.length === 0) return;
 
@@ -137,12 +166,12 @@ function DiscoverySidebar(props: Props) {
       people.push(
         <DiscoverySinglePerson
           key={currSuggestion._id}
-          userID={currSuggestion['_id']}
-          name={`${currSuggestion['firstName']} ${currSuggestion['lastName']}`}
-          position={currSuggestion['position']}
-          company={currSuggestion['work']}
-          numMutualConnections={currSuggestion['numMutualConnections']}
-          removeSuggestion={removeSuggestion}
+          userID={currSuggestion._id}
+          name={`${currSuggestion.firstName} ${currSuggestion.lastName}`}
+          position={currSuggestion.position}
+          company={currSuggestion.work}
+          numMutualConnections={currSuggestion.numMutualConnections}
+          removeSuggestion={removePersonSuggestion}
           setNotification={setNotification}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
@@ -150,7 +179,20 @@ function DiscoverySidebar(props: Props) {
       );
     }
 
-    return people;
+    return (
+      <div>
+        <RSText
+          size={18}
+          type="head"
+          bold
+          color={colors.primaryText}
+          className={styles.forYouText}
+        >
+          People for you
+        </RSText>
+        {people}
+      </div>
+    );
   }
 
   return (

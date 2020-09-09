@@ -15,7 +15,7 @@ const useStyles = makeStyles((_: any) => ({
     borderBottom: `1px solid ${colors.secondaryText}`,
     paddingBottom: 15,
   },
-  singlePersonWrapper: {
+  profileInfo: {
     display: 'flex',
     justifyContent: 'flex-start',
   },
@@ -42,7 +42,6 @@ const useStyles = makeStyles((_: any) => ({
   buttonContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
-    marginTop: 7,
   },
   fadeOut: {
     opacity: 0,
@@ -53,8 +52,8 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   userID: string;
   name: string;
-  position: string;
-  company: string;
+  position?: string;
+  company?: string;
   numMutualConnections: number;
   removeSuggestion: (userID: string) => void;
   setNotification: (
@@ -99,11 +98,12 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   async function requestConnection() {
+    alert(props.userID);
     const { data } = await makeRequest(
       'POST',
       '/user/requestConnection',
       {
-        requestID: props.userID,
+        requestUserID: props.userID,
       },
       true,
       props.accessToken,
@@ -122,10 +122,31 @@ function DiscoverySinglePerson(props: Props) {
     }
   }
 
+  function renderButtons() {
+    return (
+      <div className={styles.buttonContainer}>
+        <Button
+          className={styles.removeButton}
+          size="small"
+          onClick={removeSuggestion}
+        >
+          Remove
+        </Button>
+        <Button
+          className={styles.connectButton}
+          size="small"
+          onClick={requestConnection}
+        >
+          Connect
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
-        <div className={styles.singlePersonWrapper}>
+        <div className={styles.profileInfo}>
           <a href={`/profile/${props.userID}`} className={styles.personLink}>
             <ProfilePicture
               editable={false}
@@ -153,22 +174,7 @@ function DiscoverySinglePerson(props: Props) {
             </RSText>
           </div>
         </div>
-        <div className={styles.buttonContainer}>
-          <Button
-            className={styles.removeButton}
-            size="small"
-            onClick={removeSuggestion}
-          >
-            Remove
-          </Button>
-          <Button
-            className={styles.connectButton}
-            size="small"
-            onClick={requestConnection}
-          >
-            Connect
-          </Button>
-        </div>
+        {renderButtons()}
       </div>
     </div>
   );

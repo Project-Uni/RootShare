@@ -1,16 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton, Button } from '@material-ui/core';
+
+import { Button } from '@material-ui/core';
+import { FaLock } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
-import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { CommunityType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
     borderBottom: `1px solid ${colors.fourth}`,
     paddingBottom: 15,
+  },
+  communityInfo: {
     display: 'flex',
     justifyContent: 'flex-start',
   },
@@ -20,30 +26,40 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 80,
     marginRight: 10,
   },
-  body: {
-    flex: 1,
+  textContainer: {
+    marginLeft: 10,
   },
-  top: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  button: {
+  removeButton: {
     color: colors.primaryText,
-    marginTop: 10,
-    '&:hover': {
-      background: colors.primary,
-    },
+    background: colors.secondary,
+    marginRight: 7,
   },
-  joinButton: {
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  lockIcon: {
+    marginRight: 7,
+  },
+  connectButton: {
+    color: colors.primaryText,
     background: colors.bright,
+    marginLeft: 7,
   },
-  pendingButton: {
-    background: colors.secondaryText,
+  fadeOut: {
+    opacity: 0,
+    transition: 'opacity 0.5s',
   },
-  left: {},
   joinedText: {
     marginTop: 10,
+  },
+  communityLink: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
   noUnderline: {
     textDecoration: 'none',
@@ -56,74 +72,113 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  private: boolean;
   name: string;
-  numMembers: number;
-  numMutual: number;
+  type: CommunityType;
+  profilePicture: any;
+  memberCount: number;
+  mutualMemberCount: number;
+  removeSuggestion: (communityID: string) => void;
 };
 
 function DiscoveryCommunity(props: Props) {
   const styles = useStyles();
 
-  function renderButton() {
-    if (props.status === 'OPEN')
-      return (
+  const [visible, setVisible] = useState(true);
+
+  function removeSuggestion() {
+    setVisible(false);
+    setTimeout(() => {
+      props.removeSuggestion(props.communityID);
+    }, 500);
+  }
+
+  async function requestJoin() {
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   '/user/requestConnection',
+    //   {
+    //     requestUserID: props.userID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    // if (data['success'] === 1) {
+    //   props.setNotification('success', data['message']);
+    //   removeSuggestion();
+    // } else if (data['success'] === 0) {
+    //   props.setNotification('notify', data['message']);
+    //   removeSuggestion();
+    // } else {
+    //   props.setNotification('error', 'There was an error requesting the connection');
+    //   setVisible(true);
+    // }
+  }
+
+  function renderButtons() {
+    return (
+      <div className={styles.buttonContainer}>
+        {props.private && (
+          <FaLock
+            color={colors.secondaryText}
+            size={18}
+            className={styles.lockIcon}
+          />
+        )}
         <Button
-          className={[styles.button, styles.joinButton].join(' ')}
+          className={styles.removeButton}
           size="small"
+          onClick={removeSuggestion}
         >
+          Remove
+        </Button>
+        <Button className={styles.connectButton} size="small" onClick={requestJoin}>
           Join
         </Button>
-      );
-    else if (props.status === 'PENDING')
-      return (
-        <Button
-          className={[styles.button, styles.pendingButton].join(' ')}
-          size="small"
-        >
-          Pending
-        </Button>
-      );
-    else
-      return (
-        <RSText color={colors.primaryText} size={12} className={styles.joinedText}>
-          MEMBER
-        </RSText>
-      );
+      </div>
+    );
   }
 
   return (
     <div className={styles.wrapper}>
-      <a href={`/community/${props.communityID}`}>
-        <img src={BabyBoilersBanner} className={styles.profilePic} />
-      </a>
-      <div className={styles.body}>
-        <div className={styles.top}>
-          <div className={styles.left}>
+      <div className={visible ? '' : styles.fadeOut}>
+        <div className={styles.communityInfo}>
+          <a
+            href={`/community/${props.communityID}`}
+            className={styles.communityLink}
+          >
+            <ProfilePicture
+              editable={false}
+              type={'profile'}
+              height={80}
+              width={80}
+              borderRadius={50}
+              currentPicture={props.profilePicture}
+            />
+          </a>
+          <div className={styles.textContainer}>
             <a
               href={`/community/${props.communityID}`}
               className={styles.noUnderline}
             >
               <RSText type="body" bold size={13} color={colors.primaryText}>
-                {props.name}
+                {props.name || ''}
               </RSText>
             </a>
 
-            <RSText type="body" size={11} color={colors.secondaryText}>
-              {props.numMembers} Members
+            <RSText type="body" italic={true} size={11} color={colors.secondaryText}>
+              {props.type || ''}
             </RSText>
             <RSText type="body" size={11} color={colors.secondaryText}>
-              {props.numMutual} Mutual
+              {props.memberCount || 0} Members
+            </RSText>
+            <RSText type="body" size={11} color={colors.secondaryText}>
+              {props.mutualMemberCount || 0} Mutual
             </RSText>
           </div>
-
-          <IconButton onClick={() => {}}>
-            <RSText type="subhead" color={colors.primaryText} size={12}>
-              X
-            </RSText>
-          </IconButton>
         </div>
-        {renderButton()}
+        {renderButtons()}
       </div>
     </div>
   );
