@@ -692,21 +692,20 @@ export function checkConnectedWithUser(userID, requestUserID, callback) {
         })
       );
 
-    Connection.find(
+    Connection.findOne(
       {
         $or: [
           { $and: [{ from: userID }, { to: requestUserID }] },
           { $and: [{ from: requestUserID }, { to: userID }] },
         ],
       },
-      (err, connections) => {
+      (err, connection) => {
         if (err) return callback(sendPacket(-1, err));
-        if (!connections || connections.length === 0)
+        if (!connection)
           return callback(
             sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
           );
 
-        const connection = connections[0];
         if (connection.accepted)
           return callback(
             sendPacket(1, 'Already connected to this User', {

@@ -86,7 +86,6 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   async function requestConnection() {
-    alert(props.userID);
     const { data } = await makeRequest(
       'POST',
       '/user/requestConnection',

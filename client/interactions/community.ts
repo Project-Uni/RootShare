@@ -84,17 +84,15 @@ export async function editCommunity(
 
     const savedCommunity = await community.save();
 
-    if (community.members.indexOf(adminID) === -1) {
-      const communityPromise = Community.updateOne(
-        { _id },
-        { $addToSet: { members: adminID } }
-      ).exec();
-      const userPromise = User.updateOne(
-        { _id: adminID },
-        { $addToSet: { joinedCommunities: _id } }
-      ).exec();
-      await Promise.all([communityPromise, userPromise]);
-    }
+    const communityPromise = Community.updateOne(
+      { _id },
+      { $addToSet: { members: adminID } }
+    ).exec();
+    const userPromise = User.updateOne(
+      { _id: adminID },
+      { $addToSet: { joinedCommunities: _id } }
+    ).exec();
+    await Promise.all([communityPromise, userPromise]);
 
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {

@@ -15,23 +15,22 @@ import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 64;
-const VERTICAL_PADDING_TOTAL = 0;
+const VERTICAL_PADDING_TOTAL = 40;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 270,
     background: colors.second,
     textAlign: 'left',
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 20,
     overflow: 'scroll',
   },
-  forYouText: {
+  peopleText: {
     textAlign: 'center',
-    width: 270,
-    background: colors.primary,
-    padding: 20,
-    marginLeft: -20,
+  },
+  communityText: {
+    textAlign: 'center',
+    paddingTop: 10,
   },
 }));
 
@@ -129,7 +128,7 @@ function DiscoverySidebar(props: Props) {
           type="head"
           bold
           color={colors.primaryText}
-          className={styles.forYouText}
+          className={styles.communityText}
         >
           Communities for you
         </RSText>
@@ -196,7 +195,7 @@ function DiscoverySidebar(props: Props) {
           type="head"
           bold
           color={colors.primaryText}
-          className={styles.forYouText}
+          className={styles.peopleText}
         >
           People for you
         </RSText>
