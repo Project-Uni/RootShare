@@ -121,7 +121,6 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  currentUserProfilePicture?: string;
   userID: string;
   userName: string;
   community?: string;
@@ -277,9 +276,7 @@ function UserPost(props: Props) {
   function renderLeaveCommentArea() {
     return (
       <div className={styles.leaveCommentContainer}>
-        {/* <img src={CaiteHeadshot} className={styles.commentProfile} /> */}
         <ProfilePicture
-          currentPicture={props.currentUserProfilePicture}
           height={40}
           width={40}
           borderRadius={40}
