@@ -1,7 +1,7 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Post, User } from '../models';
+import { Post } from '../models';
 
-const NUM_POSTS_RETRIEVED = 30;
+const NUM_POSTS_RETRIEVED = 20;
 
 export async function createBroadcastUserPost(
   message: string,
@@ -9,6 +9,7 @@ export async function createBroadcastUserPost(
 ) {
   try {
     const newPost = await new Post({ message, user: user._id }).save();
+
     log('info', `Successfully created for user ${user.firstName} ${user.lastName}`);
     return sendPacket(1, 'Successfully created post', { newPost });
   } catch (err) {
@@ -21,7 +22,7 @@ export async function getGeneralFeed(universityID: string) {
   try {
     const posts = await Post.find({ university: universityID })
       .sort({ createdAt: 'desc' })
-      .limit(20)
+      .limit(NUM_POSTS_RETRIEVED)
       .populate('user', 'firstName lastName profilePicture')
       .exec();
 
@@ -51,6 +52,21 @@ export async function getGeneralFeed(universityID: string) {
         log('error', err);
         return sendPacket(-1, err);
       });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getPostsByUser(userID: string) {
+  try {
+    const posts = await Post.find({ user: userID })
+      .sort({ createdAt: 'desc' })
+      .limit(NUM_POSTS_RETRIEVED)
+      .exec();
+
+    log('info', `Successfully retrieved all posts by user ${userID}`);
+    return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
