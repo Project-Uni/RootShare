@@ -51,7 +51,7 @@ function HomepageBody(props: Props) {
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
-  const [generalFeed, setGeneralFeed] = useState<PostType[]>([]);
+  const [generalFeed, setGeneralFeed] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -71,7 +71,7 @@ function HomepageBody(props: Props) {
     );
 
     if (data.success === 1) {
-      setGeneralFeed(data.content['posts']);
+      setGeneralFeed(createGeneralFeed(data.content['posts']));
       setServerErr(false);
     } else {
       setServerErr(true);
@@ -91,25 +91,38 @@ function HomepageBody(props: Props) {
   }
 
   function appendNewPost(post: PostType) {
-    setGeneralFeed((prevState) => prevState.concat(post));
-  }
-
-  function renderGeneralFeed() {
-    const output = [];
-    for (let i = 0; i < generalFeed.length; i++) {
-      output.push(
+    setGeneralFeed((prevState) => {
+      const newEntry = (
         <UserPost
           userID={props.user._id}
           userName={`${props.user.firstName} ${props.user.lastName}`}
-          timestamp={generalFeed[i].createdAt}
+          timestamp={post.createdAt}
           profilePicture={JacksonHeadshot}
-          message={generalFeed[i].message}
-          likeCount={generalFeed[i].likes.length}
+          message={post.message}
+          likeCount={post.likes.length}
+          commentCount={0}
+        />
+      );
+      return [newEntry].concat(prevState);
+    });
+  }
+
+  function createGeneralFeed(posts: PostType[]) {
+    const output = [];
+    for (let i = 0; i < posts.length; i++) {
+      output.push(
+        <UserPost
+          userID={posts[i].user._id}
+          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          timestamp={posts[i].createdAt}
+          profilePicture={posts[i].user.profilePicture}
+          message={posts[i].message}
+          likeCount={posts[i].likes.length}
           commentCount={0}
         />
       );
     }
-    return <div className={styles.posts}>{output}</div>;
+    return output;
   }
 
   return (
@@ -128,7 +141,7 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        renderGeneralFeed()
+        <div className={styles.posts}>{generalFeed}</div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={colors.primary}>

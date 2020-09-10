@@ -1,4 +1,4 @@
-import { log, sendPacket } from '../helpers/functions';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { Post, User } from '../models';
 
 const NUM_POSTS_RETRIEVED = 30;
@@ -19,17 +19,38 @@ export async function createBroadcastUserPost(
 
 export async function getGeneralFeed(universityID: string) {
   try {
-    // const { university } = await User.findById(userID)
-    //   .select('university')
-    //   .populate({ path: 'university', select: ['universityName'] });
-
     const posts = await Post.find({ university: universityID })
       .sort({ createdAt: 'desc' })
-      .limit(30)
-      .populate({ path: 'user', select: ['firstName, lastName', 'profilePicture'] })
+      .limit(20)
+      .populate('user', 'firstName lastName profilePicture')
       .exec();
 
-    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
+    const imagePromises = [];
+
+    for (let i = 0; i < posts.length; i++) {
+      if (posts[i].user.profilePicture) {
+        try {
+          const signedImageUrlPromise = retrieveSignedUrl(
+            'profile',
+            posts[i].user.profilePicture
+          );
+          imagePromises.push(signedImageUrlPromise);
+        } catch (err) {
+          log('error', err);
+        }
+      }
+    }
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < posts.length; i++)
+          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+
+        return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
