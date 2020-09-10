@@ -72,7 +72,7 @@ function BetaModal(props: Props) {
         >
           <RSText color={colors.primaryText} size={13}>
             We're excited to have you on our platform! The platform is still under
-            development, so please be patient.
+            development, so please be patient with us.
           </RSText>
           <RSText color={colors.primaryText} className={styles.textMargin} size={13}>
             In order to navigate to the event, click on the Events tab in the left
