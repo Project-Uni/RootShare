@@ -11,7 +11,11 @@ import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 import { JacksonHeadshot } from '../../../images/team';
-import { makeRequest } from '../../../helpers/functions';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 
 const HEADER_HEIGHT = 60;
@@ -34,6 +38,9 @@ const useStyles = makeStyles((_: any) => ({
   singlePost: {
     marginTop: 1,
     borderRadius: 1,
+  },
+  postStyle: {
+    borderTop: `1px solid ${colors.fourth}`,
   },
 }));
 
@@ -96,11 +103,14 @@ function HomepageBody(props: Props) {
         <UserPost
           userID={props.user._id}
           userName={`${props.user.firstName} ${props.user.lastName}`}
-          timestamp={post.createdAt}
+          timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
+            new Date(post.createdAt)
+          )}`}
           profilePicture={JacksonHeadshot}
           message={post.message}
           likeCount={post.likes.length}
           commentCount={0}
+          style={styles.postStyle}
         />
       );
       return [newEntry].concat(prevState);
@@ -114,11 +124,14 @@ function HomepageBody(props: Props) {
         <UserPost
           userID={posts[i].user._id}
           userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
-          timestamp={posts[i].createdAt}
+          timestamp={`${formatDatePretty(
+            new Date(posts[i].createdAt)
+          )} at ${formatTime(new Date(posts[i].createdAt))}`}
           profilePicture={posts[i].user.profilePicture}
           message={posts[i].message}
           likeCount={posts[i].likes.length}
           commentCount={0}
+          style={styles.postStyle}
         />
       );
     }
