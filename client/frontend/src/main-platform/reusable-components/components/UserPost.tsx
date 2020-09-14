@@ -173,7 +173,6 @@ function UserPost(props: Props) {
     return (
       <div className={styles.top}>
         <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-          {/* <img src={props.profilePicture} className={styles.profilePic} /> */}
           <ProfilePicture
             height={50}
             width={50}
