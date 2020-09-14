@@ -27,6 +27,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -40,6 +44,8 @@ function YourCommunities(props: Props) {
 
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const userID = props.match.params['userID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -83,7 +89,9 @@ function YourCommunities(props: Props) {
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="communities" />
         )}
-        <YourCommunitiesBody />
+        <YourCommunitiesBody
+          requestUserID={userID === 'user' ? props.user._id : userID}
+        />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

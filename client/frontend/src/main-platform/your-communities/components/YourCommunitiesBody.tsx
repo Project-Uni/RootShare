@@ -58,6 +58,7 @@ type YourCommunities_Community = {
 };
 
 type Props = {
+  requestUserID: string;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -86,7 +87,7 @@ function YourCommunitiesBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/communities/all`,
+      `/api/user/${props.requestUserID}/communities/all`,
       {},
       true,
       props.accessToken,

@@ -513,14 +513,19 @@ function ProfileHead(props: Props) {
             {props.numMutualConnections || 0} Mutual
           </RSText>
         )}
-        <RSText
-          type="subhead"
-          size={12}
-          color={colors.second}
-          className={styles.numbers}
+        <a
+          href={`/communities/${props.profileID}`}
+          className={styles.navigationText}
         >
-          {props.numCommunities || 0} Communities
-        </RSText>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.second}
+            className={styles.numbers}
+          >
+            {props.numCommunities || 0} Communities
+          </RSText>
+        </a>
       </div>
     </div>
   );
