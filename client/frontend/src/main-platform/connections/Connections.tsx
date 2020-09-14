@@ -26,6 +26,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -39,6 +43,8 @@ function Connections(props: Props) {
 
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const userID = props.match.params['userID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -82,7 +88,9 @@ function Connections(props: Props) {
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="connections" />
         )}
-        <ConnectionsBody />
+        <ConnectionsBody
+          requestUserID={userID === 'user' ? props.user._id : userID}
+        />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

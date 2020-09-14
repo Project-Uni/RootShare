@@ -49,6 +49,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  requestUserID: string;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -77,7 +78,7 @@ function ConnectionsBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/connections`,
+      `/api/user/${props.requestUserID}/connections`,
       {},
       true,
       props.accessToken,
