@@ -25,6 +25,10 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
+  app.get('/user/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
+    getAllEvents(req.user._id, (packet) => res.json(packet));
+  });
+
   app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
     if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
