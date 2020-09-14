@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Button,
+  LinearProgress,
 } from '@material-ui/core';
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
@@ -16,14 +17,16 @@ import { eventsMenu, eventsSidebar } from '../../../images/demo';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
-    background: colors.second,
+    // background: colors.second,
+    background: `linear-gradient(90deg, ${colors.primary}, ${colors.third})`,
   },
   mobileText: {
     marginTop: 20,
   },
   okButton: {
     color: colors.primaryText,
-    background: colors.bright,
+    // background: colors.bright,
+    background: `linear-gradient( ${colors.bright}, ${'#5599FF'})`,
   },
   sidebarImage: {
     height: 200,
@@ -57,6 +60,7 @@ function BetaModal(props: Props) {
 
   return (
     <Dialog open={props.open} PaperComponent={PaperComponent}>
+      <LinearProgress color="secondary" />
       <DialogTitle>
         <RSText type="head" size={16} bold color={colors.primaryText}>
           Welcome to RootShare!
@@ -115,7 +119,7 @@ function PaperComponent(props: PaperProps) {
   const styles = useStyles();
   return (
     <Draggable cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} className={styles.paper} square={false} />
+      <Paper {...props} className={styles.paper} square={false}></Paper>
     </Draggable>
   );
 }
