@@ -5,6 +5,7 @@ import {
   createBroadcastUserPost,
   getGeneralFeed,
   getPostsByUser,
+  leaveCommentOnPost,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -29,6 +30,18 @@ export default function postsRoutes(app) {
       if (userID === 'user') userID = req.user._id;
       const packet = await getPostsByUser(userID);
       return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/posts/comment/new/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const { message } = req.body;
+      if (!message)
+        return res.json(sendPacket(-1, 'Message is missing from request body.'));
+      const packet = await leaveCommentOnPost(req.user._id, postID, message);
     }
   );
 }
