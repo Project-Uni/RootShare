@@ -606,7 +606,7 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      <EventClientHeader showNavigationWidth={9999} />
+      <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

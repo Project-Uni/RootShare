@@ -281,7 +281,7 @@ function UserCount(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/count" />}
-      <EventClientHeader showNavigationWidth={9999} />
+      <EventClientHeader showNavigationMenuDefault />
       <img
         src={RootShareLogoFull}
         className={styles.rootshareLogo}

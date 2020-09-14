@@ -44,6 +44,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   minWidth?: number;
   showNavigationWidth?: number;
+  showNavigationMenuDefault?: boolean;
 };
 
 function EventClientHeader(props: Props) {
@@ -102,8 +103,10 @@ function EventClientHeader(props: Props) {
         return <MessagesDrawerContainer />;
       case 'profile':
         return <ProfileDrawer />;
-      default:
+      case 'navigation':
         return <NavigationDrawer currentTab="none" />;
+      default:
+        return null;
     }
   }
 
@@ -131,12 +134,13 @@ function EventClientHeader(props: Props) {
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {props.showNavigationWidth &&
-              window.innerWidth < props.showNavigationWidth && (
-                <IconButton onClick={handleNavigationClick}>
-                  <MdMenu color={colors.primaryText} size={28} />
-                </IconButton>
-              )}
+            {(props.showNavigationMenuDefault ||
+              (props.showNavigationWidth &&
+                window.innerWidth < props.showNavigationWidth)) && (
+              <IconButton onClick={handleNavigationClick}>
+                <MdMenu color={colors.primaryText} size={28} />
+              </IconButton>
+            )}
 
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
               <a href="/home">
