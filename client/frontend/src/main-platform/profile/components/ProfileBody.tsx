@@ -18,7 +18,11 @@ import {
   ProfileState,
   PostType,
 } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 64;
 
@@ -261,7 +265,10 @@ function ProfileBody(props: Props) {
           userID={props.profileID}
           userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}
-          timestamp="July 14th, 2020 6:52 PM"
+          timestamp={(function() {
+            const date = new Date(posts[i].createdAt);
+            return `${formatDatePretty(date)} at ${formatTime(date)}`;
+          })()}
           message={posts[i].message}
           likeCount={posts[i].likes.length}
           commentCount={0}
