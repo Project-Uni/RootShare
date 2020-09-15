@@ -489,3 +489,42 @@ export function cancelCommunityPendingRequest(communityID: string, userID: strin
     return sendPacket(-1, err);
   }
 }
+
+export async function followCommunity(
+  requestToFollowCommunityID: string,
+  yourCommunityID: string,
+  userID: string
+) {
+  try {
+    const checkAdminPromise = Community.exists({
+      _id: yourCommunityID,
+      admin: userID,
+    }).exec();
+    const communityExistsPromise = Community.exists({
+      _id: requestToFollowCommunityID,
+    });
+    return Promise.all([checkAdminPromise, communityExistsPromise])
+      .then(([isAdmin, communityExists]) => {
+        console.log('isAdmin:', isAdmin);
+        console.log('CommunityExists:', communityExists);
+        if (!isAdmin)
+          return sendPacket(
+            0,
+            'User is not admin of community they are choosing to follow as.'
+          );
+        if (!communityExists)
+          return sendPacket(
+            0,
+            'The community you are trying to follow does not exist'
+          );
+        return sendPacket(1, 'Test worked');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}

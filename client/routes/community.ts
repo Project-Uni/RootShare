@@ -15,6 +15,7 @@ import {
   acceptPendingMember,
   leaveCommunity,
   cancelCommunityPendingRequest,
+  followCommunity,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -196,6 +197,9 @@ export default function communityRoutes(app) {
         return res.json(
           sendPacket(-1, 'followAsCommunityID missing from request body')
         );
+
+      const packet = await followCommunity(communityID, followAsCommunityID, userID);
+      return res.json(packet);
     }
   );
 }
