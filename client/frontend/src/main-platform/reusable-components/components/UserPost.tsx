@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, TextField, IconButton, CircularProgress } from '@material-ui/core';
 
+import { connect } from 'react-redux';
+
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
+import { makeRequest } from '../../../helpers/functions';
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
@@ -144,6 +147,8 @@ function UserPost(props: Props) {
   const [showComments, setShowComments] = useState(false);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
+  const [commentErr, setCommentErr] = useState('');
+
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
   function handleShowMoreClick() {
@@ -158,8 +163,16 @@ function UserPost(props: Props) {
     setLiked(!oldLiked);
   }
 
-  function handleSendComment() {
-    console.log('Comment:', comment);
+  async function handleSendComment() {
+    const cleanedComment = comment.trim();
+    if (cleanedComment.length === 0) {
+      setCommentErr('Please enter a comment.');
+      return;
+    } else {
+      setCommentErr('');
+    }
+
+    const { data } = await makeRequest();
   }
 
   function handleMoreCommentsClick() {
@@ -289,6 +302,8 @@ function UserPost(props: Props) {
           onChange={(event: any) => setComment(event.target.value)}
           className={textFieldStyles.commentTextField}
           multiline
+          error={commentErr !== ''}
+          helperText={commentErr}
         />
         <IconButton onClick={handleSendComment}>
           <MdSend size={22} color={colors.bright} />
@@ -335,4 +350,16 @@ function UserPost(props: Props) {
   );
 }
 
-export default UserPost;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserPost);
