@@ -18,6 +18,7 @@ import {
   //New community Actions
   followCommunity,
   acceptFollowRequest,
+  rejectFollowRequest,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -217,6 +218,22 @@ export default function communityRoutes(app) {
         return res.json(sendPacket(-1, 'edgeID missing from request body'));
 
       const packet = await acceptFollowRequest(communityID, edgeID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/follow/reject',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { edgeID } = req.body;
+
+      if (!edgeID)
+        return res.json(sendPacket(-1, 'edgeID missing from request body'));
+
+      const packet = await rejectFollowRequest(communityID, edgeID, userID);
       return res.json(packet);
     }
   );
