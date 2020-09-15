@@ -496,10 +496,12 @@ export async function followCommunity(
   userID: string
 ) {
   try {
+    //Checking if the user who requested to follow is the admin of the community they are following as
     const checkAdminPromise = Community.exists({
       _id: yourCommunityID,
       admin: userID,
     });
+    //Checks if other community exists
     const communityExistsPromise = Community.exists({
       _id: requestToFollowCommunityID,
     });
@@ -527,6 +529,7 @@ export async function followCommunity(
           );
         }
 
+        //Checks to see if there is an already existing follow request
         const yourCommunity = await Community.findById(yourCommunityID)
           .select([
             'outgoingPendingCommunityFollowRequests',
@@ -558,6 +561,7 @@ export async function followCommunity(
           );
         }
 
+        //Creates and saves the new edge
         const followEdge = await new CommunityEdge({
           from: yourCommunityID,
           to: requestToFollowCommunityID,
