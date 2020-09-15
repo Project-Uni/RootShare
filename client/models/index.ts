@@ -7,10 +7,12 @@ import Post from './posts';
 import University from './universities';
 import User from './users';
 import Webinar from './webinars';
+import CommunityEdge from './communityEdges';
 
 export {
   Comment,
   Community,
+  CommunityEdge,
   Connection,
   Conversation,
   Message,
