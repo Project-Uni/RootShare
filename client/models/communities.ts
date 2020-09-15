@@ -38,7 +38,10 @@ const CommunitySchema = new mongoose.Schema(
     followingCommunities: [
       { type: mongoose.Types.ObjectId, ref: 'community_edges' },
     ],
-    pendingCommunityFollowRequests: [
+    outgoingPendingCommunityFollowRequests: [
+      { type: mongoose.Types.ObjectId, ref: 'community_edges' },
+    ],
+    incomingPendingCommunityFollowRequests: [
       { type: mongoose.Types.ObjectId, ref: 'community_edges' },
     ],
     internalCurrentMemberPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],

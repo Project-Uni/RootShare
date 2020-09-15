@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-import { Community, User } from '../models';
+import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { COMMUNITY_TYPE } from '../helpers/types';
 
@@ -505,18 +505,89 @@ export async function followCommunity(
     });
 
     return Promise.all([checkAdminPromise, communityExistsPromise])
-      .then(([isAdmin, communityExists]) => {
-        if (!isAdmin)
+      .then(async ([isAdmin, communityExists]) => {
+        if (!isAdmin) {
+          log(
+            'info',
+            `User ${userID} who is not admin for community ${yourCommunityID} attempted to follow a different community`
+          );
           return sendPacket(
             0,
             'User is not admin of community they are choosing to follow as.'
           );
-        if (!communityExists)
+        }
+        if (!communityExists) {
+          log(
+            'info',
+            `User ${userID} attempted to follow ${requestToFollowCommunityID} which does not exist`
+          );
           return sendPacket(
             0,
             'The community you are trying to follow does not exist'
           );
-        return sendPacket(1, 'Test worked');
+        }
+
+        const yourCommunity = await Community.findById(yourCommunityID)
+          .select([
+            'outgoingPendingCommunityFollowRequests',
+            'incomingPendingCommunityFollowRequests',
+          ])
+          .populate({
+            path: 'outgoingPendingCommunityFollowRequests',
+            select: ['from', 'to'],
+          })
+          .exec();
+
+        if (!yourCommunity)
+          return sendPacket(0, 'Could not find community with given id');
+
+        const checkOutgoingRequestExists = checkFollowRequestExists(
+          yourCommunity.outgoingPendingCommunityFollowRequests,
+          yourCommunityID,
+          requestToFollowCommunityID
+        );
+
+        if (checkOutgoingRequestExists) {
+          log(
+            'info',
+            `Attempting to create a follow request that already exists from ${yourCommunityID} to ${requestToFollowCommunityID}`
+          );
+          return sendPacket(
+            0,
+            'A follow request already exists from your community to the other community'
+          );
+        }
+
+        const followEdge = await new CommunityEdge({
+          from: yourCommunityID,
+          to: requestToFollowCommunityID,
+        }).save();
+
+        const otherCommunityPromise = Community.updateOne(
+          { _id: requestToFollowCommunityID },
+          { $push: { incomingPendingCommunityFollowRequests: followEdge._id } }
+        ).exec();
+        const yourCommunityPromise = Community.updateOne(
+          { _id: yourCommunityID },
+          { $push: { outgoingPendingCommunityFollowRequests: followEdge._id } }
+        ).exec();
+
+        return Promise.all([otherCommunityPromise, yourCommunityPromise])
+          .then((values) => {
+            log(
+              'info',
+              `Successfully created follow request between ${yourCommunityID} and ${requestToFollowCommunityID}`
+            );
+            sendPacket(
+              1,
+              `Successfully requested to follow community ${requestToFollowCommunityID} as admin of ${yourCommunityID}`,
+              { followEdge }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(-1, err);
+          });
       })
       .catch((err) => {
         log('error', err);
@@ -526,4 +597,15 @@ export async function followCommunity(
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+// HELPER FUNCTIONS
+function checkFollowRequestExists(
+  list: { from: String; to: String }[],
+  from: string,
+  to: string
+): boolean {
+  for (let i = 0; i < list.length; i++)
+    if (list[i].from == from && list[i].to == to) return true;
+  return false;
 }
