@@ -728,6 +728,69 @@ export async function rejectFollowRequest(
   }
 }
 
+export async function cancelFollowRequest(
+  fromCommunityID: string,
+  toCommunityID: string,
+  edgeID: string,
+  userID: string
+) {
+  try {
+    //Checking if user is admin of community
+    const isAdmin = await Community.exists({
+      _id: fromCommunityID,
+      admin: userID,
+    });
+    if (!isAdmin) {
+      log(
+        'info',
+        `User ${userID} who is not admin for community ${fromCommunityID} attempted to reject follow request with edgeID ${edgeID}`
+      );
+      return sendPacket(
+        0,
+        'User is not admin of community they are trying to reject the request as.'
+      );
+    }
+
+    //Checking if edge exists given paramters
+    const edge = await CommunityEdge.findOne({
+      _id: edgeID,
+      from: fromCommunityID,
+      to: toCommunityID,
+    });
+    if (!edge) {
+      log('error', `No edge exists with ID ${edgeID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    //Deletes edge and pulls from DB entries for both communities
+    const fromCommunityPromise = Community.updateOne(
+      { _id: fromCommunityID },
+      { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const toCommunityPromise = Community.updateOne(
+      { _id: toCommunityID },
+      { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+
+    return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully cancelled pending community follow request from ${fromCommunityID} to ${toCommunityID} and handled all propagation.`
+        );
+        return sendPacket(1, 'Successfully rejected follow request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 // HELPER FUNCTIONS
 function checkFollowRequestExists(
   list: { from: String; to: String }[],

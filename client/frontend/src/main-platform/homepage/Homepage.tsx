@@ -79,11 +79,49 @@ function Homepage(props: Props) {
   }
 
   async function fetchData() {
+    //CREATE REQUEST
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow`,
+    //   {
+    //     followAsCommunityID: '5f5673beabbed8044a2496e2',
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //ACCEPT REQUEST
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/accept`,
+    //   {
+    //     edgeID: '5f604462879f0e1bd94ce8b8',
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //REJECT REQUEST
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/reject`,
+    //   {
+    //     edgeID: '5f60474a7f32161eacb05412',
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //CANCEL REQUEST
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${'5f3ff2a69d57c82c78972c32'}/follow`,
+      `/api/community/${'5f3feed3cf316529bb10485f'}/follow/cancel`,
       {
-        followAsCommunityID: '5f3feed3cf316529bb10485f',
+        edgeID: '5f6152ef9e0f20065cfd0a0f',
+        fromCommunityID: '5f5673beabbed8044a2496e2',
       },
       true,
       props.accessToken,
