@@ -499,14 +499,13 @@ export async function followCommunity(
     const checkAdminPromise = Community.exists({
       _id: yourCommunityID,
       admin: userID,
-    }).exec();
+    });
     const communityExistsPromise = Community.exists({
       _id: requestToFollowCommunityID,
     });
+
     return Promise.all([checkAdminPromise, communityExistsPromise])
       .then(([isAdmin, communityExists]) => {
-        console.log('isAdmin:', isAdmin);
-        console.log('CommunityExists:', communityExists);
         if (!isAdmin)
           return sendPacket(
             0,

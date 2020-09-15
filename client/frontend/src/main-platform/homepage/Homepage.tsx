@@ -79,7 +79,16 @@ function Homepage(props: Props) {
   }
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${'5f3ff2a69d57c82c78972c32'}/follow`,
+      {
+        followAsCommunityID: '5f3feed3cf316529bb10485f',
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
   }
 
   return (
