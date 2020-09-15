@@ -580,9 +580,9 @@ export async function followCommunity(
           .then((values) => {
             log(
               'info',
-              `Successfully created follow request between ${yourCommunityID} and ${requestToFollowCommunityID}`
+              `Successfully created follow request from ${yourCommunityID} to ${requestToFollowCommunityID}`
             );
-            sendPacket(
+            return sendPacket(
               1,
               `Successfully requested to follow community ${requestToFollowCommunityID} as admin of ${yourCommunityID}`,
               { followEdge }
@@ -592,6 +592,73 @@ export async function followCommunity(
             log('error', err);
             return sendPacket(-1, err);
           });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function acceptFollowRequest(
+  yourCommunityID: string,
+  edgeID: string,
+  userID: string
+) {
+  try {
+    const isAdmin = await Community.exists({
+      _id: yourCommunityID,
+      admin: userID,
+    });
+    if (!isAdmin) {
+      log(
+        'info',
+        `User ${userID} who is not admin for community ${yourCommunityID} attempted to follow a different community`
+      );
+      return sendPacket(
+        0,
+        'User is not admin of community they are choosing to follow as.'
+      );
+    }
+
+    const edge = await CommunityEdge.findOne({ _id: edgeID, to: yourCommunityID });
+    if (!edge) {
+      log('error', `No edge exists with ID ${edgeID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    edge.accepted = true;
+
+    const edgeSavePromise = edge.save();
+    const yourCommunityPromise = Community.updateOne(
+      { _id: yourCommunityID },
+      {
+        $pull: { incomingPendingCommunityFollowRequests: edgeID },
+        $push: { followedByCommunities: edgeID },
+      }
+    ).exec();
+    const otherCommunityPromise = Community.updateOne(
+      { _id: edge.from },
+      {
+        $pull: { outgoingPendingCommunityFollowRequests: edgeID },
+        $push: { followingCommunities: edgeID },
+      }
+    ).exec();
+
+    return Promise.all([
+      edgeSavePromise,
+      yourCommunityPromise,
+      otherCommunityPromise,
+    ])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully accepted follow request ${edgeID} from ${edge.from} to ${yourCommunityID}`
+        );
+        return sendPacket(1, 'Successfully accepted follow request');
       })
       .catch((err) => {
         log('error', err);
