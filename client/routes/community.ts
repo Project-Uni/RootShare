@@ -184,4 +184,18 @@ export default function communityRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.post(
+    '/api/community/:communityID/follow',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { followAsCommunityID } = req.body;
+      if (!followAsCommunityID)
+        return res.json(
+          sendPacket(-1, 'followAsCommunityID missing from request body')
+        );
+    }
+  );
 }
