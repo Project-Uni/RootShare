@@ -3,6 +3,7 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
   createEvent,
+  getAllEvents,
   getAllEventsAdmin,
   getAllEventsUser,
   getWebinarDetails,
@@ -25,7 +26,7 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/user/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
+  app.get('/api/webinar/getAllEvents', isAuthenticatedWithJWT, (req, res) => {
     getAllEvents(req.user._id, (packet) => res.json(packet));
   });
 
