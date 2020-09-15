@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
 
 import { Community, User } from '../models';
-
-import { COMMUNITY_TYPE } from '../types/types';
-
-import { retrieveSignedUrl } from '../helpers/S3';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { COMMUNITY_TYPE } from '../helpers/types';
 
 export async function createNewCommunity(
   name: string,
@@ -23,10 +19,16 @@ export async function createNewCommunity(
     type,
     private: isPrivate,
     admin: adminID,
+    members: [adminID],
   });
 
   try {
     const savedCommunity = await newCommunity.save();
+
+    const adminUpdate = await User.updateOne(
+      { _id: adminID },
+      { $push: { joinedCommunities: savedCommunity._id } }
+    ).exec();
 
     log('info', `Successfully created community ${name}`);
     return sendPacket(1, 'Successfully created new community', {
@@ -81,6 +83,19 @@ export async function editCommunity(
     community.private = isPrivate;
 
     const savedCommunity = await community.save();
+
+    if (community.members.indexOf(adminID) === -1) {
+      const communityPromise = Community.updateOne(
+        { _id },
+        { $push: { members: adminID } }
+      ).exec();
+      const userPromise = User.updateOne(
+        { _id: adminID },
+        { $push: { joinedCommunities: _id } }
+      ).exec();
+      await Promise.all([communityPromise, userPromise]);
+    }
+
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
       community: savedCommunity,
@@ -316,10 +331,8 @@ export async function getAllPendingMembers(communityID: string) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
 
       try {
-        const user = await User.findById(pendingMembers[i]._id).select([
-          'profilePicture',
-        ]);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
+        if (pendingMembers[i].profilePicture)
+          pictureFileName = pendingMembers[i].profilePicture;
       } catch (err) {
         log('err', err);
       }

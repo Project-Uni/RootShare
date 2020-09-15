@@ -22,6 +22,7 @@ var userSchema = new Schema(
     interests: Array,
     graduateSchool: String,
     discoveryMethod: String,
+    bio: String,
     sendEmails: { type: Boolean, required: true, default: true },
     confirmed: { type: Boolean, required: true, default: false },
     verified: { type: Boolean, required: true, default: false },

@@ -26,3 +26,11 @@ export type Community = {
 };
 
 export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';
+
+export type CommunityType =
+  | 'Social'
+  | 'Business'
+  | 'Just for Fun'
+  | 'Athletics'
+  | 'Student Organization'
+  | 'Academic';

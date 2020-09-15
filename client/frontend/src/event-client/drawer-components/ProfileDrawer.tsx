@@ -132,7 +132,7 @@ type Props = {
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
   const [currentPicture, setCurrentPicture] = useState<string>();
-  const [imageLoaded, setImagedLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
 
   // Original User Information
@@ -189,7 +189,7 @@ function ProfileDrawer(props: Props) {
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['imageURL']);
     }
-    setImagedLoaded(true);
+    setImageLoaded(true);
   }
 
   function updateCurrentPicture(imageData: string) {
@@ -199,7 +199,7 @@ function ProfileDrawer(props: Props) {
   async function getProfile() {
     const { data } = await makeRequest(
       'GET',
-      '/user/getProfile',
+      '/api/user/profile/user',
       {},
       true,
       props.accessToken,

@@ -1,6 +1,6 @@
 import jwt = require('jsonwebtoken');
-import sendPacket from '../../helpers/sendPacket';
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../../types/types';
+import { sendPacket } from '../../helpers/functions';
+import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../../helpers/types';
 
 export function isAuthenticated(req, res, next) {
   // If the user is logged in, continue with the request to the restricted route

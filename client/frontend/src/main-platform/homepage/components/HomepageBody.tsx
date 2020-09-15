@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
+import { connect } from 'react-redux';
+
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
@@ -15,7 +17,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
     minWidth: 600,
   },
@@ -33,7 +35,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
@@ -42,7 +46,7 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [postValue, setPostValue] = useState('');
+  const [feed, setFeed] = useState<{ [key: string]: any }[]>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -66,39 +70,29 @@ function HomepageBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function handlePostValueChange(event: any) {
-    setPostValue(event.target.value);
-  }
-
-  function handleImageUpload() {
-    console.log('Uploading image');
-  }
-
-  function handleSubmitPost() {
-    console.log('Submitting post');
-  }
-
   function handleDiscoverClick() {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
+  function appendNewPost(post: { [key: string]: any }) {
+    setFeed((prevState) => prevState.concat(post));
+  }
+
   function renderFeed() {
     const output = [];
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < feed.length; i++) {
       output.push(
         <UserPost
-          userID={'testID'}
-          userName="Jackson McCluskey"
+          userID={props.user._id}
+          userName={`${props.user.firstName} ${props.user.lastName}`}
+          timestamp={feed[i].createdAt}
           profilePicture={JacksonHeadshot}
-          community="Computer Science Nerds Club"
-          communityID={'testCommID'}
-          timestamp="July 14th, 2020 6:52 PM"
-          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          likeCount={109}
-          commentCount={54}
-          style={styles.singlePost}
+          message={feed[i].message}
+          likeCount={feed[i].likes.length}
+          commentCount={0}
         />
       );
+    }
     return <div className={styles.posts}>{output}</div>;
   }
 
@@ -114,12 +108,7 @@ function HomepageBody(props: Props) {
           buttonAction={handleDiscoverClick}
         />
       )}
-      <MakePostContainer
-        postValue={postValue}
-        onChange={handlePostValueChange}
-        onPost={handleSubmitPost}
-        onUploadImage={handleImageUpload}
-      />
+      <MakePostContainer appendNewPost={appendNewPost} userID={props.user._id} />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (
@@ -129,4 +118,14 @@ function HomepageBody(props: Props) {
   );
 }
 
-export default HomepageBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);

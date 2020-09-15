@@ -1,22 +1,27 @@
-import sendPacket from '../helpers/sendPacket';
+import { log, sendPacket } from '../helpers/functions';
 import { User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   getCurrentUser,
-  getProfileInformation,
+  getPrivateProfileInformation,
+  getPublicProfileInformation,
+  getUserEvents,
   updateProfileInformation,
+  updateUserBio,
   getConnections,
   getConnectionSuggestions,
   getPendingRequests,
   requestConnection,
   respondConnection,
+  getUserCommunities,
+  checkConnectedWithUser,
+  getConnectionWithUser,
+  getConnectionsFullData,
 } from '../interactions/user';
 
-import log from '../helpers/logger';
-
 module.exports = (app) => {
-  app.get('/user/getCurrent', isAuthenticatedWithJWT, (req, res) => {
+  app.get('/user/getCurrent', (req, res) => {
     return getCurrentUser(req.user, (packet) => res.json(packet));
   });
 
@@ -24,12 +29,25 @@ module.exports = (app) => {
     getConnections(req.user._id, (packet) => res.json(packet));
   });
 
-  app.get('/user/getProfile', isAuthenticatedWithJWT, (req, res) => {
-    getProfileInformation(req.user._id, (packet) => res.json(packet));
+  app.get('/api/user/profile/:userID', isAuthenticatedWithJWT, (req, res) => {
+    if (req.params.userID === 'user')
+      getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
+    else
+      getPublicProfileInformation(req.params.userID, (packet) => res.json(packet));
+  });
+
+  app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
+    let { userID } = req.params;
+    if (userID === 'user') userID = req.user._id;
+    getUserEvents(userID, (packet) => res.json(packet));
   });
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {
     updateProfileInformation(req.user._id, req.body, (packet) => res.json(packet));
+  });
+
+  app.post('/user/updateBio', isAuthenticatedWithJWT, (req, res) => {
+    updateUserBio(req.user._id, req.body.newBio, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
@@ -40,8 +58,18 @@ module.exports = (app) => {
     getPendingRequests(req.user._id, (packet) => res.json(packet));
   });
 
+  app.get(
+    '/api/user/:userID/connections',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      const packet = await getConnectionsFullData(userID);
+      return res.json(packet);
+    }
+  );
+
   app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
-    requestConnection(req.user._id, req.body.requestID, (packet) =>
+    requestConnection(req.user._id, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
@@ -52,6 +80,18 @@ module.exports = (app) => {
       req.body.requestID,
       req.body.accepted,
       (packet) => res.json(packet)
+    );
+  });
+
+  app.post('/user/checkConnectedWithUser', isAuthenticatedWithJWT, (req, res) => {
+    checkConnectedWithUser(req.user._id, req.body.requestUserID, (packet) =>
+      res.json(packet)
+    );
+  });
+
+  app.post('/user/getConnectionWithUser', isAuthenticatedWithJWT, (req, res) => {
+    getConnectionWithUser(req.user._id, req.body.requestUserID, (packet) =>
+      res.json(packet)
     );
   });
 
@@ -91,4 +131,14 @@ module.exports = (app) => {
       );
     });
   });
+
+  app.get(
+    '/api/user/:userID/communities/all',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      const packet = await getUserCommunities(userID);
+      return res.json(packet);
+    }
+  );
 };

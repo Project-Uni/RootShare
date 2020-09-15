@@ -1,4 +1,4 @@
-import log from '../helpers/logger';
+import { log } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 const {

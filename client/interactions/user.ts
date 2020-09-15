@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
 
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { extractOtherUserIDFromConnections } from './utilities';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -19,30 +19,157 @@ export function getCurrentUser(user, callback) {
   );
 }
 
-export async function getProfileInformation(userID, callback) {
-  try {
-    const user = await User.findById(userID, [
-      'email',
-      'firstName',
-      'lastName',
-      'major',
-      'graduationYear',
-      'work',
-      'position',
-      'university',
-      'department',
-      'interests',
-      'organizations',
-      'graduateSchool',
-      'phoneNumber',
-      'discoveryMethod',
-    ]).populate({ path: 'university', select: 'universityName' });
+export async function getPrivateProfileInformation(userID, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'universities',
+        localField: 'university',
+        foreignField: '_id',
+        as: 'university',
+      },
+    },
+    { $unwind: '$university' },
+    {
+      $project: {
+        email: '$email',
+        firstName: '$firstName',
+        lastName: '$lastName',
+        major: '$major',
+        graduationYear: '$graduationYear',
+        work: '$work',
+        position: '$position',
+        department: '$department',
+        interests: '$interests',
+        organizations: '$organizations',
+        graduateSchool: '$graduateSchool',
+        bio: '$bio',
+        phoneNumber: '$phoneNumber',
+        discoveryMethod: '$discoveryMethod',
+        numConnections: { $size: '$connections' },
+        numCommunities: { $size: '$joinedCommunities' },
+        university: {
+          _id: '$university._id',
+          universityName: '$university.universityName',
+        },
+      },
+    },
+  ])
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(
+        sendPacket(1, 'Sending personal user information', { user: users[0] })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
 
-    if (!user) return callback(sendPacket(0, "Couldn't find user"));
-    return callback(sendPacket(1, 'Sending user data', { user }));
+export async function getPublicProfileInformation(userID, callback) {
+  try {
+    mongoose.Types.ObjectId(userID);
   } catch (err) {
     return callback(sendPacket(-1, err));
   }
+
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'universities',
+        localField: 'university',
+        foreignField: '_id',
+        as: 'university',
+      },
+    },
+    { $unwind: '$university' },
+    {
+      $project: {
+        email: '$email',
+        firstName: '$firstName',
+        lastName: '$lastName',
+        major: '$major',
+        graduationYear: '$graduationYear',
+        work: '$work',
+        position: '$position',
+        department: '$department',
+        interests: '$interests',
+        organizations: '$organizations',
+        graduateSchool: '$graduateSchool',
+        bio: '$bio',
+        numConnections: { $size: '$connections' },
+        numCommunities: { $size: '$joinedCommunities' },
+        university: {
+          _id: '$university._id',
+          universityName: '$university.universityName',
+        },
+      },
+    },
+  ])
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(
+        sendPacket(1, 'Sending public user information', { user: users[0] })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
+}
+
+export function getUserEvents(userID, callback) {
+  User.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(userID) } },
+    {
+      $lookup: {
+        from: 'webinars',
+        let: { rsvps: '$RSVPWebinars' },
+        pipeline: [
+          { $match: { $expr: { $in: ['$_id', '$$rsvps'] } } },
+          { $sort: { dateTime: 1 } },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'host',
+              foreignField: '_id',
+              as: 'host',
+            },
+          },
+          { $unwind: '$host' },
+          {
+            $project: {
+              _id: '$_id',
+              title: '$title',
+              brief_description: '$brief_description',
+              full_description: '$full_description',
+              dateTime: '$dateTime',
+              userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
+              host: {
+                _id: '$host._id',
+                firstName: '$host.firstName',
+                lastName: '$host.lastName',
+              },
+            },
+          },
+        ],
+        as: 'RSVPWebinars',
+      },
+    },
+    {
+      $project: {
+        RSVPWebinars: '$RSVPWebinars',
+      },
+    },
+  ])
+    .exec()
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Could not find User's Events"));
+      return callback(
+        sendPacket(1, "Sending User's Events", { events: users[0].RSVPWebinars })
+      );
+    })
+    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function updateProfileInformation(userID, profileData, callback) {
@@ -90,6 +217,14 @@ export function updateProfileInformation(userID, profileData, callback) {
       });
     }
   );
+}
+
+export function updateUserBio(userID, newBio, callback) {
+  User.updateOne({ _id: userID }, { bio: newBio }, (err, update) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (update.n === 0) return callback(sendPacket(0, 'Could not find User'));
+    return callback(sendPacket(1, "Updated user's bio"));
+  });
 }
 
 // TODO: either send these in chunks or store all connections in redux when user logs in
@@ -361,101 +496,52 @@ export function getPendingRequests(userID, callback) {
 }
 
 export function requestConnection(userID, requestUserID, callback) {
-  if (requestUserID.toString().localeCompare(userID) === 0)
-    return callback(sendPacket(0, "Can't connect with yourself"));
+  checkConnectedWithUser(userID, requestUserID, (packet) => {
+    if (packet.success !== 1 || packet.content.connected !== 'PUBLIC')
+      return callback(packet);
 
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'connections',
-        localField: 'pendingConnections',
-        foreignField: '_id',
-        as: 'pendingConnections',
-      },
-    },
-    {
-      $lookup: {
-        from: 'connections',
-        localField: 'connections',
-        foreignField: '_id',
-        as: 'connections',
-      },
-    },
-    {
-      $project: {
-        isConnectedFrom: {
-          $in: [mongoose.Types.ObjectId(requestUserID), '$connections.from'],
-        },
-        isConnectedTo: {
-          $in: [mongoose.Types.ObjectId(requestUserID), '$connections.to'],
-        },
-        isPendingFrom: {
-          $in: [mongoose.Types.ObjectId(requestUserID), '$pendingConnections.from'],
-        },
-        isPendingTo: {
-          $in: [mongoose.Types.ObjectId(requestUserID), '$pendingConnections.to'],
-        },
-      },
-    },
-  ])
-    .exec()
-    .then((response) => {
-      if (!response || response.length === 0)
-        return callback(-1, 'Error occurred checking request');
-      if (response[0].isConnectedFrom || response[0].isConnectedTo)
-        return callback(sendPacket(0, 'Already connected to this User'));
-      if (response[0].isPendingFrom)
-        return callback(sendPacket(0, 'This User has already sent you a request'));
-      if (response[0].isPendingTo)
-        return callback(sendPacket(0, 'Request has already been sent to this User'));
-
-      createConnectionRequest(userID, requestUserID, callback);
-    })
-    .catch((err) => {
-      if (err) callback(sendPacket(-1, err));
+    const newConnectionRequest = new Connection({
+      from: userID,
+      to: requestUserID,
     });
-}
 
-function createConnectionRequest(userID, requestUserID, callback) {
-  const newConnectionRequest = new Connection({
-    from: userID,
-    to: requestUserID,
-  });
-
-  newConnectionRequest.save((err, connectionRequest) => {
-    if (err) return callback(sendPacket(-1, err));
-    if (!connectionRequest) return callback(sendPacket(0, 'Could not save request'));
-
-    User.findById(userID, (err, user) => {
+    newConnectionRequest.save((err, connectionRequest) => {
       if (err) return callback(sendPacket(-1, err));
-      if (!user)
-        return callback(sendPacket(0, 'Could not find user to save request FROM'));
+      if (!connectionRequest)
+        return callback(sendPacket(0, 'Could not save request'));
 
-      if (!user.pendingConnections)
-        user.pendingConnections = [connectionRequest._id];
-      else user.pendingConnections.push(connectionRequest._id);
-
-      user.save((err, user) => {
+      User.findById(userID, (err, user) => {
         if (err) return callback(sendPacket(-1, err));
         if (!user)
-          return callback(sendPacket(0, 'Could not save request FROM user'));
+          return callback(sendPacket(0, 'Could not find user to save request FROM'));
 
-        User.findById(requestUserID, (err, requestedUser) => {
+        if (!user.pendingConnections)
+          user.pendingConnections = [connectionRequest._id];
+        else user.pendingConnections.push(connectionRequest._id);
+
+        user.save((err, user) => {
           if (err) return callback(sendPacket(-1, err));
-          if (!requestedUser)
-            return callback(sendPacket(0, 'Could not find user to send request TO'));
+          if (!user)
+            return callback(sendPacket(0, 'Could not save request FROM user'));
 
-          if (!requestedUser.pendingConnections)
-            requestedUser.pendingConnections = [connectionRequest._id];
-          else requestedUser.pendingConnections.push(connectionRequest._id);
-
-          requestedUser.save((err, requestedUser) => {
+          User.findById(requestUserID, (err, requestedUser) => {
             if (err) return callback(sendPacket(-1, err));
             if (!requestedUser)
-              return callback(sendPacket(0, 'Could not save request TO user'));
+              return callback(
+                sendPacket(0, 'Could not find user to send request TO')
+              );
 
-            callback(sendPacket(1, 'Connection request has been sent!'));
+            if (!requestedUser.pendingConnections)
+              requestedUser.pendingConnections = [connectionRequest._id];
+            else requestedUser.pendingConnections.push(connectionRequest._id);
+
+            requestedUser.save((err, requestedUser) => {
+              if (err) return callback(sendPacket(-1, err));
+              if (!requestedUser)
+                return callback(sendPacket(0, 'Could not save request TO user'));
+
+              callback(sendPacket(1, 'Connection request has been sent!'));
+            });
           });
         });
       });
@@ -471,8 +557,6 @@ export function respondConnection(userID, requestID, accepted, callback) {
 
     const isRequestee = userID.toString().localeCompare(request['to']) === 0;
     const isRequester = userID.toString().localeCompare(request['from']) === 0;
-    if (request.accepted)
-      return callback(sendPacket(0, 'Connection Request has already been accepted'));
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request, callback);
     else if (accepted && isRequestee)
@@ -548,7 +632,7 @@ function removeConnectionRequest(request, callback) {
         ],
       },
     },
-    ['pendingConnections'],
+    ['connections', 'pendingConnections'],
     async (err, users) => {
       if (err) return callback(sendPacket(-1, err));
       if (!users || users.length !== 2)
@@ -557,17 +641,34 @@ function removeConnectionRequest(request, callback) {
         );
 
       for (let i = 0; i < 2; i++) {
-        // Checks that request exists in array
-        const removeIndex = users[i].pendingConnections.indexOf(request._id);
-        if (removeIndex === -1) continue;
+        // Checks if request exists in pending array and removes it
+        if (users[i].pendingConnections) {
+          const removePendingIndex = users[i].pendingConnections.indexOf(
+            request._id
+          );
+          if (removePendingIndex !== -1) {
+            users[i].pendingConnections.splice(removePendingIndex, 1);
+            try {
+              await users[i].save();
+            } catch (err) {
+              log('error', `Couldn't save User`);
+              if (err) return callback(sendPacket(-1, err));
+            }
+          }
+        }
 
-        // Remove Request from each User's pending
-        users[i].pendingConnections.splice(removeIndex, 1);
-        try {
-          await users[i].save();
-        } catch (err) {
-          log('error', `Couldn't save User`);
-          if (err) return callback(sendPacket(-1, err));
+        // Checks if request exists in connections array and removes it
+        if (users[i].connections) {
+          const removeConnectionIndex = users[i].connections.indexOf(request._id);
+          if (removeConnectionIndex !== -1) {
+            users[i].connections.splice(removeConnectionIndex, 1);
+            try {
+              await users[i].save();
+            } catch (err) {
+              log('error', `Couldn't save User`);
+              if (err) return callback(sendPacket(-1, err));
+            }
+          }
         }
       }
 
@@ -576,6 +677,79 @@ function removeConnectionRequest(request, callback) {
 
         return callback(sendPacket(1, 'Successfully removed connection request'));
       });
+    }
+  );
+}
+
+export function checkConnectedWithUser(userID, requestUserID, callback) {
+  userID = userID.toString();
+  requestUserID = requestUserID.toString();
+  if (requestUserID.localeCompare(userID) === 0)
+    return callback(
+      sendPacket(1, "Can't be connected to yourself", {
+        connected: 'SELF',
+      })
+    );
+
+  Connection.find(
+    {
+      $or: [
+        { $and: [{ from: userID }, { to: requestUserID }] },
+        { $and: [{ from: requestUserID }, { to: userID }] },
+      ],
+    },
+    (err, connections) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!connections || connections.length === 0)
+        return callback(
+          sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
+        );
+
+      const connection = connections[0];
+      if (connection.accepted)
+        return callback(
+          sendPacket(1, 'Already connected to this User', {
+            connected: 'CONNECTION',
+          })
+        );
+      else if (connection.from.toString() === requestUserID)
+        return callback(
+          sendPacket(1, 'This User has already sent you a request', {
+            connected: 'FROM',
+          })
+        );
+      else if (connection.to.toString() === requestUserID)
+        return callback(
+          sendPacket(1, 'Request has already been sent to this User', {
+            connected: 'TO',
+          })
+        );
+      else return callback(sendPacket(-1, 'An error has occured'));
+    }
+  );
+}
+
+export function getConnectionWithUser(userID, requestUserID, callback) {
+  userID = userID.toString();
+  requestUserID = requestUserID.toString();
+  if (requestUserID.localeCompare(userID) === 0)
+    return callback(sendPacket(0, "Can't be connected to yourself"));
+
+  Connection.find(
+    {
+      $or: [
+        { $and: [{ from: userID }, { to: requestUserID }] },
+        { $and: [{ from: requestUserID }, { to: userID }] },
+      ],
+    },
+    (err, connections) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!connections)
+        return callback(sendPacket(0, 'Not yet connected to this User'));
+
+      return callback(
+        sendPacket(1, 'Sending Connection with User', { connection: connections[0] })
+      );
     }
   );
 }
@@ -637,5 +811,172 @@ export async function updateAttendingList(
   } catch (err) {
     log('error', err);
     return callback(sendPacket(0, 'Error retrieving user or webinar'));
+  }
+}
+
+export async function getUserCommunities(userID: string) {
+  try {
+    //Getting correct values from database
+    const communitySelectFields = [
+      'name',
+      'description',
+      'private',
+      'members',
+      'type',
+      'profilePicture',
+      'admin',
+    ];
+
+    const user = await User.findById(userID)
+      .select(['joinedCommunities', 'pendingCommunities', 'connections'])
+      .populate({ path: 'connections', select: ['from', 'to'] })
+      .populate({ path: 'joinedCommunities', select: communitySelectFields })
+      .populate({ path: 'pendingCommunities', select: communitySelectFields })
+      .exec();
+
+    if (!user) return sendPacket(0, `Could find user with id ${userID}`);
+
+    const { joinedCommunities, pendingCommunities } = user;
+    const connections = extractOtherUserIDFromConnections(
+      userID,
+      user['connections']
+    );
+
+    //Cleaning up joined and pending communities
+    for (let i = 0; i < joinedCommunities.length; i++) {
+      //Updating Profile Picture
+      if (joinedCommunities[i].profilePicture) {
+        try {
+          const signedProfilePicture = await retrieveSignedUrl(
+            'communityProfile',
+            joinedCommunities[i].profilePicture
+          );
+          if (signedProfilePicture)
+            joinedCommunities[i].profilePicture = signedProfilePicture;
+        } catch (err) {
+          log('error', err);
+        }
+      }
+
+      //Calculating Mutual Connections
+      const mutualConnections = connections.filter((connection) => {
+        return joinedCommunities[i].members.indexOf(connection) !== -1;
+      });
+
+      const cleanedCommunity = {
+        _id: joinedCommunities[i]._id,
+        name: joinedCommunities[i].name,
+        description: joinedCommunities[i].description,
+        private: joinedCommunities[i].private,
+        type: joinedCommunities[i].type,
+        admin: joinedCommunities[i].admin,
+        profilePicture: joinedCommunities[i].profilePicture,
+        numMembers: joinedCommunities[i].members.length,
+        numMutual: mutualConnections.length,
+      };
+
+      joinedCommunities[i] = cleanedCommunity;
+    }
+
+    for (let i = 0; i < pendingCommunities.length; i++) {
+      //Updating Profile Picture
+      if (pendingCommunities[i].profilePicture) {
+        try {
+          const signedProfilePicture = await retrieveSignedUrl(
+            'communityProfile',
+            pendingCommunities[i].profilePicture
+          );
+          if (signedProfilePicture)
+            pendingCommunities[i].profilePicture = signedProfilePicture;
+        } catch (err) {
+          log('error', err);
+        }
+      }
+
+      //Calculating Mutual Connections
+      const mutualConnections = connections.filter((connection) => {
+        return pendingCommunities[i].members.indexOf(connection) !== -1;
+      });
+
+      const cleanedCommunity = {
+        _id: pendingCommunities[i]._id,
+        name: pendingCommunities[i].name,
+        description: pendingCommunities[i].description,
+        private: pendingCommunities[i].private,
+        type: pendingCommunities[i].type,
+        admin: pendingCommunities[i].admin,
+        profilePicture: pendingCommunities[i].profilePicture,
+        numMembers: pendingCommunities[i].members.length,
+        numMutual: mutualConnections.length,
+      };
+
+      pendingCommunities[i] = cleanedCommunity;
+    }
+
+    return sendPacket(
+      1,
+      'Successfully retrieved all joined and pending communities.',
+      { joinedCommunities, pendingCommunities }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getConnectionsFullData(userID: string) {
+  try {
+    const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
+      'connections',
+      'joinedCommunities',
+    ]).populate({ path: 'connections', select: ['from', 'to'] });
+
+    const connectionIDs = connections.reduce((output, connection) => {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(otherID);
+
+      return output;
+    }, []);
+
+    const connectionsWithData = await User.find({ _id: { $in: connectionIDs } }, [
+      'firstName',
+      'lastName',
+      'graduationYear',
+      'university',
+      'work',
+      'position',
+      'connections',
+      'joinedCommunities',
+      'profilePicture',
+    ])
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['from', 'to'] });
+
+    for (let i = 0; i < connectionsWithData.length; i++) {
+      if (connectionsWithData[i].profilePicture) {
+        try {
+          const imageURL = await retrieveSignedUrl(
+            'profile',
+            connectionsWithData[i].profilePicture
+          );
+          if (imageURL) connectionsWithData[i].profilePicture = imageURL;
+        } catch (err) {
+          log('error', err);
+        }
+      }
+    }
+
+    return sendPacket(1, 'successfully retrieved all connections', {
+      connections: connectionsWithData,
+      connectionIDs: connectionIDs,
+      joinedCommunities: joinedCommunities,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
   }
 }

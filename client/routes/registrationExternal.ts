@@ -1,7 +1,6 @@
 var passport = require('passport');
 
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
 import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
 module.exports = (app) => {

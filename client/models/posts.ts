@@ -23,6 +23,12 @@ const PostSchema = new mongoose.Schema(
     type: { type: String, default: 'broadcast' },
     // NOTE: Type Values: 'internalCurrent', 'internalAlumni', 'external', 'broadcast'
     // MongoDB does not allow custom typing so we will have to type check as we use
+    university: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'universities',
+      required: true,
+      default: '5eb89c308cc6636630c1311f',
+    },
   },
   { timestamps: true }
 );

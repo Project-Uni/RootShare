@@ -17,6 +17,7 @@ export type UserType = {
   work: string;
   position: string;
   interests: string[];
+  bio: string;
   graduateSchool: string;
   discoveryMethod: string;
   sendEmails: boolean;
@@ -27,6 +28,9 @@ export type UserType = {
   pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
+  numConnections?: number;
+  numMutual?: number;
+  numCommunities?: number;
 };
 
 export type ConnectionRequestType = {
@@ -35,3 +39,13 @@ export type ConnectionRequestType = {
   to: string | UserType;
   createdAt: Date;
 };
+
+export type ProfileState =
+  | 'SELF'
+  | 'CONNECTION'
+  | 'TO'
+  | 'FROM'
+  | 'PUBLIC'
+  | 'PENDING';
+
+//NOTE - Pending added for general display when figuring out from / to not needed

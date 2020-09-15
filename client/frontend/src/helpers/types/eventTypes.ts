@@ -16,6 +16,8 @@ export type EventType = {
   conversation: string | ConversationType;
   dateTime: Date;
   muxPlaybackID: string;
+  isDev?: boolean;
+  isPrivate?: boolean;
 };
 
 export type HostType = {
@@ -30,4 +32,10 @@ export type SpeakerType = {
   firstName: string;
   lastName: string;
   email: string;
+};
+
+export type MuxMetaDataType = {
+  viewerUserID: string;
+  webinarID: string;
+  eventTitle: string;
 };
