@@ -22,6 +22,7 @@ import {
   cancelFollowRequest,
   unfollowCommunity,
   getAllFollowingCommunities,
+  getAllFollowedByCommunities,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -278,6 +279,16 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const packet = await getAllFollowingCommunities(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/followedBy',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getAllFollowedByCommunities(communityID);
       return res.json(packet);
     }
   );

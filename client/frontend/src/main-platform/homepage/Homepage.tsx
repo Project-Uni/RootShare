@@ -99,7 +99,7 @@ function Homepage(props: Props) {
     //   'POST',
     //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/accept`,
     //   {
-    //     edgeID: '5f615724f3e3a6096fd293a4',
+    //     edgeID: '5f61626dbfa91c0e8ea97df2',
     //   },
     //   true,
     //   props.accessToken,
@@ -131,7 +131,7 @@ function Homepage(props: Props) {
     //   props.refreshToken
     // );
 
-    //GET ALL FOLLOWING
+    // GET ALL FOLLOWING
     // const { data: data3 } = await makeRequest(
     //   'GET',
     //   `/api/community/${'5f5673beabbed8044a2496e2'}/following`,
@@ -142,10 +142,20 @@ function Homepage(props: Props) {
     // );
 
     //UNFOLLOW
-    const { data: data3 } = await makeRequest(
-      'POST',
-      `/api/community/${'5f3feed3cf316529bb10485f'}/unfollow`,
-      { fromCommunityID: '5f5673beabbed8044a2496e2' },
+    // const { data: data3 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/unfollow`,
+    //   { fromCommunityID: '5f5673beabbed8044a2496e2' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL FOLLOWED BY
+    const { data: data5 } = await makeRequest(
+      'GET',
+      `/api/community/${'5f3feed3cf316529bb10485f'}/followedBy`,
+      {},
       true,
       props.accessToken,
       props.refreshToken

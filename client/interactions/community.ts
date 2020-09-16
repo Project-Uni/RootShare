@@ -868,7 +868,7 @@ export async function unfollowCommunity(
 export async function getAllFollowingCommunities(communityID: string) {
   try {
     const community = await Community.findById(communityID)
-      .select(['followingCommunities', 'members'])
+      .select(['followingCommunities'])
       .populate({
         path: 'followingCommunities',
         select: 'to',
@@ -924,7 +924,64 @@ export async function getAllFollowingCommunities(communityID: string) {
   }
 }
 
-export async function getAllFollowedByCommunities(communityID: string) {}
+export async function getAllFollowedByCommunities(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followedByCommunities'])
+      .populate({
+        path: 'followedByCommunities',
+        select: 'from',
+        populate: {
+          path: 'from',
+          select: 'name description type profilePicture',
+        },
+      });
+
+    const followedByCommunities = community['followedByCommunities'].map((edge) => {
+      return edge.from;
+    });
+
+    const profilePicturePromises = [];
+    for (let i = 0; i < followedByCommunities.length; i++) {
+      if (followedByCommunities[i].profilePicture) {
+        try {
+          const signedImageURLPromise = retrieveSignedUrl(
+            'communityProfile',
+            followedByCommunities[i].profilePicture
+          );
+          profilePicturePromises.push(signedImageURLPromise);
+        } catch (err) {
+          profilePicturePromises.push(null);
+          log('error', 'There was an error retrieving a signed url from S3');
+        }
+      } else {
+        profilePicturePromises.push(null);
+      }
+    }
+
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            followedByCommunities[i].profilePicture = signedImageURLs[i];
+        }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} is followed by`
+        );
+        return sendPacket(1, 'Successfully retrieved all followed by communities', {
+          communities: followedByCommunities,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
 
 export async function getAllPendingFollowRequests(communityID: string) {}
 // HELPER FUNCTIONS
