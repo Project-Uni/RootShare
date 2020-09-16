@@ -818,17 +818,21 @@ export async function getAllFollowingCommunities(communityID: string) {
         select: 'to',
         populate: {
           path: 'to',
-          select: 'name description type profilePicture members',
+          select: 'name description type profilePicture',
         },
       });
 
+    const followingCommunities = community['followingCommunities'].map((edge) => {
+      return edge.to;
+    });
+
     const profilePicturePromises = [];
-    for (let i = 0; i < community.followingCommunities.length; i++) {
-      if (community.followingCommunities[i].to.profilePicture) {
+    for (let i = 0; i < followingCommunities.length; i++) {
+      if (followingCommunities[i].profilePicture) {
         try {
           const signedImageURLPromise = retrieveSignedUrl(
             'communityProfile',
-            community.followingCommunities[i].to.profilePicture
+            followingCommunities[i].profilePicture
           );
           profilePicturePromises.push(signedImageURLPromise);
         } catch (err) {
@@ -842,13 +846,12 @@ export async function getAllFollowingCommunities(communityID: string) {
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
-        console.log('Signed imageURLS:', signedImageURLs);
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            community.followingCommunities[i].to.profilePicture = signedImageURLs[i];
+            followingCommunities[i].profilePicture = signedImageURLs[i];
         }
         return sendPacket(1, 'Successfully retrieved all following communities', {
-          communities: community.followingCommunities,
+          communities: followingCommunities,
         });
       })
       .catch((err) => {
