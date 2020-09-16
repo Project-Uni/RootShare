@@ -530,27 +530,11 @@ export async function followCommunity(
         }
 
         //Checks to see if there is an already existing follow request
-        const yourCommunity = await Community.findById(yourCommunityID)
-          .select([
-            'outgoingPendingCommunityFollowRequests',
-            'incomingPendingCommunityFollowRequests',
-          ])
-          .populate({
-            path: 'outgoingPendingCommunityFollowRequests',
-            select: ['from', 'to'],
-          })
-          .exec();
-
-        if (!yourCommunity)
-          return sendPacket(0, 'Could not find community with given id');
-
-        const checkOutgoingRequestExists = checkFollowRequestExists(
-          yourCommunity.outgoingPendingCommunityFollowRequests,
-          yourCommunityID,
-          requestToFollowCommunityID
-        );
-
-        if (checkOutgoingRequestExists) {
+        const edgeExists = await CommunityEdge.exists({
+          from: yourCommunityID,
+          to: requestToFollowCommunityID,
+        });
+        if (edgeExists) {
           log(
             'info',
             `Attempting to create a follow request that already exists from ${yourCommunityID} to ${requestToFollowCommunityID}`
@@ -566,7 +550,6 @@ export async function followCommunity(
           from: yourCommunityID,
           to: requestToFollowCommunityID,
         }).save();
-
         const otherCommunityPromise = Community.updateOne(
           { _id: requestToFollowCommunityID },
           { $addToSet: { incomingPendingCommunityFollowRequests: followEdge._id } }
@@ -959,16 +942,8 @@ export async function getAllPendingFollowRequests(communityID: string) {
     return sendPacket(-1, err);
   }
 }
+
 // HELPER FUNCTIONS
-function checkFollowRequestExists(
-  list: { from: String; to: String }[],
-  from: string,
-  to: string
-): boolean {
-  for (let i = 0; i < list.length; i++)
-    if (list[i].from == from && list[i].to == to) return true;
-  return false;
-}
 
 function generateSignedImagePromises(communityList: {
   [key: string]: any;
