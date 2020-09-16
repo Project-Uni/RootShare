@@ -569,11 +569,11 @@ export async function followCommunity(
 
         const otherCommunityPromise = Community.updateOne(
           { _id: requestToFollowCommunityID },
-          { $push: { incomingPendingCommunityFollowRequests: followEdge._id } }
+          { $addToSet: { incomingPendingCommunityFollowRequests: followEdge._id } }
         ).exec();
         const yourCommunityPromise = Community.updateOne(
           { _id: yourCommunityID },
-          { $push: { outgoingPendingCommunityFollowRequests: followEdge._id } }
+          { $addToSet: { outgoingPendingCommunityFollowRequests: followEdge._id } }
         ).exec();
 
         return Promise.all([otherCommunityPromise, yourCommunityPromise])
@@ -603,28 +603,8 @@ export async function followCommunity(
   }
 }
 
-export async function acceptFollowRequest(
-  yourCommunityID: string,
-  edgeID: string,
-  userID: string
-) {
+export async function acceptFollowRequest(yourCommunityID: string, edgeID: string) {
   try {
-    const isAdmin = await Community.exists({
-      _id: yourCommunityID,
-      admin: userID,
-    });
-    if (!isAdmin) {
-      log(
-        'info',
-        `User ${userID} who is not admin for community ${yourCommunityID} attempted to accept follow request with edgeID ${edgeID}`
-      );
-      return sendPacket(
-        0,
-        'User is not admin of community they are trying to accept request for.'
-      );
-    }
-
-    //Todo, replace with from
     const edge = await CommunityEdge.findOne({
       _id: edgeID,
       to: yourCommunityID,
@@ -675,28 +655,8 @@ export async function acceptFollowRequest(
   }
 }
 
-export async function rejectFollowRequest(
-  yourCommunityID: string,
-  edgeID: string,
-  userID: string
-) {
+export async function rejectFollowRequest(yourCommunityID: string, edgeID: string) {
   try {
-    //Checking if user is admin of community
-    const isAdmin = await Community.exists({
-      _id: yourCommunityID,
-      admin: userID,
-    });
-    if (!isAdmin) {
-      log(
-        'info',
-        `User ${userID} who is not admin for community ${yourCommunityID} attempted to reject follow request with edgeID ${edgeID}`
-      );
-      return sendPacket(
-        0,
-        'User is not admin of community they are trying to reject the request as.'
-      );
-    }
-
     //Checking if edge exists given paramters
     const edge = await CommunityEdge.findOne({
       _id: edgeID,

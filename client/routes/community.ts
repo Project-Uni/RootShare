@@ -216,15 +216,15 @@ export default function communityRoutes(app) {
   app.post(
     '/api/community/:communityID/follow/accept',
     isAuthenticatedWithJWT,
+    isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
       const { edgeID } = req.body;
 
       if (!edgeID)
         return res.json(sendPacket(-1, 'edgeID missing from request body'));
 
-      const packet = await acceptFollowRequest(communityID, edgeID, userID);
+      const packet = await acceptFollowRequest(communityID, edgeID);
       return res.json(packet);
     }
   );
@@ -232,15 +232,15 @@ export default function communityRoutes(app) {
   app.post(
     '/api/community/:communityID/follow/reject',
     isAuthenticatedWithJWT,
+    isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
       const { edgeID } = req.body;
 
       if (!edgeID)
         return res.json(sendPacket(-1, 'edgeID missing from request body'));
 
-      const packet = await rejectFollowRequest(communityID, edgeID, userID);
+      const packet = await rejectFollowRequest(communityID, edgeID);
       return res.json(packet);
     }
   );
