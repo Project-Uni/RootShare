@@ -10,7 +10,6 @@ import RSText from '../../../base-components/RSText';
 import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
-import { JacksonHeadshot } from '../../../images/team';
 import {
   makeRequest,
   formatDatePretty,
