@@ -170,7 +170,7 @@ function AdminHub(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin" />}
-      <EventClientHeader showNavigationWidth={9999} />
+      <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}
