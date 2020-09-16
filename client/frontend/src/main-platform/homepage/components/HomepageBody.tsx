@@ -60,12 +60,29 @@ function HomepageBody(props: Props) {
   const [serverErr, setServerErr] = useState(false);
   const [generalFeed, setGeneralFeed] = useState<JSX.Element[]>([]);
 
+  const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    getProfilePicture();
     getGeneralFeed().then(() => {
       setLoading(false);
     });
   }, []);
+
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/profile/${props.user._id}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setProfilePicture(data.content['imageURL']);
+    }
+  }
 
   async function getGeneralFeed() {
     const { data } = await makeRequest(
@@ -106,7 +123,7 @@ function HomepageBody(props: Props) {
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
             new Date(post.createdAt)
           )}`}
-          profilePicture={JacksonHeadshot}
+          profilePicture={profilePicture}
           message={post.message}
           likeCount={post.likes}
           commentCount={0}
@@ -150,7 +167,10 @@ function HomepageBody(props: Props) {
           buttonAction={handleDiscoverClick}
         />
       )}
-      <MakePostContainer appendNewPost={appendNewPost} userID={props.user._id} />
+      <MakePostContainer
+        appendNewPost={appendNewPost}
+        profilePicture={profilePicture}
+      />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
