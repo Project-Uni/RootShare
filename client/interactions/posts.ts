@@ -38,7 +38,10 @@ export async function getGeneralFeed(universityID: string) {
           imagePromises.push(signedImageUrlPromise);
         } catch (err) {
           log('error', err);
+          imagePromises.push(null);
         }
+      } else {
+        imagePromises.push(null);
       }
     }
     return Promise.all(imagePromises)

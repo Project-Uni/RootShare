@@ -73,7 +73,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   userID: string;
-  appendNewPost: (post: PostType) => any; //TODO: Define Post Type
+  appendNewPost: (post: PostType) => any;
   accessToken: string;
   refreshToken: string;
 };
