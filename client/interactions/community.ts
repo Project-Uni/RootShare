@@ -823,12 +823,12 @@ export async function getAllFollowingCommunities(communityID: string) {
       });
 
     const profilePicturePromises = [];
-    for (let i = 0; i < community.followingCommunities; i++) {
-      if (community.followingCommunities[i].profilePicture) {
+    for (let i = 0; i < community.followingCommunities.length; i++) {
+      if (community.followingCommunities[i].to.profilePicture) {
         try {
           const signedImageURLPromise = retrieveSignedUrl(
             'communityProfile',
-            community.followingCommunities[i].profilePicture
+            community.followingCommunities[i].to.profilePicture
           );
           profilePicturePromises.push(signedImageURLPromise);
         } catch (err) {
@@ -842,9 +842,10 @@ export async function getAllFollowingCommunities(communityID: string) {
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
+        console.log('Signed imageURLS:', signedImageURLs);
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            community.followingCommunities[i].profilePicture = signedImageURLs[i];
+            community.followingCommunities[i].to.profilePicture = signedImageURLs[i];
         }
         return sendPacket(1, 'Successfully retrieved all following communities', {
           communities: community.followingCommunities,
