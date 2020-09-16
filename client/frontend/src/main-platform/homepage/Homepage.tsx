@@ -152,9 +152,19 @@ function Homepage(props: Props) {
     // );
 
     //GET ALL FOLLOWED BY
+    // const { data: data5 } = await makeRequest(
+    //   'GET',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/followedBy`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL PENDING INCOMING FOLLOW REQUESTS
     const { data: data5 } = await makeRequest(
       'GET',
-      `/api/community/${'5f3feed3cf316529bb10485f'}/followedBy`,
+      `/api/community/${'5f3feed3cf316529bb10485f'}/follow/pending`,
       {},
       true,
       props.accessToken,

@@ -5,9 +5,11 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
+  //Admin Routes
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
+  //General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -15,7 +17,7 @@ import {
   acceptPendingMember,
   leaveCommunity,
   cancelCommunityPendingRequest,
-  //New community Actions
+  //Follow Related Actions
   followCommunity,
   acceptFollowRequest,
   rejectFollowRequest,
@@ -23,6 +25,7 @@ import {
   unfollowCommunity,
   getAllFollowingCommunities,
   getAllFollowedByCommunities,
+  getAllPendingFollowRequests,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -289,6 +292,17 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const packet = await getAllFollowedByCommunities(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/follow/pending',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getAllPendingFollowRequests(communityID);
       return res.json(packet);
     }
   );

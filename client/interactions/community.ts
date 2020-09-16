@@ -983,7 +983,66 @@ export async function getAllFollowedByCommunities(communityID: string) {
   }
 }
 
-export async function getAllPendingFollowRequests(communityID: string) {}
+export async function getAllPendingFollowRequests(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['incomingPendingCommunityFollowRequests'])
+      .populate({
+        path: 'incomingPendingCommunityFollowRequests',
+        select: 'from',
+        populate: {
+          path: 'from',
+          select: 'name description type profilePicture',
+        },
+      });
+
+    const pendingFollowRequests = community[
+      'incomingPendingCommunityFollowRequests'
+    ].map((edge) => {
+      return edge.from;
+    });
+
+    const profilePicturePromises = [];
+    for (let i = 0; i < pendingFollowRequests.length; i++) {
+      if (pendingFollowRequests[i].profilePicture) {
+        try {
+          const signedImageURLPromise = retrieveSignedUrl(
+            'communityProfile',
+            pendingFollowRequests[i].profilePicture
+          );
+          profilePicturePromises.push(signedImageURLPromise);
+        } catch (err) {
+          profilePicturePromises.push(null);
+          log('error', 'There was an error retrieving a signed url from S3');
+        }
+      } else {
+        profilePicturePromises.push(null);
+      }
+    }
+
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            pendingFollowRequests[i].profilePicture = signedImageURLs[i];
+        }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} has pending follow requests for`
+        );
+        return sendPacket(1, 'Successfully retrieved all followed by communities', {
+          communities: pendingFollowRequests,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
 // HELPER FUNCTIONS
 function checkFollowRequestExists(
   list: { from: String; to: String }[],
