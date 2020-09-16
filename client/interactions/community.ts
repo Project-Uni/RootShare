@@ -731,7 +731,6 @@ export async function rejectFollowRequest(
 export async function cancelFollowRequest(
   fromCommunityID: string,
   toCommunityID: string,
-  edgeID: string,
   userID: string
 ) {
   try {
@@ -743,7 +742,7 @@ export async function cancelFollowRequest(
     if (!isAdmin) {
       log(
         'info',
-        `User ${userID} who is not admin for community ${fromCommunityID} attempted to reject follow request with edgeID ${edgeID}`
+        `User ${userID} who is not admin for community ${fromCommunityID} attempted to cancel follow request to ${toCommunityID}`
       );
       return sendPacket(
         0,
@@ -753,14 +752,15 @@ export async function cancelFollowRequest(
 
     //Checking if edge exists given paramters
     const edge = await CommunityEdge.findOne({
-      _id: edgeID,
       from: fromCommunityID,
       to: toCommunityID,
     });
     if (!edge) {
-      log('error', `No edge exists with ID ${edgeID}`);
+      log('error', `No edge exists between ${fromCommunityID} and ${toCommunityID}`);
       return sendPacket(0, 'No edge exists with given ID');
     }
+
+    const edgeID = edge._id;
 
     //Deletes edge and pulls from DB entries for both communities
     const fromCommunityPromise = Community.updateOne(
@@ -791,6 +791,46 @@ export async function cancelFollowRequest(
   }
 }
 
+export async function unfollowCommunity(
+  fromCommunityID: string,
+  toCommunityID: string,
+  userID: string
+) {
+  //TODO
+}
+
+export async function getAllFollowingCommunities(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followingCommunities', 'members'])
+      .populate({
+        path: 'followingCommunities',
+        select: 'to',
+        populate: {
+          path: 'to',
+          select: 'name description type profilePicture members',
+        },
+      });
+
+    //TODO - calculate mutual members
+    //TODO - attach profile picture
+
+    console.log('Community:', community);
+    console.log('CommunityFollow:', community.followingCommunities[0]);
+    console.log(
+      'The community:',
+      JSON.stringify(community.followingCommunities[0].to)
+    );
+    return sendPacket(1, 'test worked');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getAllFollowedByCommunities(communityID: string) {}
+
+export async function getAllPendingFollowRequests(communityID: string) {}
 // HELPER FUNCTIONS
 function checkFollowRequestExists(
   list: { from: String; to: String }[],

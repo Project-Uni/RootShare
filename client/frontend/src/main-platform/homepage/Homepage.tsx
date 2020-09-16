@@ -79,8 +79,11 @@ function Homepage(props: Props) {
   }
 
   async function fetchData() {
+    //PooPoo - 5f3feed3cf316529bb10485f
+    //Other Community - 5f5673beabbed8044a2496e2
+
     //CREATE REQUEST
-    // const { data } = await makeRequest(
+    // const { data: data1 } = await makeRequest(
     //   'POST',
     //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow`,
     //   {
@@ -92,16 +95,16 @@ function Homepage(props: Props) {
     // );
 
     //ACCEPT REQUEST
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/accept`,
-    //   {
-    //     edgeID: '5f604462879f0e1bd94ce8b8',
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
+    const { data: data2 } = await makeRequest(
+      'POST',
+      `/api/community/${'5f3feed3cf316529bb10485f'}/follow/accept`,
+      {
+        edgeID: '5f615724f3e3a6096fd293a4',
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
     //REJECT REQUEST
     // const { data } = await makeRequest(
@@ -116,13 +119,23 @@ function Homepage(props: Props) {
     // );
 
     //CANCEL REQUEST
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${'5f3feed3cf316529bb10485f'}/follow/cancel`,
-      {
-        edgeID: '5f6152ef9e0f20065cfd0a0f',
-        fromCommunityID: '5f5673beabbed8044a2496e2',
-      },
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/cancel`,
+    //   {
+    //     edgeID: '5f6152ef9e0f20065cfd0a0f',
+    //     fromCommunityID: '5f5673beabbed8044a2496e2',
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL FOLLOWING
+    const { data: data3 } = await makeRequest(
+      'GET',
+      `/api/community/${'5f5673beabbed8044a2496e2'}/following`,
+      {},
       true,
       props.accessToken,
       props.refreshToken

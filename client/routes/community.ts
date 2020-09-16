@@ -20,6 +20,8 @@ import {
   acceptFollowRequest,
   rejectFollowRequest,
   cancelFollowRequest,
+  unfollowCommunity,
+  getAllFollowingCommunities,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -245,19 +247,37 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
-      const { edgeID, fromCommunityID } = req.body;
+      const { fromCommunityID } = req.body;
 
-      if (!edgeID || !fromCommunityID)
+      if (!fromCommunityID)
         return res.json(
           sendPacket(-1, 'edgeID or yourCommunityID missing from request body')
         );
 
-      const packet = await cancelFollowRequest(
-        fromCommunityID,
-        communityID,
-        edgeID,
-        userID
-      );
+      const packet = await cancelFollowRequest(fromCommunityID, communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/unfollow',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { fromCommunityID } = req.body;
+
+      const packet = await unfollowCommunity(fromCommunityID, communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/following',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getAllFollowingCommunities(communityID);
       return res.json(packet);
     }
   );
