@@ -324,7 +324,7 @@ function EventClientBase(props: Props) {
         onReject={onRejectSpeakingInvite}
         onAccept={onAcceptSpeakingInvite}
       />
-      <EventClientHeader minWidth={minHeaderWidth} />
+      <EventClientHeader minWidth={minHeaderWidth} showNavigationMenuDefault />
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}
