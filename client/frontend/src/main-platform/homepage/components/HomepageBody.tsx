@@ -108,7 +108,7 @@ function HomepageBody(props: Props) {
           )}`}
           profilePicture={JacksonHeadshot}
           message={post.message}
-          likeCount={post.likes.length}
+          likeCount={post.likes}
           commentCount={0}
           style={styles.postStyle}
         />
@@ -129,7 +129,7 @@ function HomepageBody(props: Props) {
           )} at ${formatTime(new Date(posts[i].createdAt))}`}
           profilePicture={posts[i].user.profilePicture}
           message={posts[i].message}
-          likeCount={posts[i].likes.length}
+          likeCount={posts[i].likes}
           commentCount={0}
           style={styles.postStyle}
         />

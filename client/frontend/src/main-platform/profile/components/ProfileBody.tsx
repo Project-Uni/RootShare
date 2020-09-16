@@ -270,7 +270,7 @@ function ProfileBody(props: Props) {
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
           message={posts[i].message}
-          likeCount={posts[i].likes.length}
+          likeCount={posts[i].likes}
           commentCount={0}
           style={styles.post}
         />

@@ -1,6 +1,6 @@
 export type PostType = {
   [key: string]: any;
   createdAt: string;
-  likes: string[];
+  likes: number;
   user: { [key: string]: any };
 };
