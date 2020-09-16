@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
+import { makeRequest, checkDesktop } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -43,7 +43,7 @@ function Homepage(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
 
-  const [showBetaModal, setShowBetaModal] = useState(true);
+  const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -89,6 +89,7 @@ function Homepage(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
+      {/* TODO IMPORTANT- Figure out why Material UI Dialog can't be closed on mobile devices  */}
       <BetaModal
         open={showBetaModal}
         onAck={() => {
