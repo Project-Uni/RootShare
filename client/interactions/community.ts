@@ -624,7 +624,12 @@ export async function acceptFollowRequest(
       );
     }
 
-    const edge = await CommunityEdge.findOne({ _id: edgeID, to: yourCommunityID });
+    //Todo, replace with from
+    const edge = await CommunityEdge.findOne({
+      _id: edgeID,
+      to: yourCommunityID,
+      accepted: false,
+    });
     if (!edge) {
       log('error', `No edge exists with ID ${edgeID}`);
       return sendPacket(0, 'No edge exists with given ID');
@@ -637,14 +642,14 @@ export async function acceptFollowRequest(
       { _id: yourCommunityID },
       {
         $pull: { incomingPendingCommunityFollowRequests: edgeID },
-        $push: { followedByCommunities: edgeID },
+        $addToSet: { followedByCommunities: edgeID },
       }
     ).exec();
     const otherCommunityPromise = Community.updateOne(
       { _id: edge.from },
       {
         $pull: { outgoingPendingCommunityFollowRequests: edgeID },
-        $push: { followingCommunities: edgeID },
+        $addToSet: { followingCommunities: edgeID },
       }
     ).exec();
 
@@ -693,7 +698,11 @@ export async function rejectFollowRequest(
     }
 
     //Checking if edge exists given paramters
-    const edge = await CommunityEdge.findOne({ _id: edgeID, to: yourCommunityID });
+    const edge = await CommunityEdge.findOne({
+      _id: edgeID,
+      to: yourCommunityID,
+      accepted: false,
+    });
     if (!edge) {
       log('error', `No edge exists with ID ${edgeID}`);
       return sendPacket(0, 'No edge exists with given ID');
@@ -754,6 +763,7 @@ export async function cancelFollowRequest(
     const edge = await CommunityEdge.findOne({
       from: fromCommunityID,
       to: toCommunityID,
+      accepted: false,
     });
     if (!edge) {
       log('error', `No edge exists between ${fromCommunityID} and ${toCommunityID}`);
@@ -812,16 +822,38 @@ export async function getAllFollowingCommunities(communityID: string) {
         },
       });
 
-    //TODO - calculate mutual members
-    //TODO - attach profile picture
+    const profilePicturePromises = [];
+    for (let i = 0; i < community.followingCommunities; i++) {
+      if (community.followingCommunities[i].profilePicture) {
+        try {
+          const signedImageURLPromise = retrieveSignedUrl(
+            'communityProfile',
+            community.followingCommunities[i].profilePicture
+          );
+          profilePicturePromises.push(signedImageURLPromise);
+        } catch (err) {
+          profilePicturePromises.push(null);
+          log('error', 'There was an error retrieving a signed url from S3');
+        }
+      } else {
+        profilePicturePromises.push(null);
+      }
+    }
 
-    console.log('Community:', community);
-    console.log('CommunityFollow:', community.followingCommunities[0]);
-    console.log(
-      'The community:',
-      JSON.stringify(community.followingCommunities[0].to)
-    );
-    return sendPacket(1, 'test worked');
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            community.followingCommunities[i].profilePicture = signedImageURLs[i];
+        }
+        return sendPacket(1, 'Successfully retrieved all following communities', {
+          communities: community.followingCommunities,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
