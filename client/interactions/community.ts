@@ -842,23 +842,7 @@ export async function getAllFollowingCommunities(communityID: string) {
       return edge.to;
     });
 
-    const profilePicturePromises = [];
-    for (let i = 0; i < followingCommunities.length; i++) {
-      if (followingCommunities[i].profilePicture) {
-        try {
-          const signedImageURLPromise = retrieveSignedUrl(
-            'communityProfile',
-            followingCommunities[i].profilePicture
-          );
-          profilePicturePromises.push(signedImageURLPromise);
-        } catch (err) {
-          profilePicturePromises.push(null);
-          log('error', 'There was an error retrieving a signed url from S3');
-        }
-      } else {
-        profilePicturePromises.push(null);
-      }
-    }
+    const profilePicturePromises = generateSignedImagePromises(followingCommunities);
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
@@ -901,23 +885,9 @@ export async function getAllFollowedByCommunities(communityID: string) {
       return edge.from;
     });
 
-    const profilePicturePromises = [];
-    for (let i = 0; i < followedByCommunities.length; i++) {
-      if (followedByCommunities[i].profilePicture) {
-        try {
-          const signedImageURLPromise = retrieveSignedUrl(
-            'communityProfile',
-            followedByCommunities[i].profilePicture
-          );
-          profilePicturePromises.push(signedImageURLPromise);
-        } catch (err) {
-          profilePicturePromises.push(null);
-          log('error', 'There was an error retrieving a signed url from S3');
-        }
-      } else {
-        profilePicturePromises.push(null);
-      }
-    }
+    const profilePicturePromises = generateSignedImagePromises(
+      followedByCommunities
+    );
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
@@ -962,23 +932,9 @@ export async function getAllPendingFollowRequests(communityID: string) {
       return edge.from;
     });
 
-    const profilePicturePromises = [];
-    for (let i = 0; i < pendingFollowRequests.length; i++) {
-      if (pendingFollowRequests[i].profilePicture) {
-        try {
-          const signedImageURLPromise = retrieveSignedUrl(
-            'communityProfile',
-            pendingFollowRequests[i].profilePicture
-          );
-          profilePicturePromises.push(signedImageURLPromise);
-        } catch (err) {
-          profilePicturePromises.push(null);
-          log('error', 'There was an error retrieving a signed url from S3');
-        }
-      } else {
-        profilePicturePromises.push(null);
-      }
-    }
+    const profilePicturePromises = generateSignedImagePromises(
+      pendingFollowRequests
+    );
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
@@ -1012,4 +968,30 @@ function checkFollowRequestExists(
   for (let i = 0; i < list.length; i++)
     if (list[i].from == from && list[i].to == to) return true;
   return false;
+}
+
+function generateSignedImagePromises(communityList: {
+  [key: string]: any;
+  profilePicture?: string;
+}) {
+  const profilePicturePromises = [];
+
+  for (let i = 0; i < communityList.length; i++) {
+    if (communityList[i].profilePicture) {
+      try {
+        const signedImageURLPromise = retrieveSignedUrl(
+          'communityProfile',
+          communityList[i].profilePicture
+        );
+        profilePicturePromises.push(signedImageURLPromise);
+      } catch (err) {
+        profilePicturePromises.push(null);
+        log('error', 'There was an error retrieving a signed url from S3');
+      }
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+
+  return profilePicturePromises;
 }
