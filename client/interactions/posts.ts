@@ -22,7 +22,7 @@ export async function getGeneralFeed(universityID: string) {
   try {
     const posts = await Post.aggregate([
       { $match: { university: universityID } },
-      { $sort: { createdAt: -1 } }, //Might be -1
+      { $sort: { createdAt: -1 } },
       { $limit: NUM_POSTS_RETRIEVED },
       {
         $lookup: {
