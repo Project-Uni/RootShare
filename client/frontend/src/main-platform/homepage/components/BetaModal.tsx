@@ -87,7 +87,7 @@ function BetaModal(props: Props) {
           </div>
 
           <RSText color={colors.primaryText} size={13}>
-            Or by clicking on the menu icon at the top left corner of your screen.
+            Or click on the menu icon at the top left corner of your screen.
           </RSText>
           <div className={styles.imageContainer}>
             <img src={eventsMenu} alt="Menu" className={styles.menuImage} />
