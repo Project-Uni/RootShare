@@ -806,7 +806,63 @@ export async function unfollowCommunity(
   toCommunityID: string,
   userID: string
 ) {
-  //TODO
+  try {
+    //Checking if user is admin of community
+    const isAdmin = await Community.exists({
+      _id: fromCommunityID,
+      admin: userID,
+    });
+    if (!isAdmin) {
+      log(
+        'info',
+        `User ${userID} who is not admin for community ${fromCommunityID} attempted to cancel follow request to ${toCommunityID}`
+      );
+      return sendPacket(
+        0,
+        'User is not admin of community they are trying to reject the request as.'
+      );
+    }
+
+    //Checking if edge exists given paramters
+    const edge = await CommunityEdge.findOne({
+      from: fromCommunityID,
+      to: toCommunityID,
+      accepted: true,
+    });
+    if (!edge) {
+      log('error', `No edge exists between ${fromCommunityID} and ${toCommunityID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    const edgeID = edge._id;
+
+    //Deletes edge and pulls from DB entries for both communities
+    const fromCommunityPromise = Community.updateOne(
+      { _id: fromCommunityID },
+      { $pull: { followingCommunities: edgeID } }
+    ).exec();
+    const toCommunityPromise = Community.updateOne(
+      { _id: toCommunityID },
+      { $pull: { followedByCommunities: edgeID } }
+    ).exec();
+    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+
+    return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully removed edge from ${fromCommunityID} to ${toCommunityID} and handled all propagation.`
+        );
+        return sendPacket(1, 'Successfully stopped following community');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 export async function getAllFollowingCommunities(communityID: string) {
@@ -850,6 +906,10 @@ export async function getAllFollowingCommunities(communityID: string) {
           if (signedImageURLs[i])
             followingCommunities[i].profilePicture = signedImageURLs[i];
         }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} is following`
+        );
         return sendPacket(1, 'Successfully retrieved all following communities', {
           communities: followingCommunities,
         });
