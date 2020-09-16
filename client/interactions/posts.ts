@@ -20,11 +20,34 @@ export async function createBroadcastUserPost(
 
 export async function getGeneralFeed(universityID: string) {
   try {
-    const posts = await Post.find({ university: universityID })
-      .sort({ createdAt: 'desc' })
-      .limit(NUM_POSTS_RETRIEVED)
-      .populate('user', 'firstName lastName profilePicture')
-      .exec();
+    const posts = await Post.aggregate([
+      { $match: { university: universityID } },
+      { $sort: { createdAt: -1 } }, //Might be -1
+      { $limit: NUM_POSTS_RETRIEVED },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
 
     const imagePromises = [];
 
