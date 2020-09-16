@@ -79,27 +79,28 @@ function Homepage(props: Props) {
   }
 
   async function fetchData() {
-    //PooPoo - 5f3feed3cf316529bb10485f
-    //Other Community - 5f5673beabbed8044a2496e2
+    const toCommunity = '5f3feed3cf316529bb10485f'; //POOPOO, use something you are admin of
+    const fromCommunity = '5f5673beabbed8044a2496e2'; //Some other other
+    const edgeID = ''; //Set based on the new edge thats created
 
     //CREATE REQUEST
-    // const { data: data1 } = await makeRequest(
-    //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow`,
-    //   {
-    //     followAsCommunityID: '5f5673beabbed8044a2496e2',
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
+    const { data: data1 } = await makeRequest(
+      'POST',
+      `/api/community/${toCommunity}/follow`,
+      {
+        followAsCommunityID: fromCommunity,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
     //ACCEPT REQUEST
     // const { data: data2 } = await makeRequest(
     //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/accept`,
+    //   `/api/community/${toCommunity}/follow/accept`,
     //   {
-    //     edgeID: '5f61626dbfa91c0e8ea97df2',
+    //     edgeID,
     //   },
     //   true,
     //   props.accessToken,
@@ -107,11 +108,11 @@ function Homepage(props: Props) {
     // );
 
     //REJECT REQUEST
-    // const { data } = await makeRequest(
+    // const { data: data3 } = await makeRequest(
     //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/reject`,
+    //   `/api/community/${toCommunity}/follow/reject`,
     //   {
-    //     edgeID: '5f60474a7f32161eacb05412',
+    //     edgeID,
     //   },
     //   true,
     //   props.accessToken,
@@ -119,12 +120,11 @@ function Homepage(props: Props) {
     // );
 
     //CANCEL REQUEST
-    // const { data } = await makeRequest(
+    // const { data: data4 } = await makeRequest(
     //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/follow/cancel`,
+    //   `/api/community/${toCommunity}/follow/cancel`,
     //   {
-    //     edgeID: '5f6152ef9e0f20065cfd0a0f',
-    //     fromCommunityID: '5f5673beabbed8044a2496e2',
+    //     fromCommunityID: fromCommunity,
     //   },
     //   true,
     //   props.accessToken,
@@ -132,9 +132,9 @@ function Homepage(props: Props) {
     // );
 
     // GET ALL FOLLOWING
-    // const { data: data3 } = await makeRequest(
+    // const { data: data5 } = await makeRequest(
     //   'GET',
-    //   `/api/community/${'5f5673beabbed8044a2496e2'}/following`,
+    //   `/api/community/${fromCommunity}/following`,
     //   {},
     //   true,
     //   props.accessToken,
@@ -142,19 +142,19 @@ function Homepage(props: Props) {
     // );
 
     //UNFOLLOW
-    // const { data: data3 } = await makeRequest(
+    // const { data: data6 } = await makeRequest(
     //   'POST',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/unfollow`,
-    //   { fromCommunityID: '5f5673beabbed8044a2496e2' },
+    //   `/api/community/${toCommunity}/unfollow`,
+    //   { fromCommunityID: fromCommunity },
     //   true,
     //   props.accessToken,
     //   props.refreshToken
     // );
 
     //GET ALL FOLLOWED BY
-    // const { data: data5 } = await makeRequest(
+    // const { data: data7 } = await makeRequest(
     //   'GET',
-    //   `/api/community/${'5f3feed3cf316529bb10485f'}/followedBy`,
+    //   `/api/community/${fromCommunity}/followedBy`,
     //   {},
     //   true,
     //   props.accessToken,
@@ -162,14 +162,14 @@ function Homepage(props: Props) {
     // );
 
     //GET ALL PENDING INCOMING FOLLOW REQUESTS
-    const { data: data5 } = await makeRequest(
-      'GET',
-      `/api/community/${'5f3feed3cf316529bb10485f'}/follow/pending`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    // const { data: data8 } = await makeRequest(
+    //   'GET',
+    //   `/api/community/${toCommunity}/follow/pending`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
   }
 
   return (
