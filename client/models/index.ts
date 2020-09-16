@@ -7,7 +7,7 @@ import Post from './posts';
 import University from './universities';
 import User from './users';
 import Webinar from './webinars';
-import CommunityEdge from './communityEdges';
+import CommunityEdge from './community_edges';
 
 export {
   Comment,
