@@ -51,7 +51,8 @@ function Homepage(props: Props) {
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
-        await fetchData();
+        // await fetchData();a
+        await testPosts();
         setLoading(false);
       } else {
         setLoginRedirect(true);
@@ -81,22 +82,64 @@ function Homepage(props: Props) {
     return true;
   }
 
+  async function testPosts() {
+    //CREATE INTERNAL CURRENT POST
+    // const { data: d1 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
+    //   { message: 'Internal current member test post' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL INTERNAL CURRENT MEMBER POSTS
+    // const { data: d2 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //CREATE INTERNAL ALUMNI POST
+    // const { data: d3 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
+    //   { message: 'Internal alumni test post' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL INTERNAL CURRENT MEMBER POSTS
+    const { data: d4 } = await makeRequest(
+      'GET',
+      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+  }
+
   async function fetchData() {
     const toCommunity = '5f3feed3cf316529bb10485f'; //POOPOO, use something you are admin of
     const fromCommunity = '5f5673beabbed8044a2496e2'; //Some other other
     const edgeID = ''; //Set based on the new edge thats created
 
     //CREATE REQUEST
-    const { data: data1 } = await makeRequest(
-      'POST',
-      `/api/community/${toCommunity}/follow`,
-      {
-        followAsCommunityID: fromCommunity,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    // const { data: data1 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/follow`,
+    //   {
+    //     followAsCommunityID: fromCommunity,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
 
     //ACCEPT REQUEST
     // const { data: data2 } = await makeRequest(

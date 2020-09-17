@@ -104,7 +104,7 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   //Checking if person is a student or admin
-  if (accountType !== 'student' && community.admin != userID) {
+  if (accountType !== 'student' && community.admin.toString() != userID) {
     log(
       'info',
       `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
@@ -161,7 +161,7 @@ export async function createInternalAlumniPost(
   }
 
   //Validating that user is allowed to post into alumni code
-  if (accountType === 'student' && community.admin != userID) {
+  if (accountType === 'student' && community.admin.toString() != userID) {
     log(
       'info',
       `User ${userID} who is student attempted to post into alumni feed for ${communityID}`
@@ -210,6 +210,7 @@ export async function getInternalCurrentMemberPosts(
   //Validate that community exists with user as member
   const community = await getValidatedCommunity(communityID, userID, [
     'name',
+    'admin',
     'internalCurrentMemberPosts',
   ]);
   if (!community) {
@@ -220,7 +221,7 @@ export async function getInternalCurrentMemberPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType !== 'student' && community.admin != userID) {
+  if (accountType !== 'student' && community.admin.toString() != userID) {
     log(
       'info',
       `User ${userID} who is an attempted to retrieve current member feed for ${communityID}`
@@ -261,8 +262,6 @@ export async function getInternalCurrentMemberPosts(
       },
     ]).exec();
 
-    //TODO - Update profile pictures
-
     const imagePromises = generateSignedImagePromises(posts);
 
     return Promise.all(imagePromises)
@@ -296,6 +295,7 @@ export async function getInternalAlumniPosts(
   //Validate that community exists with user as member
   const community = await getValidatedCommunity(communityID, userID, [
     'name',
+    'admin',
     'internalAlumniPosts',
   ]);
 
@@ -307,7 +307,7 @@ export async function getInternalAlumniPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType === 'student' && community.admin != userID) {
+  if (accountType === 'student' && community.admin.toString() != userID) {
     log(
       'info',
       `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`
@@ -344,8 +344,6 @@ export async function getInternalAlumniPosts(
         },
       },
     ]).exec();
-
-    //TODO - Update profile pictures
 
     const imagePromises = generateSignedImagePromises(posts);
 
