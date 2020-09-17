@@ -506,8 +506,18 @@ export async function followCommunity(
       _id: requestToFollowCommunityID,
     });
 
-    return Promise.all([checkAdminPromise, communityExistsPromise])
-      .then(async ([isAdmin, communityExists]) => {
+    //Checks to see if there is an already existing follow request
+    const edgeExistsPromise = CommunityEdge.exists({
+      from: yourCommunityID,
+      to: requestToFollowCommunityID,
+    });
+
+    return Promise.all([
+      checkAdminPromise,
+      communityExistsPromise,
+      edgeExistsPromise,
+    ])
+      .then(async ([isAdmin, communityExists, edgeExists]) => {
         if (!isAdmin) {
           log(
             'info',
@@ -528,12 +538,6 @@ export async function followCommunity(
             'The community you are trying to follow does not exist'
           );
         }
-
-        //Checks to see if there is an already existing follow request
-        const edgeExists = await CommunityEdge.exists({
-          from: yourCommunityID,
-          to: requestToFollowCommunityID,
-        });
         if (edgeExists) {
           log(
             'info',
