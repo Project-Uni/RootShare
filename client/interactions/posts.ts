@@ -477,7 +477,8 @@ function generateSignedImagePromises(posts: {
 async function retrievePosts(
   IDList: string[],
   numRetrieved: number,
-  numSkipped: number = 0
+  numSkipped: number = 0 //Used when we're loading more, we can just update this count to get the next previous
+  //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
 ) {
   const posts = await Post.aggregate([
     { $match: { _id: { $in: IDList } } },
