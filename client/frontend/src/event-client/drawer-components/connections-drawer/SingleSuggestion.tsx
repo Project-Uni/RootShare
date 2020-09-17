@@ -35,6 +35,11 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     color: colors.primaryText,
   },
+  mutual: {
+    color: colors.secondaryText,
+    wordWrap: 'break-word',
+    maxWidth: 200,
+  },
   organization: {
     color: colors.secondaryText,
     wordWrap: 'break-word',
@@ -45,6 +50,11 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
   removeButton: {
     color: colors.primaryText,
@@ -122,29 +132,33 @@ function SingleSuggestion(props: Props) {
     return (
       <div id="suggestionWrapper" className={styles.wrapper}>
         <div className={styles.left}>
-          <ProfilePicture
-            type="profile"
-            className={styles.picture}
-            editable={false}
-            height={35}
-            width={35}
-            borderRadius={35}
-            currentPicture={props.suggestedUser.profilePicture}
-          />
+          <a href={`/profile/${props.suggestedUser._id}`}>
+            <ProfilePicture
+              type="profile"
+              className={styles.picture}
+              editable={false}
+              height={35}
+              width={35}
+              borderRadius={35}
+              currentPicture={props.suggestedUser.profilePicture}
+            />
+          </a>
         </div>
         <div className={styles.center}>
-          <div className={styles.top}>
+          <a href={`/profile/${props.suggestedUser._id}`}>
             <RSText bold size={12} className={styles.name}>
               {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
             </RSText>
-          </div>
+          </a>
 
-          <div className={styles.bottom}>
-            <RSText size={11} italic={true} className={styles.organization}>
-              {university.universityName} |{' '}
-              {capitalizeFirstLetter(props.suggestedUser.accountType)}
-            </RSText>
-          </div>
+          <RSText size={11} italic className={styles.organization}>
+            {university.universityName} |{' '}
+            {capitalizeFirstLetter(props.suggestedUser.accountType)}
+          </RSText>
+
+          {/* TODO: add mutuals to suggestions and pending with the following format:
+              27 {people icon} | 4 {community icon}
+          */}
         </div>
 
         <div className={styles.right}>

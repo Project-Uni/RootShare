@@ -43,13 +43,18 @@ const useStyles = makeStyles((_: any) => ({
   organization: {
     color: colors.secondaryText,
     wordWrap: 'break-word',
-    maxWidth: 196,
+    maxWidth: 200,
   },
   name: {
     display: 'inline-block',
     color: colors.primaryText,
     wordWrap: 'break-word',
-    maxWidth: 196,
+    maxWidth: 200,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
   removeSuggestionButton: {
     marginRight: 5,
@@ -137,28 +142,29 @@ function SinglePendingConnection(props: Props) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <ProfilePicture
-            type="profile"
-            className={styles.picture}
-            editable={false}
-            height={35}
-            width={35}
-            borderRadius={35}
-            currentPicture={requestUser.profilePicture}
-          />
+          <a href={`/profile/${requestUser._id}`}>
+            <ProfilePicture
+              type="profile"
+              className={styles.picture}
+              editable={false}
+              height={35}
+              width={35}
+              borderRadius={35}
+              currentPicture={requestUser.profilePicture}
+            />
+          </a>
         </div>
         <div className={styles.center}>
-          <div className={styles.top}>
+          <a href={`/profile/${requestUser._id}`}>
             <RSText bold size={12} className={styles.name}>
               {`${requestUser.firstName} ${requestUser.lastName}`}
             </RSText>
-          </div>
-          <div className={styles.bottom}>
-            <RSText size={11} italic={true} className={styles.organization}>
-              {requestUserUniversity.universityName} |{' '}
-              {capitalizeFirstLetter(requestUser.accountType)}
-            </RSText>
-          </div>
+          </a>
+
+          <RSText size={11} italic={true} className={styles.organization}>
+            {requestUserUniversity.universityName} |{' '}
+            {capitalizeFirstLetter(requestUser.accountType)}
+          </RSText>
         </div>
         <div className={styles.right}>
           <Button

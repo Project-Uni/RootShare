@@ -30,8 +30,9 @@ export type UserType = {
   joinedCommunities: string[];
   pendingCommunities: string[];
   numConnections?: number;
-  numMutual?: number;
+  numMutualConnections?: number;
   numCommunities?: number;
+  numMutualCommunities?: number;
 };
 
 export type ConnectionRequestType = {

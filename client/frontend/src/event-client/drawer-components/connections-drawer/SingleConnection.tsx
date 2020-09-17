@@ -39,6 +39,11 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     wordWrap: 'break-word',
     maxWidth: 320,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
   ellipsis: {
     margin: 1.5,
@@ -58,28 +63,29 @@ function SingleConnection(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.left}>
-        <ProfilePicture
-          type="profile"
-          className={styles.picture}
-          editable={false}
-          height={35}
-          width={35}
-          borderRadius={35}
-          currentPicture={props.connectedUser.profilePicture}
-        />
+        <a href={`/profile/${props.connectedUser._id}`}>
+          <ProfilePicture
+            type="profile"
+            className={styles.picture}
+            editable={false}
+            height={35}
+            width={35}
+            borderRadius={35}
+            currentPicture={props.connectedUser.profilePicture}
+          />
+        </a>
       </div>
       <div className={styles.center}>
-        <div className={styles.top}>
+        <a href={`/profile/${props.connectedUser._id}`}>
           <RSText bold size={12} className={styles.name}>
             {`${props.connectedUser.firstName} ${props.connectedUser.lastName}`}
           </RSText>
-        </div>
-        <div className={styles.bottom}>
-          <RSText size={11} italic={true} className={styles.organization}>
-            {university.universityName} |{' '}
-            {capitalizeFirstLetter(props.connectedUser.accountType)}
-          </RSText>
-        </div>
+        </a>
+
+        <RSText size={11} italic={true} className={styles.organization}>
+          {university.universityName} |{' '}
+          {capitalizeFirstLetter(props.connectedUser.accountType)}
+        </RSText>
       </div>
       {/* <div className={styles.right}>
         <IconButton className={styles.ellipsis}>
