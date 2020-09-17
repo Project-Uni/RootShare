@@ -112,7 +112,7 @@ export async function createInternalCurrentMemberCommunityPost(
   if (!community) {
     log(
       'info',
-      `User ${userID} attempted to post to internal current member feed for community ${communityID} they are not a member of`
+      `User ${userID} attempted to post to internal current member feed for community ${communityID} which they are not a member of`
     );
     return sendPacket(0, 'User is not a member of this community');
   }
@@ -163,6 +163,70 @@ export async function getInternalCurrentMemberPosts(
   accountType: 'student' | 'alumni' | 'faculty' | 'fan'
 ) {
   //Validate that community exists with user as member
+  const community = await getValidatedCommunity(communityID, userID, [
+    'name',
+    'internalCurrentMemberPosts',
+  ]);
+  if (!community) {
+    log(
+      'info',
+      `User ${userID} attempted to retrieve internal current member feed for community ${communityID} which they are not a member of`
+    );
+    return sendPacket(0, 'User is not a member of this community');
+  }
+
+  if (accountType !== 'student' && community.admin != userID) {
+    log(
+      'info',
+      `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
+    );
+    return sendPacket(
+      0,
+      'Alumni are not allowed to post into the current member feed'
+    );
+  }
+
+  try {
+    const posts = await Post.aggregate([
+      { $match: { _id: { $in: community.internalCurrentMemberPosts } } },
+      { $sort: { createdAt: -1 } },
+      { $limit: NUM_POSTS_RETRIEVED },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
+
+    log(
+      'info',
+      `Successfully retrieved internal current member feed for community ${community.name}`
+    );
+    return sendPacket(1, 'Successfully retrieved internal current member feed', {
+      posts,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 //Helpers
