@@ -5,11 +5,12 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
+import { makeRequest, checkDesktop } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
+import BetaModal from './components/BetaModal';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -41,6 +42,8 @@ function Homepage(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -85,9 +88,14 @@ function Homepage(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
-
-      {/* TODO?- Create Custom Header for Main Platform */}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
+      {/* TODO IMPORTANT- Figure out why Material UI Dialog can't be closed on mobile devices  */}
+      <BetaModal
+        open={showBetaModal}
+        onAck={() => {
+          setShowBetaModal(false);
+        }}
+      />
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />

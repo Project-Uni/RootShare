@@ -187,7 +187,7 @@ function AdminCommunityManager(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/community" />}
-      <EventClientHeader showNavigationWidth={9999} minWidth={MIN_PAGE_WIDTH} />
+      <EventClientHeader showNavigationMenuDefault minWidth={MIN_PAGE_WIDTH} />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

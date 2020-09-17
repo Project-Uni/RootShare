@@ -1,4 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
+import { log, makeRequest, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
@@ -12,9 +12,7 @@ import {
 
 import { updateAttendingList } from '../interactions/user';
 
-import { USER_LEVEL } from '../types/types';
-import makeRequest from '../helpers/makeRequest';
-import log from '../helpers/logger';
+import { USER_LEVEL } from '../helpers/types';
 import User from '../models/users';
 
 module.exports = (app) => {

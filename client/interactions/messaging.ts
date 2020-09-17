@@ -1,5 +1,4 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
 
 const mongoose = require('mongoose');
 
@@ -9,22 +8,35 @@ export function createThread(req, io, callback) {
   const { message, tempID, recipients } = req.body;
   const { _id: userID } = req.user;
 
-  checkUsersConnected(userID, recipients, (packet) => {
-    if (packet['success'] !== 1) return callback(packet);
+  checkConversationExists(userID, recipients, (packet) => {
+    if (packet['success'] === -1) return callback(packet);
+    if (packet['success'] === 1)
+      return sendMessage(
+        userID,
+        packet['content']['conversationID'],
+        message,
+        tempID,
+        io,
+        callback
+      );
 
-    let newConversation = new Conversation();
-    newConversation.participants = recipients.concat(userID);
+    checkUsersConnected(userID, recipients, (packet) => {
+      if (packet['success'] !== 1) return callback(packet);
 
-    newConversation.save((err, conversation) => {
-      if (err) {
-        log('error', err);
-        return callback(
-          sendPacket(-1, 'There was an error saving the conversation')
-        );
-      }
+      let newConversation = new Conversation();
+      newConversation.participants = recipients.concat(userID);
 
-      const { _id: conversationID } = conversation;
-      sendMessage(userID, conversationID, message, tempID, io, callback);
+      newConversation.save((err, conversation) => {
+        if (err) {
+          log('error', err);
+          return callback(
+            sendPacket(-1, 'There was an error saving the conversation')
+          );
+        }
+
+        const { _id: conversationID } = conversation;
+        sendMessage(userID, conversationID, message, tempID, io, callback);
+      });
     });
   });
 }
@@ -283,6 +295,22 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
       else return callback(sendPacket(1, 'Connected to all users'));
     })
     .catch((err) => callback(sendPacket(-1, err)));
+}
+
+function checkConversationExists(userID, recipients, callback) {
+  const participants = recipients.concat(userID);
+  Conversation.findOne(
+    { participants: { $all: participants } },
+    (err, conversation) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!conversation) return callback(sendPacket(0, 'No matching Conversations'));
+      return callback(
+        sendPacket(1, 'Sending existing Conversation', {
+          conversationID: conversation._id,
+        })
+      );
+    }
+  );
 }
 
 function stringsToUserIDs(array) {

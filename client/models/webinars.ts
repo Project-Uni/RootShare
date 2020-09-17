@@ -24,6 +24,7 @@ var webinarSchema = new Schema(
     private: { type: Boolean },
     //TODO - Add field for image
     blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
+    isDev: { type: Boolean },
   },
   { timestamps: true }
 );

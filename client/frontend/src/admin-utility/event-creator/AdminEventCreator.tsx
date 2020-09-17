@@ -6,6 +6,10 @@ import {
   Button,
   IconButton,
   FormHelperText,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
 } from '@material-ui/core';
 
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
@@ -18,7 +22,7 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
-import HypeHeader from '../../hype-page/headerFooter/HypeHeader';
+import EventClientHeader from '../../event-client/EventClientHeader';
 import RSText from '../../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
@@ -100,6 +104,10 @@ const useStyles = makeStyles((_: any) => ({
   red: {
     color: 'red',
   },
+  privateSelect: {
+    width: 150,
+    textAlign: 'left',
+  },
 }));
 
 type Props = {
@@ -138,6 +146,9 @@ function AdminEventCreator(props: Props) {
   const [fullDescErr, setFullDescErr] = useState('');
   const [dateTimeErr, setDateTimeErr] = useState('');
   const [topMessage, setTopMessage] = useState('');
+
+  const [isDev, setIsDev] = useState<'yes' | 'no'>('no');
+  const [isPrivate, setIsPrivate] = useState<'yes' | 'no'>('no');
 
   useEffect(() => {
     setLoading(true);
@@ -234,6 +245,14 @@ function AdminEventCreator(props: Props) {
     }
   }
 
+  function handlePrivateChange(event: any) {
+    setIsPrivate(event.target.value);
+  }
+
+  function handleIsDevChange(event: any) {
+    setIsDev(event.target.value);
+  }
+
   function startEditing(event: EventType) {
     setEditEvent(event._id);
     setTitle(event.title);
@@ -242,6 +261,8 @@ function AdminEventCreator(props: Props) {
     setEventDateTime(event.dateTime);
     setHost(event.host);
     setSpeakers(event.speakers as SpeakerType[]);
+    setIsPrivate(event.isPrivate ? 'yes' : 'no');
+    setIsDev(event.isDev ? 'yes' : 'no');
   }
 
   async function handleSubmit() {
@@ -277,14 +298,15 @@ function AdminEventCreator(props: Props) {
     const speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
 
     const API_DATA = {
-      editEvent: editEvent,
-      title: title,
+      editEvent,
+      title,
       brief_description: briefDesc,
       full_description: fullDesc,
-      host: host,
+      host,
       speakers: speakerIDs,
       dateTime: eventDateTime,
-      speakerEmails: speakerEmails,
+      speakerEmails,
+      isDev: isDev === 'yes' ? true : false,
     };
     const { data } = await makeRequest(
       'POST',
@@ -335,6 +357,8 @@ function AdminEventCreator(props: Props) {
     setBriefDescErr('');
     setFullDescErr('');
     setEditEvent('');
+    setIsDev('no');
+    setIsPrivate('no');
   }
 
   function removeSpeaker(index: number) {
@@ -394,6 +418,34 @@ function AdminEventCreator(props: Props) {
       );
     }
     return output;
+  }
+
+  function renderPrivateSelect() {
+    return (
+      <>
+        <FormControl className={styles.privateSelect} variant="outlined">
+          <InputLabel>Private</InputLabel>
+          <Select value={isPrivate} onChange={handlePrivateChange}>
+            <MenuItem value={'yes'}>Yes</MenuItem>
+            <MenuItem value={'no'}>No</MenuItem>
+          </Select>
+        </FormControl>
+      </>
+    );
+  }
+
+  function renderDevSelect() {
+    return (
+      <>
+        <FormControl className={styles.privateSelect} variant="outlined">
+          <InputLabel>Dev</InputLabel>
+          <Select value={isDev} onChange={handleIsDevChange}>
+            <MenuItem value={'yes'}>Yes</MenuItem>
+            <MenuItem value={'no'}>No</MenuItem>
+          </Select>
+        </FormControl>
+      </>
+    );
   }
 
   function renderFields() {
@@ -485,6 +537,28 @@ function AdminEventCreator(props: Props) {
           err={speakerErr}
           label="Speakers"
         />
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            marginBottom: 20,
+          }}
+        >
+          <div>
+            <RSText type="subhead" bold className={styles.textFieldTitle}>
+              Dev
+            </RSText>
+            {renderDevSelect()}
+          </div>
+          {/* TODO - If private, open up community select autocomplete, similar to speakers */}
+          <div style={{ marginLeft: 40 }}>
+            <RSText type="subhead" bold className={styles.textFieldTitle}>
+              Private
+            </RSText>
+            {renderPrivateSelect()}
+          </div>
+        </div>
       </>
     );
   }
@@ -532,7 +606,7 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
-      <HypeHeader />
+      <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

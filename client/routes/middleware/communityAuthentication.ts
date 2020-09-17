@@ -1,6 +1,4 @@
-import log from '../../helpers/logger';
-import sendPacket from '../../helpers/sendPacket';
-
+import { log, sendPacket } from '../../helpers/functions';
 import { Community } from '../../models';
 
 export async function isCommunityAdmin(req, res, next) {

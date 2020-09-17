@@ -1,5 +1,4 @@
-import makeRequest from '../helpers/makeRequest';
-import log from '../helpers/logger';
+import { log, makeRequest } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import sendPacket from '../../webinar/helpers/sendPacket';
 import { isEventHost } from './middleware/eventAuthentication';

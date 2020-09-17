@@ -1,5 +1,6 @@
-import sendPacket from '../helpers/sendPacket';
-import log from '../helpers/logger';
+import { log, sendPacket } from '../helpers/functions';
+import { USER_LEVEL } from '../helpers/types';
+
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
@@ -15,8 +16,6 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
 } from '../interactions/community';
-
-import { USER_LEVEL } from '../types/types';
 
 export default function communityRoutes(app) {
   app.post(
