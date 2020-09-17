@@ -1,5 +1,6 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Post } from '../models';
+import { Community, Post } from '../models';
+const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
 
@@ -93,6 +94,65 @@ export async function getPostsByUser(userID: string) {
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function createInternalCurrentMemberCommunityPost(
+  communityID: string,
+  userID: string,
+  accountType: 'student' | 'alumni' | 'faculty' | 'fan',
+  message: string,
+  universityID: string
+) {
+  //Checking that user is a part of the community
+  try {
+    const community = await Community.findOne({
+      _id: communityID,
+      members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+    }).select(['admin']);
+
+    if (!community) {
+      log(
+        'info',
+        `User ${userID} attempted to post to internal current member feed for community ${communityID} they are not a member of`
+      );
+      return sendPacket(0, 'User is not a member of this community');
+    }
+
+    //Checking if person is a student or admin
+    if (accountType !== 'student' && community.admin != userID) {
+      log(
+        'info',
+        `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
+      );
+      return sendPacket(
+        0,
+        'Alumni are not allowed to post into the current member feed'
+      );
+    }
+
+    const raw_post = new Post({
+      user: userID,
+      message,
+      toCommunity: communityID,
+      type: 'internalCurrent',
+      university: universityID,
+    });
+    const post = await raw_post.save();
+
+    await Community.updateOne(
+      { _id: communityID },
+      { $push: { internalCurrentMemberPosts: post._id } }
+    );
+
+    log(
+      'info',
+      `User ${userID} successfully posted into the internal current member feed of community ${communityID}`
+    );
+    return sendPacket(1, 'Successfully posted into internal member feed', { post });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
