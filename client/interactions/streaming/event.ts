@@ -130,41 +130,44 @@ export function timeStampCompare(ObjectA, ObjectB) {
   return 0;
 }
 
-export async function getAllEvents(userID: string, callback){
-    const events = await Webinar.find({}, [
-        'title',
-        'brief_description',
-        'full_description',
-        'RSVPs',
-        'dateTime',
-        'hostCommunity',
-    ])
-    .populate({ path: 'hostCommunity', select: ['_id', 'name']})
+export async function getAllEvents(userID: string, callback) {
+  const events = await Webinar.find({}, [
+    'title',
+    'brief_description',
+    'full_description',
+    'RSVPs',
+    'dateTime',
+    'hostCommunity',
+  ])
+    .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
+    .sort({ dateTime: 1 });
 
-    const { connections } = await User.findOne({ _id: userID }, [
-      'connections',
-    ]).populate({ path: 'connections', select: ['from', 'to'] });
+  const { connections } = await User.findOne({ _id: userID }, [
+    'connections',
+  ]).populate({ path: 'connections', select: ['from', 'to'] });
 
-    const connectionIDs = connections.reduce((output, connection) => {
-      const otherID =
-        connection['from'].toString() != userID.toString()
-          ? connection['from']
-          : connection['to'];
+  const connectionIDs = connections.reduce((output, connection) => {
+    const otherID =
+      connection['from'].toString() != userID.toString()
+        ? connection['from']
+        : connection['to'];
 
-      output.push(otherID);
+    output.push(otherID);
 
-      return output;
-    }, []);
+    return output;
+  }, []);
 
+  const userRSVPs = await User.findOne({ _id: userID }, ['RSVPWebinars']).populate({
+    path: 'RSVPWebinars',
+    select: ['webinars'],
+  });
 
-    const userRSVPs = await User.findOne({ _id: userID}, [
-        'RSVPWebinars',
-    ]).populate({ path: 'RSVPWebinars', select: ['webinars'] })
-
-    return callback(sendPacket(1,'successfully retrieved all connections', {
-        events: events,
-        connectionIDs: connectionIDs,
-    }));
+  return callback(
+    sendPacket(1, 'successfully retrieved all connections', {
+      events: events,
+      connectionIDs: connectionIDs,
+    })
+  );
 }
 
 export async function getAllEventsAdmin(callback) {

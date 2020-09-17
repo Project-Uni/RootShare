@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress } from '@material-ui/core';
 
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
 
-import { makeRequest } from '../../../helpers/functions'
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -31,12 +36,16 @@ const useStyles = makeStyles((_: any) => ({
   eventStyle: {
     marginTop: 1,
   },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 60,
+  },
 }));
 
 type Props = {
-    user: { [key: string]: any};
-    accessToken: string;
-    refreshToken: string;
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
 };
 
 function EventsBody(props: Props) {
@@ -56,18 +65,18 @@ function EventsBody(props: Props) {
   }, []);
 
   async function fetchData() {
-      const { data } = await makeRequest(
-          'GET',
-          '/api/webinar/getAllEvents',
-          {},
-          true,
-          props.accessToken,
-          props.refreshToken
-      );
-      if (data.success == 1) {
-          setEvents(data.content['events'])
-          setConnectionIDs(data.content['connectionIDs'])
-      }
+    const { data } = await makeRequest(
+      'GET',
+      '/api/webinar/getAllEvents',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success == 1) {
+      setEvents(data.content['events']);
+      setConnectionIDs(data.content['connectionIDs']);
+    }
   }
 
   function handleResize() {
@@ -80,22 +89,27 @@ function EventsBody(props: Props) {
 
   function renderEvents() {
     const output = [];
-    for (let i = 0; i < events.length; i++){
-        let varMutualSignups = connectionIDs.filter((x: string) =>
-            events[i].RSVPs.includes(x)
-        );
+    for (let i = 0; i < events.length; i++) {
+      let varMutualSignups = connectionIDs.filter((x: string) =>
+        events[i].RSVPs.includes(x)
+      );
+      const eventDateTime = new Date(events[i].dateTime);
+      const eventDate = formatDatePretty(eventDateTime); //Aug 14, 2020
+      const eventTime = formatTime(eventDateTime);
       output.push(
-        <Event
-          title={events[i].title}
-          communityName="RootShare"
-          communityID="rootshareID"
-          summary={events[i].brief_description}
-          description={events[i].full_description}
-          timestamp={events[i].datetime}
-          mutualSignups={varMutualSignups.length}
-          rsvpYes={events[i].RSVPs.includes(props.user._id)}
-          style={styles.eventStyle}
-        />
+        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
+          <Event
+            title={events[i].title}
+            communityName="RootShare"
+            communityID="rootshareID"
+            summary={events[i].brief_description}
+            description={events[i].full_description}
+            timestamp={eventDate + ' at ' + eventTime}
+            mutualSignups={varMutualSignups.length}
+            rsvpYes={events[i].RSVPs.includes(props.user._id)}
+            style={styles.eventStyle}
+          />
+        </div>
       );
     }
     return output;
@@ -110,21 +124,25 @@ function EventsBody(props: Props) {
           onClose={closeWelcomeMessage}
         />
       )}
-      <div className={styles.body}>{renderEvents()}</div>
+      {loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : (
+        renderEvents()
+      )}
     </div>
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any}) => {
-    return{
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-    };
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-    return {};
+  return {};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventsBody)
+export default connect(mapStateToProps, mapDispatchToProps)(EventsBody);

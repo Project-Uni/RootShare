@@ -144,7 +144,7 @@ function Event(props: Props) {
         </div>
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
-            {props.mutualSignups} Connections Signed Up
+              {props.mutualSignups == 0 ? "No" : props.mutualSignups} Connections Signed Up
           </RSText>
           <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES
