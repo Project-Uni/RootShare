@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { Button } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+
 import {
   ConnectionRequestType,
   UserType,
@@ -17,45 +18,34 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     background: colors.secondary,
-    paddingBottom: 7,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
-  left: {
+  left: {},
+  center: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
+    marginLeft: 10,
   },
-  top: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  bottom: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    margin: 0,
-    marginTop: -20,
-  },
+  top: {},
+  bottom: {},
   right: {
-    alignSelf: 'end',
-    marginRight: 11,
+    justifySelf: 'end',
+    marginRight: 8,
   },
   picture: {
     marginLeft: 4,
-    marginTop: 12,
-    marginBottom: -18,
+    marginTop: 2,
     display: 'inline-block',
     color: colors.primaryText,
   },
   organization: {
-    marginTop: 20,
-    marginLeft: 38,
     color: colors.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 196,
   },
   name: {
-    marginLeft: 10,
-    marginTop: 5,
     display: 'inline-block',
     color: colors.primaryText,
     wordWrap: 'break-word',
@@ -76,7 +66,7 @@ const useStyles = makeStyles((_: any) => ({
     height: 27,
     marginTop: 7,
   },
-  connectButton: {
+  acceptButton: {
     color: colors.primaryText,
     background: colors.bright,
     height: 27,
@@ -147,8 +137,18 @@ function SinglePendingConnection(props: Props) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.left}>
+          <ProfilePicture
+            type="profile"
+            className={styles.picture}
+            editable={false}
+            height={35}
+            width={35}
+            borderRadius={35}
+            currentPicture={requestUser.profilePicture}
+          />
+        </div>
+        <div className={styles.center}>
           <div className={styles.top}>
-            <EmojiEmotionsIcon className={styles.picture} />
             <RSText bold size={12} className={styles.name}>
               {`${requestUser.firstName} ${requestUser.lastName}`}
             </RSText>
@@ -169,7 +169,7 @@ function SinglePendingConnection(props: Props) {
             Remove
           </Button>
           <Button
-            className={styles.connectButton}
+            className={styles.acceptButton}
             size="small"
             onClick={() => respondRequest(true)}
           >

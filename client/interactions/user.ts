@@ -462,7 +462,7 @@ export function getPendingRequests(userID, callback) {
                     accountType: '$accountType',
                     connections: '$connections',
                     joinedCommunities: '$joinedCommunities',
-                    profilePicture: '$profilePictre',
+                    profilePicture: '$profilePicture',
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
