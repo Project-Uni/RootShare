@@ -1,5 +1,6 @@
 import { sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
   //General Posting
@@ -11,6 +12,11 @@ import {
   createInternalAlumniPost,
   getInternalCurrentMemberPosts,
   getInternalAlumniPosts,
+  //Community Posting,
+  createExternalPostAsCommunityAdmin,
+  createExternalPostAsFollowingCommunityAdmin,
+  createExternalPostAsMember,
+  getExternalPosts,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -80,6 +86,39 @@ export default function postsRoutes(app) {
     }
   );
 
+  app.post(
+    '/api/posts/community/:communityID/external/admin',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      //TODO
+    }
+  );
+
+  app.post(
+    '/api/posts/community/:community/external/following',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID: toCommunityID } = req.params;
+      const userID = req.user._id;
+      const { fromCommunityID, message } = req.body;
+
+      if (!fromCommunityID || !message)
+        return res.json(
+          sendPacket(0, 'fromCommunityID or message missing from request body')
+        );
+
+      const packet = await createExternalPostAsFollowingCommunityAdmin(
+        userID,
+        fromCommunityID,
+        toCommunityID,
+        message
+      );
+
+      return res.json(packet);
+    }
+  );
+
   app.get(
     '/api/posts/community/:communityID/internal/current',
     isAuthenticatedWithJWT,
@@ -104,6 +143,18 @@ export default function postsRoutes(app) {
       const { _id: userID, accountType } = req.user;
 
       const packet = await getInternalAlumniPosts(communityID, userID, accountType);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/posts/community/:communityID/external',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await getExternalPosts(communityID, userID);
       return res.json(packet);
     }
   );

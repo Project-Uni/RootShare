@@ -94,14 +94,14 @@ function Homepage(props: Props) {
     // );
 
     //GET ALL INTERNAL CURRENT MEMBER POSTS
-    // const { data: d2 } = await makeRequest(
-    //   'GET',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
-    //   {},
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
+    const { data: d2 } = await makeRequest(
+      'GET',
+      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
     //CREATE INTERNAL ALUMNI POST
     // const { data: d3 } = await makeRequest(
@@ -113,15 +113,15 @@ function Homepage(props: Props) {
     //   props.refreshToken
     // );
 
-    //GET ALL INTERNAL CURRENT MEMBER POSTS
-    const { data: d4 } = await makeRequest(
-      'GET',
-      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    //GET ALL INTERNAL CURRENT ALUMNI POSTS
+    // const { data: d4 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
   }
 
   async function fetchData() {

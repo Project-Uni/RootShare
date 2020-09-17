@@ -1,5 +1,5 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Community, Post } from '../models';
+import { Community, Post, User } from '../models';
 const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
@@ -233,34 +233,10 @@ export async function getInternalCurrentMemberPosts(
   }
 
   try {
-    const posts = await Post.aggregate([
-      { $match: { _id: { $in: community.internalCurrentMemberPosts } } },
-      { $sort: { createdAt: -1 } },
-      { $limit: NUM_POSTS_RETRIEVED },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-          },
-        },
-      },
-    ]).exec();
+    const posts = await retrievePosts(
+      community.internalCurrentMemberPosts,
+      NUM_POSTS_RETRIEVED
+    );
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -316,34 +292,10 @@ export async function getInternalAlumniPosts(
   }
 
   try {
-    const posts = await Post.aggregate([
-      { $match: { _id: { $in: community.internalAlumniPosts } } },
-      { $sort: { createdAt: -1 } },
-      { $limit: NUM_POSTS_RETRIEVED },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-          },
-        },
-      },
-    ]).exec();
+    const posts = await retrievePosts(
+      community.internalAlumniPosts,
+      NUM_POSTS_RETRIEVED
+    );
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -372,8 +324,8 @@ export async function getInternalAlumniPosts(
 
 export async function createExternalPostAsFollowingCommunityAdmin(
   userID: string,
-  toCommunityID: string,
   fromCommunityID: string,
+  toCommunityID: string,
   message: string
 ) {
   try {
@@ -407,7 +359,6 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           return sendPacket(0, 'Your community is not following this community');
         }
 
-        //Step 3 - Create the post and push
         const raw_post = new Post({
           user: userID,
           message,
@@ -417,7 +368,6 @@ export async function createExternalPostAsFollowingCommunityAdmin(
         });
 
         const post = await raw_post.save();
-        //TODO push to both communities
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },
@@ -458,7 +408,22 @@ export async function createExternalPostAsCommunityAdmin() {}
 
 export async function createExternalPostAsMember() {}
 
-export async function getExternalPosts() {}
+export async function getExternalPosts(communityID: string, userID: string) {
+  try {
+    // validate that user is a member of one of the communities that is following this community
+    // Or is a member of the community itself
+    const user = await User.findById(userID).select(['joinedCommunities']).exec();
+    if (!user) return sendPacket(0, 'Could not find user');
+
+    if (user.joinedCommunities.indexOf(communityID) !== -1)
+      return getExternalPostsMember_Helper(communityID);
+
+    return getExternalPostsNonMember_Helper(communityID, user);
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
 
 export async function broadcastAsCommunityAdmin() {}
 
@@ -507,4 +472,104 @@ function generateSignedImagePromises(posts: {
     }
   }
   return profilePicturePromises;
+}
+
+async function retrievePosts(
+  IDList: string[],
+  numRetrieved: number,
+  numSkipped: number = 0
+) {
+  const posts = await Post.aggregate([
+    { $match: { _id: { $in: IDList } } },
+    { $sort: { createdAt: -1 } },
+    { $skip: numSkipped },
+    { $limit: numRetrieved },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    { $unwind: '$user' },
+    {
+      $project: {
+        message: '$message',
+        likes: { $size: '$likes' },
+        createdAt: '$createdAt',
+        updatedAt: '$updatedAt',
+        user: {
+          _id: '$user._id',
+          firstName: '$user.firstName',
+          lastName: '$user.lastName',
+          profilePicture: '$user.profilePicture',
+        },
+      },
+    },
+  ]).exec();
+
+  return posts;
+}
+
+async function getExternalPostsMember_Helper(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['externalPosts'])
+      .exec();
+    if (!community) return sendPacket(0, 'Community does not exist');
+
+    const posts = await retrievePosts(community.externalPosts, NUM_POSTS_RETRIEVED);
+
+    const imagePromises = generateSignedImagePromises(posts);
+    return Promise.all(imagePromises).then((signedImageURLs) => {
+      for (let i = 0; i < posts.length; i++)
+        if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+
+      log(
+        'info',
+        `Successfully retrieved external feed for community ${community.name}`
+      );
+      return sendPacket(1, 'Successfully retrieved external feed', {
+        posts,
+      });
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+async function getExternalPostsNonMember_Helper(
+  communityID: string,
+  user: { [key: string]: any; joinedCommunities }
+) {
+  try {
+    //retrieve community and check if any of the user's communities are in its following list
+    const community = await Community.findOne({
+      _id: communityID,
+      $elemMatch: { followedByCommunities: { $in: user.joinedCommunities } },
+    }).select('externalPosts');
+    if (!community) return sendPacket(0, 'Community does not exist');
+
+    // Retrieve all posts from external feed
+    const posts = await retrievePosts(community.externalPosts, NUM_POSTS_RETRIEVED);
+    const imagePromises = await generateSignedImagePromises(posts);
+
+    return Promise.all(imagePromises).then((signedImageURLs) => {
+      for (let i = 0; i < posts.length; i++)
+        if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+
+      log(
+        'info',
+        `Successfully retrieved external feed for community ${community.name}`
+      );
+      return sendPacket(1, 'Successfully retrieved external feed', {
+        posts,
+      });
+    });
+  } catch (err) {
+    log('info', err);
+    return sendPacket(-1, err);
+  }
 }
