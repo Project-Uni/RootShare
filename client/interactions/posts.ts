@@ -1,17 +1,15 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Post } from '../models';
+import { Post, User } from '../models';
 
 const NUM_POSTS_RETRIEVED = 20;
 
-export async function createBroadcastUserPost(
-  message: string,
-  user: { [key: string]: any; firstName; lastName; _id }
-) {
+export async function createBroadcastUserPost(message: string, userID: string) {
   try {
-    const newPost = await new Post({ message, user: user._id }).save();
+    const post = await new Post({ message, user: userID }).save();
+    await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
 
-    log('info', `Successfully created for user ${user.firstName} ${user.lastName}`);
-    return sendPacket(1, 'Successfully created post', { newPost });
+    log('info', `Successfully created for user ${userID}`);
+    return sendPacket(1, 'Successfully created post', { newPost: post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);
@@ -86,10 +84,37 @@ export async function getGeneralFeed(universityID: string) {
 
 export async function getPostsByUser(userID: string) {
   try {
-    const posts = await Post.find({ user: userID })
-      .sort({ createdAt: 'desc' })
-      .limit(NUM_POSTS_RETRIEVED)
-      .exec();
+    const user = await User.findById(userID).select(['broadcastedPosts']).exec();
+    if (!user) return sendPacket(0, 'Could not find user');
+
+    const posts = await Post.aggregate([
+      { $match: { _id: { $in: user.broadcastedPosts } } },
+      { $sort: { createdAt: -1 } },
+      { $limit: NUM_POSTS_RETRIEVED },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
