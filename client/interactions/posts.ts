@@ -108,32 +108,28 @@ export async function createInternalCurrentMemberCommunityPost(
   universityID: string
 ) {
   //Checking that user is a part of the community
+  const community = await getValidatedCommunity(communityID, userID, ['admin']);
+  if (!community) {
+    log(
+      'info',
+      `User ${userID} attempted to post to internal current member feed for community ${communityID} they are not a member of`
+    );
+    return sendPacket(0, 'User is not a member of this community');
+  }
+
+  //Checking if person is a student or admin
+  if (accountType !== 'student' && community.admin != userID) {
+    log(
+      'info',
+      `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
+    );
+    return sendPacket(
+      0,
+      'Alumni are not allowed to post into the current member feed'
+    );
+  }
+
   try {
-    const community = await Community.findOne({
-      _id: communityID,
-      members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
-    }).select(['admin']);
-
-    if (!community) {
-      log(
-        'info',
-        `User ${userID} attempted to post to internal current member feed for community ${communityID} they are not a member of`
-      );
-      return sendPacket(0, 'User is not a member of this community');
-    }
-
-    //Checking if person is a student or admin
-    if (accountType !== 'student' && community.admin != userID) {
-      log(
-        'info',
-        `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
-      );
-      return sendPacket(
-        0,
-        'Alumni are not allowed to post into the current member feed'
-      );
-    }
-
     const raw_post = new Post({
       user: userID,
       message,
@@ -156,5 +152,37 @@ export async function createInternalCurrentMemberCommunityPost(
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
+  }
+}
+
+// GETTERS
+
+export async function getInternalCurrentMemberPosts(
+  communityID: string,
+  userID: string,
+  accountType: 'student' | 'alumni' | 'faculty' | 'fan'
+) {
+  //Validate that community exists with user as member
+}
+
+//Helpers
+async function getValidatedCommunity(
+  communityID: string,
+  userID: string,
+  retrievedFields: string[]
+) {
+  try {
+    const community = await Community.findOne({
+      _id: communityID,
+      members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+    }).select(retrievedFields);
+
+    if (!community) {
+      return false;
+    }
+    return community;
+  } catch (err) {
+    log('error', err);
+    return false;
   }
 }
