@@ -50,24 +50,8 @@ export async function getGeneralFeed(universityID: string) {
       },
     ]).exec();
 
-    const imagePromises = [];
+    const imagePromises = generateSignedImagePromises(posts);
 
-    for (let i = 0; i < posts.length; i++) {
-      if (posts[i].user.profilePicture) {
-        try {
-          const signedImageUrlPromise = retrieveSignedUrl(
-            'profile',
-            posts[i].user.profilePicture
-          );
-          imagePromises.push(signedImageUrlPromise);
-        } catch (err) {
-          log('error', err);
-          imagePromises.push(null);
-        }
-      } else {
-        imagePromises.push(null);
-      }
-    }
     return Promise.all(imagePromises)
       .then((signedImageURLs) => {
         for (let i = 0; i < posts.length; i++)
@@ -279,13 +263,25 @@ export async function getInternalCurrentMemberPosts(
 
     //TODO - Update profile pictures
 
-    log(
-      'info',
-      `Successfully retrieved internal current member feed for community ${community.name}`
-    );
-    return sendPacket(1, 'Successfully retrieved internal current member feed', {
-      posts,
-    });
+    const imagePromises = generateSignedImagePromises(posts);
+
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < posts.length; i++)
+          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+
+        log(
+          'info',
+          `Successfully retrieved internal current member feed for community ${community.name}`
+        );
+        return sendPacket(1, 'Successfully retrieved internal current member feed', {
+          posts,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -351,13 +347,25 @@ export async function getInternalAlumniPosts(
 
     //TODO - Update profile pictures
 
-    log(
-      'info',
-      `Successfully retrieved internal current member feed for community ${community.name}`
-    );
-    return sendPacket(1, 'Successfully retrieved internal current member feed', {
-      posts,
-    });
+    const imagePromises = generateSignedImagePromises(posts);
+
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < posts.length; i++)
+          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+
+        log(
+          'info',
+          `Successfully retrieved internal current member feed for community ${community.name}`
+        );
+        return sendPacket(1, 'Successfully retrieved internal current member feed', {
+          posts,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
