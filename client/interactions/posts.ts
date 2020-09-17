@@ -22,7 +22,7 @@ export async function createBroadcastUserPost(
 export async function getGeneralFeed(universityID: string) {
   try {
     const posts = await Post.aggregate([
-      { $match: { university: universityID } },
+      { $match: { university: universityID, toCommunity: null } },
       { $sort: { createdAt: -1 } },
       { $limit: NUM_POSTS_RETRIEVED },
       {
