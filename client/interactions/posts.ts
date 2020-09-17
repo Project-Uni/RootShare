@@ -104,11 +104,13 @@ export async function createInternalCurrentMemberCommunityPost(
   communityID: string,
   userID: string,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
-  message: string,
-  universityID: string
+  message: string
 ) {
   //Checking that user is a part of the community
-  const community = await getValidatedCommunity(communityID, userID, ['admin']);
+  const community = await getValidatedCommunity(communityID, userID, [
+    'admin',
+    'university',
+  ]);
   if (!community) {
     log(
       'info',
@@ -135,7 +137,7 @@ export async function createInternalCurrentMemberCommunityPost(
       message,
       toCommunity: communityID,
       type: 'internalCurrent',
-      university: universityID,
+      university: community.university,
     });
     const post = await raw_post.save();
 
