@@ -2,11 +2,15 @@ import { sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
+  //General Posting
   createBroadcastUserPost,
   getGeneralFeed,
   getPostsByUser,
+  //New Community Internal
   createInternalCurrentMemberCommunityPost,
+  createInternalAlumniPost,
   getInternalCurrentMemberPosts,
+  getInternalAlumniPosts,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -55,6 +59,27 @@ export default function postsRoutes(app) {
     }
   );
 
+  app.post(
+    '/api/posts/community/:communityID/internal/alumni',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { _id: userID, accountType } = req.user;
+      const { message } = req.body;
+
+      if (!message)
+        return res.json(sendPacket(-1, 'message is missing from request body'));
+
+      const packet = await createInternalAlumniPost(
+        communityID,
+        userID,
+        accountType,
+        message
+      );
+      return res.json(packet);
+    }
+  );
+
   app.get(
     '/api/posts/community/:communityID/internal/current',
     isAuthenticatedWithJWT,
@@ -67,6 +92,18 @@ export default function postsRoutes(app) {
         userID,
         accountType
       );
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/posts/community/:communityID/internal/alumni',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { _id: userID, accountType } = req.user;
+
+      const packet = await getInternalAlumniPosts(communityID, userID, accountType);
       return res.json(packet);
     }
   );
