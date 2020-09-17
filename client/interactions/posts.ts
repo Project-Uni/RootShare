@@ -157,6 +157,65 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 }
 
+export async function createInternalAlumniPost(
+  communityID: string,
+  userID: string,
+  accountType: 'student' | 'alumni' | 'faculty' | 'fan',
+  message: string
+) {
+  //Checking if user is a part of this community
+  const community = await getValidatedCommunity(communityID, userID, [
+    'admin',
+    'university',
+  ]);
+  if (!community) {
+    log(
+      'info',
+      `User ${userID} attempted to post to internal alumni feed for community ${communityID} which they are not a member of`
+    );
+    return sendPacket(0, 'User is not a member of this community');
+  }
+
+  //Validating that user is allowed to post into alumni code
+  if (accountType === 'student' && community.admin != userID) {
+    log(
+      'info',
+      `User ${userID} who is student attempted to post into alumni feed for ${communityID}`
+    );
+    return sendPacket(
+      0,
+      'Current Members are not allowed to post into the current member feed'
+    );
+  }
+
+  try {
+    const raw_post = new Post({
+      user: userID,
+      message,
+      toCommunity: communityID,
+      type: 'internalAlumni',
+      university: community.university,
+    });
+    const post = await raw_post.save();
+
+    await Community.updateOne(
+      { _id: communityID },
+      { $push: { internalAlumniPosts: post._id } }
+    );
+
+    log(
+      'info',
+      `User ${userID} successfully posted into the internal alumni feed of community ${communityID}`
+    );
+    return sendPacket(1, 'Successfully posted into internal alumni member feed', {
+      post,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 // GETTERS
 
 export async function getInternalCurrentMemberPosts(
@@ -180,7 +239,7 @@ export async function getInternalCurrentMemberPosts(
   if (accountType !== 'student' && community.admin != userID) {
     log(
       'info',
-      `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
+      `User ${userID} who is an attempted to retrieve current member feed for ${communityID}`
     );
     return sendPacket(
       0,
@@ -218,6 +277,80 @@ export async function getInternalCurrentMemberPosts(
       },
     ]).exec();
 
+    //TODO - Update profile pictures
+
+    log(
+      'info',
+      `Successfully retrieved internal current member feed for community ${community.name}`
+    );
+    return sendPacket(1, 'Successfully retrieved internal current member feed', {
+      posts,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getInternalAlumniPosts(
+  communityID: string,
+  userID: string,
+  accountType: 'student' | 'alumni' | 'faculty' | 'fan'
+) {
+  //Validate that community exists with user as member
+  const community = await getValidatedCommunity(communityID, userID, [
+    'name',
+    'internalAlumniPosts',
+  ]);
+
+  if (!community) {
+    log(
+      'info',
+      `User ${userID} attempted to retrieve internal alumni feed for community ${communityID} which they are not a member of`
+    );
+    return sendPacket(0, 'User is not a member of this community');
+  }
+
+  if (accountType === 'student' && community.admin != userID) {
+    log(
+      'info',
+      `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`
+    );
+    return sendPacket(0, 'Students are not allowed to post into the alumni feed');
+  }
+
+  try {
+    const posts = await Post.aggregate([
+      { $match: { _id: { $in: community.internalAlumniPosts } } },
+      { $sort: { createdAt: -1 } },
+      { $limit: NUM_POSTS_RETRIEVED },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
+
+    //TODO - Update profile pictures
+
     log(
       'info',
       `Successfully retrieved internal current member feed for community ${community.name}`
@@ -251,4 +384,29 @@ async function getValidatedCommunity(
     log('error', err);
     return false;
   }
+}
+
+function generateSignedImagePromises(posts: {
+  [key: string]: any;
+  user: { [key: string]: any; profilePicture?: string };
+}) {
+  const profilePicturePromises = [];
+
+  for (let i = 0; i < posts.length; i++) {
+    if (posts[i].user.profilePicture) {
+      try {
+        const signedImageUrlPromise = retrieveSignedUrl(
+          'profile',
+          posts[i].user.profilePicture
+        );
+        profilePicturePromises.push(signedImageUrlPromise);
+      } catch (err) {
+        log('error', err);
+        profilePicturePromises.push(null);
+      }
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+  return profilePicturePromises;
 }
