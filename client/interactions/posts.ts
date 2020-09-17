@@ -410,14 +410,14 @@ export async function createExternalPostAsMember() {}
 
 export async function getExternalPosts(communityID: string, userID: string) {
   try {
-    // validate that user is a member of one of the communities that is following this community
-    // Or is a member of the community itself
     const user = await User.findById(userID).select(['joinedCommunities']).exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
+    // user is a member of the community itself
     if (user.joinedCommunities.indexOf(communityID) !== -1)
       return getExternalPostsMember_Helper(communityID);
 
+    // user is a member of one of the communities that is following this community
     return getExternalPostsNonMember_Helper(communityID, user);
   } catch (err) {
     log('error', err);
