@@ -370,6 +370,98 @@ export async function getInternalAlumniPosts(
   }
 }
 
+export async function createExternalPostAsFollowingCommunityAdmin(
+  userID: string,
+  toCommunityID: string,
+  fromCommunityID: string,
+  message: string
+) {
+  try {
+    const isCommunityAdminPromise = Community.exists({
+      _id: fromCommunityID,
+      admin: userID,
+    });
+
+    const isFollowingPromise = Community.exists({
+      _id: toCommunityID,
+      followedByCommunities: { $elemMatch: { $eq: fromCommunityID } },
+    });
+
+    return Promise.all([isCommunityAdminPromise, isFollowingPromise])
+      .then(async ([isCommunityAdmin, isFollowing]) => {
+        if (!isCommunityAdmin) {
+          log(
+            'info',
+            `User ${userID} is attempting to post as community ${fromCommunityID}, and they are not admin`
+          );
+          return sendPacket(
+            0,
+            'User is not admin of the community hey they are posting as'
+          );
+        }
+        if (!isFollowing) {
+          log(
+            'info',
+            `Admin of community ${fromCommunityID} is attempting to post to ${toCommunityID}, and they are not admin`
+          );
+          return sendPacket(0, 'Your community is not following this community');
+        }
+
+        //Step 3 - Create the post and push
+        const raw_post = new Post({
+          user: userID,
+          message,
+          toCommunity: toCommunityID,
+          fromCommunity: fromCommunityID,
+          anonymous: true,
+        });
+
+        const post = await raw_post.save();
+        //TODO push to both communities
+
+        const fromCommunityUpdate = Community.updateOne(
+          { _id: fromCommunityID },
+          { $push: { postsToOtherCommunities: post._id } }
+        );
+        const toCommunityUpdate = Community.updateOne(
+          { _id: toCommunityID },
+          { $push: { externalPosts: post._id } }
+        );
+
+        return Promise.all([fromCommunityUpdate, toCommunityUpdate]).then(
+          (values) => {
+            log(
+              'info',
+              `Post sent from community ${fromCommunityID} to ${toCommunityID}`
+            );
+            return sendPacket(
+              1,
+              'Successfully created post to external feed of other community',
+              {
+                post,
+              }
+            );
+          }
+        );
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function createExternalPostAsCommunityAdmin() {}
+
+export async function createExternalPostAsMember() {}
+
+export async function getExternalPosts() {}
+
+export async function broadcastAsCommunityAdmin() {}
+
 //Helpers
 async function getValidatedCommunity(
   communityID: string,
