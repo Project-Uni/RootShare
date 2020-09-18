@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-import { Community, User } from '../models';
+import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { COMMUNITY_TYPE } from '../helpers/types';
 
@@ -488,4 +488,493 @@ export function cancelCommunityPendingRequest(communityID: string, userID: strin
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+export async function followCommunity(
+  requestToFollowCommunityID: string,
+  yourCommunityID: string,
+  userID: string
+) {
+  try {
+    //Checking if the user who requested to follow is the admin of the community they are following as
+    const checkAdminPromise = Community.exists({
+      _id: yourCommunityID,
+      admin: userID,
+    });
+    //Checks if other community exists
+    const communityExistsPromise = Community.exists({
+      _id: requestToFollowCommunityID,
+    });
+
+    //Checks to see if there is an already existing follow request
+    const edgeExistsPromise = CommunityEdge.exists({
+      from: yourCommunityID,
+      to: requestToFollowCommunityID,
+    });
+
+    return Promise.all([
+      checkAdminPromise,
+      communityExistsPromise,
+      edgeExistsPromise,
+    ])
+      .then(async ([isAdmin, communityExists, edgeExists]) => {
+        if (!isAdmin) {
+          log(
+            'info',
+            `User ${userID} who is not admin for community ${yourCommunityID} attempted to follow a different community`
+          );
+          return sendPacket(
+            0,
+            'User is not admin of community they are choosing to follow as.'
+          );
+        }
+        if (!communityExists) {
+          log(
+            'info',
+            `User ${userID} attempted to follow ${requestToFollowCommunityID} which does not exist`
+          );
+          return sendPacket(
+            0,
+            'The community you are trying to follow does not exist'
+          );
+        }
+        if (edgeExists) {
+          log(
+            'info',
+            `Attempting to create a follow request that already exists from ${yourCommunityID} to ${requestToFollowCommunityID}`
+          );
+          return sendPacket(
+            0,
+            'A follow request already exists from your community to the other community'
+          );
+        }
+
+        //Creates and saves the new edge
+        const followEdge = await new CommunityEdge({
+          from: yourCommunityID,
+          to: requestToFollowCommunityID,
+        }).save();
+        const otherCommunityPromise = Community.updateOne(
+          { _id: requestToFollowCommunityID },
+          { $addToSet: { incomingPendingCommunityFollowRequests: followEdge._id } }
+        ).exec();
+        const yourCommunityPromise = Community.updateOne(
+          { _id: yourCommunityID },
+          { $addToSet: { outgoingPendingCommunityFollowRequests: followEdge._id } }
+        ).exec();
+
+        return Promise.all([otherCommunityPromise, yourCommunityPromise])
+          .then((values) => {
+            log(
+              'info',
+              `Successfully created follow request from ${yourCommunityID} to ${requestToFollowCommunityID}`
+            );
+            return sendPacket(
+              1,
+              `Successfully requested to follow community ${requestToFollowCommunityID} as admin of ${yourCommunityID}`,
+              { followEdge }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(-1, err);
+          });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function acceptFollowRequest(yourCommunityID: string, edgeID: string) {
+  try {
+    const edge = await CommunityEdge.findOne({
+      _id: edgeID,
+      to: yourCommunityID,
+      accepted: false,
+    });
+    if (!edge) {
+      log('error', `No edge exists with ID ${edgeID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    edge.accepted = true;
+
+    const edgeSavePromise = edge.save();
+    const yourCommunityPromise = Community.updateOne(
+      { _id: yourCommunityID },
+      {
+        $pull: { incomingPendingCommunityFollowRequests: edgeID },
+        $addToSet: { followedByCommunities: edgeID },
+      }
+    ).exec();
+    const otherCommunityPromise = Community.updateOne(
+      { _id: edge.from },
+      {
+        $pull: { outgoingPendingCommunityFollowRequests: edgeID },
+        $addToSet: { followingCommunities: edgeID },
+      }
+    ).exec();
+
+    return Promise.all([
+      edgeSavePromise,
+      yourCommunityPromise,
+      otherCommunityPromise,
+    ])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully accepted follow request ${edgeID} from ${edge.from} to ${yourCommunityID}`
+        );
+        return sendPacket(1, 'Successfully accepted follow request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function rejectFollowRequest(yourCommunityID: string, edgeID: string) {
+  try {
+    //Checking if edge exists given paramters
+    const edge = await CommunityEdge.findOne({
+      _id: edgeID,
+      to: yourCommunityID,
+      accepted: false,
+    });
+    if (!edge) {
+      log('error', `No edge exists with ID ${edgeID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    //Deletes edge and pulls from DB entries for both communities
+    const yourCommunityPromise = Community.updateOne(
+      { _id: yourCommunityID },
+      { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const otherCommunityPromise = Community.updateOne(
+      { _id: edge.from },
+      { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+
+    return Promise.all([yourCommunityPromise, otherCommunityPromise, edgePromise])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully rejected pending community follow request from ${edge.from} to ${yourCommunityID} and handled all propagation.`
+        );
+        return sendPacket(1, 'Successfully rejected follow request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function cancelFollowRequest(
+  fromCommunityID: string,
+  toCommunityID: string,
+  userID: string
+) {
+  try {
+    //Checking if user is admin of community
+    const isAdmin = await Community.exists({
+      _id: fromCommunityID,
+      admin: userID,
+    });
+    if (!isAdmin) {
+      log(
+        'info',
+        `User ${userID} who is not admin for community ${fromCommunityID} attempted to cancel follow request to ${toCommunityID}`
+      );
+      return sendPacket(
+        0,
+        'User is not admin of community they are trying to reject the request as.'
+      );
+    }
+
+    //Checking if edge exists given paramters
+    const edge = await CommunityEdge.findOne({
+      from: fromCommunityID,
+      to: toCommunityID,
+      accepted: false,
+    });
+    if (!edge) {
+      log('error', `No edge exists between ${fromCommunityID} and ${toCommunityID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    const edgeID = edge._id;
+
+    //Deletes edge and pulls from DB entries for both communities
+    const fromCommunityPromise = Community.updateOne(
+      { _id: fromCommunityID },
+      { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const toCommunityPromise = Community.updateOne(
+      { _id: toCommunityID },
+      { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
+    ).exec();
+    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+
+    return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully cancelled pending community follow request from ${fromCommunityID} to ${toCommunityID} and handled all propagation.`
+        );
+        return sendPacket(1, 'Successfully rejected follow request');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function unfollowCommunity(
+  fromCommunityID: string,
+  toCommunityID: string,
+  userID: string
+) {
+  try {
+    //Checking if user is admin of community
+    const isAdmin = await Community.exists({
+      _id: fromCommunityID,
+      admin: userID,
+    });
+    if (!isAdmin) {
+      log(
+        'info',
+        `User ${userID} who is not admin for community ${fromCommunityID} attempted to cancel follow request to ${toCommunityID}`
+      );
+      return sendPacket(
+        0,
+        'User is not admin of community they are trying to reject the request as.'
+      );
+    }
+
+    //Checking if edge exists given paramters
+    const edge = await CommunityEdge.findOne({
+      from: fromCommunityID,
+      to: toCommunityID,
+      accepted: true,
+    });
+    if (!edge) {
+      log('error', `No edge exists between ${fromCommunityID} and ${toCommunityID}`);
+      return sendPacket(0, 'No edge exists with given ID');
+    }
+
+    const edgeID = edge._id;
+
+    //Deletes edge and pulls from DB entries for both communities
+    const fromCommunityPromise = Community.updateOne(
+      { _id: fromCommunityID },
+      { $pull: { followingCommunities: edgeID } }
+    ).exec();
+    const toCommunityPromise = Community.updateOne(
+      { _id: toCommunityID },
+      { $pull: { followedByCommunities: edgeID } }
+    ).exec();
+    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+
+    return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
+      .then((values) => {
+        log(
+          'info',
+          `Successfully removed edge from ${fromCommunityID} to ${toCommunityID} and handled all propagation.`
+        );
+        return sendPacket(1, 'Successfully stopped following community');
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getAllFollowingCommunities(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followingCommunities'])
+      .populate({
+        path: 'followingCommunities',
+        select: 'to',
+        populate: {
+          path: 'to',
+          select: 'name description type profilePicture',
+        },
+      });
+
+    const followingCommunities = community['followingCommunities'].map((edge) => {
+      return edge.to;
+    });
+
+    const profilePicturePromises = generateSignedImagePromises(followingCommunities);
+
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            followingCommunities[i].profilePicture = signedImageURLs[i];
+        }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} is following`
+        );
+        return sendPacket(1, 'Successfully retrieved all following communities', {
+          communities: followingCommunities,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getAllFollowedByCommunities(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followedByCommunities'])
+      .populate({
+        path: 'followedByCommunities',
+        select: 'from',
+        populate: {
+          path: 'from',
+          select: 'name description type profilePicture',
+        },
+      });
+
+    const followedByCommunities = community['followedByCommunities'].map((edge) => {
+      return edge.from;
+    });
+
+    const profilePicturePromises = generateSignedImagePromises(
+      followedByCommunities
+    );
+
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            followedByCommunities[i].profilePicture = signedImageURLs[i];
+        }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} is followed by`
+        );
+        return sendPacket(1, 'Successfully retrieved all followed by communities', {
+          communities: followedByCommunities,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getAllPendingFollowRequests(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['incomingPendingCommunityFollowRequests'])
+      .populate({
+        path: 'incomingPendingCommunityFollowRequests',
+        select: 'from',
+        populate: {
+          path: 'from',
+          select: 'name description type profilePicture',
+        },
+      });
+
+    const pendingFollowRequests = community[
+      'incomingPendingCommunityFollowRequests'
+    ].map((edge) => {
+      return edge.from;
+    });
+
+    const profilePicturePromises = generateSignedImagePromises(
+      pendingFollowRequests
+    );
+
+    return Promise.all(profilePicturePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++) {
+          if (signedImageURLs[i])
+            pendingFollowRequests[i].profilePicture = signedImageURLs[i];
+        }
+        log(
+          'info',
+          `Successfully retrieved all communities that ${communityID} has pending follow requests for`
+        );
+        return sendPacket(
+          1,
+          'Successfully retrieved pending follow request communities',
+          {
+            communities: pendingFollowRequests,
+          }
+        );
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+// HELPER FUNCTIONS
+
+function generateSignedImagePromises(communityList: {
+  [key: string]: any;
+  profilePicture?: string;
+}) {
+  const profilePicturePromises = [];
+
+  for (let i = 0; i < communityList.length; i++) {
+    if (communityList[i].profilePicture) {
+      try {
+        const signedImageURLPromise = retrieveSignedUrl(
+          'communityProfile',
+          communityList[i].profilePicture
+        );
+        profilePicturePromises.push(signedImageURLPromise);
+      } catch (err) {
+        profilePicturePromises.push(null);
+        log('error', 'There was an error retrieving a signed url from S3');
+      }
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+
+  return profilePicturePromises;
 }
