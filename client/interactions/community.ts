@@ -933,9 +933,13 @@ export async function getAllPendingFollowRequests(communityID: string) {
           'info',
           `Successfully retrieved all communities that ${communityID} has pending follow requests for`
         );
-        return sendPacket(1, 'Successfully retrieved all followed by communities', {
-          communities: pendingFollowRequests,
-        });
+        return sendPacket(
+          1,
+          'Successfully retrieved pending follow request communities',
+          {
+            communities: pendingFollowRequests,
+          }
+        );
       })
       .catch((err) => {
         log('error', err);
