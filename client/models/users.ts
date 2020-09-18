@@ -46,6 +46,12 @@ var userSchema = new Schema(
     },
     //TODO - Add fields for background image
     profilePicture: { type: String },
+    broadcastedPosts: {
+      type: [{ type: Schema.ObjectId, ref: 'posts' }],
+    },
+    communityPosts: {
+      type: [{ type: Schema.ObjectId, ref: 'posts' }],
+    },
   },
   { timestamps: true }
 );
