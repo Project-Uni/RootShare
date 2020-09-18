@@ -1,4 +1,5 @@
-import { log, sendPacket } from '../helpers/functions';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { addProfilePictureToUser } from '../interactions/utilities';
 
 const mongoose = require('mongoose');
 
@@ -134,15 +135,61 @@ export async function getLatestThreads(userID, callback) {
     participants: userID,
   })
     .populate('lastMessage')
-    .populate('participants', '_id firstName lastName');
+    .populate('participants', '_id firstName lastName profilePicture')
+    .lean();
 
-  if (userConversations === undefined || userConversations === null)
+  if (!userConversations)
     return callback(
       sendPacket(-1, 'There was an error retrieving the Conversations')
     );
 
   userConversations.sort(timeStampCompare);
-  callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
+  await addProfilePictureToUsers(userID, userConversations);
+  callback(
+    sendPacket(1, "Sending User's Conversations", {
+      userConversations,
+    })
+  );
+}
+
+function addProfilePictureToUsers(userID, conversations) {
+  const imagePromises = [];
+  conversations.forEach((conversation) => {
+    if (conversation.participants.length === 2) {
+      const otherPerson =
+        conversation.participants[0]._id === userID
+          ? conversation.participants[1]
+          : conversation.participants[0];
+      if (otherPerson.profilePicture) {
+        try {
+          const signedImageUrlPromise = retrieveSignedUrl(
+            'profile',
+            otherPerson.profilePicture
+          );
+          imagePromises.push(signedImageUrlPromise);
+        } catch (err) {
+          log('error', err);
+          imagePromises.push(null);
+        }
+      } else {
+        imagePromises.push(null);
+      }
+    } else {
+      imagePromises.push(null);
+    }
+  });
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < conversations.length; i++)
+        if (signedImageURLs[i]) {
+          conversations[i].conversationPicture = signedImageURLs[i];
+          console.log(conversations[i].conversationPicture);
+        }
+    })
+    .catch((err) => {
+      log('error', err);
+    });
 }
 
 export function getLatestMessages(

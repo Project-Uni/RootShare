@@ -37,8 +37,6 @@ const useStyles = makeStyles((_: any) => ({
   picture: {
     marginLeft: 4,
     marginTop: 2,
-    display: 'inline-block',
-    color: colors.primaryText,
   },
   organization: {
     color: colors.secondaryText,
