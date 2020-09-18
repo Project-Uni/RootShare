@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
 import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
@@ -10,6 +9,8 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { getConversationTime } from '../../../helpers/functions';
 import { UserType, ConversationType, MessageType } from '../../../helpers/types';
+
+import GroupIcon from '../../../images/group_icon_transparent.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -89,6 +90,10 @@ function SingleConversation(props: Props) {
         : lastMessage.createdAt
     )
   );
+  const conversationIcon =
+    props.conversation.participants.length > 2
+      ? GroupIcon
+      : props.conversation.conversationPicture;
 
   function joinUserNames(users: any, delimiter: string) {
     let joinedString = '';
@@ -121,7 +126,7 @@ function SingleConversation(props: Props) {
           height={40}
           width={40}
           borderRadius={40}
-          currentPicture={props.conversation.conversationPicture}
+          currentPicture={conversationIcon}
         />
       </div>
 
