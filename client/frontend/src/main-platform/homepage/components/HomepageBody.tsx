@@ -148,6 +148,7 @@ function HomepageBody(props: Props) {
           likeCount={posts[i].likes}
           commentCount={0}
           style={styles.postStyle}
+          key={posts[i]._id}
         />
       );
     }
