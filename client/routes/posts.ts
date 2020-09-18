@@ -6,6 +6,7 @@ import {
   //General Posting
   createBroadcastUserPost,
   getGeneralFeed,
+  getFollowingFeed,
   getPostsByUser,
   //New Community Internal
   createInternalCurrentMemberCommunityPost,
@@ -31,6 +32,12 @@ export default function postsRoutes(app) {
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
     const packet = await getGeneralFeed(req.user.university._id);
+    return res.json(packet);
+  });
+
+  app.get('/api/posts/feed/following', isAuthenticatedWithJWT, async (req, res) => {
+    const userID = req.user._id;
+    const packet = await getFollowingFeed(userID);
     return res.json(packet);
   });
 

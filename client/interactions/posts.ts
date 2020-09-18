@@ -73,11 +73,47 @@ export async function getGeneralFeed(universityID: string) {
   }
 }
 
-export async function getFollowingPosts(userID: string) {
+export async function getFollowingFeed(userID: string) {
   //TODO
-  //Step 1 - Get users connections, communities, and all communities that those communities are following
+
   //Step 2 - retrieve all posts from these groups. Sort by timestamp.
   // Step 3 return the posts
+  try {
+    //Get users connections, communities, and all communities that those communities are following
+    const user = await User.findById(userID)
+      .select(['joinedCommunities', 'connections'])
+      .populate({ path: 'connections', select: 'from to' })
+      .populate({
+        path: 'joinedCommunities',
+        select: 'followingCommunities',
+        populate: {
+          path: 'followingCommunities',
+          select: 'to',
+        },
+      })
+      .exec();
+    if (!user) return sendPacket(0, 'No user found with this ID');
+
+    const connections = extractOtherUserFromConnections(user.connections, userID);
+    const joinedCommunities = user.joinedCommunities.map(
+      (community) => community._id
+    );
+    const followingCommunities = [];
+    user.joinedCommunities.forEach((community) => {
+      community.followingCommunities.forEach((edge) => {
+        followingCommunities.push(edge.to);
+      });
+    });
+
+    console.log('Connections:', connections);
+    console.log('Joined Communities:', joinedCommunities);
+    console.log('Following Communities:', followingCommunities);
+
+    return sendPacket(1, 'Test worked');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 export async function getPostsByUser(userID: string) {
@@ -585,4 +621,16 @@ async function getExternalPostsNonMember_Helper(
     log('info', err);
     return sendPacket(-1, err);
   }
+}
+
+function extractOtherUserFromConnections(
+  connections: { [key: string]: any; from: string; to: string }[],
+  userID: string
+) {
+  const userID_typed = mongoose.Types.ObjectId(userID);
+  const output = connections.map((connection) => {
+    return connection.from != userID_typed ? connection.from : connection.to;
+  });
+
+  return output;
 }
