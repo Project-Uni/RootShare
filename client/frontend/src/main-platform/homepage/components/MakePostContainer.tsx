@@ -145,7 +145,7 @@ function MakePostContainer(props: Props) {
         <div className={styles.textFieldContainer}>
           <TextField
             variant="outlined"
-            placeholder={`Whats on your mind ${props.user.firstName}?`}
+            placeholder={`What\'s on your mind ${props.user.firstName}?`}
             multiline
             className={styles.newPostTextField}
             value={message}
