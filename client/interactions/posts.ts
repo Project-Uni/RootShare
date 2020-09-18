@@ -6,7 +6,7 @@ const NUM_POSTS_RETRIEVED = 20;
 
 export async function createBroadcastUserPost(message: string, userID: string) {
   try {
-    const post = await new Post({ message, user: userID }).save();
+    const post = await new Post({ message, user: userID, type: 'broadcast' }).save();
     await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
 
     log('info', `Successfully created for user ${userID}`);
@@ -20,7 +20,13 @@ export async function createBroadcastUserPost(message: string, userID: string) {
 export async function getGeneralFeed(universityID: string) {
   try {
     const posts = await Post.aggregate([
-      { $match: { university: universityID, toCommunity: null } },
+      {
+        $match: {
+          university: universityID,
+          toCommunity: null,
+          type: { $eq: 'broadcast' },
+        },
+      },
       { $sort: { createdAt: -1 } },
       { $limit: NUM_POSTS_RETRIEVED },
       {
@@ -67,39 +73,19 @@ export async function getGeneralFeed(universityID: string) {
   }
 }
 
+export async function getFollowingPosts(userID: string) {
+  //TODO
+  //Step 1 - Get users connections, communities, and all communities that those communities are following
+  //Step 2 - retrieve all posts from these groups. Sort by timestamp.
+  // Step 3 return the posts
+}
+
 export async function getPostsByUser(userID: string) {
   try {
     const user = await User.findById(userID).select(['broadcastedPosts']).exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
-    const posts = await Post.aggregate([
-      { $match: { _id: { $in: user.broadcastedPosts } } },
-      { $sort: { createdAt: -1 } },
-      { $limit: NUM_POSTS_RETRIEVED },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-          },
-        },
-      },
-    ]).exec();
+    const posts = await retrievePosts(user.broadcastedPosts, NUM_POSTS_RETRIEVED);
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
@@ -389,6 +375,7 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           message,
           toCommunity: toCommunityID,
           fromCommunity: fromCommunityID,
+          type: 'external',
           anonymous: true,
         });
 
