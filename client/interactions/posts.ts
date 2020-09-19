@@ -1,5 +1,5 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Community, Post, User } from '../models';
+import { Community, CommunityEdge, Post, User } from '../models';
 const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
@@ -377,9 +377,10 @@ export async function createExternalPostAsFollowingCommunityAdmin(
       admin: userID,
     });
 
-    const isFollowingPromise = Community.exists({
-      _id: toCommunityID,
-      followedByCommunities: { $elemMatch: { $eq: fromCommunityID } },
+    const isFollowingPromise = CommunityEdge.exists({
+      from: fromCommunityID,
+      to: toCommunityID,
+      accepted: true,
     });
 
     return Promise.all([isCommunityAdminPromise, isFollowingPromise])
@@ -397,21 +398,19 @@ export async function createExternalPostAsFollowingCommunityAdmin(
         if (!isFollowing) {
           log(
             'info',
-            `Admin of community ${fromCommunityID} is attempting to post to ${toCommunityID}, and they are not admin`
+            `Admin of community ${fromCommunityID} is attempting to post to ${toCommunityID}, and they are not following`
           );
           return sendPacket(0, 'Your community is not following this community');
         }
 
-        const raw_post = new Post({
+        const post = await new Post({
           user: userID,
           message,
           toCommunity: toCommunityID,
           fromCommunity: fromCommunityID,
           type: 'external',
           anonymous: true,
-        });
-
-        const post = await raw_post.save();
+        }).save();
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },

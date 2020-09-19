@@ -120,7 +120,7 @@ function Homepage(props: Props) {
     //   props.refreshToken
     // );
     //NEW
-    //GET FOLLOWING FEED
+    // GET FOLLOWING FEED - Tested
     // const { data: d5 } = await makeRequest(
     //   'GET',
     //   '/api/posts/feed/following',
@@ -138,18 +138,18 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-    //CREATE EXTERNAL POST AS FOLLOWING COMMUNITY ADMIN
-    // const { data: d7 } = await makeRequest(
-    //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/following`,
-    //   {
-    //     message: 'Testing external as alumni',
-    //     fromCommunityID: '5f5673beabbed8044a2496e2',
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
+    //CREATE EXTERNAL POST AS FOLLOWING COMMUNITY ADMIN - tested
+    const { data: d7 } = await makeRequest(
+      'POST',
+      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/following`,
+      {
+        message: 'Testing external as alumni',
+        fromCommunityID: '5f5673beabbed8044a2496e2',
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
     //GET EXTERNAL FEED - Tested
     // const { data: d8 } = await makeRequest(
     //   'GET',

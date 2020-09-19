@@ -117,7 +117,7 @@ export default function postsRoutes(app) {
   );
 
   app.post(
-    '/api/posts/community/:community/external/following',
+    '/api/posts/community/:communityID/external/following',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
