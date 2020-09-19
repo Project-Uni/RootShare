@@ -117,8 +117,8 @@ function HomepageBody(props: Props) {
     setGeneralFeed((prevState) => {
       const newEntry = (
         <UserPost
-          userID={props.user._id}
-          userName={`${props.user.firstName} ${props.user.lastName}`}
+          _id={props.user._id}
+          name={`${props.user.firstName} ${props.user.lastName}`}
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
             new Date(post.createdAt)
           )}`}
@@ -138,8 +138,8 @@ function HomepageBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          userID={posts[i].user._id}
-          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          _id={posts[i].user._id}
+          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           timestamp={`${formatDatePretty(
             new Date(posts[i].createdAt)
           )} at ${formatTime(new Date(posts[i].createdAt))}`}
