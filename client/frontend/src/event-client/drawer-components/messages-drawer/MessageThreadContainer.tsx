@@ -168,6 +168,7 @@ function MessageThreadContainer(props: Props) {
       );
     });
 
+    output.push(<div id="scrollDummyItem" />);
     return output;
   }
 
@@ -219,8 +220,10 @@ function MessageThreadContainer(props: Props) {
   }
 
   function scrollToBottom() {
-    const messageContainer = document.getElementById('messageContainer');
-    messageContainer?.scrollTo(0, messageContainer?.scrollHeight);
+    setTimeout(() => {
+      const scrollDummyItem = document.getElementById('scrollDummyItem');
+      scrollDummyItem?.scrollIntoView({ behavior: 'smooth' });
+    });
   }
 
   return (
@@ -234,7 +237,7 @@ function MessageThreadContainer(props: Props) {
         </RSText>
         <div className={styles.filler}>SAVE</div>
       </div>
-      <div id="messageContainer" className={styles.messagesContainer}>
+      <div className={styles.messagesContainer}>
         {loading ? (
           <CircularProgress
             className={styles.loadingIndicator}
