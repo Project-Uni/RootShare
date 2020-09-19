@@ -67,9 +67,11 @@ function ConnectionsBody(props: Props) {
   const [joinedCommunities, setJoinedCommunities] = useState<{
     [key: string]: any;
   }>([]);
+  const [username, setUsername] = useState('User');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    if (props.requestUserID !== 'user') fetchUserBasicInfo();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -90,6 +92,20 @@ function ConnectionsBody(props: Props) {
       setConnections(data.content['connections']);
       setConnectionIDs(data.content['connectionIDs']);
       setJoinedCommunities(data.content['joinedCommunities']);
+    }
+  }
+
+  async function fetchUserBasicInfo() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.requestUserID}/basic`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setUsername(`${data.content.user?.firstName} ${data.content.user?.lastName}`);
     }
   }
 
@@ -177,8 +193,12 @@ function ConnectionsBody(props: Props) {
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
         <WelcomeMessage
-          title="Connections"
-          message="See all of the people you have connected with, plus all of the people who have requested to connect with you!"
+          title={`${
+            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+          } Connections`}
+          message={`See all of the people that ${
+            props.requestUserID === 'user' ? 'you have' : `${username} has`
+          } connected with!`}
           onClose={closeWelcomeMessage}
         />
       )}
