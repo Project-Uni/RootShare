@@ -457,6 +457,7 @@ export async function createExternalPostAsCommunityAdmin(
       user: userID,
       message,
       fromCommunity: communityID,
+      toCommunity: communityID,
       anonymous: true,
       type: 'external',
     }).save();
