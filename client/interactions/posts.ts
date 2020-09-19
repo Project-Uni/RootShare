@@ -74,88 +74,14 @@ export async function getFollowingFeed(userID: string) {
       });
     });
 
-    // retrieve all posts from these groups. Sort by timestamp.
-    const conditions = [];
-    const userCondition = {
-      $and: [
-        { user: { $in: connections } },
-        { toCommunity: null },
-        { fromCommunity: null },
-        { type: { $eq: 'broadcast' } },
-      ],
-    };
-
-    const internalPostCondition =
-      user.accountType === 'student'
-        ? // Post is type internal_student and user is student and to is in joined list
-          {
-            $and: [
-              { type: { $eq: 'internalCurrent' } },
-              { toCommunity: { $in: joinedCommunities } },
-            ],
-          }
-        : // Post is type internal_alumni and user is not student and to is in joined list
-          {
-            $and: [
-              { type: { $eq: 'internalAlumni' } },
-              { toCommunity: { $in: joinedCommunities } },
-            ],
-          };
-
-    const joinedCommunityCondition = {
-      $or: [
-        // Post is type external and (to is in joined list or from is in joined list)
-        {
-          $and: [
-            { type: { $eq: 'external' } },
-            {
-              $or: [
-                { toCommunity: { $in: joinedCommunities } },
-                { fromCommunity: { $in: joinedCommunities } },
-              ],
-            },
-          ],
-        },
-
-        internalPostCondition,
-        // Post is type broadcast, and from is in joined list
-        {
-          $and: [
-            { type: { $eq: 'broadcast' } },
-            { fromCommunity: { $in: joinedCommunities } },
-          ],
-        },
-      ],
-    };
-
-    const followingCommunityCondition = {
-      $or: [
-        //Post is type external, to is in following list
-        {
-          $and: [
-            { type: { $eq: 'external' } },
-            { toCommunity: { $in: followingCommunities } },
-          ],
-        },
-        //Post is type broadcast, from is in following list
-        {
-          $and: [
-            { type: { $eq: 'broadcast' } },
-            { fromCommunity: { $in: followingCommunities } },
-          ],
-        },
-      ],
-    };
-
-    conditions.push(
-      userCondition,
-      joinedCommunityCondition,
-      followingCommunityCondition
+    const conditions = getFollowingFeedConditions(
+      user,
+      connections,
+      joinedCommunities,
+      followingCommunities
     );
 
-    const finalConditions = { $or: conditions };
-
-    const posts = await retrievePosts(finalConditions, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -737,4 +663,94 @@ function extractOtherUserFromConnections(
   });
 
   return output;
+}
+
+function getFollowingFeedConditions(
+  user: { [key: string]: any; accountType: string },
+  connections: string[],
+  joinedCommunities: string[],
+  followingCommunities: string[]
+) {
+  // retrieve all posts from these groups. Sort by timestamp.
+  const conditions = [];
+  const userCondition = {
+    $and: [
+      { user: { $in: connections } },
+      { toCommunity: null },
+      { fromCommunity: null },
+      { type: { $eq: 'broadcast' } },
+    ],
+  };
+
+  const internalPostCondition =
+    user.accountType === 'student'
+      ? // Post is type internal_student and user is student and to is in joined list
+        {
+          $and: [
+            { type: { $eq: 'internalCurrent' } },
+            { toCommunity: { $in: joinedCommunities } },
+          ],
+        }
+      : // Post is type internal_alumni and user is not student and to is in joined list
+        {
+          $and: [
+            { type: { $eq: 'internalAlumni' } },
+            { toCommunity: { $in: joinedCommunities } },
+          ],
+        };
+
+  const joinedCommunityCondition = {
+    $or: [
+      // Post is type external and (to is in joined list or from is in joined list)
+      {
+        $and: [
+          { type: { $eq: 'external' } },
+          {
+            $or: [
+              { toCommunity: { $in: joinedCommunities } },
+              { fromCommunity: { $in: joinedCommunities } },
+            ],
+          },
+        ],
+      },
+
+      internalPostCondition,
+      // Post is type broadcast, and from is in joined list
+      {
+        $and: [
+          { type: { $eq: 'broadcast' } },
+          { fromCommunity: { $in: joinedCommunities } },
+        ],
+      },
+    ],
+  };
+
+  const followingCommunityCondition = {
+    $or: [
+      //Post is type external, to is in following list
+      {
+        $and: [
+          { type: { $eq: 'external' } },
+          { toCommunity: { $in: followingCommunities } },
+        ],
+      },
+      //Post is type broadcast, from is in following list
+      {
+        $and: [
+          { type: { $eq: 'broadcast' } },
+          { fromCommunity: { $in: followingCommunities } },
+        ],
+      },
+    ],
+  };
+
+  conditions.push(
+    userCondition,
+    joinedCommunityCondition,
+    followingCommunityCondition
+  );
+
+  const finalConditions = { $or: conditions };
+
+  return finalConditions;
 }
