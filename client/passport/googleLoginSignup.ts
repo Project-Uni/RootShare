@@ -9,6 +9,8 @@ const {
   sendExternalAdditionConfirmation,
 } = require('../interactions/registration/email-confirmation');
 
+const PURDUE_ID = '5eb89c308cc6636630c1311f';
+
 module.exports = (passport) => {
   passport.use(
     'google-login',
@@ -90,6 +92,9 @@ module.exports = (passport) => {
     newUser.lastName = lastName;
     newUser.email = email;
     newUser.googleID = googleID;
+    // Set these as defaults until they're changed by the user
+    newUser.university = PURDUE_ID;
+    newUser.accountType = 'student';
 
     // save the user
     await newUser.save((err) => {

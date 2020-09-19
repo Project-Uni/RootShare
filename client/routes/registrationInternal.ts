@@ -123,16 +123,14 @@ module.exports = (app) => {
 
   app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
     const email = req.user.email;
-    const regComplete = req.user.work !== undefined;
-    const externalComplete = req.user.university !== undefined;
 
     let check = await userExists(email.toLowerCase());
     if (check) {
       res.json(
         sendPacket(1, 'Sending back current user', {
-          email: email,
-          regComplete: regComplete,
-          externalComplete: externalComplete,
+          email,
+          regComplete: req.user.work !== undefined,
+          externalComplete: req.user.externalComplete,
           firstName: req.user.firstName,
           lastName: req.user.lastName,
           _id: req.user._id,
