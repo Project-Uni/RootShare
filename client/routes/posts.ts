@@ -100,7 +100,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
-      const { commuityID } = req.params;
+      const { communityID } = req.params;
       const userID = req.user._id;
       const { message } = req.body;
 
@@ -109,7 +109,7 @@ export default function postsRoutes(app) {
 
       const packet = await createExternalPostAsCommunityAdmin(
         userID,
-        commuityID,
+        communityID,
         message
       );
       return res.json(packet);
@@ -185,14 +185,14 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
-      const { commuityID } = req.params;
+      const { communityID } = req.params;
       const userID = req.user._id;
       const { message } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await broadcastAsCommunityAdmin(userID, commuityID, message);
+      const packet = await broadcastAsCommunityAdmin(userID, communityID, message);
       return res.json(packet);
     }
   );
@@ -201,14 +201,14 @@ export default function postsRoutes(app) {
     '/api/posts/community/:communityID/external/member',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { commuityID } = req.params;
+      const { communityID } = req.params;
       const userID = req.user._id;
       const { message } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await createExternalPostAsMember(userID, commuityID, message);
+      const packet = await createExternalPostAsMember(userID, communityID, message);
       return res.json(packet);
     }
   );

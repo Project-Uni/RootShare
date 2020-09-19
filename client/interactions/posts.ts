@@ -459,7 +459,7 @@ export async function createExternalPostAsCommunityAdmin(
 
     await Community.updateOne(
       { _id: communityID },
-      { $push: { externaledPosts: post._id } }
+      { $push: { externalPosts: post._id } }
     );
 
     log(
@@ -656,6 +656,7 @@ async function retrievePosts(
         likes: { $size: '$likes' },
         createdAt: '$createdAt',
         updatedAt: '$updatedAt',
+        anonymous: '$anonymous',
         user: {
           _id: '$user._id',
           firstName: '$user.firstName',
@@ -718,7 +719,9 @@ async function getExternalPostsNonMember_Helper(
     const community = await Community.findOne({
       _id: communityID,
       $elemMatch: { followedByCommunities: { $in: user.joinedCommunities } },
-    }).select('externalPosts');
+    })
+      .select('externalPosts')
+      .exec();
     if (!community) return sendPacket(0, 'Community does not exist');
 
     // Retrieve all posts from external feed

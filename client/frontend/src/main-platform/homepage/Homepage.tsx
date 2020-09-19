@@ -51,7 +51,7 @@ function Homepage(props: Props) {
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
         console.log('User is authenticated');
-        // await fetchData();a
+        await fetchData();
         await testPosts();
         setLoading(false);
       } else {
@@ -92,7 +92,6 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-
     //GET ALL INTERNAL CURRENT MEMBER POSTS
     // const { data: d2 } = await makeRequest(
     //   'GET',
@@ -102,7 +101,6 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-
     //CREATE INTERNAL ALUMNI POST
     // const { data: d3 } = await makeRequest(
     //   'POST',
@@ -112,7 +110,6 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-
     //GET ALL INTERNAL CURRENT ALUMNI POSTS
     // const { data: d4 } = await makeRequest(
     //   'GET',
@@ -122,15 +119,64 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-
-    const { data: d5 } = await makeRequest(
+    //NEW
+    //GET FOLLOWING FEED
+    // const { data: d5 } = await makeRequest(
+    //   'GET',
+    //   '/api/posts/feed/following',
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE EXTERNAL POST AS ADMIN - tested
+    // const { data: d6 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/admin`,
+    //   { message: 'Testing external as alumni' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE EXTERNAL POST AS FOLLOWING COMMUNITY ADMIN
+    // const { data: d7 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/following`,
+    //   {
+    //     message: 'Testing external as alumni',
+    //     fromCommunityID: '5f5673beabbed8044a2496e2',
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //GET EXTERNAL FEED
+    const { data: d8 } = await makeRequest(
       'GET',
-      '/api/posts/feed/following',
+      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external`,
       {},
       true,
       props.accessToken,
       props.refreshToken
     );
+    //BROADCAST AS COMMUNITY ADMIN - Tested
+    // const { data: d9 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/broadcast`,
+    //   { message: 'Testing broadcast as admin' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE POST EXTERNAL POST AS MEMBER - Tested
+    // const { data: d10 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/member`,
+    //   { message: 'External member post test' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
   }
 
   async function fetchData() {
