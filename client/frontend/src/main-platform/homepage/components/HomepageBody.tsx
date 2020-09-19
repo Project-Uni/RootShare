@@ -86,7 +86,7 @@ function HomepageBody(props: Props) {
   async function getGeneralFeed() {
     const { data } = await makeRequest(
       'GET',
-      //   '/api/posts/feed/general',
+      // '/api/posts/feed/general',
       '/api/posts/feed/following',
       {},
       true,
