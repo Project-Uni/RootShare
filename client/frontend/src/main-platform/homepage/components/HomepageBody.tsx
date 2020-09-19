@@ -149,6 +149,8 @@ function HomepageBody(props: Props) {
           commentCount={0}
           style={styles.postStyle}
           key={posts[i]._id}
+          toCommunity={posts[i].toCommunity.name}
+          toCommunityID={posts[i].toCommunity._id}
         />
       );
     }

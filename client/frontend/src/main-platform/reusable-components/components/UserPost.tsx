@@ -123,8 +123,8 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 type Props = {
   userID: string;
   userName: string;
-  community?: string;
-  communityID?: string;
+  toCommunity?: string;
+  toCommunityID?: string;
   timestamp: string;
   profilePicture: any;
   message: string;
@@ -191,7 +191,7 @@ function UserPost(props: Props) {
               </RSText>
             </a>
 
-            {props.community && (
+            {props.toCommunity && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}
@@ -199,11 +199,11 @@ function UserPost(props: Props) {
                   className={styles.plantIcon}
                 />
                 <a
-                  href={`/community/${props.communityID}`}
+                  href={`/community/${props.toCommunityID}`}
                   className={styles.noUnderline}
                 >
                   <RSText type="subhead" color={colors.secondary} bold size={14}>
-                    {props.community}
+                    {props.toCommunity}
                   </RSText>
                 </a>
               </>
