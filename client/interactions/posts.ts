@@ -19,40 +19,12 @@ export async function createBroadcastUserPost(message: string, userID: string) {
 
 export async function getGeneralFeed(universityID: string) {
   try {
-    const posts = await Post.aggregate([
-      {
-        $match: {
-          university: universityID,
-          toCommunity: null,
-          type: { $eq: 'broadcast' },
-        },
-      },
-      { $sort: { createdAt: -1 } },
-      { $limit: NUM_POSTS_RETRIEVED },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-          },
-        },
-      },
-    ]).exec();
+    const condition = {
+      university: universityID,
+      toCommunity: null,
+      type: { $eq: 'broadcast' },
+    };
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -181,64 +153,9 @@ export async function getFollowingFeed(userID: string) {
       followingCommunityCondition
     );
 
-    const posts = await Post.aggregate([
-      { $match: { $or: conditions } },
-      { $sort: { createdAt: -1 } },
-      { $skip: numSkipped },
-      { $limit: NUM_POSTS_RETRIEVED },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      {
-        $lookup: {
-          from: 'communities',
-          localField: 'fromCommunity',
-          foreignField: '_id',
-          as: 'fromCommunity',
-        },
-      },
-      {
-        $lookup: {
-          from: 'communities',
-          localField: 'toCommunity',
-          foreignField: '_id',
-          as: 'toCommunity',
-        },
-      },
-      { $unwind: '$user' },
-      { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          anonymous: '$anonymous',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-          },
-          toCommunity: {
-            _id: '$toCommunity._id',
-            name: '$toCommunity.name',
-            profilePicture: '$toComunity.profilePicture',
-          },
-          fromCommunity: {
-            _id: '$fromCommunity._id',
-            name: '$fromCommunity.name',
-            profilePicture: '$fromComunity.profilePicture',
-          },
-        },
-      },
-    ]).exec();
+    const finalConditions = { $or: conditions };
+
+    const posts = await retrievePosts(finalConditions, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -269,7 +186,9 @@ export async function getPostsByUser(userID: string) {
     const user = await User.findById(userID).select(['broadcastedPosts']).exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
-    const posts = await retrievePosts(user.broadcastedPosts, NUM_POSTS_RETRIEVED);
+    const condition = { _id: { $in: user.broadcastedPosts } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
@@ -428,10 +347,9 @@ export async function getInternalCurrentMemberPosts(
   }
 
   try {
-    const posts = await retrievePosts(
-      community.internalCurrentMemberPosts,
-      NUM_POSTS_RETRIEVED
-    );
+    const condition = { _id: { $in: community.internalCurrentMemberPosts } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -487,10 +405,9 @@ export async function getInternalAlumniPosts(
   }
 
   try {
-    const posts = await retrievePosts(
-      community.internalAlumniPosts,
-      NUM_POSTS_RETRIEVED
-    );
+    const condition = { _id: { $in: community.internalAlumniPosts } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
 
@@ -678,13 +595,13 @@ function generateSignedImagePromises(posts: {
 }
 
 async function retrievePosts(
-  IDList: string[],
+  condition: { [key: string]: any },
   numRetrieved: number,
   numSkipped: number = 0 //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
 ) {
   const posts = await Post.aggregate([
-    { $match: { _id: { $in: IDList } } },
+    { $match: condition },
     { $sort: { createdAt: -1 } },
     { $skip: numSkipped },
     { $limit: numRetrieved },
@@ -696,7 +613,25 @@ async function retrievePosts(
         as: 'user',
       },
     },
+    {
+      $lookup: {
+        from: 'communities',
+        localField: 'fromCommunity',
+        foreignField: '_id',
+        as: 'fromCommunity',
+      },
+    },
+    {
+      $lookup: {
+        from: 'communities',
+        localField: 'toCommunity',
+        foreignField: '_id',
+        as: 'toCommunity',
+      },
+    },
     { $unwind: '$user' },
+    { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
     {
       $project: {
         message: '$message',
@@ -708,6 +643,16 @@ async function retrievePosts(
           firstName: '$user.firstName',
           lastName: '$user.lastName',
           profilePicture: '$user.profilePicture',
+        },
+        toCommunity: {
+          _id: '$toCommunity._id',
+          name: '$toCommunity.name',
+          profilePicture: '$toComunity.profilePicture',
+        },
+        fromCommunity: {
+          _id: '$fromCommunity._id',
+          name: '$fromCommunity.name',
+          profilePicture: '$fromComunity.profilePicture',
         },
       },
     },
@@ -723,7 +668,9 @@ async function getExternalPostsMember_Helper(communityID: string) {
       .exec();
     if (!community) return sendPacket(0, 'Community does not exist');
 
-    const posts = await retrievePosts(community.externalPosts, NUM_POSTS_RETRIEVED);
+    const condition = { _id: { $in: community.externalPosts } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
     const imagePromises = generateSignedImagePromises(posts);
     return Promise.all(imagePromises).then((signedImageURLs) => {
@@ -757,7 +704,9 @@ async function getExternalPostsNonMember_Helper(
     if (!community) return sendPacket(0, 'Community does not exist');
 
     // Retrieve all posts from external feed
-    const posts = await retrievePosts(community.externalPosts, NUM_POSTS_RETRIEVED);
+
+    const condition = { _id: { $in: community.externalPosts } };
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
     const imagePromises = await generateSignedImagePromises(posts);
 
     return Promise.all(imagePromises).then((signedImageURLs) => {
