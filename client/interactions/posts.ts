@@ -671,12 +671,12 @@ async function retrievePosts(
         toCommunity: {
           _id: '$toCommunity._id',
           name: '$toCommunity.name',
-          profilePicture: '$toComunity.profilePicture',
+          profilePicture: '$toCommunity.profilePicture',
         },
         fromCommunity: {
           _id: '$fromCommunity._id',
           name: '$fromCommunity.name',
-          profilePicture: '$fromComunity.profilePicture',
+          profilePicture: '$fromCommunity.profilePicture',
         },
       },
     },
