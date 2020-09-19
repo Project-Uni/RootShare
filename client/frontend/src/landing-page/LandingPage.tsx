@@ -64,7 +64,7 @@ function LandingPage(props: Props) {
     window.innerHeight >= MIN_HEIGHT ? window.innerHeight : MIN_HEIGHT
   );
 
-  const redirectURL = '/event/5f502ef670f5ff2eaa1f8e9a';
+  const redirectURL = '/home';
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
