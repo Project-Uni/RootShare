@@ -129,6 +129,9 @@ function SingleSuggestion(props: Props) {
 
   function renderSuggestion() {
     const university = props.suggestedUser.university as UniversityType;
+    const universityName = university.nickName
+      ? university.nickName
+      : university.universityName;
 
     return (
       <div id="suggestionWrapper" className={styles.wrapper}>
@@ -141,7 +144,7 @@ function SingleSuggestion(props: Props) {
           </div>
           <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
-              {university.universityName} |{' '}
+              {universityName} |{' '}
               {capitalizeFirstLetter(props.suggestedUser.accountType)}
             </RSText>
           </div>

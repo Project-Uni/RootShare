@@ -143,6 +143,9 @@ function SinglePendingConnection(props: Props) {
   function renderPending() {
     const requestUser = props.connectionRequest.from as UserType;
     const requestUserUniversity = requestUser.university as UniversityType;
+    const universityName = requestUserUniversity.nickName
+      ? requestUserUniversity.nickName
+      : requestUserUniversity.universityName;
 
     return (
       <div className={styles.wrapper}>
@@ -155,8 +158,7 @@ function SinglePendingConnection(props: Props) {
           </div>
           <div className={styles.bottom}>
             <RSText size={11} italic={true} className={styles.organization}>
-              {requestUserUniversity.universityName} |{' '}
-              {capitalizeFirstLetter(requestUser.accountType)}
+              {universityName} | {capitalizeFirstLetter(requestUser.accountType)}
             </RSText>
           </div>
         </div>

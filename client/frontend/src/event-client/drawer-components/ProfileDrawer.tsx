@@ -526,7 +526,7 @@ function ProfileDrawer(props: Props) {
           onChange={handleCollegeChange}
           label="University"
         >
-          <MenuItem value={'Purdue'}>Purdue</MenuItem>
+          <MenuItem value={'Purdue University'}>Purdue University</MenuItem>
         </Select>
         <Select
           className={styles.selectCollege}
