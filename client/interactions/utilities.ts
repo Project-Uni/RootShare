@@ -249,3 +249,32 @@ export async function addProfilePictureToUser(user) {
 
   user.profilePicture = profilePicture;
 }
+
+export function generateSignedImagePromises(
+  entityList: {
+    [key: string]: any;
+    profilePicture?: string;
+  },
+  imageType: 'profile' | 'communityProfile'
+) {
+  const profilePicturePromises = [];
+
+  for (let i = 0; i < entityList.length; i++) {
+    if (entityList[i].profilePicture) {
+      try {
+        const signedImageURLPromise = retrieveSignedUrl(
+          imageType,
+          entityList[i].profilePicture
+        );
+        profilePicturePromises.push(signedImageURLPromise);
+      } catch (err) {
+        profilePicturePromises.push(null);
+        log('error', 'There was an error retrieving a signed url from S3');
+      }
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+
+  return profilePicturePromises;
+}

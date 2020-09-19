@@ -144,7 +144,7 @@ export async function getLatestThreads(userID, callback) {
     );
 
   userConversations.sort(timeStampCompare);
-  await addProfilePictureToUsers(userID, userConversations);
+  await addProfilePictureToConversations(userID, userConversations);
   callback(
     sendPacket(1, "Sending User's Conversations", {
       userConversations,
@@ -152,7 +152,7 @@ export async function getLatestThreads(userID, callback) {
   );
 }
 
-function addProfilePictureToUsers(userID, conversations) {
+function addProfilePictureToConversations(userID, conversations) {
   const imagePromises = [];
   conversations.forEach((conversation) => {
     if (conversation.participants.length === 2) {
@@ -182,10 +182,8 @@ function addProfilePictureToUsers(userID, conversations) {
   return Promise.all(imagePromises)
     .then((signedImageURLs) => {
       for (let i = 0; i < conversations.length; i++)
-        if (signedImageURLs[i]) {
+        if (signedImageURLs[i])
           conversations[i].conversationPicture = signedImageURLs[i];
-          console.log(conversations[i].conversationPicture);
-        }
     })
     .catch((err) => {
       log('error', err);

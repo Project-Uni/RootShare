@@ -6,6 +6,7 @@ import {
   extractOtherUserIDFromConnections,
   addCalculatedUserFields,
   addProfilePictureToUser,
+  generateSignedImagePromises,
 } from './utilities';
 
 export function getCurrentUser(user, callback) {
@@ -315,16 +316,19 @@ export function getConnections(userID, callback) {
       if (!user || user.length === 0)
         return callback(sendPacket(-1, 'Could not find connections'));
 
-      let connections = user[0].connections;
-      for (let i = 0; i < connections.length; i++) {
-        await addProfilePictureToUser(connections[i]);
-      }
+      const connections = user[0].connections;
+      const imagePromises = generateSignedImagePromises(connections, 'profile');
+      Promise.all(imagePromises)
+        .then((signedImageURLs) => {
+          for (let i = 0; i < connections.length; i++)
+            if (signedImageURLs[i])
+              connections[i].profilePicture = signedImageURLs[i];
 
-      callback(
-        sendPacket(1, "Sending User's Connections", {
-          connections: user[0]['connections'],
+          callback(sendPacket(1, "Sending User's Connections", { connections }));
         })
-      );
+        .catch((err) => {
+          log('error', err);
+        });
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
