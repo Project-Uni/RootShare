@@ -150,15 +150,15 @@ function Homepage(props: Props) {
     //   props.accessToken,
     //   props.refreshToken
     // );
-    //GET EXTERNAL FEED
-    const { data: d8 } = await makeRequest(
-      'GET',
-      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    //GET EXTERNAL FEED - Tested
+    // const { data: d8 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
     //BROADCAST AS COMMUNITY ADMIN - Tested
     // const { data: d9 } = await makeRequest(
     //   'POST',

@@ -31,7 +31,12 @@ export async function getGeneralFeed(universityID: string) {
     return Promise.all(imagePromises)
       .then((signedImageURLs) => {
         for (let i = 0; i < posts.length; i++)
-          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
+          if (signedImageURLs[i]) {
+            const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+            if (pictureType === 'profile')
+              posts[i].user.profilePicture = signedImageURLs[i];
+            else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+          }
 
         return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
       })
