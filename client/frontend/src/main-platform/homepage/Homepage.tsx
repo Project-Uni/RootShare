@@ -83,10 +83,12 @@ function Homepage(props: Props) {
   }
 
   async function testPosts() {
+    const communityID = '5f3feed3cf316529bb10485f';
+    const followingCommunityID = '5f5673beabbed8044a2496e2';
     //CREATE INTERNAL CURRENT POST
     // const { data: d1 } = await makeRequest(
     //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
+    //   `/api/posts/community/${communityID}/internal/current`,
     //   { message: 'Internal current member test post' },
     //   true,
     //   props.accessToken,
@@ -95,7 +97,7 @@ function Homepage(props: Props) {
     //GET ALL INTERNAL CURRENT MEMBER POSTS
     // const { data: d2 } = await makeRequest(
     //   'GET',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/current`,
+    //   `/api/posts/community/${communityID}/internal/current`,
     //   {},
     //   true,
     //   props.accessToken,
@@ -104,7 +106,7 @@ function Homepage(props: Props) {
     //CREATE INTERNAL ALUMNI POST
     // const { data: d3 } = await makeRequest(
     //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
+    //   `/api/posts/community/${communityID}/internal/alumni`,
     //   { message: 'Internal alumni test post' },
     //   true,
     //   props.accessToken,
@@ -113,13 +115,12 @@ function Homepage(props: Props) {
     //GET ALL INTERNAL CURRENT ALUMNI POSTS
     // const { data: d4 } = await makeRequest(
     //   'GET',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/internal/alumni`,
+    //   `/api/posts/community/${communityID}/internal/alumni`,
     //   {},
     //   true,
     //   props.accessToken,
     //   props.refreshToken
     // );
-    //NEW
     // GET FOLLOWING FEED - Tested
     // const { data: d5 } = await makeRequest(
     //   'GET',
@@ -132,28 +133,28 @@ function Homepage(props: Props) {
     //CREATE EXTERNAL POST AS ADMIN - tested
     // const { data: d6 } = await makeRequest(
     //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/admin`,
+    //   `/api/posts/community/${communityID}/external/admin`,
     //   { message: 'Testing external as alumni' },
     //   true,
     //   props.accessToken,
     //   props.refreshToken
     // );
     //CREATE EXTERNAL POST AS FOLLOWING COMMUNITY ADMIN - tested
-    const { data: d7 } = await makeRequest(
-      'POST',
-      `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/following`,
-      {
-        message: 'Testing external as alumni',
-        fromCommunityID: '5f5673beabbed8044a2496e2',
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    // const { data: d7 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/external/following`,
+    //   {
+    //     message: 'Testing external as alumni',
+    //     fromCommunityID: followingCommunityID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
     //GET EXTERNAL FEED - Tested
     // const { data: d8 } = await makeRequest(
     //   'GET',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external`,
+    //   `/api/posts/community/${communityID}/external`,
     //   {},
     //   true,
     //   props.accessToken,
@@ -162,7 +163,7 @@ function Homepage(props: Props) {
     //BROADCAST AS COMMUNITY ADMIN - Tested
     // const { data: d9 } = await makeRequest(
     //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/broadcast`,
+    //   `/api/posts/community/${communityID}/broadcast`,
     //   { message: 'Testing broadcast as admin' },
     //   true,
     //   props.accessToken,
@@ -171,7 +172,7 @@ function Homepage(props: Props) {
     //CREATE POST EXTERNAL POST AS MEMBER - Tested
     // const { data: d10 } = await makeRequest(
     //   'POST',
-    //   `/api/posts/community/${'5f3feed3cf316529bb10485f'}/external/member`,
+    //   `/api/posts/community/${communityID}/external/member`,
     //   { message: 'External member post test' },
     //   true,
     //   props.accessToken,

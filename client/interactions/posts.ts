@@ -660,6 +660,7 @@ async function retrievePosts(
         likes: { $size: '$likes' },
         createdAt: '$createdAt',
         updatedAt: '$updatedAt',
+        type: '$type',
         anonymous: '$anonymous',
         user: {
           _id: '$user._id',
