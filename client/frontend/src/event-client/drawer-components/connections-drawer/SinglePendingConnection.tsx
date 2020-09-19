@@ -143,8 +143,8 @@ function SinglePendingConnection(props: Props) {
   function renderPending() {
     const requestUser = props.connectionRequest.from as UserType;
     const requestUserUniversity = requestUser.university as UniversityType;
-    const universityName = requestUserUniversity.nickName
-      ? requestUserUniversity.nickName
+    const universityName = requestUserUniversity.nickname
+      ? requestUserUniversity.nickname
       : requestUserUniversity.universityName;
 
     return (

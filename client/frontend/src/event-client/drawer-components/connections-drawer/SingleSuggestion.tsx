@@ -129,8 +129,8 @@ function SingleSuggestion(props: Props) {
 
   function renderSuggestion() {
     const university = props.suggestedUser.university as UniversityType;
-    const universityName = university.nickName
-      ? university.nickName
+    const universityName = university.nickname
+      ? university.nickname
       : university.universityName;
 
     return (

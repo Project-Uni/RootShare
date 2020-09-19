@@ -288,7 +288,7 @@ export function getConnections(userID, callback) {
             university: {
               _id: '$university._id',
               universityName: '$university.universityName',
-              nickName: '$university.nickName',
+              nickname: '$university.nickname',
             },
           },
         },
@@ -341,7 +341,7 @@ export function getConnectionSuggestions(userID, callback) {
         university: {
           _id: '$university._id',
           universityName: '$university.universityName',
-          nickName: '$university.nickName',
+          nickname: '$university.nickname',
         },
       },
     },
@@ -440,7 +440,7 @@ export function getPendingRequests(userID, callback) {
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
-                      nickName: '$university.nickName',
+                      nickname: '$university.nickname',
                     },
                   },
                 },
