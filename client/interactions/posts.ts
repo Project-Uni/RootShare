@@ -443,9 +443,76 @@ export async function createExternalPostAsFollowingCommunityAdmin(
   }
 }
 
-export async function createExternalPostAsCommunityAdmin() {}
+export async function createExternalPostAsCommunityAdmin(
+  userID: string,
+  communityID: string,
+  message: string
+) {
+  try {
+    const post = await new Post({
+      user: userID,
+      message,
+      toCommunity: communityID,
+      anonymous: true,
+      type: 'external',
+    }).save();
 
-export async function createExternalPostAsMember() {}
+    await Community.updateOne(
+      { _id: communityID },
+      { $push: { externaledPosts: post._id } }
+    );
+
+    log(
+      'info',
+      `Created external post ${post._id} for community ${communityID} as admin ${userID}`
+    );
+    return sendPacket(1, 'Successfully created external post', { post });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function createExternalPostAsMember(
+  userID: string,
+  communityID: string,
+  message: string
+) {
+  try {
+    const communityExists = await Community.exists({
+      $and: [
+        { _id: communityID },
+        { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } },
+      ],
+    });
+    if (!communityExists)
+      return sendPacket(
+        0,
+        'The community does not exist or the user is not a member of the community'
+      );
+
+    const post = await new Post({
+      user: userID,
+      message,
+      toCommunity: communityID,
+      type: 'external',
+    }).save();
+
+    await Community.updateOne(
+      { _id: communityID },
+      { $push: { externalPosts: post._id } }
+    );
+
+    log(
+      'info',
+      `Created external post ${post._id} for community ${communityID} as user ${userID}`
+    );
+    return sendPacket(1, 'Successfully created external post', { post });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error.', { err });
+  }
+}
 
 export async function getExternalPosts(communityID: string, userID: string) {
   try {
@@ -464,7 +531,32 @@ export async function getExternalPosts(communityID: string, userID: string) {
   }
 }
 
-export async function broadcastAsCommunityAdmin() {}
+export async function broadcastAsCommunityAdmin(
+  userID: string,
+  communityID: string,
+  message: string
+) {
+  try {
+    const post = await new Post({
+      user: userID,
+      message,
+      fromCommunity: communityID,
+      anonymous: true,
+      type: 'broadcast',
+    }).save();
+
+    await Community.updateOne(
+      { _id: communityID },
+      { $push: { broadcastedPosts: post._id } }
+    );
+
+    log('info', `Broadcasted post ${post._id} as community ${communityID}`);
+    return sendPacket(1, 'Successfully broadcasted post', { post });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
 
 //Helpers
 async function getValidatedCommunity(
