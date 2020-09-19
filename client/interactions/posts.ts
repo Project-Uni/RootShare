@@ -181,6 +181,7 @@ export async function getFollowingFeed(userID: string) {
       followingCommunityCondition
     );
 
+    //NOTE - Community lookup is not working
     const posts = await Post.aggregate([
       { $match: { $or: conditions } },
       { $sort: { createdAt: -1 } },
@@ -194,7 +195,25 @@ export async function getFollowingFeed(userID: string) {
           as: 'user',
         },
       },
+      {
+        $lookup: {
+          from: 'communities',
+          localField: 'fromCommunity',
+          foreignField: '_id',
+          as: 'fromCommunity',
+        },
+      },
+      {
+        $lookup: {
+          from: 'communities',
+          localField: 'toCommunity',
+          foreignField: '_id',
+          as: 'toCommunity',
+        },
+      },
       { $unwind: '$user' },
+      { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
       {
         $project: {
           message: '$message',
@@ -207,6 +226,16 @@ export async function getFollowingFeed(userID: string) {
             firstName: '$user.firstName',
             lastName: '$user.lastName',
             profilePicture: '$user.profilePicture',
+          },
+          toCommunity: {
+            _id: '$toCommunity._id',
+            name: '$toCommunity.name',
+            profilePicture: '$toComunity.profilePicture',
+          },
+          fromCommunity: {
+            _id: '$fromCommunity._id',
+            name: '$fromCommunity.name',
+            profilePicture: '$fromComunity.profilePicture',
           },
         },
       },
