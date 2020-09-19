@@ -173,7 +173,10 @@ function UserPost(props: Props) {
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a href={`/profile/${props._id}`} className={styles.noUnderline}>
+        <a
+          href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+          className={styles.noUnderline}
+        >
           <ProfilePicture
             height={50}
             width={50}
@@ -186,7 +189,10 @@ function UserPost(props: Props) {
 
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
-            <a href={`/profile/${props._id}`} className={styles.noUnderline}>
+            <a
+              href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+              className={styles.noUnderline}
+            >
               <RSText type="subhead" color={colors.secondary} bold size={14}>
                 {props.name}
               </RSText>
