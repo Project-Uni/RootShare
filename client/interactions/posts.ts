@@ -181,7 +181,6 @@ export async function getFollowingFeed(userID: string) {
       followingCommunityCondition
     );
 
-    //NOTE - Community lookup is not working
     const posts = await Post.aggregate([
       { $match: { $or: conditions } },
       { $sort: { createdAt: -1 } },
@@ -241,13 +240,24 @@ export async function getFollowingFeed(userID: string) {
       },
     ]).exec();
 
-    //TODO figure out image logic, different for community. This is also might not work for community broadcasted post b/c no user
+    const imagePromises = generateSignedImagePromises(posts);
 
-    log('info', `Retrieved following feed for user ${userID}`);
-
-    return sendPacket(1, 'Successfully retrieved following feed for current user', {
-      posts,
-    });
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < posts.length; i++)
+          if (signedImageURLs[i]) {
+            const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+            if (pictureType === 'profile')
+              posts[i].user.profilePicture = signedImageURLs[i];
+            else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+          }
+        log('info', `Retrieved following feed for user ${userID}`);
+        return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -642,12 +652,19 @@ function generateSignedImagePromises(posts: {
   const profilePicturePromises = [];
 
   for (let i = 0; i < posts.length; i++) {
-    if (posts[i].user.profilePicture) {
+    const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+
+    if (
+      (pictureType === 'profile' && posts[i].user.profilePicture) ||
+      (pictureType === 'communityProfile' && posts[i].fromCommunity.profilePicture)
+    ) {
+      const picturePath =
+        pictureType === 'profile'
+          ? posts[i].user.profilePicture
+          : posts[i].fromCommunity.profilePicture;
+
       try {
-        const signedImageUrlPromise = retrieveSignedUrl(
-          'profile',
-          posts[i].user.profilePicture
-        );
+        const signedImageUrlPromise = retrieveSignedUrl(pictureType, picturePath);
         profilePicturePromises.push(signedImageUrlPromise);
       } catch (err) {
         log('error', err);
