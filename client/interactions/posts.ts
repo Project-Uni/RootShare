@@ -74,14 +74,11 @@ export async function getGeneralFeed(universityID: string) {
 }
 
 export async function getFollowingFeed(userID: string) {
-  //TODO
-
-  //Step 2 - retrieve all posts from these groups. Sort by timestamp.
-  // Step 3 return the posts
+  const numSkipped = 0;
   try {
     //Get users connections, communities, and all communities that those communities are following
     const user = await User.findById(userID)
-      .select(['joinedCommunities', 'connections'])
+      .select(['joinedCommunities', 'connections', 'accountType'])
       .populate({ path: 'connections', select: 'from to' })
       .populate({
         path: 'joinedCommunities',
@@ -105,11 +102,123 @@ export async function getFollowingFeed(userID: string) {
       });
     });
 
-    console.log('Connections:', connections);
-    console.log('Joined Communities:', joinedCommunities);
-    console.log('Following Communities:', followingCommunities);
+    // retrieve all posts from these groups. Sort by timestamp.
+    const conditions = [];
+    const userCondition = {
+      $and: [
+        { user: { $in: connections } },
+        { toCommunity: null },
+        { fromCommunity: null },
+        { type: { $eq: 'broadcast' } },
+      ],
+    };
 
-    return sendPacket(1, 'Test worked');
+    const internalPostCondition =
+      user.accountType === 'student'
+        ? // Post is type internal_student and user is student and to is in joined list
+          {
+            $and: [
+              { type: { $eq: 'internalCurrent' } },
+              { toCommunity: { $in: joinedCommunities } },
+            ],
+          }
+        : // Post is type internal_alumni and user is not student and to is in joined list
+          {
+            $and: [
+              { type: { $eq: 'internalAlumni' } },
+              { toCommunity: { $in: joinedCommunities } },
+            ],
+          };
+
+    const joinedCommunityCondition = {
+      $or: [
+        // Post is type external and (to is in joined list or from is in joined list)
+        {
+          $and: [
+            { type: { $eq: 'external' } },
+            {
+              $or: [
+                { toCommunity: { $in: joinedCommunities } },
+                { fromCommunity: { $in: joinedCommunities } },
+              ],
+            },
+          ],
+        },
+
+        internalPostCondition,
+        // Post is type broadcast, and from is in joined list
+        {
+          $and: [
+            { type: { $eq: 'broadcast' } },
+            { fromCommunity: { $in: joinedCommunities } },
+          ],
+        },
+      ],
+    };
+
+    const followingCommunityCondition = {
+      $or: [
+        //Post is type external, to is in following list
+        {
+          $and: [
+            { type: { $eq: 'external' } },
+            { toCommunity: { $in: followingCommunities } },
+          ],
+        },
+        //Post is type broadcast, from is in following list
+        {
+          $and: [
+            { type: { $eq: 'broadcast' } },
+            { fromCommunity: { $in: followingCommunities } },
+          ],
+        },
+      ],
+    };
+
+    conditions.push(
+      userCondition,
+      joinedCommunityCondition,
+      followingCommunityCondition
+    );
+
+    const posts = await Post.aggregate([
+      { $match: { $or: conditions } },
+      { $sort: { createdAt: -1 } },
+      { $skip: numSkipped },
+      { $limit: NUM_POSTS_RETRIEVED },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          anonymous: '$anonymous',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
+
+    //TODO figure out image logic, different for community. This is also might not work for community broadcasted post b/c no user
+
+    log('info', `Retrieved following feed for user ${userID}`);
+
+    return sendPacket(1, 'Successfully retrieved following feed for current user', {
+      posts,
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
