@@ -134,7 +134,7 @@ function Homepage(props: Props) {
     // const { data: d6 } = await makeRequest(
     //   'POST',
     //   `/api/posts/community/${communityID}/external/admin`,
-    //   { message: 'Testing external as alumni' },
+    //   { message: 'Testing external as admin' },
     //   true,
     //   props.accessToken,
     //   props.refreshToken
@@ -144,7 +144,7 @@ function Homepage(props: Props) {
     //   'POST',
     //   `/api/posts/community/${communityID}/external/following`,
     //   {
-    //     message: 'Testing external as alumni',
+    //     message: 'Testing external as following admin',
     //     fromCommunityID: followingCommunityID,
     //   },
     //   true,

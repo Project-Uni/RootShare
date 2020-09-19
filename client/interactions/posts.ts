@@ -456,7 +456,7 @@ export async function createExternalPostAsCommunityAdmin(
     const post = await new Post({
       user: userID,
       message,
-      toCommunity: communityID,
+      fromCommunity: communityID,
       anonymous: true,
       type: 'external',
     }).save();
