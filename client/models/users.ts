@@ -6,7 +6,12 @@ var userSchema = new Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, unique: true, required: true },
-    university: { type: Schema.ObjectId, ref: 'universities' },
+    university: {
+      type: Schema.ObjectId,
+      ref: 'universities',
+      required: true,
+      default: '5eb89c308cc6636630c1311f',
+    },
     accountType: { type: String },
     privilegeLevel: { type: Number, default: 1 },
     hashedPassword: String,
