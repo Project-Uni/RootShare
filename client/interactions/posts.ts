@@ -757,9 +757,8 @@ function extractOtherUserFromConnections(
   connections: { [key: string]: any; from: string; to: string }[],
   userID: string
 ) {
-  const userID_typed = mongoose.Types.ObjectId(userID);
   const output = connections.map((connection) => {
-    return connection.from != userID_typed ? connection.from : connection.to;
+    return connection.from.toString() != userID ? connection.from : connection.to;
   });
 
   return output;
