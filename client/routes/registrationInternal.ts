@@ -130,7 +130,7 @@ module.exports = (app) => {
         sendPacket(1, 'Sending back current user', {
           email,
           regComplete: req.user.work !== undefined,
-          externalComplete: req.user.externalComplete,
+          externalComplete: req.user.accountType !== undefined,
           firstName: req.user.firstName,
           lastName: req.user.lastName,
           _id: req.user._id,

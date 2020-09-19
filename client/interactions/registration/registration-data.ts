@@ -54,7 +54,6 @@ module.exports = {
     user.university = university;
     user.accountType = userData['accountType'];
     user.hashedPassword = hashPassword(userData['password']);
-    user.externalComplete = true;
 
     let outerErr = null;
     await user.save((err) => {

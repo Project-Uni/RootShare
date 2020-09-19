@@ -26,7 +26,6 @@ var userSchema = new Schema(
     sendEmails: { type: Boolean, required: true, default: true },
     confirmed: { type: Boolean, required: true, default: false },
     verified: { type: Boolean, required: true, default: false },
-    externalComplete: { type: Boolean, required: true, default: false },
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
     },

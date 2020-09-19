@@ -92,9 +92,8 @@ module.exports = (passport) => {
     newUser.lastName = lastName;
     newUser.email = email;
     newUser.googleID = googleID;
-    // Set these as defaults until they're changed by the user
+    // Set this as default until it's changed by the user
     newUser.university = PURDUE_ID;
-    newUser.accountType = 'student';
 
     // save the user
     await newUser.save((err) => {
