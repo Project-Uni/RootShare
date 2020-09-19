@@ -49,6 +49,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 4,
   },
   noUnderline: {
+    color: 'inherit',
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
