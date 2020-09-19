@@ -491,7 +491,9 @@ function ProfileHead(props: Props) {
       <div className={styles.headRight}>
         {renderConnectionButton()}
         <a
-          href={`/connections/${props.profileID}`}
+          href={`/connections/${
+            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+          }`}
           className={styles.navigationText}
         >
           <RSText
@@ -514,7 +516,9 @@ function ProfileHead(props: Props) {
           </RSText>
         )}
         <a
-          href={`/communities/${props.profileID}`}
+          href={`/communities/${
+            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+          }`}
           className={styles.navigationText}
         >
           <RSText

@@ -88,9 +88,7 @@ function Connections(props: Props) {
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="connections" />
         )}
-        <ConnectionsBody
-          requestUserID={userID === 'user' ? props.user._id : userID}
-        />
+        <ConnectionsBody requestUserID={userID} />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

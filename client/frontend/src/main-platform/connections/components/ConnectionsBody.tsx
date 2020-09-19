@@ -78,7 +78,9 @@ function ConnectionsBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.requestUserID}/connections`,
+      `/api/user/${
+        props.requestUserID === 'user' ? props.user._id : props.requestUserID
+      }/connections`,
       {},
       true,
       props.accessToken,

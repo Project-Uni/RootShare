@@ -980,3 +980,10 @@ export async function getConnectionsFullData(userID: string) {
     return sendPacket(-1, err);
   }
 }
+
+export async function getBasicUserInfo(userID: string) {
+  const user = await User.findById(userID).select(['firstName', 'lastName']).exec();
+  if (!user) return sendPacket(-1, 'Could not find user');
+  log('info', `Retrieved basic info for user ${userID}`);
+  return sendPacket(1, 'Found user info', { user });
+}
