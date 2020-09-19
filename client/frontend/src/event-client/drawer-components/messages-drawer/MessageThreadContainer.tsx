@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { CircularProgress, IconButton } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import { IoIosArrowBack } from 'react-icons/io';
-
-import { connect } from 'react-redux';
-import { makeRequest } from '../../../helpers/functions';
 
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
 import MessageTextField from './MessageTextField';
 import RSText from '../../../base-components/RSText';
-
 import { colors } from '../../../theme/Colors';
+
+import { updateCurrConversationID } from '../../../redux/actions/message';
+import { makeRequest } from '../../../helpers/functions';
 import { MessageType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
@@ -118,12 +118,19 @@ type Props = {
   returnToConversations: () => void;
   accessToken: string;
   refreshToken: string;
+  updateCurrConversationID: (currConversationID: string) => void;
 };
 
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    return () => {
+      props.updateCurrConversationID('');
+    };
+  }, []);
 
   useEffect(() => {
     if (props.messages && props.messages.length > 0) setLoading(false);
@@ -255,7 +262,11 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateCurrConversationID: (currConversationID: string) => {
+      dispatch(updateCurrConversationID(currConversationID));
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(MessageThreadContainer);
