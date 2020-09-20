@@ -3,10 +3,17 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { RSTabs } from '../../reusable-components';
-import { makeRequest } from '../../../helpers/functions';
+import { PostType } from '../../../helpers/types';
+
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
+
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+import { RSTabs, UserPost } from '../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -17,11 +24,15 @@ const useStyles = makeStyles((_: any) => ({
   errorContainer: {
     marginTop: 30,
   },
+  postStyle: {
+    borderBottom: `1px solid ${colors.fourth}`,
+  },
 }));
 
 type Props = {
   className?: string;
   communityID: string;
+  user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
 };
@@ -56,7 +67,7 @@ function CommunityBodyContent(props: Props) {
       props.refreshToken
     );
     if (data.success === 1) {
-      setPosts(data.content['posts']);
+      setPosts(createFeed(data.content['posts']));
     } else {
       setFetchErr(true);
     }
@@ -64,6 +75,51 @@ function CommunityBodyContent(props: Props) {
 
   function handleTabChange(newTab: string) {
     if (newTab !== selectedTab) setSelectedTab(newTab);
+  }
+
+  // function generatePosts(data: PostType[]) {
+  //   const output:  = [];
+  //   return output;
+  // }
+  function createFeed(posts: PostType[]) {
+    const output = [];
+    for (let i = 0; i < posts.length; i++) {
+      if (posts[i].anonymous) {
+        output.push(
+          <UserPost
+            _id={posts[i].fromCommunity._id}
+            name={`${posts[i].fromCommunity.name}`}
+            timestamp={`${formatDatePretty(
+              new Date(posts[i].createdAt)
+            )} at ${formatTime(new Date(posts[i].createdAt))}`}
+            profilePicture={posts[i].fromCommunity.profilePicture}
+            message={posts[i].message}
+            likeCount={posts[i].likes}
+            commentCount={0}
+            key={posts[i]._id}
+            anonymous
+            style={styles.postStyle}
+          />
+        );
+      } else {
+        output.push(
+          <UserPost
+            _id={posts[i].user._id}
+            name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+            timestamp={`${formatDatePretty(
+              new Date(posts[i].createdAt)
+            )} at ${formatTime(new Date(posts[i].createdAt))}`}
+            profilePicture={posts[i].user.profilePicture}
+            message={posts[i].message}
+            likeCount={posts[i].likes}
+            commentCount={0}
+            key={posts[i]._id}
+            style={styles.postStyle}
+          />
+        );
+      }
+    }
+    return output;
   }
 
   function renderBody() {
@@ -80,7 +136,12 @@ function CommunityBodyContent(props: Props) {
   }
 
   function renderExternal() {
-    return <div>External</div>;
+    return (
+      <div>
+        <p>External posts</p>
+        {posts}
+      </div>
+    );
   }
 
   function renderInternal() {
@@ -117,6 +178,7 @@ function CommunityBodyContent(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };
