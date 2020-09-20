@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost } from '../../reusable-components';
+import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 import {
@@ -58,6 +58,7 @@ function HomepageBody(props: Props) {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
   const [generalFeed, setGeneralFeed] = useState<JSX.Element[]>([]);
+  const [selectedTab, setSelectedTab] = useState('general');
 
   const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
 
@@ -112,6 +113,10 @@ function HomepageBody(props: Props) {
 
   function handleDiscoverClick() {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
+  }
+
+  function handleTabChange(newTab: string) {
+    setSelectedTab(newTab);
   }
 
   function appendNewPost(post: PostType) {
@@ -198,7 +203,17 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        <div className={styles.posts}>{generalFeed}</div>
+        <div className={styles.posts}>
+          <RSTabs
+            tabs={[
+              { label: 'General', value: 'general' },
+              { label: 'Following', value: 'following' },
+            ]}
+            onChange={handleTabChange}
+            selected={selectedTab}
+          />
+          {generalFeed}
+        </div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={colors.primary}>
