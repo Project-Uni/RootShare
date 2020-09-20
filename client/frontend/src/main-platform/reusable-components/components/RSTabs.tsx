@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -19,9 +19,14 @@ const useStyles = makeStyles((_: any) => ({
   },
   tab: {
     flexBasis: '100%',
-    // border: `1px solid ${colors.secondaryText}`,
     paddingTop: 15,
     paddingBottom: 15,
+  },
+  whiteText: {
+    color: colors.primaryText,
+  },
+  grayText: {
+    color: colors.secondaryText,
   },
 }));
 
@@ -34,11 +39,6 @@ type Props = {
 
 function RSTabs(props: Props) {
   const styles = useStyles();
-  const [tabs, setTabs] = useState<JSX.Element[]>([]);
-
-  // useEffect(() => {
-  //   setTabs(generateTabs());
-  // }, [props.selected]);
 
   function renderTabs() {
     const output = [];
@@ -58,10 +58,10 @@ function RSTabs(props: Props) {
         >
           <RSText
             size={12}
-            color={
+            className={
               props.selected === props.tabs[i].value
-                ? colors.primaryText
-                : colors.secondaryText
+                ? styles.whiteText
+                : styles.grayText
             }
           >
             {props.tabs[i].label.toUpperCase()}

@@ -41,6 +41,11 @@ const useStyles = makeStyles((_: any) => ({
   postStyle: {
     borderTop: `1px solid ${colors.fourth}`,
   },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
 }));
 
 type Props = {
@@ -211,6 +216,7 @@ function HomepageBody(props: Props) {
             ]}
             onChange={handleTabChange}
             selected={selectedTab}
+            className={styles.tabs}
           />
           {generalFeed}
         </div>
