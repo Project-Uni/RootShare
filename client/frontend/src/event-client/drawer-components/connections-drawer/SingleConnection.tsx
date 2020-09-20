@@ -1,49 +1,49 @@
 import React from 'react';
 
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import ProfilePicture from '../../../base-components/ProfilePicture';
-
 import { UserType, UniversityType } from '../../../helpers/types';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    display: 'flex',
     background: colors.secondary,
-    paddingTop: 5,
-    paddingBottom: 5,
+    paddingBottom: 4,
+  },
+  top: {
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   left: {},
-  center: {
-    marginLeft: 10,
-    display: 'flex',
-    flexDirection: 'column',
-  },
   right: {},
-  top: {},
-  bottom: {},
   picture: {
     marginLeft: 4,
-    marginTop: 2,
-  },
-  organization: {
-    color: colors.secondaryText,
-    wordWrap: 'break-word',
-    maxWidth: 320,
-  },
-  name: {
+    marginTop: 12,
+    marginBottom: -16,
     display: 'inline-block',
     color: colors.primaryText,
-    wordWrap: 'break-word',
-    maxWidth: 320,
-    textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'underline',
-      color: colors.primaryText,
-    },
+  },
+  organization: {
+    marginLeft: 38,
+    color: colors.secondaryText,
+    marginTop: 10,
+  },
+  bottom: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: 0,
+    marginTop: -20,
+  },
+  name: {
+    marginRight: 4,
+    marginBottom: 10,
+    marginTop: -50,
+    marginLeft: 10,
+    display: 'inline-block',
+    color: colors.primaryText,
   },
   ellipsis: {
     margin: 1.5,
@@ -62,36 +62,25 @@ function SingleConnection(props: Props) {
   const university = props.connectedUser.university as UniversityType;
   return (
     <div className={styles.wrapper}>
-      <div className={styles.left}>
-        <a href={`/profile/${props.connectedUser._id}`}>
-          <ProfilePicture
-            type="profile"
-            className={styles.picture}
-            editable={false}
-            height={35}
-            width={35}
-            borderRadius={35}
-            currentPicture={props.connectedUser.profilePicture}
-          />
-        </a>
-      </div>
-      <div className={styles.center}>
-        <a href={`/profile/${props.connectedUser._id}`}>
+      <div className={styles.top}>
+        <div>
+          <EmojiEmotionsIcon className={styles.picture} />
           <RSText bold size={12} className={styles.name}>
             {`${props.connectedUser.firstName} ${props.connectedUser.lastName}`}
           </RSText>
-        </a>
-
-        <RSText size={11} italic={true} className={styles.organization}>
-          {university.universityName} |{' '}
-          {capitalizeFirstLetter(props.connectedUser.accountType)}
-        </RSText>
-      </div>
-      {/* <div className={styles.right}>
-        <IconButton className={styles.ellipsis}>
+        </div>
+        {/* <IconButton className={styles.ellipsis}>
           <FaEllipsisH size={12} color={colors.secondaryText} />
-        </IconButton>
-      </div> */}
+        </IconButton> */}
+      </div>
+      <div className={styles.bottom}>
+        <div className={styles.left}>
+          <RSText size={11} italic={true} className={styles.organization}>
+            {university.universityName} |{' '}
+            {capitalizeFirstLetter(props.connectedUser.accountType)}
+          </RSText>
+        </div>
+      </div>
     </div>
   );
 }

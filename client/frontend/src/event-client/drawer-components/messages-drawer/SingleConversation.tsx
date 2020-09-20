@@ -1,20 +1,15 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useState } from 'react';
 
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import { makeStyles } from '@material-ui/core/styles';
 import { IoIosArrowForward } from 'react-icons/io';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import ProfilePicture from '../../../base-components/ProfilePicture';
-
-import { getConversationTime } from '../../../helpers/functions';
-import { UserType, ConversationType, MessageType } from '../../../helpers/types';
-
-import GroupIcon from '../../../images/group_icon_transparent.png';
+import { getConversationTime } from '../../../helpers/functions/dateFormat';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    display: 'flex',
     width: '100%',
     height: '70px',
     background: colors.secondary,
@@ -22,78 +17,66 @@ const useStyles = makeStyles((_: any) => ({
     borderBottomStyle: 'solid',
     borderBottomWidth: '1px',
     borderColor: colors.primaryText,
-    '&:hover': {
-      cursor: 'pointer',
-    },
   },
-  left: {
-    alignSelf: 'center',
-  },
-  center: {
-    flex: 1,
+  top: {
     display: 'flex',
-    flexDirection: 'column',
-    marginTop: 16,
-    marginLeft: 15,
+    justifyContent: 'space-between',
   },
-  right: {
-    display: 'flex',
-    alignSelf: 'center',
-  },
-  top: {},
-  bottom: {},
+  left: {},
+  right: {},
   picture: {
-    marginTop: 3,
-    marginLeft: 10,
+    margin: 10,
+    marginTop: 18,
+    marginBottom: -7,
+    display: 'inline-block',
+    color: colors.primaryText,
+  },
+  message: {
+    marginLeft: 54,
+    color: 'gray',
+    marginTop: 10,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '250px',
+  },
+  bottom: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: 0,
+    marginTop: -20,
   },
   name: {
+    marginRight: 4,
+    marginTop: -50,
+    marginLeft: 10,
     display: 'inline-block',
     color: colors.primaryText,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '280px',
-  },
-  message: {
-    color: 'gray',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: '240px',
-    marginTop: 2,
+    maxWidth: '300px',
   },
   arrow: {
-    marginTop: 8,
+    margin: 1.5,
+    marginTop: 27,
   },
   timeStamp: {
     textAlign: 'right',
+    marginTop: 10,
+    marginRight: 25,
     color: 'gray',
-    marginTop: 16,
-    marginRight: 5,
   },
 }));
 
 type Props = {
-  user: UserType;
-  conversation: ConversationType;
+  user: any;
+  conversation: any;
   selectConversation: (conversation: any) => void;
 };
 
 function SingleConversation(props: Props) {
   const styles = useStyles();
-
-  const lastMessage = props.conversation.lastMessage as MessageType;
-  const conversationTimeStamp = getConversationTime(
-    new Date(
-      !props.conversation.lastMessage
-        ? props.conversation.createdAt
-        : lastMessage.createdAt
-    )
-  );
-  const conversationIcon =
-    props.conversation.participants.length > 2
-      ? GroupIcon
-      : props.conversation.conversationPicture;
 
   function joinUserNames(users: any, delimiter: string) {
     let joinedString = '';
@@ -113,41 +96,43 @@ function SingleConversation(props: Props) {
     return joinedString;
   }
 
+  const conversationTimeStamp = getConversationTime(
+    new Date(
+      !props.conversation.lastMessage
+        ? props.conversation.createdAt
+        : props.conversation.lastMessage.createdAt
+    )
+  );
+
   return (
     <div
       className={styles.wrapper}
       onClick={() => props.selectConversation(props.conversation)}
     >
-      <div className={styles.left}>
-        <ProfilePicture
-          type="profile"
-          className={styles.picture}
-          editable={false}
-          height={40}
-          width={40}
-          borderRadius={40}
-          currentPicture={conversationIcon}
-        />
-      </div>
+      <div className={styles.top}>
+        <div>
+          <EmojiEmotionsIcon className={styles.picture} />
+          <RSText bold size={12} className={styles.name}>
+            {joinUserNames(props.conversation.participants, ', ')}
+          </RSText>
+        </div>
 
-      <div className={styles.center}>
-        <RSText bold size={12} className={styles.name}>
-          {joinUserNames(props.conversation.participants, ', ')}
-        </RSText>
-        <RSText size={12} className={styles.message}>
-          {lastMessage?.content}
-        </RSText>
-      </div>
-
-      <div className={styles.right}>
-        <RSText size={10} className={styles.timeStamp}>
-          {conversationTimeStamp}
-        </RSText>
         <IoIosArrowForward
           size={18}
           color={colors.secondaryText}
           className={styles.arrow}
         />
+      </div>
+      <div className={styles.bottom}>
+        <div className={styles.left}>
+          <RSText size={12} className={styles.message}>
+            {props.conversation.lastMessage?.content}
+          </RSText>
+        </div>
+
+        <RSText size={10} className={styles.timeStamp}>
+          {conversationTimeStamp}
+        </RSText>
       </div>
     </div>
   );
