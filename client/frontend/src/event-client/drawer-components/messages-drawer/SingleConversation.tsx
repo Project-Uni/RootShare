@@ -135,7 +135,7 @@ function SingleConversation(props: Props) {
           {joinUserNames(props.conversation.participants, ', ')}
         </RSText>
         <RSText size={12} className={styles.message}>
-          {lastMessage.content}
+          {lastMessage?.content}
         </RSText>
       </div>
 
