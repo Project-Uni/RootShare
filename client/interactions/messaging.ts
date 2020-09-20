@@ -195,7 +195,7 @@ function addProfilePictureToConversations(userID, conversations) {
   conversations.forEach((conversation) => {
     if (conversation.participants.length === 2) {
       const otherPerson =
-        conversation.participants[0]._id === userID
+        conversation.participants[0]._id.toString() === userID.toString()
           ? conversation.participants[1]
           : conversation.participants[0];
       if (otherPerson.profilePicture) {
