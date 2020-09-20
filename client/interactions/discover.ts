@@ -1,4 +1,10 @@
-import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { log, sendPacket } from '../helpers/functions';
+import {
+  addCalculatedCommunityFields,
+  addCalculatedUserFields,
+  getUserToCommunityRelationship,
+  getUserToUserRelationship,
+} from '../interactions/utilities';
 
 import { User, Community } from '../models';
 
@@ -104,7 +110,7 @@ export async function populateDiscoverForUser(userID: string) {
       .then(async ([communities, users]) => {
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
-          const cleanedUser = await addCalulculatedUserFields(
+          const cleanedUser = await addCalculatedUserFields(
             connections,
             joinedCommunities,
             users[i]
@@ -234,10 +240,10 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
         for (let i = 0; i < users.length; i++) {
-          const cleanedUser = await addCalulculatedUserFields(
+          const cleanedUser = await addCalculatedUserFields(
             currentUser.connections,
             currentUser.joinedCommunities,
-            users[i]
+            users[i].toObject()
           );
           getUserToUserRelationship(
             currentUser.connections,
@@ -282,151 +288,4 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
-}
-
-//HELPERS
-
-async function addCalulculatedUserFields(
-  currentUserConnections: string[],
-  currentUserJoinedCommunities: string[],
-  otherUser: {
-    [key: string]: any;
-    _id: string;
-    profilePicture?: string;
-    connections: string[];
-    joinedCommunities: string[];
-  }
-) {
-  //Calculating mutual connections and communities
-  const mutualConnections = currentUserConnections.filter((connection) => {
-    return otherUser.connections.indexOf(connection) !== -1;
-  });
-  const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
-    return otherUser.joinedCommunities.indexOf(community) !== -1;
-  });
-
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (otherUser.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'profile',
-        otherUser.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
-  const cleanedUser = {
-    _id: otherUser._id,
-    firstName: otherUser.firstName,
-    lastName: otherUser.lastName,
-    university: otherUser.university,
-    work: otherUser.work,
-    position: otherUser.position,
-    graduationYear: otherUser.graduationYear,
-    profilePicture,
-    numMutualConnections: mutualConnections.length,
-    numMutualCommunities: mutualCommunities.length,
-    status: 'PUBLIC',
-  };
-
-  return cleanedUser;
-}
-
-async function addCalculatedCommunityFields(
-  currentUserConnections: string[],
-  community: {
-    [key: string]: any;
-    _id: string;
-    admin: string;
-  }
-) {
-  const mutualMembers = currentUserConnections.filter((connection) => {
-    return community.members.indexOf(connection) !== -1;
-  });
-
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (community.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'communityProfile',
-        community.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
-  const cleanedCommunity = {
-    _id: community._id,
-    name: community.name,
-    type: community.type,
-    description: community.description,
-    private: community.private,
-    university: community.university,
-    profilePicture,
-    admin: community.admin,
-    numMembers: community.members.length,
-    numMutual: mutualMembers.length,
-    status: 'OPEN',
-  };
-
-  return cleanedCommunity;
-}
-
-function getUserToUserRelationship(
-  currentUserConnections,
-  currentUserPendingConnections,
-  originalOtherUser: {
-    [key: string]: any;
-    _id: string;
-    pendingConnections: string[];
-    joinedCommunities: string[];
-  },
-  cleanedOtherUser: {
-    [key: string]: any;
-    _id: string;
-    status: string;
-  }
-) {
-  for (let i = 0; i < currentUserConnections.length; i++) {
-    if (originalOtherUser.connections.indexOf(currentUserConnections[i]) !== -1) {
-      cleanedOtherUser.status = 'CONNECTION';
-      return;
-    }
-  }
-
-  for (let i = 0; i < currentUserPendingConnections.length; i++) {
-    if (
-      originalOtherUser.pendingConnections.indexOf(
-        currentUserPendingConnections[i]
-      ) !== -1
-    ) {
-      cleanedOtherUser.status = 'PENDING';
-      return;
-    }
-  }
-}
-
-function getUserToCommunityRelationship(
-  currentUserJoinedCommunities: string[],
-  currentUserPendingCommunities: string[],
-  originalCommunity: {
-    [key: string]: any;
-    _id: string;
-  },
-  cleanedCommunity: {
-    [key: string]: any;
-    status: string;
-  }
-) {
-  if (currentUserJoinedCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'JOINED';
-  else if (currentUserPendingCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'PENDING';
 }
