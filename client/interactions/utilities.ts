@@ -240,7 +240,6 @@ export async function addProfilePictureToUser(user) {
   if (user.profilePicture) {
     try {
       const signedImageURL = await retrieveSignedUrl('profile', user.profilePicture);
-      console.log(signedImageURL);
       if (signedImageURL) profilePicture = signedImageURL;
     } catch (err) {
       log('error', err);

@@ -93,14 +93,8 @@ export function sendMessage(userID, conversationID, message, tempID, io, callbac
             .populate('participants')
             .execPopulate();
 
-          if (isNewConversation) {
-            currConversation.participants.forEach((recipient) => {
-              io.in(`USER_${recipient._id}`).emit(
-                'newConversation',
-                currConversation
-              );
-            });
-          }
+          if (isNewConversation)
+            emitPicturedConversation(userID, currConversation.toObject(), io);
 
           let jsonNewMessage = newMessage.toObject();
           jsonNewMessage.tempID = tempID;
@@ -150,6 +144,35 @@ export async function getLatestThreads(userID, callback) {
       userConversations,
     })
   );
+}
+
+async function emitPicturedConversation(userID, conversation, io) {
+  if (conversation.participants.length !== 2)
+    return conversation.participants.forEach((recipient) => {
+      conversation;
+      io.in(`USER_${recipient._id}`).emit('newConversation', conversation);
+    });
+
+  for (let i = 0; i < 2; i++) {
+    const currConversation = Object.assign({}, conversation);
+    const otherPerson = conversation.participants[(i + 1) % 2];
+    if (otherPerson.profilePicture) {
+      try {
+        const signedImageURL = await retrieveSignedUrl(
+          'profile',
+          otherPerson.profilePicture
+        );
+        if (signedImageURL) currConversation.conversationPicture = signedImageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
+
+    io.in(`USER_${conversation.participants[i]._id}`).emit(
+      'newConversation',
+      currConversation
+    );
+  }
 }
 
 function addProfilePictureToConversations(userID, conversations) {
