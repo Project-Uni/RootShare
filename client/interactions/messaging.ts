@@ -153,26 +153,41 @@ async function emitPicturedConversation(userID, conversation, io) {
       io.in(`USER_${recipient._id}`).emit('newConversation', conversation);
     });
 
+  let imagePromises = [];
   for (let i = 0; i < 2; i++) {
-    const currConversation = Object.assign({}, conversation);
     const otherPerson = conversation.participants[(i + 1) % 2];
     if (otherPerson.profilePicture) {
       try {
-        const signedImageURL = await retrieveSignedUrl(
+        const signedImageUrlPromise = retrieveSignedUrl(
           'profile',
           otherPerson.profilePicture
         );
-        if (signedImageURL) currConversation.conversationPicture = signedImageURL;
+        imagePromises.push(signedImageUrlPromise);
       } catch (err) {
         log('error', err);
+        imagePromises.push(null);
       }
+    } else {
+      imagePromises.push(null);
     }
-
-    io.in(`USER_${conversation.participants[i]._id}`).emit(
-      'newConversation',
-      currConversation
-    );
   }
+
+  Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < 2; i++) {
+        const currConversation = Object.assign({}, conversation);
+        if (signedImageURLs[i])
+          currConversation.conversationPicture = signedImageURLs[i];
+
+        io.in(`USER_${conversation.participants[i]._id}`).emit(
+          'newConversation',
+          currConversation
+        );
+      }
+    })
+    .catch((err) => {
+      log('error', err);
+    });
 }
 
 function addProfilePictureToConversations(userID, conversations) {
