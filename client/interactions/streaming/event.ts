@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { Webinar, Conversation, User } from '../../models';
+import { Webinar, Connection, Conversation, User } from '../../models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
@@ -127,6 +127,44 @@ export function timeStampCompare(ObjectA, ObjectB) {
   if (b < a) return 1;
   if (a < b) return -1;
   return 0;
+}
+
+export async function getAllRecentEvents(userID: string, callback) {
+  const initialDate = new Date();
+  initialDate.setDate(initialDate.getDate() - 7);
+  const events = await Webinar.find({ dateTime: { $gte: initialDate } }, [
+    'title',
+    'brief_description',
+    'full_description',
+    'RSVPs',
+    'dateTime',
+    'hostCommunity',
+  ])
+    .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
+    .sort({ dateTime: 1 })
+    .exec();
+
+  const { connections } = await User.findOne({ _id: userID }, [
+    'connections',
+  ]).populate({ path: 'connections', select: ['from', 'to'] });
+
+  const connectionIDs = connections.reduce((output, connection) => {
+    const otherID =
+      connection['from'].toString() != userID.toString()
+        ? connection['from']
+        : connection['to'];
+
+    output.push(otherID);
+
+    return output;
+  }, []);
+
+  return callback(
+    sendPacket(1, 'successfully retrieved all connections', {
+      events: events,
+      connectionIDs: connectionIDs,
+    })
+  );
 }
 
 export async function getAllEventsAdmin(callback) {
