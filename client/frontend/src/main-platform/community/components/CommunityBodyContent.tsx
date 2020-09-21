@@ -32,6 +32,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   className?: string;
   communityID: string;
+  isAdmin?: boolean;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -47,12 +48,17 @@ function CommunityBodyContent(props: Props) {
 
   const tabs = [
     { label: 'External', value: 'external' },
-    { label: 'Internal', value: 'internal' },
     { label: 'Following', value: 'following' },
   ];
 
+  if (props.isAdmin) {
+    tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
+    tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
+  } else {
+    tabs.splice(1, 0, { label: 'Internal', value: 'internal' });
+  }
+
   useEffect(() => {
-    console.log('User:', props.user);
     fetchData().then(() => {
       setLoading(false);
     });
@@ -66,23 +72,24 @@ function CommunityBodyContent(props: Props) {
   }, [selectedTab]);
 
   async function fetchData() {
-    const route = getRoute();
+    const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/community/${props.communityID}/${route}`,
+      `/api/posts/community/${props.communityID}/${routeSuffix}`,
       {},
       true,
       props.accessToken,
       props.refreshToken
     );
     if (data.success === 1) {
+      setFetchErr(false);
       setPosts(createFeed(data.content['posts']));
     } else {
       setFetchErr(true);
     }
   }
 
-  function getRoute() {
+  function getRouteSuffix() {
     switch (selectedTab) {
       case 'external':
         return 'external';
@@ -149,10 +156,14 @@ function CommunityBodyContent(props: Props) {
         return renderExternal();
       case 'internal':
         return renderInternal();
+      case 'internal-current':
+        return renderInternal();
+      case 'internal-alumni':
+        return renderInternal();
       case 'following':
         return renderFollowing();
       default:
-        return <p>There was an error</p>;
+        return renderError();
     }
   }
 
