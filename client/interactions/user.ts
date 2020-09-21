@@ -985,7 +985,22 @@ export async function getUserAdminCommunities(userID: string) {
   try {
     const user = await User.findById(userID)
       .select(['joinedCommunities'])
-      .populate({ path: 'joinedCommunities', select: 'admin name' });
+      .populate({
+        path: 'joinedCommunities',
+        select: 'admin name',
+        populate: [
+          {
+            path: 'followingCommunities',
+            select: 'to',
+            populate: { path: 'to', select: 'name' },
+          },
+          {
+            path: 'outgoingPendingCommunityFollowRequests',
+            select: 'to',
+            populate: { path: 'to', select: 'name' },
+          },
+        ],
+      });
     if (!user) return sendPacket(0, 'Could not find user');
 
     const communities = user.joinedCommunities.filter(
