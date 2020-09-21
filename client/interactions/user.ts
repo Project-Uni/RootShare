@@ -2,7 +2,12 @@ const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { extractOtherUserIDFromConnections } from './utilities';
+import {
+  extractOtherUserIDFromConnections,
+  addCalculatedUserFields,
+  addProfilePictureToUser,
+  generateSignedImagePromises,
+} from './utilities';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -238,7 +243,9 @@ export function getConnections(userID, callback) {
     },
   };
   const transformToArray = {
-    $project: { connections: ['$connections.from', '$connections.to'] },
+    $project: {
+      connections: ['$connections.from', '$connections.to'],
+    },
   };
   const squashToSingleArray = {
     $project: {
@@ -285,6 +292,7 @@ export function getConnections(userID, callback) {
             firstName: '$firstName',
             lastName: '$lastName',
             accountType: '$accountType',
+            profilePicture: '$profilePicture',
             university: {
               _id: '$university._id',
               universityName: '$university.universityName',
@@ -304,15 +312,23 @@ export function getConnections(userID, callback) {
     lookupConnectionUsers,
   ])
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (!user || user.length === 0)
         return callback(sendPacket(-1, 'Could not find connections'));
 
-      callback(
-        sendPacket(1, "Sending User's Connections", {
-          connections: user[0]['connections'],
+      const connections = user[0].connections;
+      const imagePromises = generateSignedImagePromises(connections, 'profile');
+      Promise.all(imagePromises)
+        .then((signedImageURLs) => {
+          for (let i = 0; i < connections.length; i++)
+            if (signedImageURLs[i])
+              connections[i].profilePicture = signedImageURLs[i];
+
+          callback(sendPacket(1, "Sending User's Connections", { connections }));
         })
-      );
+        .catch((err) => {
+          log('error', err);
+        });
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
@@ -337,6 +353,9 @@ export function getConnectionSuggestions(userID, callback) {
         firstName: '$firstName',
         lastName: '$lastName',
         accountType: '$accountType',
+        connections: '$connections',
+        joinedCommunities: '$joinedCommunities',
+        profilePicture: '$profilePicture',
         university: {
           _id: '$university._id',
           universityName: '$university.universityName',
@@ -371,14 +390,25 @@ export function getConnectionSuggestions(userID, callback) {
             _id: '$_id',
             connections: '$connections',
             pendingConnections: '$pendingConnections',
+            joinedCommunities: '$joinedCommunities',
           },
         },
       ])
         .exec()
-        .then((user) => {
+        .then(async (user) => {
           if (!user || user.length === 0)
             return callback(sendPacket(-1, "Couldn't get User"));
-          const suggestions = filterSuggestions(user[0], rawSuggestions);
+          let suggestions = filterSuggestions(user[0], rawSuggestions);
+          for (let i = 0; i < suggestions.length; i++) {
+            const cleanedSuggestion = await addCalculatedUserFields(
+              user[0].connections,
+              user[0].joinedCommunities,
+              suggestions[i]
+            );
+
+            suggestions[i] = cleanedSuggestion;
+          }
+
           callback(sendPacket(1, 'Sending Connection suggestions', { suggestions }));
         });
     })
@@ -434,6 +464,9 @@ export function getPendingRequests(userID, callback) {
                     firstName: '$firstName',
                     lastName: '$lastName',
                     accountType: '$accountType',
+                    connections: '$connections',
+                    joinedCommunities: '$joinedCommunities',
+                    profilePicture: '$profilePicture',
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
@@ -460,6 +493,8 @@ export function getPendingRequests(userID, callback) {
     },
     {
       $project: {
+        connections: '$connections',
+        joinedCommunities: '$joinedCommunities',
         pendingConnections: {
           $filter: {
             input: '$pendingConnections',
@@ -480,13 +515,23 @@ export function getPendingRequests(userID, callback) {
     },
   ])
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (!user || user.length === 0)
         return callback(sendPacket(0, 'Could not get user'));
 
+      let pendingRequests = user[0].pendingConnections;
+      for (let i = 0; i < pendingRequests.length; i++) {
+        const cleanedUser = await addCalculatedUserFields(
+          user[0].connections,
+          user[0].joinedCommunities,
+          pendingRequests[i].from
+        );
+        pendingRequests[i].from = cleanedUser;
+      }
+
       callback(
         sendPacket(1, `Sending User's Pending Connection Requests`, {
-          pendingRequests: user[0].pendingConnections,
+          pendingRequests,
         })
       );
     })
