@@ -42,11 +42,18 @@ type Props = {
   refreshToken: string;
 };
 
+type CommunityTab =
+  | 'external'
+  | 'internal'
+  | 'internal-alumni'
+  | 'internal-current'
+  | 'following';
+
 function CommunityBodyContent(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState('external');
+  const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -110,7 +117,7 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
-  function handleTabChange(newTab: string) {
+  function handleTabChange(newTab: CommunityTab) {
     if (newTab !== selectedTab) setSelectedTab(newTab);
   }
 
@@ -132,6 +139,12 @@ function CommunityBodyContent(props: Props) {
             key={posts[i]._id}
             anonymous
             style={styles.postStyle}
+            toCommunity={
+              selectedTab === 'following' ? posts[i].toCommunity.name : undefined
+            }
+            toCommunityID={
+              selectedTab === 'following' ? posts[i].toCommunity._id : undefined
+            }
           />
         );
       } else {
@@ -148,6 +161,12 @@ function CommunityBodyContent(props: Props) {
             commentCount={0}
             key={posts[i]._id}
             style={styles.postStyle}
+            toCommunity={
+              selectedTab === 'following' ? posts[i].toCommunity.name : undefined
+            }
+            toCommunityID={
+              selectedTab === 'following' ? posts[i].toCommunity._id : undefined
+            }
           />
         );
       }
