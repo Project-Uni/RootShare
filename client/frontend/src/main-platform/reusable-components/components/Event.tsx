@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { IconButton } from '@material-ui/core';
@@ -57,6 +57,7 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
   },
   hostLink: {
+    display: 'inline-block',
     textDecoration: 'none',
     color: colors.primaryText,
     '&:hover': {
@@ -68,8 +69,8 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   eventID: string;
-  communityName: string;
-  communityID: string;
+  communityName?: string;
+  communityID?: string;
   summary: string;
   description: string;
   timestamp: string;
@@ -122,9 +123,12 @@ function Event(props: Props) {
   function renderEventBody() {
     return (
       <>
-        <a href={`/community/${props.communityID}`} className={styles.hostLink}>
+        <a
+          href={props.communityID ? `/community/${props.communityID}` : undefined}
+          className={styles.hostLink}
+        >
           <RSText type="subhead" color={colors.second} size={14}>
-            Hosted by {props.communityName}
+            Hosted by {props.communityName || 'RootShare'}
           </RSText>
         </a>
         <img src={BabyBoilersBanner} className={styles.banner} />
@@ -137,16 +141,21 @@ function Event(props: Props) {
         >
           {props.summary}
         </RSText>
-        <RSText type="body" size={12} color={colors.second}>
-          {showFullDesc && descriptionSubstr !== props.description
+        <RSText type="body" size={13} color={colors.second}>
+          {showFullDesc || descriptionSubstr === props.description
             ? props.description
             : descriptionSubstr.concat(' ...')}
         </RSText>
-        <div className={styles.seeMoreButtonDiv}>
-          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-            See {showFullDesc ? 'less' : 'more'}
-          </Button>
-        </div>
+        {props.description !== descriptionSubstr ? (
+          <div className={styles.seeMoreButtonDiv}>
+            <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+              See {showFullDesc ? 'less' : 'more'}
+            </Button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 10 }}></div>
+        )}
+
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
             {props.mutualSignups == 0 ? 'No' : props.mutualSignups} Connections
