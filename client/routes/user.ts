@@ -18,6 +18,7 @@ import {
   checkConnectedWithUser,
   getConnectionWithUser,
   getConnectionsFullData,
+  getUserAdminCommunities,
 } from '../interactions/user';
 
 module.exports = (app) => {
@@ -138,6 +139,16 @@ module.exports = (app) => {
     async (req, res) => {
       const { userID } = req.params;
       const packet = await getUserCommunities(userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/user/:userID/communities/admin',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { userID } = req.params;
+      const packet = await getUserAdminCommunities(userID);
       return res.json(packet);
     }
   );

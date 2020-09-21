@@ -100,6 +100,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
+  userID: string;
   status: CommunityStatus;
   name: string;
   description: string;
@@ -127,11 +128,29 @@ function CommunityGeneralInfo(props: Props) {
   const [numPending, setNumPending] = useState(props.numPending);
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [adminCommunities, setAdminCommunities] = useState<
+    { _id: string; name: string }[]
+  >([]);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
 
-  function handleSeeClicked() {
-    setShowFullDesc(!showFullDesc);
+  useEffect(() => {
+    getAdminCommunities();
+  }, []);
+
+  async function getAdminCommunities() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.userID}/communities/admin`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      setAdminCommunities(data.content.communities);
+    }
   }
 
   async function handleJoinClick() {
@@ -214,6 +233,10 @@ function CommunityGeneralInfo(props: Props) {
 
   function updateMemberCount(value: 1 | -1) {
     setNumMembers(numMembers + value);
+  }
+
+  function handleSeeClicked() {
+    setShowFullDesc(!showFullDesc);
   }
 
   function renderButton() {

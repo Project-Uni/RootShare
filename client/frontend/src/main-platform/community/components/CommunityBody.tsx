@@ -61,6 +61,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   communityID: string;
+  userID: string;
   status: CommunityStatus;
   name: string;
   description: string;
@@ -180,6 +181,7 @@ function CommunityBody(props: Props) {
               refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
+              userID={props.userID}
             />
             {locked ? (
               renderLocked()
