@@ -36,6 +36,12 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  eventName: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
   seeMoreButtonDiv: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -92,9 +98,11 @@ function Event(props: Props) {
   function renderEventHeader() {
     return (
       <div className={styles.top}>
-        <RSText type="head" color={colors.second} bold size={16}>
-          {props.title}
-        </RSText>
+        <a href={`/event/${props.eventID}`} className={styles.eventName}>
+          <RSText type="head" color={colors.second} bold size={16}>
+            {props.title}
+          </RSText>
+        </a>
         <div
           style={{
             display: 'flex',
@@ -127,7 +135,9 @@ function Event(props: Props) {
             Hosted by {props.communityName}
           </RSText>
         </a>
-        <img src={BabyBoilersBanner} className={styles.banner} />
+        <a href={`/event/${props.eventID}`} className={styles.hostLink}>
+          <img src={BabyBoilersBanner} className={styles.banner} />
+        </a>
         <RSText
           type="body"
           bold
@@ -159,9 +169,9 @@ function Event(props: Props) {
           >
             Enter Event
           </Button>
-          <Button variant="contained" className={styles.rsvpButton}>
+          {/* <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES
-          </Button>
+          </Button> */}
         </div>
       </>
     );

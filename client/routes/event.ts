@@ -24,7 +24,7 @@ module.exports = (app) => {
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
 
-  app.get('/api/webinar/getAllRecentEvents', isAuthenticatedWithJWT, (req, res) => {
+  app.get('/api/webinar/recents', isAuthenticatedWithJWT, (req, res) => {
     getAllRecentEvents(req.user._id, (packet) => res.json(packet));
   });
 

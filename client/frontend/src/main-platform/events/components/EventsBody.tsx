@@ -67,7 +67,7 @@ function EventsBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      '/api/webinar/getAllRecentEvents',
+      '/api/webinar/recents',
       {},
       true,
       props.accessToken,
