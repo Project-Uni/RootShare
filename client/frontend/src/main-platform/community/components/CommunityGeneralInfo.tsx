@@ -130,6 +130,7 @@ function CommunityGeneralInfo(props: Props) {
   const [numPending, setNumPending] = useState(props.numPending);
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [followMenuAnchorEl, setFollowMenuAnchorEl] = useState(null);
   const [adminCommunities, setAdminCommunities] = useState<
     { _id: string; name: string; admin: string }[]
   >([]);
@@ -300,13 +301,33 @@ function CommunityGeneralInfo(props: Props) {
 
   function renderFollowButton() {
     return (
-      <Button
-        size="large"
-        endIcon={<BsFillCaretDownFill color={colors.primaryText} size={14} />}
-        className={styles.followButton}
-      >
-        Follow as
-      </Button>
+      <>
+        <Button
+          size="large"
+          endIcon={<BsFillCaretDownFill color={colors.primaryText} size={14} />}
+          className={styles.followButton}
+          onClick={(event: any) => {
+            setFollowMenuAnchorEl(event.currentTarget);
+          }}
+        >
+          Follow as
+        </Button>
+        <Menu
+          open={Boolean(followMenuAnchorEl)}
+          anchorEl={followMenuAnchorEl}
+          onClose={() => setFollowMenuAnchorEl(null)}
+        >
+          {adminCommunities.map((community) => (
+            <MenuItem
+              onClick={() => {
+                console.log('Community:', community.name);
+              }}
+            >
+              {community.name}
+            </MenuItem>
+          ))}
+        </Menu>
+      </>
     );
   }
 

@@ -540,14 +540,18 @@ export async function getFollowingCommunityPosts(communityID: string) {
   try {
     const community = await Community.findById(communityID)
       .select(['followingCommunities'])
-      .populate({ path: 'followingCommunities', select: 'externalPosts' })
+      .populate({
+        path: 'followingCommunities',
+        select: 'to',
+        populate: { path: 'to', select: 'externalPosts' },
+      })
       .exec();
     if (!community) return sendPacket(-1, 'Could not find community');
 
     const postIDs = [];
 
     for (let i = 0; i < community.followingCommunities.length; i++) {
-      postIDs.push(...community.followingCommunities[i].externalPosts);
+      postIDs.push(...community.followingCommunities[i].to.externalPosts);
     }
 
     const condition = { _id: { $in: postIDs } };
