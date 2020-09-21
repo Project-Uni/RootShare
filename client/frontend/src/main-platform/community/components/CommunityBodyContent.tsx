@@ -27,6 +27,9 @@ const useStyles = makeStyles((_: any) => ({
   postStyle: {
     borderBottom: `1px solid ${colors.fourth}`,
   },
+  noPosts: {
+    marginTop: 20,
+  },
 }));
 
 type Props = {
@@ -148,6 +151,12 @@ function CommunityBodyContent(props: Props) {
         );
       }
     }
+    if (output.length === 0)
+      output.push(
+        <RSText size={16} type="head" className={styles.noPosts}>
+          There are no posts yet.
+        </RSText>
+      );
     return output;
   }
 
@@ -193,7 +202,7 @@ function CommunityBodyContent(props: Props) {
   function renderError() {
     return (
       <div className={styles.errorContainer}>
-        <RSText size={16} bold>
+        <RSText size={16} bold type="head">
           There was an error fetching the posts.
         </RSText>
       </div>
