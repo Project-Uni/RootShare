@@ -72,6 +72,7 @@ function CommunityBodyContent(props: Props) {
   }, [selectedTab]);
 
   async function fetchData() {
+    setPosts([]);
     const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
@@ -101,7 +102,7 @@ function CommunityBodyContent(props: Props) {
       case 'internal-alumni':
         return 'internal/alumni';
       case 'following':
-        return 'external'; //TODO - Create functionality for this route
+        return 'following'; //TODO - Create functionality for this route
     }
   }
 

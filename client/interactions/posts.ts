@@ -536,6 +536,43 @@ export async function getExternalPosts(communityID: string, userID: string) {
   }
 }
 
+export async function getFollowingCommunityPosts(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followingCommunities'])
+      .populate({ path: 'followingCommunities', select: 'externalPosts' })
+      .exec();
+    if (!community) return sendPacket(-1, 'Could not find community');
+
+    const postIDs = [];
+
+    for (let i = 0; i < community.followingCommunities.length; i++) {
+      postIDs.push(...community.followingCommunities[i].externalPosts);
+    }
+
+    const condition = { _id: { $in: postIDs } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+
+    const imagePromises = generateSignedImagePromises(posts);
+
+    return Promise.all(imagePromises).then((signedImageURLs) => {
+      for (let i = 0; i < posts.length; i++)
+        if (signedImageURLs[i]) {
+          const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+          if (pictureType === 'profile')
+            posts[i].user.profilePicture = signedImageURLs[i];
+          else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+        }
+
+      return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error retrieving the posts');
+  }
+}
+
 export async function broadcastAsCommunityAdmin(
   userID: string,
   communityID: string,
