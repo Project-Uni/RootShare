@@ -27,8 +27,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {},
   right: {
-    marginTop: -50,
+    marginTop: -80,
     display: 'flex',
+    flexDirection: 'column',
   },
   divider: {
     marginLeft: 10,
@@ -67,9 +68,7 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.secondaryText,
     },
   },
-  description: {
-    marginTop: 10,
-  },
+  description: {},
   seeMore: {
     textDecoration: 'none',
     fontSize: '13pt',
@@ -87,7 +86,10 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   buttonContainer: {
-    marginRight: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   followButton: {
     backgroundColor: colors.primary,
@@ -129,7 +131,7 @@ function CommunityGeneralInfo(props: Props) {
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [adminCommunities, setAdminCommunities] = useState<
-    { _id: string; name: string }[]
+    { _id: string; name: string; admin: string }[]
   >([]);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
@@ -149,7 +151,12 @@ function CommunityGeneralInfo(props: Props) {
     );
 
     if (data.success === 1) {
-      setAdminCommunities(data.content.communities);
+      const communities = data.content.communities.filter(
+        (community: { _id: string; name: string; admin: string }) =>
+          community._id !== props.communityID
+      );
+      console.log('Communities:', communities);
+      setAdminCommunities(communities);
     }
   }
 
@@ -332,12 +339,10 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.right}>
           <div className={styles.buttonContainer}>
             {renderButton()}
-            <br />
             {renderFollowButton()}
           </div>
-
-          <div>
-            <RSText type="body" size={12} color={colors.second} bold>
+          <div style={{ marginTop: 15 }}>
+            <RSText type="body" size={12} color={colors.second}>
               {numMembers} Members
             </RSText>
             {props.isAdmin && (
@@ -346,12 +351,12 @@ function CommunityGeneralInfo(props: Props) {
                 onClick={handlePendingClicked}
                 className={styles.memberCountLink}
               >
-                <RSText type="body" size={12} color={colors.second} bold>
+                <RSText type="body" size={12} color={colors.second}>
                   {numPending} Pending
                 </RSText>
               </a>
             )}
-            <RSText type="body" size={12} color={colors.second} bold>
+            <RSText type="body" size={12} color={colors.second}>
               {props.numMutual} Mutual
             </RSText>
           </div>
