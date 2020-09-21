@@ -37,6 +37,7 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'center',
   },
   eventName: {
+    color: 'inherit',
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
