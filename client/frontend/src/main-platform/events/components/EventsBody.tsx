@@ -67,7 +67,7 @@ function EventsBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      '/api/webinar/getAllEvents',
+      '/api/webinar/getAllRecentEvents',
       {},
       true,
       props.accessToken,
@@ -100,6 +100,7 @@ function EventsBody(props: Props) {
         <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
           <Event
             title={events[i].title}
+            eventID={events[i]._id}
             communityName="RootShare"
             communityID="rootshareID"
             summary={events[i].brief_description}

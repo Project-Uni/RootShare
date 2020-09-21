@@ -52,6 +52,10 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     color: colors.primaryText,
   },
+  goToEventButton: {
+    background: colors.bright,
+    color: colors.primaryText,
+  },
   hostLink: {
     textDecoration: 'none',
     color: colors.primaryText,
@@ -63,6 +67,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   title: string;
+  eventID: string;
   communityName: string;
   communityID: string;
   summary: string;
@@ -144,8 +149,16 @@ function Event(props: Props) {
         </div>
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
-              {props.mutualSignups == 0 ? "No" : props.mutualSignups} Connections Signed Up
+            {props.mutualSignups == 0 ? 'No' : props.mutualSignups} Connections
+            Signed Up
           </RSText>
+          <Button
+            href={`/event/${props.eventID}`}
+            variant="contained"
+            className={styles.goToEventButton}
+          >
+            Enter Event
+          </Button>
           <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES
           </Button>

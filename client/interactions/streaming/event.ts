@@ -129,8 +129,10 @@ export function timeStampCompare(ObjectA, ObjectB) {
   return 0;
 }
 
-export async function getAllEvents(userID: string, callback) {
-  const events = await Webinar.find({}, [
+export async function getAllRecentEvents(userID: string, callback) {
+  const initialDate = new Date();
+  initialDate.setDate(initialDate.getDate() - 7);
+  const events = await Webinar.find({ dateTime: { $gte: initialDate } }, [
     'title',
     'brief_description',
     'full_description',
@@ -139,7 +141,8 @@ export async function getAllEvents(userID: string, callback) {
     'hostCommunity',
   ])
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
-    .sort({ dateTime: 1 });
+    .sort({ dateTime: 1 })
+    .exec();
 
   const { connections } = await User.findOne({ _id: userID }, [
     'connections',
@@ -155,11 +158,6 @@ export async function getAllEvents(userID: string, callback) {
 
     return output;
   }, []);
-
-  const userRSVPs = await User.findOne({ _id: userID }, ['RSVPWebinars']).populate({
-    path: 'RSVPWebinars',
-    select: ['webinars'],
-  });
 
   return callback(
     sendPacket(1, 'successfully retrieved all connections', {
