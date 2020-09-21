@@ -52,15 +52,24 @@ function CommunityBodyContent(props: Props) {
   ];
 
   useEffect(() => {
+    console.log('User:', props.user);
     fetchData().then(() => {
       setLoading(false);
     });
   }, []);
 
+  useEffect(() => {
+    setLoading(true);
+    fetchData().then(() => {
+      setLoading(false);
+    });
+  }, [selectedTab]);
+
   async function fetchData() {
+    const route = getRoute();
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/community/${props.communityID}/external`,
+      `/api/posts/community/${props.communityID}/${route}`,
       {},
       true,
       props.accessToken,
@@ -73,14 +82,26 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
+  function getRoute() {
+    switch (selectedTab) {
+      case 'external':
+        return 'external';
+      case 'internal':
+        if (props.user.accountType === 'student') return 'internal/current';
+        return 'internal/alumni';
+      case 'internal-current':
+        return 'internal/current';
+      case 'internal-alumni':
+        return 'internal/alumni';
+      case 'following':
+        return 'external'; //TODO - Create functionality for this route
+    }
+  }
+
   function handleTabChange(newTab: string) {
     if (newTab !== selectedTab) setSelectedTab(newTab);
   }
 
-  // function generatePosts(data: PostType[]) {
-  //   const output:  = [];
-  //   return output;
-  // }
   function createFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
@@ -145,11 +166,16 @@ function CommunityBodyContent(props: Props) {
   }
 
   function renderInternal() {
-    return <div>Internal</div>;
+    return (
+      <div>
+        <p>Internal posts</p>
+        {posts}
+      </div>
+    );
   }
 
   function renderFollowing() {
-    return <div>Following</div>;
+    return <div>{posts}</div>;
   }
 
   function renderError() {
