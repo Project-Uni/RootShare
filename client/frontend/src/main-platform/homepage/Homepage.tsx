@@ -82,7 +82,97 @@ function Homepage(props: Props) {
   }
 
   async function fetchData() {
-    console.log('Fetching data');
+    const toCommunity = '5f3feed3cf316529bb10485f'; //POOPOO, use something you are admin of
+    const fromCommunity = '5f5673beabbed8044a2496e2'; //Some other other
+    const edgeID = ''; //Set based on the new edge thats created
+
+    //CREATE REQUEST
+    const { data: data1 } = await makeRequest(
+      'POST',
+      `/api/community/${toCommunity}/follow`,
+      {
+        followAsCommunityID: fromCommunity,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    //ACCEPT REQUEST
+    // const { data: data2 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/follow/accept`,
+    //   {
+    //     edgeID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //REJECT REQUEST
+    // const { data: data3 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/follow/reject`,
+    //   {
+    //     edgeID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //CANCEL REQUEST
+    // const { data: data4 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/follow/cancel`,
+    //   {
+    //     fromCommunityID: fromCommunity,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    // GET ALL FOLLOWING
+    // const { data: data5 } = await makeRequest(
+    //   'GET',
+    //   `/api/community/${fromCommunity}/following`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //UNFOLLOW
+    // const { data: data6 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/unfollow`,
+    //   { fromCommunityID: fromCommunity },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL FOLLOWED BY
+    // const { data: data7 } = await makeRequest(
+    //   'GET',
+    //   `/api/community/${fromCommunity}/followedBy`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    //GET ALL PENDING INCOMING FOLLOW REQUESTS
+    // const { data: data8 } = await makeRequest(
+    //   'GET',
+    //   `/api/community/${toCommunity}/follow/pending`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
   }
 
   return (

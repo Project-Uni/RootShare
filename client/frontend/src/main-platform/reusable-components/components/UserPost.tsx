@@ -10,6 +10,7 @@ import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -27,9 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     marginBottom: 10,
   },
-  profilePic: {
-    height: 50,
-    borderRadius: 60,
+  profilePicContainer: {
     marginLeft: -6,
   },
   postHeadText: {
@@ -88,8 +87,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   commentProfile: {
-    height: 40,
-    borderRadius: 40,
+    border: `1px solid ${colors.fourth}`,
   },
   leaveCommentContainer: {
     display: 'flex',
@@ -175,7 +173,14 @@ function UserPost(props: Props) {
     return (
       <div className={styles.top}>
         <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-          <img src={props.profilePicture} className={styles.profilePic} />
+          <ProfilePicture
+            height={50}
+            width={50}
+            borderRadius={50}
+            className={styles.profilePicContainer}
+            type="profile"
+            currentPicture={props.profilePicture}
+          />
         </a>
 
         <div className={styles.postHeadText}>
@@ -270,7 +275,13 @@ function UserPost(props: Props) {
   function renderLeaveCommentArea() {
     return (
       <div className={styles.leaveCommentContainer}>
-        <img src={CaiteHeadshot} className={styles.commentProfile} />
+        <ProfilePicture
+          height={40}
+          width={40}
+          borderRadius={40}
+          pictureStyle={styles.commentProfile}
+          type="profile"
+        />
         <TextField
           variant="outlined"
           value={comment}
