@@ -14,6 +14,7 @@ import {
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
+import CommunityMakePostContainer from './CommunityMakePostContainer';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -180,7 +181,7 @@ function CommunityBodyContent(props: Props) {
   function renderExternal() {
     return (
       <div>
-        <p>External posts</p>
+        <CommunityMakePostContainer />
         {posts}
       </div>
     );
@@ -189,7 +190,7 @@ function CommunityBodyContent(props: Props) {
   function renderInternal() {
     return (
       <div>
-        <p>Internal posts</p>
+        <CommunityMakePostContainer />
         {posts}
       </div>
     );

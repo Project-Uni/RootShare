@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
+import { BsFillCaretDownFill } from 'react-icons/bs';
 
 import { makeRequest } from '../../../helpers/functions';
 
@@ -27,6 +28,7 @@ const useStyles = makeStyles((_: any) => ({
   left: {},
   right: {
     marginTop: -50,
+    display: 'flex',
   },
   divider: {
     marginLeft: 10,
@@ -82,6 +84,16 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
       textDecoration: 'underline',
+    },
+  },
+  buttonContainer: {
+    marginRight: 20,
+  },
+  followButton: {
+    backgroundColor: colors.primary,
+    color: colors.primaryText,
+    '&:hover': {
+      backgroundColor: colors.fourth,
     },
   },
 }));
@@ -257,6 +269,18 @@ function CommunityGeneralInfo(props: Props) {
       );
   }
 
+  function renderFollowButton() {
+    return (
+      <Button
+        size="large"
+        endIcon={<BsFillCaretDownFill color={colors.primaryText} size={14} />}
+        className={styles.followButton}
+      >
+        Follow as
+      </Button>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       <PendingMembersModal
@@ -283,24 +307,31 @@ function CommunityGeneralInfo(props: Props) {
           </RSText>
         </div>
         <div className={styles.right}>
-          {renderButton()}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {numMembers} Members
-          </RSText>
-          {props.isAdmin && (
-            <a
-              href={undefined}
-              onClick={handlePendingClicked}
-              className={styles.memberCountLink}
-            >
-              <RSText type="body" size={12} color={colors.second} bold>
-                {numPending} Pending
-              </RSText>
-            </a>
-          )}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {props.numMutual} Mutual
-          </RSText>
+          <div className={styles.buttonContainer}>
+            {renderButton()}
+            <br />
+            {renderFollowButton()}
+          </div>
+
+          <div>
+            <RSText type="body" size={12} color={colors.second} bold>
+              {numMembers} Members
+            </RSText>
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={handlePendingClicked}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second} bold>
+                  {numPending} Pending
+                </RSText>
+              </a>
+            )}
+            <RSText type="body" size={12} color={colors.second} bold>
+              {props.numMutual} Mutual
+            </RSText>
+          </div>
         </div>
       </div>
       <RSText
