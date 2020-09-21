@@ -78,6 +78,7 @@ function NavigationDrawer(props: Props) {
           }
         />
       ),
+      link: '/communities/user',
     },
     {
       name: 'Events',
@@ -107,6 +108,7 @@ function NavigationDrawer(props: Props) {
           }
         />
       ),
+      link: '/connections/user',
     },
     {
       name: 'Profile',
