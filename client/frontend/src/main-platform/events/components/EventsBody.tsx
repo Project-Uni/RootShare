@@ -101,8 +101,8 @@ function EventsBody(props: Props) {
           <Event
             title={events[i].title}
             eventID={events[i]._id}
-            communityName="RootShare"
-            communityID="rootshareID"
+            communityName={events[i].hostCommunity?._id}
+            communityID={events[i].hostCommunity?.name}
             summary={events[i].brief_description}
             description={events[i].full_description}
             timestamp={eventDate + ' at ' + eventTime}
