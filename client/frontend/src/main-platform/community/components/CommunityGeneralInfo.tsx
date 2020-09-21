@@ -155,7 +155,6 @@ function CommunityGeneralInfo(props: Props) {
         (community: { _id: string; name: string; admin: string }) =>
           community._id !== props.communityID
       );
-      console.log('Communities:', communities);
       setAdminCommunities(communities);
     }
   }
