@@ -23,15 +23,16 @@ export type UserType = {
   sendEmails: boolean;
   confirmed: boolean;
   verified: boolean;
+  profilePicture: string;
   RSVPWebinars: string[] | EventType[];
   connections: string[] | UserType[];
   pendingConnections: string[] | UserType[];
   joinedCommunities: string[];
   pendingCommunities: string[];
-  profilePic: string;
-  numMutualConnections: number;
-  numConnections: number;
-  numCommunities: number;
+  numConnections?: number;
+  numMutualConnections?: number;
+  numCommunities?: number;
+  numMutualCommunities?: number;
 };
 
 export type ConnectionRequestType = {

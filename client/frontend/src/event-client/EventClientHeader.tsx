@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
+import AlphaLogo from '../images/alpha.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -34,11 +35,16 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
+  alpha: {
+    height: 24,
+    marginLeft: 5,
+  },
 }));
 
 type Props = {
   minWidth?: number;
   showNavigationWidth?: number;
+  showNavigationMenuDefault?: boolean;
 };
 
 function EventClientHeader(props: Props) {
@@ -97,8 +103,10 @@ function EventClientHeader(props: Props) {
         return <MessagesDrawerContainer />;
       case 'profile':
         return <ProfileDrawer />;
-      default:
+      case 'navigation':
         return <NavigationDrawer currentTab="none" />;
+      default:
+        return null;
     }
   }
 
@@ -126,20 +134,24 @@ function EventClientHeader(props: Props) {
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {props.showNavigationWidth &&
-              window.innerWidth < props.showNavigationWidth && (
-                <IconButton onClick={handleNavigationClick}>
-                  <MdMenu color={colors.primaryText} size={28} />
-                </IconButton>
-              )}
+            {(props.showNavigationMenuDefault ||
+              (props.showNavigationWidth &&
+                window.innerWidth < props.showNavigationWidth)) && (
+              <IconButton onClick={handleNavigationClick}>
+                <MdMenu color={colors.primaryText} size={28} />
+              </IconButton>
+            )}
 
-            <a href="/">
-              <img
-                src={RootShareLogoWhite}
-                alt="RootShare"
-                className={styles.headerLogo}
-              />
-            </a>
+            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <a href="/home">
+                <img
+                  src={RootShareLogoWhite}
+                  alt="RootShare"
+                  className={styles.headerLogo}
+                />
+              </a>
+              <img src={AlphaLogo} alt="Alpha" className={styles.alpha} />
+            </div>
           </div>
 
           <div className={styles.icons}>{renderIcons()}</div>

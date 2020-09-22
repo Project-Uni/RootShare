@@ -5,3 +5,4 @@ export * from './universityTypes';
 export * from './misc';
 export * from './communityTypes';
 export * from './discoveryTypes';
+export * from './postTypes';

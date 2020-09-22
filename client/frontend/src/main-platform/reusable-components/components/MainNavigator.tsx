@@ -92,6 +92,7 @@ function MainNavigator(props: Props) {
           }
         />
       ),
+      link: '/communities/user',
     },
     {
       name: 'Events',
@@ -121,6 +122,7 @@ function MainNavigator(props: Props) {
           }
         />
       ),
+      link: '/connections/user',
     },
     {
       name: 'Profile',

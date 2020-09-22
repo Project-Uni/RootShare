@@ -7,12 +7,12 @@ import expressSession = require('express-session');
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
-
 import { rateLimiter } from './middleware';
 
 import communityRoutes from './routes/community';
 import feedbackRoutes from './routes/feedback';
 import discoverRoutes from './routes/discover';
+import postRoutes from './routes/posts';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -72,6 +72,7 @@ require('./routes/images')(app);
 communityRoutes(app);
 feedbackRoutes(app);
 discoverRoutes(app);
+postRoutes(app);
 
 require('./config/setup')(passport);
 

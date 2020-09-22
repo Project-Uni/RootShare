@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
+import { connect } from 'react-redux';
+
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
 import { WelcomeMessage, UserPost } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
-import { JacksonHeadshot } from '../../../images/team';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
+import { PostType } from '../../../helpers/types';
 
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.primaryText,
     overflow: 'scroll',
     minWidth: 600,
   },
@@ -31,9 +38,16 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 1,
     borderRadius: 1,
   },
+  postStyle: {
+    borderTop: `1px solid ${colors.fourth}`,
+  },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
@@ -42,20 +56,49 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [postValue, setPostValue] = useState('');
+  const [serverErr, setServerErr] = useState(false);
+  const [generalFeed, setGeneralFeed] = useState<JSX.Element[]>([]);
+
+  const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
+    getProfilePicture();
+    getGeneralFeed().then(() => {
       setLoading(false);
     });
   }, []);
 
-  async function fetchData() {
-    setTimeout(() => {
-      console.log('Fetching data');
-      return true;
-    }, 1000);
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/profile/${props.user._id}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setProfilePicture(data.content['imageURL']);
+    }
+  }
+
+  async function getGeneralFeed() {
+    const { data } = await makeRequest(
+      'GET',
+      '/api/posts/feed/general',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      setGeneralFeed(createGeneralFeed(data.content['posts']));
+      setServerErr(false);
+    } else {
+      setServerErr(true);
+    }
   }
 
   function handleResize() {
@@ -66,40 +109,50 @@ function HomepageBody(props: Props) {
     setShowWelcomeModal(false);
   }
 
-  function handlePostValueChange(event: any) {
-    setPostValue(event.target.value);
-  }
-
-  function handleImageUpload() {
-    console.log('Uploading image');
-  }
-
-  function handleSubmitPost() {
-    console.log('Submitting post');
-  }
-
   function handleDiscoverClick() {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
-  function renderFeed() {
-    const output = [];
-    for (let i = 0; i < 6; i++)
-      output.push(
+  function appendNewPost(post: PostType) {
+    setGeneralFeed((prevState) => {
+      const newEntry = (
         <UserPost
-          userID={'testID'}
-          userName="Jackson McCluskey"
-          profilePicture={JacksonHeadshot}
-          community="Computer Science Nerds Club"
-          communityID={'testCommID'}
-          timestamp="July 14th, 2020 6:52 PM"
-          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          likeCount={109}
-          commentCount={54}
-          style={styles.singlePost}
+          userID={props.user._id}
+          userName={`${props.user.firstName} ${props.user.lastName}`}
+          timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
+            new Date(post.createdAt)
+          )}`}
+          profilePicture={profilePicture}
+          message={post.message}
+          likeCount={post.likes}
+          commentCount={0}
+          style={styles.postStyle}
         />
       );
-    return <div className={styles.posts}>{output}</div>;
+      return [newEntry].concat(prevState);
+    });
+  }
+
+  function createGeneralFeed(posts: PostType[]) {
+    const output = [];
+    for (let i = 0; i < posts.length; i++) {
+      output.push(
+        <UserPost
+          userID={posts[i].user._id}
+          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          timestamp={`${formatDatePretty(
+            new Date(posts[i].createdAt)
+          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+          profilePicture={posts[i].user.profilePicture}
+          message={posts[i].message}
+          likeCount={posts[i].likes}
+          commentCount={0}
+          style={styles.postStyle}
+          key={posts[i]._id}
+        />
+      );
+    }
+    return output;
   }
 
   return (
@@ -115,18 +168,34 @@ function HomepageBody(props: Props) {
         />
       )}
       <MakePostContainer
-        postValue={postValue}
-        onChange={handlePostValueChange}
-        onPost={handleSubmitPost}
-        onUploadImage={handleImageUpload}
+        appendNewPost={appendNewPost}
+        profilePicture={profilePicture}
       />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : !serverErr ? (
+        <div className={styles.posts}>{generalFeed}</div>
       ) : (
-        renderFeed()
+        <div style={{ marginTop: 10 }}>
+          <RSText size={18} bold type="head" color={colors.primary}>
+            There was an error retrieving your posts.
+          </RSText>
+        </div>
       )}
     </div>
   );
 }
 
-export default HomepageBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);
