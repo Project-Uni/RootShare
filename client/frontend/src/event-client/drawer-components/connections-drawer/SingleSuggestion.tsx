@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
@@ -15,47 +15,44 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     background: colors.secondary,
-    paddingBottom: 7,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
-  left: {
+  left: {},
+  center: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
+    marginLeft: 10,
   },
-  top: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  bottom: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    margin: 0,
-    marginTop: -20,
-  },
+  top: {},
+  bottom: {},
   right: {
     marginLeft: 'auto',
   },
   picture: {
     marginLeft: 4,
-    marginTop: 12,
-    marginBottom: -18,
-    display: 'inline-block',
-    color: colors.primaryText,
+    marginTop: 2,
   },
-  organization: {
-    marginTop: 20,
-    marginLeft: 38,
+  mutual: {
     color: colors.secondaryText,
     wordWrap: 'break-word',
-    maxWidth: 196,
+    maxWidth: 200,
+  },
+  organization: {
+    color: colors.secondaryText,
+    wordWrap: 'break-word',
+    maxWidth: 200,
   },
   name: {
-    marginLeft: 10,
-    marginTop: 5,
     display: 'inline-block',
     color: colors.primaryText,
     wordWrap: 'break-word',
-    maxWidth: 196,
+    maxWidth: 200,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+      color: colors.primaryText,
+    },
   },
   removeButton: {
     color: colors.primaryText,
@@ -136,19 +133,35 @@ function SingleSuggestion(props: Props) {
     return (
       <div id="suggestionWrapper" className={styles.wrapper}>
         <div className={styles.left}>
-          <div className={styles.top}>
-            <EmojiEmotionsIcon className={styles.picture} />
+          <a href={`/profile/${props.suggestedUser._id}`}>
+            <ProfilePicture
+              type="profile"
+              className={styles.picture}
+              editable={false}
+              height={35}
+              width={35}
+              borderRadius={35}
+              currentPicture={props.suggestedUser.profilePicture}
+            />
+          </a>
+        </div>
+        <div className={styles.center}>
+          <a href={`/profile/${props.suggestedUser._id}`}>
             <RSText bold size={12} className={styles.name}>
               {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
             </RSText>
-          </div>
-          <div className={styles.bottom}>
-            <RSText size={11} italic={true} className={styles.organization}>
-              {universityName} |{' '}
-              {capitalizeFirstLetter(props.suggestedUser.accountType)}
-            </RSText>
-          </div>
+          </a>
+
+          <RSText size={11} italic className={styles.organization}>
+            {university.universityName} |{' '}
+            {capitalizeFirstLetter(props.suggestedUser.accountType)}
+          </RSText>
+
+          {/* TODO: add mutuals to suggestions and pending with the following format:
+              27 {people icon} | 4 {community icon}
+          */}
         </div>
+
         <div className={styles.right}>
           <Button
             className={styles.removeButton}

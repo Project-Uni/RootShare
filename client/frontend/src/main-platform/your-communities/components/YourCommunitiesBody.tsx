@@ -58,6 +58,7 @@ type YourCommunities_Community = {
 };
 
 type Props = {
+  requestUserID: string;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -69,6 +70,7 @@ function YourCommunitiesBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
+  const [username, setUsername] = useState('User');
   const [joinedCommunities, setJoinedCommunities] = useState<
     YourCommunities_Community[]
   >([]);
@@ -78,6 +80,7 @@ function YourCommunitiesBody(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    if (props.requestUserID !== 'user') fetchUserBasicInfo();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -86,7 +89,9 @@ function YourCommunitiesBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/communities/all`,
+      `/api/user/${
+        props.requestUserID === 'user' ? props.user._id : props.requestUserID
+      }/communities/all`,
       {},
       true,
       props.accessToken,
@@ -95,6 +100,20 @@ function YourCommunitiesBody(props: Props) {
     if (data.success === 1) {
       setJoinedCommunities(data.content['joinedCommunities']);
       setPendingCommunities(data.content['pendingCommunities']);
+    }
+  }
+
+  async function fetchUserBasicInfo() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.requestUserID}/basic`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setUsername(`${data.content.user?.firstName} ${data.content.user?.lastName}`);
     }
   }
 
@@ -165,8 +184,12 @@ function YourCommunitiesBody(props: Props) {
     <div className={styles.wrapper} style={{ height: height }}>
       {showWelcomeModal && (
         <WelcomeMessage
-          title="Communities"
-          message="All of the communities that you belong to will be displayed on this page. We believe in the power of community and want to make it as easy to access as possible"
+          title={`${
+            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+          } Communities`}
+          message={`All of the communities that ${
+            props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
+          } to will be displayed on this page.`}
           onClose={closeWelcomeMessage}
         />
       )}

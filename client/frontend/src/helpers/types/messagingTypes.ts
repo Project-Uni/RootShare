@@ -18,6 +18,7 @@ export type ConversationType = {
   participants: string[] | UserType[];
   createdAt: Date;
   lastMessage: string | MessageType;
+  conversationPicture: string;
 };
 
 export type LikeUpdateType = {
