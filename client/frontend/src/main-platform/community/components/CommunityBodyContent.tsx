@@ -124,52 +124,37 @@ function CommunityBodyContent(props: Props) {
   function createFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
-      if (posts[i].anonymous) {
-        output.push(
-          <UserPost
-            _id={posts[i].fromCommunity._id}
-            name={`${posts[i].fromCommunity.name}`}
-            timestamp={`${formatDatePretty(
-              new Date(posts[i].createdAt)
-            )} at ${formatTime(new Date(posts[i].createdAt))}`}
-            profilePicture={posts[i].fromCommunity.profilePicture}
-            message={posts[i].message}
-            likeCount={posts[i].likes}
-            commentCount={0}
-            key={posts[i]._id}
+      const { anonymous } = posts[i];
+      output.push(
+        <UserPost
+          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          name={
             anonymous
-            style={styles.postStyle}
-            toCommunity={
-              selectedTab === 'following' ? posts[i].toCommunity.name : undefined
-            }
-            toCommunityID={
-              selectedTab === 'following' ? posts[i].toCommunity._id : undefined
-            }
-          />
-        );
-      } else {
-        output.push(
-          <UserPost
-            _id={posts[i].user._id}
-            name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
-            timestamp={`${formatDatePretty(
-              new Date(posts[i].createdAt)
-            )} at ${formatTime(new Date(posts[i].createdAt))}`}
-            profilePicture={posts[i].user.profilePicture}
-            message={posts[i].message}
-            likeCount={posts[i].likes}
-            commentCount={0}
-            key={posts[i]._id}
-            style={styles.postStyle}
-            toCommunity={
-              selectedTab === 'following' ? posts[i].toCommunity.name : undefined
-            }
-            toCommunityID={
-              selectedTab === 'following' ? posts[i].toCommunity._id : undefined
-            }
-          />
-        );
-      }
+              ? `${posts[i].fromCommunity.name}`
+              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+          }
+          timestamp={`${formatDatePretty(
+            new Date(posts[i].createdAt)
+          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+          profilePicture={
+            anonymous
+              ? posts[i].fromCommunity.profilePicture
+              : posts[i].user.profilePicture
+          }
+          message={posts[i].message}
+          likeCount={posts[i].likes}
+          commentCount={0}
+          style={styles.postStyle}
+          key={posts[i]._id}
+          anonymous={anonymous}
+          toCommunity={
+            selectedTab === 'following' ? posts[i].toCommunity.name : undefined
+          }
+          toCommunityID={
+            selectedTab === 'following' ? posts[i].toCommunity._id : undefined
+          }
+        />
+      );
     }
     if (output.length === 0)
       output.push(
