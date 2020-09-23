@@ -11,7 +11,10 @@ import PendingMembersModal from './PendingMembersModal';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-import { CommunityStatus } from '../../../helpers/types/communityTypes';
+import {
+  CommunityStatus,
+  AdminCommunityServiceResponse,
+} from '../../../helpers/types/communityTypes';
 
 const MAX_DESC_LEN = 275;
 
@@ -132,7 +135,7 @@ function CommunityGeneralInfo(props: Props) {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [followMenuAnchorEl, setFollowMenuAnchorEl] = useState(null);
   const [adminCommunities, setAdminCommunities] = useState<
-    { _id: string; name: string; admin: string }[]
+    AdminCommunityServiceResponse[]
   >([]);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
@@ -153,7 +156,7 @@ function CommunityGeneralInfo(props: Props) {
 
     if (data.success === 1) {
       const communities = data.content.communities.filter(
-        (community: { _id: string; name: string; admin: string }) =>
+        (community: AdminCommunityServiceResponse) =>
           community._id !== props.communityID
       );
       setAdminCommunities(communities);

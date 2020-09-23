@@ -992,12 +992,12 @@ export async function getUserAdminCommunities(userID: string) {
           {
             path: 'followingCommunities',
             select: 'to',
-            populate: { path: 'to', select: 'name' },
+            populate: { path: 'to', select: 'name accepted' },
           },
           {
             path: 'outgoingPendingCommunityFollowRequests',
             select: 'to',
-            populate: { path: 'to', select: 'name' },
+            populate: { path: 'to', select: 'name accepted' },
           },
         ],
       });
