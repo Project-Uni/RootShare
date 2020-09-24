@@ -113,7 +113,7 @@ function YourCommunitiesBody(props: Props) {
       props.refreshToken
     );
     if (data.success === 1) {
-      setUsername(`${data.content.user?.firstName} ${data.content.user?.lastName}`);
+      setUsername(`${data.content.user?.firstName}`);
     }
   }
 
