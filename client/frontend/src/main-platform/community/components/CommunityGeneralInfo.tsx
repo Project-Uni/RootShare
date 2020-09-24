@@ -249,15 +249,44 @@ function CommunityGeneralInfo(props: Props) {
     setShowFullDesc(!showFullDesc);
   }
 
-  function handleRequestToFollow(communityID: string) {
-    console.log('Calling request to follow');
+  async function handleRequestToFollow(communityID: string) {
+    if (
+      window.confirm(`Are you sure you want to request to follow ${props.name}?`)
+    ) {
+      setFollowMenuAnchorEl(null);
+      const { data } = await makeRequest(
+        'POST',
+        `/api/community/${props.communityID}/follow`,
+        { followAsCommunityID: communityID },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      console.log('Request to Follow: ', data);
+    } else setFollowMenuAnchorEl(null);
   }
 
-  function handleCancelFollowRequest(communityID: string) {
-    console.log('Calling cancel follow request');
+  async function handleCancelFollowRequest(communityID: string) {
+    if (
+      window.confirm(
+        `Are you sure you want to request to cancel your follow request to ${props.name}?`
+      )
+    ) {
+      setFollowMenuAnchorEl(null);
+      const { data } = await makeRequest(
+        'POST',
+        `/api/community/${props.communityID}/follow/cancel`,
+        { fromCommunityID: communityID },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+
+      console.log('Cancel follow: ', data);
+    } else setFollowMenuAnchorEl(null);
   }
 
-  function handleUnfollow(communityID: string) {
+  async function handleUnfollow(communityID: string) {
     console.log('Calling unfollow');
     //TODO - Write the backend for this
   }
