@@ -249,6 +249,21 @@ function CommunityGeneralInfo(props: Props) {
     setShowFullDesc(!showFullDesc);
   }
 
+  function getCommunityRelationship(community: AdminCommunityServiceResponse) {
+    for (let i = 0; i < community.followingCommunities.length; i++)
+      if (community.followingCommunities[i].to._id === props.communityID)
+        return 'Following';
+
+    for (let i = 0; i < community.outgoingPendingCommunityFollowRequests.length; i++)
+      if (
+        community.outgoingPendingCommunityFollowRequests[i].to._id ===
+        props.communityID
+      )
+        return 'Pending';
+
+    return '';
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
@@ -320,15 +335,23 @@ function CommunityGeneralInfo(props: Props) {
           anchorEl={followMenuAnchorEl}
           onClose={() => setFollowMenuAnchorEl(null)}
         >
-          {adminCommunities.map((community) => (
-            <MenuItem
-              onClick={() => {
-                console.log('Community:', community.name);
-              }}
-            >
-              {community.name}
-            </MenuItem>
-          ))}
+          {adminCommunities.map((community) => {
+            const relationship = getCommunityRelationship(community);
+            return (
+              <MenuItem
+                onClick={() => {
+                  console.log('Community:', community.name);
+                }}
+              >
+                <div>
+                  <RSText>{community.name}</RSText>
+                  <RSText size={11} italic>
+                    {relationship}
+                  </RSText>
+                </div>
+              </MenuItem>
+            );
+          })}
         </Menu>
       </>
     );
@@ -362,7 +385,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.right}>
           <div className={styles.buttonContainer}>
             {renderButton()}
-            {renderFollowButton()}
+            {adminCommunities.length > 0 && renderFollowButton()}
           </div>
           <div style={{ marginTop: 15 }}>
             <RSText type="body" size={12} color={colors.second}>

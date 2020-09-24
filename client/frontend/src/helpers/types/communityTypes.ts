@@ -43,10 +43,10 @@ export type AdminCommunityServiceResponse = {
     _id: string;
     to: { _id: string; name: string };
     accepted: boolean;
-  };
-  outgoingPendingFollowRequests: {
+  }[];
+  outgoingPendingCommunityFollowRequests: {
     _id: string;
     to: { _id: string; name: string };
     accepted: boolean;
-  };
+  }[];
 };
