@@ -249,6 +249,19 @@ function CommunityGeneralInfo(props: Props) {
     setShowFullDesc(!showFullDesc);
   }
 
+  function handleRequestToFollow(communityID: string) {
+    console.log('Calling request to follow');
+  }
+
+  function handleCancelFollowRequest(communityID: string) {
+    console.log('Calling cancel follow request');
+  }
+
+  function handleUnfollow(communityID: string) {
+    console.log('Calling unfollow');
+    //TODO - Write the backend for this
+  }
+
   function getCommunityRelationship(community: AdminCommunityServiceResponse) {
     for (let i = 0; i < community.followingCommunities.length; i++)
       if (community.followingCommunities[i].to._id === props.communityID)
@@ -262,6 +275,21 @@ function CommunityGeneralInfo(props: Props) {
         return 'Pending';
 
     return '';
+  }
+
+  function getFollowButtonAction(
+    communityID: string,
+    relationship: 'Following' | 'Pending' | ''
+  ) {
+    switch (relationship) {
+      case 'Following':
+        return () => handleUnfollow(communityID);
+      case 'Pending':
+        return () => handleCancelFollowRequest(communityID);
+      case '':
+      default:
+        return () => handleRequestToFollow(communityID);
+    }
   }
 
   function renderButton() {
@@ -339,9 +367,8 @@ function CommunityGeneralInfo(props: Props) {
             const relationship = getCommunityRelationship(community);
             return (
               <MenuItem
-                onClick={() => {
-                  console.log('Community:', community.name);
-                }}
+                onClick={getFollowButtonAction(community._id, relationship)}
+                key={community._id}
               >
                 <div>
                   <RSText>{community.name}</RSText>
