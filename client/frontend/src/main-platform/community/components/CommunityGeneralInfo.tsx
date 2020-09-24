@@ -262,7 +262,8 @@ function CommunityGeneralInfo(props: Props) {
         props.accessToken,
         props.refreshToken
       );
-      console.log('Request to Follow: ', data);
+      if (data.success === 1) {
+      }
     } else setFollowMenuAnchorEl(null);
   }
 
@@ -281,8 +282,9 @@ function CommunityGeneralInfo(props: Props) {
         props.accessToken,
         props.refreshToken
       );
-
-      console.log('Cancel follow: ', data);
+      if (data.success === 1) {
+        console.log('Cancel follow: ', data);
+      }
     } else setFollowMenuAnchorEl(null);
   }
 
