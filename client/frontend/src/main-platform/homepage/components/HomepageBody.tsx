@@ -137,44 +137,33 @@ function HomepageBody(props: Props) {
   function createGeneralFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
-      if (posts[i].anonymous) {
-        output.push(
-          <UserPost
-            _id={posts[i].fromCommunity._id}
-            name={`${posts[i].fromCommunity.name}`}
-            timestamp={`${formatDatePretty(
-              new Date(posts[i].createdAt)
-            )} at ${formatTime(new Date(posts[i].createdAt))}`}
-            profilePicture={posts[i].fromCommunity.profilePicture}
-            message={posts[i].message}
-            likeCount={posts[i].likes}
-            commentCount={0}
-            style={styles.postStyle}
-            key={posts[i]._id}
-            toCommunity={posts[i].toCommunity.name}
-            toCommunityID={posts[i].toCommunity._id}
+      const { anonymous } = posts[i];
+      output.push(
+        <UserPost
+          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          name={
             anonymous
-          />
-        );
-      } else {
-        output.push(
-          <UserPost
-            _id={posts[i].user._id}
-            name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
-            timestamp={`${formatDatePretty(
-              new Date(posts[i].createdAt)
-            )} at ${formatTime(new Date(posts[i].createdAt))}`}
-            profilePicture={posts[i].user.profilePicture}
-            message={posts[i].message}
-            likeCount={posts[i].likes}
-            commentCount={0}
-            style={styles.postStyle}
-            key={posts[i]._id}
-            toCommunity={posts[i].toCommunity.name}
-            toCommunityID={posts[i].toCommunity._id}
-          />
-        );
-      }
+              ? `${posts[i].fromCommunity.name}`
+              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+          }
+          timestamp={`${formatDatePretty(
+            new Date(posts[i].createdAt)
+          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+          profilePicture={
+            anonymous
+              ? posts[i].fromCommunity.profilePicture
+              : posts[i].user.profilePicture
+          }
+          message={posts[i].message}
+          likeCount={posts[i].likes}
+          commentCount={0}
+          style={styles.postStyle}
+          key={posts[i]._id}
+          toCommunity={posts[i].toCommunity.name}
+          toCommunityID={posts[i].toCommunity._id}
+          anonymous={anonymous}
+        />
+      );
     }
     return output;
   }
