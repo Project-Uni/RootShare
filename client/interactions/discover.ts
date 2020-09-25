@@ -203,7 +203,12 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       ])
       .exec();
 
-    const userPromise = User.find({ $or: userSearchConditions })
+    const userPromise = User.find({
+      $and: [
+        { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
+        { $or: userSearchConditions },
+      ],
+    })
       .select([
         'firstName',
         'lastName',

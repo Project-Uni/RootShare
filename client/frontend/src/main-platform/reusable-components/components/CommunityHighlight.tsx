@@ -81,6 +81,9 @@ type Props = {
   status: 'JOINED' | 'PENDING' | 'OPEN';
   profilePicture: any;
   admin: string;
+
+  accessToken: string;
+  refreshToken: string;
 };
 
 function CommunityHighlight(props: Props) {

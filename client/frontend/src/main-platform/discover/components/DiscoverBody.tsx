@@ -137,6 +137,8 @@ function DiscoverBody(props: Props) {
     return cleanedQuery;
   }
 
+  async function handleMembershipRequest() {}
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
@@ -185,6 +187,8 @@ function DiscoverBody(props: Props) {
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
           status={users[i].status}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }
@@ -204,6 +208,8 @@ function DiscoverBody(props: Props) {
           mutualMemberCount={communities[i].numMutual}
           status={communities[i].status}
           admin={communities[i].admin}
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }

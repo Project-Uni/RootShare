@@ -8,6 +8,7 @@ import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { ProfileState } from '../../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -68,10 +69,46 @@ type Props = {
   mutualConnections: number;
   mutualCommunities: number;
   status: ProfileState;
+
+  accessToken: string;
+  refreshToken: string;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
+
+  async function handleSendConnectionRequest(requestUserID: string) {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestUserID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success !== 1) {
+      // show error
+    }
+  }
+
+  async function handleCancelConnectionRequest(connectionID: string) {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: connection?._id,
+        accepted: false,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success !== 1) {
+      // show error
+    }
+  }
 
   function renderStatus() {
     if (props.status === 'PUBLIC')
