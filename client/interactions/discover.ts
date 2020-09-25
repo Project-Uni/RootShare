@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
@@ -33,6 +35,7 @@ export async function populateDiscoverForUser(userID: string) {
       {
         $match: {
           $and: [
+            { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
             { connections: { $not: { $in: connections } } },
             { pendingConnections: { $not: { $in: pendingConnections } } },
             { university: { $eq: university } },
