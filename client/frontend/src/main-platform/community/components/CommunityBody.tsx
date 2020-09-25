@@ -14,7 +14,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { CommunityStatus } from '../../../helpers/types/communityTypes';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

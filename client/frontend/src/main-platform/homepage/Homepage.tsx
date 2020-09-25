@@ -17,6 +17,8 @@ import {
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
 
+const HEADER_HEIGHT = 64;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -41,6 +43,7 @@ function Homepage(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
@@ -60,6 +63,7 @@ function Homepage(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -186,7 +190,7 @@ function Homepage(props: Props) {
           setShowBetaModal(false);
         }}
       />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

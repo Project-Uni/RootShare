@@ -20,7 +20,7 @@ import {
 import { makeRequest } from '../../../helpers/functions';
 import RSText from '../../../base-components/RSText';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

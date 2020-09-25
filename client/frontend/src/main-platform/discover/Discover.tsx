@@ -16,6 +16,8 @@ import {
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
 
+const HEADER_HEIGHT = 64;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -39,6 +41,7 @@ function Discover(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ function Discover(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -79,7 +83,7 @@ function Discover(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/discover`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="discover" />
         )}

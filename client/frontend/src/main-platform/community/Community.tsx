@@ -18,6 +18,8 @@ import {
 import { Community, CommunityStatus } from '../../helpers/types';
 import RSText from '../../base-components/RSText';
 
+const HEADER_HEIGHT = 64;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -47,6 +49,7 @@ function CommunityDetails(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
@@ -71,6 +74,7 @@ function CommunityDetails(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -139,7 +143,7 @@ function CommunityDetails(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         {showInvalid ? (
           renderInvalid()

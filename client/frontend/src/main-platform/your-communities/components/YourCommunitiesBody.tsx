@@ -8,12 +8,11 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 
-import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
 import { CommunityType } from '../../../helpers/types';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

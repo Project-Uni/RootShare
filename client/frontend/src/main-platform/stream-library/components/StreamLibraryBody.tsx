@@ -8,7 +8,7 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import Stream from './Stream';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchIcon: {
     marginRight: 10,
-  }
+  },
 }));
 
 type Props = {};

@@ -13,6 +13,7 @@ import ConnectionsBody from './components/ConnectionsBody';
 
 import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../helpers/constants';
 
+const HEADER_HEIGHT = 64;
 const CONNECTIONS_SHOW_NAVIGATION_WIDTH = 850;
 
 const useStyles = makeStyles((_: any) => ({
@@ -42,6 +43,7 @@ function Connections(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const userID = props.match.params['userID'];
@@ -59,6 +61,7 @@ function Connections(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -84,7 +87,7 @@ function Connections(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/connections`} />}
       <EventClientHeader showNavigationWidth={CONNECTIONS_SHOW_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="connections" />
         )}
