@@ -25,25 +25,9 @@ export async function getGeneralFeed(universityID: string) {
       type: { $eq: 'broadcast' },
     };
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    const imagePromises = generateSignedImagePromises(posts);
-
-    return Promise.all(imagePromises)
-      .then((signedImageURLs) => {
-        for (let i = 0; i < posts.length; i++)
-          if (signedImageURLs[i]) {
-            const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
-            if (pictureType === 'profile')
-              posts[i].user.profilePicture = signedImageURLs[i];
-            else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
-          }
-
-        return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -87,25 +71,9 @@ export async function getFollowingFeed(userID: string) {
     );
 
     const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    const imagePromises = generateSignedImagePromises(posts);
-
-    return Promise.all(imagePromises)
-      .then((signedImageURLs) => {
-        for (let i = 0; i < posts.length; i++)
-          if (signedImageURLs[i]) {
-            const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
-            if (pictureType === 'profile')
-              posts[i].user.profilePicture = signedImageURLs[i];
-            else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
-          }
-        log('info', `Retrieved following feed for user ${userID}`);
-        return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -281,26 +249,9 @@ export async function getInternalCurrentMemberPosts(
     const condition = { _id: { $in: community.internalCurrentMemberPosts } };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    const imagePromises = generateSignedImagePromises(posts);
-
-    return Promise.all(imagePromises)
-      .then((signedImageURLs) => {
-        for (let i = 0; i < posts.length; i++)
-          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
-
-        log(
-          'info',
-          `Successfully retrieved internal current member feed for community ${community.name}`
-        );
-        return sendPacket(1, 'Successfully retrieved internal current member feed', {
-          posts,
-        });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -339,26 +290,9 @@ export async function getInternalAlumniPosts(
     const condition = { _id: { $in: community.internalAlumniPosts } };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    const imagePromises = generateSignedImagePromises(posts);
-
-    return Promise.all(imagePromises)
-      .then((signedImageURLs) => {
-        for (let i = 0; i < posts.length; i++)
-          if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
-
-        log(
-          'info',
-          `Successfully retrieved internal current member feed for community ${community.name}`
-        );
-        return sendPacket(1, 'Successfully retrieved internal current member feed', {
-          posts,
-        });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -585,7 +519,7 @@ async function getValidatedCommunity(
   }
 }
 
-function generateSignedImagePromises(posts: {
+function generatePostSignedImagePromises(posts: {
   [key: string]: any;
   user: { [key: string]: any; profilePicture?: string };
 }) {
@@ -620,8 +554,9 @@ function generateSignedImagePromises(posts: {
 async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
-  numSkipped: number = 0 //Used when we're loading more, we can just update this count to get the next previous
+  numSkipped: number = 0, //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
+  withImages: boolean = true
 ) {
   const posts = await Post.aggregate([
     { $match: condition },
@@ -683,7 +618,26 @@ async function retrievePosts(
     },
   ]).exec();
 
-  return posts;
+  if (!withImages) return posts;
+
+  const imagePromises = generatePostSignedImagePromises(posts);
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < posts.length; i++)
+        if (signedImageURLs[i]) {
+          const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+          if (pictureType === 'profile')
+            posts[i].user.profilePicture = signedImageURLs[i];
+          else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+        }
+
+      return posts;
+    })
+    .catch((err) => {
+      log('error', err);
+      return false;
+    });
 }
 
 async function getExternalPostsMember_Helper(communityID: string) {
@@ -696,20 +650,9 @@ async function getExternalPostsMember_Helper(communityID: string) {
     const condition = { _id: { $in: community.externalPosts } };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    const imagePromises = generateSignedImagePromises(posts);
-    return Promise.all(imagePromises).then((signedImageURLs) => {
-      for (let i = 0; i < posts.length; i++)
-        if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
-
-      log(
-        'info',
-        `Successfully retrieved external feed for community ${community.name}`
-      );
-      return sendPacket(1, 'Successfully retrieved external feed', {
-        posts,
-      });
-    });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -734,20 +677,9 @@ async function getExternalPostsNonMember_Helper(
 
     const condition = { _id: { $in: community.externalPosts } };
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
-    const imagePromises = await generateSignedImagePromises(posts);
+    if (!posts) return sendPacket(-1, 'There was an error');
 
-    return Promise.all(imagePromises).then((signedImageURLs) => {
-      for (let i = 0; i < posts.length; i++)
-        if (signedImageURLs[i]) posts[i].user.profilePicture = signedImageURLs[i];
-
-      log(
-        'info',
-        `Successfully retrieved external feed for community ${community.name}`
-      );
-      return sendPacket(1, 'Successfully retrieved external feed', {
-        posts,
-      });
-    });
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
   } catch (err) {
     log('info', err);
     return sendPacket(-1, err);
