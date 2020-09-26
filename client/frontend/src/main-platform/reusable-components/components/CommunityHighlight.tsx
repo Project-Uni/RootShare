@@ -100,9 +100,14 @@ function CommunityHighlight(props: Props) {
   const [communityStatus, setCommunityStatus] = useState<CommunityStatus>(
     props.status
   );
+  const [numMembers, setNumMembers] = useState(props.memberCount);
 
   async function requestJoin() {
-    setCommunityStatus(props.private ? 'PENDING' : 'JOINED');
+    if (props.private) setCommunityStatus('PENDING');
+    else {
+      setCommunityStatus('JOINED');
+      setNumMembers((prevNumMembers) => prevNumMembers + 1);
+    }
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/join`,
@@ -191,7 +196,7 @@ function CommunityHighlight(props: Props) {
             {cropText(props.description, MAX_DESC_LEN)}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
-            {props.memberCount} Members | {props.mutualMemberCount} Mutual
+            {numMembers} Members | {props.mutualMemberCount} Mutual
           </RSText>
         </div>
       </div>
