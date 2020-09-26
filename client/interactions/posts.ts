@@ -237,11 +237,11 @@ export async function getInternalCurrentMemberPosts(
   if (accountType !== 'student' && community.admin.toString() != userID) {
     log(
       'info',
-      `User ${userID} who is an attempted to retrieve current member feed for ${communityID}`
+      `User ${userID} who is not a student attempted to retrieve current member feed for ${communityID}`
     );
     return sendPacket(
       0,
-      'Alumni are not allowed to post into the current member feed'
+      'Alumni are not allowed to retrieve the current member feed'
     );
   }
 
@@ -283,7 +283,7 @@ export async function getInternalAlumniPosts(
       'info',
       `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`
     );
-    return sendPacket(0, 'Students are not allowed to post into the alumni feed');
+    return sendPacket(0, 'Students are not allowed to retrieve alumni feed');
   }
 
   try {
@@ -326,7 +326,7 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           );
           return sendPacket(
             0,
-            'User is not admin of the community hey they are posting as'
+            'User is not admin of the community they they are posting as'
           );
         }
         if (!isFollowing) {
@@ -527,16 +527,12 @@ function generatePostSignedImagePromises(posts: {
 
   for (let i = 0; i < posts.length; i++) {
     const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
+    const picturePath =
+      pictureType === 'profile'
+        ? posts[i].user.profilePicture
+        : posts[i].fromCommunity.profilePicture;
 
-    if (
-      (pictureType === 'profile' && posts[i].user.profilePicture) ||
-      (pictureType === 'communityProfile' && posts[i].fromCommunity.profilePicture)
-    ) {
-      const picturePath =
-        pictureType === 'profile'
-          ? posts[i].user.profilePicture
-          : posts[i].fromCommunity.profilePicture;
-
+    if (picturePath) {
       try {
         const signedImageUrlPromise = retrieveSignedUrl(pictureType, picturePath);
         profilePicturePromises.push(signedImageUrlPromise);
@@ -556,7 +552,7 @@ async function retrievePosts(
   numRetrieved: number,
   numSkipped: number = 0, //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
-  withImages: boolean = true
+  withProfileImage: boolean = true
 ) {
   const posts = await Post.aggregate([
     { $match: condition },
@@ -618,7 +614,7 @@ async function retrievePosts(
     },
   ]).exec();
 
-  if (!withImages) return posts;
+  if (!withProfileImage) return posts;
 
   const imagePromises = generatePostSignedImagePromises(posts);
 
@@ -626,10 +622,9 @@ async function retrievePosts(
     .then((signedImageURLs) => {
       for (let i = 0; i < posts.length; i++)
         if (signedImageURLs[i]) {
-          const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
-          if (pictureType === 'profile')
-            posts[i].user.profilePicture = signedImageURLs[i];
-          else posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+          if (posts[i].anonymous)
+            posts[i].fromCommunity.profilePicture = signedImageURLs[i];
+          else posts[i].user.profilePicture = signedImageURLs[i];
         }
 
       return posts;
