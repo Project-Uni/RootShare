@@ -585,7 +585,11 @@ export function requestConnection(userID, requestUserID, callback) {
               if (!requestedUser)
                 return callback(sendPacket(0, 'Could not save request TO user'));
 
-              callback(sendPacket(1, 'Connection request has been sent!'));
+              callback(
+                sendPacket(1, 'Connection request has been sent!', {
+                  requestID: connectionRequest._id,
+                })
+              );
             });
           });
         });

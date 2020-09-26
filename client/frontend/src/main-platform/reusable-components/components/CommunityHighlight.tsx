@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
+import { connect } from 'react-redux';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -81,6 +82,10 @@ type Props = {
   status: 'JOINED' | 'PENDING' | 'OPEN';
   profilePicture: any;
   admin: string;
+  setNotification?: (
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) => void;
 
   accessToken: string;
   refreshToken: string;
@@ -168,4 +173,15 @@ function CommunityHighlight(props: Props) {
   );
 }
 
-export default CommunityHighlight;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CommunityHighlight);

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { Slide } from '@material-ui/core';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { FaSearch } from 'react-icons/fa';
 
@@ -11,6 +13,7 @@ import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 import { colors } from '../../../theme/Colors';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import {
   WelcomeMessage,
   UserHighlight,
@@ -78,6 +81,12 @@ function DiscoverBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
   const [renderList, setRenderList] = useState<JSX.Element[]>([]);
 
   const [searchValue, setSearchValue] = useState('');
@@ -137,7 +146,18 @@ function DiscoverBody(props: Props) {
     return cleanedQuery;
   }
 
-  async function handleMembershipRequest() {}
+  function setNotification(
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) {
+    function slideLeft(props: TransitionProps) {
+      return <Slide {...props} direction="left" />;
+    }
+
+    setSnackbarMode(successMode);
+    setSnackbarMessage(message);
+    setTransition(() => slideLeft);
+  }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
@@ -187,8 +207,7 @@ function DiscoverBody(props: Props) {
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
           status={users[i].status}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
+          setNotification={setNotification}
         />
       );
     }
@@ -208,8 +227,7 @@ function DiscoverBody(props: Props) {
           mutualMemberCount={communities[i].numMutual}
           status={communities[i].status}
           admin={communities[i].admin}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
+          setNotification={setNotification}
         />
       );
     }
@@ -253,6 +271,12 @@ function DiscoverBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       {showWelcomeModal && (
         <WelcomeMessage
           title="Discovery"

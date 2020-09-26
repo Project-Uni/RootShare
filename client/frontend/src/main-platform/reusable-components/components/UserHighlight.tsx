@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
+import { connect } from 'react-redux';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -54,6 +55,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   pendingStatus: {
     background: colors.secondaryText,
+    padding: 3,
+    paddingLeft: 5,
+    paddingRight: 5,
+    borderRadius: 3,
   },
 }));
 
@@ -69,6 +74,10 @@ type Props = {
   mutualConnections: number;
   mutualCommunities: number;
   status: ProfileState;
+  setNotification?: (
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) => void;
 
   accessToken: string;
   refreshToken: string;
@@ -77,49 +86,41 @@ type Props = {
 function UserHighlight(props: Props) {
   const styles = useStyles();
 
-  async function handleSendConnectionRequest(requestUserID: string) {
+  const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
+
+  async function requestConnection() {
+    setUserStatus('PENDING');
     const { data } = await makeRequest(
       'POST',
       '/user/requestConnection',
       {
-        requestUserID,
+        requestUserID: props.userID,
       },
       true,
       props.accessToken,
       props.refreshToken
     );
     if (data.success !== 1) {
-      // show error
-    }
-  }
-
-  async function handleCancelConnectionRequest(connectionID: string) {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data.success !== 1) {
-      // show error
+      setUserStatus(props.status);
+      props.setNotification &&
+        props.setNotification('error', 'Failed to send connection request');
     }
   }
 
   function renderStatus() {
-    if (props.status === 'PUBLIC')
-      return <Button className={styles.connectButton}>Connect</Button>;
-    else if (props.status === 'CONNECTION')
+    if (userStatus === 'PUBLIC')
+      return (
+        <Button className={styles.connectButton} onClick={requestConnection}>
+          Connect
+        </Button>
+      );
+    else if (userStatus === 'CONNECTION')
       return (
         <RSText color={colors.primary} size={11}>
           CONNECTED
         </RSText>
       );
-    else if (props.status === 'PENDING')
+    else if (userStatus === 'PENDING')
       return (
         <RSText
           color={colors.primaryText}
@@ -182,4 +183,15 @@ function UserHighlight(props: Props) {
   );
 }
 
-export default UserHighlight;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserHighlight);
