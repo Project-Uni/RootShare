@@ -124,7 +124,7 @@ function UserHighlight(props: Props) {
       return (
         <RSText
           color={colors.primaryText}
-          size={11}
+          size={12}
           className={styles.pendingStatus}
         >
           PENDING

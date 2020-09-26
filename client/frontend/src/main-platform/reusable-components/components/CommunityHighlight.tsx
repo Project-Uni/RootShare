@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { connect } from 'react-redux';
@@ -8,6 +8,9 @@ import { FaLock } from 'react-icons/fa';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { cropText, makeRequest } from '../../../helpers/functions';
+import { CommunityStatus } from '../../../helpers/types';
 
 const MAX_DESC_LEN = 200;
 
@@ -35,12 +38,12 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.primary,
     },
   },
-  pendingButton: {
+  pendingText: {
     background: colors.secondaryText,
-    color: colors.primaryText,
-    '&:hover': {
-      background: colors.primary,
-    },
+    padding: 3,
+    paddingLeft: 5,
+    paddingRight: 5,
+    borderRadius: 3,
   },
   textContainer: {
     marginLeft: 20,
@@ -79,7 +82,7 @@ type Props = {
   description: string;
   memberCount: number;
   mutualMemberCount: number;
-  status: 'JOINED' | 'PENDING' | 'OPEN';
+  status: CommunityStatus;
   profilePicture: any;
   admin: string;
   setNotification?: (
@@ -94,13 +97,41 @@ type Props = {
 function CommunityHighlight(props: Props) {
   const styles = useStyles();
 
-  const descSubstr = props.description.substr(0, MAX_DESC_LEN);
+  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>(
+    props.status
+  );
+
+  async function requestJoin() {
+    setCommunityStatus(props.private ? 'PENDING' : 'JOINED');
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/join`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) {
+      setCommunityStatus(props.status);
+      props.setNotification &&
+        props.setNotification('error', 'There was an error requesting membership');
+    }
+  }
 
   function renderButton() {
-    if (props.status === 'OPEN')
-      return <Button className={styles.connectButton}>Join</Button>;
-    else if (props.status === 'PENDING')
-      return <Button className={styles.pendingButton}>Pending</Button>;
+    if (communityStatus === 'OPEN')
+      return (
+        <Button className={styles.connectButton} onClick={requestJoin}>
+          Join
+        </Button>
+      );
+    else if (communityStatus === 'PENDING')
+      return (
+        <RSText color={colors.primaryText} size={12} className={styles.pendingText}>
+          PENDING
+        </RSText>
+      );
     else
       return (
         <RSText color={colors.primary} size={12}>
@@ -157,9 +188,7 @@ function CommunityHighlight(props: Props) {
             color={colors.secondaryText}
             className={styles.type}
           >
-            {props.description !== descSubstr
-              ? descSubstr.concat(' ...')
-              : props.description}
+            {cropText(props.description, MAX_DESC_LEN)}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
             {props.memberCount} Members | {props.mutualMemberCount} Mutual
