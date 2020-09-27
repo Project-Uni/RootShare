@@ -119,6 +119,10 @@ function CommunityHighlight(props: Props) {
 
     if (data['success'] !== 1) {
       setCommunityStatus(props.status);
+      if (!props.private)
+        setNumMembers((prevNumMembers) =>
+          prevNumMembers - 1 > 0 ? prevNumMembers - 1 : 0
+        );
       props.setNotification &&
         props.setNotification('error', 'There was an error requesting membership');
     }

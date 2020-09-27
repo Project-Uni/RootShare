@@ -80,6 +80,7 @@ export function extractOtherUserIDFromConnections(
   return connections;
 }
 
+// Adds profile picture, mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
@@ -92,12 +93,17 @@ export async function addCalculatedUserFields(
     status: string;
   }
 ) {
+  const userConnectionsStrings = toStringArray(currentUserConnections);
+  const userCommunitiesStrings = toStringArray(currentUserJoinedCommunities);
+  const otherUserConnectionsStrings = toStringArray(otherUser.connections);
+  const otherUserCommunitiesStrings = toStringArray(otherUser.joinedCommunities);
+
   //Calculating mutual connections and communities
-  const mutualConnections = currentUserConnections.filter((connection) => {
-    return otherUser.connections.indexOf(connection) !== -1;
+  const mutualConnections = userConnectionsStrings.filter((connection) => {
+    return otherUserConnectionsStrings.indexOf(connection) !== -1;
   });
-  const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
-    return otherUser.joinedCommunities.indexOf(community) !== -1;
+  const mutualCommunities = userCommunitiesStrings.filter((community) => {
+    return otherUserCommunitiesStrings.indexOf(community) !== -1;
   });
 
   //Getting profile picture
@@ -128,6 +134,7 @@ export async function addCalculatedUserFields(
   return cleanedUser;
 }
 
+// Adds profile picture and mutual members
 export async function addCalculatedCommunityFields(
   currentUserConnections: string[],
   community: {
@@ -136,8 +143,11 @@ export async function addCalculatedCommunityFields(
     admin: string;
   }
 ) {
-  const mutualMembers = currentUserConnections.filter((connection) => {
-    return community.members.indexOf(connection) !== -1;
+  const currentUserConnectionsStrings = toStringArray(currentUserConnections);
+  const membersStrings = toStringArray(community.members);
+
+  const mutualMembers = currentUserConnectionsStrings.filter((connection) => {
+    return membersStrings.indexOf(connection) !== -1;
   });
 
   //Getting profile picture
@@ -276,4 +286,27 @@ export function generateSignedImagePromises(
   }
 
   return profilePicturePromises;
+}
+
+export function convertConnectionsToUserIDs(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (connection.accepted) {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(otherID.toString());
+    }
+    return output;
+  }, []);
+}
+
+export function toStringArray(array) {
+  let retArray = [];
+  array.forEach((element) => {
+    retArray.push(element.toString());
+  });
+
+  return retArray;
 }
