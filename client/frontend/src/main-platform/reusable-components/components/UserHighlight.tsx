@@ -39,6 +39,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   name: {
+    width: 'max-content',
     marginBottom: 3,
     '&:hover': {
       textDecoration: 'underline',
@@ -46,6 +47,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   work: {
     marginBottom: 3,
+  },
+  nameContainer: {
+    display: 'flex',
   },
   noUnderline: {
     textDecoration: 'none',
@@ -146,16 +150,18 @@ function UserHighlight(props: Props) {
           />
         </a>
         <div className={styles.textContainer}>
-          <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-            <RSText
-              type="head"
-              size={13}
-              color={colors.second}
-              className={styles.name}
-            >
-              {props.name}
-            </RSText>
-          </a>
+          <div className={styles.nameContainer}>
+            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+              <RSText
+                type="head"
+                size={13}
+                color={colors.second}
+                className={styles.name}
+              >
+                {props.name}
+              </RSText>
+            </a>
+          </div>
           <RSText type="subhead" size={12} color={colors.secondaryText}>
             {props.university}
             {props.graduationYear ? ' ' + props.graduationYear : null}
