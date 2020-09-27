@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost } from '../../reusable-components';
+import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 import {
@@ -39,7 +39,12 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 1,
   },
   postStyle: {
-    borderTop: `1px solid ${colors.fourth}`,
+    borderBottom: `1px solid ${colors.fourth}`,
+  },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
   },
 }));
 
@@ -57,17 +62,25 @@ function HomepageBody(props: Props) {
   //TODO - Use default state false for this once connected to server, and set to true if its their first visit
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
-  const [generalFeed, setGeneralFeed] = useState<JSX.Element[]>([]);
+  const [feed, setFeed] = useState<JSX.Element[]>([]);
+  const [selectedTab, setSelectedTab] = useState('general');
 
   const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     getProfilePicture();
-    getGeneralFeed().then(() => {
+    getFeed().then(() => {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    getFeed().then(() => {
+      setLoading(false);
+    });
+  }, [selectedTab]);
 
   async function getProfilePicture() {
     const { data } = await makeRequest(
@@ -83,11 +96,10 @@ function HomepageBody(props: Props) {
     }
   }
 
-  async function getGeneralFeed() {
+  async function getFeed() {
     const { data } = await makeRequest(
       'GET',
-      // '/api/posts/feed/general',
-      '/api/posts/feed/following',
+      `/api/posts/feed/${selectedTab}`,
       {},
       true,
       props.accessToken,
@@ -95,7 +107,7 @@ function HomepageBody(props: Props) {
     );
 
     if (data.success === 1) {
-      setGeneralFeed(createGeneralFeed(data.content['posts']));
+      setFeed(createFeed(data.content['posts']));
       setServerErr(false);
     } else {
       setServerErr(true);
@@ -114,8 +126,12 @@ function HomepageBody(props: Props) {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
+  function handleTabChange(newTab: string) {
+    setSelectedTab(newTab);
+  }
+
   function appendNewPost(post: PostType) {
-    setGeneralFeed((prevState) => {
+    setFeed((prevState) => {
       const newEntry = (
         <UserPost
           _id={props.user._id}
@@ -134,7 +150,7 @@ function HomepageBody(props: Props) {
     });
   }
 
-  function createGeneralFeed(posts: PostType[]) {
+  function createFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
       const { anonymous } = posts[i];
@@ -184,10 +200,19 @@ function HomepageBody(props: Props) {
         appendNewPost={appendNewPost}
         profilePicture={profilePicture}
       />
+      <RSTabs
+        tabs={[
+          { label: 'General', value: 'general' },
+          { label: 'Following', value: 'following' },
+        ]}
+        onChange={handleTabChange}
+        selected={selectedTab}
+        className={styles.tabs}
+      />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        <div className={styles.posts}>{generalFeed}</div>
+        <div className={styles.posts}>{feed}</div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={colors.primary}>
