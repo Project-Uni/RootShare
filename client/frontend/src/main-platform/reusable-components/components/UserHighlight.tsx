@@ -71,8 +71,8 @@ type Props = {
   graduationYear?: number;
   position?: string;
   company?: string;
-  mutualConnections: number;
-  mutualCommunities: number;
+  mutualConnections?: number;
+  mutualCommunities?: number;
   status: ProfileState;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
@@ -171,8 +171,8 @@ function UserHighlight(props: Props) {
             {props.company ? props.company : null}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
-            {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
-            Mutual Communities
+            {props.mutualConnections || 0} Mutual Connections |{' '}
+            {props.mutualCommunities || 0} Mutual Communities
           </RSText>
         </div>
       </div>

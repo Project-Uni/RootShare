@@ -6,7 +6,8 @@ import {
   extractOtherUserIDFromConnections,
   addCalculatedUserFields,
   generateSignedImagePromises,
-  convertConnectionsToUserIDs,
+  connectionsToUserIDStrings,
+  connectionsToUserIDs,
 } from './utilities';
 
 export function getCurrentUser(user, callback) {
@@ -80,7 +81,7 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
       'connections',
       'joinedCommunities',
     ])
-      .populate('connections')
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
     const otherUserPromise = User.aggregate([
@@ -134,11 +135,11 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
           return callback(sendPacket(0, 'Could not find the given user'));
 
         let otherUser = otherUserOutput[0];
-        otherUser.connections = convertConnectionsToUserIDs(
+        otherUser.connections = connectionsToUserIDStrings(
           userID,
           otherUser.connections
         );
-        const selfConnections = convertConnectionsToUserIDs(
+        const selfConnections = connectionsToUserIDStrings(
           selfUserID,
           selfUser.connections
         );
@@ -1018,51 +1019,43 @@ export async function getConnectionsFullData(userID: string) {
     const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
       'connections',
       'joinedCommunities',
-    ]).populate({ path: 'connections', select: ['from', 'to'] });
+    ]).populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
-    const connectionIDs = connections.reduce((output, connection) => {
-      const otherID =
-        connection['from'].toString() != userID.toString()
-          ? connection['from']
-          : connection['to'];
+    const connectionUserIDStrings = connectionsToUserIDStrings(userID, connections);
+    const connectionUserIDs = connectionsToUserIDs(userID, connections);
 
-      output.push(otherID);
-
-      return output;
-    }, []);
-
-    const connectionsWithData = await User.find({ _id: { $in: connectionIDs } }, [
-      'firstName',
-      'lastName',
-      'graduationYear',
-      'university',
-      'work',
-      'position',
-      'connections',
-      'joinedCommunities',
-      'profilePicture',
-    ])
+    const connectionsWithData = await User.find(
+      { _id: { $in: connectionUserIDs } },
+      [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'joinedCommunities',
+        'profilePicture',
+      ]
+    )
       .populate({ path: 'university', select: ['universityName'] })
-      .populate({ path: 'connections', select: ['from', 'to'] });
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      if (connectionsWithData[i].profilePicture) {
-        try {
-          const imageURL = await retrieveSignedUrl(
-            'profile',
-            connectionsWithData[i].profilePicture
-          );
-          if (imageURL) connectionsWithData[i].profilePicture = imageURL;
-        } catch (err) {
-          log('error', err);
-        }
-      }
+      connectionsWithData[i] = connectionsWithData[i].toObject();
+      connectionsWithData[i].connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
+      );
+      connectionsWithData[i] = await addCalculatedUserFields(
+        connectionUserIDStrings,
+        joinedCommunities,
+        connectionsWithData[i]
+      );
     }
 
     return sendPacket(1, 'successfully retrieved all connections', {
       connections: connectionsWithData,
-      connectionIDs: connectionIDs,
-      joinedCommunities: joinedCommunities,
     });
   } catch (err) {
     log('error', err);

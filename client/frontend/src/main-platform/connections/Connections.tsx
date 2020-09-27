@@ -50,11 +50,7 @@ function Connections(props: Props) {
     window.addEventListener('resize', handleResize);
 
     checkAuth().then(async (authenticated) => {
-      if (authenticated) {
-        console.log('User is authenticated');
-      } else {
-        setLoginRedirect(true);
-      }
+      if (!authenticated) setLoginRedirect(true);
     });
   }, []);
 
@@ -82,7 +78,7 @@ function Connections(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/connections`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/connections/user`} />}
       <EventClientHeader showNavigationWidth={CONNECTIONS_SHOW_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
