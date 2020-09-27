@@ -44,7 +44,7 @@ export async function populateDiscoverForUser(userID: string) {
           ],
         },
       },
-      { $sample: { size: 100 } },
+      { $sample: { size: numUsers } },
       {
         $lookup: {
           from: 'universities',
