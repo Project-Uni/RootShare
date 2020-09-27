@@ -86,7 +86,8 @@ function HomepageBody(props: Props) {
   async function getGeneralFeed() {
     const { data } = await makeRequest(
       'GET',
-      '/api/posts/feed/general',
+      // '/api/posts/feed/general',
+      '/api/posts/feed/following',
       {},
       true,
       props.accessToken,
@@ -117,8 +118,8 @@ function HomepageBody(props: Props) {
     setGeneralFeed((prevState) => {
       const newEntry = (
         <UserPost
-          userID={props.user._id}
-          userName={`${props.user.firstName} ${props.user.lastName}`}
+          _id={props.user._id}
+          name={`${props.user.firstName} ${props.user.lastName}`}
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
             new Date(post.createdAt)
           )}`}
@@ -136,19 +137,31 @@ function HomepageBody(props: Props) {
   function createGeneralFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
+      const { anonymous } = posts[i];
       output.push(
         <UserPost
-          userID={posts[i].user._id}
-          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          name={
+            anonymous
+              ? `${posts[i].fromCommunity.name}`
+              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+          }
           timestamp={`${formatDatePretty(
             new Date(posts[i].createdAt)
           )} at ${formatTime(new Date(posts[i].createdAt))}`}
-          profilePicture={posts[i].user.profilePicture}
+          profilePicture={
+            anonymous
+              ? posts[i].fromCommunity.profilePicture
+              : posts[i].user.profilePicture
+          }
           message={posts[i].message}
           likeCount={posts[i].likes}
           commentCount={0}
           style={styles.postStyle}
           key={posts[i]._id}
+          toCommunity={posts[i].toCommunity.name}
+          toCommunityID={posts[i].toCommunity._id}
+          anonymous={anonymous}
         />
       );
     }

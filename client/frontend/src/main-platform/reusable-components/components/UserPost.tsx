@@ -49,9 +49,10 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 4,
   },
   noUnderline: {
+    color: 'inherit',
     textDecoration: 'none',
     '&:hover': {
-      textDecoration: 'none',
+      textDecoration: 'underline',
     },
   },
   message: {
@@ -121,16 +122,17 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  userID: string;
-  userName: string;
-  community?: string;
-  communityID?: string;
+  _id: string;
+  name: string;
+  toCommunity?: string;
+  toCommunityID?: string;
   timestamp: string;
   profilePicture: any;
   message: string;
   likeCount: number;
   commentCount: number;
   style?: any;
+  anonymous?: boolean;
 };
 
 function UserPost(props: Props) {
@@ -172,7 +174,10 @@ function UserPost(props: Props) {
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+        <a
+          href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+          className={styles.noUnderline}
+        >
           <ProfilePicture
             height={50}
             width={50}
@@ -185,13 +190,16 @@ function UserPost(props: Props) {
 
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
-            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+            <a
+              href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+              className={styles.noUnderline}
+            >
               <RSText type="subhead" color={colors.secondary} bold size={14}>
-                {props.userName}
+                {props.name}
               </RSText>
             </a>
 
-            {props.community && (
+            {props.toCommunity && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}
@@ -199,11 +207,11 @@ function UserPost(props: Props) {
                   className={styles.plantIcon}
                 />
                 <a
-                  href={`/community/${props.communityID}`}
+                  href={`/community/${props.toCommunityID}`}
                   className={styles.noUnderline}
                 >
                   <RSText type="subhead" color={colors.secondary} bold size={14}>
-                    {props.community}
+                    {props.toCommunity}
                   </RSText>
                 </a>
               </>

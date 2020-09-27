@@ -64,8 +64,6 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
     const head = await s3.headObject(params).promise();
     const signedURL = s3.getSignedUrl('getObject', params);
 
-    log('info', `Retrieved signed URL: ${signedURL}`);
-
     return signedURL;
   } catch (err) {
     log('err', err);
