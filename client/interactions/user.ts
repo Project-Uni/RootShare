@@ -5,8 +5,8 @@ import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
   extractOtherUserIDFromConnections,
   addCalculatedUserFields,
-  addProfilePictureToUser,
   generateSignedImagePromises,
+  convertConnectionsToUserIDs,
 } from './utilities';
 
 export function getCurrentUser(user, callback) {
@@ -71,55 +71,92 @@ export async function getPrivateProfileInformation(userID, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function getPublicProfileInformation(userID, callback) {
+export async function getPublicProfileInformation(selfUserID, userID, callback) {
   try {
     mongoose.Types.ObjectId(userID);
+    mongoose.Types.ObjectId(selfUserID);
+
+    const selfUserPromise = User.findById(selfUserID, [
+      'connections',
+      'joinedCommunities',
+    ])
+      .populate('connections')
+      .exec();
+
+    const otherUserPromise = User.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(userID) } },
+      {
+        $lookup: {
+          from: 'universities',
+          localField: 'university',
+          foreignField: '_id',
+          as: 'university',
+        },
+      },
+      { $unwind: '$university' },
+      {
+        $lookup: {
+          from: 'connections',
+          localField: 'connections',
+          foreignField: '_id',
+          as: 'connections',
+        },
+      },
+      {
+        $project: {
+          email: '$email',
+          firstName: '$firstName',
+          lastName: '$lastName',
+          major: '$major',
+          graduationYear: '$graduationYear',
+          work: '$work',
+          position: '$position',
+          department: '$department',
+          interests: '$interests',
+          organizations: '$organizations',
+          graduateSchool: '$graduateSchool',
+          bio: '$bio',
+          connections: '$connections',
+          joinedCommunities: '$joinedCommunities',
+          numConnections: { $size: '$connections' },
+          numCommunities: { $size: '$joinedCommunities' },
+          university: {
+            _id: '$university._id',
+            universityName: '$university.universityName',
+          },
+        },
+      },
+    ]).exec();
+
+    Promise.all([selfUserPromise, otherUserPromise]).then(
+      async ([selfUser, otherUserOutput]) => {
+        if (!selfUser || !otherUserOutput || otherUserOutput.length === 0)
+          return callback(sendPacket(0, 'Could not find the given user'));
+
+        let otherUser = otherUserOutput[0];
+        otherUser.connections = convertConnectionsToUserIDs(
+          userID,
+          otherUser.connections
+        );
+        const selfConnections = convertConnectionsToUserIDs(
+          selfUserID,
+          selfUser.connections
+        );
+
+        otherUser = await addCalculatedUserFields(
+          selfConnections,
+          selfUser.joinedCommunities,
+          otherUser
+        );
+
+        return callback(
+          sendPacket(1, 'Sending public user information', { user: otherUser })
+        );
+      }
+    );
   } catch (err) {
     return callback(sendPacket(-1, err));
   }
-
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'universities',
-        localField: 'university',
-        foreignField: '_id',
-        as: 'university',
-      },
-    },
-    { $unwind: '$university' },
-    {
-      $project: {
-        email: '$email',
-        firstName: '$firstName',
-        lastName: '$lastName',
-        major: '$major',
-        graduationYear: '$graduationYear',
-        work: '$work',
-        position: '$position',
-        department: '$department',
-        interests: '$interests',
-        organizations: '$organizations',
-        graduateSchool: '$graduateSchool',
-        bio: '$bio',
-        numConnections: { $size: '$connections' },
-        numCommunities: { $size: '$joinedCommunities' },
-        university: {
-          _id: '$university._id',
-          universityName: '$university.universityName',
-        },
-      },
-    },
-  ])
-    .then((users) => {
-      if (!users || users.length === 0)
-        return callback(sendPacket(0, "Couldn't find user"));
-      return callback(
-        sendPacket(1, 'Sending public user information', { user: users[0] })
-      );
-    })
-    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function getUserEvents(userID, callback) {

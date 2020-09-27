@@ -122,6 +122,7 @@ function ProfileBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+    console.log(data);
 
     if (data['success'] === 1) {
       setProfileState(data['content']['user']);

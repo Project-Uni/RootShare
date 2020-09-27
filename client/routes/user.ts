@@ -34,7 +34,9 @@ module.exports = (app) => {
     if (req.params.userID === 'user')
       getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
     else
-      getPublicProfileInformation(req.params.userID, (packet) => res.json(packet));
+      getPublicProfileInformation(req.user._id, req.params.userID, (packet) =>
+        res.json(packet)
+      );
   });
 
   app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
