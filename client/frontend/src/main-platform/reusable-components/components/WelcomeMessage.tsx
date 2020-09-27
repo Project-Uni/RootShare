@@ -39,12 +39,15 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.ternary,
     },
   },
+  fillSpace: {
+    height: 32,
+  },
 }));
 
 type Props = {
   title: string;
   message: string;
-  onClose: () => void;
+  onClose?: () => void;
   buttonText?: string;
   buttonAction?: () => any;
 };
@@ -53,11 +56,15 @@ function WelcomeMessage(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.welcomeMessage}>
-      <div className={styles.closeWelcomeButtonDiv}>
-        <IconButton onClick={props.onClose}>
-          <IoMdClose size={24} color={colors.secondaryText} />
-        </IconButton>
-      </div>
+      {props.onClose ? (
+        <div className={styles.closeWelcomeButtonDiv}>
+          <IconButton onClick={props.onClose}>
+            <IoMdClose size={24} color={colors.secondaryText} />
+          </IconButton>
+        </div>
+      ) : (
+        <div className={styles.fillSpace} />
+      )}
 
       <div className={styles.welcomeTextContainer}>
         <RSText type="head" size={24} color={colors.secondary} bold>

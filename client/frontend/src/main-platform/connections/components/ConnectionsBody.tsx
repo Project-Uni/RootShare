@@ -121,7 +121,9 @@ function ConnectionsBody(props: Props) {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search your connections"
+              label={`Search ${
+                props.requestUserID === 'user' ? 'your' : `${username}'s`
+              } connections`}
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
             />
@@ -170,7 +172,7 @@ function ConnectionsBody(props: Props) {
           message={`See all of the people that ${
             props.requestUserID === 'user' ? 'you have' : `${username} has`
           } connected with!`}
-          onClose={closeWelcomeMessage}
+          onClose={props.requestUserID === 'user' ? closeWelcomeMessage : undefined}
         />
       )}
       <div className={styles.body}>
