@@ -1029,6 +1029,41 @@ export async function getConnectionsFullData(userID: string) {
   }
 }
 
+export async function getUserAdminCommunities(userID: string) {
+  try {
+    const user = await User.findById(userID)
+      .select(['joinedCommunities'])
+      .populate({
+        path: 'joinedCommunities',
+        select: 'admin name',
+        populate: [
+          {
+            path: 'followingCommunities',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+          {
+            path: 'outgoingPendingCommunityFollowRequests',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+        ],
+      });
+    if (!user) return sendPacket(0, 'Could not find user');
+
+    const communities = user.joinedCommunities.filter(
+      (community) => community.admin.toString() === userID
+    );
+    log('info', `Retrieved admin communities for user ${userID}`);
+    return sendPacket(1, 'Successfully retrieved admin communities', {
+      communities,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 export async function getBasicUserInfo(userID: string) {
   const user = await User.findById(userID).select(['firstName', 'lastName']).exec();
   if (!user) return sendPacket(-1, 'Could not find user');
