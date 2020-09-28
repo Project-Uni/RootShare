@@ -17,7 +17,12 @@ const PostSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'users' }],
       default: [],
     },
-    community: { type: mongoose.Schema.ObjectId, ref: 'communities' },
+    toCommunity: { type: mongoose.Schema.ObjectId, ref: 'communities' },
+    fromCommunity: { type: mongoose.Schema.ObjectId, ref: 'communities' },
+    anonymous: { type: Boolean, default: false },
+    type: { type: String, default: 'broadcast', required: true },
+    // NOTE: Type Values: 'internalCurrent', 'internalAlumni', 'external', 'broadcast'
+    // MongoDB does not allow custom typing so we will have to type check as we use
     university: {
       type: mongoose.Schema.ObjectId,
       ref: 'universities',

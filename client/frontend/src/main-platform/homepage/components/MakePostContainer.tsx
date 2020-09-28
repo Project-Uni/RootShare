@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button } from '@material-ui/core';
 import { FaCamera } from 'react-icons/fa';
@@ -72,8 +72,9 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  userID: string;
-  appendNewPost: (post: PostType) => any; //TODO: Define Post Type
+  profilePicture?: string;
+  appendNewPost: (post: PostType) => any;
+  user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
 };
@@ -83,29 +84,10 @@ function MakePostContainer(props: Props) {
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [profilePicture, setProfilePicture] = useState<string>();
   const [serverMessage, setServerMessage] = useState<{
     status: 0 | 1;
     message: string;
   }>();
-
-  useEffect(() => {
-    getProfilePicture();
-  }, []);
-
-  async function getProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.userID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data.success === 1) {
-      setProfilePicture(data.content['imageURL']);
-    }
-  }
 
   async function handlePostClicked() {
     setLoading(true);
@@ -155,7 +137,7 @@ function MakePostContainer(props: Props) {
           height={50}
           width={50}
           borderRadius={50}
-          currentPicture={profilePicture}
+          currentPicture={props.profilePicture}
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
@@ -163,7 +145,7 @@ function MakePostContainer(props: Props) {
         <div className={styles.textFieldContainer}>
           <TextField
             variant="outlined"
-            placeholder="Whats on your mind Ashwin?"
+            placeholder={`What\'s on your mind ${props.user.firstName}?`}
             multiline
             className={styles.newPostTextField}
             value={message}
@@ -210,6 +192,7 @@ function MakePostContainer(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

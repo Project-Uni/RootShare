@@ -262,15 +262,15 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          userID={props.profileID}
-          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          _id={props.profileID}
+          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}
           timestamp={(function() {
             const date = new Date(posts[i].createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
           message={posts[i].message}
-          likeCount={posts[i].likes.length}
+          likeCount={posts[i].likes}
           commentCount={0}
           style={styles.post}
         />
@@ -313,7 +313,7 @@ function ProfileBody(props: Props) {
             company={profile.work}
             bio={profile.bio}
             numConnections={profile.numConnections!}
-            numMutualConnections={profile.numMutual!}
+            numMutualConnections={profile.numMutualConnections!}
             numCommunities={profile.numCommunities!}
             currentProfileState={props.currentProfileState}
             accessToken={props.accessToken}

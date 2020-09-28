@@ -125,6 +125,12 @@ const useStyles = makeStyles((_: any) => ({
     borderColor: colors.primaryText,
     color: colors.primaryText,
   },
+  navigationText: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -484,14 +490,21 @@ function ProfileHead(props: Props) {
       </div>
       <div className={styles.headRight}>
         {renderConnectionButton()}
-        <RSText
-          type="subhead"
-          size={12}
-          color={colors.second}
-          className={styles.numbers}
+        <a
+          href={`/connections/${
+            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+          }`}
+          className={styles.navigationText}
         >
-          {numConnections || 0} Connections
-        </RSText>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.second}
+            className={styles.numbers}
+          >
+            {numConnections || 0} Connections
+          </RSText>
+        </a>
         {props.currentProfileState === 'SELF' || (
           <RSText
             type="subhead"
@@ -502,14 +515,21 @@ function ProfileHead(props: Props) {
             {props.numMutualConnections || 0} Mutual
           </RSText>
         )}
-        <RSText
-          type="subhead"
-          size={12}
-          color={colors.second}
-          className={styles.numbers}
+        <a
+          href={`/communities/${
+            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+          }`}
+          className={styles.navigationText}
         >
-          {props.numCommunities || 0} Communities
-        </RSText>
+          <RSText
+            type="subhead"
+            size={12}
+            color={colors.second}
+            className={styles.numbers}
+          >
+            {props.numCommunities || 0} Communities
+          </RSText>
+        </a>
       </div>
     </div>
   );
