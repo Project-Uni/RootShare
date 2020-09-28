@@ -50,6 +50,9 @@ type CommunityTab =
   | 'following';
 
 var tabChangeSemaphore = 0;
+// Semaphore was added in to fix issue where previous tab
+// posts would be loaded into an incorrect tab if the user
+// switched tabs before the network request completed.
 
 function CommunityBodyContent(props: Props) {
   const styles = useStyles();
