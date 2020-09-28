@@ -43,7 +43,7 @@ type Props = {
   edgeID?: string;
 };
 
-function SinglePendingMember(props: Props) {
+function SinglePendingRequest(props: Props) {
   const styles = useStyles();
 
   return (
@@ -90,4 +90,4 @@ function SinglePendingMember(props: Props) {
   );
 }
 
-export default SinglePendingMember;
+export default SinglePendingRequest;

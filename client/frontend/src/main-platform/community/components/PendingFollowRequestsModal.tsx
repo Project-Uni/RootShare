@@ -6,7 +6,7 @@ import { MdErrorOutline } from 'react-icons/md';
 
 import { connect } from 'react-redux';
 
-import SinglePendingMember from './SinglePendingMember';
+import SinglePendingRequest from './SinglePendingRequest';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -179,7 +179,7 @@ function PendingFollowRequestsModal(props: Props) {
 
     for (let i = 0; i < pendingRequests.length; i++) {
       output.push(
-        <SinglePendingMember
+        <SinglePendingRequest
           name={pendingRequests[i].name}
           _id={pendingRequests[i]._id}
           profilePicture={pendingRequests[i].profilePicture}
