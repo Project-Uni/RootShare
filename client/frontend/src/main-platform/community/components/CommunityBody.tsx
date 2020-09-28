@@ -68,6 +68,7 @@ type Props = {
   numMembers: number;
   numMutual: number;
   numPending: number;
+  numFollowRequests: number;
   type:
     | 'Social'
     | 'Business'
@@ -174,6 +175,7 @@ function CommunityBody(props: Props) {
               numMembers={props.numMembers}
               numPending={props.numPending}
               numMutual={props.numMutual}
+              numFollowRequests={props.numFollowRequests}
               type={props.type}
               private={props.private}
               description={props.description}

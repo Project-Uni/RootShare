@@ -23,6 +23,7 @@ export type Community = {
     | 'Athletics'
     | 'Student Organization'
     | 'Academic';
+  incomingPendingCommunityFollowRequests: string[];
 };
 
 export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';

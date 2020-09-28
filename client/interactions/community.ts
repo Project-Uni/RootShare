@@ -117,11 +117,16 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'pendingMembers',
       'university',
       'profilePicture',
+      'incomingPendingCommunityFollowRequests',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
+      })
+      .populate({
+        path: 'incomingPendingCommunityFollowRequests',
+        select: 'from',
       })
       .exec();
 

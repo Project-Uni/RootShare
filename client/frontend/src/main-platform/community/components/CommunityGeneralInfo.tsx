@@ -103,6 +103,7 @@ type Props = {
   numMembers: number;
   numPending: number;
   numMutual: number;
+  numFollowRequests: number;
   type:
     | 'Social'
     | 'Business'
@@ -126,6 +127,9 @@ function CommunityGeneralInfo(props: Props) {
     setShowPendingFollowRequestsModal,
   ] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
+  const [numFollowRequests, setNumFollowRequests] = useState(
+    props.numFollowRequests
+  );
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
@@ -209,6 +213,10 @@ function CommunityGeneralInfo(props: Props) {
     setNumPending(newNumPending);
   }
 
+  function updateFollowRequestCount(newNumRequests: number) {
+    setNumFollowRequests(newNumRequests);
+  }
+
   function updateMemberCount(value: 1 | -1) {
     setNumMembers(numMembers + value);
   }
@@ -285,7 +293,7 @@ function CommunityGeneralInfo(props: Props) {
         handleClose={() => {
           setShowPendingFollowRequestsModal(false);
         }}
-        updatePendingCount={(num: any) => {}}
+        updatePendingCount={updateFollowRequestCount}
       />
       <div className={styles.top}>
         <div className={styles.left}>
@@ -333,7 +341,7 @@ function CommunityGeneralInfo(props: Props) {
                 className={styles.memberCountLink}
               >
                 <RSText type="body" size={12} color={colors.second}>
-                  {0} Pending Follow Requests
+                  {numFollowRequests} Pending Follow Requests
                 </RSText>
               </a>
             )}
