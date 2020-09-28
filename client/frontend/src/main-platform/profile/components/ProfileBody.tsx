@@ -55,12 +55,11 @@ const useStyles = makeStyles((_: any) => ({
     borderTop: `1px solid #c5c5c5`,
   },
   post: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
-    marginBottom: 10,
     paddingTop: 15,
     paddingBottom: 15,
     background: colors.secondary,
@@ -277,15 +276,7 @@ function ProfileBody(props: Props) {
       );
     }
     return (
-      <div
-        style={{
-          paddingLeft: 1,
-          paddingRight: 1,
-          background: colors.fourth,
-        }}
-      >
-        {output}
-      </div>
+      <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
     );
   }
 
