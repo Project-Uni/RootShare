@@ -49,6 +49,8 @@ type CommunityTab =
   | 'internal-current'
   | 'following';
 
+var tabChangeSemaphore = 0;
+
 function CommunityBodyContent(props: Props) {
   const styles = useStyles();
 
@@ -78,6 +80,7 @@ function CommunityBodyContent(props: Props) {
 
   async function fetchData() {
     setPosts([]);
+    const currSemaphoreState = tabChangeSemaphore;
     const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
@@ -87,11 +90,13 @@ function CommunityBodyContent(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-    if (data.success === 1) {
-      setFetchErr(false);
-      setPosts(createFeed(data.content['posts']));
-    } else {
-      setFetchErr(true);
+    if (tabChangeSemaphore === currSemaphoreState) {
+      if (data.success === 1) {
+        setFetchErr(false);
+        setPosts(createFeed(data.content['posts']));
+      } else {
+        setFetchErr(true);
+      }
     }
   }
 
@@ -112,7 +117,10 @@ function CommunityBodyContent(props: Props) {
   }
 
   function handleTabChange(newTab: CommunityTab) {
-    if (newTab !== selectedTab) setSelectedTab(newTab);
+    if (newTab !== selectedTab) {
+      tabChangeSemaphore++;
+      setSelectedTab(newTab);
+    }
   }
 
   function createFeed(posts: PostType[]) {
