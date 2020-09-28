@@ -59,10 +59,14 @@ function FollowButton(props: Props) {
     );
 
     if (data.success === 1) {
-      const communities = data.content.communities.filter(
+      const communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
         (community: AdminCommunityServiceResponse) =>
           community._id !== props.communityID
       );
+      for (let i = 0; i < communities.length; i++) {
+        const relationship = getCommunityRelationship(communities[i]);
+        communities[i].currentCommunityRelationship = relationship;
+      }
       setAdminCommunities(communities);
     }
   }
@@ -70,16 +74,16 @@ function FollowButton(props: Props) {
   function getCommunityRelationship(community: AdminCommunityServiceResponse) {
     for (let i = 0; i < community.followingCommunities.length; i++)
       if (community.followingCommunities[i].to._id === props.communityID)
-        return 'Following';
+        return 'following';
 
     for (let i = 0; i < community.outgoingPendingCommunityFollowRequests.length; i++)
       if (
         community.outgoingPendingCommunityFollowRequests[i].to._id ===
         props.communityID
       )
-        return 'Pending';
+        return 'pending';
 
-    return '';
+    return 'open';
   }
 
   function slideLeft(props: TransitionProps) {
@@ -88,14 +92,14 @@ function FollowButton(props: Props) {
 
   function getFollowButtonAction(
     communityID: string,
-    relationship: 'Following' | 'Pending' | ''
+    relationship: 'following' | 'pending' | 'open'
   ) {
     switch (relationship) {
-      case 'Following':
+      case 'following':
         return () => handleUnfollow(communityID);
-      case 'Pending':
+      case 'pending':
         return () => handleCancelFollowRequest(communityID);
-      case '':
+      case 'open':
       default:
         return () => handleRequestToFollow(communityID);
     }
@@ -115,6 +119,14 @@ function FollowButton(props: Props) {
         props.refreshToken
       );
       if (data.success === 1) {
+        const communities = adminCommunities;
+        for (let i = 0; i < communities.length; i++) {
+          if (communities[i]._id === communityID) {
+            communities[i].currentCommunityRelationship = 'pending';
+            setAdminCommunities(communities);
+            break;
+          }
+        }
         setTransition(() => slideLeft);
         setSnackbarMessage(`Successfully requested to follow ${props.name}`);
         setSnackbarMode('notify');
@@ -142,6 +154,14 @@ function FollowButton(props: Props) {
         props.refreshToken
       );
       if (data.success === 1) {
+        const communities = adminCommunities;
+        for (let i = 0; i < communities.length; i++) {
+          if (communities[i]._id === communityID) {
+            communities[i].currentCommunityRelationship = 'open';
+            setAdminCommunities(communities);
+            break;
+          }
+        }
         setTransition(() => slideLeft);
         setSnackbarMessage(`Successfully cancelled follow request to ${props.name}`);
         setSnackbarMode('notify');
@@ -182,7 +202,7 @@ function FollowButton(props: Props) {
         onClose={() => setFollowMenuAnchorEl(null)}
       >
         {adminCommunities.map((community) => {
-          const relationship = getCommunityRelationship(community);
+          const relationship = community.currentCommunityRelationship!;
           return (
             <MenuItem
               onClick={getFollowButtonAction(community._id, relationship)}
@@ -190,9 +210,11 @@ function FollowButton(props: Props) {
             >
               <div>
                 <RSText>{community.name}</RSText>
-                <RSText size={11} italic>
-                  {relationship}
-                </RSText>
+                {relationship !== 'open' && (
+                  <RSText size={11} italic>
+                    {relationship.charAt(0).toUpperCase() + relationship.slice(1)}
+                  </RSText>
+                )}
               </div>
             </MenuItem>
           );

@@ -49,4 +49,5 @@ export type AdminCommunityServiceResponse = {
     to: { _id: string; name: string };
     accepted: boolean;
   }[];
+  currentCommunityRelationship?: 'following' | 'pending' | 'open';
 };
