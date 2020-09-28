@@ -507,6 +507,7 @@ export async function getFollowingCommunityPosts(communityID: string) {
         populate: { path: 'to', select: 'externalPosts' },
       })
       .exec();
+    //Potentially add in $slice in the future to limit num posts retrieved from the community.
     if (!community) return sendPacket(-1, 'Could not find community');
 
     const postIDs = [];
