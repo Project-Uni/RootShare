@@ -17,7 +17,10 @@ import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    background: colors.background,
+    flex: 1,
+  },
   loadingIndicator: {
     color: colors.primary,
     marginTop: 80,
@@ -26,10 +29,14 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
   },
   postStyle: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   noPosts: {
     marginTop: 20,
+  },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
   },
 }));
 
@@ -221,7 +228,12 @@ function CommunityBodyContent(props: Props) {
 
   return (
     <div className={[styles.wrapper, props.className].join(' ')}>
-      <RSTabs tabs={tabs} selected={selectedTab} onChange={handleTabChange} />
+      <RSTabs
+        tabs={tabs}
+        selected={selectedTab}
+        onChange={handleTabChange}
+        className={styles.tabs}
+      />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : fetchErr ? (

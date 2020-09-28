@@ -54,8 +54,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   bodyContent: {
     marginTop: 20,
-    marginLeft: 5,
-    marginRight: 5,
   },
 }));
 
