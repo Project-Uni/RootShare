@@ -311,16 +311,8 @@ function ProfileBody(props: Props) {
             refreshToken={props.refreshToken}
             updateProfileState={props.updateProfileState}
           />
+
           {renderRegisteredEvents()}
-          <RSText
-            type="head"
-            size={24}
-            bold
-            color={colors.primaryText}
-            className={styles.rootshares}
-          >
-            {profile.firstName}'s RootShares
-          </RSText>
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
