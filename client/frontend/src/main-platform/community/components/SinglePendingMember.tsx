@@ -40,6 +40,7 @@ type Props = {
   onAccept: (_id: string) => any;
   onReject: (_id: string) => any;
   type: 'user' | 'community';
+  edgeID?: string;
 };
 
 function SinglePendingMember(props: Props) {
@@ -70,7 +71,7 @@ function SinglePendingMember(props: Props) {
         <Button
           size="small"
           onClick={() => {
-            props.onReject(props._id);
+            props.onReject(props.type === 'user' ? props._id : props.edgeID!);
           }}
         >
           Reject
@@ -79,7 +80,7 @@ function SinglePendingMember(props: Props) {
           size="small"
           className={styles.acceptButton}
           onClick={() => {
-            props.onAccept(props._id);
+            props.onAccept(props.type === 'user' ? props._id : props.edgeID!);
           }}
         >
           Accept

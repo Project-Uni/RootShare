@@ -919,7 +919,7 @@ export async function getAllPendingFollowRequests(communityID: string) {
     const pendingFollowRequests = community[
       'incomingPendingCommunityFollowRequests'
     ].map((edge) => {
-      return edge.from.toObject();
+      return { edgeID: edge._id, ...edge.from.toObject() };
     });
 
     const profilePicturePromises = generateSignedImagePromises(

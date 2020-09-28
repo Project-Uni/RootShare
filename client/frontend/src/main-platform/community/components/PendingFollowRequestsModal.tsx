@@ -42,6 +42,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type PendingCommunity = {
   name: string;
+  edgeID: string;
   _id: string;
   type: string;
   profilePicture?: string;
@@ -52,7 +53,6 @@ type Props = {
   communityID: string;
   handleClose: () => any;
   updatePendingCount: (numPending: number) => any;
-  // updateMemberCount: (value: 1 | -1) => any;
   accessToken: string;
   refreshToken: string;
 };
@@ -88,57 +88,56 @@ function PendingFollowRequestsModal(props: Props) {
     }
   }
 
-  async function handleAccept(_id: string) {
-    //   const { data } = await makeRequest(
-    //     'POST',
-    //     `/api/community/${props.communityID}/acceptPending`,
-    //     { userID: _id },
-    //     true,
-    //     props.accessToken,
-    //     props.refreshToken
-    //   );
-    //   if (data.success === 1) {
-    //     let spliceIndex: number = -1;
-    //     for (let i = 0; i < pendingMembers.length; i++) {
-    //       if (pendingMembers[i]._id === _id) {
-    //         spliceIndex = i;
-    //         break;
-    //       }
-    //     }
-    //     if (spliceIndex > -1) {
-    //       const newPending = pendingMembers.slice();
-    //       newPending.splice(spliceIndex, 1);
-    //       setPendingMembers(newPending);
-    //       props.updatePendingCount(newPending.length);
-    //       props.updateMemberCount(1);
-    //     }
-    //   }
+  async function handleAccept(edgeID: string) {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/follow/accept`,
+      { edgeID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      let spliceIndex: number = -1;
+      for (let i = 0; i < pendingRequests.length; i++) {
+        if (pendingRequests[i].edgeID === edgeID) {
+          spliceIndex = i;
+          break;
+        }
+      }
+      if (spliceIndex > -1) {
+        const newPending = pendingRequests.slice();
+        newPending.splice(spliceIndex, 1);
+        setPendingRequests(newPending);
+        props.updatePendingCount(newPending.length);
+      }
+    }
   }
 
-  async function handleReject(_id: string) {
-    //   const { data } = await makeRequest(
-    //     'POST',
-    //     `/api/community/${props.communityID}/rejectPending`,
-    //     { userID: _id },
-    //     true,
-    //     props.accessToken,
-    //     props.refreshToken
-    //   );
-    //   if (data.success === 1) {
-    //     let spliceIndex: number = -1;
-    //     for (let i = 0; i < pendingMembers.length; i++) {
-    //       if (pendingMembers[i]._id === _id) {
-    //         spliceIndex = i;
-    //         break;
-    //       }
-    //     }
-    //     if (spliceIndex > -1) {
-    //       const newPending = pendingMembers.slice();
-    //       newPending.splice(spliceIndex, 1);
-    //       setPendingMembers(newPending);
-    //       props.updatePendingCount(newPending.length);
-    //     }
-    //   }
+  async function handleReject(edgeID: string) {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/follow/reject`,
+      { edgeID },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      let spliceIndex: number = -1;
+      for (let i = 0; i < pendingRequests.length; i++) {
+        if (pendingRequests[i].edgeID === edgeID) {
+          spliceIndex = i;
+          break;
+        }
+      }
+      if (spliceIndex > -1) {
+        const newPending = pendingRequests.slice();
+        newPending.splice(spliceIndex, 1);
+        setPendingRequests(newPending);
+        props.updatePendingCount(newPending.length);
+      }
+    }
   }
 
   function handleClose() {
@@ -189,6 +188,7 @@ function PendingFollowRequestsModal(props: Props) {
           onReject={handleReject}
           key={pendingRequests[i]._id}
           type="community"
+          edgeID={pendingRequests[i].edgeID}
         />
       );
     }
