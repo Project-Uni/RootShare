@@ -7,12 +7,7 @@ import { FaSearch } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import {
-  CommunityType,
-  ProfileState,
-  CommunityStatus,
-  UniversityType,
-} from '../../../helpers/types';
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 import { colors } from '../../../theme/Colors';
@@ -70,34 +65,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 7,
   },
 }));
-
-type DiscoverCommunity = {
-  _id: string;
-  name: string;
-  type: CommunityType;
-  description: string;
-  private: boolean;
-  university: UniversityType;
-  profilePicture?: string;
-  admin: string;
-  numMembers: number;
-  numMutual: number;
-  status: CommunityStatus;
-};
-
-type DiscoverUser = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  university: UniversityType;
-  work?: string;
-  position?: string;
-  graduationYear?: number;
-  profilePicture?: string;
-  numMutualConnections: number;
-  numMutualCommunities: number;
-  status: ProfileState;
-};
 
 type Props = {
   user: { [key: string]: any };

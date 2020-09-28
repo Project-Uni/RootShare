@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { COMMUNITY_TYPE } from '../helpers/types';
+import { generateSignedImagePromises } from '../interactions/utilities';
 
 export async function createNewCommunity(
   name: string,
@@ -84,17 +85,15 @@ export async function editCommunity(
 
     const savedCommunity = await community.save();
 
-    if (community.members.indexOf(adminID) === -1) {
-      const communityPromise = Community.updateOne(
-        { _id },
-        { $push: { members: adminID } }
-      ).exec();
-      const userPromise = User.updateOne(
-        { _id: adminID },
-        { $push: { joinedCommunities: _id } }
-      ).exec();
-      await Promise.all([communityPromise, userPromise]);
-    }
+    const communityPromise = Community.updateOne(
+      { _id },
+      { $addToSet: { members: adminID } }
+    ).exec();
+    const userPromise = User.updateOne(
+      { _id: adminID },
+      { $addToSet: { joinedCommunities: _id } }
+    ).exec();
+    await Promise.all([communityPromise, userPromise]);
 
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
@@ -829,7 +828,10 @@ export async function getAllFollowingCommunities(communityID: string) {
       return edge.to;
     });
 
-    const profilePicturePromises = generateSignedImagePromises(followingCommunities);
+    const profilePicturePromises = generateSignedImagePromises(
+      followingCommunities,
+      'communityProfile'
+    );
 
     return Promise.all(profilePicturePromises)
       .then((signedImageURLs) => {
@@ -873,7 +875,8 @@ export async function getAllFollowedByCommunities(communityID: string) {
     });
 
     const profilePicturePromises = generateSignedImagePromises(
-      followedByCommunities
+      followedByCommunities,
+      'communityProfile'
     );
 
     return Promise.all(profilePicturePromises)
@@ -920,7 +923,8 @@ export async function getAllPendingFollowRequests(communityID: string) {
     });
 
     const profilePicturePromises = generateSignedImagePromises(
-      pendingFollowRequests
+      pendingFollowRequests,
+      'communityProfile'
     );
 
     return Promise.all(profilePicturePromises)
@@ -949,32 +953,4 @@ export async function getAllPendingFollowRequests(communityID: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
-}
-
-// HELPER FUNCTIONS
-
-function generateSignedImagePromises(communityList: {
-  [key: string]: any;
-  profilePicture?: string;
-}) {
-  const profilePicturePromises = [];
-
-  for (let i = 0; i < communityList.length; i++) {
-    if (communityList[i].profilePicture) {
-      try {
-        const signedImageURLPromise = retrieveSignedUrl(
-          'communityProfile',
-          communityList[i].profilePicture
-        );
-        profilePicturePromises.push(signedImageURLPromise);
-      } catch (err) {
-        profilePicturePromises.push(null);
-        log('error', 'There was an error retrieving a signed url from S3');
-      }
-    } else {
-      profilePicturePromises.push(null);
-    }
-  }
-
-  return profilePicturePromises;
 }
