@@ -70,12 +70,6 @@ function CommunityBodyContent(props: Props) {
   }
 
   useEffect(() => {
-    fetchData().then(() => {
-      setLoading(false);
-    });
-  }, []);
-
-  useEffect(() => {
     setLoading(true);
     fetchData().then(() => {
       setLoading(false);
@@ -113,7 +107,7 @@ function CommunityBodyContent(props: Props) {
       case 'internal-alumni':
         return 'internal/alumni';
       case 'following':
-        return 'following'; //TODO - Create functionality for this route
+        return 'following';
     }
   }
 
