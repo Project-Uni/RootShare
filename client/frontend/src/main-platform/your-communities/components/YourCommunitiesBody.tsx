@@ -160,7 +160,7 @@ function YourCommunitiesBody(props: Props) {
           style={styles.singleCommunity}
           description={pendingCommunities[i].description}
           type={pendingCommunities[i].type}
-          admin={joinedCommunities[i].admin}
+          admin={pendingCommunities[i].admin}
           memberCount={pendingCommunities[i].numMembers}
           mutualMemberCount={pendingCommunities[i].numMutual}
           profilePicture={pendingCommunities[i].profilePicture}

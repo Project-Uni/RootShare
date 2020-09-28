@@ -8,7 +8,11 @@ import { Button } from '@material-ui/core';
 
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { updateConversations, resetNewMessage } from '../../redux/actions/message';
+import {
+  updateConversations,
+  updateCurrConversationID,
+  resetNewMessage,
+} from '../../redux/actions/message';
 import { resetMessageSocket } from '../../redux/actions/sockets';
 import { colors } from '../../theme/Colors';
 import UserInfoTextField from './UserInfoTextField';
@@ -125,6 +129,7 @@ type Props = {
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
   updateConversations: (conversations: ConversationType[]) => void;
+  updateCurrConversationID: (currConversationID: string) => void;
   resetNewMessage: () => void;
   resetMessageSocket: () => void;
 };
@@ -234,6 +239,7 @@ function ProfileDrawer(props: Props) {
     props.updateAccessToken('');
     props.updateRefreshToken('');
     props.updateConversations([]);
+    props.updateCurrConversationID('');
     props.resetNewMessage();
     props.resetMessageSocket();
     window.location.href = '/';
@@ -712,6 +718,9 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     updateConversations: (conversations: ConversationType[]) => {
       dispatch(updateConversations(conversations));
+    },
+    updateCurrConversationID: (currConversationID: string) => {
+      dispatch(updateCurrConversationID(currConversationID));
     },
     resetNewMessage: () => {
       dispatch(resetNewMessage());

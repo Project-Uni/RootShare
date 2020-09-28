@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { makeStyles } from '@material-ui/core/styles';
-
 import { connect } from 'react-redux';
+
+import { Slide } from '@material-ui/core';
+import { TransitionProps } from '@material-ui/core/transitions';
+import ManageSpeakersSnackbar from '../event-client/event-video/event-host/ManageSpeakersSnackbar';
+
 import { makeRequest } from '../helpers/functions';
 import { updateConversations, updateNewMessage } from '../redux/actions/message';
 import { updateMessageSocket } from '../redux/actions/sockets';
-
 import { MessageType, ConversationType } from '../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
@@ -20,6 +23,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   conversations: ConversationType[];
+  currConversationID: string;
   newMessage: MessageType;
   updateConversations: (conversations: ConversationType[]) => void;
   updateNewMessage: (newMessage: MessageType) => void;
@@ -31,6 +35,12 @@ function SocketManager(props: Props) {
 
   const [socket, setSocket] = useState<SocketIOClient.Socket>();
   const [newConversation, setNewConversation] = useState({});
+
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
 
   useEffect(() => {
     if (
@@ -121,6 +131,7 @@ function SocketManager(props: Props) {
             .concat(prevConversations.slice(i + 1, prevConversations.length))
         );
         props.updateConversations(newConversations);
+        showNotification(newMessage.sender, newMessage.conversationID);
         return newConversations;
       }
     }
@@ -162,7 +173,26 @@ function SocketManager(props: Props) {
     props.updateConversations(userConversations);
   }
 
-  return <span />;
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
+  function showNotification(sender: string, conversationID: string) {
+    if (sender === props.user._id || conversationID === props.currConversationID)
+      return;
+    setSnackbarMode('notify');
+    setSnackbarMessage(`New Message from ${props.newMessage.senderName}`);
+    setTransition(() => slideLeft);
+  }
+
+  return (
+    <ManageSpeakersSnackbar
+      message={snackbarMessage}
+      transition={transition}
+      mode={snackbarMode}
+      handleClose={() => setSnackbarMode(null)}
+    />
+  );
 }
 
 const mapStateToProps = (state: { [key: string]: any }) => {
@@ -172,6 +202,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     refreshToken: state.refreshToken,
     conversations: state.conversations,
     newMessage: state.newMessage,
+    currConversationID: state.currConversationID,
   };
 };
 
