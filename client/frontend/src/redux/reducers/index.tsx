@@ -2,7 +2,11 @@ import { combineReducers } from 'redux';
 import userReducer from './userReducer';
 import { accessTokenReducer, refreshTokenReducer } from './tokenReducers';
 import { messageSocketReducer } from './socketReducers';
-import { conversationsReducer, newMessageReducer } from './messageReducers';
+import {
+  conversationsReducer,
+  currConversationIDReducer,
+  newMessageReducer,
+} from './messageReducers';
 
 const allReducers = combineReducers({
   user: userReducer,
@@ -10,6 +14,7 @@ const allReducers = combineReducers({
   refreshToken: refreshTokenReducer,
   messageSocket: messageSocketReducer,
   conversations: conversationsReducer,
+  currConversationID: currConversationIDReducer,
   newMessage: newMessageReducer,
 });
 
