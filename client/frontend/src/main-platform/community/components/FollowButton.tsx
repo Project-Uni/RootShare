@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button, Menu, MenuItem } from '@material-ui/core';
+import { Button, Menu, MenuItem, Slide } from '@material-ui/core';
 import { BsFillCaretDownFill } from 'react-icons/bs';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { connect } from 'react-redux';
 
@@ -11,6 +12,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
 import { AdminCommunityServiceResponse } from '../../../helpers/types/communityTypes';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   followButton: {
@@ -36,6 +38,11 @@ function FollowButton(props: Props) {
   const [adminCommunities, setAdminCommunities] = useState<
     AdminCommunityServiceResponse[]
   >([]);
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
 
   useEffect(() => {
     getAdminCommunities();
@@ -75,6 +82,10 @@ function FollowButton(props: Props) {
     return '';
   }
 
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
   function getFollowButtonAction(
     communityID: string,
     relationship: 'Following' | 'Pending' | ''
@@ -104,6 +115,13 @@ function FollowButton(props: Props) {
         props.refreshToken
       );
       if (data.success === 1) {
+        setTransition(() => slideLeft);
+        setSnackbarMessage(`Successfully requested to follow ${props.name}`);
+        setSnackbarMode('notify');
+      } else {
+        setTransition(() => slideLeft);
+        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
   }
@@ -124,7 +142,13 @@ function FollowButton(props: Props) {
         props.refreshToken
       );
       if (data.success === 1) {
-        console.log('Cancel follow: ', data);
+        setTransition(() => slideLeft);
+        setSnackbarMessage(`Successfully cancelled follow request to ${props.name}`);
+        setSnackbarMode('notify');
+      } else {
+        setTransition(() => slideLeft);
+        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
   }
@@ -136,6 +160,12 @@ function FollowButton(props: Props) {
 
   return adminCommunities.length > 0 ? (
     <>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <Button
         size="large"
         endIcon={<BsFillCaretDownFill color={colors.primaryText} size={14} />}

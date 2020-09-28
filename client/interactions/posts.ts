@@ -309,7 +309,7 @@ export async function getFollowingCommunityPosts(communityID: string) {
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
 
-    const imagePromises = generateSignedImagePromises(posts);
+    const imagePromises = generatePostSignedImagePromises(posts);
 
     return Promise.all(imagePromises).then((signedImageURLs) => {
       for (let i = 0; i < posts.length; i++)
