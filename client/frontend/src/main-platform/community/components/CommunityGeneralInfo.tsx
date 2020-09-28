@@ -7,6 +7,7 @@ import { FaLock } from 'react-icons/fa';
 import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
+import PendingFollowRequestsModal from './PendingFollowRequestsModal';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -120,6 +121,10 @@ function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [
+    showPendingFollowRequestsModal,
+    setShowPendingFollowRequestsModal,
+  ] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -274,6 +279,14 @@ function CommunityGeneralInfo(props: Props) {
         updatePendingCount={updatePendingCount}
         updateMemberCount={updateMemberCount}
       />
+      <PendingFollowRequestsModal
+        open={showPendingFollowRequestsModal}
+        communityID={props.communityID}
+        handleClose={() => {
+          setShowPendingFollowRequestsModal(false);
+        }}
+        updatePendingCount={(num: any) => {}}
+      />
       <div className={styles.top}>
         <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
@@ -299,6 +312,9 @@ function CommunityGeneralInfo(props: Props) {
             <RSText type="body" size={12} color={colors.second}>
               {numMembers} Members
             </RSText>
+            <RSText type="body" size={12} color={colors.second}>
+              {props.numMutual} Mutual
+            </RSText>
             {props.isAdmin && (
               <a
                 href={undefined}
@@ -310,9 +326,17 @@ function CommunityGeneralInfo(props: Props) {
                 </RSText>
               </a>
             )}
-            <RSText type="body" size={12} color={colors.second}>
-              {props.numMutual} Mutual
-            </RSText>
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={() => setShowPendingFollowRequestsModal(true)}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second}>
+                  {0} Pending Follow Requests
+                </RSText>
+              </a>
+            )}
           </div>
         </div>
       </div>

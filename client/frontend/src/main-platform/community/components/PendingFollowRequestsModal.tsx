@@ -40,10 +40,10 @@ const useStyles = makeStyles((_: any) => ({
   singleMember: { marginBottom: 15 },
 }));
 
-type PendingUser = {
+type PendingCommunity = {
+  name: string;
   _id: string;
-  firstName: string;
-  lastName: string;
+  type: string;
   profilePicture?: string;
 };
 
@@ -52,29 +52,29 @@ type Props = {
   communityID: string;
   handleClose: () => any;
   updatePendingCount: (numPending: number) => any;
-  updateMemberCount: (value: 1 | -1) => any;
+  // updateMemberCount: (value: 1 | -1) => any;
   accessToken: string;
   refreshToken: string;
 };
 
-function PendingMembersModal(props: Props) {
+function PendingFollowRequestsModal(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [showServerErr, setShowServerErr] = useState(false);
-  const [pendingMembers, setPendingMembers] = useState<PendingUser[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingCommunity[]>([]);
 
   useEffect(() => {
     if (props.open) {
-      fetchPendingUsers().then(() => {
+      fetchPendingRequests().then(() => {
         setLoading(false);
       });
     }
   }, [props.open]);
 
-  async function fetchPendingUsers() {
+  async function fetchPendingRequests() {
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${props.communityID}/pending`,
+      `/api/community/${props.communityID}/follow/pending`,
       {},
       true,
       props.accessToken,
@@ -84,72 +84,67 @@ function PendingMembersModal(props: Props) {
     if (data.success !== 1) {
       setShowServerErr(true);
     } else {
-      setPendingMembers(data.content['pendingMembers']);
+      setPendingRequests(data.content['communities']);
     }
   }
 
-  async function handleAcceptUser(_id: string) {
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${props.communityID}/acceptPending`,
-      { userID: _id },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data.success === 1) {
-      let spliceIndex: number = -1;
-
-      for (let i = 0; i < pendingMembers.length; i++) {
-        if (pendingMembers[i]._id === _id) {
-          spliceIndex = i;
-          break;
-        }
-      }
-
-      if (spliceIndex > -1) {
-        const newPending = pendingMembers.slice();
-        newPending.splice(spliceIndex, 1);
-        setPendingMembers(newPending);
-        props.updatePendingCount(newPending.length);
-        props.updateMemberCount(1);
-      }
-    }
+  async function handleAccept(_id: string) {
+    //   const { data } = await makeRequest(
+    //     'POST',
+    //     `/api/community/${props.communityID}/acceptPending`,
+    //     { userID: _id },
+    //     true,
+    //     props.accessToken,
+    //     props.refreshToken
+    //   );
+    //   if (data.success === 1) {
+    //     let spliceIndex: number = -1;
+    //     for (let i = 0; i < pendingMembers.length; i++) {
+    //       if (pendingMembers[i]._id === _id) {
+    //         spliceIndex = i;
+    //         break;
+    //       }
+    //     }
+    //     if (spliceIndex > -1) {
+    //       const newPending = pendingMembers.slice();
+    //       newPending.splice(spliceIndex, 1);
+    //       setPendingMembers(newPending);
+    //       props.updatePendingCount(newPending.length);
+    //       props.updateMemberCount(1);
+    //     }
+    //   }
   }
 
-  async function handleRejectUser(_id: string) {
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${props.communityID}/rejectPending`,
-      { userID: _id },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data.success === 1) {
-      let spliceIndex: number = -1;
-      for (let i = 0; i < pendingMembers.length; i++) {
-        if (pendingMembers[i]._id === _id) {
-          spliceIndex = i;
-          break;
-        }
-      }
-
-      if (spliceIndex > -1) {
-        const newPending = pendingMembers.slice();
-        newPending.splice(spliceIndex, 1);
-        setPendingMembers(newPending);
-        props.updatePendingCount(newPending.length);
-      }
-    }
+  async function handleReject(_id: string) {
+    //   const { data } = await makeRequest(
+    //     'POST',
+    //     `/api/community/${props.communityID}/rejectPending`,
+    //     { userID: _id },
+    //     true,
+    //     props.accessToken,
+    //     props.refreshToken
+    //   );
+    //   if (data.success === 1) {
+    //     let spliceIndex: number = -1;
+    //     for (let i = 0; i < pendingMembers.length; i++) {
+    //       if (pendingMembers[i]._id === _id) {
+    //         spliceIndex = i;
+    //         break;
+    //       }
+    //     }
+    //     if (spliceIndex > -1) {
+    //       const newPending = pendingMembers.slice();
+    //       newPending.splice(spliceIndex, 1);
+    //       setPendingMembers(newPending);
+    //       props.updatePendingCount(newPending.length);
+    //     }
+    //   }
   }
 
   function handleClose() {
-    props.updatePendingCount(pendingMembers.length);
+    props.updatePendingCount(pendingRequests.length);
     setLoading(true);
-    setPendingMembers([]);
+    setPendingRequests([]);
     props.handleClose();
   }
 
@@ -173,7 +168,7 @@ function PendingMembersModal(props: Props) {
 
   function renderPendingList() {
     const output = [];
-    if (pendingMembers.length === 0) {
+    if (pendingRequests.length === 0) {
       output.push(
         <div
           style={{ paddingLeft: 15, paddingRight: 15, paddingBottom: 20, flex: 1 }}
@@ -183,17 +178,17 @@ function PendingMembersModal(props: Props) {
       );
     }
 
-    for (let i = 0; i < pendingMembers.length; i++) {
+    for (let i = 0; i < pendingRequests.length; i++) {
       output.push(
         <SinglePendingMember
-          name={`${pendingMembers[i].firstName} ${pendingMembers[i].lastName}`}
-          _id={pendingMembers[i]._id}
-          profilePicture={pendingMembers[i].profilePicture}
+          name={pendingRequests[i].name}
+          _id={pendingRequests[i]._id}
+          profilePicture={pendingRequests[i].profilePicture}
           className={styles.singleMember}
-          onAccept={handleAcceptUser}
-          onReject={handleRejectUser}
-          key={pendingMembers[i]._id}
-          type="user"
+          onAccept={handleAccept}
+          onReject={handleReject}
+          key={pendingRequests[i]._id}
+          type="community"
         />
       );
     }
@@ -216,8 +211,8 @@ function PendingMembersModal(props: Props) {
       >
         <div className={styles.top}>
           <RSText type="head" size={15} bold>
-            {!loading && pendingMembers.length} Pending Member
-            {pendingMembers.length !== 1 && 's'}
+            {!loading && pendingRequests.length} Pending Follow Request
+            {pendingRequests.length !== 1 && 's'}
           </RSText>
           <IconButton onClick={handleClose} size="medium">
             X
@@ -253,4 +248,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PendingMembersModal);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PendingFollowRequestsModal);
