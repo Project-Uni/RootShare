@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
@@ -22,7 +22,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: 'rgb(227, 227, 227)',
     overflow: 'scroll',
     minWidth: 600,
   },
@@ -38,8 +38,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 1,
     borderRadius: 1,
   },
-  postStyle: {
-    borderBottom: `1px solid ${colors.fourth}`,
+  postBox: {
+    margin: 8,
   },
   tabs: {
     marginLeft: 5,
@@ -143,7 +143,7 @@ function HomepageBody(props: Props) {
           message={post.message}
           likeCount={post.likes}
           commentCount={0}
-          style={styles.postStyle}
+          style={styles.postBox}
         />
       );
       return [newEntry].concat(prevState);
@@ -173,7 +173,7 @@ function HomepageBody(props: Props) {
           message={posts[i].message}
           likeCount={posts[i].likes}
           commentCount={0}
-          style={styles.postStyle}
+          style={styles.postBox}
           key={posts[i]._id}
           toCommunity={posts[i].toCommunity.name}
           toCommunityID={posts[i].toCommunity._id}

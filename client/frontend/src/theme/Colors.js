@@ -2,7 +2,7 @@ const colors = {
   primary: '#242D56', // Dark-Blue
   secondary: '#1D2445', // Light-Dark
   ternary: '#3C4469', // Light-Blue
-  background: '#FFFFFF', // Full-White
+  background: 'rgb(227, 227, 227)', // Light-Gray
   primaryText: '#F8F8FF', // Ghost-White
   secondaryText: '#6D738E', // Light-Grey
   error: '#440C16', // Dark Red
