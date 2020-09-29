@@ -17,10 +17,7 @@ import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    background: colors.background,
-    flex: 1,
-  },
+  wrapper: {},
   loadingIndicator: {
     color: colors.primary,
     marginTop: 80,
@@ -168,12 +165,6 @@ function CommunityBodyContent(props: Props) {
         />
       );
     }
-    if (output.length === 0)
-      output.push(
-        <RSText size={16} type="head" className={styles.noPosts}>
-          There are no posts yet.
-        </RSText>
-      );
     return output;
   }
 
@@ -198,7 +189,7 @@ function CommunityBodyContent(props: Props) {
     return (
       <div>
         <CommunityMakePostContainer />
-        {posts}
+        {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
   }
@@ -207,13 +198,13 @@ function CommunityBodyContent(props: Props) {
     return (
       <div>
         <CommunityMakePostContainer />
-        {posts}
+        {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
   }
 
   function renderFollowing() {
-    return <div>{posts}</div>;
+    return <div>{posts.length > 0 ? posts : renderNoPosts()}</div>;
   }
 
   function renderError() {
@@ -226,8 +217,21 @@ function CommunityBodyContent(props: Props) {
     );
   }
 
+  function renderNoPosts() {
+    return (
+      <RSText size={16} type="head" className={styles.noPosts}>
+        There are no posts yet.
+      </RSText>
+    );
+  }
+
   return (
-    <div className={[styles.wrapper, props.className].join(' ')}>
+    <div
+      className={[styles.wrapper, props.className].join(' ')}
+      style={{
+        background: loading || posts.length === 0 ? 'inherit' : colors.background,
+      }}
+    >
       <RSTabs
         tabs={tabs}
         selected={selectedTab}
