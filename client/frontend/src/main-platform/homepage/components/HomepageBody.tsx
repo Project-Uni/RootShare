@@ -46,6 +46,10 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 5,
     marginBottom: 5,
   },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+  },
 }));
 
 type Props = {
@@ -180,17 +184,20 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <WelcomeMessage
-        title="Welcome to RootShare!"
-        message="Every success story is rooted in the support from a community. Join your
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+        <WelcomeMessage
+          title="Welcome to RootShare!"
+          message="Every success story is rooted in the support from a community. Join your
         communities or discover new ones today."
-        buttonText="Discover"
-        buttonAction={handleDiscoverClick}
-      />
+          buttonText="Discover"
+          buttonAction={handleDiscoverClick}
+        />
+      </Box>
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={profilePicture}
       />
+
       <RSTabs
         tabs={[
           { label: 'General', value: 'general' },
