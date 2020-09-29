@@ -59,8 +59,6 @@ function HomepageBody(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  //TODO - Use default state false for this once connected to server, and set to true if its their first visit
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
   const [feed, setFeed] = useState<JSX.Element[]>([]);
   const [selectedTab, setSelectedTab] = useState('general');
@@ -116,10 +114,6 @@ function HomepageBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function handleDiscoverClick() {
@@ -186,16 +180,13 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title="Welcome to RootShare!"
-          message="Every success story is rooted in the support from a community. Join your
+      <WelcomeMessage
+        title="Welcome to RootShare!"
+        message="Every success story is rooted in the support from a community. Join your
         communities or discover new ones today."
-          onClose={closeWelcomeMessage}
-          buttonText="Discover"
-          buttonAction={handleDiscoverClick}
-        />
-      )}
+        buttonText="Discover"
+        buttonAction={handleDiscoverClick}
+      />
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={profilePicture}

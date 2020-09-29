@@ -52,7 +52,6 @@ function EventsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [events, setEvents] = useState<{ [key: string]: any }>([]);
   const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
@@ -81,10 +80,6 @@ function EventsBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function renderEvents() {
@@ -118,13 +113,10 @@ function EventsBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title="Events"
-          message="You can find future events that are accessible to you on this page."
-          onClose={closeWelcomeMessage}
-        />
-      )}
+      <WelcomeMessage
+        title="Events"
+        message="You can find future events that are accessible to you on this page."
+      />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (

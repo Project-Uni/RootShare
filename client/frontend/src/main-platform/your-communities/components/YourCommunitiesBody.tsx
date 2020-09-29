@@ -68,7 +68,6 @@ function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [username, setUsername] = useState('User');
   const [joinedCommunities, setJoinedCommunities] = useState<
@@ -119,10 +118,6 @@ function YourCommunitiesBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function renderJoinedCommunities() {
@@ -182,17 +177,14 @@ function YourCommunitiesBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
-          } Communities`}
-          message={`All of the communities that ${
-            props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
-          } to will be displayed on this page.`}
-          onClose={closeWelcomeMessage}
-        />
-      )}
+      <WelcomeMessage
+        title={`${
+          props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+        } Communities`}
+        message={`All of the communities that ${
+          props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
+        } to will be displayed on this page.`}
+      />
       <div className={styles.body}>
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />

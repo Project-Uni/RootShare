@@ -78,7 +78,6 @@ function DiscoverBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [renderList, setRenderList] = useState<JSX.Element[]>([]);
 
@@ -141,10 +140,6 @@ function DiscoverBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function randomShuffle(array: any[]) {
@@ -249,13 +244,10 @@ function DiscoverBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title="Discovery"
-          message="Find new communities to join, and people to connect to with"
-          onClose={closeWelcomeMessage}
-        />
-      )}
+      <WelcomeMessage
+        title="Discovery"
+        message="Find new communities to join, and people to connect to with"
+      />
       <div className={styles.body}>
         {renderSearchArea()}
         {loading ? (

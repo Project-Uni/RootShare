@@ -34,7 +34,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchIcon: {
     marginRight: 10,
-  }
+  },
 }));
 
 type Props = {};
@@ -43,7 +43,6 @@ function StreamLibraryBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [searchedValue, setSearchedValue] = useState('');
 
@@ -60,10 +59,6 @@ function StreamLibraryBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function handleSearchChange(event: any) {
@@ -112,13 +107,10 @@ function StreamLibraryBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title="Video Library"
-          message="Previous events hosted on RootShare are visible here for your on-demand viewing."
-          onClose={closeWelcomeMessage}
-        />
-      )}
+      <WelcomeMessage
+        title="Video Library"
+        message="Previous events hosted on RootShare are visible here for your on-demand viewing."
+      />
       <div className={styles.body}>
         {renderSearchbar()}
         {renderStreams()}

@@ -57,7 +57,6 @@ function ConnectionsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
   const [connections, setConnections] = useState<{ [key: string]: any }>([]); //TODO: add type to connection
@@ -109,10 +108,6 @@ function ConnectionsBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function renderSearchArea() {
@@ -196,17 +191,14 @@ function ConnectionsBody(props: Props) {
             : colors.background,
       }}
     >
-      {showWelcomeModal && (
-        <WelcomeMessage
-          title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
-          } Connections`}
-          message={`See all of the people that ${
-            props.requestUserID === 'user' ? 'you have' : `${username} has`
-          } connected with!`}
-          onClose={closeWelcomeMessage}
-        />
-      )}
+      <WelcomeMessage
+        title={`${
+          props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+        } Connections`}
+        message={`See all of the people that ${
+          props.requestUserID === 'user' ? 'you have' : `${username} has`
+        } connected with!`}
+      />
       <div className={styles.body}>
         {renderSearchArea()}
         {loading ? (
