@@ -16,7 +16,7 @@ import BugTextField from './BugTextField';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
-    background: colors.second,
+    background: colors.primaryText,
     width: 500,
     height: 400,
   },
@@ -25,18 +25,28 @@ const useStyles = makeStyles((_: any) => ({
   },
   okButton: {
     flex: 1,
-    right: 0,
+    right: 7,
     bottom: 0,
     position: 'absolute',
     margin: 20,
-    color: colors.primaryText,
+    color: 'white',
+    background: 'grey',
+  },
+  cancelButton: {
+    flex: 1,
+    right: 90,
+    bottom: 0,
+    position: 'absolute',
+    margin: 20,
+    color: 'white',
+    background: 'grey',
   },
   select: {
     marginTop: 20,
     width: 450,
-    background: colors.fourth,
-    color: colors.primaryText,
-    label: colors.primaryText,
+    background: 'white',
+    color: 'black',
+    label: 'black',
   },
 }));
 
@@ -79,7 +89,7 @@ function BugModal(props: Props) {
   return (
     <Dialog open={props.open} PaperComponent={PaperComponent}>
       <DialogTitle>
-        <RSText type="head" size={16} bold color={colors.primaryText}>
+        <RSText type="head" size={16} bold color={'black'}>
           Report A Bug
         </RSText>
       </DialogTitle>
@@ -113,6 +123,9 @@ function BugModal(props: Props) {
         </div>
       </DialogContent>
       <DialogActions>
+        <Button className={styles.cancelButton} onClick={props.onClick}>
+          CANCEL
+        </Button>
         <Button className={styles.okButton} onClick={props.onClick}>
           SUBMIT
         </Button>

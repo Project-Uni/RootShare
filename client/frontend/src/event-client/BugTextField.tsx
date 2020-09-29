@@ -7,30 +7,30 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: { marginTop: 20 },
   textField: {
     // width: 360,
-    background: colors.fourth,
-    color: colors.primaryText,
-    label: colors.primaryText,
+    background: 'white',
+    color: 'black',
+    label: 'black',
   },
   input: {
-    color: colors.primaryText,
-    label: colors.primaryText,
+    color: 'black',
+    label: 'black',
   },
   cssLabel: {
-    color: colors.primaryText,
-    label: colors.primaryText,
+    color: 'black',
+    label: 'black',
   },
   cssFocused: {
-    color: colors.primaryText,
-    label: colors.primaryText,
+    color: 'black',
+    label: 'black',
     borderWidth: '2px',
-    borderColor: colors.primaryText,
+    borderColor: 'black',
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: colors.primaryText,
-      label: colors.primaryText,
+      color: 'black',
+      label: 'black',
       borderWidth: '2px',
-      borderColor: colors.primaryText,
+      borderColor: 'black',
     },
   },
 }));
