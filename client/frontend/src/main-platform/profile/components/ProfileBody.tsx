@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
@@ -29,14 +29,17 @@ const HEADER_HEIGHT = 64;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
+    background: colors.background,
   },
   profileWrapper: {
-    background: colors.primaryText,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
+  headBox: {
+    margin: 8,
+    paddingBottom: 20,
+    background: colors.primaryText,
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -293,24 +296,27 @@ function ProfileBody(props: Props) {
             onClose={closeWelcomeMessage}
           />
         )} */}
+
         <div className={styles.body}>
-          {renderProfileAndBackground()}
-          <ProfileHead
-            name={`${profile.firstName} ${profile.lastName}`}
-            profileID={profile._id}
-            university={university.universityName}
-            graduationYear={profile.graduationYear}
-            position={profile.position}
-            company={profile.work}
-            bio={profile.bio}
-            numConnections={profile.numConnections!}
-            numMutualConnections={profile.numMutualConnections!}
-            numCommunities={profile.numCommunities!}
-            currentProfileState={props.currentProfileState}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
-            updateProfileState={props.updateProfileState}
-          />
+          <Box boxShadow={2} className={styles.headBox} borderRadius={8}>
+            {renderProfileAndBackground()}
+            <ProfileHead
+              name={`${profile.firstName} ${profile.lastName}`}
+              profileID={profile._id}
+              university={university.universityName}
+              graduationYear={profile.graduationYear}
+              position={profile.position}
+              company={profile.work}
+              bio={profile.bio}
+              numConnections={profile.numConnections!}
+              numMutualConnections={profile.numMutualConnections!}
+              numCommunities={profile.numCommunities!}
+              currentProfileState={props.currentProfileState}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+              updateProfileState={props.updateProfileState}
+            />
+          </Box>
 
           {renderRegisteredEvents()}
           {loadingPosts ? (
