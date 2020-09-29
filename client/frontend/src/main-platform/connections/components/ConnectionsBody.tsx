@@ -18,7 +18,6 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
@@ -29,15 +28,13 @@ const useStyles = makeStyles((_: any) => ({
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 10,
-    marginRight: 1,
+    paddingLeft: 10,
+    paddingRight: 1,
     background: colors.primaryText,
+    paddingBottom: 10,
   },
   connectionStyle: {
-    marginLeft: 1,
-    marginRight: 1,
-    marginBottom: 1,
-    borderRadius: 1,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
@@ -169,28 +166,35 @@ function ConnectionsBody(props: Props) {
         connections[i].joinedCommunities.includes(x)
       );
       output.push(
-        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
-          <UserHighlight
-            name={`${connections[i].firstName} ${connections[i].lastName}`}
-            userID={connections[i]._id}
-            profilePic={connections[i].profilePicture}
-            university={connections[i].university.universityName}
-            graduationYear={connections[i].graduationYear}
-            position={connections[i].position}
-            company={connections[i].work}
-            mutualConnections={mutualConnections.length}
-            mutualCommunities={mutualCommunities.length}
-            style={styles.connectionStyle}
-            status="CONNECTION"
-          />
-        </div>
+        <UserHighlight
+          name={`${connections[i].firstName} ${connections[i].lastName}`}
+          userID={connections[i]._id}
+          profilePic={connections[i].profilePicture}
+          university={connections[i].university.universityName}
+          graduationYear={connections[i].graduationYear}
+          position={connections[i].position}
+          company={connections[i].work}
+          mutualConnections={mutualConnections.length}
+          mutualCommunities={mutualCommunities.length}
+          style={styles.connectionStyle}
+          status="CONNECTION"
+        />
       );
     }
     return output;
   }
 
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
+    <div
+      className={styles.wrapper}
+      style={{
+        height: height,
+        background:
+          loading || connections.length === 0
+            ? colors.primaryText
+            : colors.background,
+      }}
+    >
       {showWelcomeModal && (
         <WelcomeMessage
           title={`${
