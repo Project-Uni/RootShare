@@ -17,7 +17,8 @@ import {
   getUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
-  getConnectionsFullData,
+  getSelfConnectionsFullData,
+  getOtherConnectionsFullData,
   getBasicUserInfo,
 } from '../interactions/user';
 
@@ -66,7 +67,9 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      const packet = await getConnectionsFullData(userID);
+      let packet;
+      if (userID === req.user._id) packet = await getSelfConnectionsFullData(userID);
+      else packet = await getOtherConnectionsFullData(req.user._id, userID);
       return res.json(packet);
     }
   );

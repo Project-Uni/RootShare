@@ -1014,7 +1014,7 @@ export async function getUserCommunities(userID: string) {
   }
 }
 
-export async function getConnectionsFullData(userID: string) {
+export async function getSelfConnectionsFullData(userID: string) {
   try {
     const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
       'connections',
@@ -1050,6 +1050,70 @@ export async function getConnectionsFullData(userID: string) {
       connectionsWithData[i] = await addCalculatedUserFields(
         connectionUserIDStrings,
         joinedCommunities,
+        connectionsWithData[i]
+      );
+    }
+
+    return sendPacket(1, 'successfully retrieved all connections', {
+      connections: connectionsWithData,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getOtherConnectionsFullData(selfID: string, userID: string) {
+  try {
+    const selfUser = await User.findOne({ _id: selfID }, [
+      'connections',
+      'joinedCommunities',
+      'firstName',
+    ]).populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    const otherUser = await User.findOne({ _id: userID }, [
+      'connections',
+      'firstName',
+    ]).populate({
+      path: 'connections',
+      select: ['accepted', 'from', 'to'],
+    });
+
+    const selfConnectionUserIDStrings = connectionsToUserIDStrings(
+      userID,
+      selfUser.connections
+    );
+    const otherConnectionUserIDs = connectionsToUserIDs(
+      userID,
+      otherUser.connections
+    );
+
+    const connectionsWithData = await User.find(
+      { _id: { $in: otherConnectionUserIDs } },
+      [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'joinedCommunities',
+        'profilePicture',
+      ]
+    )
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    for (let i = 0; i < connectionsWithData.length; i++) {
+      connectionsWithData[i] = connectionsWithData[i].toObject();
+      connectionsWithData[i].connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
+      );
+      connectionsWithData[i] = await addCalculatedUserFields(
+        selfConnectionUserIDStrings,
+        selfUser.joinedCommunities,
         connectionsWithData[i]
       );
     }
