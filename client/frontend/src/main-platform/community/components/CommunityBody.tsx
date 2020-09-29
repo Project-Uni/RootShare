@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -20,7 +20,8 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    // background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
     borderLeft: `1px solid ${colors.fourth}`,
     borderRight: `1px solid ${colors.fourth}`,
@@ -30,6 +31,8 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     height: 200,
     objectFit: 'cover',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
 
   profilePictureWrapper: {
@@ -53,7 +56,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 50,
   },
   bodyContent: {
-    marginTop: 20,
+    marginTop: 10,
+  },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+    paddingBottom: 20,
   },
 }));
 
@@ -161,11 +169,9 @@ function CommunityBody(props: Props) {
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       <div className={styles.body}>
-        {renderProfileAndBackground()}
-        {props.loading ? (
-          <CircularProgress size={100} className={styles.loadingIndicator} />
-        ) : (
-          <>
+        <Box boxShadow={2} borderRadius={10} className={styles.box}>
+          {renderProfileAndBackground()}
+          {!props.loading && (
             <CommunityGeneralInfo
               communityID={props.communityID}
               status={props.status}
@@ -182,16 +188,21 @@ function CommunityBody(props: Props) {
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
             />
-            {locked ? (
-              renderLocked()
-            ) : (
-              <CommunityBodyContent
-                className={styles.bodyContent}
-                communityID={props.communityID}
-                isAdmin={props.isAdmin}
-              />
-            )}
-          </>
+          )}
+        </Box>
+        {props.loading && (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        )}
+        {props.loading ? (
+          <></>
+        ) : locked ? (
+          renderLocked()
+        ) : (
+          <CommunityBodyContent
+            className={styles.bodyContent}
+            communityID={props.communityID}
+            isAdmin={props.isAdmin}
+          />
         )}
       </div>
     </div>
