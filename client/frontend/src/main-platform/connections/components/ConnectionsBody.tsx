@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
@@ -31,7 +31,6 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     paddingLeft: 10,
     paddingRight: 1,
-    background: colors.primaryText,
     paddingBottom: 10,
   },
   connectionStyle: {
@@ -43,6 +42,10 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: colors.primary,
     marginTop: 60,
+  },
+  box: {
+    margin: 8,
+    background: colors.primaryText,
   },
 }));
 
@@ -191,16 +194,18 @@ function ConnectionsBody(props: Props) {
             : colors.background,
       }}
     >
-      <WelcomeMessage
-        title={`${
-          props.requestUserID === 'user' ? 'Your' : `${username}\'s`
-        } Connections`}
-        message={`See all of the people that ${
-          props.requestUserID === 'user' ? 'you have' : `${username} has`
-        } connected with!`}
-      />
-      <div className={styles.body}>
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+        <WelcomeMessage
+          title={`${
+            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+          } Connections`}
+          message={`See all of the people that ${
+            props.requestUserID === 'user' ? 'you have' : `${username} has`
+          } connected with!`}
+        />
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
