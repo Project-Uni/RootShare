@@ -53,6 +53,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 39,
     marginRight: 0,
     borderTop: `1px solid #c5c5c5`,
+    borderBottom: `1px solid #c5c5c5`,
   },
   post: {
     borderBottom: `1px solid ${colors.fourth}`,
@@ -321,15 +322,6 @@ function ProfileBody(props: Props) {
             updateProfileState={props.updateProfileState}
           />
           {renderRegisteredEvents()}
-          <RSText
-            type="head"
-            size={24}
-            bold
-            color={colors.primaryText}
-            className={styles.rootshares}
-          >
-            {profile.firstName}'s RootShares
-          </RSText>
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
