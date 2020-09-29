@@ -35,10 +35,12 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
   },
   body: {},
-  headBox: {
+  box: {
     margin: 8,
-    paddingBottom: 20,
     background: colors.primaryText,
+  },
+  headBox: {
+    paddingBottom: 20,
   },
   coverPhoto: {
     background: colors.bright,
@@ -53,8 +55,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   event: {
     marginTop: 0,
-    marginLeft: 39,
-    marginRight: 0,
+    marginLeft: 10,
+    marginRight: 10,
     borderTop: `1px solid #c5c5c5`,
   },
   post: {
@@ -201,7 +203,10 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div className={styles.coverPhoto}></div>
+        <div
+          className={styles.coverPhoto}
+          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+        ></div>
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}
@@ -255,7 +260,9 @@ function ProfileBody(props: Props) {
     });
 
     return (
-      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
+      <Box className={styles.box} boxShadow={2} borderRadius={8}>
+        {output}
+      </Box>
     );
   }
 
@@ -298,7 +305,11 @@ function ProfileBody(props: Props) {
         )} */}
 
         <div className={styles.body}>
-          <Box boxShadow={2} className={styles.headBox} borderRadius={8}>
+          <Box
+            boxShadow={2}
+            className={[styles.box, styles.headBox].join(' ')}
+            borderRadius={8}
+          >
             {renderProfileAndBackground()}
             <ProfileHead
               name={`${profile.firstName} ${profile.lastName}`}
