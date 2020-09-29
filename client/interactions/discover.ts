@@ -128,13 +128,37 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
-        log('info', `Pre-populated discovery page for user ${userID}`);
-
-        return sendPacket(
-          1,
-          'Successfully retrieved users and communities for population',
-          { communities, users }
+        const communityImagePromises = generateSignedImagePromises(
+          communities,
+          'communityProfile'
         );
+        const userImagePromises = generateSignedImagePromises(users, 'profile');
+
+        return Promise.all([...communityImagePromises, ...userImagePromises])
+          .then((images) => {
+            let i = 0;
+            for (i; i < communities.length; i++)
+              if (images[i]) communities[i].profilePicture = images[i];
+
+            for (i; i < communities.length + users.length; i++)
+              if (images[i])
+                users[i - communities.length].profilePicture = images[i];
+            log('info', `Pre-populated discovery page for user ${userID}`);
+
+            return sendPacket(
+              1,
+              'Successfully retrieved users and communities for population',
+              { communities, users }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(
+              1,
+              'Successfully retrieved users and communities, but there was an error retrieving profile images',
+              { communities, user }
+            );
+          });
       })
       .catch((err) => {
         log('error', err);
