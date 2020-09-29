@@ -114,16 +114,19 @@ export async function addCalculatedUserFields(
     }
   }
 
-  let cleanedUser = copyObject(otherUser, [
-    'connections',
-    'pendingConnections',
-    'joinedCommunities',
-  ]);
-
-  cleanedUser.profilePicture = profilePicture;
-  cleanedUser.numMutualConnections = mutualConnections.length;
-  cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'PUBLIC';
+  const cleanedUser = {
+    _id: otherUser._id,
+    firstName: otherUser.firstName,
+    lastName: otherUser.lastName,
+    university: otherUser.university,
+    work: otherUser.work,
+    position: otherUser.position,
+    graduationYear: otherUser.graduationYear,
+    profilePicture,
+    numMutualConnections: mutualConnections.length,
+    numMutualCommunities: mutualCommunities.length,
+    status: 'PUBLIC',
+  };
 
   return cleanedUser;
 }
