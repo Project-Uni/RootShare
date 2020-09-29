@@ -197,7 +197,7 @@ function DiscoverBody(props: Props) {
       output.push(
         <UserHighlight
           style={styles.singleResult}
-          userID={users[i]._id}
+          userID={users[i]._id === props.user._id ? 'self' : users[i]._id}
           name={`${users[i].firstName} ${users[i].lastName}`}
           profilePic={users[i].profilePicture}
           university={users[i].university?.universityName}

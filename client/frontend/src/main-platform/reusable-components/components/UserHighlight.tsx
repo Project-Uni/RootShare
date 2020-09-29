@@ -176,10 +176,12 @@ function UserHighlight(props: Props) {
             {props.position && props.company ? ', ' : null}
             {props.company ? props.company : null}
           </RSText>
-          <RSText type="subhead" size={12} color={colors.second}>
-            {props.mutualConnections || 0} Mutual Connections |{' '}
-            {props.mutualCommunities || 0} Mutual Communities
-          </RSText>
+          {props.userID === 'self' || (
+            <RSText type="subhead" size={12} color={colors.second}>
+              {props.mutualConnections || 0} Mutual Connections |{' '}
+              {props.mutualCommunities || 0} Mutual Communities
+            </RSText>
+          )}
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'center' }}>

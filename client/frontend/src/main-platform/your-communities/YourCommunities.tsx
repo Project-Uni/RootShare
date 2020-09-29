@@ -83,7 +83,7 @@ function YourCommunities(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/communities`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/communities/${userID}`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (

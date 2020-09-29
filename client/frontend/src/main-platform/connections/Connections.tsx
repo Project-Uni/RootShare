@@ -78,7 +78,7 @@ function Connections(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/connections/user`} />}
+      {loginRedirect && <Redirect to={`/login?redirect=/connections/${userID}`} />}
       <EventClientHeader showNavigationWidth={CONNECTIONS_SHOW_NAVIGATION_WIDTH} />
       <div className={styles.body}>
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
