@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
@@ -8,7 +8,6 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 
-import PurdueHypeBanner from '../../../images/PurdueHypeAlt.png';
 import { makeRequest } from '../../../helpers/functions';
 
 import { CommunityType } from '../../../helpers/types';
@@ -18,7 +17,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
   },
   body: {},
@@ -33,15 +32,15 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 20,
   },
   singleCommunity: {
-    marginLeft: 1,
-    marginRight: 1,
-    marginBottom: 1,
-    borderRadius: 1,
-    borderTop: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   loadingIndicator: {
     marginTop: 80,
     color: colors.primary,
+  },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
   },
 }));
 
@@ -177,14 +176,16 @@ function YourCommunitiesBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <WelcomeMessage
-        title={`${
-          props.requestUserID === 'user' ? 'Your' : `${username}\'s`
-        } Communities`}
-        message={`All of the communities that ${
-          props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
-        } to will be displayed on this page.`}
-      />
+      <Box boxShadow={2} borderRadius={8} className={styles.box}>
+        <WelcomeMessage
+          title={`${
+            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+          } Communities`}
+          message={`All of the communities that ${
+            props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
+          } to will be displayed on this page.`}
+        />
+      </Box>
       <div className={styles.body}>
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />
