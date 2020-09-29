@@ -330,7 +330,7 @@ function CommunityGeneralInfo(props: Props) {
                 className={styles.memberCountLink}
               >
                 <RSText type="body" size={12} color={colors.second}>
-                  {numPending} Pending Member Requests
+                  {numPending} Pending Members
                 </RSText>
               </a>
             )}
@@ -341,7 +341,7 @@ function CommunityGeneralInfo(props: Props) {
                 className={styles.memberCountLink}
               >
                 <RSText type="body" size={12} color={colors.second}>
-                  {numFollowRequests} Pending Follow Requests
+                  {numFollowRequests} Pending Followers
                 </RSText>
               </a>
             )}
