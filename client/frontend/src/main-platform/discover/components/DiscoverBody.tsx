@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
@@ -25,7 +25,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
   },
   body: {},
@@ -42,7 +42,6 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 1,
     marginRight: 1,
     marginTop: 8,
-    background: colors.primaryText,
     paddingBottom: 10,
   },
   resultsContainer: {
@@ -65,6 +64,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   searchButton: {
     marginTop: 7,
+  },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
   },
 }));
 
@@ -244,21 +247,18 @@ function DiscoverBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <WelcomeMessage
-        title="Discovery"
-        message="Find new communities to join, and people to connect to with"
-      />
-      <div className={styles.body}>
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+        <WelcomeMessage
+          title="Discovery"
+          message="Find new communities to join, and people to connect to with"
+        />
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          <div
-            className={styles.resultsContainer}
-            style={{
-              background: renderList.length > 0 ? colors.background : 'inherit',
-            }}
-          >
+          <div className={styles.resultsContainer}>
             {renderList.length > 0 ? renderList : renderNoResults()}
           </div>
         )}
