@@ -206,7 +206,7 @@ function CommunityHighlight(props: Props) {
             {cropText(props.description, MAX_DESC_LEN)}
           </RSText>
           <RSText type="subhead" size={12} color={colors.second}>
-            {numMembers} Members | {props.mutualMemberCount} Mutual
+            {numMembers} Members | {props.mutualMemberCount} Connections
           </RSText>
         </div>
       </div>

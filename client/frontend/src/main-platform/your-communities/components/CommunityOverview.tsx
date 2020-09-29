@@ -138,7 +138,7 @@ function CommunityOverview(props: Props) {
           |
         </RSText>
         <RSText color={colors.second} size={12} type="body">
-          {props.mutualMemberCount} Mutual
+          {props.mutualMemberCount} Connections
         </RSText>
       </div>
     );

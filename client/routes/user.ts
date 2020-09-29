@@ -14,7 +14,8 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
-  getUserCommunities,
+  getSelfUserCommunities,
+  getOtherUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
   getConnectionsFullData,
@@ -140,7 +141,10 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      const packet = await getUserCommunities(userID);
+      let packet;
+      if (req.user._id.toString() === userID.toString())
+        packet = await getSelfUserCommunities(userID);
+      else packet = await getOtherUserCommunities(req.user._id, userID);
       return res.json(packet);
     }
   );

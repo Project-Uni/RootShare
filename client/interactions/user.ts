@@ -3,8 +3,8 @@ import { User, Connection, Webinar } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
-  extractOtherUserIDFromConnections,
   addCalculatedUserFields,
+  addCalculatedCommunityFields,
   generateSignedImagePromises,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
@@ -904,7 +904,7 @@ export async function updateAttendingList(
   }
 }
 
-export async function getUserCommunities(userID: string) {
+export async function getSelfUserCommunities(userID: string) {
   try {
     //Getting correct values from database
     const communitySelectFields = [
@@ -919,94 +919,91 @@ export async function getUserCommunities(userID: string) {
 
     const user = await User.findById(userID)
       .select(['joinedCommunities', 'pendingCommunities', 'connections'])
-      .populate({ path: 'connections', select: ['from', 'to'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .populate({ path: 'joinedCommunities', select: communitySelectFields })
       .populate({ path: 'pendingCommunities', select: communitySelectFields })
       .exec();
 
-    if (!user) return sendPacket(0, `Could find user with id ${userID}`);
+    if (!user)
+      return sendPacket(
+        0,
+        `Couldn't find user with id ${userID} to get communities for`
+      );
 
     const { joinedCommunities, pendingCommunities } = user;
-    const connections = extractOtherUserIDFromConnections(
-      userID,
-      user['connections']
-    );
+    const connections = connectionsToUserIDStrings(userID, user['connections']);
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < joinedCommunities.length; i++) {
-      //Updating Profile Picture
-      if (joinedCommunities[i].profilePicture) {
-        try {
-          const signedProfilePicture = await retrieveSignedUrl(
-            'communityProfile',
-            joinedCommunities[i].profilePicture
-          );
-          if (signedProfilePicture)
-            joinedCommunities[i].profilePicture = signedProfilePicture;
-        } catch (err) {
-          log('error', err);
-        }
-      }
-
-      //Calculating Mutual Connections
-      const mutualConnections = connections.filter((connection) => {
-        return joinedCommunities[i].members.indexOf(connection) !== -1;
-      });
-
-      const cleanedCommunity = {
-        _id: joinedCommunities[i]._id,
-        name: joinedCommunities[i].name,
-        description: joinedCommunities[i].description,
-        private: joinedCommunities[i].private,
-        type: joinedCommunities[i].type,
-        admin: joinedCommunities[i].admin,
-        profilePicture: joinedCommunities[i].profilePicture,
-        numMembers: joinedCommunities[i].members.length,
-        numMutual: mutualConnections.length,
-      };
-
-      joinedCommunities[i] = cleanedCommunity;
+      console.log(joinedCommunities[i]);
+      joinedCommunities[i] = await addCalculatedCommunityFields(
+        connections,
+        joinedCommunities[i].toObject()
+      );
     }
 
     for (let i = 0; i < pendingCommunities.length; i++) {
-      //Updating Profile Picture
-      if (pendingCommunities[i].profilePicture) {
-        try {
-          const signedProfilePicture = await retrieveSignedUrl(
-            'communityProfile',
-            pendingCommunities[i].profilePicture
-          );
-          if (signedProfilePicture)
-            pendingCommunities[i].profilePicture = signedProfilePicture;
-        } catch (err) {
-          log('error', err);
-        }
-      }
+      pendingCommunities[i] = await addCalculatedCommunityFields(
+        connections,
+        pendingCommunities[i].toObject()
+      );
+    }
 
-      //Calculating Mutual Connections
-      const mutualConnections = connections.filter((connection) => {
-        return pendingCommunities[i].members.indexOf(connection) !== -1;
-      });
+    console.log(joinedCommunities);
+    return sendPacket(
+      1,
+      'Successfully retrieved all joined and pending communities.',
+      { joinedCommunities, pendingCommunities }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
 
-      const cleanedCommunity = {
-        _id: pendingCommunities[i]._id,
-        name: pendingCommunities[i].name,
-        description: pendingCommunities[i].description,
-        private: pendingCommunities[i].private,
-        type: pendingCommunities[i].type,
-        admin: pendingCommunities[i].admin,
-        profilePicture: pendingCommunities[i].profilePicture,
-        numMembers: pendingCommunities[i].members.length,
-        numMutual: mutualConnections.length,
-      };
+export async function getOtherUserCommunities(selfID: string, userID: string) {
+  try {
+    //Getting correct values from database
+    const communitySelectFields = [
+      'name',
+      'description',
+      'private',
+      'members',
+      'type',
+      'profilePicture',
+      'admin',
+    ];
 
-      pendingCommunities[i] = cleanedCommunity;
+    const selfUser = await User.findById(selfID)
+      .select(['joinedCommunities', 'pendingCommunities', 'connections'])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .exec();
+
+    const otherUser = await User.findById(userID)
+      .select(['joinedCommunities'])
+      .populate({ path: 'joinedCommunities', select: communitySelectFields })
+      .exec();
+
+    if (!selfUser || !otherUser)
+      return sendPacket(0, `Couldn't find User to get communities for`);
+
+    const { joinedCommunities, pendingCommunities } = selfUser;
+    const connections = connectionsToUserIDStrings(userID, selfUser['connections']);
+
+    //Cleaning up joined and pending communities
+    for (let i = 0; i < otherUser.joinedCommunities.length; i++) {
+      otherUser.joinedCommunities[i] = await addCalculatedCommunityFields(
+        connections,
+        otherUser.joinedCommunities[i].toObject()
+      );
+
+      // await addStatusesToCommunities(otherUser.joinedCommunities[i], joinedCommunities, pendingCommunities)
     }
 
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
-      { joinedCommunities, pendingCommunities }
+      { joinedCommunities: otherUser.joinedCommunities, pendingCommunities: [] }
     );
   } catch (err) {
     log('error', err);

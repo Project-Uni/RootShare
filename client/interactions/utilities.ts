@@ -65,22 +65,6 @@ function countAccountType(users) {
   return retCounts;
 }
 
-export function extractOtherUserIDFromConnections(
-  userID,
-  connectionsDBArray: [{ [key: string]: any; from: string; to: string }]
-): string[] {
-  const connections = connectionsDBArray.reduce((output, connection) => {
-    const otherID =
-      connection['from'].toString() != userID.toString()
-        ? connection['from']
-        : connection['to'];
-
-    output.push(otherID.toString());
-    return output;
-  }, []);
-  return connections;
-}
-
 // Adds profile picture, mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
@@ -147,6 +131,9 @@ export async function addCalculatedCommunityFields(
   const currentUserConnectionsStrings = toStringArray(currentUserConnections);
   const membersStrings = toStringArray(community.members);
 
+  console.log(currentUserConnectionsStrings);
+  console.log(membersStrings);
+
   const mutualMembers = currentUserConnectionsStrings.filter((connection) => {
     return membersStrings.indexOf(connection) !== -1;
   });
@@ -165,19 +152,11 @@ export async function addCalculatedCommunityFields(
     }
   }
 
-  const cleanedCommunity = {
-    _id: community._id,
-    name: community.name,
-    type: community.type,
-    description: community.description,
-    private: community.private,
-    university: community.university,
-    profilePicture,
-    admin: community.admin,
-    numMembers: community.members.length,
-    numMutual: mutualMembers.length,
-    status: 'OPEN',
-  };
+  const cleanedCommunity = copyObject(community, ['members']);
+  cleanedCommunity.profilePicture = profilePicture;
+  cleanedCommunity.numMembers = community.members.length;
+  cleanedCommunity.numMutual = mutualMembers.length;
+  cleanedCommunity.status = 'OPEN';
 
   return cleanedCommunity;
 }
@@ -318,6 +297,8 @@ export function connectionsToUserIDs(userID, connections) {
 }
 
 export function toStringArray(array) {
+  if (!array)
+    log('ERROR', 'Array is undefined and cannot be converted to string array');
   let retArray = [];
   array.forEach((element) => {
     retArray.push(element.toString());
