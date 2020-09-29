@@ -17,6 +17,7 @@ import {
   acceptPendingMember,
   leaveCommunity,
   cancelCommunityPendingRequest,
+  getCommunityMembers,
   //Follow Related Actions
   followCommunity,
   acceptFollowRequest,
@@ -301,6 +302,16 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const packet = await getAllPendingFollowRequests(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/members',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getCommunityMembers(communityID);
       return res.json(packet);
     }
   );
