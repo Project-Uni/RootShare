@@ -47,9 +47,10 @@ const useStyles = makeStyles((_: any) => ({
   resultsContainer: {
     marginLeft: 1,
     marginRight: 1,
+    background: colors.background,
   },
   singleResult: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
