@@ -1,3 +1,5 @@
+import { UniversityType } from '.';
+
 export type Community = {
   _id: string;
   name: string;
@@ -51,4 +53,15 @@ export type AdminCommunityServiceResponse = {
     accepted: boolean;
   }[];
   currentCommunityRelationship?: 'following' | 'pending' | 'open';
+};
+
+export type CommunityMemberServiceResponse = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  university: UniversityType;
+  work?: string;
+  position?: string;
+  graduationYear?: number;
+  profilePicture?: string;
 };

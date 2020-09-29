@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { PostType } from '../../../helpers/types';
+import { PostType, CommunityMemberServiceResponse } from '../../../helpers/types';
 
 import {
   makeRequest,
@@ -65,7 +65,10 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
+
   const [posts, setPosts] = useState<JSX.Element[]>([]);
+  const [members, setMembers] = useState<CommunityMemberServiceResponse[]>([]);
+
   const [fetchErr, setFetchErr] = useState(false);
 
   const tabs = [
@@ -131,7 +134,7 @@ function CommunityBodyContent(props: Props) {
     if (tabChangeSemaphore === currSemaphoreState) {
       if (data.success === 1) {
         setFetchErr(false);
-        // setPosts(createFeed(data.content['posts']));
+        setMembers(data.content['members']);
         console.log('Retrieved members');
       } else {
         setFetchErr(true);
@@ -213,7 +216,7 @@ function CommunityBodyContent(props: Props) {
       case 'following':
         return renderFollowing();
       case 'members':
-        return <CommunityMembers />;
+        return <CommunityMembers members={members} />;
       default:
         return renderError();
     }

@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { makeRequest } from '../../../helpers/functions';
+import { CommunityMemberServiceResponse } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
 }));
 
 type Props = {
-  members: any;
+  members: CommunityMemberServiceResponse[];
 };
 
 function CommunityMembers(props: Props) {
   const styles = useStyles();
+
+  console.log('Members:', props.members);
 
   return (
     <div className={styles.wrapper}>

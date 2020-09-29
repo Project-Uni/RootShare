@@ -960,4 +960,42 @@ export async function getAllPendingFollowRequests(communityID: string) {
   }
 }
 
-export async function getCommunityMembers(communityID: string) {}
+export async function getCommunityMembers(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['members', 'name'])
+      .populate({
+        path: 'members',
+        select:
+          'firstName lastName university graduationYear work position profilePicture',
+        populate: { path: 'university', select: 'universityName' },
+      })
+      .exec();
+
+    if (!community) return sendPacket(0, 'Could not find community');
+    const { members } = community;
+    const imagePromises = await generateSignedImagePromises(members, 'profile');
+
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++)
+          if (signedImageURLs[i]) members[i].profilePicture = signedImageURLs[i];
+
+        log('info', `Successfully retrieved all members for ${community.name}`);
+        return sendPacket(1, 'Successfully all members', {
+          members,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(
+          1,
+          'Successfully retrieved all members, but there was an error retrieving profile pictures',
+          { members }
+        );
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
