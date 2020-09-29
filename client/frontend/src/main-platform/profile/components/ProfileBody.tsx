@@ -42,6 +42,9 @@ const useStyles = makeStyles((_: any) => ({
   headBox: {
     paddingBottom: 20,
   },
+  eventBox: {
+    marginBottom: 0,
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -260,7 +263,11 @@ function ProfileBody(props: Props) {
     });
 
     return (
-      <Box className={styles.box} boxShadow={2} borderRadius={8}>
+      <Box
+        className={[styles.box, styles.eventBox].join(' ')}
+        boxShadow={2}
+        borderRadius={8}
+      >
         {output}
       </Box>
     );
