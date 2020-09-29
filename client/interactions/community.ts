@@ -983,6 +983,8 @@ export async function getCommunityMembers(userID: string, communityID: string) {
     return Promise.all([communityPromise, userPromise]).then(
       async ([community, user]) => {
         if (!community) return sendPacket(0, 'Could not find community');
+        if (!user) return sendPacket(0, 'Could not find current user');
+
         const { members } = community;
 
         for (let i = 0; i < members.length; i++) {

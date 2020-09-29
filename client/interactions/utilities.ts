@@ -100,20 +100,6 @@ export async function addCalculatedUserFields(
     return otherUser.joinedCommunities.indexOf(community) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (otherUser.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'profile',
-        otherUser.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
   const cleanedUser = {
     _id: otherUser._id,
     firstName: otherUser.firstName,
@@ -122,7 +108,7 @@ export async function addCalculatedUserFields(
     work: otherUser.work,
     position: otherUser.position,
     graduationYear: otherUser.graduationYear,
-    profilePicture,
+    profilePicture: otherUser.profilePicture,
     numMutualConnections: mutualConnections.length,
     numMutualCommunities: mutualCommunities.length,
     status: 'PUBLIC',
@@ -143,20 +129,6 @@ export async function addCalculatedCommunityFields(
     return community.members.indexOf(connection) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (community.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'communityProfile',
-        community.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
   const cleanedCommunity = {
     _id: community._id,
     name: community.name,
@@ -164,7 +136,7 @@ export async function addCalculatedCommunityFields(
     description: community.description,
     private: community.private,
     university: community.university,
-    profilePicture,
+    profilePicture: community.profilePicture,
     admin: community.admin,
     numMembers: community.members.length,
     numMutual: mutualMembers.length,

@@ -2,6 +2,7 @@ import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
+  generateSignedImagePromises,
   getUserToCommunityRelationship,
   getUserToUserRelationship,
 } from '../interactions/utilities';
@@ -243,7 +244,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           const cleanedUser = await addCalculatedUserFields(
             currentUser.connections,
             currentUser.joinedCommunities,
-            users[i].toObject()
+            users[i]
           );
           getUserToUserRelationship(
             currentUser.connections,
@@ -269,16 +270,41 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           communities[i] = cleanedCommunity;
         }
 
-        log(
-          'info',
-          `Successfully retrieved all matching users and communities for query: ${query}`
+        const communityImagePromises = generateSignedImagePromises(
+          communities,
+          'communityProfile'
         );
+        const userImagePromises = generateSignedImagePromises(users, 'profile');
 
-        return sendPacket(
-          1,
-          'Successfully retrieved all users and communities for query',
-          { users, communities }
-        );
+        return Promise.all([...communityImagePromises, ...userImagePromises])
+          .then((images) => {
+            let i = 0;
+            for (i; i < communities.length; i++)
+              if (images[i]) communities[i].profilePicture = images[i];
+
+            for (i; i < communities.length + users.length; i++)
+              if (images[i])
+                users[i - communities.length].profilePicture = images[i];
+
+            log(
+              'info',
+              `Successfully retrieved all matching users and communities for query: ${query}`
+            );
+
+            return sendPacket(
+              1,
+              'Successfully retrieved all users and communities for query',
+              { users, communities }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(
+              1,
+              'Successfully retrieved discover search, but there was an error retrieving images',
+              { users, communities }
+            );
+          });
       })
       .catch((err) => {
         log('error', err);
