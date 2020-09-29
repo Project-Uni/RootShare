@@ -43,7 +43,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingBottom: 20,
   },
   eventBox: {
-    marginBottom: 0,
+    marginBottom: 4,
   },
   coverPhoto: {
     background: colors.bright,
