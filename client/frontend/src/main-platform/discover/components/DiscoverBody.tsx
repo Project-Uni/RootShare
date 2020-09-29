@@ -47,7 +47,7 @@ const useStyles = makeStyles((_: any) => ({
   resultsContainer: {
     marginLeft: 1,
     marginRight: 1,
-    background: colors.background,
+    paddingTop: 1,
   },
   singleResult: {
     margin: 8,
@@ -260,7 +260,12 @@ function DiscoverBody(props: Props) {
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          <div className={styles.resultsContainer}>
+          <div
+            className={styles.resultsContainer}
+            style={{
+              background: renderList.length > 0 ? colors.background : 'inherit',
+            }}
+          >
             {renderList.length > 0 ? renderList : renderNoResults()}
           </div>
         )}
