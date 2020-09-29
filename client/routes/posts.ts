@@ -63,6 +63,7 @@ export default function postsRoutes(app) {
       if (!message)
         return res.json(sendPacket(-1, 'Message is missing from request body.'));
       const packet = await leaveCommentOnPost(req.user._id, postID, message);
+    }
     );
 
     app.post(

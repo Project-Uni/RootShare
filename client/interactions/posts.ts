@@ -1,5 +1,5 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Community, CommunityEdge, Post, User } from '../models';
+import { Community, CommunityEdge, Comment, Post, User } from '../models';
 const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
@@ -429,7 +429,12 @@ export async function leaveCommentOnPost(
         log('error', err);
         return sendPacket(-1, err);
       });
-    
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 export async function getInternalCurrentMemberPosts(
   communityID: string,
   userID: string,
