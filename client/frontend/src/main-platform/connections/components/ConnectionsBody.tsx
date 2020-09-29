@@ -24,6 +24,7 @@ const useStyles = makeStyles((_: any) => ({
   searchBar: {
     flex: 1,
     marginRight: 10,
+    marginLeft: 10,
   },
   searchBarContainer: {
     display: 'flex',

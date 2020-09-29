@@ -43,6 +43,7 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 1,
     marginTop: 8,
     background: colors.primaryText,
+    paddingBottom: 10,
   },
   resultsContainer: {
     marginLeft: 1,
