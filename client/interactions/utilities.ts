@@ -111,6 +111,7 @@ export async function addCalculatedUserFields(
     profilePicture: otherUser.profilePicture,
     numMutualConnections: mutualConnections.length,
     numMutualCommunities: mutualCommunities.length,
+    accountType: otherUser.accountType,
     status: 'PUBLIC',
   };
 
