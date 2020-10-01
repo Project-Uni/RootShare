@@ -7,6 +7,7 @@ import { FaLock } from 'react-icons/fa';
 import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
+import PendingFollowRequestsModal from './PendingFollowRequestsModal';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -102,6 +103,7 @@ type Props = {
   numMembers: number;
   numPending: number;
   numMutual: number;
+  numFollowRequests: number;
   type:
     | 'Social'
     | 'Business'
@@ -120,7 +122,14 @@ function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [
+    showPendingFollowRequestsModal,
+    setShowPendingFollowRequestsModal,
+  ] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
+  const [numFollowRequests, setNumFollowRequests] = useState(
+    props.numFollowRequests
+  );
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
@@ -204,6 +213,10 @@ function CommunityGeneralInfo(props: Props) {
     setNumPending(newNumPending);
   }
 
+  function updateFollowRequestCount(newNumRequests: number) {
+    setNumFollowRequests(newNumRequests);
+  }
+
   function updateMemberCount(value: 1 | -1) {
     setNumMembers(numMembers + value);
   }
@@ -274,6 +287,14 @@ function CommunityGeneralInfo(props: Props) {
         updatePendingCount={updatePendingCount}
         updateMemberCount={updateMemberCount}
       />
+      <PendingFollowRequestsModal
+        open={showPendingFollowRequestsModal}
+        communityID={props.communityID}
+        handleClose={() => {
+          setShowPendingFollowRequestsModal(false);
+        }}
+        updatePendingCount={updateFollowRequestCount}
+      />
       <div className={styles.top}>
         <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
@@ -299,6 +320,9 @@ function CommunityGeneralInfo(props: Props) {
             <RSText type="body" size={12} color={colors.second}>
               {numMembers} Members
             </RSText>
+            <RSText type="body" size={12} color={colors.second}>
+              {props.numMutual} Mutual
+            </RSText>
             {props.isAdmin && (
               <a
                 href={undefined}
@@ -306,13 +330,21 @@ function CommunityGeneralInfo(props: Props) {
                 className={styles.memberCountLink}
               >
                 <RSText type="body" size={12} color={colors.second}>
-                  {numPending} Pending
+                  {numPending} Pending Member Requests
                 </RSText>
               </a>
             )}
-            <RSText type="body" size={12} color={colors.second}>
-              {props.numMutual} Mutual
-            </RSText>
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={() => setShowPendingFollowRequestsModal(true)}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second}>
+                  {numFollowRequests} Pending Follow Requests
+                </RSText>
+              </a>
+            )}
           </div>
         </div>
       </div>
