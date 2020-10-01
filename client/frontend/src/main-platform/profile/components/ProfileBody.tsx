@@ -42,6 +42,9 @@ const useStyles = makeStyles((_: any) => ({
   headBox: {
     paddingBottom: 20,
   },
+  eventBox: {
+    marginBottom: 4,
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -57,6 +60,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 0,
     marginLeft: 10,
     marginRight: 10,
+  },
+  eventWithBorder: {
     borderTop: `1px solid #c5c5c5`,
   },
   post: {
@@ -244,23 +249,28 @@ function ProfileBody(props: Props) {
   function renderRegisteredEvents() {
     const output: any = [];
 
-    events.forEach((event) => {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
       output.push(
         <ProfileEvent
           key={event._id}
           profileID={(profileState as UserType)._id}
           event={event}
-          style={styles.event}
+          style={[styles.event, i !== 0 ? styles.eventWithBorder : null].join(' ')}
           currentProfileState={props.currentProfileState}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           removeEvent={removeEvent}
         />
       );
-    });
+    }
 
     return (
-      <Box className={styles.box} boxShadow={2} borderRadius={8}>
+      <Box
+        className={[styles.box, styles.eventBox].join(' ')}
+        boxShadow={2}
+        borderRadius={8}
+      >
         {output}
       </Box>
     );

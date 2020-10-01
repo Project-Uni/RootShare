@@ -46,6 +46,10 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 5,
     marginBottom: 5,
   },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+  },
 }));
 
 type Props = {
@@ -59,8 +63,6 @@ function HomepageBody(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  //TODO - Use default state false for this once connected to server, and set to true if its their first visit
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [serverErr, setServerErr] = useState(false);
   const [feed, setFeed] = useState<JSX.Element[]>([]);
   const [selectedTab, setSelectedTab] = useState('general');
@@ -116,10 +118,6 @@ function HomepageBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function handleDiscoverClick() {
@@ -186,20 +184,20 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
           message="Every success story is rooted in the support from a community. Join your
         communities or discover new ones today."
-          onClose={closeWelcomeMessage}
           buttonText="Discover"
           buttonAction={handleDiscoverClick}
         />
-      )}
+      </Box>
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={profilePicture}
       />
+
       <RSTabs
         tabs={[
           { label: 'General', value: 'general' },

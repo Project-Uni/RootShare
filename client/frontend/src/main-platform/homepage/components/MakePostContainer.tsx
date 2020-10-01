@@ -16,6 +16,7 @@ import { PostType } from '../../../helpers/types';
 const useStyles = makeStyles((_: any) => ({
   box: {
     margin: 8,
+    background: colors.primaryText,
   },
   profilePictureContainer: {
     marginTop: 1,
@@ -24,7 +25,6 @@ const useStyles = makeStyles((_: any) => ({
     border: `1px solid ${colors.primary}`,
   },
   messageAreaWrapper: {
-    background: colors.primaryText,
     borderRadius: 8,
     marginLeft: 1,
     marginRight: 1,

@@ -1,16 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { IconButton, Button } from '@material-ui/core';
-
-import { IoMdClose } from 'react-icons/io';
+import { Button } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
-    background: colors.primaryText,
     borderRadius: 1,
     marginLeft: 1,
     marginRight: 1,
@@ -24,6 +21,7 @@ const useStyles = makeStyles((_: any) => ({
   welcomeTextContainer: {
     marginLeft: 20,
     marginRight: 20,
+    paddingTop: 30,
   },
   welcomeBrief: {
     marginTop: 15,
@@ -44,7 +42,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   message: string;
-  onClose: () => void;
   buttonText?: string;
   buttonAction?: () => any;
 };
@@ -53,12 +50,6 @@ function WelcomeMessage(props: Props) {
   const styles = useStyles();
   return (
     <div className={styles.welcomeMessage}>
-      <div className={styles.closeWelcomeButtonDiv}>
-        <IconButton onClick={props.onClose}>
-          <IoMdClose size={24} color={colors.secondaryText} />
-        </IconButton>
-      </div>
-
       <div className={styles.welcomeTextContainer}>
         <RSText type="head" size={24} color={colors.secondary} bold>
           {props.title}
