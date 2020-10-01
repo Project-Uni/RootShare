@@ -141,7 +141,7 @@ function FollowButton(props: Props) {
   async function handleCancelFollowRequest(communityID: string) {
     if (
       window.confirm(
-        `Are you sure you want to request to cancel your follow request to ${props.name}?`
+        `Are you sure you want to cancel your follow request to ${props.name}?`
       )
     ) {
       setFollowMenuAnchorEl(null);
