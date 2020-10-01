@@ -26,10 +26,14 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
   },
   postStyle: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   noPosts: {
     marginTop: 20,
+  },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
   },
 }));
 
@@ -162,12 +166,6 @@ function CommunityBodyContent(props: Props) {
         />
       );
     }
-    if (output.length === 0)
-      output.push(
-        <RSText size={16} type="head" className={styles.noPosts}>
-          There are no posts yet.
-        </RSText>
-      );
     return output;
   }
 
@@ -192,7 +190,7 @@ function CommunityBodyContent(props: Props) {
     return (
       <div>
         <CommunityMakePostContainer />
-        {posts}
+        {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
   }
@@ -201,13 +199,13 @@ function CommunityBodyContent(props: Props) {
     return (
       <div>
         <CommunityMakePostContainer />
-        {posts}
+        {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
   }
 
   function renderFollowing() {
-    return <div>{posts}</div>;
+    return <div>{posts.length > 0 ? posts : renderNoPosts()}</div>;
   }
 
   function renderError() {
@@ -220,9 +218,27 @@ function CommunityBodyContent(props: Props) {
     );
   }
 
+  function renderNoPosts() {
+    return (
+      <RSText size={16} type="head" className={styles.noPosts}>
+        There are no posts yet.
+      </RSText>
+    );
+  }
+
   return (
-    <div className={[styles.wrapper, props.className].join(' ')}>
-      <RSTabs tabs={tabs} selected={selectedTab} onChange={handleTabChange} />
+    <div
+      className={[styles.wrapper, props.className].join(' ')}
+      style={{
+        background: loading || posts.length === 0 ? 'inherit' : colors.background,
+      }}
+    >
+      <RSTabs
+        tabs={tabs}
+        selected={selectedTab}
+        onChange={handleTabChange}
+        className={styles.tabs}
+      />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : fetchErr ? (

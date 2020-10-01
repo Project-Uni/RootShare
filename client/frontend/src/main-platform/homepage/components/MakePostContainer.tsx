@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button } from '@material-ui/core';
+import { TextField, Button, Box } from '@material-ui/core';
 import { FaCamera } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
@@ -14,6 +14,9 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { PostType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
+  box: {
+    margin: 8,
+  },
   profilePictureContainer: {
     marginTop: 1,
   },
@@ -22,7 +25,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   messageAreaWrapper: {
     background: colors.primaryText,
-    borderRadius: 1,
+    borderRadius: 8,
     marginLeft: 1,
     marginRight: 1,
     paddingLeft: 15,
@@ -131,62 +134,66 @@ function MakePostContainer(props: Props) {
   }
 
   return (
-    <div className={styles.messageAreaWrapper}>
-      <div className={styles.messageArea}>
-        <ProfilePicture
-          height={50}
-          width={50}
-          borderRadius={50}
-          currentPicture={props.profilePicture}
-          type="profile"
-          className={styles.profilePictureContainer}
-          pictureStyle={styles.profilePicture}
-        />
-        <div className={styles.textFieldContainer}>
-          <TextField
-            variant="outlined"
-            placeholder={`What\'s on your mind ${props.user.firstName}?`}
-            multiline
-            className={styles.newPostTextField}
-            value={message}
-            onChange={handleMessageChange}
+    <Box boxShadow={2} borderRadius={8} className={styles.box}>
+      <div className={styles.messageAreaWrapper}>
+        <div className={styles.messageArea}>
+          <ProfilePicture
+            height={50}
+            width={50}
+            borderRadius={50}
+            currentPicture={props.profilePicture}
+            type="profile"
+            className={styles.profilePictureContainer}
+            pictureStyle={styles.profilePicture}
           />
+          <div className={styles.textFieldContainer}>
+            <TextField
+              variant="outlined"
+              placeholder={`What\'s on your mind ${props.user.firstName}?`}
+              multiline
+              className={styles.newPostTextField}
+              value={message}
+              onChange={handleMessageChange}
+            />
+          </div>
+        </div>
+        <div className={styles.buttonContainer}>
+          {serverMessage ? (
+            <RSText
+              className={styles.serverMessage}
+              color={
+                serverMessage.status === 1 ? colors.success : colors.brightError
+              }
+              italic
+            >
+              {serverMessage.message}
+            </RSText>
+          ) : (
+            <span />
+          )}
+          <div>
+            <Button
+              className={loading ? styles.disabledButton : styles.button}
+              onClick={handleImageClicked}
+              disabled={loading}
+            >
+              <FaCamera size={12} color={colors.primaryText} />
+              <span style={{ marginLeft: 10 }} />
+              Image
+            </Button>
+            <Button
+              className={
+                loading || message === '' ? styles.disabledButton : styles.button
+              }
+              onClick={handlePostClicked}
+              disabled={loading || message === ''}
+            >
+              Post
+            </Button>
+          </div>
         </div>
       </div>
-      <div className={styles.buttonContainer}>
-        {serverMessage ? (
-          <RSText
-            className={styles.serverMessage}
-            color={serverMessage.status === 1 ? colors.success : colors.brightError}
-            italic
-          >
-            {serverMessage.message}
-          </RSText>
-        ) : (
-          <span />
-        )}
-        <div>
-          <Button
-            className={loading ? styles.disabledButton : styles.button}
-            onClick={handleImageClicked}
-            disabled={loading}
-          >
-            <FaCamera size={12} color={colors.primaryText} />
-            <span style={{ marginLeft: 10 }} />
-            Image
-          </Button>
-          <Button
-            className={
-              loading || message === '' ? styles.disabledButton : styles.button
-            }
-            onClick={handlePostClicked}
-            disabled={loading || message === ''}
-          >
-            Post
-          </Button>
-        </div>
-      </div>
-    </div>
+    </Box>
   );
 }
 
