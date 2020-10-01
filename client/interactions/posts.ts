@@ -497,6 +497,37 @@ export async function getExternalPosts(communityID: string, userID: string) {
   }
 }
 
+export async function getFollowingCommunityPosts(communityID: string) {
+  try {
+    const community = await Community.findById(communityID)
+      .select(['followingCommunities'])
+      .populate({
+        path: 'followingCommunities',
+        select: 'to',
+        populate: { path: 'to', select: 'externalPosts' },
+      })
+      .exec();
+    //Potentially add in $slice in the future to limit num posts retrieved from the community.
+    if (!community) return sendPacket(-1, 'Could not find community');
+
+    const postIDs = [];
+
+    for (let i = 0; i < community.followingCommunities.length; i++) {
+      postIDs.push(...community.followingCommunities[i].to.externalPosts);
+    }
+
+    const condition = { _id: { $in: postIDs } };
+
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    if (!posts) return sendPacket(-1, 'There was an error');
+
+    return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error retrieving the posts');
+  }
+}
+
 //HELPERS
 
 async function getValidatedCommunity(

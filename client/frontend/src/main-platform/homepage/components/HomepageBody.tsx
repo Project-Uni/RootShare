@@ -28,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     color: colors.primary,
-    marginTop: 1,
+    marginTop: 80,
   },
   posts: {
     marginLeft: 1,

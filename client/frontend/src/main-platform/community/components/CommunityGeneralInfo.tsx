@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 
@@ -7,6 +7,8 @@ import { FaLock } from 'react-icons/fa';
 import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
+import FollowButton from './FollowButton';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
@@ -26,7 +28,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {},
   right: {
-    marginTop: -50,
+    marginTop: -80,
+    display: 'flex',
+    flexDirection: 'column',
   },
   divider: {
     marginLeft: 10,
@@ -65,9 +69,7 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.secondaryText,
     },
   },
-  description: {
-    marginTop: 10,
-  },
+  description: {},
   seeMore: {
     textDecoration: 'none',
     fontSize: '13pt',
@@ -83,6 +85,12 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
       textDecoration: 'underline',
     },
+  },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
 }));
 
@@ -117,10 +125,6 @@ function CommunityGeneralInfo(props: Props) {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
-
-  function handleSeeClicked() {
-    setShowFullDesc(!showFullDesc);
-  }
 
   async function handleJoinClick() {
     setMenuAnchorEl(null);
@@ -204,6 +208,10 @@ function CommunityGeneralInfo(props: Props) {
     setNumMembers(numMembers + value);
   }
 
+  function handleSeeClicked() {
+    setShowFullDesc(!showFullDesc);
+  }
+
   function renderButton() {
     if (props.status === 'OPEN')
       return (
@@ -283,24 +291,29 @@ function CommunityGeneralInfo(props: Props) {
           </RSText>
         </div>
         <div className={styles.right}>
-          {renderButton()}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {numMembers} Members
-          </RSText>
-          {props.isAdmin && (
-            <a
-              href={undefined}
-              onClick={handlePendingClicked}
-              className={styles.memberCountLink}
-            >
-              <RSText type="body" size={12} color={colors.second} bold>
-                {numPending} Pending
-              </RSText>
-            </a>
-          )}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {props.numMutual} Mutual
-          </RSText>
+          <div className={styles.buttonContainer}>
+            {renderButton()}
+            <FollowButton communityID={props.communityID} name={props.name} />
+          </div>
+          <div style={{ marginTop: 15 }}>
+            <RSText type="body" size={12} color={colors.second}>
+              {numMembers} Members
+            </RSText>
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={handlePendingClicked}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second}>
+                  {numPending} Pending
+                </RSText>
+              </a>
+            )}
+            <RSText type="body" size={12} color={colors.second}>
+              {props.numMutual} Mutual
+            </RSText>
+          </div>
         </div>
       </div>
       <RSText

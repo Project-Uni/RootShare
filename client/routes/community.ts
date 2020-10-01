@@ -254,9 +254,7 @@ export default function communityRoutes(app) {
       const { fromCommunityID } = req.body;
 
       if (!fromCommunityID)
-        return res.json(
-          sendPacket(-1, 'edgeID or yourCommunityID missing from request body')
-        );
+        return res.json(sendPacket(-1, 'yourCommunityID missing from request body'));
 
       const packet = await cancelFollowRequest(fromCommunityID, communityID, userID);
       return res.json(packet);

@@ -8,6 +8,7 @@ import { makeRequest } from '../../../helpers/functions';
 
 import { colors } from '../../../theme/Colors';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
+import CommunityBodyContent from './CommunityBodyContent';
 
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
@@ -51,10 +52,16 @@ const useStyles = makeStyles((_: any) => ({
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
   },
+  bodyContent: {
+    marginTop: 20,
+    marginLeft: 5,
+    marginRight: 5,
+  },
 }));
 
 type Props = {
   communityID: string;
+  userID: string;
   status: CommunityStatus;
   name: string;
   description: string;
@@ -141,10 +148,6 @@ function CommunityBody(props: Props) {
     );
   }
 
-  function renderTabs() {
-    return <div></div>;
-  }
-
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
@@ -179,7 +182,15 @@ function CommunityBody(props: Props) {
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
             />
-            {locked ? renderLocked() : renderTabs()}
+            {locked ? (
+              renderLocked()
+            ) : (
+              <CommunityBodyContent
+                className={styles.bodyContent}
+                communityID={props.communityID}
+                isAdmin={props.isAdmin}
+              />
+            )}
           </>
         )}
       </div>

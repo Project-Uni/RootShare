@@ -33,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   tabs: { label: string; value: string }[];
   selected: string;
-  onChange: (newTab: string) => any;
+  onChange: (newTab: string | any) => any;
   className?: string;
 };
 

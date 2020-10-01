@@ -159,6 +159,7 @@ function CommunityDetails(props: Props) {
             communityID={(communityInfo as Community)._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
+            userID={props.user._id}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
