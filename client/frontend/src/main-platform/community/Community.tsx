@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -15,10 +14,11 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
-import { Community, CommunityStatus } from '../../helpers/types';
 import RSText from '../../base-components/RSText';
 
-const HEADER_HEIGHT = 64;
+import { makeRequest } from '../../helpers/functions';
+import { Community, CommunityStatus } from '../../helpers/types';
+import { HEADER_HEIGHT } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

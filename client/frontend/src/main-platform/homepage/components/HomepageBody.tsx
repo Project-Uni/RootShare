@@ -16,8 +16,7 @@ import {
   formatTime,
 } from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
-
-const HEADER_HEIGHT = 64;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

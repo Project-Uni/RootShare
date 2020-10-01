@@ -11,9 +11,11 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import ConnectionsBody from './components/ConnectionsBody';
 
-import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../helpers/constants';
+import {
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
+} from '../../helpers/constants';
 
-const HEADER_HEIGHT = 64;
 const CONNECTIONS_SHOW_NAVIGATION_WIDTH = 850;
 
 const useStyles = makeStyles((_: any) => ({

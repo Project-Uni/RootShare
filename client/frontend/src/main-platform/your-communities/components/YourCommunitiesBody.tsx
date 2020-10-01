@@ -9,10 +9,8 @@ import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 
 import { makeRequest } from '../../../helpers/functions';
-
 import { CommunityType } from '../../../helpers/types';
-
-const HEADER_HEIGHT = 64;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
