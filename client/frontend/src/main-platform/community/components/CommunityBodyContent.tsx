@@ -112,8 +112,9 @@ function CommunityBodyContent(props: Props) {
       case 'external':
         return 'external';
       case 'internal':
-        if (props.user.accountType === 'student') return 'internal/current';
-        return 'internal/alumni';
+        return props.user.accountType === 'student'
+          ? 'internal/current'
+          : 'internal/alumni';
       case 'internal-current':
         return 'internal/current';
       case 'internal-alumni':
