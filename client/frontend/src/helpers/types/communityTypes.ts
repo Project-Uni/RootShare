@@ -54,14 +54,3 @@ export type AdminCommunityServiceResponse = {
   }[];
   currentCommunityRelationship?: 'following' | 'pending' | 'open';
 };
-
-export type CommunityMemberServiceResponse = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  university: UniversityType;
-  work?: string;
-  position?: string;
-  graduationYear?: number;
-  profilePicture?: string;
-};

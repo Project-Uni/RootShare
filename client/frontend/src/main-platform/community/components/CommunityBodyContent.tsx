@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { PostType, CommunityMemberServiceResponse } from '../../../helpers/types';
+import { PostType, SearchUserType } from '../../../helpers/types';
 
 import {
   makeRequest,
@@ -67,7 +67,7 @@ function CommunityBodyContent(props: Props) {
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
 
   const [posts, setPosts] = useState<JSX.Element[]>([]);
-  const [members, setMembers] = useState<CommunityMemberServiceResponse[]>([]);
+  const [members, setMembers] = useState<SearchUserType[]>([]);
 
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -135,7 +135,6 @@ function CommunityBodyContent(props: Props) {
       if (data.success === 1) {
         setFetchErr(false);
         setMembers(data.content['members']);
-        console.log('Retrieved members');
       } else {
         setFetchErr(true);
       }
