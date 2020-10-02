@@ -77,11 +77,12 @@ function CommunityMembers(props: Props) {
       return;
     }
     setLoading(true);
-    const regex = new RegExp(searchValue, 'gi');
+    const lowercaseSearch = searchValue.toLowerCase(); //Ashwin - tried doing this with regex, but it was bugging out, so just doing it manually for now
     const matches = allMembers.filter((member) => {
-      return regex.test(`${member.firstName} ${member.lastName}`);
+      return `${member.firstName} ${member.lastName}`
+        .toLowerCase()
+        .includes(lowercaseSearch);
     });
-    console.log('Matches:', matches);
     setShownMembers(matches);
     setLoading(false);
   }
