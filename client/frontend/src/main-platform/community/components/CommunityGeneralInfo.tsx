@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 
@@ -7,6 +7,9 @@ import { FaLock } from 'react-icons/fa';
 import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
+import PendingFollowRequestsModal from './PendingFollowRequestsModal';
+import FollowButton from './FollowButton';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
@@ -26,7 +29,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {},
   right: {
-    marginTop: -50,
+    marginTop: -80,
+    display: 'flex',
+    flexDirection: 'column',
   },
   divider: {
     marginLeft: 10,
@@ -65,9 +70,7 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.secondaryText,
     },
   },
-  description: {
-    marginTop: 10,
-  },
+  description: {},
   seeMore: {
     textDecoration: 'none',
     fontSize: '13pt',
@@ -84,6 +87,12 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
     },
   },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
 }));
 
 type Props = {
@@ -94,6 +103,7 @@ type Props = {
   numMembers: number;
   numPending: number;
   numMutual: number;
+  numFollowRequests: number;
   type:
     | 'Social'
     | 'Business'
@@ -112,15 +122,18 @@ function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
+  const [
+    showPendingFollowRequestsModal,
+    setShowPendingFollowRequestsModal,
+  ] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
+  const [numFollowRequests, setNumFollowRequests] = useState(
+    props.numFollowRequests
+  );
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const descSubstr = props.description.substr(0, MAX_DESC_LEN);
-
-  function handleSeeClicked() {
-    setShowFullDesc(!showFullDesc);
-  }
 
   async function handleJoinClick() {
     setMenuAnchorEl(null);
@@ -200,8 +213,16 @@ function CommunityGeneralInfo(props: Props) {
     setNumPending(newNumPending);
   }
 
+  function updateFollowRequestCount(newNumRequests: number) {
+    setNumFollowRequests(newNumRequests);
+  }
+
   function updateMemberCount(value: 1 | -1) {
     setNumMembers(numMembers + value);
+  }
+
+  function handleSeeClicked() {
+    setShowFullDesc(!showFullDesc);
   }
 
   function renderButton() {
@@ -266,6 +287,14 @@ function CommunityGeneralInfo(props: Props) {
         updatePendingCount={updatePendingCount}
         updateMemberCount={updateMemberCount}
       />
+      <PendingFollowRequestsModal
+        open={showPendingFollowRequestsModal}
+        communityID={props.communityID}
+        handleClose={() => {
+          setShowPendingFollowRequestsModal(false);
+        }}
+        updatePendingCount={updateFollowRequestCount}
+      />
       <div className={styles.top}>
         <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
@@ -283,24 +312,40 @@ function CommunityGeneralInfo(props: Props) {
           </RSText>
         </div>
         <div className={styles.right}>
-          {renderButton()}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {numMembers} Members
-          </RSText>
-          {props.isAdmin && (
-            <a
-              href={undefined}
-              onClick={handlePendingClicked}
-              className={styles.memberCountLink}
-            >
-              <RSText type="body" size={12} color={colors.second} bold>
-                {numPending} Pending
-              </RSText>
-            </a>
-          )}
-          <RSText type="body" size={12} color={colors.second} bold>
-            {props.numMutual} Mutual
-          </RSText>
+          <div className={styles.buttonContainer}>
+            {renderButton()}
+            <FollowButton communityID={props.communityID} name={props.name} />
+          </div>
+          <div style={{ marginTop: 15 }}>
+            <RSText type="body" size={12} color={colors.second}>
+              {numMembers} Members
+            </RSText>
+            <RSText type="body" size={12} color={colors.second}>
+              {props.numMutual} Mutual
+            </RSText>
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={handlePendingClicked}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second}>
+                  {numPending} Pending Members
+                </RSText>
+              </a>
+            )}
+            {props.isAdmin && (
+              <a
+                href={undefined}
+                onClick={() => setShowPendingFollowRequestsModal(true)}
+                className={styles.memberCountLink}
+              >
+                <RSText type="body" size={12} color={colors.second}>
+                  {numFollowRequests} Pending Followers
+                </RSText>
+              </a>
+            )}
+          </div>
         </div>
       </div>
       <RSText

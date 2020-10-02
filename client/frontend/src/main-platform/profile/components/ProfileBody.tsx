@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
@@ -28,14 +28,22 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
+    background: colors.background,
   },
   profileWrapper: {
-    background: colors.primaryText,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
+  box: {
+    margin: 8,
+    background: colors.primaryText,
+  },
+  headBox: {
+    paddingBottom: 20,
+  },
+  eventBox: {
+    marginBottom: 4,
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -49,17 +57,18 @@ const useStyles = makeStyles((_: any) => ({
   },
   event: {
     marginTop: 0,
-    marginLeft: 39,
-    marginRight: 0,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  eventWithBorder: {
     borderTop: `1px solid #c5c5c5`,
   },
   post: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
-    marginBottom: 10,
     paddingTop: 15,
     paddingBottom: 15,
     background: colors.secondary,
@@ -198,7 +207,10 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div className={styles.coverPhoto}></div>
+        <div
+          className={styles.coverPhoto}
+          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+        ></div>
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}
@@ -236,23 +248,30 @@ function ProfileBody(props: Props) {
   function renderRegisteredEvents() {
     const output: any = [];
 
-    events.forEach((event) => {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
       output.push(
         <ProfileEvent
           key={event._id}
           profileID={(profileState as UserType)._id}
           event={event}
-          style={styles.event}
+          style={[styles.event, i !== 0 ? styles.eventWithBorder : null].join(' ')}
           currentProfileState={props.currentProfileState}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           removeEvent={removeEvent}
         />
       );
-    });
+    }
 
     return (
-      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
+      <Box
+        className={[styles.box, styles.eventBox].join(' ')}
+        boxShadow={2}
+        borderRadius={8}
+      >
+        {output}
+      </Box>
     );
   }
 
@@ -261,8 +280,8 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          userID={props.profileID}
-          userName={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          _id={props.profileID}
+          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}
           timestamp={(function() {
             const date = new Date(posts[i].createdAt);
@@ -276,15 +295,7 @@ function ProfileBody(props: Props) {
       );
     }
     return (
-      <div
-        style={{
-          paddingLeft: 1,
-          paddingRight: 1,
-          background: colors.fourth,
-        }}
-      >
-        {output}
-      </div>
+      <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
     );
   }
 
@@ -301,34 +312,33 @@ function ProfileBody(props: Props) {
             onClose={closeWelcomeMessage}
           />
         )} */}
+
         <div className={styles.body}>
-          {renderProfileAndBackground()}
-          <ProfileHead
-            name={`${profile.firstName} ${profile.lastName}`}
-            profileID={profile._id}
-            university={university.universityName}
-            graduationYear={profile.graduationYear}
-            position={profile.position}
-            company={profile.work}
-            bio={profile.bio}
-            numConnections={profile.numConnections!}
-            numMutualConnections={profile.numMutualConnections!}
-            numCommunities={profile.numCommunities!}
-            currentProfileState={props.currentProfileState}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
-            updateProfileState={props.updateProfileState}
-          />
-          {renderRegisteredEvents()}
-          <RSText
-            type="head"
-            size={24}
-            bold
-            color={colors.primaryText}
-            className={styles.rootshares}
+          <Box
+            boxShadow={2}
+            className={[styles.box, styles.headBox].join(' ')}
+            borderRadius={8}
           >
-            {profile.firstName}'s RootShares
-          </RSText>
+            {renderProfileAndBackground()}
+            <ProfileHead
+              name={`${profile.firstName} ${profile.lastName}`}
+              profileID={profile._id}
+              university={university.universityName}
+              graduationYear={profile.graduationYear}
+              position={profile.position}
+              company={profile.work}
+              bio={profile.bio}
+              numConnections={profile.numConnections!}
+              numMutualConnections={profile.numMutualConnections!}
+              numCommunities={profile.numCommunities!}
+              currentProfileState={props.currentProfileState}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+              updateProfileState={props.updateProfileState}
+            />
+          </Box>
+
+          {renderRegisteredEvents()}
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
