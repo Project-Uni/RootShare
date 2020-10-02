@@ -4,8 +4,6 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
-import { makeRequest } from '../../../helpers/functions';
-
 import { colors } from '../../../theme/Colors';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
 import CommunityBodyContent from './CommunityBodyContent';
@@ -13,9 +11,9 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus } from '../../../helpers/types/communityTypes';
-
-const HEADER_HEIGHT = 60;
+import { CommunityStatus } from '../../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

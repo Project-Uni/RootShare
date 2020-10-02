@@ -7,10 +7,8 @@ import { FaSearch } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
-import { ENTER_KEYCODE } from '../../../helpers/constants';
-
 import { colors } from '../../../theme/Colors';
+import RSText from '../../../base-components/RSText';
 import {
   WelcomeMessage,
   UserHighlight,
@@ -18,9 +16,8 @@ import {
 } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import RSText from '../../../base-components/RSText';
-
-const HEADER_HEIGHT = 60;
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
+import { ENTER_KEYCODE, HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

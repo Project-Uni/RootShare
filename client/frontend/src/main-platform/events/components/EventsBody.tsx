@@ -8,13 +8,12 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
 
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 import {
   makeRequest,
   formatDatePretty,
   formatTime,
 } from '../../../helpers/functions';
-
-const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
