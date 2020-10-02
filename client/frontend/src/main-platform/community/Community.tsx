@@ -150,6 +150,10 @@ function CommunityDetails(props: Props) {
             numMembers={(communityInfo as Community).members?.length || 0}
             numPending={(communityInfo as Community).pendingMembers?.length || 0}
             numMutual={mutualConnections.length}
+            numFollowRequests={
+              (communityInfo as Community).incomingPendingCommunityFollowRequests
+                ?.length || 0
+            }
             type={(communityInfo as Community).type}
             private={(communityInfo as Community).private}
             description={(communityInfo as Community).description}
@@ -159,6 +163,7 @@ function CommunityDetails(props: Props) {
             communityID={(communityInfo as Community)._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
+            userID={props.user._id}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

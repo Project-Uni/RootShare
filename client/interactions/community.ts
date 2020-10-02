@@ -85,17 +85,15 @@ export async function editCommunity(
 
     const savedCommunity = await community.save();
 
-    if (community.members.indexOf(adminID) === -1) {
-      const communityPromise = Community.updateOne(
-        { _id },
-        { $push: { members: adminID } }
-      ).exec();
-      const userPromise = User.updateOne(
-        { _id: adminID },
-        { $push: { joinedCommunities: _id } }
-      ).exec();
-      await Promise.all([communityPromise, userPromise]);
-    }
+    const communityPromise = Community.updateOne(
+      { _id },
+      { $addToSet: { members: adminID } }
+    ).exec();
+    const userPromise = User.updateOne(
+      { _id: adminID },
+      { $addToSet: { joinedCommunities: _id } }
+    ).exec();
+    await Promise.all([communityPromise, userPromise]);
 
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
@@ -119,11 +117,16 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'pendingMembers',
       'university',
       'profilePicture',
+      'incomingPendingCommunityFollowRequests',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
+      })
+      .populate({
+        path: 'incomingPendingCommunityFollowRequests',
+        select: 'from',
       })
       .exec();
 
@@ -921,7 +924,7 @@ export async function getAllPendingFollowRequests(communityID: string) {
     const pendingFollowRequests = community[
       'incomingPendingCommunityFollowRequests'
     ].map((edge) => {
-      return edge.from;
+      return { edgeID: edge._id, ...edge.from.toObject() };
     });
 
     const profilePicturePromises = generateSignedImagePromises(

@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import {
-  CommunityType,
-  ProfileState,
-  CommunityStatus,
-  UniversityType,
-} from '../../../helpers/types';
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 import { colors } from '../../../theme/Colors';
@@ -30,7 +25,7 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
   },
   body: {},
@@ -47,14 +42,15 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 1,
     marginRight: 1,
     marginTop: 8,
-    background: colors.primaryText,
+    paddingBottom: 10,
   },
   resultsContainer: {
     marginLeft: 1,
     marginRight: 1,
+    paddingTop: 1,
   },
   singleResult: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
@@ -69,35 +65,11 @@ const useStyles = makeStyles((_: any) => ({
   searchButton: {
     marginTop: 7,
   },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+  },
 }));
-
-type DiscoverCommunity = {
-  _id: string;
-  name: string;
-  type: CommunityType;
-  description: string;
-  private: boolean;
-  university: UniversityType;
-  profilePicture?: string;
-  admin: string;
-  numMembers: number;
-  numMutual: number;
-  status: CommunityStatus;
-};
-
-type DiscoverUser = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  university: UniversityType;
-  work?: string;
-  position?: string;
-  graduationYear?: number;
-  profilePicture?: string;
-  numMutualConnections: number;
-  numMutualCommunities: number;
-  status: ProfileState;
-};
 
 type Props = {
   user: { [key: string]: any };
@@ -109,7 +81,6 @@ function DiscoverBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [renderList, setRenderList] = useState<JSX.Element[]>([]);
 
@@ -172,10 +143,6 @@ function DiscoverBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function randomShuffle(array: any[]) {
@@ -280,15 +247,14 @@ function DiscoverBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Discovery"
           message="Find new communities to join, and people to connect to with"
-          onClose={closeWelcomeMessage}
         />
-      )}
-      <div className={styles.body}>
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (

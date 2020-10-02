@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -8,6 +8,7 @@ import { makeRequest } from '../../../helpers/functions';
 
 import { colors } from '../../../theme/Colors';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
+import CommunityBodyContent from './CommunityBodyContent';
 
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
@@ -19,7 +20,8 @@ const HEADER_HEIGHT = 60;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    // background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
     borderLeft: `1px solid ${colors.fourth}`,
     borderRight: `1px solid ${colors.fourth}`,
@@ -29,6 +31,8 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     height: 200,
     objectFit: 'cover',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
 
   profilePictureWrapper: {
@@ -51,16 +55,26 @@ const useStyles = makeStyles((_: any) => ({
     border: `8px solid ${colors.primaryText}`,
     marginLeft: 50,
   },
+  bodyContent: {
+    marginTop: 10,
+  },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+    paddingBottom: 20,
+  },
 }));
 
 type Props = {
   communityID: string;
+  userID: string;
   status: CommunityStatus;
   name: string;
   description: string;
   numMembers: number;
   numMutual: number;
   numPending: number;
+  numFollowRequests: number;
   type:
     | 'Social'
     | 'Business'
@@ -141,10 +155,6 @@ function CommunityBody(props: Props) {
     );
   }
 
-  function renderTabs() {
-    return <div></div>;
-  }
-
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
@@ -159,11 +169,9 @@ function CommunityBody(props: Props) {
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       <div className={styles.body}>
-        {renderProfileAndBackground()}
-        {props.loading ? (
-          <CircularProgress size={100} className={styles.loadingIndicator} />
-        ) : (
-          <>
+        <Box boxShadow={2} borderRadius={10} className={styles.box}>
+          {renderProfileAndBackground()}
+          {!props.loading && (
             <CommunityGeneralInfo
               communityID={props.communityID}
               status={props.status}
@@ -171,6 +179,7 @@ function CommunityBody(props: Props) {
               numMembers={props.numMembers}
               numPending={props.numPending}
               numMutual={props.numMutual}
+              numFollowRequests={props.numFollowRequests}
               type={props.type}
               private={props.private}
               description={props.description}
@@ -179,8 +188,21 @@ function CommunityBody(props: Props) {
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
             />
-            {locked ? renderLocked() : renderTabs()}
-          </>
+          )}
+        </Box>
+        {props.loading && (
+          <CircularProgress size={100} className={styles.loadingIndicator} />
+        )}
+        {props.loading ? (
+          <></>
+        ) : locked ? (
+          renderLocked()
+        ) : (
+          <CommunityBodyContent
+            className={styles.bodyContent}
+            communityID={props.communityID}
+            isAdmin={props.isAdmin}
+          />
         )}
       </div>
     </div>

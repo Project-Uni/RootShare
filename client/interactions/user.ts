@@ -731,51 +731,54 @@ function removeConnectionRequest(request, callback) {
 }
 
 export function checkConnectedWithUser(userID, requestUserID, callback) {
-  userID = userID.toString();
-  requestUserID = requestUserID.toString();
-  if (requestUserID.localeCompare(userID) === 0)
-    return callback(
-      sendPacket(1, "Can't be connected to yourself", {
-        connected: 'SELF',
-      })
+  try {
+    userID = userID.toString();
+    requestUserID = requestUserID.toString();
+    if (requestUserID.localeCompare(userID) === 0)
+      return callback(
+        sendPacket(1, "Can't be connected to yourself", {
+          connected: 'SELF',
+        })
+      );
+
+    Connection.findOne(
+      {
+        $or: [
+          { $and: [{ from: userID }, { to: requestUserID }] },
+          { $and: [{ from: requestUserID }, { to: userID }] },
+        ],
+      },
+      (err, connection) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!connection)
+          return callback(
+            sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
+          );
+
+        if (connection.accepted)
+          return callback(
+            sendPacket(1, 'Already connected to this User', {
+              connected: 'CONNECTION',
+            })
+          );
+        else if (connection.from.toString() === requestUserID)
+          return callback(
+            sendPacket(1, 'This User has already sent you a request', {
+              connected: 'FROM',
+            })
+          );
+        else if (connection.to.toString() === requestUserID)
+          return callback(
+            sendPacket(1, 'Request has already been sent to this User', {
+              connected: 'TO',
+            })
+          );
+        else return callback(sendPacket(-1, 'An error has occured'));
+      }
     );
-
-  Connection.find(
-    {
-      $or: [
-        { $and: [{ from: userID }, { to: requestUserID }] },
-        { $and: [{ from: requestUserID }, { to: userID }] },
-      ],
-    },
-    (err, connections) => {
-      if (err) return callback(sendPacket(-1, err));
-      if (!connections || connections.length === 0)
-        return callback(
-          sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
-        );
-
-      const connection = connections[0];
-      if (connection.accepted)
-        return callback(
-          sendPacket(1, 'Already connected to this User', {
-            connected: 'CONNECTION',
-          })
-        );
-      else if (connection.from.toString() === requestUserID)
-        return callback(
-          sendPacket(1, 'This User has already sent you a request', {
-            connected: 'FROM',
-          })
-        );
-      else if (connection.to.toString() === requestUserID)
-        return callback(
-          sendPacket(1, 'Request has already been sent to this User', {
-            connected: 'TO',
-          })
-        );
-      else return callback(sendPacket(-1, 'An error has occured'));
-    }
-  );
+  } catch (err) {
+    return callback(sendPacket(-1, err));
+  }
 }
 
 export function getConnectionWithUser(userID, requestUserID, callback) {
@@ -1023,6 +1026,41 @@ export async function getConnectionsFullData(userID: string) {
       connections: connectionsWithData,
       connectionIDs: connectionIDs,
       joinedCommunities: joinedCommunities,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getUserAdminCommunities(userID: string) {
+  try {
+    const user = await User.findById(userID)
+      .select(['joinedCommunities'])
+      .populate({
+        path: 'joinedCommunities',
+        select: 'admin name',
+        populate: [
+          {
+            path: 'followingCommunities',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+          {
+            path: 'outgoingPendingCommunityFollowRequests',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+        ],
+      });
+    if (!user) return sendPacket(0, 'Could not find user');
+
+    const communities = user.joinedCommunities.filter(
+      (community) => community.admin.toString() === userID
+    );
+    log('info', `Retrieved admin communities for user ${userID}`);
+    return sendPacket(1, 'Successfully retrieved admin communities', {
+      communities,
     });
   } catch (err) {
     log('error', err);

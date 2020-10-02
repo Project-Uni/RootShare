@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
 import { connect } from 'react-redux';
+
+import { updateCurrConversationID } from '../../../redux/actions/message';
 import { makeRequest } from '../../../helpers/functions';
 
 import AllConversationsContainer from './AllConversationsContainer';
@@ -50,12 +51,13 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   newMessage: MessageType;
+  currConversationID: string;
+  updateCurrConversationID: (currConversationID: string) => void;
 };
 
 function MessagesDrawerContainer(props: Props) {
   const styles = useStyles();
 
-  const [currConversationID, setCurrConversationID] = useState('');
   const [currConversation, setCurrConversation] = useState<ConversationType>();
   const [messages, setMessages] = useState<MessageType[]>([]);
 
@@ -67,7 +69,7 @@ function MessagesDrawerContainer(props: Props) {
     if (
       Object.keys(newMessage).length === 0 ||
       !newMessage ||
-      newMessage.conversationID !== currConversationID
+      newMessage.conversationID !== props.currConversationID
     )
       return;
 
@@ -88,7 +90,7 @@ function MessagesDrawerContainer(props: Props) {
     setMessages((prevMessages) => prevMessages.concat(newMessage));
   }
 
-  async function updateMessages(currID: string = currConversationID) {
+  async function updateMessages(currID: string = props.currConversationID) {
     const { data } = await makeRequest(
       'POST',
       '/api/messaging/getLatestMessages',
@@ -108,11 +110,11 @@ function MessagesDrawerContainer(props: Props) {
   function selectConversation(conversation: any) {
     setCurrConversation(conversation);
     updateMessages(conversation._id);
-    setCurrConversationID(conversation._id);
+    props.updateCurrConversationID(conversation._id);
   }
 
   function returnToConversations() {
-    setCurrConversationID('');
+    props.updateCurrConversationID('');
     setCurrConversation(undefined);
     setMessages([]);
   }
@@ -127,7 +129,7 @@ function MessagesDrawerContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {currConversationID === '' || currConversation === undefined ? (
+      {props.currConversationID === '' || currConversation === undefined ? (
         <AllConversationsContainer
           user={props.user}
           selectConversation={selectConversation}
@@ -152,11 +154,16 @@ const mapStateToProps = (state: { [key: string]: any }) => {
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
     newMessage: state.newMessage,
+    currConversationID: state.currConversationID,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateCurrConversationID: (currConversationID: string) => {
+      dispatch(updateCurrConversationID(currConversationID));
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(MessagesDrawerContainer);
