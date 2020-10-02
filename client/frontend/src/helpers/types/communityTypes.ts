@@ -1,5 +1,3 @@
-import { UniversityType } from '.';
-
 export type Community = {
   _id: string;
   name: string;
