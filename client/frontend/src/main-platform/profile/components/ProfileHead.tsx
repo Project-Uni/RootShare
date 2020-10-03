@@ -445,7 +445,7 @@ function ProfileHead(props: Props) {
       >
         <RSText
           type="subhead"
-          size={14}
+          size={12}
           color={colors.second}
           className={styles.bio}
         >
@@ -471,15 +471,15 @@ function ProfileHead(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
-        <RSText type="head" size={24} bold color={colors.second}>
+        <RSText type="head" size={18} bold color={colors.second}>
           {props.name}
         </RSText>
         {props.university && (
-          <RSText type="subhead" size={14} color={colors.secondaryText}>
+          <RSText type="subhead" size={12} color={colors.secondaryText}>
             {`${props.university} ${props.graduationYear || ''}`}
           </RSText>
         )}
-        <RSText type="subhead" size={14} color={colors.secondaryText}>
+        <RSText type="subhead" size={12} color={colors.secondaryText}>
           {`${(props.position && `${props.position}, `) || ''} ${props.company ||
             ''}`}
         </RSText>
@@ -511,7 +511,7 @@ function ProfileHead(props: Props) {
         >
           <RSText
             type="subhead"
-            size={12}
+            size={11}
             color={colors.second}
             className={styles.numbers}
           >

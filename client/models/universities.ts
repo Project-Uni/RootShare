@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var universitySchema = new Schema({
   universityName: { type: String, required: true },
-  departments: { type: Array, required: true },
+  nickname: { type: String },
+  departments: { type: Array, required: true, default: [] },
   communities: {
     type: [{ type: Schema.ObjectId, ref: 'communities' }],
     required: true,

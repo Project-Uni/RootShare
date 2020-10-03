@@ -15,6 +15,7 @@ import BetaModal from './components/BetaModal';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
 } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -41,6 +42,7 @@ function Homepage(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
@@ -52,6 +54,7 @@ function Homepage(props: Props) {
       if (authenticated) {
         console.log('User is authenticated');
         await fetchData();
+        await testPosts();
         setLoading(false);
       } else {
         setLoginRedirect(true);
@@ -60,6 +63,7 @@ function Homepage(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -81,22 +85,120 @@ function Homepage(props: Props) {
     return true;
   }
 
+  async function testPosts() {
+    const communityID = '5f3feed3cf316529bb10485f';
+    const followingCommunityID = '5f5673beabbed8044a2496e2';
+    //CREATE INTERNAL CURRENT POST
+    // const { data: d1 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/internal/current`,
+    //   { message: 'Internal current member test post' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //GET ALL INTERNAL CURRENT MEMBER POSTS
+    // const { data: d2 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${communityID}/internal/current`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE INTERNAL ALUMNI POST
+    // const { data: d3 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/internal/alumni`,
+    //   { message: 'Internal alumni test post' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //GET ALL INTERNAL CURRENT ALUMNI POSTS
+    // const { data: d4 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${communityID}/internal/alumni`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    // GET FOLLOWING FEED - Tested
+    // const { data: d5 } = await makeRequest(
+    //   'GET',
+    //   '/api/posts/feed/following',
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE EXTERNAL POST AS ADMIN - tested
+    // const { data: d6 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/external/admin`,
+    //   { message: 'Testing external as admin' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE EXTERNAL POST AS FOLLOWING COMMUNITY ADMIN - tested
+    // const { data: d7 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/external/following`,
+    //   {
+    //     message: 'Testing external as following admin',
+    //     fromCommunityID: followingCommunityID,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //GET EXTERNAL FEED - Tested
+    // const { data: d8 } = await makeRequest(
+    //   'GET',
+    //   `/api/posts/community/${communityID}/external`,
+    //   {},
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //BROADCAST AS COMMUNITY ADMIN - Tested
+    // const { data: d9 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/broadcast`,
+    //   { message: 'Testing broadcast as admin' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+    //CREATE POST EXTERNAL POST AS MEMBER - Tested
+    // const { data: d10 } = await makeRequest(
+    //   'POST',
+    //   `/api/posts/community/${communityID}/external/member`,
+    //   { message: 'External member post test' },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+  }
+
   async function fetchData() {
     const toCommunity = '5f3feed3cf316529bb10485f'; //POOPOO, use something you are admin of
     const fromCommunity = '5f5673beabbed8044a2496e2'; //Some other other
     const edgeID = ''; //Set based on the new edge thats created
 
     //CREATE REQUEST
-    const { data: data1 } = await makeRequest(
-      'POST',
-      `/api/community/${toCommunity}/follow`,
-      {
-        followAsCommunityID: fromCommunity,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    // const { data: data1 } = await makeRequest(
+    //   'POST',
+    //   `/api/community/${toCommunity}/follow`,
+    //   {
+    //     followAsCommunityID: fromCommunity,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
 
     //ACCEPT REQUEST
     // const { data: data2 } = await makeRequest(
@@ -186,7 +288,7 @@ function Homepage(props: Props) {
           setShowBetaModal(false);
         }}
       />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

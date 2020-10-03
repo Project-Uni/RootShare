@@ -1,6 +1,8 @@
 import { log, sendPacket } from '../../helpers/functions';
 import { Community } from '../../models';
 
+const mongoose = require('mongoose');
+
 export async function isCommunityAdmin(req, res, next) {
   const { communityID } = req.params;
   try {
@@ -20,4 +22,17 @@ export async function isCommunityAdmin(req, res, next) {
     log('error', err);
     return res.json(sendPacket(-1, err));
   }
+}
+
+export async function isCommunityMember(req, res, next) {
+  const { communityID } = req.params;
+  const userID = req.user._id;
+
+  const isMember = await Community.exists(
+    { _id: communityID },
+    { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } }
+  );
+
+  if (isMember) return next();
+  else return res.json(sendPacket(-1, 'User is not a member of this community'));
 }

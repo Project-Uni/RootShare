@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -10,14 +11,15 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
+  box: {
+    background: colors.primaryText,
+  },
   wrapper: {
     display: 'flex',
     justifyContent: 'flex-start',
     textAlign: 'left',
     paddingBottom: 20,
     paddingTop: 20,
-    background: colors.primaryText,
-    borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
   },
@@ -145,51 +147,59 @@ function CommunityOverview(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      <a href={`/community/${props.communityID}`}>
-        <ProfilePicture
-          type="community"
-          currentPicture={props.profilePicture}
-          height={80}
-          width={80}
-          borderRadius={60}
-        />
-      </a>
-      <div className={styles.communityBody}>
-        {renderName()}
-        <div className={styles.countsAndStatusDiv}>
-          {renderTypeAndCounts()}
+    <Box
+      className={[styles.box, props.style].join(' ')}
+      boxShadow={2}
+      borderRadius={10}
+    >
+      <div className={styles.wrapper}>
+        <a href={`/community/${props.communityID}`}>
+          <ProfilePicture
+            type="community"
+            currentPicture={props.profilePicture}
+            height={80}
+            width={80}
+            borderRadius={60}
+          />
+        </a>
+        <div className={styles.communityBody}>
+          {renderName()}
+          <div className={styles.countsAndStatusDiv}>
+            {renderTypeAndCounts()}
+            <RSText
+              type="body"
+              size={12}
+              color={colors.primaryText}
+              className={[
+                styles.status,
+                props.status === 'joined'
+                  ? styles.joinedStatus
+                  : styles.pendingStatus,
+              ].join(' ')}
+            >
+              {props.status === 'pending'
+                ? 'PENDING'
+                : props.admin === props.userID
+                ? 'ADMIN'
+                : 'MEMBER'}
+            </RSText>
+          </div>
+
           <RSText
             type="body"
             size={12}
-            color={colors.primaryText}
-            className={[
-              styles.status,
-              props.status === 'joined' ? styles.joinedStatus : styles.pendingStatus,
-            ].join(' ')}
+            color={colors.secondaryText}
+            className={styles.description}
           >
-            {props.status === 'pending'
-              ? 'PENDING'
-              : props.admin === props.userID
-              ? 'ADMIN'
-              : 'MEMBER'}
+            {props.description}
           </RSText>
-        </div>
-
-        <RSText
-          type="body"
-          size={12}
-          color={colors.secondaryText}
-          className={styles.description}
-        >
-          {props.description}
-        </RSText>
-        {/* NOTE - Hiding this for now because our current database strategy doesn't support this */}
-        {/* <RSText color={colors.second} size={11} type="body">
+          {/* NOTE - Hiding this for now because our current database strategy doesn't support this */}
+          {/* <RSText color={colors.second} size={11} type="body">
           Joined {props.joinedDate}
         </RSText> */}
+        </div>
       </div>
-    </div>
+    </Box>
   );
 }
 

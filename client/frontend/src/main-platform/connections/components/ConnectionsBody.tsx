@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
-
-import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
@@ -13,31 +13,28 @@ import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { makeRequest } from '../../../helpers/functions';
 import { UserType, UniversityType } from '../../../helpers/types';
 
-const HEADER_HEIGHT = 60;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
   searchBar: {
     flex: 1,
     marginRight: 10,
+    marginLeft: 10,
   },
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 10,
-    marginRight: 1,
-    background: colors.primaryText,
+    paddingLeft: 10,
+    paddingRight: 1,
+    paddingBottom: 10,
   },
   connectionStyle: {
-    marginLeft: 1,
-    marginRight: 1,
-    marginBottom: 1,
-    borderRadius: 1,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
@@ -45,6 +42,10 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: colors.primary,
     marginTop: 60,
+  },
+  box: {
+    margin: 8,
+    background: colors.primaryText,
   },
 }));
 
@@ -59,7 +60,6 @@ function ConnectionsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
   const [connections, setConnections] = useState<UserType[]>([]);
@@ -106,10 +106,6 @@ function ConnectionsBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
-  }
-
   function renderSearchArea() {
     return (
       <div className={styles.searchBarContainer}>
@@ -142,31 +138,38 @@ function ConnectionsBody(props: Props) {
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
       output.push(
-        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
-          <UserHighlight
-            name={`${connections[i].firstName} ${connections[i].lastName}`}
-            userID={
-              connections[i]._id === props.user._id ? 'self' : connections[i]._id
-            }
-            profilePic={connections[i].profilePicture}
-            university={(connections[i].university as UniversityType).universityName}
-            graduationYear={connections[i].graduationYear}
-            position={connections[i].position}
-            company={connections[i].work}
-            mutualConnections={connections[i].numMutualConnections}
-            mutualCommunities={connections[i].numMutualCommunities}
-            style={styles.connectionStyle}
-            status="CONNECTION"
-          />
-        </div>
+        <UserHighlight
+          name={`${connections[i].firstName} ${connections[i].lastName}`}
+          userID={
+            connections[i]._id === props.user._id ? 'self' : connections[i]._id
+          }
+          profilePic={connections[i].profilePicture}
+          university={(connections[i].university as UniversityType).universityName}
+          graduationYear={connections[i].graduationYear}
+          position={connections[i].position}
+          company={connections[i].work}
+          mutualConnections={connections[i].numMutualConnections}
+          mutualCommunities={connections[i].numMutualCommunities}
+          style={styles.connectionStyle}
+          status="CONNECTION"
+        />
       );
     }
     return output;
   }
 
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+    <div
+      className={styles.wrapper}
+      style={{
+        height: height,
+        background:
+          loading || connections.length === 0
+            ? colors.primaryText
+            : colors.background,
+      }}
+    >
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
@@ -174,11 +177,10 @@ function ConnectionsBody(props: Props) {
           message={`See all of the people that ${
             props.requestUserID === 'user' ? 'you have' : `${username} has`
           } connected with!`}
-          onClose={props.requestUserID === 'user' ? closeWelcomeMessage : undefined}
         />
-      )}
-      <div className={styles.body}>
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
