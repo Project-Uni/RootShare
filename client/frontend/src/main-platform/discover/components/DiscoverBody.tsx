@@ -130,6 +130,7 @@ function DiscoverBody(props: Props) {
     );
     if (data.success === 1) {
       const { users, communities } = data.content;
+      console.log(users);
       setRenderList(generateResults(users, communities));
     }
     setLoading(false);
@@ -207,6 +208,7 @@ function DiscoverBody(props: Props) {
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
           status={users[i].status}
+          connectionRequestID={users[i]?.connectionRequestID}
           setNotification={setNotification}
         />
       );

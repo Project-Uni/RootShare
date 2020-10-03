@@ -218,6 +218,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'pendingCommunities',
       ])
       .populate('connections')
+      .populate('pendingConnections')
       .exec();
 
     const userPromise = User.find({
@@ -264,22 +265,24 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     return Promise.all([currentUserPromise, userPromise, communityPromise])
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
-        const connectionUserIDs = convertConnectionsToUserIDs(
+
+        const selfConnectionUserIDs = convertConnectionsToUserIDs(
           userID,
           currentUser.connections
         );
 
         for (let i = 0; i < users.length; i++) {
           users[i] = users[i].toObject();
-          users[i].connections = convertConnectionsToUserIDs(
+          users[i].connectionUserIDs = convertConnectionsToUserIDs(
             users[i]._id,
             users[i].connections
           );
           const cleanedUser = await addCalculatedUserFields(
-            connectionUserIDs,
+            selfConnectionUserIDs,
             currentUser.joinedCommunities,
             users[i]
           );
+
           getUserToUserRelationship(
             currentUser.connections,
             currentUser.pendingConnections,
@@ -292,7 +295,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
-            connectionUserIDs,
+            selfConnectionUserIDs,
             communities[i]
           );
           getUserToCommunityRelationship(

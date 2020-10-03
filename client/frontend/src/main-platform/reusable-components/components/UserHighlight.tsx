@@ -8,7 +8,7 @@ import { colors } from '../../../theme/Colors';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { ProfileState } from '../../../helpers/types';
+import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
@@ -34,6 +34,18 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       background: colors.primary,
     },
+  },
+  pendingButtonContainer: {
+    display: 'flex',
+  },
+  removeButton: {
+    color: colors.primaryText,
+    background: 'gray',
+  },
+  acceptButton: {
+    color: colors.primaryText,
+    background: colors.bright,
+    marginLeft: 8,
   },
   textContainer: {
     marginLeft: 20,
@@ -74,6 +86,7 @@ type Props = {
   mutualConnections: number;
   mutualCommunities: number;
   status: ProfileState;
+  connectionRequestID?: string;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
     message: string
@@ -89,7 +102,7 @@ function UserHighlight(props: Props) {
   const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
 
   async function requestConnection() {
-    setUserStatus('PENDING');
+    setUserStatus('TO');
     const { data } = await makeRequest(
       'POST',
       '/user/requestConnection',
@@ -107,6 +120,30 @@ function UserHighlight(props: Props) {
     }
   }
 
+  async function respondRequest(accepted: boolean) {
+    setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: props.connectionRequestID,
+        accepted,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) {
+      setUserStatus(props.status);
+      props.setNotification &&
+        props.setNotification(
+          'error',
+          `Failed to ${accepted ? 'accept' : 'remove'} connection request`
+        );
+    }
+  }
+
   function renderStatus() {
     if (userStatus === 'PUBLIC')
       return (
@@ -120,7 +157,7 @@ function UserHighlight(props: Props) {
           CONNECTED
         </RSText>
       );
-    else if (userStatus === 'PENDING')
+    else if (userStatus === 'TO')
       return (
         <RSText
           color={colors.primaryText}
@@ -129,6 +166,23 @@ function UserHighlight(props: Props) {
         >
           PENDING
         </RSText>
+      );
+    else if (userStatus === 'FROM')
+      return (
+        <div className={styles.pendingButtonContainer}>
+          <Button
+            className={styles.removeButton}
+            onClick={() => respondRequest(false)}
+          >
+            Remove
+          </Button>
+          <Button
+            className={styles.acceptButton}
+            onClick={() => respondRequest(true)}
+          >
+            Accept
+          </Button>
+        </div>
       );
   }
 
