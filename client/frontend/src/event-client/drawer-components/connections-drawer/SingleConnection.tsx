@@ -58,8 +58,13 @@ type Props = {
 function SingleConnection(props: Props) {
   const styles = useStyles();
 
-  // TODO: Make ellipsis show popup modal to send message to that user
   const university = props.connectedUser.university as UniversityType;
+  const universityName = university.nickname
+    ? university.nickname
+    : university.universityName;
+
+  // TODO: Make ellipsis show popup modal to send message to that user
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.left}>

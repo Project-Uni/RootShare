@@ -9,7 +9,8 @@ import { BsPersonFill } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-const HEADER_HEIGHT = 64;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
+
 const TEXT_SIZE = 22;
 const ICON_SIZE = 32;
 
@@ -103,15 +104,15 @@ function MainNavigator(props: Props) {
         />
       ),
     },
-    {
-      name: 'Library',
-      icon: (
-        <MdOndemandVideo
-          size={ICON_SIZE}
-          color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-        />
-      ),
-    },
+    // {
+    //   name: 'Library',
+    //   icon: (
+    //     <MdOndemandVideo
+    //       size={ICON_SIZE}
+    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
+    //     />
+    //   ),
+    // },
     {
       name: 'Connections',
       icon: (

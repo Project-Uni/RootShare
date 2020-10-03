@@ -89,7 +89,7 @@ export async function addCalculatedUserFields(
     [key: string]: any;
     _id: string;
     profilePicture?: string;
-    connections: string[];
+    connectionUserIDs: string[];
     joinedCommunities: string[];
     status: string;
   }
@@ -123,6 +123,7 @@ export async function addCalculatedUserFields(
 
   let cleanedUser = copyObject(otherUser, [
     'connections',
+    'connectionUserIDs',
     'pendingConnections',
     'joinedCommunities',
   ]);
@@ -188,7 +189,7 @@ export function getUserToUserRelationship(
   originalOtherUser: {
     [key: string]: any;
     _id: string;
-    connections: string[];
+    connections: any[];
     pendingConnections: string[];
     joinedCommunities: string[];
   },
@@ -198,23 +199,31 @@ export function getUserToUserRelationship(
     status: string;
   }
 ) {
-  for (let i = 0; i < currentUserConnections.length; i++) {
-    if (originalOtherUser.connections.indexOf(currentUserConnections[i]) !== -1) {
-      cleanedOtherUser.status = 'CONNECTION';
-      return;
-    }
-  }
+  const otherUserPendingStrings = toStringArray(
+    originalOtherUser.pendingConnections
+  );
 
-  for (let i = 0; i < currentUserPendingConnections.length; i++) {
+  for (let i = 0; i < currentUserConnections.length; i++)
+    for (let j = 0; j < originalOtherUser.connections.length; j++)
+      if (
+        currentUserConnections[i]._id.toString() ===
+        originalOtherUser.connections[j]._id.toString()
+      )
+        return (cleanedOtherUser.status = 'CONNECTION');
+
+  for (let i = 0; i < currentUserPendingConnections.length; i++)
     if (
-      originalOtherUser.pendingConnections.indexOf(
-        currentUserPendingConnections[i]
+      otherUserPendingStrings.indexOf(
+        currentUserPendingConnections[i]._id.toString()
       ) !== -1
-    ) {
-      cleanedOtherUser.status = 'PENDING';
-      return;
-    }
-  }
+    )
+      if (
+        currentUserPendingConnections[i].from.toString() ===
+        cleanedOtherUser._id.toString()
+      ) {
+        cleanedOtherUser.status = 'FROM';
+        cleanedOtherUser.connectionRequestID = currentUserPendingConnections[i]._id;
+      } else cleanedOtherUser.status = 'TO';
 }
 
 export function getUserToCommunityRelationship(

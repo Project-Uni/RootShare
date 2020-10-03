@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
 import { connect } from 'react-redux';
+import { Button, Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -15,12 +15,13 @@ import { CommunityStatus } from '../../../helpers/types';
 const MAX_DESC_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
+  box: {
+    background: colors.primaryText,
+  },
   wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: colors.primaryText,
-    borderRadius: 1,
     padding: 15,
   },
   left: {
@@ -152,68 +153,76 @@ function CommunityHighlight(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      <div className={styles.left}>
-        <a href={`/community/${props.communityID}`}>
-          <ProfilePicture
-            type="community"
-            height={70}
-            width={70}
-            borderRadius={50}
-            borderWidth={1}
-            currentPicture={props.profilePicture}
-            pictureStyle={styles.profilePic}
-          />
-        </a>
-        <div className={styles.textContainer}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <a
-              href={`/community/${props.communityID}`}
-              className={styles.noUnderline}
-            >
-              <RSText
-                type="head"
-                size={13}
-                color={colors.second}
-                className={styles.name}
-              >
-                {props.name}
-              </RSText>
-            </a>
-            {props.private && (
-              <FaLock
-                color={colors.secondaryText}
-                size={13}
-                className={styles.lock}
-              />
-            )}
-          </div>
+    <Box
+      boxShadow={2}
+      borderRadius={10}
+      className={[props.style, styles.box].join(' ')}
+    >
+      <div className={styles.wrapper}>
+        <div className={styles.left}>
+          <a href={`/community/${props.communityID}`}>
+            <ProfilePicture
+              type="community"
+              height={70}
+              width={70}
+              borderRadius={50}
+              borderWidth={1}
+              currentPicture={props.profilePicture}
+              pictureStyle={styles.profilePic}
+            />
+          </a>
+          <div className={styles.textContainer}>
+            <div style={{ display: 'flex', alignItems: 'center' }}></div>
 
-          <RSText
-            type="subhead"
-            size={12}
-            color={colors.fourth}
-            className={styles.type}
-          >
-            {props.type}
-          </RSText>
-          <RSText
-            type="subhead"
-            size={12}
-            color={colors.secondaryText}
-            className={styles.type}
-          >
-            {cropText(props.description, MAX_DESC_LEN)}
-          </RSText>
-          <RSText type="subhead" size={12} color={colors.second}>
-            {numMembers} Members | {props.mutualMemberCount} Mutual
-          </RSText>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <a
+                href={`/community/${props.communityID}`}
+                className={styles.noUnderline}
+              >
+                <RSText
+                  type="head"
+                  size={13}
+                  color={colors.second}
+                  className={styles.name}
+                >
+                  {props.name}
+                </RSText>
+              </a>
+              {props.private && (
+                <FaLock
+                  color={colors.secondaryText}
+                  size={13}
+                  className={styles.lock}
+                />
+              )}
+            </div>
+
+            <RSText
+              type="subhead"
+              size={12}
+              color={colors.fourth}
+              className={styles.type}
+            >
+              {props.type}
+            </RSText>
+            <RSText
+              type="subhead"
+              size={12}
+              color={colors.secondaryText}
+              className={styles.type}
+            >
+              {cropText(props.description, MAX_DESC_LEN)}
+            </RSText>
+            <RSText type="subhead" size={12} color={colors.second}>
+              {numMembers} Members | {props.mutualMemberCount} Mutual
+            </RSText>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {renderButton()}
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        {renderButton()}
-      </div>
-    </div>
+    </Box>
   );
 }
 

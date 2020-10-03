@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Autocomplete } from "@material-ui/lab";
-import { TextField, Grid } from "@material-ui/core";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Autocomplete } from '@material-ui/lab';
+import { TextField, Grid } from '@material-ui/core';
 
-import PurdueLogo from "../../images/purdueLogo.png";
-import { FaPlus } from "react-icons/fa";
+import PurdueLogo from '../../images/purdueLogo.png';
+import { FaPlus } from 'react-icons/fa';
 
 const useStyles = makeStyles((_: any) => ({
   logoStyle: {
-    width: "30px",
-    height: "30px",
+    width: '30px',
+    height: '30px',
   },
   schoolText: {
-    fontFamily: "Ubuntu",
-    fontSize: "12pt",
-    marginLeft: "20px",
+    fontFamily: 'Ubuntu',
+    fontSize: '12pt',
+    marginLeft: '20px',
   },
   plusIconDiv: {
-    width: "30px",
+    width: '30px',
   },
 }));
 
@@ -31,13 +31,13 @@ type Props = {
 function UniversityAutocomplete(props: Props) {
   const styles = useStyles();
   const [options, setOptions] = useState([
-    { school: "Purdue" },
+    { school: 'Purdue University' },
     // { school: "Other" },
   ]);
 
   return (
     <Autocomplete
-      style={{ width: 325, marginBottom: "35px" }}
+      style={{ width: 325, marginBottom: '35px' }}
       options={options.map((option) => option.school)}
       onChange={props.handleAutoCompleteChange}
       value={props.value}
@@ -49,23 +49,19 @@ function UniversityAutocomplete(props: Props) {
           fullWidth
           value={props.value}
           // onChange={props.handleQueryChange}
-          error={props.universityErr !== ""}
+          error={props.universityErr !== ''}
           helperText={props.universityErr}
         />
       )}
       renderOption={(option) => (
         <Grid container alignItems="center">
           <Grid item>
-            {option === "Other" ? (
+            {option === 'Other' ? (
               <div className={styles.plusIconDiv}>
                 <FaPlus size={14} color="black" />
               </div>
             ) : (
-              <img
-                src={PurdueLogo}
-                className={styles.logoStyle}
-                alt="Purdue P"
-              />
+              <img src={PurdueLogo} className={styles.logoStyle} alt="Purdue P" />
             )}
           </Grid>
           <Grid item xs>

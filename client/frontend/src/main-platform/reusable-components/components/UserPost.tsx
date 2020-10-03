@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField, IconButton, CircularProgress } from '@material-ui/core';
+import {
+  Button,
+  TextField,
+  IconButton,
+  CircularProgress,
+  Box,
+} from '@material-ui/core';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
@@ -17,7 +23,7 @@ const MAX_INITIAL_VISIBLE_CHARS = 200;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    borderRadius: 1,
+    borderRadius: 10,
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
@@ -49,9 +55,10 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 4,
   },
   noUnderline: {
+    color: 'inherit',
     textDecoration: 'none',
     '&:hover': {
-      textDecoration: 'none',
+      textDecoration: 'underline',
     },
   },
   message: {
@@ -121,16 +128,17 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  userID: string;
-  userName: string;
-  community?: string;
-  communityID?: string;
+  _id: string;
+  name: string;
+  toCommunity?: string;
+  toCommunityID?: string;
   timestamp: string;
   profilePicture: any;
   message: string;
   likeCount: number;
   commentCount: number;
   style?: any;
+  anonymous?: boolean;
 };
 
 function UserPost(props: Props) {
@@ -172,7 +180,10 @@ function UserPost(props: Props) {
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+        <a
+          href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+          className={styles.noUnderline}
+        >
           <ProfilePicture
             height={50}
             width={50}
@@ -185,13 +196,16 @@ function UserPost(props: Props) {
 
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
-            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+            <a
+              href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+              className={styles.noUnderline}
+            >
               <RSText type="subhead" color={colors.secondary} bold size={14}>
-                {props.userName}
+                {props.name}
               </RSText>
             </a>
 
-            {props.community && (
+            {props.toCommunity && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}
@@ -199,11 +213,11 @@ function UserPost(props: Props) {
                   className={styles.plantIcon}
                 />
                 <a
-                  href={`/community/${props.communityID}`}
+                  href={`/community/${props.toCommunityID}`}
                   className={styles.noUnderline}
                 >
                   <RSText type="subhead" color={colors.secondary} bold size={14}>
-                    {props.community}
+                    {props.toCommunity}
                   </RSText>
                 </a>
               </>
@@ -325,13 +339,15 @@ function UserPost(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      {renderPostHeader()}
-      {renderMessage()}
-      {renderLikesAndCommentCount()}
-      {showComments && renderComments()}
-      {renderLeaveCommentArea()}
-    </div>
+    <Box borderRadius={10} boxShadow={2} className={props.style || null}>
+      <div className={styles.wrapper}>
+        {renderPostHeader()}
+        {renderMessage()}
+        {renderLikesAndCommentCount()}
+        {showComments && renderComments()}
+        {renderLeaveCommentArea()}
+      </div>
+    </Box>
   );
 }
 

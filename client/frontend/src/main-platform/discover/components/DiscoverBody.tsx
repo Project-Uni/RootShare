@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 import { Slide } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 
@@ -9,11 +9,9 @@ import { FaSearch } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
-import { ENTER_KEYCODE } from '../../../helpers/constants';
-
 import { colors } from '../../../theme/Colors';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import RSText from '../../../base-components/RSText';
 import {
   WelcomeMessage,
   UserHighlight,
@@ -21,14 +19,13 @@ import {
 } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import RSText from '../../../base-components/RSText';
-
-const HEADER_HEIGHT = 60;
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
+import { ENTER_KEYCODE, HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
+    background: colors.background,
     overflow: 'scroll',
   },
   body: {},
@@ -45,14 +42,15 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 1,
     marginRight: 1,
     marginTop: 8,
-    background: colors.primaryText,
+    paddingBottom: 10,
   },
   resultsContainer: {
     marginLeft: 1,
     marginRight: 1,
+    paddingTop: 1,
   },
   singleResult: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
@@ -67,6 +65,10 @@ const useStyles = makeStyles((_: any) => ({
   searchButton: {
     marginTop: 7,
   },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+  },
 }));
 
 type Props = {
@@ -79,7 +81,6 @@ function DiscoverBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [transition, setTransition] = useState<any>();
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -130,6 +131,7 @@ function DiscoverBody(props: Props) {
     );
     if (data.success === 1) {
       const { users, communities } = data.content;
+      console.log(users);
       setRenderList(generateResults(users, communities));
     }
     setLoading(false);
@@ -161,10 +163,6 @@ function DiscoverBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
   }
 
   function randomShuffle(array: any[]) {
@@ -207,6 +205,7 @@ function DiscoverBody(props: Props) {
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
           status={users[i].status}
+          connectionRequestID={users[i]?.connectionRequestID}
           setNotification={setNotification}
         />
       );
@@ -277,15 +276,15 @@ function DiscoverBody(props: Props) {
         mode={snackbarMode}
         handleClose={() => setSnackbarMode(null)}
       />
-      {showWelcomeModal && (
+
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Discovery"
           message="Find new communities to join, and people to connect to with"
-          onClose={closeWelcomeMessage}
         />
-      )}
-      <div className={styles.body}>
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
