@@ -120,11 +120,16 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'pendingMembers',
       'university',
       'profilePicture',
+      'incomingPendingCommunityFollowRequests',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
         path: 'admin',
         select: ['_id', 'firstName', 'lastName', 'email'],
+      })
+      .populate({
+        path: 'incomingPendingCommunityFollowRequests',
+        select: 'from',
       })
       .exec();
 
@@ -910,7 +915,7 @@ export async function getAllPendingFollowRequests(communityID: string) {
     const pendingFollowRequests = community[
       'incomingPendingCommunityFollowRequests'
     ].map((edge) => {
-      return edge.from;
+      return { edgeID: edge._id, ...edge.from.toObject() };
     });
 
     const profilePicturePromises = generateSignedImagePromises(

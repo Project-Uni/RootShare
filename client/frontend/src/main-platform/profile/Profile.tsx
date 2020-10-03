@@ -13,11 +13,10 @@ import ProfileBody from './components/ProfileBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
 } from '../../helpers/constants';
 import { makeRequest } from '../../helpers/functions';
 import { ProfileState } from '../../helpers/types';
-
-const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

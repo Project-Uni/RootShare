@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
 import { connect } from 'react-redux';
+import { Button, Box } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -12,12 +12,13 @@ import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
+  box: {
+    background: colors.primaryText,
+  },
   wrapper: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: colors.primaryText,
-    borderRadius: 1,
     padding: 15,
   },
   left: {
@@ -187,53 +188,59 @@ function UserHighlight(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      <div className={styles.left}>
-        <a href={`/profile/${props.userID}`}>
-          <ProfilePicture
-            type="profile"
-            currentPicture={props.profilePic}
-            height={70}
-            width={70}
-            borderRadius={50}
-            className={styles.profilePic}
-          />
-        </a>
-        <div className={styles.textContainer}>
-          <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-            <RSText
-              type="head"
-              size={13}
-              color={colors.second}
-              className={styles.name}
-            >
-              {props.name}
-            </RSText>
+    <Box
+      boxShadow={2}
+      borderRadius={10}
+      className={[props.style, styles.box].join(' ')}
+    >
+      <div className={styles.wrapper}>
+        <div className={styles.left}>
+          <a href={`/profile/${props.userID}`}>
+            <ProfilePicture
+              type="profile"
+              currentPicture={props.profilePic}
+              height={70}
+              width={70}
+              borderRadius={50}
+              className={styles.profilePic}
+            />
           </a>
-          <RSText type="subhead" size={12} color={colors.secondaryText}>
-            {props.university}
-            {props.graduationYear ? ' ' + props.graduationYear : null}
-          </RSText>
-          <RSText
-            type="subhead"
-            size={12}
-            color={colors.secondaryText}
-            className={styles.work}
-          >
-            {props.position ? props.position : null}
-            {props.position && props.company ? ', ' : null}
-            {props.company ? props.company : null}
-          </RSText>
-          <RSText type="subhead" size={12} color={colors.second}>
-            {props.mutualConnections} Mutual Connections | {props.mutualCommunities}{' '}
-            Mutual Communities
-          </RSText>
+          <div className={styles.textContainer}>
+            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+              <RSText
+                type="head"
+                size={13}
+                color={colors.second}
+                className={styles.name}
+              >
+                {props.name}
+              </RSText>
+            </a>
+            <RSText type="subhead" size={12} color={colors.secondaryText}>
+              {props.university}
+              {props.graduationYear ? ' ' + props.graduationYear : null}
+            </RSText>
+            <RSText
+              type="subhead"
+              size={12}
+              color={colors.secondaryText}
+              className={styles.work}
+            >
+              {props.position ? props.position : null}
+              {props.position && props.company ? ', ' : null}
+              {props.company ? props.company : null}
+            </RSText>
+            <RSText type="subhead" size={12} color={colors.second}>
+              {props.mutualConnections} Mutual Connections |{' '}
+              {props.mutualCommunities} Mutual Communities
+            </RSText>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {renderStatus()}
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        {renderStatus()}
-      </div>
-    </div>
+    </Box>
   );
 }
 

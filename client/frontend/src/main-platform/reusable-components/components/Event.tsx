@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
+import { Button, Box } from '@material-ui/core';
 import { IconButton } from '@material-ui/core';
 
 import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
@@ -12,8 +12,10 @@ import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 const MAX_SUBSTR_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
+  box: {
     background: colors.primaryText,
+  },
+  wrapper: {
     marginLeft: 1,
     marginRight: 1,
     borderRadius: 1,
@@ -188,10 +190,16 @@ function Event(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      {renderEventHeader()}
-      {showFullEvent && renderEventBody()}
-    </div>
+    <Box
+      boxShadow={2}
+      borderRadius={10}
+      className={[styles.box, props.style].join(' ')}
+    >
+      <div className={styles.wrapper}>
+        {renderEventHeader()}
+        {showFullEvent && renderEventBody()}
+      </div>
+    </Box>
   );
 }
 
