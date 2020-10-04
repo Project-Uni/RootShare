@@ -132,9 +132,6 @@ export async function addCalculatedCommunityFields(
   const currentUserConnectionsStrings = toStringArray(currentUserConnections);
   const membersStrings = toStringArray(community.members);
 
-  console.log(currentUserConnectionsStrings);
-  console.log(membersStrings);
-
   const mutualMembers = currentUserConnectionsStrings.filter((connection) => {
     return membersStrings.indexOf(connection) !== -1;
   });

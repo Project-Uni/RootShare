@@ -141,7 +141,7 @@ function ConnectionsBody(props: Props) {
         <UserHighlight
           name={`${connections[i].firstName} ${connections[i].lastName}`}
           userID={
-            connections[i]._id === props.user._id ? 'self' : connections[i]._id
+            connections[i]._id === props.user._id ? 'user' : connections[i]._id
           }
           profilePic={connections[i].profilePicture}
           university={(connections[i].university as UniversityType).universityName}
