@@ -331,6 +331,7 @@ function ProfileBody(props: Props) {
               numConnections={profile.numConnections!}
               numMutualConnections={profile.numMutualConnections!}
               numCommunities={profile.numCommunities!}
+              numMutualCommunities={profile.numMutualCommunities}
               currentProfileState={props.currentProfileState}
               accessToken={props.accessToken}
               refreshToken={props.refreshToken}
