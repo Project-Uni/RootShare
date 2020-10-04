@@ -5,6 +5,7 @@ import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
   addCalculatedUserFields,
   addCalculatedCommunityFields,
+  getUserToCommunityRelationship,
   generateSignedImagePromises,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
@@ -939,11 +940,12 @@ export async function getSelfUserCommunities(userID: string) {
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < joinedCommunities.length; i++) {
-      console.log(joinedCommunities[i]);
       joinedCommunities[i] = await addCalculatedCommunityFields(
         connections,
         joinedCommunities[i].toObject()
       );
+
+      joinedCommunities[i].status = 'JOINED';
     }
 
     for (let i = 0; i < pendingCommunities.length; i++) {
@@ -951,9 +953,10 @@ export async function getSelfUserCommunities(userID: string) {
         connections,
         pendingCommunities[i].toObject()
       );
+
+      pendingCommunities[i].status = 'PENDING';
     }
 
-    console.log(joinedCommunities);
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
@@ -991,17 +994,26 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
     if (!selfUser || !otherUser)
       return sendPacket(0, `Couldn't find User to get communities for`);
 
-    const { joinedCommunities, pendingCommunities } = selfUser;
-    const connections = connectionsToUserIDStrings(userID, selfUser['connections']);
+    const selfUserConnections = connectionsToUserIDStrings(
+      selfID,
+      selfUser['connections']
+    );
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < otherUser.joinedCommunities.length; i++) {
-      otherUser.joinedCommunities[i] = await addCalculatedCommunityFields(
-        connections,
+      const cleanedCommunity = await addCalculatedCommunityFields(
+        selfUserConnections,
         otherUser.joinedCommunities[i].toObject()
       );
 
-      // await addStatusesToCommunities(otherUser.joinedCommunities[i], joinedCommunities, pendingCommunities)
+      getUserToCommunityRelationship(
+        selfUser.joinedCommunities,
+        selfUser.pendingCommunities,
+        otherUser.joinedCommunities[i],
+        cleanedCommunity
+      );
+
+      otherUser.joinedCommunities[i] = cleanedCommunity;
     }
 
     return sendPacket(
@@ -1032,7 +1044,7 @@ export async function getConnectionsFullData(selfID: string, userID: string) {
     });
 
     const selfConnectionUserIDStrings = connectionsToUserIDStrings(
-      userID,
+      selfID,
       selfUser.connections
     );
     const otherConnectionUserIDs = connectionsToUserIDs(

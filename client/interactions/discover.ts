@@ -298,14 +298,14 @@ export async function exactMatchSearchFor(userID: string, query: string) {
             selfConnectionUserIDs,
             communities[i].toObject()
           );
-          console.log(cleanedCommunity);
+
           getUserToCommunityRelationship(
             currentUser.joinedCommunities,
             currentUser.pendingCommunities,
             communities[i],
             cleanedCommunity
           );
-          console.log(cleanedCommunity);
+
           communities[i] = cleanedCommunity;
         }
 

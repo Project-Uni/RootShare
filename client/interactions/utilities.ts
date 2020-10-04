@@ -127,6 +127,7 @@ export async function addCalculatedCommunityFields(
     [key: string]: any;
     _id: string;
     admin: string;
+    members: string[];
   }
 ) {
   const currentUserConnectionsStrings = toStringArray(currentUserConnections);
@@ -278,7 +279,7 @@ export function connectionsToUserIDStrings(userID, connections) {
   return connections.reduce((output, connection) => {
     if (connection.accepted) {
       const otherID =
-        connection['from'].toString() != userID.toString()
+        connection['from'].toString() !== userID.toString()
           ? connection['from']
           : connection['to'];
 
@@ -292,7 +293,7 @@ export function connectionsToUserIDs(userID, connections) {
   return connections.reduce((output, connection) => {
     if (connection.accepted) {
       const otherID =
-        connection['from'].toString() != userID.toString()
+        connection['from'].toString() !== userID.toString()
           ? connection['from']
           : connection['to'];
 

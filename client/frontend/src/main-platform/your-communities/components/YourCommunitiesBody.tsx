@@ -141,7 +141,7 @@ function YourCommunitiesBody(props: Props) {
           memberCount={pendingCommunities[i].numMembers!}
           mutualMemberCount={pendingCommunities[i].numMutual!}
           profilePicture={pendingCommunities[i].profilePicture}
-          status={joinedCommunities[i].status}
+          status={pendingCommunities[i].status}
           // setNotification={setNotification}
         />
       );
