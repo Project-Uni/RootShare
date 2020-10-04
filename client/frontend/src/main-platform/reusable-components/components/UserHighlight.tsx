@@ -150,12 +150,7 @@ function UserHighlight(props: Props) {
   }
 
   function renderStatus() {
-    if (userStatus === 'PUBLIC')
-      return (
-        <Button className={styles.connectButton} onClick={requestConnection}>
-          Connect
-        </Button>
-      );
+    if (props.userID === 'user') return;
     else if (userStatus === 'CONNECTION')
       return (
         <RSText color={colors.primary} size={11}>
@@ -188,6 +183,12 @@ function UserHighlight(props: Props) {
             Accept
           </Button>
         </div>
+      );
+    else
+      return (
+        <Button className={styles.connectButton} onClick={requestConnection}>
+          Connect
+        </Button>
       );
   }
 

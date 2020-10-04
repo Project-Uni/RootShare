@@ -4,11 +4,13 @@ import { User, Connection, Webinar } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
   addCalculatedUserFields,
+  getUserToUserRelationship,
   addCalculatedCommunityFields,
   getUserToCommunityRelationship,
   generateSignedImagePromises,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
+  pendingToUserIDs,
 } from './utilities';
 
 export function getCurrentUser(user, callback) {
@@ -1027,13 +1029,112 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
   }
 }
 
-export async function getConnectionsFullData(selfID: string, userID: string) {
+export async function getSelfConnectionsFullData(selfID: string) {
+  try {
+    const currUser = await User.findOne({ _id: selfID }, [
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'firstName',
+    ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] });
+
+    const connectionUserIDs = connectionsToUserIDs(selfID, currUser.connections);
+
+    const pendingUserIDs = pendingToUserIDs(selfID, currUser.pendingConnections);
+
+    const connectionsWithData = await User.find(
+      { _id: { $in: connectionUserIDs } },
+      [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'profilePicture',
+      ]
+    )
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    const pendingWithData = await User.find({ _id: { $in: pendingUserIDs } }, [
+      'firstName',
+      'lastName',
+      'graduationYear',
+      'university',
+      'work',
+      'position',
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'profilePicture',
+    ])
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    for (let i = 0; i < connectionsWithData.length; i++) {
+      let cleanedConnection = connectionsWithData[i].toObject();
+      cleanedConnection.connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
+      );
+      cleanedConnection = await addCalculatedUserFields(
+        connectionUserIDs,
+        currUser.joinedCommunities,
+        cleanedConnection
+      );
+
+      cleanedConnection.status = 'CONNECTION';
+      connectionsWithData[i] = cleanedConnection;
+    }
+
+    for (let i = 0; i < pendingWithData.length; i++) {
+      let cleanedPending = pendingWithData[i].toObject();
+      cleanedPending.connections = connectionsToUserIDStrings(
+        pendingWithData[i]._id,
+        pendingWithData[i].connections
+      );
+      cleanedPending = await addCalculatedUserFields(
+        connectionUserIDs,
+        currUser.joinedCommunities,
+        cleanedPending
+      );
+
+      getUserToUserRelationship(
+        currUser.connections,
+        currUser.pendingConnections,
+        pendingWithData[i],
+        cleanedPending
+      );
+
+      pendingWithData[i] = cleanedPending;
+    }
+
+    return sendPacket(1, 'successfully retrieved all connections', {
+      connections: connectionsWithData,
+      pendingConnections: pendingWithData,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getOtherConnectionsFullData(selfID: string, userID: string) {
   try {
     const selfUser = await User.findOne({ _id: selfID }, [
       'connections',
+      'pendingConnections',
       'joinedCommunities',
       'firstName',
-    ]).populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+    ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] });
 
     const otherUser = await User.findOne({ _id: userID }, [
       'connections',
@@ -1062,6 +1163,7 @@ export async function getConnectionsFullData(selfID: string, userID: string) {
         'work',
         'position',
         'connections',
+        'pendingConnections',
         'joinedCommunities',
         'profilePicture',
       ]
@@ -1070,20 +1172,30 @@ export async function getConnectionsFullData(selfID: string, userID: string) {
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      connectionsWithData[i] = connectionsWithData[i].toObject();
-      connectionsWithData[i].connections = connectionsToUserIDStrings(
+      let cleanedConnection = connectionsWithData[i].toObject();
+      cleanedConnection.connections = connectionsToUserIDStrings(
         connectionsWithData[i]._id,
         connectionsWithData[i].connections
       );
-      connectionsWithData[i] = await addCalculatedUserFields(
+      cleanedConnection = await addCalculatedUserFields(
         selfConnectionUserIDStrings,
         selfUser.joinedCommunities,
-        connectionsWithData[i]
+        cleanedConnection
       );
+
+      getUserToUserRelationship(
+        selfUser.connections,
+        selfUser.pendingConnections,
+        connectionsWithData[i],
+        cleanedConnection
+      );
+
+      connectionsWithData[i] = cleanedConnection;
     }
 
-    return sendPacket(1, 'successfully retrieved all connections', {
+    return sendPacket(1, 'Successfully retrieved all connections', {
       connections: connectionsWithData,
+      pendingConnections: [],
     });
   } catch (err) {
     log('error', err);

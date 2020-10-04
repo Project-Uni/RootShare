@@ -303,6 +303,20 @@ export function connectionsToUserIDs(userID, connections) {
   }, []);
 }
 
+export function pendingToUserIDs(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (!connection.accepted) {
+      const otherID =
+        connection['from'].toString() !== userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(mongoose.Types.ObjectId(otherID));
+    }
+    return output;
+  }, []);
+}
+
 export function toStringArray(array) {
   if (!array)
     log('ERROR', 'Array is undefined and cannot be converted to string array');
