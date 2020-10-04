@@ -17,7 +17,7 @@ import {
 import RSText from '../../base-components/RSText';
 
 import { makeRequest } from '../../helpers/functions';
-import { Community, CommunityStatus } from '../../helpers/types';
+import { Community, CommunityStatus, UserType } from '../../helpers/types';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -115,7 +115,7 @@ function CommunityDetails(props: Props) {
   }
 
   function initializeCommunityStatus(communityDetails: Community) {
-    if (communityDetails.admin._id === props.user._id) {
+    if ((communityDetails.admin as UserType)._id === props.user._id) {
       setIsAdmin(true);
       setCommunityStatus('JOINED');
     } else if (communityDetails.members.indexOf(props.user._id) !== -1)

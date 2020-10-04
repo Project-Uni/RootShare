@@ -296,14 +296,16 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
             selfConnectionUserIDs,
-            communities[i]
+            communities[i].toObject()
           );
+          console.log(cleanedCommunity);
           getUserToCommunityRelationship(
             currentUser.joinedCommunities,
             currentUser.pendingCommunities,
             communities[i],
             cleanedCommunity
           );
+          console.log(cleanedCommunity);
           communities[i] = cleanedCommunity;
         }
 

@@ -321,7 +321,7 @@ function CommunityGeneralInfo(props: Props) {
               {numMembers} Members
             </RSText>
             <RSText type="body" size={12} color={colors.second}>
-              {props.numMutual} Mutual
+              {props.numMutual} Connections
             </RSText>
             {props.isAdmin && (
               <a
