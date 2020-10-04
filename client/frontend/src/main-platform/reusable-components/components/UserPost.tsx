@@ -136,6 +136,8 @@ type Props = {
   commentCount: number;
   style?: any;
   anonymous?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function UserPost(props: Props) {
@@ -174,7 +176,14 @@ function UserPost(props: Props) {
       setCommentErr('');
     }
 
-    const { data } = await makeRequest();
+    const { data } = await makeRequest(
+        'POST',
+        `/api/posts/comment/new/${props._id}`,
+        { comment },
+        true,
+        props.accessToken,
+        props.refreshToken
+    );
   }
 
   function handleMoreCommentsClick() {
