@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -15,8 +14,11 @@ import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
 } from '../../helpers/constants';
-import { Community, CommunityStatus } from '../../helpers/types';
 import RSText from '../../base-components/RSText';
+
+import { makeRequest } from '../../helpers/functions';
+import { Community, CommunityStatus } from '../../helpers/types';
+import { HEADER_HEIGHT } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -47,6 +49,7 @@ function CommunityDetails(props: Props) {
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
@@ -71,6 +74,7 @@ function CommunityDetails(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -139,7 +143,7 @@ function CommunityDetails(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="none" />}
         {showInvalid ? (
           renderInvalid()
@@ -150,6 +154,10 @@ function CommunityDetails(props: Props) {
             numMembers={(communityInfo as Community).members?.length || 0}
             numPending={(communityInfo as Community).pendingMembers?.length || 0}
             numMutual={mutualConnections.length}
+            numFollowRequests={
+              (communityInfo as Community).incomingPendingCommunityFollowRequests
+                ?.length || 0
+            }
             type={(communityInfo as Community).type}
             private={(communityInfo as Community).private}
             description={(communityInfo as Community).description}
@@ -159,6 +167,7 @@ function CommunityDetails(props: Props) {
             communityID={(communityInfo as Community)._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
+            userID={props.user._id}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

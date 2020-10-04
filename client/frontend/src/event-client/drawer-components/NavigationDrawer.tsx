@@ -89,15 +89,15 @@ function NavigationDrawer(props: Props) {
         />
       ),
     },
-    {
-      name: 'Library',
-      icon: (
-        <MdOndemandVideo
-          size={ICON_SIZE}
-          color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-        />
-      ),
-    },
+    // {
+    //   name: 'Library',
+    //   icon: (
+    //     <MdOndemandVideo
+    //       size={ICON_SIZE}
+    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
+    //     />
+    //   ),
+    // },
     {
       name: 'Connections',
       icon: (

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField, IconButton, CircularProgress } from '@material-ui/core';
+import {
+  Button,
+  TextField,
+  IconButton,
+  CircularProgress,
+  Box,
+} from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
@@ -20,7 +26,7 @@ const MAX_INITIAL_VISIBLE_CHARS = 200;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    borderRadius: 1,
+    borderRadius: 10,
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
@@ -357,13 +363,15 @@ function UserPost(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      {renderPostHeader()}
-      {renderMessage()}
-      {renderLikesAndCommentCount()}
-      {showComments && renderComments()}
-      {renderLeaveCommentArea()}
-    </div>
+    <Box borderRadius={10} boxShadow={2} className={props.style || null}>
+      <div className={styles.wrapper}>
+        {renderPostHeader()}
+        {renderMessage()}
+        {renderLikesAndCommentCount()}
+        {showComments && renderComments()}
+        {renderLeaveCommentArea()}
+      </div>
+    </Box>
   );
 }
 

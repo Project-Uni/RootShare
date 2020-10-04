@@ -126,6 +126,9 @@ function SingleSuggestion(props: Props) {
 
   function renderSuggestion() {
     const university = props.suggestedUser.university as UniversityType;
+    const universityName = university.nickname
+      ? university.nickname
+      : university.universityName;
 
     return (
       <div id="suggestionWrapper" className={styles.wrapper}>

@@ -49,7 +49,7 @@ const useStyles = makeStyles((_: any) => ({
   senderName: {
     margin: 10,
     display: 'inline-block',
-    color: colors.background,
+    color: colors.primaryText,
     wordWrap: 'break-word',
     maxWidth: 240,
   },

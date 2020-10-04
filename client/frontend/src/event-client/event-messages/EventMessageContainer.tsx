@@ -13,8 +13,8 @@ import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnac
 
 import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { makeRequest, cropText } from '../../helpers/functions';
+import { HEADER_HEIGHT } from '../../helpers/constants';
 
-const HEADER_HEIGHT = 64;
 const MAX_MESSAGES = 40;
 
 const useStyles = makeStyles((_: any) => ({

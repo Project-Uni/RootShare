@@ -1,6 +1,9 @@
 import { sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { isCommunityAdmin } from './middleware/communityAuthentication';
+import {
+  isCommunityAdmin,
+  isCommunityMember,
+} from './middleware/communityAuthentication';
 
 import {
   //General Posting
@@ -19,6 +22,7 @@ import {
   createExternalPostAsFollowingCommunityAdmin,
   createExternalPostAsMember,
   getExternalPosts,
+  getFollowingCommunityPosts,
   broadcastAsCommunityAdmin,
 } from '../interactions/posts';
 
@@ -132,6 +136,7 @@ export default function postsRoutes(app) {
   app.post(
     '/api/posts/community/:communityID/external/following',
     isAuthenticatedWithJWT,
+    isCommunityMember,
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
       const userID = req.user._id;
@@ -189,6 +194,17 @@ export default function postsRoutes(app) {
       const userID = req.user._id;
 
       const packet = await getExternalPosts(communityID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/posts/community/:communityID/following',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+
+      const packet = await getFollowingCommunityPosts(communityID);
       return res.json(packet);
     }
   );

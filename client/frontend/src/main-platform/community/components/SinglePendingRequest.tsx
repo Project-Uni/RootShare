@@ -33,22 +33,23 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  firstName: string;
-  lastName: string;
+  name: string;
   _id: string;
   profilePicture?: string;
   className?: string;
   onAccept: (_id: string) => any;
   onReject: (_id: string) => any;
+  type: 'user' | 'community';
+  edgeID?: string;
 };
 
-function SinglePendingMember(props: Props) {
+function SinglePendingRequest(props: Props) {
   const styles = useStyles();
 
   return (
     <div className={[styles.wrapper, props.className].join(' ')}>
       <div className={styles.left}>
-        <a href={`/profile/${props._id}`}>
+        <a href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}>
           <ProfilePicture
             height={60}
             width={60}
@@ -57,9 +58,12 @@ function SinglePendingMember(props: Props) {
             currentPicture={props.profilePicture}
           />
         </a>
-        <a href={`/profile/${props._id}`} className={styles.noDecoration}>
+        <a
+          href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}
+          className={styles.noDecoration}
+        >
           <RSText type="body" size={14} className={styles.name}>
-            {props.firstName} {props.lastName}
+            {props.name}
           </RSText>
         </a>
       </div>
@@ -67,7 +71,7 @@ function SinglePendingMember(props: Props) {
         <Button
           size="small"
           onClick={() => {
-            props.onReject(props._id);
+            props.onReject(props.type === 'user' ? props._id : props.edgeID!);
           }}
         >
           Reject
@@ -76,7 +80,7 @@ function SinglePendingMember(props: Props) {
           size="small"
           className={styles.acceptButton}
           onClick={() => {
-            props.onAccept(props._id);
+            props.onAccept(props.type === 'user' ? props._id : props.edgeID!);
           }}
         >
           Accept
@@ -86,4 +90,4 @@ function SinglePendingMember(props: Props) {
   );
 }
 
-export default SinglePendingMember;
+export default SinglePendingRequest;
