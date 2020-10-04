@@ -10,7 +10,7 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator } from '../reusable-components';
 import CommunityBody from './components/CommunityBody';
 
-import FollowedByCommunities from './components/FollowedByCommunities';
+import FollowedByCommunities from './components/Sidebar/FollowedByCommunities';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -172,7 +172,9 @@ function CommunityDetails(props: Props) {
             userID={props.user._id}
           />
         )}
-        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <FollowedByCommunities />}
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (
+          <FollowedByCommunities communityID={orgID} />
+        )}
       </div>
     </div>
   );

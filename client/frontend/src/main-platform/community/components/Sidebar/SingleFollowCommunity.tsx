@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
 import { Button } from '@material-ui/core';
-import { FaLock } from 'react-icons/fa';
-
-import { colors } from '../../../theme/Colors';
-import RSText from '../../../base-components/RSText';
-import ProfilePicture from '../../../base-components/ProfilePicture';
-
-import { makeRequest } from '../../../helpers/functions';
-import { CommunityType } from '../../../helpers/types';
+import { colors } from '../../../../theme/Colors';
+import RSText from '../../../../base-components/RSText';
+import ProfilePicture from '../../../../base-components/ProfilePicture';
+import { makeRequest } from '../../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -26,17 +21,23 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
   },
   profilePic: {
-    height: 80,
-    width: 80,
-    borderRadius: 80,
+    height: 50,
+    width: 50,
+    borderRadius: 50,
     marginRight: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textContainer: {
     marginLeft: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   removeButton: {
     color: colors.primaryText,
-    background: colors.secondary,
+    background: colors.fourth,
     marginRight: 7,
   },
   buttonContainer: {
@@ -76,40 +77,40 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  communityID: string;
-  private: boolean;
+  description: string;
   name: string;
-  type: CommunityType;
-  profilePicture?: string;
-  memberCount: number;
-  mutualMemberCount: number;
-  removeSuggestion: (communityID: string) => void;
+  profilePicture: string;
+  type: string;
+  _id: string;
+
   setNotification: (
     successMode: 'success' | 'notify' | 'error',
     message: string
   ) => void;
-  isLast?: boolean;
 
+  isLast?: boolean;
   accessToken: string;
   refreshToken: string;
 };
 
-function FollowingCommunity(props: Props) {
+function SingleFollowCommunity(props: Props) {
   const styles = useStyles();
 
   const [visible, setVisible] = useState(true);
+  const [association, setAssociation] = useState('NOT A MEMBER');
 
-  function removeSuggestion() {
-    setVisible(false);
-    setTimeout(() => {
-      props.removeSuggestion(props.communityID);
-    }, 500);
+  useEffect(() => {
+    updateAssociation();
+  });
+
+  function updateAssociation() {
+    setAssociation('MEMBER');
   }
 
   async function requestJoin() {
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${props.communityID}/join`,
+      `/api/community/${props._id}/join`,
       {},
       true,
       props.accessToken,
@@ -122,10 +123,8 @@ function FollowingCommunity(props: Props) {
           ? `Successfully requested to join ${props.name}`
           : `Successfully joined ${props.name}`;
       props.setNotification('success', message);
-      removeSuggestion();
     } else if (data['success'] === 0) {
       props.setNotification('notify', 'User is already a part of community');
-      removeSuggestion();
     } else {
       props.setNotification('error', 'There was an error requesting the connection');
       setVisible(true);
@@ -135,19 +134,8 @@ function FollowingCommunity(props: Props) {
   function renderButtons() {
     return (
       <div className={styles.buttonContainer}>
-        {props.private && (
-          <FaLock
-            color={colors.secondaryText}
-            size={18}
-            className={styles.lockIcon}
-          />
-        )}
-        <Button
-          className={styles.removeButton}
-          size="small"
-          onClick={removeSuggestion}
-        >
-          Remove
+        <Button className={styles.removeButton} size="small" onClick={requestJoin}>
+          {association}
         </Button>
         <Button className={styles.connectButton} size="small" onClick={requestJoin}>
           Join
@@ -160,44 +148,35 @@ function FollowingCommunity(props: Props) {
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.communityInfo}>
-          <a
-            href={`/${props.communityID}/following`}
-            className={styles.communityLink}
-          >
+          <a href={`/community/${props._id}`} className={styles.communityLink}>
             <ProfilePicture
               editable={false}
               type={'profile'}
-              height={80}
-              width={80}
-              borderRadius={50}
+              height={60}
+              width={60}
+              borderRadius={60}
               currentPicture={props.profilePicture}
             />
           </a>
           <div className={styles.textContainer}>
-            <a
-              href={`/${props.communityID}/following`}
-              className={styles.noUnderline}
-            >
+            <a href={`/community/${props._id}`} className={styles.noUnderline}>
               <RSText type="body" bold size={13} color={colors.primaryText}>
                 {props.name || ''}
               </RSText>
             </a>
 
-            <RSText type="body" italic={true} size={11} color={colors.secondaryText}>
+            <RSText type="body" italic={true} size={11} color={colors.primaryText}>
               {props.type || ''}
             </RSText>
-            <RSText type="body" size={11} color={colors.secondaryText}>
-              {props.memberCount || 0} Members
-            </RSText>
-            <RSText type="body" size={11} color={colors.secondaryText}>
-              {props.mutualMemberCount || 0} Mutual
+
+            <RSText type="body" italic={false} size={11} color={colors.primaryText}>
+              69 Members
             </RSText>
           </div>
         </div>
-        {renderButtons()}
       </div>
     </div>
   );
 }
 
-export default FollowingCommunity;
+export default SingleFollowCommunity;

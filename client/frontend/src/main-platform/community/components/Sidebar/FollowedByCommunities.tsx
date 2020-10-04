@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-
 import { Slide } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
-
-import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
-import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
-
-import FollowingCommunity from './FollowingCommunity';
-import FollowedByCommunity from './FollowedByCommunity';
-
-import { DiscoverCommunity } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
-import { HEADER_HEIGHT } from '../../../helpers/constants';
+import RSText from '../../../../base-components/RSText';
+import { colors } from '../../../../theme/Colors';
+import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import SingleFollowCommunity from './SingleFollowCommunity';
+import { makeRequest } from '../../../../helpers/functions';
+import { HEADER_HEIGHT } from '../../../../helpers/constants';
 
 const VERTICAL_PADDING_TOTAL = 40;
 
@@ -38,6 +32,15 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   accessToken: string;
   refreshToken: string;
+  communityID: string;
+};
+
+type FollowCommunity = {
+  description: string;
+  name: string;
+  profilePicture: string;
+  type: string;
+  _id: string;
 };
 
 function FollowedByCommunities(props: Props) {
@@ -48,10 +51,10 @@ function FollowedByCommunities(props: Props) {
   );
 
   const [followingCommunities, setFollowingCommunities] = useState<
-    DiscoverCommunity[]
+    FollowCommunity[]
   >([]);
   const [followedByCommunities, setFollowedByCommunities] = useState<
-    DiscoverCommunity[]
+    FollowCommunity[]
   >([]);
 
   const [transition, setTransition] = useState<any>();
@@ -62,39 +65,42 @@ function FollowedByCommunities(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    getFollowing();
+    fetchData();
   }, []);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT - VERTICAL_PADDING_TOTAL);
   }
 
-  async function getFollowing() {
-    const { data } = await makeRequest(
+  function fetchData() {
+    //Retrieve following communities
+    makeRequest(
       'GET',
-      '/api/community',
+      `/api/community/${props.communityID}/following`,
       {},
       true,
       props.accessToken,
       props.refreshToken
-    );
-
-    if (data['success'] === 1) {
-      const { users, communitiesFollowing } = data.content;
-      setFollowingCommunities(communitiesFollowing);
-    }
-  }
-
-  function removeFollowingCommunity(communityID: string) {
-    let newSuggestions = followingCommunities.slice();
-    for (let i = 0; i < followingCommunities.length; i++) {
-      const currCommunity = followingCommunities[i];
-      if (currCommunity._id === communityID) {
-        newSuggestions.splice(i, 1);
-        setFollowingCommunities(newSuggestions);
-        return;
+    ).then(({ data }) => {
+      if (data['success'] === 1) {
+        const { communities: communitiesFollowing } = data.content;
+        setFollowingCommunities(communitiesFollowing);
       }
-    }
+    });
+    //Retrieve followed by communities
+    makeRequest(
+      'GET',
+      `/api/community/${props.communityID}/followedBy`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    ).then(({ data }) => {
+      if (data['success'] === 1) {
+        const { communities: communitiesFollowedBy } = data.content;
+        setFollowedByCommunities(communitiesFollowedBy);
+      }
+    });
   }
 
   function renderFollowingCommunities() {
@@ -106,17 +112,14 @@ function FollowedByCommunities(props: Props) {
     for (let i = 0; i < numSuggestionsDisplayed; i++) {
       const currSuggestion = followingCommunities[i];
       communitiesFollowing.push(
-        <FollowingCommunity
+        <SingleFollowCommunity
           key={currSuggestion._id}
-          communityID={currSuggestion._id}
-          private={currSuggestion.private}
+          _id={currSuggestion._id}
           name={currSuggestion.name}
           type={currSuggestion.type}
+          description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
-          memberCount={currSuggestion.numMembers}
-          mutualMemberCount={currSuggestion.numMutual}
           isLast={i === numSuggestionsDisplayed - 1}
-          removeSuggestion={removeFollowingCommunity}
           setNotification={setNotification}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
@@ -131,7 +134,7 @@ function FollowedByCommunities(props: Props) {
             color={colors.primaryText}
             className={styles.communityText}
           >
-            Following Communities
+            Following
           </RSText>
           {communitiesFollowing}
         </div>
@@ -139,54 +142,23 @@ function FollowedByCommunities(props: Props) {
     }
   }
 
-  async function getFollowedBy() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/community',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) {
-      const { users, communitiesFollowedBy } = data.content;
-      setFollowingCommunities(communitiesFollowedBy);
-    }
-  }
-
-  function removeFollowedByCommunity(communityID: string) {
-    let newSuggestions = followedByCommunities.slice();
-    for (let i = 0; i < followedByCommunities.length; i++) {
-      const currCommunity = followedByCommunities[i];
-      if (currCommunity._id === communityID) {
-        newSuggestions.splice(i, 1);
-        setFollowedByCommunities(newSuggestions);
-        return;
-      }
-    }
-  }
-
   function renderFollowedByCommunities() {
     const communitiesFollowedBy: any = [];
-    if (followingCommunities.length === 0) return;
+    if (followedByCommunities.length === 0) return;
 
     const numSuggestionsDisplayed =
       followedByCommunities.length > 6 ? 6 : followedByCommunities.length;
     for (let i = 0; i < numSuggestionsDisplayed; i++) {
       const currSuggestion = followedByCommunities[i];
       communitiesFollowedBy.push(
-        <FollowedByCommunity
+        <SingleFollowCommunity
           key={currSuggestion._id}
-          communityID={currSuggestion._id}
-          private={currSuggestion.private}
+          _id={currSuggestion._id}
           name={currSuggestion.name}
           type={currSuggestion.type}
+          description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
-          memberCount={currSuggestion.numMembers}
-          mutualMemberCount={currSuggestion.numMutual}
           isLast={i === numSuggestionsDisplayed - 1}
-          removeSuggestion={removeFollowedByCommunity}
           setNotification={setNotification}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
@@ -202,7 +174,7 @@ function FollowedByCommunities(props: Props) {
           color={colors.primaryText}
           className={styles.communityText}
         >
-          Followed By Communities
+          Followed By
         </RSText>
         {communitiesFollowedBy}
       </div>
@@ -216,7 +188,6 @@ function FollowedByCommunities(props: Props) {
     function slideLeft(props: TransitionProps) {
       return <Slide {...props} direction="left" />;
     }
-
     setSnackbarMode(successMode);
     setSnackbarMessage(message);
     setTransition(() => slideLeft);
