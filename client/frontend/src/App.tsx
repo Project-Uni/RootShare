@@ -30,6 +30,8 @@ import {
 
 import { AdminRoutes } from './routes';
 
+import TestComponent from './main-platform/homepage/Test';
+
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
 ReactGA.pageview('/');
@@ -81,6 +83,8 @@ function App(props: Props) {
             <Route exact path="/community/:orgID" component={CommunityDetails} />
             {/* <Route exact path="/library" component={StreamLibrary} /> */}
             <Route exact path="/connections/:userID" component={Connections} />
+
+            <Route exact path="/test" component={TestComponent} />
 
             <Route component={PageNotFound} />
           </Switch>
