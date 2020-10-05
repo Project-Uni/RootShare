@@ -120,20 +120,7 @@ function TestComponent(props: Props) {
   }, [scrollObserver, bottomBoundaryRef, topBoundaryRef]);
 
   useEffect(() => {
-    console.log('Page updated:', page, 'Prev Page:', prevPage);
-    // setInProgress(true);
-    // inProgress = true;
-    if (!inProgress) {
-      inProgress = true;
-      // setInProgress(true);
-      fetchData().then(() => {
-        // setInProgress(false);
-        setTimeout(() => {
-          inProgress = false;
-        }, 500);
-        // setInProgress(false);
-      });
-    }
+    fetchData();
     // if (loaded && !inProgress) {
     //   setInProgress(true);
     //   if (page > (prevPage || 0)) {
