@@ -204,15 +204,14 @@ function ProfileDrawer(props: Props) {
     setThankYouOpen(true);
   }
 
-  function closeReport() {
-    //TODO: Add Close Button
-    setReportOpen(false);
-  }
-
   function submitReport() {
     //TODO: Send Data
     setReportOpen(false);
     handleThankYou();
+  }
+
+  function closeBugModal() {
+    setReportOpen(false);
   }
 
   function handleReport() {
@@ -746,7 +745,14 @@ function ProfileDrawer(props: Props) {
         </Button>
       </div>
 
-      <BugModal open={reportOpen} onClick={submitReport}></BugModal>
+      <BugModal
+        open={reportOpen}
+        // onClick={submitReport}
+        // onClickCancel={closeBugModal}
+        onClose={() => {
+          setReportOpen(false);
+        }}
+      />
       <ThankYou open={thankYouOpen} onClick={closeThankYou}></ThankYou>
     </div>
   );

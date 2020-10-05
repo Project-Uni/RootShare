@@ -14,7 +14,7 @@ import { colors } from '../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
-    background: colors.second,
+    background: 'white',
     width: 200,
     height: 150,
   },
@@ -33,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
     bottom: 0,
     position: 'absolute',
     margin: 20,
-    color: colors.primaryText,
+    color: 'black',
   },
 }));
 
@@ -52,7 +52,7 @@ function ThankYou(props: Props) {
           type="head"
           size={16}
           bold
-          color={colors.primaryText}
+          color={'black'}
           className={styles.thankYou}
         >
           Thank you!
