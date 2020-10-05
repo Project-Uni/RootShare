@@ -124,6 +124,14 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
+  function getPostingOptions() {
+    // this will return list of options to post as. i.e. in external,
+    // Post as Self,
+    // Post as this community,
+    // Post as this following community (you are admin),
+    // Post as this other following community (you are admin)
+  }
+
   function handleTabChange(newTab: CommunityTab) {
     if (newTab !== selectedTab) {
       tabChangeSemaphore++;
@@ -189,7 +197,7 @@ function CommunityBodyContent(props: Props) {
   function renderExternal() {
     return (
       <div>
-        <CommunityMakePostContainer />
+        <CommunityMakePostContainer appendNewPost={() => {}} />
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
@@ -198,7 +206,7 @@ function CommunityBodyContent(props: Props) {
   function renderInternal() {
     return (
       <div>
-        <CommunityMakePostContainer />
+        <CommunityMakePostContainer appendNewPost={() => {}} />
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
