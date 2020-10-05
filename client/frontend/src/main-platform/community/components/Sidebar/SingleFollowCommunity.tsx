@@ -170,7 +170,7 @@ function SingleFollowCommunity(props: Props) {
             </RSText>
 
             <RSText type="body" italic={false} size={11} color={colors.primaryText}>
-              69 Members
+              XX Members
             </RSText>
           </div>
         </div>
