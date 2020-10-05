@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Button,
+  Slide,
 } from '@material-ui/core';
 import { Select, MenuItem } from '@material-ui/core';
 import Draggable from 'react-draggable';
@@ -14,6 +15,9 @@ import RSText from '../base-components/RSText';
 import { colors } from '../theme/Colors';
 import BugTextField from './BugTextField';
 import { CircularProgress } from '@material-ui/core';
+
+import ManageSpeakersSnackbar from '../../src/event-client/event-video/event-host/ManageSpeakersSnackbar';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { makeRequest } from '../helpers/functions';
 import { connect } from 'react-redux';
@@ -80,21 +84,27 @@ function BugModal(props: Props) {
   const styles = useStyles();
 
   const BugCategories = [
-    'Bug #1',
-    'Bug #2',
-    'Bug #3',
-    'Bug #4',
-    'Bug #5',
-    'Bug #6',
-    'Bug #7',
-    'Bug #8',
-    'Bug #9',
+    'Homepage',
+    'Discover',
+    'Communities',
+    'Events',
+    'Connections',
+    'Profile',
+    'Posts',
+    'Messages',
+    'Other',
   ];
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Bug #1');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
 
   function changeTitle(event: any) {
     setTitle(event.target.value);
@@ -106,6 +116,10 @@ function BugModal(props: Props) {
 
   function handleDescriptionChange(event: any) {
     setDescription(event.target.value);
+  }
+
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
   }
 
   async function handleSubmit() {
@@ -124,13 +138,11 @@ function BugModal(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-
-    handleClose();
     setLoading(false);
-  }
-
-  function thankYouNotification() {
-    return <div></div>;
+    setTransition(() => slideLeft);
+    setSnackbarMessage('Thank you for submitting a bug report!');
+    setSnackbarMode('notify');
+    handleClose();
   }
 
   function handleClose() {
@@ -187,10 +199,18 @@ function BugModal(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} PaperComponent={PaperComponent}>
-      {renderContent()}
-      <div className={styles.loading}>{loading && <CircularProgress />}</div>
-    </Dialog>
+    <div>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
+      <Dialog open={props.open} PaperComponent={PaperComponent}>
+        {renderContent()}
+        <div className={styles.loading}>{loading && <CircularProgress />}</div>
+      </Dialog>
+    </div>
   );
 }
 
