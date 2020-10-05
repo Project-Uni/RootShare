@@ -96,7 +96,7 @@ function TestComponent(props: Props) {
   }, [scrollObserver, bottomBoundaryRef, topBoundaryRef]);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && !inProgress) {
       setInProgress(true);
       if (page > (prevPage || 0)) {
         setCurrentValues((prevState: number[]) => {
@@ -115,7 +115,7 @@ function TestComponent(props: Props) {
       }
       setInProgress(false);
     }
-  }, [page, loaded]);
+  }, [page]);
 
   useEffect(() => {
     setCurrentValues(getNextValues(10, -1));
