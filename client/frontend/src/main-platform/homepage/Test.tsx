@@ -15,6 +15,7 @@ import {
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
   HEADER_HEIGHT,
 } from '../../helpers/constants';
+import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -40,19 +41,40 @@ for (let i = 0; i < 100; i++) {
   ALL_VALUES.push(i);
 }
 
-function getPreviousValues(numRetrieved: number, startingValue: number) {
+function sleep(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
+
+async function getPreviousValues(
+  numRetrieved: number,
+  startingValue: number,
+  withTimeout = false
+) {
+  if (withTimeout) {
+    await sleep(0.5);
+  }
+  console.log('Calling previus');
   return ALL_VALUES.slice(
     startingValue - numRetrieved >= 0 ? startingValue - numRetrieved : 0,
     startingValue
   );
 }
 
-function getNextValues(numRetrieved: number, startingValue: number) {
+async function getNextValues(
+  numRetrieved: number,
+  startingValue: number,
+  withTimeout = false
+) {
+  if (withTimeout) {
+    await sleep(0.5);
+  }
+  console.log('Calling next');
   return ALL_VALUES.slice(startingValue + 1, startingValue + numRetrieved);
 }
 
 const NUM_RETRIEVED = 10;
 const MAX_PAGES = Math.ceil(100 / NUM_RETRIEVED) + 1;
+var inProgress = false;
 
 function TestComponent(props: Props) {
   const styles = useStyles();
@@ -62,10 +84,12 @@ function TestComponent(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [loaded, setLoaded] = useState(false);
-  const [inProgress, setInProgress] = useState(false);
+  // const [inProgress, setInProgress] = useState(false);
+
   const [page, setPage] = useState(1);
   const prevPage = usePrevious(page);
-  const [currentValues, setCurrentValues] = useState<number[]>([]);
+  const [currentValues, setCurrentValues] = useState<JSX.Element[]>([]);
+  const [rawNumbers, setRawNumbers] = useState<number[]>();
 
   let bottomBoundaryRef = useRef(null);
   let topBoundaryRef = useRef(null);
@@ -96,31 +120,98 @@ function TestComponent(props: Props) {
   }, [scrollObserver, bottomBoundaryRef, topBoundaryRef]);
 
   useEffect(() => {
-    if (loaded && !inProgress) {
-      setInProgress(true);
-      if (page > (prevPage || 0)) {
-        setCurrentValues((prevState: number[]) => {
-          return [
-            ...prevState.slice(4, prevState.length),
-            ...getNextValues(8, prevState[prevState.length - 1]),
-          ];
-        });
-      } else {
-        setCurrentValues((prevState: number[]) => {
-          return [
-            ...getPreviousValues(8, prevState[0]),
-            ...prevState.slice(0, prevState.length - 4),
-          ];
-        });
-      }
-      setInProgress(false);
+    console.log('Page updated:', page, 'Prev Page:', prevPage);
+    // setInProgress(true);
+    // inProgress = true;
+    if (!inProgress) {
+      inProgress = true;
+      // setInProgress(true);
+      fetchData().then(() => {
+        // setInProgress(false);
+        setTimeout(() => {
+          inProgress = false;
+        }, 500);
+        // setInProgress(false);
+      });
     }
+    // if (loaded && !inProgress) {
+    //   setInProgress(true);
+    //   if (page > (prevPage || 0)) {
+    //     setCurrentValues((prevState: number[]) => {
+    //       return [
+    //         ...prevState.slice(4, prevState.length),
+    //         ...getNextValues(8, prevState[prevState.length - 1]),
+    //       ];
+    //     });
+    //   } else {
+    //     const newValues = await getPreviousValues(8, [0], true);
+    //     setCurrentValues((prevState: number[]) => {
+    //       return [
+    //         ...getPreviousValues(8, prevState[0]),
+    //         ...prevState.slice(0, prevState.length - 4),
+    //       ];
+    //     });
+    //   }
+    //   setInProgress(false);
+    // }
   }, [page]);
 
+  async function fetchData() {
+    if (loaded) {
+      if (page > (prevPage || 0)) {
+        console.log('Key:', currentValues[currentValues.length - 1].key as number);
+        const newValues = await getNextValues(
+          8,
+          currentValues[currentValues.length - 1].key as number,
+          true
+        );
+        setCurrentValues((prevState: JSX.Element[]) => {
+          return [
+            ...prevState.slice(4, prevState.length),
+            ...generateValues(newValues),
+          ];
+          // return generateValues([
+          //   ...prevState.slice(4, prevState.length),
+          //   ...newValues,
+          // ]);
+        });
+      } else {
+        console.log('Key:', currentValues[0].key as number);
+        const newValues = await getPreviousValues(
+          8,
+          currentValues[0].key as number,
+          true
+        );
+        setCurrentValues((prevState: JSX.Element[]) => {
+          return [
+            ...generateValues(newValues),
+            ...prevState.slice(0, prevState.length - 4),
+          ];
+          // return generateValues([
+          //   ...newValues,
+          //   ...prevState.slice(0, prevState.length - 4),
+          // ]);
+        });
+      }
+    }
+  }
+
   useEffect(() => {
-    setCurrentValues(getNextValues(10, -1));
-    setLoaded(true);
+    // setCurrentValues(getNextValues(20, -1));
+    // setLoaded(true);
+    initialLoad();
   }, []);
+
+  async function initialLoad() {
+    // setInProgress(true);
+    inProgress = true;
+    const data = await getNextValues(10, -1);
+    setCurrentValues(generateValues(data));
+    // setInProgress(false);
+    inProgress = false;
+    // setCurrentValues(generateValues(data));
+    setLoaded(true);
+  }
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -135,6 +226,25 @@ function TestComponent(props: Props) {
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
+  }
+
+  function generateValues(numbers: number[]) {
+    const output = [];
+    for (let i = 0; i < numbers.length; i++) {
+      output.push(
+        <div
+          style={{
+            paddingTop: 10,
+            paddingBottom: 10,
+            border: '1px solid black',
+          }}
+          key={numbers[i]}
+        >
+          <h1>{numbers[i]}</h1>
+        </div>
+      );
+    }
+    return output;
   }
 
   async function checkAuth() {
@@ -162,12 +272,16 @@ function TestComponent(props: Props) {
       <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <div style={{ flex: 1, overflow: 'scroll' }}>
-          <div
-            id="page-top-boundary"
-            ref={topBoundaryRef}
-            style={{ border: '1px solid red' }}
-          ></div>
-          {currentValues.map((value) => (
+          {page > 1 && (
+            <div
+              id="page-top-boundary"
+              ref={topBoundaryRef}
+              style={{ border: '1px solid red', paddingTop: 15, paddingBottom: 15 }}
+            >
+              <CircularProgress size={60} />
+            </div>
+          )}
+          {/* {currentValues.map((value) => (
             <div
               style={{
                 paddingTop: 10,
@@ -177,12 +291,15 @@ function TestComponent(props: Props) {
             >
               <h1>{value}</h1>
             </div>
-          ))}
+          ))} */}
+          {currentValues}
           <div
             id="page-bottom-boundary"
             ref={bottomBoundaryRef}
-            style={{ border: '1px solid red' }}
-          ></div>
+            style={{ border: '1px solid red', paddingTop: 15, paddingBottom: 15 }}
+          >
+            <CircularProgress size={60} />
+          </div>
         </div>
 
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

@@ -209,7 +209,9 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        <div className={styles.posts}>{feed}</div>
+        <div className={styles.posts} id="homepage_feed">
+          {feed}
+        </div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={colors.primary}>
