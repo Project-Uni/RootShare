@@ -78,6 +78,7 @@ function NavigationDrawer(props: Props) {
           }
         />
       ),
+      link: '/communities/user',
     },
     {
       name: 'Events',
@@ -88,15 +89,15 @@ function NavigationDrawer(props: Props) {
         />
       ),
     },
-    {
-      name: 'Library',
-      icon: (
-        <MdOndemandVideo
-          size={ICON_SIZE}
-          color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-        />
-      ),
-    },
+    // {
+    //   name: 'Library',
+    //   icon: (
+    //     <MdOndemandVideo
+    //       size={ICON_SIZE}
+    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
+    //     />
+    //   ),
+    // },
     {
       name: 'Connections',
       icon: (
@@ -107,6 +108,7 @@ function NavigationDrawer(props: Props) {
           }
         />
       ),
+      link: '/connections/user',
     },
     {
       name: 'Profile',

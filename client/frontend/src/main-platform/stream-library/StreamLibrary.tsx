@@ -11,7 +11,10 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import StreamLibraryBody from './components/StreamLibraryBody';
 
-import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../helpers/constants';
+import {
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
+} from '../../helpers/constants';
 
 const LIBRARY_NAVIGATION_WIDTH = 850;
 
@@ -38,6 +41,7 @@ function StreamLibrary(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -53,6 +57,7 @@ function StreamLibrary(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -78,7 +83,7 @@ function StreamLibrary(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/library`} />}
       <EventClientHeader showNavigationWidth={LIBRARY_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > LIBRARY_NAVIGATION_WIDTH && <MainNavigator currentTab="library" />}
         <StreamLibraryBody />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

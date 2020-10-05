@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
 
-import HypeHeader from '../../hype-page/headerFooter/HypeHeader';
+import EventClientHeader from '../../event-client/EventClientHeader';
 import RSText from '../../base-components/RSText';
 import AccountTypePieChart from './AccountTypePieChart';
 
@@ -281,7 +281,7 @@ function UserCount(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to="/login?redirect=/admin/count" />}
-      <HypeHeader />
+      <EventClientHeader showNavigationMenuDefault />
       <img
         src={RootShareLogoFull}
         className={styles.rootshareLogo}

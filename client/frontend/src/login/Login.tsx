@@ -17,7 +17,6 @@ import { colors } from '../theme/Colors';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     height: window.innerHeight,
-    width: window.innerWidth,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -69,9 +68,7 @@ function Login(props: Props) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
-  // const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
-  const redirectUrl =
-    query && query[1] !== '/login' ? query[1] : '/event/5f502ef670f5ff2eaa1f8e9a';
+  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
 
   useEffect(() => {
     checkAuth();

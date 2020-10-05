@@ -24,7 +24,7 @@ import {
   Profile,
   CommunityDetails,
   YourCommunities,
-  StreamLibrary,
+  // StreamLibrary,
   Connections,
 } from './main-platform';
 
@@ -77,10 +77,10 @@ function App(props: Props) {
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
             <Route exact path="/profile/:profileID" component={Profile} />
-            <Route exact path="/communities" component={YourCommunities} />
+            <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
-            <Route exact path="/library" component={StreamLibrary} />
-            <Route exact path="/connections" component={Connections} />
+            {/* <Route exact path="/library" component={StreamLibrary} /> */}
+            <Route exact path="/connections/:userID" component={Connections} />
 
             <Route component={PageNotFound} />
           </Switch>

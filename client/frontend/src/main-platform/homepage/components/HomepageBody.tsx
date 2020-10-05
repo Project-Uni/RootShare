@@ -1,27 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
+
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost } from '../../reusable-components';
+import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
-import { JacksonHeadshot } from '../../../images/team';
-
-const HEADER_HEIGHT = 60;
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
+import { PostType } from '../../../helpers/types';
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: 'rgb(227, 227, 227)',
     overflow: 'scroll',
     minWidth: 600,
   },
   loadingIndicator: {
     color: colors.primary,
-    marginTop: 1,
+    marginTop: 80,
   },
   posts: {
     marginLeft: 1,
@@ -31,102 +37,200 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 1,
     borderRadius: 1,
   },
+  postBox: {
+    margin: 8,
+  },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  box: {
+    background: colors.primaryText,
+    margin: 8,
+  },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  //TODO - Use default state false for this once connected to server, and set to true if its their first visit
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
-  const [postValue, setPostValue] = useState('');
+  const [serverErr, setServerErr] = useState(false);
+  const [feed, setFeed] = useState<JSX.Element[]>([]);
+  const [selectedTab, setSelectedTab] = useState('general');
+
+  const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    fetchData().then(() => {
+    getProfilePicture();
+    getFeed().then(() => {
       setLoading(false);
     });
   }, []);
 
-  async function fetchData() {
-    setTimeout(() => {
-      console.log('Fetching data');
-      return true;
-    }, 1000);
+  useEffect(() => {
+    setLoading(true);
+    getFeed().then(() => {
+      setLoading(false);
+    });
+  }, [selectedTab]);
+
+  async function getProfilePicture() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/images/profile/${props.user._id}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setProfilePicture(data.content['imageURL']);
+    }
+  }
+
+  async function getFeed() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/posts/feed/${selectedTab}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      setFeed(createFeed(data.content['posts']));
+      setServerErr(false);
+    } else {
+      setServerErr(true);
+    }
   }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
-  }
-
-  function handlePostValueChange(event: any) {
-    setPostValue(event.target.value);
-  }
-
-  function handleImageUpload() {
-    console.log('Uploading image');
-  }
-
-  function handleSubmitPost() {
-    console.log('Submitting post');
-  }
-
   function handleDiscoverClick() {
     window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
   }
 
-  function renderFeed() {
-    const output = [];
-    for (let i = 0; i < 6; i++)
-      output.push(
+  function handleTabChange(newTab: string) {
+    setSelectedTab(newTab);
+  }
+
+  function appendNewPost(post: PostType) {
+    setFeed((prevState) => {
+      const newEntry = (
         <UserPost
-          userID={'testID'}
-          userName="Jackson McCluskey"
-          profilePicture={JacksonHeadshot}
-          community="Computer Science Nerds Club"
-          communityID={'testCommID'}
-          timestamp="July 14th, 2020 6:52 PM"
-          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          likeCount={109}
-          commentCount={54}
-          style={styles.singlePost}
+          _id={props.user._id}
+          name={`${props.user.firstName} ${props.user.lastName}`}
+          timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
+            new Date(post.createdAt)
+          )}`}
+          profilePicture={profilePicture}
+          message={post.message}
+          likeCount={post.likes}
+          commentCount={0}
+          style={styles.postBox}
         />
       );
-    return <div className={styles.posts}>{output}</div>;
+      return [newEntry].concat(prevState);
+    });
+  }
+
+  function createFeed(posts: PostType[]) {
+    const output = [];
+    for (let i = 0; i < posts.length; i++) {
+      const { anonymous } = posts[i];
+      output.push(
+        <UserPost
+          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          name={
+            anonymous
+              ? `${posts[i].fromCommunity.name}`
+              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+          }
+          timestamp={`${formatDatePretty(
+            new Date(posts[i].createdAt)
+          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+          profilePicture={
+            anonymous
+              ? posts[i].fromCommunity.profilePicture
+              : posts[i].user.profilePicture
+          }
+          message={posts[i].message}
+          likeCount={posts[i].likes}
+          commentCount={0}
+          style={styles.postBox}
+          key={posts[i]._id}
+          toCommunity={posts[i].toCommunity.name}
+          toCommunityID={posts[i].toCommunity._id}
+          anonymous={anonymous}
+        />
+      );
+    }
+    return output;
   }
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
           message="Every success story is rooted in the support from a community. Join your
         communities or discover new ones today."
-          onClose={closeWelcomeMessage}
           buttonText="Discover"
           buttonAction={handleDiscoverClick}
         />
-      )}
+      </Box>
       <MakePostContainer
-        postValue={postValue}
-        onChange={handlePostValueChange}
-        onPost={handleSubmitPost}
-        onUploadImage={handleImageUpload}
+        appendNewPost={appendNewPost}
+        profilePicture={profilePicture}
+      />
+
+      <RSTabs
+        tabs={[
+          { label: 'General', value: 'general' },
+          { label: 'Following', value: 'following' },
+        ]}
+        onChange={handleTabChange}
+        selected={selectedTab}
+        className={styles.tabs}
       />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : !serverErr ? (
+        <div className={styles.posts}>{feed}</div>
       ) : (
-        renderFeed()
+        <div style={{ marginTop: 10 }}>
+          <RSText size={18} bold type="head" color={colors.primary}>
+            There was an error retrieving your posts.
+          </RSText>
+        </div>
       )}
     </div>
   );
 }
 
-export default HomepageBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);

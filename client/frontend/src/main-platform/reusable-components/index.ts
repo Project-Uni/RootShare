@@ -10,6 +10,8 @@ import Event from './components/Event';
 import UserHighlight from './components/UserHighlight';
 import CommunityHighlight from './components/CommunityHighlight';
 
+import RSTabs from './components/RSTabs';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -19,4 +21,5 @@ export {
   Event,
   UserHighlight,
   CommunityHighlight,
+  RSTabs,
 };

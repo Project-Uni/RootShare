@@ -1,4 +1,5 @@
-import { log, sendPacket } from '../helpers/functions';
+import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { addProfilePictureToUser } from '../interactions/utilities';
 
 const mongoose = require('mongoose');
 
@@ -92,14 +93,8 @@ export function sendMessage(userID, conversationID, message, tempID, io, callbac
             .populate('participants')
             .execPopulate();
 
-          if (isNewConversation) {
-            currConversation.participants.forEach((recipient) => {
-              io.in(`USER_${recipient._id}`).emit(
-                'newConversation',
-                currConversation
-              );
-            });
-          }
+          if (isNewConversation)
+            emitPicturedConversation(userID, currConversation.toObject(), io);
 
           let jsonNewMessage = newMessage.toObject();
           jsonNewMessage.tempID = tempID;
@@ -134,15 +129,103 @@ export async function getLatestThreads(userID, callback) {
     participants: userID,
   })
     .populate('lastMessage')
-    .populate('participants', '_id firstName lastName');
+    .populate('participants', '_id firstName lastName profilePicture')
+    .lean();
 
-  if (userConversations === undefined || userConversations === null)
+  if (!userConversations)
     return callback(
       sendPacket(-1, 'There was an error retrieving the Conversations')
     );
 
   userConversations.sort(timeStampCompare);
-  callback(sendPacket(1, "Sending User's Conversations", { userConversations }));
+  await addProfilePictureToConversations(userID, userConversations);
+  callback(
+    sendPacket(1, "Sending User's Conversations", {
+      userConversations,
+    })
+  );
+}
+
+async function emitPicturedConversation(userID, conversation, io) {
+  if (conversation.participants.length !== 2)
+    return conversation.participants.forEach((recipient) => {
+      conversation;
+      io.in(`USER_${recipient._id}`).emit('newConversation', conversation);
+    });
+
+  let imagePromises = [];
+  for (let i = 0; i < 2; i++) {
+    const otherPerson = conversation.participants[(i + 1) % 2];
+    if (otherPerson.profilePicture) {
+      try {
+        const signedImageUrlPromise = retrieveSignedUrl(
+          'profile',
+          otherPerson.profilePicture
+        );
+        imagePromises.push(signedImageUrlPromise);
+      } catch (err) {
+        log('error', err);
+        imagePromises.push(null);
+      }
+    } else {
+      imagePromises.push(null);
+    }
+  }
+
+  Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < 2; i++) {
+        const currConversation = Object.assign({}, conversation);
+        if (signedImageURLs[i])
+          currConversation.conversationPicture = signedImageURLs[i];
+
+        io.in(`USER_${conversation.participants[i]._id}`).emit(
+          'newConversation',
+          currConversation
+        );
+      }
+    })
+    .catch((err) => {
+      log('error', err);
+    });
+}
+
+function addProfilePictureToConversations(userID, conversations) {
+  const imagePromises = [];
+  conversations.forEach((conversation) => {
+    if (conversation.participants.length === 2) {
+      const otherPerson =
+        conversation.participants[0]._id.toString() === userID.toString()
+          ? conversation.participants[1]
+          : conversation.participants[0];
+      if (otherPerson.profilePicture) {
+        try {
+          const signedImageUrlPromise = retrieveSignedUrl(
+            'profile',
+            otherPerson.profilePicture
+          );
+          imagePromises.push(signedImageUrlPromise);
+        } catch (err) {
+          log('error', err);
+          imagePromises.push(null);
+        }
+      } else {
+        imagePromises.push(null);
+      }
+    } else {
+      imagePromises.push(null);
+    }
+  });
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < conversations.length; i++)
+        if (signedImageURLs[i])
+          conversations[i].conversationPicture = signedImageURLs[i];
+    })
+    .catch((err) => {
+      log('error', err);
+    });
 }
 
 export function getLatestMessages(
@@ -300,7 +383,7 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
 function checkConversationExists(userID, recipients, callback) {
   const participants = recipients.concat(userID);
   Conversation.findOne(
-    { participants: { $all: participants } },
+    { participants: { $all: participants, $size: participants.length } },
     (err, conversation) => {
       if (err) return callback(sendPacket(-1, err));
       if (!conversation) return callback(sendPacket(0, 'No matching Conversations'));

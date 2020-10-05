@@ -1,43 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+
 import { Autocomplete } from '@material-ui/lab';
-import { TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
-import { connect } from 'react-redux';
-
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
-import { SmitHeadshot } from '../../../images/team';
 
 import { makeRequest } from '../../../helpers/functions';
-
-const HEADER_HEIGHT = 60;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.primaryText,
     overflow: 'scroll',
   },
   body: {},
   searchBar: {
     flex: 1,
     marginRight: 10,
+    marginLeft: 10,
   },
   searchBarContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginLeft: 10,
-    marginRight: 1,
-    background: colors.primaryText,
+    paddingLeft: 10,
+    paddingRight: 1,
+    paddingBottom: 10,
   },
   connectionStyle: {
-    marginLeft: 1,
-    marginRight: 1,
-    marginBottom: 1,
-    borderRadius: 1,
+    margin: 8,
   },
   searchIcon: {
     marginRight: 10,
@@ -46,9 +41,14 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primary,
     marginTop: 60,
   },
+  box: {
+    margin: 8,
+    background: colors.primaryText,
+  },
 }));
 
 type Props = {
+  requestUserID: string;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -58,7 +58,6 @@ function ConnectionsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
   const [connections, setConnections] = useState<{ [key: string]: any }>([]); //TODO: add type to connection
@@ -66,9 +65,11 @@ function ConnectionsBody(props: Props) {
   const [joinedCommunities, setJoinedCommunities] = useState<{
     [key: string]: any;
   }>([]);
+  const [username, setUsername] = useState('User');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    if (props.requestUserID !== 'user') fetchUserBasicInfo();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -77,7 +78,9 @@ function ConnectionsBody(props: Props) {
   async function fetchData() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/connections`,
+      `/api/user/${
+        props.requestUserID === 'user' ? props.user._id : props.requestUserID
+      }/connections`,
       {},
       true,
       props.accessToken,
@@ -90,12 +93,22 @@ function ConnectionsBody(props: Props) {
     }
   }
 
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
+  async function fetchUserBasicInfo() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.requestUserID}/basic`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setUsername(`${data.content.user?.firstName}`);
+    }
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
+  function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function renderSearchArea() {
@@ -150,37 +163,47 @@ function ConnectionsBody(props: Props) {
         connections[i].joinedCommunities.includes(x)
       );
       output.push(
-        <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
-          <UserHighlight
-            name={`${connections[i].firstName} ${connections[i].lastName}`}
-            userID={connections[i]._id}
-            profilePic={connections[i].profilePicture}
-            university={connections[i].university.universityName}
-            graduationYear={connections[i].graduationYear}
-            position={connections[i].position}
-            company={connections[i].work}
-            mutualConnections={mutualConnections.length}
-            mutualCommunities={mutualCommunities.length}
-            style={styles.connectionStyle}
-            status="CONNECTION"
-          />
-        </div>
+        <UserHighlight
+          name={`${connections[i].firstName} ${connections[i].lastName}`}
+          userID={connections[i]._id}
+          profilePic={connections[i].profilePicture}
+          university={connections[i].university.universityName}
+          graduationYear={connections[i].graduationYear}
+          position={connections[i].position}
+          company={connections[i].work}
+          mutualConnections={mutualConnections.length}
+          mutualCommunities={mutualCommunities.length}
+          style={styles.connectionStyle}
+          status="CONNECTION"
+        />
       );
     }
     return output;
   }
 
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+    <div
+      className={styles.wrapper}
+      style={{
+        height: height,
+        background:
+          loading || connections.length === 0
+            ? colors.primaryText
+            : colors.background,
+      }}
+    >
+      <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
-          title="Connections"
-          message="See all of the people you have connected with, plus all of the people who have requested to connect with you!"
-          onClose={closeWelcomeMessage}
+          title={`${
+            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+          } Connections`}
+          message={`See all of the people that ${
+            props.requestUserID === 'user' ? 'you have' : `${username} has`
+          } connected with!`}
         />
-      )}
-      <div className={styles.body}>
         {renderSearchArea()}
+      </Box>
+      <div className={styles.body}>
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (

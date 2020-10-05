@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { CircularProgress, Box } from '@material-ui/core';
+
+import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
 
-const HEADER_HEIGHT = 60;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.fourth,
+    background: colors.background,
     overflow: 'scroll',
   },
   body: {},
@@ -25,17 +33,31 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 20,
   },
   eventStyle: {
-    marginTop: 1,
+    margin: 8,
+  },
+  loadingIndicator: {
+    color: colors.primary,
+    marginTop: 60,
+  },
+  box: {
+    margin: 8,
+    background: colors.primaryText,
   },
 }));
 
-type Props = {};
+type Props = {
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 function EventsBody(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const [events, setEvents] = useState<{ [key: string]: any }>([]);
+  const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -45,54 +67,78 @@ function EventsBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    console.log('Fetching data');
+    const { data } = await makeRequest(
+      'GET',
+      '/api/webinar/recents',
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success == 1) {
+      setEvents(data.content['events']);
+      setConnectionIDs(data.content['connectionIDs']);
+    }
   }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function closeWelcomeMessage() {
-    setShowWelcomeModal(false);
-  }
-
   function renderEvents() {
     const output = [];
-    for (let i = 0; i < 8; i++)
+    for (let i = 0; i < events.length; i++) {
+      let varMutualSignups = connectionIDs.filter((x: string) =>
+        events[i].RSVPs.includes(x)
+      );
+      const eventDateTime = new Date(events[i].dateTime);
+      const eventDate = formatDatePretty(eventDateTime); //Aug 14, 2020
+      const eventTime = formatTime(eventDateTime);
       output.push(
         <Event
-          title="The Baby Boilers Are Back"
-          communityName="RootShare"
-          communityID="rootshareID"
-          summary={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore return to talk about what they have been up to since their time at Purdue`}
-          description={`Robbie Hummel, Ja\'Juan Johnson, and E\'Twaun Moore will talk about their
-  experiences post-graduation. Robbie has played in the NBA for a season or
-  two, and played overseas for multiple. He is involved with startups now.
-  Ja'\Juan has done the same, and is involved with startups now. E\'Twaun is
-  currently on the New Orleans Pelicans and is having great success. The first
-  45 minutes will be dedicated to the three talking about their experiences.
-  The remaining 15 minutes will be dedicated to questions from the fans.`}
-          timestamp={'August 14, 2020 7:00 PM'}
-          mutualSignups={109}
-          rsvpYes={false}
+          title={events[i].title}
+          eventID={events[i]._id}
+          communityName={events[i].hostCommunity?._id}
+          communityID={events[i].hostCommunity?.name}
+          summary={events[i].brief_description}
+          description={events[i].full_description}
+          timestamp={eventDate + ' at ' + eventTime}
+          mutualSignups={varMutualSignups.length}
+          rsvpYes={events[i].RSVPs.includes(props.user._id)}
           style={styles.eventStyle}
         />
       );
+    }
     return output;
   }
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      {showWelcomeModal && (
+      <Box boxShadow={8} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Events"
           message="You can find future events that are accessible to you on this page."
-          onClose={closeWelcomeMessage}
         />
+      </Box>
+      {loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : (
+        renderEvents()
       )}
-      <div className={styles.body}>{renderEvents()}</div>
     </div>
   );
 }
 
-export default EventsBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EventsBody);

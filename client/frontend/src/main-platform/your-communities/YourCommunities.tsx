@@ -14,6 +14,7 @@ import YourCommunitiesBody from './components/YourCommunitiesBody';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
 } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -27,6 +28,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -39,7 +44,10 @@ function YourCommunities(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const userID = props.match.params['userID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -54,6 +62,7 @@ function YourCommunities(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -79,11 +88,11 @@ function YourCommunities(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/communities`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="communities" />
         )}
-        <YourCommunitiesBody />
+        <YourCommunitiesBody requestUserID={userID} />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>

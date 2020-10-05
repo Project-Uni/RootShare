@@ -92,7 +92,6 @@ function ConnectionsDrawer(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 

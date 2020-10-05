@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
@@ -16,22 +16,34 @@ import {
   UniversityType,
   EventType,
   ProfileState,
+  PostType,
 } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
-
-const HEADER_HEIGHT = 64;
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
+    background: colors.background,
   },
   profileWrapper: {
-    background: colors.primaryText,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
+  box: {
+    margin: 8,
+    background: colors.primaryText,
+  },
+  headBox: {
+    paddingBottom: 20,
+  },
+  eventBox: {
+    marginBottom: 4,
+  },
   coverPhoto: {
     background: colors.bright,
     height: 200,
@@ -45,22 +57,27 @@ const useStyles = makeStyles((_: any) => ({
   },
   event: {
     marginTop: 0,
-    marginLeft: 39,
-    marginRight: 0,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  eventWithBorder: {
     borderTop: `1px solid #c5c5c5`,
   },
   post: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    margin: 8,
   },
   rootshares: {
     textAlign: 'center',
     marginTop: 10,
-    marginBottom: 10,
     paddingTop: 15,
     paddingBottom: 15,
     background: colors.secondary,
     borderBottom: `1px solid ${colors.fourth}`,
     borderTop: `1px solid ${colors.fourth}`,
+  },
+  postsLoadingIndicator: {
+    marginTop: 60,
+    color: colors.primary,
   },
 }));
 
@@ -79,9 +96,12 @@ function ProfileBody(props: Props) {
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
   const [events, setEvents] = useState<EventType[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [fetchingErr, setFetchingErr] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [postsFetchErr, setPostsFetchErr] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -89,9 +109,15 @@ function ProfileBody(props: Props) {
 
   useEffect(() => {
     if (props.profileID) {
-      fetchProfile();
-      getCurrentProfilePicture();
-      fetchEvents();
+      fetchProfile().then(([success, profile]) => {
+        if (success) {
+          getCurrentProfilePicture();
+          fetchEvents();
+          getUserPosts(profile).then(() => {
+            setLoadingPosts(false);
+          });
+        }
+      });
     }
   }, [props.profileID]);
 
@@ -105,16 +131,20 @@ function ProfileBody(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) setProfileState(data['content']['user']);
-    else setFetchingErr(true);
+    if (data['success'] === 1) {
+      setProfileState(data['content']['user']);
+      setLoading(false);
+      return [true, data['content']['user']];
+    } else setFetchingErr(true);
+
     setLoading(false);
+    return [false, null];
   }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  //TODO - Update With New Profile Picture API Route after merging in communities PR
   async function getCurrentProfilePicture() {
     const { data } = await makeRequest(
       'GET',
@@ -141,6 +171,35 @@ function ProfileBody(props: Props) {
     if (data['success'] === 1) setEvents(data['content']['events']);
   }
 
+  async function getUserPosts(profile: UserType) {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/posts/user/${props.profileID}/all`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      const { posts } = data.content;
+      const cleanedPosts: PostType[] = [];
+      for (let i = 0; i < posts.length; i++) {
+        const cleanedPost = {
+          ...posts[i],
+          user: {
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+          },
+        };
+        cleanedPosts.push(cleanedPost);
+      }
+      setPosts(cleanedPosts);
+    } else {
+      setPostsFetchErr(true);
+    }
+  }
+
   function updateCurrentPicture(imageData: string) {
     setCurrentPicture(imageData);
   }
@@ -148,7 +207,10 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div className={styles.coverPhoto}></div>
+        <div
+          className={styles.coverPhoto}
+          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+        ></div>
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}
@@ -186,52 +248,54 @@ function ProfileBody(props: Props) {
   function renderRegisteredEvents() {
     const output: any = [];
 
-    events.forEach((event) => {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
       output.push(
         <ProfileEvent
           key={event._id}
           profileID={(profileState as UserType)._id}
           event={event}
-          style={styles.event}
+          style={[styles.event, i !== 0 ? styles.eventWithBorder : null].join(' ')}
           currentProfileState={props.currentProfileState}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           removeEvent={removeEvent}
         />
       );
-    });
+    }
 
     return (
-      <div style={{ marginLeft: 0, marginRight: 0, marginTop: 20 }}>{output}</div>
+      <Box
+        className={[styles.box, styles.eventBox].join(' ')}
+        boxShadow={2}
+        borderRadius={8}
+      >
+        {output}
+      </Box>
     );
   }
 
   function renderPosts() {
     const output = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          userID={'testID'}
-          userName="Dhruv Patel"
+          _id={props.profileID}
+          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}
-          timestamp="July 14th, 2020 6:52 PM"
-          message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper nisi sit amet ex tempor, non congue ex molestie. Sed et nulla mauris. In hac habitasse platea dictumst. Nullam ornare tellus bibendum enim volutpat fermentum. Nullam vulputate laoreet tristique. Nam a nibh eget tortor pulvinar placerat. Cras gravida scelerisque odio in vestibulum. Nunc id augue tortor. Aliquam faucibus facilisis tortor nec accumsan. Proin sed tincidunt purus. Praesent tempor nisl enim, et ornare arcu turpis."
-          likeCount={109}
-          commentCount={54}
+          timestamp={(function() {
+            const date = new Date(posts[i].createdAt);
+            return `${formatDatePretty(date)} at ${formatTime(date)}`;
+          })()}
+          message={posts[i].message}
+          likeCount={posts[i].likes}
+          commentCount={0}
           style={styles.post}
         />
       );
     }
     return (
-      <div
-        style={{
-          paddingLeft: 1,
-          paddingRight: 1,
-          background: colors.fourth,
-        }}
-      >
-        {output}
-      </div>
+      <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
     );
   }
 
@@ -248,35 +312,38 @@ function ProfileBody(props: Props) {
             onClose={closeWelcomeMessage}
           />
         )} */}
+
         <div className={styles.body}>
-          {renderProfileAndBackground()}
-          <ProfileHead
-            name={`${profile.firstName} ${profile.lastName}`}
-            profileID={profile._id}
-            university={university.universityName}
-            graduationYear={profile.graduationYear}
-            position={profile.position}
-            company={profile.work}
-            bio={profile.bio}
-            numConnections={profile.numConnections!}
-            numMutualConnections={profile.numMutual!}
-            numCommunities={profile.numCommunities!}
-            currentProfileState={props.currentProfileState}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
-            updateProfileState={props.updateProfileState}
-          />
-          {renderRegisteredEvents()}
-          <RSText
-            type="head"
-            size={24}
-            bold
-            color={colors.primaryText}
-            className={styles.rootshares}
+          <Box
+            boxShadow={2}
+            className={[styles.box, styles.headBox].join(' ')}
+            borderRadius={8}
           >
-            {profile.firstName}'s RootShares
-          </RSText>
-          {renderPosts()}
+            {renderProfileAndBackground()}
+            <ProfileHead
+              name={`${profile.firstName} ${profile.lastName}`}
+              profileID={profile._id}
+              university={university.universityName}
+              graduationYear={profile.graduationYear}
+              position={profile.position}
+              company={profile.work}
+              bio={profile.bio}
+              numConnections={profile.numConnections!}
+              numMutualConnections={profile.numMutualConnections!}
+              numCommunities={profile.numCommunities!}
+              currentProfileState={props.currentProfileState}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+              updateProfileState={props.updateProfileState}
+            />
+          </Box>
+
+          {renderRegisteredEvents()}
+          {loadingPosts ? (
+            <CircularProgress size={100} className={styles.postsLoadingIndicator} />
+          ) : (
+            renderPosts()
+          )}
         </div>
       </div>
     );
@@ -285,7 +352,7 @@ function ProfileBody(props: Props) {
   return (
     <div className={styles.wrapper} style={{ height: height }}>
       {loading ? (
-        <CircularProgress />
+        <CircularProgress size={100} className={styles.postsLoadingIndicator} />
       ) : fetchingErr ? (
         <RSText size={32} type="head" color={colors.error}>
           THERE WAS AN ERROR GETTING THE USER'S PROFILE

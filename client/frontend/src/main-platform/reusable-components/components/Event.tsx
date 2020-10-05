@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
+import { Button, Box } from '@material-ui/core';
 import { IconButton } from '@material-ui/core';
 
 import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
@@ -12,8 +12,10 @@ import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 const MAX_SUBSTR_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
+  box: {
     background: colors.primaryText,
+  },
+  wrapper: {
     marginLeft: 1,
     marginRight: 1,
     borderRadius: 1,
@@ -36,6 +38,13 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  eventName: {
+    color: 'inherit',
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
   seeMoreButtonDiv: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -52,7 +61,12 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     color: colors.primaryText,
   },
+  goToEventButton: {
+    background: colors.bright,
+    color: colors.primaryText,
+  },
   hostLink: {
+    display: 'inline-block',
     textDecoration: 'none',
     color: colors.primaryText,
     '&:hover': {
@@ -63,8 +77,9 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   title: string;
-  communityName: string;
-  communityID: string;
+  eventID: string;
+  communityName?: string;
+  communityID?: string;
   summary: string;
   description: string;
   timestamp: string;
@@ -87,9 +102,11 @@ function Event(props: Props) {
   function renderEventHeader() {
     return (
       <div className={styles.top}>
-        <RSText type="head" color={colors.second} bold size={16}>
-          {props.title}
-        </RSText>
+        <a href={`/event/${props.eventID}`} className={styles.eventName}>
+          <RSText type="head" color={colors.second} bold size={16}>
+            {props.title}
+          </RSText>
+        </a>
         <div
           style={{
             display: 'flex',
@@ -117,12 +134,17 @@ function Event(props: Props) {
   function renderEventBody() {
     return (
       <>
-        <a href={`/community/${props.communityID}`} className={styles.hostLink}>
+        <a
+          href={props.communityID ? `/community/${props.communityID}` : undefined}
+          className={styles.hostLink}
+        >
           <RSText type="subhead" color={colors.second} size={14}>
-            Hosted by {props.communityName}
+            Hosted by {props.communityName || 'RootShare'}
           </RSText>
         </a>
-        <img src={BabyBoilersBanner} className={styles.banner} />
+        <a href={`/event/${props.eventID}`} className={styles.hostLink}>
+          <img src={BabyBoilersBanner} className={styles.banner} />
+        </a>
         <RSText
           type="body"
           bold
@@ -132,33 +154,52 @@ function Event(props: Props) {
         >
           {props.summary}
         </RSText>
-        <RSText type="body" size={12} color={colors.second}>
-          {showFullDesc && descriptionSubstr !== props.description
+        <RSText type="body" size={13} color={colors.second}>
+          {showFullDesc || descriptionSubstr === props.description
             ? props.description
             : descriptionSubstr.concat(' ...')}
         </RSText>
-        <div className={styles.seeMoreButtonDiv}>
-          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-            See {showFullDesc ? 'less' : 'more'}
-          </Button>
-        </div>
+        {props.description !== descriptionSubstr ? (
+          <div className={styles.seeMoreButtonDiv}>
+            <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+              See {showFullDesc ? 'less' : 'more'}
+            </Button>
+          </div>
+        ) : (
+          <div style={{ marginTop: 10 }}></div>
+        )}
+
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
-            {props.mutualSignups} Connections Signed Up
+            {props.mutualSignups == 0 ? 'No' : props.mutualSignups} Connections
+            Signed Up
           </RSText>
-          <Button variant="contained" className={styles.rsvpButton}>
-            RSVP YES
+          <Button
+            href={`/event/${props.eventID}`}
+            variant="contained"
+            className={styles.goToEventButton}
+          >
+            Enter Event
           </Button>
+          {/* <Button variant="contained" className={styles.rsvpButton}>
+            RSVP YES
+          </Button> */}
         </div>
       </>
     );
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      {renderEventHeader()}
-      {showFullEvent && renderEventBody()}
-    </div>
+    <Box
+      boxShadow={2}
+      borderRadius={10}
+      className={[styles.box, props.style].join(' ')}
+    >
+      <div className={styles.wrapper}>
+        {renderEventHeader()}
+        {showFullEvent && renderEventBody()}
+      </div>
+    </Box>
   );
 }
 

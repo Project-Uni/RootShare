@@ -2,7 +2,12 @@ const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { extractOtherUserIDFromConnections } from './utilities';
+import {
+  extractOtherUserIDFromConnections,
+  addCalculatedUserFields,
+  addProfilePictureToUser,
+  generateSignedImagePromises,
+} from './utilities';
 
 export function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
@@ -238,7 +243,9 @@ export function getConnections(userID, callback) {
     },
   };
   const transformToArray = {
-    $project: { connections: ['$connections.from', '$connections.to'] },
+    $project: {
+      connections: ['$connections.from', '$connections.to'],
+    },
   };
   const squashToSingleArray = {
     $project: {
@@ -285,9 +292,11 @@ export function getConnections(userID, callback) {
             firstName: '$firstName',
             lastName: '$lastName',
             accountType: '$accountType',
+            profilePicture: '$profilePicture',
             university: {
               _id: '$university._id',
               universityName: '$university.universityName',
+              nickname: '$university.nickname',
             },
           },
         },
@@ -304,15 +313,23 @@ export function getConnections(userID, callback) {
     lookupConnectionUsers,
   ])
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (!user || user.length === 0)
         return callback(sendPacket(-1, 'Could not find connections'));
 
-      callback(
-        sendPacket(1, "Sending User's Connections", {
-          connections: user[0]['connections'],
+      const connections = user[0].connections;
+      const imagePromises = generateSignedImagePromises(connections, 'profile');
+      Promise.all(imagePromises)
+        .then((signedImageURLs) => {
+          for (let i = 0; i < connections.length; i++)
+            if (signedImageURLs[i])
+              connections[i].profilePicture = signedImageURLs[i];
+
+          callback(sendPacket(1, "Sending User's Connections", { connections }));
         })
-      );
+        .catch((err) => {
+          log('error', err);
+        });
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
@@ -337,9 +354,13 @@ export function getConnectionSuggestions(userID, callback) {
         firstName: '$firstName',
         lastName: '$lastName',
         accountType: '$accountType',
+        connections: '$connections',
+        joinedCommunities: '$joinedCommunities',
+        profilePicture: '$profilePicture',
         university: {
           _id: '$university._id',
           universityName: '$university.universityName',
+          nickname: '$university.nickname',
         },
       },
     },
@@ -371,14 +392,25 @@ export function getConnectionSuggestions(userID, callback) {
             _id: '$_id',
             connections: '$connections',
             pendingConnections: '$pendingConnections',
+            joinedCommunities: '$joinedCommunities',
           },
         },
       ])
         .exec()
-        .then((user) => {
+        .then(async (user) => {
           if (!user || user.length === 0)
             return callback(sendPacket(-1, "Couldn't get User"));
-          const suggestions = filterSuggestions(user[0], rawSuggestions);
+          let suggestions = filterSuggestions(user[0], rawSuggestions);
+          for (let i = 0; i < suggestions.length; i++) {
+            const cleanedSuggestion = await addCalculatedUserFields(
+              user[0].connections,
+              user[0].joinedCommunities,
+              suggestions[i]
+            );
+
+            suggestions[i] = cleanedSuggestion;
+          }
+
           callback(sendPacket(1, 'Sending Connection suggestions', { suggestions }));
         });
     })
@@ -387,6 +419,7 @@ export function getConnectionSuggestions(userID, callback) {
     });
 }
 
+// Removes suggestions that are already pending or connected
 function filterSuggestions(user, suggestions) {
   let excludedUsers = new Set();
   excludedUsers.add(user._id.toString());
@@ -434,9 +467,13 @@ export function getPendingRequests(userID, callback) {
                     firstName: '$firstName',
                     lastName: '$lastName',
                     accountType: '$accountType',
+                    connections: '$connections',
+                    joinedCommunities: '$joinedCommunities',
+                    profilePicture: '$profilePicture',
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
+                      nickname: '$university.nickname',
                     },
                   },
                 },
@@ -460,6 +497,8 @@ export function getPendingRequests(userID, callback) {
     },
     {
       $project: {
+        connections: '$connections',
+        joinedCommunities: '$joinedCommunities',
         pendingConnections: {
           $filter: {
             input: '$pendingConnections',
@@ -480,13 +519,23 @@ export function getPendingRequests(userID, callback) {
     },
   ])
     .exec()
-    .then((user) => {
+    .then(async (user) => {
       if (!user || user.length === 0)
         return callback(sendPacket(0, 'Could not get user'));
 
+      let pendingRequests = user[0].pendingConnections;
+      for (let i = 0; i < pendingRequests.length; i++) {
+        const cleanedUser = await addCalculatedUserFields(
+          user[0].connections,
+          user[0].joinedCommunities,
+          pendingRequests[i].from
+        );
+        pendingRequests[i].from = cleanedUser;
+      }
+
       callback(
         sendPacket(1, `Sending User's Pending Connection Requests`, {
-          pendingRequests: user[0].pendingConnections,
+          pendingRequests,
         })
       );
     })
@@ -682,51 +731,54 @@ function removeConnectionRequest(request, callback) {
 }
 
 export function checkConnectedWithUser(userID, requestUserID, callback) {
-  userID = userID.toString();
-  requestUserID = requestUserID.toString();
-  if (requestUserID.localeCompare(userID) === 0)
-    return callback(
-      sendPacket(1, "Can't be connected to yourself", {
-        connected: 'SELF',
-      })
+  try {
+    userID = userID.toString();
+    requestUserID = requestUserID.toString();
+    if (requestUserID.localeCompare(userID) === 0)
+      return callback(
+        sendPacket(1, "Can't be connected to yourself", {
+          connected: 'SELF',
+        })
+      );
+
+    Connection.findOne(
+      {
+        $or: [
+          { $and: [{ from: userID }, { to: requestUserID }] },
+          { $and: [{ from: requestUserID }, { to: userID }] },
+        ],
+      },
+      (err, connection) => {
+        if (err) return callback(sendPacket(-1, err));
+        if (!connection)
+          return callback(
+            sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
+          );
+
+        if (connection.accepted)
+          return callback(
+            sendPacket(1, 'Already connected to this User', {
+              connected: 'CONNECTION',
+            })
+          );
+        else if (connection.from.toString() === requestUserID)
+          return callback(
+            sendPacket(1, 'This User has already sent you a request', {
+              connected: 'FROM',
+            })
+          );
+        else if (connection.to.toString() === requestUserID)
+          return callback(
+            sendPacket(1, 'Request has already been sent to this User', {
+              connected: 'TO',
+            })
+          );
+        else return callback(sendPacket(-1, 'An error has occured'));
+      }
     );
-
-  Connection.find(
-    {
-      $or: [
-        { $and: [{ from: userID }, { to: requestUserID }] },
-        { $and: [{ from: requestUserID }, { to: userID }] },
-      ],
-    },
-    (err, connections) => {
-      if (err) return callback(sendPacket(-1, err));
-      if (!connections || connections.length === 0)
-        return callback(
-          sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
-        );
-
-      const connection = connections[0];
-      if (connection.accepted)
-        return callback(
-          sendPacket(1, 'Already connected to this User', {
-            connected: 'CONNECTION',
-          })
-        );
-      else if (connection.from.toString() === requestUserID)
-        return callback(
-          sendPacket(1, 'This User has already sent you a request', {
-            connected: 'FROM',
-          })
-        );
-      else if (connection.to.toString() === requestUserID)
-        return callback(
-          sendPacket(1, 'Request has already been sent to this User', {
-            connected: 'TO',
-          })
-        );
-      else return callback(sendPacket(-1, 'An error has occured'));
-    }
-  );
+  } catch (err) {
+    return callback(sendPacket(-1, err));
+  }
 }
 
 export function getConnectionWithUser(userID, requestUserID, callback) {
@@ -979,4 +1031,46 @@ export async function getConnectionsFullData(userID: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+export async function getUserAdminCommunities(userID: string) {
+  try {
+    const user = await User.findById(userID)
+      .select(['joinedCommunities'])
+      .populate({
+        path: 'joinedCommunities',
+        select: 'admin name',
+        populate: [
+          {
+            path: 'followingCommunities',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+          {
+            path: 'outgoingPendingCommunityFollowRequests',
+            select: 'to',
+            populate: { path: 'to', select: 'name accepted' },
+          },
+        ],
+      });
+    if (!user) return sendPacket(0, 'Could not find user');
+
+    const communities = user.joinedCommunities.filter(
+      (community) => community.admin.toString() === userID
+    );
+    log('info', `Retrieved admin communities for user ${userID}`);
+    return sendPacket(1, 'Successfully retrieved admin communities', {
+      communities,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getBasicUserInfo(userID: string) {
+  const user = await User.findById(userID).select(['firstName', 'lastName']).exec();
+  if (!user) return sendPacket(-1, 'Could not find user');
+  log('info', `Retrieved basic info for user ${userID}`);
+  return sendPacket(1, 'Found user info', { user });
 }

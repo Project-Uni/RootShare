@@ -11,7 +11,10 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import ConnectionsBody from './components/ConnectionsBody';
 
-import { SHOW_DISCOVERY_SIDEBAR_WIDTH } from '../../helpers/constants';
+import {
+  SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
+} from '../../helpers/constants';
 
 const CONNECTIONS_SHOW_NAVIGATION_WIDTH = 850;
 
@@ -26,6 +29,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -38,7 +45,10 @@ function Connections(props: Props) {
   const styles = useStyles();
 
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const userID = props.match.params['userID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -53,6 +63,7 @@ function Connections(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -78,11 +89,11 @@ function Connections(props: Props) {
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/connections`} />}
       <EventClientHeader showNavigationWidth={CONNECTIONS_SHOW_NAVIGATION_WIDTH} />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > CONNECTIONS_SHOW_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="connections" />
         )}
-        <ConnectionsBody />
+        <ConnectionsBody requestUserID={userID} />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
