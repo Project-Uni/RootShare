@@ -128,7 +128,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  _id: string;
+  posterID: string;
   name: string;
   toCommunity?: string;
   toCommunityID?: string;
@@ -181,7 +181,7 @@ function UserPost(props: Props) {
     return (
       <div className={styles.top}>
         <a
-          href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+          href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
           className={styles.noUnderline}
         >
           <ProfilePicture
@@ -197,7 +197,9 @@ function UserPost(props: Props) {
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
             <a
-              href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+              href={`/${props.anonymous ? 'community' : 'profile'}/${
+                props.posterID
+              }`}
               className={styles.noUnderline}
             >
               <RSText type="subhead" color={colors.secondary} bold size={14}>
@@ -205,7 +207,7 @@ function UserPost(props: Props) {
               </RSText>
             </a>
 
-            {props.toCommunity && (
+            {props.toCommunity && props.toCommunityID !== props.posterID && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}

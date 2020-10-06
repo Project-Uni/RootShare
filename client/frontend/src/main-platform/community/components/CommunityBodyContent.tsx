@@ -234,7 +234,9 @@ function CommunityBodyContent(props: Props) {
       const { anonymous } = currPost;
       output.push(
         <UserPost
-          _id={currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id}
+          posterID={
+            currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id
+          }
           name={
             anonymous
               ? `${currPost.fromCommunity.name}`
@@ -271,7 +273,7 @@ function CommunityBodyContent(props: Props) {
       const { anonymous } = newPostInfo;
       const newPost = (
         <UserPost
-          _id={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
+          posterID={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
           name={
             anonymous
               ? `${newPostInfo.fromCommunity.name}`

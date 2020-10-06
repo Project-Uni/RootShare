@@ -261,7 +261,7 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          _id={props.profileID}
+          posterID={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={props.user.profilePicture}
           timestamp={(function() {
