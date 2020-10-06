@@ -15,3 +15,10 @@ export type PostType = {
   type: 'broadcast' | 'external' | 'internalCurrent' | 'internalAlumni';
   anonymous?: boolean;
 };
+
+export type CommunityPostingOption = {
+  description: string;
+  routeSuffix: string;
+  communityID?: string;
+  profilePicture?: string;
+};

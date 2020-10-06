@@ -18,6 +18,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
 import { connect } from 'react-redux';
+import { updateUser } from '../redux/actions/user';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
@@ -78,6 +79,9 @@ type Props = {
   borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
+
+  user: { [key: string]: any };
+  updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
 function ProfilePicture(props: Props) {
@@ -184,10 +188,15 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
+    if (props.type === 'profile') {
+      let currUser = { ...props.user };
+      currUser.profilePicture = imageData as string;
+      props.updateUser(currUser);
+    }
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
-  console.log(props.currentPicture);
+  console.log(props.currentPicture || DefaultProfilePicture);
   function renderImage() {
     return (
       <div className={props.className}>
@@ -322,13 +331,18 @@ function ProfilePicture(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {};
+  return {
+    updateUser: (userInfo: { [key: string]: any }) => {
+      dispatch(updateUser(userInfo));
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);

@@ -12,6 +12,7 @@ import {
   PostType,
   AdminCommunityServiceResponse,
   CommunityStatus,
+  CommunityPostingOption,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -47,15 +48,10 @@ type CommunityTab =
   | 'internal-current'
   | 'following';
 
-type PostingOption = {
-  description: string;
-  routeSuffix: string;
-  communityID?: string;
-};
-
 type Props = {
   className?: string;
   communityID: string;
+  communityProfilePicture?: string;
   name: string;
   status: CommunityStatus;
   isAdmin?: boolean;
@@ -74,7 +70,7 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
-  const [postingOptions, setPostingOptions] = useState<PostingOption[]>([]);
+  const [postingOptions, setPostingOptions] = useState<CommunityPostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -131,7 +127,6 @@ function CommunityBodyContent(props: Props) {
       props.refreshToken
     );
 
-    console.log(data);
     if (data.success === 1) {
       const communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
         (community: AdminCommunityServiceResponse) => {
@@ -167,8 +162,10 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
+  // This is run in this component as opposed to child CommunityMakePostContainer
+  // So we can handle page loading in one centralized spot
   async function getPostingOptions() {
-    let postingOptions: PostingOption[] = [];
+    let postingOptions: CommunityPostingOption[] = [];
     if (
       selectedTab === 'internal-current' ||
       (selectedTab === 'internal' && props.user.accountType === 'student')
@@ -176,6 +173,7 @@ function CommunityBodyContent(props: Props) {
       postingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/current',
+        profilePicture: props.user.profilePicture,
       });
     else if (
       selectedTab === 'internal-alumni' ||
@@ -184,6 +182,7 @@ function CommunityBodyContent(props: Props) {
       postingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/alumni',
+        profilePicture: props.user.profilePicture,
       });
     else if (selectedTab === 'external') {
       let memberDescription = 'Post';
@@ -192,6 +191,7 @@ function CommunityBodyContent(props: Props) {
         postingOptions.push({
           description: `Post as ${props.name}`,
           routeSuffix: 'external/admin',
+          profilePicture: props.communityProfilePicture,
         });
       }
 
@@ -200,11 +200,11 @@ function CommunityBodyContent(props: Props) {
       if (followingCommunities.length > 0) {
         memberDescription = 'Post as yourself';
         followingCommunities.forEach((followingCommunity) => {
-          console.log('\n\n\n', followingCommunity._id);
           postingOptions.push({
             description: `Post as ${followingCommunity.name}`,
             routeSuffix: 'external/following',
             communityID: followingCommunity._id,
+            profilePicture: followingCommunity.profilePicture,
           });
         });
       }
@@ -213,6 +213,7 @@ function CommunityBodyContent(props: Props) {
         postingOptions.unshift({
           description: memberDescription,
           routeSuffix: 'external/member',
+          profilePicture: props.user.profilePicture,
         });
     }
 
@@ -265,7 +266,7 @@ function CommunityBodyContent(props: Props) {
     return output;
   }
 
-  function appendPost(newPostInfo: any) {
+  function appendPost(newPostInfo: any, profilePicture: string | undefined) {
     setPosts((prevPosts) => {
       const { anonymous } = newPostInfo;
       const newPost = (
@@ -279,11 +280,7 @@ function CommunityBodyContent(props: Props) {
           timestamp={`${formatDatePretty(
             new Date(newPostInfo.createdAt)
           )} at ${formatTime(new Date(newPostInfo.createdAt))}`}
-          profilePicture={
-            anonymous
-              ? newPostInfo.fromCommunity.profilePicture
-              : newPostInfo.user.profilePicture
-          }
+          profilePicture={profilePicture}
           message={newPostInfo.message}
           likeCount={0}
           commentCount={0}
@@ -304,7 +301,7 @@ function CommunityBodyContent(props: Props) {
           <CommunityMakePostContainer
             communityID={props.communityID}
             postingOptions={postingOptions}
-            appendNewPost={(newPostInfo) => appendPost(newPostInfo)}
+            appendNewPost={appendPost}
           />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}

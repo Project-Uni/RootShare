@@ -82,6 +82,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: any;
   profileID: string;
   currentProfileState: ProfileState;
   accessToken: string;
@@ -93,7 +94,6 @@ function ProfileBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
-  const [currentPicture, setCurrentPicture] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
   const [events, setEvents] = useState<EventType[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -111,7 +111,6 @@ function ProfileBody(props: Props) {
     if (props.profileID) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
-          getCurrentProfilePicture();
           fetchEvents();
           getUserPosts(profile).then(() => {
             setLoadingPosts(false);
@@ -143,19 +142,6 @@ function ProfileBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
-  }
-
-  async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
   }
 
   async function fetchEvents() {
@@ -200,10 +186,6 @@ function ProfileBody(props: Props) {
     }
   }
 
-  function updateCurrentPicture(imageData: string) {
-    setCurrentPicture(imageData);
-  }
-
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
@@ -219,8 +201,7 @@ function ProfileBody(props: Props) {
           height={150}
           width={150}
           borderRadius={150}
-          currentPicture={currentPicture}
-          updateCurrentPicture={updateCurrentPicture}
+          currentPicture={props.user.profilePicture}
           zoomOnClick={props.currentProfileState !== 'SELF'}
           borderWidth={8}
         />
@@ -282,7 +263,7 @@ function ProfileBody(props: Props) {
         <UserPost
           _id={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
-          profilePicture={currentPicture}
+          profilePicture={props.user.profilePicture}
           timestamp={(function() {
             const date = new Date(posts[i].createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
@@ -366,6 +347,7 @@ function ProfileBody(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

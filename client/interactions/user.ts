@@ -9,8 +9,9 @@ import {
   generateSignedImagePromises,
 } from './utilities';
 
-export function getCurrentUser(user, callback) {
+export async function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
+  await addProfilePictureToUser(user);
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -20,6 +21,7 @@ export function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
+      profilePicture: user.profilePicture,
     })
   );
 }
@@ -1039,7 +1041,7 @@ export async function getUserAdminCommunities(userID: string) {
       .select(['joinedCommunities'])
       .populate({
         path: 'joinedCommunities',
-        select: 'admin name',
+        select: 'admin name profilePicture',
         populate: [
           {
             path: 'followingCommunities',
@@ -1058,6 +1060,13 @@ export async function getUserAdminCommunities(userID: string) {
     const communities = user.joinedCommunities.filter(
       (community) => community.admin.toString() === userID
     );
+
+    for (let i = 0; i < communities.length; i++) {
+      communities[i].profilePicture = await retrieveSignedUrl(
+        'profile',
+        communities[i].profilePicture
+      );
+    }
     log('info', `Retrieved admin communities for user ${userID}`);
     return sendPacket(1, 'Successfully retrieved admin communities', {
       communities,

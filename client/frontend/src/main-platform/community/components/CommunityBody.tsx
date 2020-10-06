@@ -199,6 +199,7 @@ function CommunityBody(props: Props) {
           <CommunityBodyContent
             className={styles.bodyContent}
             communityID={props.communityID}
+            communityProfilePicture={currentProfile}
             name={props.name}
             status={props.status}
             isAdmin={props.isAdmin}

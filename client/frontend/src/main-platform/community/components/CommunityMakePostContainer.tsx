@@ -11,7 +11,7 @@ import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/functions';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { PostType } from '../../../helpers/types';
+import { PostType, CommunityPostingOption } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -74,17 +74,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type PostingOption = {
-  description: string;
-  routeSuffix: string;
-  communityID?: string;
-};
-
 type Props = {
   profilePicture?: string;
   communityID: string;
-  postingOptions: PostingOption[];
-  appendNewPost: (post: PostType) => any;
+  postingOptions: CommunityPostingOption[];
+  appendNewPost: (post: PostType, profilePicture: string | undefined) => any;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -101,18 +95,16 @@ function CommunityMakePostContainer(props: Props) {
     message: string;
   }>();
 
-  async function handlePostClicked(
-    routeSuffix: string,
-    fromCommunityID: string | undefined
-  ) {
+  async function handlePostClicked(postingData: CommunityPostingOption) {
     setLoading(true);
     setServerMessage(undefined);
-
+    setFollowMenuAnchorEl(null);
+    const { communityID, routeSuffix, profilePicture } = postingData;
     const { data } = await makeRequest(
       'POST',
       `/api/posts/community/${props.communityID}/${routeSuffix}`,
       {
-        fromCommunityID,
+        fromCommunityID: communityID,
         message: content,
       },
       true,
@@ -122,14 +114,13 @@ function CommunityMakePostContainer(props: Props) {
 
     setLoading(false);
 
-    console.log(data);
     if (data.success === 1) {
       setContent('');
       setServerMessage({ status: 1, message: 'Successfully created post.' });
       setTimeout(() => {
         setServerMessage(undefined);
       }, 5000);
-      props.appendNewPost(data.content['post']);
+      props.appendNewPost(data.content['post'], profilePicture);
     } else {
       setServerMessage({
         status: 0,
@@ -172,11 +163,7 @@ function CommunityMakePostContainer(props: Props) {
           }
           onClick={
             props.postingOptions.length === 1
-              ? () =>
-                  handlePostClicked(
-                    props.postingOptions[0].routeSuffix,
-                    props.postingOptions[0].communityID
-                  )
+              ? () => handlePostClicked(props.postingOptions[0])
               : (event: any) => {
                   setFollowMenuAnchorEl(event.currentTarget);
                 }
@@ -193,12 +180,7 @@ function CommunityMakePostContainer(props: Props) {
           {props.postingOptions.map((postingOption) => {
             return (
               <MenuItem
-                onClick={() =>
-                  handlePostClicked(
-                    postingOption.routeSuffix,
-                    postingOption.communityID
-                  )
-                }
+                onClick={() => handlePostClicked(postingOption)}
                 key={postingOption.communityID}
               >
                 <RSText>{postingOption.description}</RSText>

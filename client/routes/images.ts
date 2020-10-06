@@ -41,7 +41,7 @@ module.exports = (app) => {
 
       log(
         'info',
-        `Updated profile picture for ${req.user.firstName + req.user.lastName}`
+        `Updated profile picture for ${req.user.firstName} ${req.user.lastName}`
       );
       return res.json(sendPacket(1, 'Successfully uploaded image'));
     }

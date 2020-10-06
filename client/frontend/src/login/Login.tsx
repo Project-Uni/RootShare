@@ -116,6 +116,7 @@ function Login(props: Props) {
         refreshToken,
         privilegeLevel,
         accountType,
+        profilePicture,
       } = data['content'];
       props.updateUser({
         firstName,
@@ -124,6 +125,7 @@ function Login(props: Props) {
         email,
         privilegeLevel,
         accountType,
+        profilePicture,
       });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
