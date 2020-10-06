@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -51,9 +49,8 @@ async function getPreviousValues(
   withTimeout = false
 ) {
   if (withTimeout) {
-    await sleep(0.5);
+    await sleep(1);
   }
-  console.log('Calling previus');
   return ALL_VALUES.slice(
     startingValue - numRetrieved >= 0 ? startingValue - numRetrieved : 0,
     startingValue
@@ -66,30 +63,26 @@ async function getNextValues(
   withTimeout = false
 ) {
   if (withTimeout) {
-    await sleep(0.5);
+    await sleep(1);
   }
-  console.log('Calling next');
-  return ALL_VALUES.slice(startingValue + 1, startingValue + numRetrieved);
+  return ALL_VALUES.slice(startingValue + 1, startingValue + numRetrieved + 1);
 }
 
 const NUM_RETRIEVED = 10;
 const MAX_PAGES = Math.ceil(100 / NUM_RETRIEVED) + 1;
-var inProgress = false;
 
 function TestComponent(props: Props) {
   const styles = useStyles();
 
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [loaded, setLoaded] = useState(false);
-  // const [inProgress, setInProgress] = useState(false);
 
   const [page, setPage] = useState(1);
   const prevPage = usePrevious(page);
   const [currentValues, setCurrentValues] = useState<JSX.Element[]>([]);
-  const [rawNumbers, setRawNumbers] = useState<number[]>();
+  var inProgress = false;
 
   let bottomBoundaryRef = useRef(null);
   let topBoundaryRef = useRef(null);
@@ -121,93 +114,50 @@ function TestComponent(props: Props) {
 
   useEffect(() => {
     fetchData();
-    // if (loaded && !inProgress) {
-    //   setInProgress(true);
-    //   if (page > (prevPage || 0)) {
-    //     setCurrentValues((prevState: number[]) => {
-    //       return [
-    //         ...prevState.slice(4, prevState.length),
-    //         ...getNextValues(8, prevState[prevState.length - 1]),
-    //       ];
-    //     });
-    //   } else {
-    //     const newValues = await getPreviousValues(8, [0], true);
-    //     setCurrentValues((prevState: number[]) => {
-    //       return [
-    //         ...getPreviousValues(8, prevState[0]),
-    //         ...prevState.slice(0, prevState.length - 4),
-    //       ];
-    //     });
-    //   }
-    //   setInProgress(false);
-    // }
   }, [page]);
 
   async function fetchData() {
-    if (loaded) {
+    if (loaded && !inProgress) {
+      inProgress = true;
       if (page > (prevPage || 0)) {
-        console.log('Key:', currentValues[currentValues.length - 1].key as number);
-        const newValues = await getNextValues(
-          8,
-          currentValues[currentValues.length - 1].key as number,
-          true
+        const newValues = generateValues(
+          await getNextValues(
+            8,
+            parseInt(currentValues[currentValues.length - 1].key as string),
+            true
+          )
         );
         setCurrentValues((prevState: JSX.Element[]) => {
-          return [
-            ...prevState.slice(4, prevState.length),
-            ...generateValues(newValues),
-          ];
-          // return generateValues([
-          //   ...prevState.slice(4, prevState.length),
-          //   ...newValues,
-          // ]);
+          return [...prevState.slice(4, prevState.length), ...newValues];
         });
       } else {
-        console.log('Key:', currentValues[0].key as number);
-        const newValues = await getPreviousValues(
-          8,
-          currentValues[0].key as number,
-          true
+        const newValues = generateValues(
+          await getPreviousValues(8, parseInt(currentValues[0].key as string), true)
         );
         setCurrentValues((prevState: JSX.Element[]) => {
-          return [
-            ...generateValues(newValues),
-            ...prevState.slice(0, prevState.length - 4),
-          ];
-          // return generateValues([
-          //   ...newValues,
-          //   ...prevState.slice(0, prevState.length - 4),
-          // ]);
+          return [...newValues, ...prevState.slice(0, prevState.length - 4)];
         });
       }
+      setTimeout(() => {
+        inProgress = false;
+      }, 1000);
     }
   }
 
   useEffect(() => {
-    // setCurrentValues(getNextValues(20, -1));
-    // setLoaded(true);
     initialLoad();
   }, []);
 
   async function initialLoad() {
-    // setInProgress(true);
     inProgress = true;
     const data = await getNextValues(10, -1);
     setCurrentValues(generateValues(data));
-    // setInProgress(false);
     inProgress = false;
-    // setCurrentValues(generateValues(data));
     setLoaded(true);
   }
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-
-    checkAuth().then(async (authenticated) => {
-      if (!authenticated) {
-        setLoginRedirect(true);
-      }
-    });
   }, []);
 
   function handleResize() {
@@ -234,27 +184,8 @@ function TestComponent(props: Props) {
     return output;
   }
 
-  async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      return false;
-    }
-    return true;
-  }
-
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/test`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
@@ -268,17 +199,6 @@ function TestComponent(props: Props) {
               <CircularProgress size={60} />
             </div>
           )}
-          {/* {currentValues.map((value) => (
-            <div
-              style={{
-                paddingTop: 10,
-                paddingBottom: 10,
-                border: '1px solid black',
-              }}
-            >
-              <h1>{value}</h1>
-            </div>
-          ))} */}
           {currentValues}
           <div
             id="page-bottom-boundary"
