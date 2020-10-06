@@ -56,7 +56,10 @@ export async function createInternalCurrentMemberCommunityPost(
       type: 'internalCurrent',
       university: community.university,
     });
-    const post = await raw_post.save();
+    const post = await raw_post
+      .save()
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -113,7 +116,10 @@ export async function createInternalAlumniPost(
       type: 'internalAlumni',
       university: community.university,
     });
-    const post = await raw_post.save();
+    const post = await raw_post
+      .save()
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -178,7 +184,10 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           fromCommunity: fromCommunityID,
           type: 'external',
           anonymous: true,
-        }).save();
+        })
+          .save()
+          .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+          .exec();
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },
@@ -228,7 +237,10 @@ export async function createExternalPostAsCommunityAdmin(
       toCommunity: communityID,
       anonymous: true,
       type: 'external',
-    }).save();
+    })
+      .save()
+      .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -269,7 +281,10 @@ export async function createExternalPostAsMember(
       message,
       toCommunity: communityID,
       type: 'external',
-    }).save();
+    })
+      .save()
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -299,7 +314,10 @@ export async function broadcastAsCommunityAdmin(
       fromCommunity: communityID,
       anonymous: true,
       type: 'broadcast',
-    }).save();
+    })
+      .save()
+      .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },

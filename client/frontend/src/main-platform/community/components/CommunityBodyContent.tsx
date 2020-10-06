@@ -74,7 +74,7 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
-  const [postingOption, setPostingOptions] = useState<PostingOption[]>([]);
+  const [postingOptions, setPostingOptions] = useState<PostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -214,7 +214,6 @@ function CommunityBodyContent(props: Props) {
         });
     }
 
-    console.log(postingOptions);
     return postingOptions;
   }
 
@@ -228,34 +227,35 @@ function CommunityBodyContent(props: Props) {
   function createFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
-      const { anonymous } = posts[i];
+      const currPost = posts[i];
+      const { anonymous } = currPost;
       output.push(
         <UserPost
-          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          _id={currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id}
           name={
             anonymous
-              ? `${posts[i].fromCommunity.name}`
-              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+              ? `${currPost.fromCommunity.name}`
+              : `${currPost.user.firstName} ${currPost.user.lastName}`
           }
           timestamp={`${formatDatePretty(
-            new Date(posts[i].createdAt)
-          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+            new Date(currPost.createdAt)
+          )} at ${formatTime(new Date(currPost.createdAt))}`}
           profilePicture={
             anonymous
-              ? posts[i].fromCommunity.profilePicture
-              : posts[i].user.profilePicture
+              ? currPost.fromCommunity.profilePicture
+              : currPost.user.profilePicture
           }
-          message={posts[i].message}
-          likeCount={posts[i].likes}
+          message={currPost.message}
+          likeCount={currPost.likes}
           commentCount={0}
           style={styles.postStyle}
-          key={posts[i]._id}
+          key={currPost._id}
           anonymous={anonymous}
           toCommunity={
-            selectedTab === 'following' ? posts[i].toCommunity.name : undefined
+            selectedTab === 'following' ? currPost.toCommunity.name : undefined
           }
           toCommunityID={
-            selectedTab === 'following' ? posts[i].toCommunity._id : undefined
+            selectedTab === 'following' ? currPost.toCommunity._id : undefined
           }
         />
       );
@@ -263,43 +263,51 @@ function CommunityBodyContent(props: Props) {
     return output;
   }
 
+  function appendPost(newPostInfo: any) {
+    setPosts((prevPosts) => {
+      const { anonymous } = newPostInfo;
+      const newPost = (
+        <UserPost
+          _id={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
+          name={
+            anonymous
+              ? `${newPostInfo.fromCommunity.name}`
+              : `${newPostInfo.user.firstName} ${newPostInfo.user.lastName}`
+          }
+          timestamp={`${formatDatePretty(
+            new Date(newPostInfo.createdAt)
+          )} at ${formatTime(new Date(newPostInfo.createdAt))}`}
+          profilePicture={
+            anonymous
+              ? newPostInfo.fromCommunity.profilePicture
+              : newPostInfo.user.profilePicture
+          }
+          message={newPostInfo.message}
+          likeCount={0}
+          commentCount={0}
+          style={styles.postStyle}
+          key={newPostInfo._id}
+          anonymous={anonymous}
+        />
+      );
+
+      return [newPost].concat(prevPosts);
+    });
+  }
+
   function renderBody() {
-    switch (selectedTab) {
-      case 'external':
-        return renderExternal();
-      case 'internal':
-        return renderInternal();
-      case 'internal-current':
-        return renderInternal();
-      case 'internal-alumni':
-        return renderInternal();
-      case 'following':
-        return renderFollowing();
-      default:
-        return renderError();
-    }
-  }
-
-  function renderExternal() {
     return (
       <div>
-        <CommunityMakePostContainer postingOptions={[]} appendNewPost={() => {}} />
+        {postingOptions.length > 0 && (
+          <CommunityMakePostContainer
+            communityID={props.communityID}
+            postingOptions={postingOptions}
+            appendNewPost={(newPostInfo) => appendPost(newPostInfo)}
+          />
+        )}
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
-  }
-
-  function renderInternal() {
-    return (
-      <div>
-        <CommunityMakePostContainer postingOptions={[]} appendNewPost={() => {}} />
-        {posts.length > 0 ? posts : renderNoPosts()}
-      </div>
-    );
-  }
-
-  function renderFollowing() {
-    return <div>{posts.length > 0 ? posts : renderNoPosts()}</div>;
   }
 
   function renderError() {

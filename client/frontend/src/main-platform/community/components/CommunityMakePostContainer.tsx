@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Box } from '@material-ui/core';
-import { FaCamera } from 'react-icons/fa';
-
 import { connect } from 'react-redux';
 
+import { TextField, Button, Box, Menu, MenuItem } from '@material-ui/core';
+import { FaCamera } from 'react-icons/fa';
+import { BsFillCaretDownFill } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
@@ -82,6 +82,7 @@ type PostingOption = {
 
 type Props = {
   profilePicture?: string;
+  communityID: string;
   postingOptions: PostingOption[];
   appendNewPost: (post: PostType) => any;
   user: { [key: string]: any };
@@ -94,17 +95,30 @@ function CommunityMakePostContainer(props: Props) {
 
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [followMenuAnchorEl, setFollowMenuAnchorEl] = useState(null);
   const [serverMessage, setServerMessage] = useState<{
     status: 0 | 1;
     message: string;
   }>();
 
-  async function handlePostClicked() {
+  async function handlePostClicked(
+    routeSuffix: string,
+    communityID: string | undefined
+  ) {
     setLoading(true);
     setServerMessage(undefined);
 
-    // const data = props.createPost(content);
-    const data: any = {};
+    const { data } = await makeRequest(
+      'POST',
+      `/api/posts/community/${props.communityID}/${routeSuffix}`,
+      {
+        communityID,
+        message: content,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
 
     setLoading(false);
 
@@ -132,6 +146,67 @@ function CommunityMakePostContainer(props: Props) {
 
   function handleImageClicked() {
     console.log('Clicked image');
+  }
+
+  function renderButtons() {
+    return (
+      <div>
+        <Button
+          className={loading ? styles.disabledButton : styles.button}
+          onClick={handleImageClicked}
+          disabled={loading}
+        >
+          <FaCamera size={12} color={colors.primaryText} />
+          <span style={{ marginLeft: 10 }} />
+          Image
+        </Button>
+        <Button
+          endIcon={
+            props.postingOptions.length === 1 || (
+              <BsFillCaretDownFill color={colors.primaryText} size={12} />
+            )
+          }
+          className={
+            loading || content === '' ? styles.disabledButton : styles.button
+          }
+          onClick={
+            props.postingOptions.length === 1
+              ? () =>
+                  handlePostClicked(
+                    props.postingOptions[0].routeSuffix,
+                    props.postingOptions[0].communityID
+                  )
+              : (event: any) => {
+                  setFollowMenuAnchorEl(event.currentTarget);
+                }
+          }
+          disabled={loading || content === ''}
+        >
+          Post
+        </Button>
+        <Menu
+          open={Boolean(followMenuAnchorEl)}
+          anchorEl={followMenuAnchorEl}
+          onClose={() => setFollowMenuAnchorEl(null)}
+        >
+          {props.postingOptions.map((postingOption) => {
+            return (
+              <MenuItem
+                onClick={() =>
+                  handlePostClicked(
+                    postingOption.routeSuffix,
+                    postingOption.communityID
+                  )
+                }
+                key={postingOption.communityID}
+              >
+                <RSText>{postingOption.description}</RSText>
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      </div>
+    );
   }
 
   return (
@@ -172,26 +247,7 @@ function CommunityMakePostContainer(props: Props) {
           ) : (
             <span />
           )}
-          <div>
-            <Button
-              className={loading ? styles.disabledButton : styles.button}
-              onClick={handleImageClicked}
-              disabled={loading}
-            >
-              <FaCamera size={12} color={colors.primaryText} />
-              <span style={{ marginLeft: 10 }} />
-              Image
-            </Button>
-            <Button
-              className={
-                loading || content === '' ? styles.disabledButton : styles.button
-              }
-              onClick={handlePostClicked}
-              disabled={loading || content === ''}
-            >
-              Post
-            </Button>
-          </div>
+          <div>{renderButtons()}</div>
         </div>
       </div>
     </Box>
