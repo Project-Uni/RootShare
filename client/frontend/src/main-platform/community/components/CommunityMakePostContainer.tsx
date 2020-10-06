@@ -103,7 +103,7 @@ function CommunityMakePostContainer(props: Props) {
 
   async function handlePostClicked(
     routeSuffix: string,
-    communityID: string | undefined
+    fromCommunityID: string | undefined
   ) {
     setLoading(true);
     setServerMessage(undefined);
@@ -112,7 +112,7 @@ function CommunityMakePostContainer(props: Props) {
       'POST',
       `/api/posts/community/${props.communityID}/${routeSuffix}`,
       {
-        communityID,
+        fromCommunityID,
         message: content,
       },
       true,
@@ -122,13 +122,14 @@ function CommunityMakePostContainer(props: Props) {
 
     setLoading(false);
 
+    console.log(data);
     if (data.success === 1) {
       setContent('');
       setServerMessage({ status: 1, message: 'Successfully created post.' });
       setTimeout(() => {
         setServerMessage(undefined);
       }, 5000);
-      props.appendNewPost(data.content['newPost']);
+      props.appendNewPost(data.content['post']);
     } else {
       setServerMessage({
         status: 0,

@@ -131,6 +131,7 @@ function CommunityBodyContent(props: Props) {
       props.refreshToken
     );
 
+    console.log(data);
     if (data.success === 1) {
       const communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
         (community: AdminCommunityServiceResponse) => {
@@ -199,6 +200,7 @@ function CommunityBodyContent(props: Props) {
       if (followingCommunities.length > 0) {
         memberDescription = 'Post as yourself';
         followingCommunities.forEach((followingCommunity) => {
+          console.log('\n\n\n', followingCommunity._id);
           postingOptions.push({
             description: `Post as ${followingCommunity.name}`,
             routeSuffix: 'external/following',

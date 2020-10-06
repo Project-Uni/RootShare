@@ -49,15 +49,15 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   try {
-    const raw_post = new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'internalCurrent',
       university: community.university,
-    });
-    const post = await raw_post
-      .save()
+    }).save();
+
+    const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .exec();
 
@@ -109,15 +109,14 @@ export async function createInternalAlumniPost(
   }
 
   try {
-    const raw_post = new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'internalAlumni',
       university: community.university,
-    });
-    const post = await raw_post
-      .save()
+    }).save();
+    const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .exec();
 
@@ -177,15 +176,16 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           return sendPacket(0, 'Your community is not following this community');
         }
 
-        const post = await new Post({
+        const raw_post = await new Post({
           user: userID,
           message,
           toCommunity: toCommunityID,
           fromCommunity: fromCommunityID,
           type: 'external',
           anonymous: true,
-        })
-          .save()
+        }).save();
+
+        const post = await Post.findById(raw_post._id)
           .populate({ path: 'fromCommunity', select: 'name profilePicture' })
           .exec();
 
@@ -230,15 +230,16 @@ export async function createExternalPostAsCommunityAdmin(
   message: string
 ) {
   try {
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       fromCommunity: communityID,
       toCommunity: communityID,
       anonymous: true,
       type: 'external',
-    })
-      .save()
+    }).save();
+
+    const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .exec();
 
@@ -276,13 +277,14 @@ export async function createExternalPostAsMember(
         'The community does not exist or the user is not a member of the community'
       );
 
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'external',
-    })
-      .save()
+    }).save();
+
+    const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .exec();
 
