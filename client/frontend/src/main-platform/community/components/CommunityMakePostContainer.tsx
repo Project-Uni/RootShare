@@ -74,9 +74,15 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type PostingOption = {
+  description: string;
+  routeSuffix: string;
+  communityID?: string;
+};
+
 type Props = {
   profilePicture?: string;
-  createPost: (content: string) => any;
+  postingOptions: PostingOption[];
   appendNewPost: (post: PostType) => any;
   user: { [key: string]: any };
   accessToken: string;
@@ -97,7 +103,8 @@ function CommunityMakePostContainer(props: Props) {
     setLoading(true);
     setServerMessage(undefined);
 
-    const data = props.createPost(content);
+    // const data = props.createPost(content);
+    const data: any = {};
 
     setLoading(false);
 

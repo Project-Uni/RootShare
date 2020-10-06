@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
-
 import { connect } from 'react-redux';
-import { PostType } from '../../../helpers/types';
-
-import {
-  makeRequest,
-  formatDatePretty,
-  formatTime,
-} from '../../../helpers/functions';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
+
+import {
+  PostType,
+  AdminCommunityServiceResponse,
+  CommunityStatus,
+} from '../../../helpers/types';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -37,21 +40,29 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  className?: string;
-  communityID: string;
-  isAdmin?: boolean;
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-};
-
 type CommunityTab =
   | 'external'
   | 'internal'
   | 'internal-alumni'
   | 'internal-current'
   | 'following';
+
+type PostingOption = {
+  description: string;
+  routeSuffix: string;
+  communityID?: string;
+};
+
+type Props = {
+  className?: string;
+  communityID: string;
+  name: string;
+  status: CommunityStatus;
+  isAdmin?: boolean;
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
 
 var tabChangeSemaphore = 0;
 // Semaphore was added in to fix issue where previous tab
@@ -63,6 +74,7 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
+  const [postingOption, setPostingOptions] = useState<PostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -105,6 +117,36 @@ function CommunityBodyContent(props: Props) {
         setFetchErr(true);
       }
     }
+
+    setPostingOptions(await getPostingOptions());
+  }
+
+  async function getAdminCommunities() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.user._id}/communities/admin`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      const communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
+        (community: AdminCommunityServiceResponse) => {
+          let currFollowing = false;
+          for (let i = 0; i < community.followingCommunities.length; i++)
+            if (community.followingCommunities[i].to._id === props.communityID) {
+              currFollowing = true;
+              break;
+            }
+
+          return currFollowing;
+        }
+      );
+
+      return communities;
+    } else return [];
   }
 
   function getRouteSuffix() {
@@ -124,12 +166,56 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
-  function getPostingOptions() {
-    // this will return list of options to post as. i.e. in external,
-    // Post as Self,
-    // Post as this community,
-    // Post as this following community (you are admin),
-    // Post as this other following community (you are admin)
+  async function getPostingOptions() {
+    let postingOptions: PostingOption[] = [];
+    if (
+      selectedTab === 'internal-current' ||
+      (selectedTab === 'internal' && props.user.accountType === 'student')
+    )
+      postingOptions.push({
+        description: 'Post',
+        routeSuffix: 'internal/current',
+      });
+    else if (
+      selectedTab === 'internal-alumni' ||
+      (selectedTab === 'internal' && props.user.accountType === 'alumni')
+    )
+      postingOptions.push({
+        description: 'Post',
+        routeSuffix: 'internal/alumni',
+      });
+    else if (selectedTab === 'external') {
+      let memberDescription = 'Post';
+      if (props.isAdmin) {
+        memberDescription = 'Post as yourself';
+        postingOptions.push({
+          description: `Post as ${props.name}`,
+          routeSuffix: 'external/admin',
+        });
+      }
+
+      const followingCommunities = await getAdminCommunities();
+
+      if (followingCommunities.length > 0) {
+        memberDescription = 'Post as yourself';
+        followingCommunities.forEach((followingCommunity) => {
+          postingOptions.push({
+            description: `Post as ${followingCommunity.name}`,
+            routeSuffix: 'external/following',
+            communityID: followingCommunity._id,
+          });
+        });
+      }
+
+      if (props.status === 'JOINED')
+        postingOptions.unshift({
+          description: memberDescription,
+          routeSuffix: 'external/member',
+        });
+    }
+
+    console.log(postingOptions);
+    return postingOptions;
   }
 
   function handleTabChange(newTab: CommunityTab) {
@@ -197,7 +283,7 @@ function CommunityBodyContent(props: Props) {
   function renderExternal() {
     return (
       <div>
-        <CommunityMakePostContainer appendNewPost={() => {}} />
+        <CommunityMakePostContainer postingOptions={[]} appendNewPost={() => {}} />
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
@@ -206,7 +292,7 @@ function CommunityBodyContent(props: Props) {
   function renderInternal() {
     return (
       <div>
-        <CommunityMakePostContainer appendNewPost={() => {}} />
+        <CommunityMakePostContainer postingOptions={[]} appendNewPost={() => {}} />
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
