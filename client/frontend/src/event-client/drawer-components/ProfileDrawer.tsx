@@ -19,15 +19,9 @@ import UserInfoTextField from './UserInfoTextField';
 import RSText from '../../base-components/RSText';
 import ProfilePicture from '../../base-components/ProfilePicture';
 import BugModal from '../BugModal';
-import ThankYou from '../ThankYou';
 
 import { makeRequest } from '../../helpers/functions';
-import {
-  UserType,
-  UniversityType,
-  ConversationType,
-  MessageType,
-} from '../../helpers/types';
+import { UserType, UniversityType, ConversationType } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -105,20 +99,13 @@ const useStyles = makeStyles((_: any) => ({
   root: {
     paddingLeft: 10,
   },
-  reportButtonWrapper: {
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  reportErr: {
-    width: '361px',
-    marginTop: 10,
-    color: colors.brightError,
-  },
   reportButton: {
     width: '361px',
     marginTop: 10,
-    color: colors.primaryText,
-    background: colors.brightError,
+    color: 'red',
+    '&:hover': {
+      background: 'rgba(226, 226, 226, 0.2)',
+    },
   },
 }));
 
@@ -193,31 +180,7 @@ function ProfileDrawer(props: Props) {
   const [updateErr, setUpdateErr] = useState(false);
   const [logoutErr, setLogoutErr] = useState(false);
 
-  const [reportErr, setReportErr] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  //TODO: Add functionality to report
-
-  const [thankYouErr, setThankYouErr] = useState(false);
-  const [thankYouOpen, setThankYouOpen] = useState(false);
-  //TODO: Add functionality to report
-
-  function closeThankYou() {
-    setThankYouOpen(false);
-  }
-
-  function handleThankYou() {
-    setThankYouOpen(true);
-  }
-
-  function submitReport() {
-    //TODO: Send Data
-    setReportOpen(false);
-    handleThankYou();
-  }
-
-  function closeBugModal() {
-    setReportOpen(false);
-  }
 
   function handleReport() {
     setReportOpen(true);
@@ -733,15 +696,6 @@ function ProfileDrawer(props: Props) {
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
 
-      <div className={styles.reportButtonWrapper}>
-        <Button
-          className={logoutErr ? styles.reportErr : styles.reportButton}
-          onClick={handleReport}
-        >
-          {reportErr ? 'ERROR REPORTING BUG' : 'REPORT A BUG (BETA)'}
-        </Button>
-      </div>
-
       <div className={styles.logoutButtonWrapper}>
         <Button
           className={logoutErr ? styles.logoutErr : styles.logoutButton}
@@ -749,17 +703,17 @@ function ProfileDrawer(props: Props) {
         >
           {logoutErr ? 'ERROR LOGGING OUT' : 'LOGOUT'}
         </Button>
+        <Button className={styles.reportButton} onClick={handleReport}>
+          {'REPORT A BUG (BETA)'}
+        </Button>
       </div>
 
       <BugModal
         open={reportOpen}
-        // onClick={submitReport}
-        // onClickCancel={closeBugModal}
         onClose={() => {
           setReportOpen(false);
         }}
       />
-      <ThankYou open={thankYouOpen} onClick={closeThankYou}></ThankYou>
     </div>
   );
 }
