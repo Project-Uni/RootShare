@@ -7,48 +7,37 @@ import {
   DialogTitle,
   Button,
   Slide,
+  Select,
+  MenuItem,
+  CircularProgress,
 } from '@material-ui/core';
-import { Select, MenuItem } from '@material-ui/core';
-import Draggable from 'react-draggable';
+import { TransitionProps } from '@material-ui/core/transitions';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
+import Draggable from 'react-draggable';
+import { connect } from 'react-redux';
+import { AiFillBug } from 'react-icons/ai';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import BugTextField from './BugTextField';
-import { CircularProgress } from '@material-ui/core';
 
 import ManageSpeakersSnackbar from '../../event-video/event-host/ManageSpeakersSnackbar';
-import { TransitionProps } from '@material-ui/core/transitions';
 
 import { makeRequest } from '../../../helpers/functions';
-import { connect } from 'react-redux';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
     background: colors.primaryText,
     width: 500,
-    height: 400,
-  },
-  mobileText: {
-    marginTop: 20,
   },
   okButton: {
-    flex: 1,
-    right: 7,
-    bottom: 0,
-    position: 'absolute',
-    margin: 20,
-    color: 'white',
-    background: 'grey',
+    background: colors.bright,
+    color: colors.primaryText,
+    '&:hover': {
+      background: 'lightgray',
+    },
   },
-  cancelButton: {
-    flex: 1,
-    right: 90,
-    bottom: 0,
-    position: 'absolute',
-    margin: 20,
-    color: 'white',
-    background: 'grey',
-  },
+  cancelButton: {},
   select: {
     marginTop: 20,
     width: 450,
@@ -68,35 +57,36 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  textField: {
+    marginTop: 20,
+  },
 }));
 
 type Props = {
   open: boolean;
-  // onClick: () => any;
-  // onClickCancel: () => any;
   onClose: () => any;
 
   accessToken: string;
   refreshToken: string;
 };
 
+const BugCategories = [
+  'Homepage',
+  'Discover',
+  'Communities',
+  'Events',
+  'Connections',
+  'Profile',
+  'Posts',
+  'Messages',
+  'Other',
+];
+
 function BugModal(props: Props) {
   const styles = useStyles();
 
-  const BugCategories = [
-    'Homepage',
-    'Discover',
-    'Communities',
-    'Events',
-    'Connections',
-    'Profile',
-    'Posts',
-    'Messages',
-    'Other',
-  ];
-
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Bug #1');
+  const [category, setCategory] = useState(BugCategories[0]);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -123,8 +113,6 @@ function BugModal(props: Props) {
   }
 
   async function handleSubmit() {
-    //make API call
-    //If request is successful show next state
     setLoading(true);
     const { data } = await makeRequest(
       'POST',
@@ -153,38 +141,39 @@ function BugModal(props: Props) {
     return (
       <>
         <DialogTitle>
-          <RSText type="head" size={16} bold color={'black'}>
-            Report A Bug
-          </RSText>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <AiFillBug color="black" size={28} style={{ marginRight: 15 }} />
+            <RSText type="head" size={16} bold color={'black'}>
+              Report A Bug
+            </RSText>
+          </div>
         </DialogTitle>
         <DialogContent>
-          <div>
-            <BugTextField
-              label="Title"
-              value={title}
-              onChange={changeTitle}
-              width={450}
-            />
-          </div>
+          <BugTextField
+            label="Title"
+            value={title}
+            onChange={changeTitle}
+            width={450}
+          />
           <Select
             className={styles.select}
             variant="outlined"
             value={category}
             onChange={changeType}
-            label={category}
+            label={'Category'}
           >
             {BugCategories.map((singleBug) => (
               <MenuItem value={singleBug}>{singleBug}</MenuItem>
             ))}
           </Select>
-          <div>
-            <BugTextField
-              label="Description"
-              value={description}
-              onChange={handleDescriptionChange}
-              width={450}
-            />
-          </div>
+          <BugTextField
+            label="Description"
+            value={description}
+            onChange={handleDescriptionChange}
+            width={450}
+            className={styles.textField}
+            multiline
+          />
         </DialogContent>
         <DialogActions>
           <Button className={styles.cancelButton} onClick={props.onClose}>

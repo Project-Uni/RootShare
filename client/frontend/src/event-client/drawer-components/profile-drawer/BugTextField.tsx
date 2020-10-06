@@ -3,7 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: { marginTop: 20 },
+  // wrapper: { marginTop: 20 },
+  wrapper: {},
   textField: {
     background: 'white',
     color: 'black',
@@ -42,6 +43,7 @@ type Props = {
   className?: string;
   type?: 'search' | 'number';
   children?: any;
+  multiline?: boolean;
 };
 
 function BugTextField(props: Props) {
@@ -49,7 +51,7 @@ function BugTextField(props: Props) {
   return (
     <div className={[styles.wrapper, props.className].join(' ')}>
       <TextField
-        multiline={!props.type}
+        multiline={props.multiline}
         type={props.type ? props.type : 'search'}
         label={props.label}
         variant="outlined"
