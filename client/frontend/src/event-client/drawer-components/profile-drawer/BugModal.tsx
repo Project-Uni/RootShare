@@ -52,13 +52,11 @@ const useStyles = makeStyles((_: any) => ({
     margin: 20,
     color: colors.primaryText,
   },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textField: {
     marginTop: 20,
+  },
+  serverErr: {
+    marginBottom: 10,
   },
 }));
 
@@ -71,14 +69,11 @@ type Props = {
 };
 
 const BugCategories = [
-  'Homepage',
-  'Discover',
-  'Communities',
-  'Events',
-  'Connections',
-  'Profile',
-  'Posts',
-  'Messages',
+  'User Interface',
+  'Functionality',
+  'Unable to Perform Action',
+  'Request Feature',
+  'Unexpected Behavior',
   'Other',
 ];
 
@@ -96,6 +91,12 @@ function BugModal(props: Props) {
     'success' | 'error' | 'notify' | null
   >(null);
 
+  //errors
+  const [titleErr, setTitleErr] = useState(false);
+  const [categoryErr, setCategoryErr] = useState(false);
+  const [descriptionErr, setDescriptionErr] = useState(false);
+  const [serverErr, setServerErr] = useState(false);
+
   function changeTitle(event: any) {
     setTitle(event.target.value);
   }
@@ -112,25 +113,55 @@ function BugModal(props: Props) {
     return <Slide {...props} direction="left" />;
   }
 
+  function validateInputs() {
+    let hasErr = false;
+    if (title === '') {
+      setTitleErr(true);
+      hasErr = true;
+    } else {
+      setTitleErr(false);
+    }
+    if (category === '') {
+      setCategoryErr(true);
+      hasErr = true;
+    } else {
+      setCategoryErr(false);
+    }
+    if (description === '') {
+      setDescriptionErr(true);
+      hasErr = true;
+    } else {
+      setDescriptionErr(false);
+    }
+    return hasErr;
+  }
+
   async function handleSubmit() {
-    setLoading(true);
-    const { data } = await makeRequest(
-      'POST',
-      '/api/feedback/bug',
-      {
-        title,
-        category,
-        message: description,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    setLoading(false);
-    setTransition(() => slideLeft);
-    setSnackbarMessage('Thank you for submitting a bug report!');
-    setSnackbarMode('notify');
-    handleClose();
+    setServerErr(false);
+    if (validateInputs()) {
+      setLoading(true);
+      const { data } = await makeRequest(
+        'POST',
+        '/api/feedback/bug',
+        {
+          title,
+          category,
+          message: description,
+        },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      setLoading(false);
+      if (data.success === 1) {
+        setTransition(() => slideLeft);
+        setSnackbarMessage('Thank you for submitting a bug report!');
+        setSnackbarMode('notify');
+        handleClose();
+      } else {
+        setServerErr(true);
+      }
+    }
   }
 
   function handleClose() {
@@ -149,6 +180,17 @@ function BugModal(props: Props) {
           </div>
         </DialogTitle>
         <DialogContent>
+          {serverErr && (
+            <RSText
+              type="body"
+              color={colors.brightError}
+              size={12}
+              italic
+              className={styles.serverErr}
+            >
+              There was an error reporting this bug.
+            </RSText>
+          )}
           <BugTextField
             label="Title"
             value={title}
@@ -176,10 +218,19 @@ function BugModal(props: Props) {
           />
         </DialogContent>
         <DialogActions>
-          <Button className={styles.cancelButton} onClick={props.onClose}>
+          {loading && <CircularProgress />}
+          <Button
+            className={styles.cancelButton}
+            onClick={props.onClose}
+            disabled={loading}
+          >
             CANCEL
           </Button>
-          <Button className={styles.okButton} onClick={handleSubmit}>
+          <Button
+            className={styles.okButton}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             SUBMIT
           </Button>
         </DialogActions>
@@ -197,7 +248,6 @@ function BugModal(props: Props) {
       />
       <Dialog open={props.open} PaperComponent={PaperComponent}>
         {renderContent()}
-        <div className={styles.loading}>{loading && <CircularProgress />}</div>
       </Dialog>
     </div>
   );
