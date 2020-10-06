@@ -93,6 +93,10 @@ function CommunityBodyContent(props: Props) {
     });
   }, [selectedTab]);
 
+  useEffect(() => {
+    updatePostingOptions();
+  }, [selectedTab, props.communityProfilePicture]);
+
   async function fetchData() {
     setPosts([]);
     const currSemaphoreState = tabChangeSemaphore;
@@ -113,8 +117,6 @@ function CommunityBodyContent(props: Props) {
         setFetchErr(true);
       }
     }
-
-    setPostingOptions(await getPostingOptions());
   }
 
   async function getAdminCommunities() {
@@ -162,15 +164,13 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
-  // This is run in this component as opposed to child CommunityMakePostContainer
-  // So we can handle page loading in one centralized spot
-  async function getPostingOptions() {
-    let postingOptions: CommunityPostingOption[] = [];
+  async function updatePostingOptions() {
+    let newPostingOptions: CommunityPostingOption[] = [];
     if (
       selectedTab === 'internal-current' ||
       (selectedTab === 'internal' && props.user.accountType === 'student')
     )
-      postingOptions.push({
+      newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/current',
         profilePicture: props.user.profilePicture,
@@ -179,7 +179,7 @@ function CommunityBodyContent(props: Props) {
       selectedTab === 'internal-alumni' ||
       (selectedTab === 'internal' && props.user.accountType === 'alumni')
     )
-      postingOptions.push({
+      newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/alumni',
         profilePicture: props.user.profilePicture,
@@ -188,7 +188,7 @@ function CommunityBodyContent(props: Props) {
       let memberDescription = 'Post';
       if (props.isAdmin) {
         memberDescription = 'Post as yourself';
-        postingOptions.push({
+        newPostingOptions.push({
           description: `Post as ${props.name}`,
           routeSuffix: 'external/admin',
           profilePicture: props.communityProfilePicture,
@@ -200,7 +200,7 @@ function CommunityBodyContent(props: Props) {
       if (followingCommunities.length > 0) {
         memberDescription = 'Post as yourself';
         followingCommunities.forEach((followingCommunity) => {
-          postingOptions.push({
+          newPostingOptions.push({
             description: `Post as ${followingCommunity.name}`,
             routeSuffix: 'external/following',
             communityID: followingCommunity._id,
@@ -210,14 +210,14 @@ function CommunityBodyContent(props: Props) {
       }
 
       if (props.status === 'JOINED')
-        postingOptions.unshift({
+        newPostingOptions.unshift({
           description: memberDescription,
           routeSuffix: 'external/member',
           profilePicture: props.user.profilePicture,
         });
     }
 
-    return postingOptions;
+    setPostingOptions(newPostingOptions);
   }
 
   function handleTabChange(newTab: CommunityTab) {

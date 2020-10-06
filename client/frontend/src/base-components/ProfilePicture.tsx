@@ -196,7 +196,6 @@ function ProfilePicture(props: Props) {
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
-  console.log(props.currentPicture || DefaultProfilePicture);
   function renderImage() {
     return (
       <div className={props.className}>

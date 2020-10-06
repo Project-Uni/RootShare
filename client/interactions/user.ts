@@ -1062,10 +1062,11 @@ export async function getUserAdminCommunities(userID: string) {
     );
 
     for (let i = 0; i < communities.length; i++) {
-      communities[i].profilePicture = await retrieveSignedUrl(
-        'profile',
+      const profilePicture = await retrieveSignedUrl(
+        'communityProfile',
         communities[i].profilePicture
       );
+      if (profilePicture) communities[i].profilePicture = profilePicture;
     }
     log('info', `Retrieved admin communities for user ${userID}`);
     return sendPacket(1, 'Successfully retrieved admin communities', {
