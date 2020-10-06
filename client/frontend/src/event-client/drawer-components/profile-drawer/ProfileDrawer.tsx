@@ -6,22 +6,22 @@ import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { updateUser } from '../../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 import {
   updateConversations,
   updateCurrConversationID,
   resetNewMessage,
-} from '../../redux/actions/message';
-import { resetMessageSocket } from '../../redux/actions/sockets';
-import { colors } from '../../theme/Colors';
-import UserInfoTextField from './UserInfoTextField';
-import RSText from '../../base-components/RSText';
-import ProfilePicture from '../../base-components/ProfilePicture';
-import BugModal from '../BugModal';
+} from '../../../redux/actions/message';
+import { resetMessageSocket } from '../../../redux/actions/sockets';
+import { colors } from '../../../theme/Colors';
+import UserInfoTextField from '../UserInfoTextField';
+import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+import BugModal from './BugModal';
 
-import { makeRequest } from '../../helpers/functions';
-import { UserType, UniversityType, ConversationType } from '../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
+import { UserType, UniversityType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

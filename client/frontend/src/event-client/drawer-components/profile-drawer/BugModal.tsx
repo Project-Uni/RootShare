@@ -11,15 +11,15 @@ import {
 import { Select, MenuItem } from '@material-ui/core';
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
-import RSText from '../base-components/RSText';
-import { colors } from '../theme/Colors';
+import RSText from '../../../base-components/RSText';
+import { colors } from '../../../theme/Colors';
 import BugTextField from './BugTextField';
 import { CircularProgress } from '@material-ui/core';
 
-import ManageSpeakersSnackbar from '../../src/event-client/event-video/event-host/ManageSpeakersSnackbar';
+import ManageSpeakersSnackbar from '../../event-video/event-host/ManageSpeakersSnackbar';
 import { TransitionProps } from '@material-ui/core/transitions';
 
-import { makeRequest } from '../helpers/functions';
+import { makeRequest } from '../../../helpers/functions';
 import { connect } from 'react-redux';
 
 const useStyles = makeStyles((_: any) => ({
