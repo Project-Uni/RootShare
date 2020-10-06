@@ -44,6 +44,8 @@ type Props = {
   type?: 'search' | 'number';
   children?: any;
   multiline?: boolean;
+  error?: boolean;
+  helperText?: string;
 };
 
 function BugTextField(props: Props) {
@@ -59,6 +61,8 @@ function BugTextField(props: Props) {
         style={{ width: props.width || 360, height: props.height }}
         onChange={props.onChange}
         value={props.value}
+        error={props.error}
+        helperText={props.helperText}
         InputLabelProps={{
           classes: {
             root: styles.cssLabel,

@@ -35,7 +35,7 @@ export default function feedbackRoutes(app: Express) {
           title,
           body,
           labels: ['Bug'],
-          assignees: ['caitecap'],
+          // assignees: ['caitecap'],
         }
       );
 

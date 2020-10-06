@@ -138,7 +138,7 @@ function BugModal(props: Props) {
 
   async function handleSubmit() {
     setServerErr(false);
-    if (validateInputs()) {
+    if (!validateInputs()) {
       setLoading(true);
       const { data } = await makeRequest(
         'POST',
@@ -196,6 +196,8 @@ function BugModal(props: Props) {
             value={title}
             onChange={changeTitle}
             width={450}
+            error={titleErr}
+            helperText={titleErr ? 'Title is required.' : ''}
           />
           <Select
             className={styles.select}
@@ -203,6 +205,7 @@ function BugModal(props: Props) {
             value={category}
             onChange={changeType}
             label={'Category'}
+            error={categoryErr}
           >
             {BugCategories.map((singleBug) => (
               <MenuItem value={singleBug}>{singleBug}</MenuItem>
@@ -215,6 +218,8 @@ function BugModal(props: Props) {
             width={450}
             className={styles.textField}
             multiline
+            error={descriptionErr}
+            helperText={descriptionErr ? 'Description is required.' : ''}
           />
         </DialogContent>
         <DialogActions>
