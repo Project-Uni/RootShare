@@ -89,7 +89,7 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    fetchData().then(() => {
+    Promise.all([fetchData(), updatePostingOptions()]).then(() => {
       setLoading(false);
     });
   }, [selectedTab]);
