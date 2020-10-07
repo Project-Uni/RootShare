@@ -304,20 +304,21 @@ export async function createExternalPostAsMember(
   }
 }
 
-export async function broadcastAsCommunityAdmin(
+export async function createBroadcastCommunityPost(
   userID: string,
   communityID: string,
   message: string
 ) {
   try {
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       fromCommunity: communityID,
       anonymous: true,
       type: 'broadcast',
-    })
-      .save()
+    }).save();
+
+    const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .exec();
 
@@ -690,11 +691,13 @@ async function retrievePosts(
 async function getExternalPostsMember_Helper(communityID: string) {
   try {
     const community = await Community.findById(communityID)
-      .select(['externalPosts'])
+      .select(['externalPosts', 'broadcastedPosts'])
       .exec();
     if (!community) return sendPacket(0, 'Community does not exist');
 
-    const condition = { _id: { $in: community.externalPosts } };
+    const condition = {
+      _id: { $in: community.externalPosts.concat(community.broadcastedPosts) },
+    };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
     if (!posts) return sendPacket(-1, 'There was an error');

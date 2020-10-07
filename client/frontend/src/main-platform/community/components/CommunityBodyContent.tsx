@@ -51,6 +51,7 @@ type CommunityTab =
 type Props = {
   className?: string;
   communityID: string;
+  universityName: string;
   communityProfilePicture?: string;
   name: string;
   status: CommunityStatus;
@@ -189,6 +190,11 @@ function CommunityBodyContent(props: Props) {
       if (props.isAdmin) {
         memberDescription = 'Post as yourself';
         newPostingOptions.push({
+          description: `Broadcast to ${props.universityName} as ${props.name}`,
+          routeSuffix: 'broadcast',
+          profilePicture: props.communityProfilePicture,
+        });
+        newPostingOptions.push({
           description: `Post as ${props.name}`,
           routeSuffix: 'external/admin',
           profilePicture: props.communityProfilePicture,
@@ -250,6 +256,7 @@ function CommunityBodyContent(props: Props) {
               ? currPost.fromCommunity.profilePicture
               : currPost.user.profilePicture
           }
+          type={currPost.type}
           message={currPost.message}
           likeCount={currPost.likes}
           commentCount={0}
@@ -284,6 +291,7 @@ function CommunityBodyContent(props: Props) {
           )} at ${formatTime(new Date(newPostInfo.createdAt))}`}
           profilePicture={profilePicture}
           message={newPostInfo.message}
+          type={newPostInfo.type}
           likeCount={0}
           commentCount={0}
           style={styles.postStyle}

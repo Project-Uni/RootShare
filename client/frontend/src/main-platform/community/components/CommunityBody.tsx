@@ -68,6 +68,7 @@ type Props = {
   userID: string;
   status: CommunityStatus;
   name: string;
+  universityName: string;
   description: string;
   numMembers: number;
   numMutual: number;
@@ -199,6 +200,7 @@ function CommunityBody(props: Props) {
           <CommunityBodyContent
             className={styles.bodyContent}
             communityID={props.communityID}
+            universityName={props.universityName}
             communityProfilePicture={currentProfile}
             name={props.name}
             status={props.status}

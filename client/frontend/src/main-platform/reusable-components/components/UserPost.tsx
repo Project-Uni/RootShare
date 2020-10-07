@@ -11,6 +11,7 @@ import {
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
+import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
@@ -53,6 +54,10 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 15,
     marginBottom: -4,
     marginTop: 4,
+  },
+  broadcastIcon: {
+    marginLeft: 8,
+    marginBottom: 5,
   },
   noUnderline: {
     color: 'inherit',
@@ -130,6 +135,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 type Props = {
   posterID: string;
   name: string;
+  type?: string;
   toCommunity?: string;
   toCommunityID?: string;
   timestamp: string;
@@ -223,6 +229,12 @@ function UserPost(props: Props) {
                   </RSText>
                 </a>
               </>
+            )}
+            {props.type === 'broadcast' && (
+              <CastForEducationIcon
+                color={'action'}
+                className={styles.broadcastIcon}
+              />
             )}
           </div>
           <RSText type="subhead" color={colors.secondaryText} size={12}>
