@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
 import { TextField, Button, Box, Menu, MenuItem } from '@material-ui/core';
+import Tooltip from '@material-ui/core/Tooltip';
 import { FaCamera } from 'react-icons/fa';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
@@ -74,9 +75,19 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+const CustomTooltip = withStyles((theme: Theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: colors.error,
+    boxShadow: theme.shadows[1],
+    fontSize: 12,
+  },
+}))(Tooltip);
+
 type Props = {
   profilePicture?: string;
   communityID: string;
+  communityName: string;
   postingOptions: CommunityPostingOption[];
   appendNewPost: (post: PostType, profilePicture: string | undefined) => any;
   user: { [key: string]: any };
@@ -152,36 +163,74 @@ function CommunityMakePostContainer(props: Props) {
           <span style={{ marginLeft: 10 }} />
           Image
         </Button>
-        <Button
-          endIcon={
-            props.postingOptions.length === 1 || (
-              <BsFillCaretDownFill color={colors.primaryText} size={12} />
-            )
-          }
-          className={
-            loading || content === '' ? styles.disabledButton : styles.button
-          }
-          onClick={
-            props.postingOptions.length === 1
-              ? () => handlePostClicked(props.postingOptions[0])
-              : (event: any) => {
-                  setFollowMenuAnchorEl(event.currentTarget);
-                }
-          }
-          disabled={loading || content === ''}
-        >
-          Post
-        </Button>
+        {props.postingOptions.length === 1 && props.postingOptions[0].communityID ? (
+          <CustomTooltip
+            title={`This post will be visible to all of ${props.communityName}'s followers`}
+          >
+            <Button
+              endIcon={
+                props.postingOptions.length === 1 || (
+                  <BsFillCaretDownFill color={colors.primaryText} size={12} />
+                )
+              }
+              className={
+                loading || content === '' ? styles.disabledButton : styles.button
+              }
+              onClick={
+                props.postingOptions.length === 1
+                  ? () => handlePostClicked(props.postingOptions[0])
+                  : (event: any) => {
+                      setFollowMenuAnchorEl(event.currentTarget);
+                    }
+              }
+              disabled={loading || content === ''}
+            >
+              {props.postingOptions[0].description}
+            </Button>
+          </CustomTooltip>
+        ) : (
+          <Button
+            endIcon={
+              props.postingOptions.length === 1 || (
+                <BsFillCaretDownFill color={colors.primaryText} size={12} />
+              )
+            }
+            className={
+              loading || content === '' ? styles.disabledButton : styles.button
+            }
+            onClick={
+              props.postingOptions.length === 1
+                ? () => handlePostClicked(props.postingOptions[0])
+                : (event: any) => {
+                    setFollowMenuAnchorEl(event.currentTarget);
+                  }
+            }
+            disabled={loading || content === ''}
+          >
+            {props.postingOptions[0].description}
+          </Button>
+        )}
         <Menu
           open={Boolean(followMenuAnchorEl)}
           anchorEl={followMenuAnchorEl}
           onClose={() => setFollowMenuAnchorEl(null)}
         >
           {props.postingOptions.map((postingOption) => {
-            return (
+            return postingOption.communityID ? (
+              <CustomTooltip
+                title={`This post will be visible to all of ${props.communityName}'s followers`}
+              >
+                <MenuItem
+                  onClick={() => handlePostClicked(postingOption)}
+                  key={postingOption.routeSuffix}
+                >
+                  <RSText>{postingOption.description}</RSText>
+                </MenuItem>
+              </CustomTooltip>
+            ) : (
               <MenuItem
                 onClick={() => handlePostClicked(postingOption)}
-                key={postingOption.communityID}
+                key={postingOption.routeSuffix}
               >
                 <RSText>{postingOption.description}</RSText>
               </MenuItem>

@@ -310,6 +310,7 @@ function CommunityBodyContent(props: Props) {
         {postingOptions.length > 0 && (
           <CommunityMakePostContainer
             communityID={props.communityID}
+            communityName={props.name}
             postingOptions={postingOptions}
             appendNewPost={appendPost}
           />
