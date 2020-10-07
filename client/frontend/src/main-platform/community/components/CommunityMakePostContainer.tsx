@@ -207,7 +207,9 @@ function CommunityMakePostContainer(props: Props) {
             }
             disabled={loading || content === ''}
           >
-            {props.postingOptions[0].description}
+            {props.postingOptions.length === 1
+              ? props.postingOptions[0].description
+              : 'Post'}
           </Button>
         )}
         <Menu
