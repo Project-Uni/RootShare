@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
+import CommunityOverview from './CommunityOverview';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 
 import { makeRequest } from '../../../helpers/functions';
@@ -104,8 +105,26 @@ function YourCommunitiesBody(props: Props) {
   function renderJoinedCommunities() {
     const output = [];
     for (let i = 0; i < joinedCommunities.length; i++) {
+      // output.push(
+      //   <CommunityHighlight
+      //     userID={props.user._id}
+      //     style={styles.singleCommunity}
+      //     communityID={joinedCommunities[i]._id}
+      //     private={joinedCommunities[i].private}
+      //     name={joinedCommunities[i].name}
+      //     type={joinedCommunities[i].type}
+      //     description={joinedCommunities[i].description}
+      //     profilePicture={joinedCommunities[i].profilePicture}
+      //     memberCount={joinedCommunities[i].numMembers!}
+      //     mutualMemberCount={joinedCommunities[i].numMutual!}
+      //     status={joinedCommunities[i].status}
+      //     admin={joinedCommunities[i].admin as string}
+      //     // setNotification={setNotification}
+      //   />
+      // );
+
       output.push(
-        <CommunityHighlight
+        <CommunityOverview
           userID={props.user._id}
           style={styles.singleCommunity}
           communityID={joinedCommunities[i]._id}
@@ -119,6 +138,9 @@ function YourCommunitiesBody(props: Props) {
           status={joinedCommunities[i].status}
           admin={joinedCommunities[i].admin as string}
           // setNotification={setNotification}
+
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }
@@ -128,8 +150,26 @@ function YourCommunitiesBody(props: Props) {
   function renderPendingCommunities() {
     const output = [];
     for (let i = 0; i < pendingCommunities.length; i++) {
+      // output.push(
+      //   <CommunityHighlight
+      //     userID={props.user._id}
+      //     communityID={pendingCommunities[i]._id}
+      //     name={pendingCommunities[i].name}
+      //     private={pendingCommunities[i].private}
+      //     style={styles.singleCommunity}
+      //     description={pendingCommunities[i].description}
+      //     type={pendingCommunities[i].type}
+      //     admin={pendingCommunities[i].admin as string}
+      //     memberCount={pendingCommunities[i].numMembers!}
+      //     mutualMemberCount={pendingCommunities[i].numMutual!}
+      //     profilePicture={pendingCommunities[i].profilePicture}
+      //     status={pendingCommunities[i].status}
+      //     // setNotification={setNotification}
+      //   />
+      // );
+
       output.push(
-        <CommunityHighlight
+        <CommunityOverview
           userID={props.user._id}
           communityID={pendingCommunities[i]._id}
           name={pendingCommunities[i].name}
@@ -143,6 +183,9 @@ function YourCommunitiesBody(props: Props) {
           profilePicture={pendingCommunities[i].profilePicture}
           status={pendingCommunities[i].status}
           // setNotification={setNotification}
+
+          accessToken={props.accessToken}
+          refreshToken={props.refreshToken}
         />
       );
     }

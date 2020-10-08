@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box } from '@material-ui/core';
 
+import { Box, Button } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
-import { CommunityType } from '../../../helpers/types';
 import { colors } from '../../../theme/Colors';
-
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+
+import { makeRequest } from '../../../helpers/functions';
+import { CommunityType, CommunityStatus } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -25,8 +26,19 @@ const useStyles = makeStyles((_: any) => ({
   },
   communityBody: {
     flex: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
     marginLeft: 20,
     marginRight: 20,
+  },
+  left: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  right: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   noUnderline: {
     textDecoration: 'none',
@@ -44,14 +56,11 @@ const useStyles = makeStyles((_: any) => ({
   secondRow: {
     display: 'flex',
     alignItems: 'center',
+    marginTop: 5,
   },
   description: {
     marginTop: 10,
     marginBottom: 8,
-  },
-  countsAndStatusDiv: {
-    display: 'flex',
-    justifyContent: 'space-between',
   },
   status: {
     padding: '7px 10px',
@@ -68,6 +77,20 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
     },
   },
+  connectButton: {
+    background: colors.bright,
+    color: colors.primaryText,
+    '&:hover': {
+      background: colors.primary,
+    },
+  },
+  pendingText: {
+    background: colors.secondaryText,
+    padding: 3,
+    paddingLeft: 5,
+    paddingRight: 5,
+    borderRadius: 3,
+  },
 }));
 
 type Props = {
@@ -82,11 +105,44 @@ type Props = {
   mutualMemberCount: number;
   profilePicture?: any;
   style?: any;
-  status: 'joined' | 'pending';
+  status: CommunityStatus;
+  setNotification?: (
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) => void;
+
+  accessToken: string;
+  refreshToken: string;
 };
 
 function CommunityOverview(props: Props) {
   const styles = useStyles();
+
+  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>(
+    props.status
+  );
+  const [numMembers, setNumMembers] = useState(props.memberCount);
+
+  async function requestJoin() {
+    const { data } = await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/join`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] === 1) {
+      if (props.private) setCommunityStatus('PENDING');
+      else {
+        setCommunityStatus('JOINED');
+        setNumMembers((prevNumMembers) => prevNumMembers + 1);
+      }
+    } else
+      props.setNotification &&
+        props.setNotification('error', 'There was an error requesting membership');
+  }
 
   function renderName() {
     return (
@@ -129,7 +185,7 @@ function CommunityOverview(props: Props) {
           |
         </RSText>
         <RSText color={colors.second} size={12} type="body">
-          {props.memberCount} Members
+          {numMembers} Members
         </RSText>
         <RSText
           color={colors.secondaryText}
@@ -144,6 +200,27 @@ function CommunityOverview(props: Props) {
         </RSText>
       </div>
     );
+  }
+
+  function renderButton() {
+    if (communityStatus === 'OPEN')
+      return (
+        <Button className={styles.connectButton} onClick={requestJoin}>
+          Join
+        </Button>
+      );
+    else if (communityStatus === 'PENDING')
+      return (
+        <RSText color={colors.primaryText} size={12} className={styles.pendingText}>
+          PENDING
+        </RSText>
+      );
+    else
+      return (
+        <RSText color={colors.primary} size={12}>
+          {props.userID === props.admin ? 'ADMIN' : 'MEMBER'}
+        </RSText>
+      );
   }
 
   return (
@@ -163,40 +240,23 @@ function CommunityOverview(props: Props) {
           />
         </a>
         <div className={styles.communityBody}>
-          {renderName()}
-          <div className={styles.countsAndStatusDiv}>
+          <div className={styles.left}>
+            {renderName()}
             {renderTypeAndCounts()}
             <RSText
               type="body"
               size={12}
-              color={colors.primaryText}
-              className={[
-                styles.status,
-                props.status === 'joined'
-                  ? styles.joinedStatus
-                  : styles.pendingStatus,
-              ].join(' ')}
+              color={colors.secondaryText}
+              className={styles.description}
             >
-              {props.status === 'pending'
-                ? 'PENDING'
-                : props.admin === props.userID
-                ? 'ADMIN'
-                : 'MEMBER'}
+              {props.description}
             </RSText>
-          </div>
-
-          <RSText
-            type="body"
-            size={12}
-            color={colors.secondaryText}
-            className={styles.description}
-          >
-            {props.description}
-          </RSText>
-          {/* NOTE - Hiding this for now because our current database strategy doesn't support this */}
-          {/* <RSText color={colors.second} size={11} type="body">
+            {/* NOTE - Hiding this for now because our current database strategy doesn't support this */}
+            {/* <RSText color={colors.second} size={11} type="body">
           Joined {props.joinedDate}
         </RSText> */}
+          </div>
+          <div className={styles.right}>{renderButton()}</div>
         </div>
       </div>
     </Box>
