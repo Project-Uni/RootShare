@@ -104,11 +104,6 @@ function CommunityHighlight(props: Props) {
   const [numMembers, setNumMembers] = useState(props.memberCount);
 
   async function requestJoin() {
-    if (props.private) setCommunityStatus('PENDING');
-    else {
-      setCommunityStatus('JOINED');
-      setNumMembers((prevNumMembers) => prevNumMembers + 1);
-    }
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/join`,
@@ -118,15 +113,15 @@ function CommunityHighlight(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] !== 1) {
-      setCommunityStatus(props.status);
-      if (!props.private)
-        setNumMembers((prevNumMembers) =>
-          prevNumMembers - 1 > 0 ? prevNumMembers - 1 : 0
-        );
+    if (data['success'] === 1) {
+      if (props.private) setCommunityStatus('PENDING');
+      else {
+        setCommunityStatus('JOINED');
+        setNumMembers((prevNumMembers) => prevNumMembers + 1);
+      }
+    } else
       props.setNotification &&
         props.setNotification('error', 'There was an error requesting membership');
-    }
   }
 
   function renderButton() {
