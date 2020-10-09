@@ -22,7 +22,7 @@ import {
   createExternalPostAsMember,
   getExternalPosts,
   getFollowingCommunityPosts,
-  broadcastAsCommunityAdmin,
+  createBroadcastCommunityPost,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -208,7 +208,11 @@ export default function postsRoutes(app) {
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await broadcastAsCommunityAdmin(userID, communityID, message);
+      const packet = await createBroadcastCommunityPost(
+        userID,
+        communityID,
+        message
+      );
       return res.json(packet);
     }
   );

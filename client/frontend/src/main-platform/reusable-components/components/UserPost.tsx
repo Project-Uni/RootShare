@@ -11,6 +11,7 @@ import {
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
+import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
@@ -53,6 +54,10 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 15,
     marginBottom: -4,
     marginTop: 4,
+  },
+  broadcastIcon: {
+    marginLeft: 8,
+    marginBottom: 5,
   },
   noUnderline: {
     color: 'inherit',
@@ -128,8 +133,9 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  _id: string;
+  posterID: string;
   name: string;
+  type?: string;
   toCommunity?: string;
   toCommunityID?: string;
   timestamp: string;
@@ -181,7 +187,7 @@ function UserPost(props: Props) {
     return (
       <div className={styles.top}>
         <a
-          href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+          href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
           className={styles.noUnderline}
         >
           <ProfilePicture
@@ -197,7 +203,9 @@ function UserPost(props: Props) {
         <div className={styles.postHeadText}>
           <div className={styles.nameAndOrgDiv}>
             <a
-              href={`/${props.anonymous ? 'community' : 'profile'}/${props._id}`}
+              href={`/${props.anonymous ? 'community' : 'profile'}/${
+                props.posterID
+              }`}
               className={styles.noUnderline}
             >
               <RSText type="subhead" color={colors.secondary} bold size={14}>
@@ -205,7 +213,7 @@ function UserPost(props: Props) {
               </RSText>
             </a>
 
-            {props.toCommunity && (
+            {props.toCommunity && props.toCommunityID !== props.posterID && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}
@@ -221,6 +229,12 @@ function UserPost(props: Props) {
                   </RSText>
                 </a>
               </>
+            )}
+            {props.type === 'broadcast' && (
+              <CastForEducationIcon
+                color={'action'}
+                className={styles.broadcastIcon}
+              />
             )}
           </div>
           <RSText type="subhead" color={colors.secondaryText} size={12}>

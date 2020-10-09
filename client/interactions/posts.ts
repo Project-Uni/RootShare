@@ -49,14 +49,17 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   try {
-    const raw_post = new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'internalCurrent',
       university: community.university,
-    });
-    const post = await raw_post.save();
+    }).save();
+
+    const post = await Post.findById(raw_post._id)
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -106,14 +109,16 @@ export async function createInternalAlumniPost(
   }
 
   try {
-    const raw_post = new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'internalAlumni',
       university: community.university,
-    });
-    const post = await raw_post.save();
+    }).save();
+    const post = await Post.findById(raw_post._id)
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -171,7 +176,7 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           return sendPacket(0, 'Your community is not following this community');
         }
 
-        const post = await new Post({
+        const raw_post = await new Post({
           user: userID,
           message,
           toCommunity: toCommunityID,
@@ -179,6 +184,10 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           type: 'external',
           anonymous: true,
         }).save();
+
+        const post = await Post.findById(raw_post._id)
+          .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+          .exec();
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },
@@ -221,7 +230,7 @@ export async function createExternalPostAsCommunityAdmin(
   message: string
 ) {
   try {
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       fromCommunity: communityID,
@@ -229,6 +238,10 @@ export async function createExternalPostAsCommunityAdmin(
       anonymous: true,
       type: 'external',
     }).save();
+
+    const post = await Post.findById(raw_post._id)
+      .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -264,12 +277,16 @@ export async function createExternalPostAsMember(
         'The community does not exist or the user is not a member of the community'
       );
 
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       toCommunity: communityID,
       type: 'external',
     }).save();
+
+    const post = await Post.findById(raw_post._id)
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -287,19 +304,23 @@ export async function createExternalPostAsMember(
   }
 }
 
-export async function broadcastAsCommunityAdmin(
+export async function createBroadcastCommunityPost(
   userID: string,
   communityID: string,
   message: string
 ) {
   try {
-    const post = await new Post({
+    const raw_post = await new Post({
       user: userID,
       message,
       fromCommunity: communityID,
       anonymous: true,
       type: 'broadcast',
     }).save();
+
+    const post = await Post.findById(raw_post._id)
+      .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .exec();
 
     await Community.updateOne(
       { _id: communityID },
@@ -670,11 +691,13 @@ async function retrievePosts(
 async function getExternalPostsMember_Helper(communityID: string) {
   try {
     const community = await Community.findById(communityID)
-      .select(['externalPosts'])
+      .select(['externalPosts', 'broadcastedPosts'])
       .exec();
     if (!community) return sendPacket(0, 'Community does not exist');
 
-    const condition = { _id: { $in: community.externalPosts } };
+    const condition = {
+      _id: { $in: community.externalPosts.concat(community.broadcastedPosts) },
+    };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
     if (!posts) return sendPacket(-1, 'There was an error');

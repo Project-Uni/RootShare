@@ -93,6 +93,7 @@ function CommunityDetails(props: Props) {
       props.updateRefreshToken('');
       return false;
     }
+    props.updateUser({ ...data['content'] });
     return true;
   }
 
@@ -139,6 +140,7 @@ function CommunityDetails(props: Props) {
     );
   }
 
+  const communityInfoComplete = communityInfo as Community;
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/community/${orgID}`} />}
@@ -150,21 +152,22 @@ function CommunityDetails(props: Props) {
         ) : (
           <CommunityBody
             status={communityStatus}
-            name={(communityInfo as Community).name}
-            numMembers={(communityInfo as Community).members?.length || 0}
-            numPending={(communityInfo as Community).pendingMembers?.length || 0}
+            name={communityInfoComplete.name}
+            universityName={communityInfoComplete.university?.universityName}
+            numMembers={communityInfoComplete.members?.length || 0}
+            numPending={communityInfoComplete.pendingMembers?.length || 0}
             numMutual={mutualConnections.length}
             numFollowRequests={
-              (communityInfo as Community).incomingPendingCommunityFollowRequests
-                ?.length || 0
+              communityInfoComplete.incomingPendingCommunityFollowRequests?.length ||
+              0
             }
-            type={(communityInfo as Community).type}
-            private={(communityInfo as Community).private}
-            description={(communityInfo as Community).description}
+            type={communityInfoComplete.type}
+            private={communityInfoComplete.private}
+            description={communityInfoComplete.description}
             loading={loading}
             accessToken={props.accessToken}
             refreshToken={props.refreshToken}
-            communityID={(communityInfo as Community)._id}
+            communityID={communityInfoComplete._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
             userID={props.user._id}

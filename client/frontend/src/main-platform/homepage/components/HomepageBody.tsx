@@ -66,11 +66,8 @@ function HomepageBody(props: Props) {
   const [feed, setFeed] = useState<JSX.Element[]>([]);
   const [selectedTab, setSelectedTab] = useState('general');
 
-  const [profilePicture, setProfilePicture] = useState<string>(); //TODO - Remove this profile picture logic after we update redux store and req.user
-
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    getProfilePicture();
     getFeed().then(() => {
       setLoading(false);
     });
@@ -82,20 +79,6 @@ function HomepageBody(props: Props) {
       setLoading(false);
     });
   }, [selectedTab]);
-
-  async function getProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.user._id}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data.success === 1) {
-      setProfilePicture(data.content['imageURL']);
-    }
-  }
 
   async function getFeed() {
     const { data } = await makeRequest(
@@ -131,12 +114,12 @@ function HomepageBody(props: Props) {
     setFeed((prevState) => {
       const newEntry = (
         <UserPost
-          _id={props.user._id}
+          posterID={props.user._id}
           name={`${props.user.firstName} ${props.user.lastName}`}
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
             new Date(post.createdAt)
           )}`}
-          profilePicture={profilePicture}
+          profilePicture={props.user.profilePicture}
           message={post.message}
           likeCount={post.likes}
           commentCount={0}
@@ -153,7 +136,7 @@ function HomepageBody(props: Props) {
       const { anonymous } = posts[i];
       output.push(
         <UserPost
-          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          posterID={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
           name={
             anonymous
               ? `${posts[i].fromCommunity.name}`
@@ -194,7 +177,7 @@ function HomepageBody(props: Props) {
       </Box>
       <MakePostContainer
         appendNewPost={appendNewPost}
-        profilePicture={profilePicture}
+        profilePicture={props.user.profilePicture}
       />
 
       <RSTabs
