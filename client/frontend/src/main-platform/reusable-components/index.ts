@@ -12,6 +12,8 @@ import CommunityHighlight from './components/CommunityHighlight';
 
 import RSTabs from './components/RSTabs';
 
+import Loader from './components/Loader';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -22,4 +24,5 @@ export {
   UserHighlight,
   CommunityHighlight,
   RSTabs,
+  Loader,
 };

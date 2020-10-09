@@ -30,7 +30,7 @@ import {
 
 import { AdminRoutes } from './routes';
 
-import TestComponent from './main-platform/homepage/Test';
+import TestComponent from './main-platform/homepage/Test2';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
