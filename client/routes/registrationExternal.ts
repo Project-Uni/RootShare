@@ -14,7 +14,8 @@ module.exports = (app) => {
           else log('info', `Successfully serialized ${user.email}`);
 
           const tokenString = `?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-          if (!user.work) return res.redirect(`/register/external${tokenString}`);
+          if (user.work === undefined || user.work === null)
+            return res.redirect(`/register/external${tokenString}`);
           else return res.redirect(`/home${tokenString}`);
         });
       } else if (info) {
@@ -42,7 +43,8 @@ module.exports = (app) => {
           else log('info', `Successfully serialized ${user.email}`);
 
           const tokenString = `?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-          if (!user.work) return res.redirect(`/register/external${tokenString}`);
+          if (user.work === undefined || user.work === null)
+            return res.redirect(`/register/external${tokenString}`);
           else return res.redirect(`/home${tokenString}`);
         });
       } else if (info) {
