@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
@@ -29,6 +30,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  location: any;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -46,6 +48,10 @@ function Homepage(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
+
+  const values = queryString.parse(props.location.search);
+  const accessToken = values.accessToken as string;
+  const refreshToken = values.refreshToken as string;
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -68,6 +74,9 @@ function Homepage(props: Props) {
   }
 
   async function checkAuth() {
+    if (accessToken) props.updateAccessToken(accessToken);
+    if (refreshToken) props.updateRefreshToken(refreshToken);
+    console.log(accessToken, props.accessToken);
     const { data } = await makeRequest(
       'GET',
       '/user/getCurrent',
@@ -81,9 +90,12 @@ function Homepage(props: Props) {
       props.updateAccessToken('');
       props.updateRefreshToken('');
       return false;
+    } else {
+      props.updateUser({ ...data['content'] });
+      if (accessToken) props.updateAccessToken(accessToken);
+      if (refreshToken) props.updateRefreshToken(refreshToken);
+      return true;
     }
-    props.updateUser({ ...data['content'] });
-    return true;
   }
 
   async function testPosts() {

@@ -13,11 +13,9 @@ module.exports = (app) => {
           if (err) log('error', `Failed serializing ${user.email}`);
           else log('info', `Successfully serialized ${user.email}`);
 
-          if (!user.work)
-            return res.redirect(
-              `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-            );
-          else return res.redirect('/home');
+          const tokenString = `?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+          if (!user.work) return res.redirect(`/register/external${tokenString}`);
+          else return res.redirect(`/home${tokenString}`);
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -43,11 +41,9 @@ module.exports = (app) => {
           if (err) log('error', `Failed serializing ${user.email}`);
           else log('info', `Successfully serialized ${user.email}`);
 
-          if (!user.work)
-            return res.redirect(
-              `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-            );
-          else return res.redirect('/home');
+          const tokenString = `?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+          if (!user.work) return res.redirect(`/register/external${tokenString}`);
+          else return res.redirect(`/home${tokenString}`);
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
