@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 import { usePrevious } from '../../../helpers/hooks';
-import {connect} from 'react-redux';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -17,7 +16,6 @@ type Props = {
   values: JSX.Element[];
   numRendered: number;
   numUpdated: number;
-  children?: React.ReactNode;
   getValues: () => any;
   loading: boolean;
 };
@@ -87,11 +85,11 @@ function Loader(props: Props) {
     }
   }, [page]);
 
-  function updateRender() {
+  async function updateRender() {
     setInProgress(true);
     if (page > (prevPage || 0)) {
       if (lastRenderedIndex.current === allValues.length - 1) {
-        props.getValues()
+        await props.getValues();
       } else {
         setRenderedValues(
           allValues.slice(
@@ -124,7 +122,6 @@ function Loader(props: Props) {
         style={{ border: '1px solid red' }}
       ></div>
       {renderedValues}
-      {props.children}
       {props.loading && (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       )}

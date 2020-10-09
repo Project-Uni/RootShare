@@ -13,7 +13,6 @@ import {
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
   HEADER_HEIGHT,
 } from '../../helpers/constants';
-import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -54,19 +53,12 @@ async function getNextValues(
   return ALL_VALUES.slice(startingValue + 1, startingValue + numRetrieved + 1);
 }
 
-const NUM_RETRIEVED = 10;
-const MAX_PAGES = Math.ceil(100 / NUM_RETRIEVED) + 1;
-
 function TestComponent(props: Props) {
   const styles = useStyles();
 
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
-  const [loaded, setLoaded] = useState(false);
-
-  const [page, setPage] = useState(1);
-  const prevPage = usePrevious(page);
   const [currentValues, setCurrentValues] = useState<JSX.Element[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastValue, setLastValue] = useState(0);
@@ -76,7 +68,7 @@ function TestComponent(props: Props) {
   }, []);
 
   async function initialLoad() {
-    const data = await getNextValues(100, -1);
+    const data = await getNextValues(50, -1);
     setLastValue(data[data.length-1])
     setCurrentValues(generateValues(data));
     setLoading(false);
@@ -112,7 +104,7 @@ function TestComponent(props: Props) {
 
   async function getValues() {
     setLoading(true);
-    const data = await getNextValues(100, lastValue)
+    const data = await getNextValues(50, lastValue, true)
     setLastValue(data[data.length-1])
     setCurrentValues([...currentValues, ...generateValues(data)]);
     setLoading(false);
@@ -127,10 +119,10 @@ function TestComponent(props: Props) {
           <Loader
             numRendered={20}
             numUpdated={10}
-            loading={false}
+            loading={loading}
             getValues={getValues}
             values={currentValues}
-          ></Loader>
+          />
         </div>
 
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
@@ -161,11 +153,3 @@ const mapDispatchToProps = (dispatch: any) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TestComponent);
-
-function usePrevious(value: any) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
