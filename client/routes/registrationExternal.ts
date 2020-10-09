@@ -10,14 +10,14 @@ module.exports = (app) => {
     passport.authenticate('linkedin-login', (err, user, info) => {
       if (user) {
         req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
-          log('info', `Successfully serialized ${user.email}`);
+          if (err) log('error', `Failed serializing ${user.email}`);
+          else log('info', `Successfully serialized ${user.email}`);
 
-          return res.redirect(
-            `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-          );
+          if (!user.work)
+            return res.redirect(
+              `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
+            );
+          else return res.redirect('/home');
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -40,14 +40,14 @@ module.exports = (app) => {
     passport.authenticate('google-login', (err, user, info) => {
       if (user) {
         req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
-          log('info', `Successfully serialized ${user.email}`);
+          if (err) log('error', `Failed serializing ${user.email}`);
+          else log('info', `Successfully serialized ${user.email}`);
 
-          return res.redirect(
-            `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-          );
+          if (!user.work)
+            return res.redirect(
+              `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
+            );
+          else return res.redirect('/home');
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
