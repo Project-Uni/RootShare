@@ -50,7 +50,7 @@ function Loader(props: Props) {
         entries.forEach((entry) => {
           if (entry.intersectionRatio > 0 && !inProgress && initialized) {
             if (direction === 'bottom') setPage(page + 1);
-            else if (direction === 'top' && page > 1) setPage(page - 1);
+            else if (direction === 'top' && firstRenderedIndex.current > 0) setPage(page - 1);
             intObs.unobserve(node);
           }
         });
@@ -90,10 +90,8 @@ function Loader(props: Props) {
   function updateRender() {
     setInProgress(true);
     if (page > (prevPage || 0)) {
-      //Check if there is more data. If not, fetch Data
       if (lastRenderedIndex.current === allValues.length - 1) {
-        console.log("Fetch more data")
-        //Fetch more data
+        props.getValues()
       } else {
         setRenderedValues(
           allValues.slice(
@@ -139,12 +137,4 @@ function Loader(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {};
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Loader);
+export default Loader;

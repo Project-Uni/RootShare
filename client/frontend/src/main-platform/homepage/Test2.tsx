@@ -35,26 +35,12 @@ type Props = {
 };
 
 const ALL_VALUES: number[] = [];
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 500; i++) {
   ALL_VALUES.push(i);
 }
 
 function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
-
-async function getPreviousValues(
-  numRetrieved: number,
-  startingValue: number,
-  withTimeout = false
-) {
-  if (withTimeout) {
-    await sleep(1);
-  }
-  return ALL_VALUES.slice(
-    startingValue - numRetrieved >= 0 ? startingValue - numRetrieved : 0,
-    startingValue
-  );
 }
 
 async function getNextValues(
@@ -83,69 +69,7 @@ function TestComponent(props: Props) {
   const prevPage = usePrevious(page);
   const [currentValues, setCurrentValues] = useState<JSX.Element[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // const scrollObserver = useCallback(
-  //   (node: any, direction: 'top' | 'bottom') => {
-  //     const intObs = new IntersectionObserver((entries) => {
-  //       entries.forEach((entry) => {
-  //         if (entry.intersectionRatio > 0 && !inProgress) {
-  //           if (direction === 'bottom' && page < MAX_PAGES) setPage(page + 1);
-  //           else if (direction === 'top' && page > 1) setPage(page - 1);
-  //           intObs.unobserve(node);
-  //         }
-  //       });
-  //     });
-  //     intObs.observe(node);
-  //   },
-  //   [page]
-  // );
-
-  // useEffect(() => {
-  //   if (bottomBoundaryRef.current) {
-  //     scrollObserver(bottomBoundaryRef.current, 'bottom');
-  //   }
-  //   if (topBoundaryRef.current) {
-  //     scrollObserver(topBoundaryRef.current, 'top');
-  //   }
-  // }, [scrollObserver, bottomBoundaryRef, topBoundaryRef]);
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [page]);
-
-  // async function fetchData() {
-  //   if (loaded && !inProgress) {
-  //     inProgress = true;
-  //     if (page > (prevPage || 0)) {
-  //       const newValues = generateValues(
-  //         await getNextValues(
-  //           8,
-  //           parseInt(currentValues[currentValues.length - 1].key as string),
-  //           true
-  //         ),
-  //         'next'
-  //       );
-  //       setCurrentValues((prevState: JSX.Element[]) => {
-  //         return [...prevState.slice(4, prevState.length), ...newValues];
-  //       });
-  //     } else {
-  //       const newValues = generateValues(
-  //         await getPreviousValues(8, parseInt(currentValues[0].key as string), true),
-  //         'previous'
-  //       );
-  //       // scrollRef.current = currentValues[0];
-  //       // document.getElementsByTagName("H1")[0].setAttribute("class", "democlass");
-  //       // document.getElementById(currentValues[0].key as string)?.setAttribute('ref', );
-  //       setCurrentValues((prevState: JSX.Element[]) => {
-  //         return [...newValues, ...prevState.slice(0, prevState.length - 4)];
-  //       });
-  //       if (scrollRef.current) window.scrollTo(0, scrollRef.current.offsetTop);
-  //     }
-  //     setTimeout(() => {
-  //       inProgress = false;
-  //     }, 1000);
-  //   }
-  // }
+  const [lastValue, setLastValue] = useState(0);
 
   useEffect(() => {
     initialLoad();
@@ -153,6 +77,7 @@ function TestComponent(props: Props) {
 
   async function initialLoad() {
     const data = await getNextValues(100, -1);
+    setLastValue(data[data.length-1])
     setCurrentValues(generateValues(data));
     setLoading(false);
   }
@@ -185,6 +110,14 @@ function TestComponent(props: Props) {
     return output;
   }
 
+  async function getValues() {
+    setLoading(true);
+    const data = await getNextValues(100, lastValue)
+    setLastValue(data[data.length-1])
+    setCurrentValues([...currentValues, ...generateValues(data)]);
+    setLoading(false);
+  }
+
   return (
     <div className={styles.wrapper}>
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
@@ -195,9 +128,9 @@ function TestComponent(props: Props) {
             numRendered={20}
             numUpdated={10}
             loading={false}
-            getValues={() => {}}
+            getValues={getValues}
             values={currentValues}
-          />
+          ></Loader>
         </div>
 
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
