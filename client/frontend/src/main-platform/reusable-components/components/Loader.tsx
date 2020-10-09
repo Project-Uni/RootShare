@@ -49,7 +49,6 @@ function Loader(props: Props) {
       const intObs = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.intersectionRatio > 0 && !inProgress && initialized) {
-            console.log("Updating page")
             if (direction === 'bottom') setPage(page + 1);
             else if (direction === 'top' && page > 1) setPage(page - 1);
             intObs.unobserve(node);
@@ -110,6 +109,9 @@ function Loader(props: Props) {
             : allValues.length - lastRenderedIndex.current - 1;
       }
     } else {
+      setRenderedValues(allValues.slice(firstRenderedIndex.current - props.numUpdated, lastRenderedIndex.current - props.numUpdated))
+      firstRenderedIndex.current -= props.numUpdated;
+      lastRenderedIndex.current -= props.numUpdated;
     }
     setTimeout(() => {
       setInProgress(false);
