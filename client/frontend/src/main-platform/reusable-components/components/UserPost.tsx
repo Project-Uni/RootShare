@@ -14,8 +14,6 @@ import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
-import {connect} from 'react-redux';
-
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
