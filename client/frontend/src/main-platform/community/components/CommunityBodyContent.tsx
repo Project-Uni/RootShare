@@ -137,6 +137,7 @@ function CommunityBodyContent(props: Props) {
       const { anonymous } = posts[i];
       output.push(
         <UserPost
+          postID={posts[i]._id}
           _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
           name={
             anonymous

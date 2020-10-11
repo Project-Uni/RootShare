@@ -12,11 +12,14 @@ import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
+import {connect} from 'react-redux';
+
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+import { makeRequest } from '../../../helpers/functions';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -128,6 +131,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  postID: string;
   _id: string;
   name: string;
   toCommunity?: string;
@@ -139,6 +143,9 @@ type Props = {
   commentCount: number;
   style?: any;
   anonymous?: boolean;
+  liked?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function UserPost(props: Props) {
@@ -146,11 +153,13 @@ function UserPost(props: Props) {
   const textFieldStyles = useTextFieldStyles();
 
   const [showFullMessage, setShowFullMessage] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
+
+  const [likeDisabled, setLikeDisabled] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -158,12 +167,24 @@ function UserPost(props: Props) {
     setShowFullMessage(!showFullMessage);
   }
 
-  function handleLikeStatusChange() {
-    const oldLiked = liked;
-    if (oldLiked) setLikeCount(likeCount - 1);
-    else setLikeCount(likeCount + 1);
+  async function likePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest('POST', `/api/posts/action/${props.postID}/like`, {}, true, props.accessToken, props.refreshToken);
+    if(data.success === 1) {
+      setLiked(true);
+      setLikeCount(likeCount + 1)
+    }
+    setLikeDisabled(false)
+  }
 
-    setLiked(!oldLiked);
+  async function unlikePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest('POST', `/api/posts/action/${props.postID}/unlike`, {}, true, props.accessToken, props.refreshToken);
+    if(data.success === 1) {
+      setLiked(false);
+      setLikeCount(likeCount - 1)
+    }
+    setLikeDisabled(false)
   }
 
   function handleSendComment() {
@@ -252,7 +273,7 @@ function UserPost(props: Props) {
     return (
       <div className={styles.likesAndCommentsContainer}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={handleLikeStatusChange}>
+          <IconButton onClick={liked ? unlikePost : likePost} disabled={likeDisabled}>
             {liked ? (
               <BsStarFill size={20} color={colors.bright} />
             ) : (
@@ -351,4 +372,15 @@ function UserPost(props: Props) {
   );
 }
 
-export default UserPost;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserPost);

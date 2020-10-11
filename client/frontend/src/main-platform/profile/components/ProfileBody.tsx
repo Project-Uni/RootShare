@@ -280,6 +280,7 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
+          postID={posts[i]._id}
           _id={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}

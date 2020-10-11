@@ -57,6 +57,9 @@ var userSchema = new Schema(
     communityPosts: {
       type: [{ type: Schema.ObjectId, ref: 'posts' }],
     },
+    likes: {
+      type: [{ type: Schema.ObjectId, ref: 'posts' }]
+    }
   },
   { timestamps: true }
 );

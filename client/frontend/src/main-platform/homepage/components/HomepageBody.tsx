@@ -131,6 +131,7 @@ function HomepageBody(props: Props) {
     setFeed((prevState) => {
       const newEntry = (
         <UserPost
+          postID={post._id}
           _id={props.user._id}
           name={`${props.user.firstName} ${props.user.lastName}`}
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
@@ -153,6 +154,7 @@ function HomepageBody(props: Props) {
       const { anonymous } = posts[i];
       output.push(
         <UserPost
+          postID={posts[i]._id}
           _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
           name={
             anonymous

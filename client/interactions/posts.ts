@@ -528,6 +528,59 @@ export async function getFollowingCommunityPosts(communityID: string) {
   }
 }
 
+//Actions
+export async function likePost(postID: string, userID: string) {
+  try{
+    const postExistsPromise = Post.exists({_id: postID});
+    const userExistsPromise = User.exists({_id: userID});
+
+    return Promise.all([postExistsPromise, userExistsPromise]).then(([postExists, userExists]) => {
+      if(!postExists) return sendPacket(0, 'Post does not exist');
+      if(!userExists) return sendPacket(0, 'User does not exist');
+
+      const postUpdate = Post.updateOne({ _id: postID },{ $addToSet: { likes: userID } }).exec();
+      const userUpdate = User.updateOne({ _id: userID },{ $addToSet: { likes: postID } }).exec();
+
+      return Promise.all([postUpdate, userUpdate]).then(()=>{
+        log('info', `User ${userID} successfully liked post ${postID}`);
+        return sendPacket(1, 'Successfully liked post');
+      }).catch(err => {
+        log('error', err);
+        return sendPacket(-1, 'There was an error updating the models');
+      })
+    });
+  } catch(err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function unlikePost(postID: string, userID: string) {
+  try{
+    const postExistsPromise = Post.exists({_id: postID});
+    const userExistsPromise = User.exists({_id: userID});
+
+    return Promise.all([postExistsPromise, userExistsPromise]).then(([postExists, userExists]) => {
+      if(!postExists) return sendPacket(0, 'Post does not exist');
+      if(!userExists) return sendPacket(0, 'User does not exist');
+
+      const postUpdate = Post.updateOne({ _id: postID }, { $pull: { likes: userID } }).exec();
+      const userUpdate = User.updateOne({ _id: userID }, { $pull: { likes: postID } }).exec();
+
+      return Promise.all([postUpdate, userUpdate]).then(()=>{
+        log('info', `User ${userID} successfully removed like from post ${postID}`);
+        return sendPacket(1, 'Successfully removed like from post');
+      }).catch(err => {
+        log('error', err);
+        return sendPacket(-1, 'There was an error updating the models');
+      })
+    });
+  } catch(err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 //HELPERS
 
 async function getValidatedCommunity(
