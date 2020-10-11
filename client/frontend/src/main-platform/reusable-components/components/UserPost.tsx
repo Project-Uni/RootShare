@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 
 import { connect } from 'react-redux';
+import qs from 'query-string';
 
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
@@ -211,16 +212,15 @@ function UserPost(props: Props) {
   }
 
   async function handleRetrieveComments() {
+    const query = qs.stringify({from: new Date()})
     const { data } = await makeRequest(
         'GET',
-        `/api/posts/comments/${props.postID}`,
+        `/api/posts/comments/${props.postID}?${query}`,
         {},
         true,
         props.accessToken,
         props.refreshToken
     );
-    console.log(data)
-
   }
 
   function handleMoreCommentsClick() {

@@ -65,9 +65,10 @@ export default function postsRoutes(app) {
 
   app.get('/api/posts/comments/:postID', isAuthenticatedWithJWT, async (req, res) => {
     const { postID } = req.params;
-    const packet = await retrieveComments(postID);
-    console.log(packet)
-    return res.json(packet);
+    const startingTimestamp = req.query.from;
+
+    const packet = await retrieveComments(postID, startingTimestamp ? new Date(startingTimestamp) : new Date());
+    return res.json(packet);  
   });
 
   app.post(

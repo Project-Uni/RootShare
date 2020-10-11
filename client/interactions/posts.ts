@@ -673,55 +673,72 @@ function generatePostSignedImagePromises(posts: {
 }
 
 export async function retrieveComments(postID: string, startingTimestamp: Date = new Date()){
-    try {
-        const post = await Post.findOne({ _id: postID}, [
-            'comments',
-        ])
-        .exec()
+  try {
+      const post = await Post.findOne({ _id: postID}, [
+          'comments',
+      ])
+      .exec()
 
-        if (!post) return sendPacket(0, 'Post not found');
+      if (!post) return sendPacket(0, 'Post not found');
 
-        const { comments: commentIDs } = post
+      const { comments: commentIDs } = post
 
-        const conditions = { $and: [
-            { _id: { $in: commentIDs } },
-            { createdAt: { $lt: startingTimestamp} }
-        ]}
+      const conditions = { $and: [
+          { _id: { $in: commentIDs } },
+          { createdAt: { $lt: startingTimestamp} }
+      ]}
 
-        const comments = await Comment.aggregate([
-            { $match: conditions },
-            { $sort: {  createdAt: -1 } },
-            { $limit: 10},
-            { $project: {
-                message: '$message'
-            }}
-        ]).exec();
+      const comments = await Comment.aggregate([
+          { $match: conditions },
+          { $sort: {  createdAt: -1 } },
+          { $limit: 10},
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+            },
+          },
+          { $unwind: '$user' },
+          { $project: {
+            message: '$message',
+            likes: { $size: '$likes' },
+            createdAt: '$createdAt',
+            updatedAt: '$updatedAt',
+            user: {
+              _id: '$user._id',
+              firstName: '$user.firstName',
+              lastName: '$user.lastName',
+              profilePicture: '$user.profilePicture',
+            },
+          }}
+      ]).exec();
 
-        //const commentsWithData = Comment.find({ _id: { $in: commentIDs}})
+      const imagePromises = generatePostSignedImagePromises(comments);
 
-       /*
-       const comments = await Post.aggregate([
-           { $match: { _id: postID} },
-           { $limit: 1},
-           { $lookup: {
-               from: 'comments',
-               localField: 'comments',
-               foreignFieldL '_id',
-               as: 'comment',
-           }},
-           { $unwind: { path: '$comments', preserveNullAndEmptyArrays: true } },
-           { $limit: 1},
+      return Promise.all(imagePromises)
+        .then((signedImageURLs) => {
+          for (let i = 0; i < comments.length; i++)
+            if (signedImageURLs[i]) {
+                comments[i].user.profilePicture = signedImageURLs[i];
+            }
 
-       ]).exec()
-       */
-
-        return sendPacket(1, 'successfully retrieved all comments', {
+          return sendPacket(1, 'Successfully retrieved all comments', {
             comments
+          });
+        })
+        .catch((err) => {
+          log('error', err);
+          return sendPacket(1, 'Successfully retrieved all comments, but failed to retrieve profile pictures', {
+            comments
+          });
         });
-    } catch (err) {
-        log('error', err);
-        return sendPacket(-1, err);
-    }
+      
+  } catch (err) {
+      log('error', err);
+      return sendPacket(-1, err);
+  }
 }
 
 async function retrievePosts(
