@@ -177,6 +177,7 @@ function HomepageBody(props: Props) {
           toCommunity={posts[i].toCommunity.name}
           toCommunityID={posts[i].toCommunity._id}
           anonymous={anonymous}
+          liked={posts[i].liked}
         />
       );
     }

@@ -39,7 +39,8 @@ export default function postsRoutes(app) {
   });
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
-    const packet = await getGeneralFeed(req.user.university._id);
+    const userID = req.user._id;
+    const packet = await getGeneralFeed(req.user.university._id, userID);
     return res.json(packet);
   });
 
@@ -193,8 +194,9 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
+      const userID = req.user._id
 
-      const packet = await getFollowingCommunityPosts(communityID);
+      const packet = await getFollowingCommunityPosts(communityID, userID);
       return res.json(packet);
     }
   );

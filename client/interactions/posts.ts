@@ -316,14 +316,14 @@ export async function broadcastAsCommunityAdmin(
 
 // GETTERS
 
-export async function getGeneralFeed(universityID: string) {
+export async function getGeneralFeed(universityID: string, userID: string = '') {
   try {
     const condition = {
       university: universityID,
       toCommunity: null,
       type: { $eq: 'broadcast' },
     };
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -369,7 +369,7 @@ export async function getFollowingFeed(userID: string) {
       followingCommunities
     );
 
-    const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -386,7 +386,7 @@ export async function getPostsByUser(userID: string) {
 
     const condition = { _id: { $in: user.broadcastedPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
@@ -429,7 +429,7 @@ export async function getInternalCurrentMemberPosts(
   try {
     const condition = { _id: { $in: community.internalCurrentMemberPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -470,7 +470,7 @@ export async function getInternalAlumniPosts(
   try {
     const condition = { _id: { $in: community.internalAlumniPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -487,7 +487,7 @@ export async function getExternalPosts(communityID: string, userID: string) {
 
     // user is a member of the community itself
     if (user.joinedCommunities.indexOf(communityID) !== -1)
-      return getExternalPostsMember_Helper(communityID);
+      return getExternalPostsMember_Helper(communityID, userID);
 
     // user is a member of one of the communities that is following this community
     return getExternalPostsNonMember_Helper(communityID, user);
@@ -497,7 +497,7 @@ export async function getExternalPosts(communityID: string, userID: string) {
   }
 }
 
-export async function getFollowingCommunityPosts(communityID: string) {
+export async function getFollowingCommunityPosts(communityID: string, userID: string) {
   try {
     const community = await Community.findById(communityID)
       .select(['followingCommunities'])
@@ -518,7 +518,7 @@ export async function getFollowingCommunityPosts(communityID: string) {
 
     const condition = { _id: { $in: postIDs } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -635,6 +635,7 @@ function generatePostSignedImagePromises(posts: {
 async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
+  userID: string,
   numSkipped: number = 0, //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
   withProfileImage: boolean = true
@@ -695,6 +696,9 @@ async function retrievePosts(
           name: '$fromCommunity.name',
           profilePicture: '$fromCommunity.profilePicture',
         },
+        liked: {
+          $in: [mongoose.Types.ObjectId(userID), '$likes']
+        }
       },
     },
   ]).exec();
@@ -720,7 +724,7 @@ async function retrievePosts(
     });
 }
 
-async function getExternalPostsMember_Helper(communityID: string) {
+async function getExternalPostsMember_Helper(communityID: string, userID: string) {
   try {
     const community = await Community.findById(communityID)
       .select(['externalPosts'])
@@ -729,7 +733,7 @@ async function getExternalPostsMember_Helper(communityID: string) {
 
     const condition = { _id: { $in: community.externalPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -756,7 +760,7 @@ async function getExternalPostsNonMember_Helper(
     // Retrieve all posts from external feed
 
     const condition = { _id: { $in: community.externalPosts } };
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, user._id);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
