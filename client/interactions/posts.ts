@@ -406,23 +406,25 @@ export async function leaveCommentOnPost(
     return sendPacket(0, 'Message is empty');
   }
   try {
-    const userExistsPromise = User.exists({ _id: userID }).exec();
-    const postExistsPromise = Post.exists({ _id: postID }).exec();
+    const userExistsPromise = await User.exists({ _id: userID });
+    const postExistsPromise = await Post.exists({ _id: postID });
 
     return Promise.all([userExistsPromise, postExistsPromise])
       .then(async ([userExists, postExists]) => {
         if (!userExists) return sendPacket(0, 'Invalid userID provided');
         if (!postExists) return sendPacket(0, 'Invalid PostID provided');
 
-        const comment = new Comment({
+        const comment = await new Comment({
           user: userID,
           message: cleanedMessage,
           post: postID,
-        });
+        }).save();
 
-        const savedComment = await comment.save();
+        await Post.updateOne({_id: postID}, {$push: {comments: comment._id}}).exec()
+
+
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
-          comment: savedComment,
+          comment,
         });
       })
       .catch((err) => {
@@ -615,6 +617,24 @@ function generatePostSignedImagePromises(posts: {
     }
   }
   return profilePicturePromises;
+}
+
+export async function retrieveComments(postID: string){
+    try {
+        const commentIDs = Post.findOne({ _id: postID}, [
+            'comments',
+        ])
+
+        const commentsWithData = Post.find({ _id: { $in: postID}})
+        console.log(commentsWithData)
+
+        return sendPacket(1, 'successfully retrieved all comments', {
+            comments: commentsWithData,
+        });
+    } catch (err) {
+        log('error', err);
+        return sendPacket(-1, err);
+    }
 }
 
 async function retrievePosts(

@@ -154,6 +154,7 @@ function UserPost(props: Props) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
+  const [comments, setComments] = useState('');
   const [showComments, setShowComments] = useState(false);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
@@ -182,14 +183,29 @@ function UserPost(props: Props) {
       setCommentErr('');
     }
 
+    const message = comment
     const { data } = await makeRequest(
         'POST',
         `/api/posts/comment/new/${props._id}`,
-        { comment },
+        { message },
         true,
         props.accessToken,
         props.refreshToken
     );
+
+  }
+
+  async function handleRetrieveComments() {
+    const { data } = await makeRequest(
+        'GET',
+        `/api/posts/comments/${props._id}`,
+        {},
+        true,
+        props.accessToken,
+        props.refreshToken
+    );
+    console.log(data)
+
   }
 
   function handleMoreCommentsClick() {
@@ -290,14 +306,16 @@ function UserPost(props: Props) {
             className={styles.commentCountLink}
             onClick={() => setShowComments(!showComments)}
           >
-            <RSText
-              type="body"
-              color={colors.secondaryText}
-              size={12}
-              className={styles.commentCount}
-            >
-              {props.commentCount} Comments
-            </RSText>
+              <Button onClick={handleRetrieveComments}>
+                  <RSText
+                      type="body"
+                      color={colors.secondaryText}
+                      size={12}
+                      className={styles.commentCount}
+                  >
+                      {props.commentCount} Comments
+                  </RSText>
+              </Button>
           </a>
         </div>
 
