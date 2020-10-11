@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
+import { WelcomeMessage, UserPost, RSTabs, Loader } from '../../reusable-components';
 import MakePostContainer from './MakePostContainer';
 
 import {
@@ -210,7 +210,8 @@ function HomepageBody(props: Props) {
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
         <div className={styles.posts} id="homepage_feed">
-          {feed}
+          <Loader values={feed} numRendered={15} numUpdated={5} loading={false} getValues={()=>{}}/>
+          {/* {feed} */}
         </div>
       ) : (
         <div style={{ marginTop: 10 }}>

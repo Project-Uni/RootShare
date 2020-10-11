@@ -323,7 +323,8 @@ export async function getGeneralFeed(universityID: string) {
       toCommunity: null,
       type: { $eq: 'broadcast' },
     };
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    // const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, 100);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });

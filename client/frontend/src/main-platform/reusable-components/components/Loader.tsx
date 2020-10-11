@@ -88,7 +88,7 @@ function Loader(props: Props) {
   async function updateRender() {
     setInProgress(true);
     if (page > (prevPage || 0)) {
-      if (lastRenderedIndex.current === allValues.length - 1) {
+      if (lastRenderedIndex.current >= allValues.length - 1) {
         await props.getValues();
       } else {
         setRenderedValues(
