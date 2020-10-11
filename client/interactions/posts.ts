@@ -672,7 +672,7 @@ function generatePostSignedImagePromises(posts: {
   return profilePicturePromises;
 }
 
-export async function retrieveComments(postID: string, startingTimestamp: number=Date.now()){
+export async function retrieveComments(postID: string, startingTimestamp: Date = new Date()){
     try {
         const post = await Post.findOne({ _id: postID}, [
             'comments',
@@ -682,8 +682,8 @@ export async function retrieveComments(postID: string, startingTimestamp: number
         if (!post) return sendPacket(0, 'Post not found');
 
         const { comments: commentIDs } = post
+
         const conditions = { $and: [
-            //{ $match: { $in: ['$_id', commentIDs] }},
             { _id: { $in: commentIDs } },
             { createdAt: { $lt: startingTimestamp} }
         ]}
@@ -697,7 +697,6 @@ export async function retrieveComments(postID: string, startingTimestamp: number
             }}
         ]).exec();
 
-        console.log("Comments:", comments);
         //const commentsWithData = Comment.find({ _id: { $in: commentIDs}})
 
        /*

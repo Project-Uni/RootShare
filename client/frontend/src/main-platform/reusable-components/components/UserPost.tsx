@@ -201,7 +201,7 @@ function UserPost(props: Props) {
     const message = comment
     const { data } = await makeRequest(
         'POST',
-        `/api/posts/comment/new/${props._id}`,
+        `/api/posts/comment/new/${props.postID}`,
         { message },
         true,
         props.accessToken,

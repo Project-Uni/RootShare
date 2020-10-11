@@ -75,10 +75,11 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { postID } = req.params;
-      const { comment } = req.body;
-      if (!comment)
+      const { message } = req.body;
+      if (!message)
         return res.json(sendPacket(-1, 'Message is missing from request body.'));
-      const packet = await leaveCommentOnPost(req.user._id, postID, comment);
+      const packet = await leaveCommentOnPost(req.user._id, postID, message);
+      return res.json(packet);
     }
     );
 
