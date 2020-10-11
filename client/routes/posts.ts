@@ -25,7 +25,8 @@ import {
   broadcastAsCommunityAdmin,
   //Post Actions
   likePost,
-  unlikePost
+  unlikePost,
+  getLikes
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -240,13 +241,21 @@ export default function postsRoutes(app) {
 
     const packet = await likePost(postID, userID);
     return res.json(packet);
-  })
+  });
 
   app.post('/api/posts/action/:postID/unlike', isAuthenticatedWithJWT, async (req, res) => {
     const { postID } = req.params;
     const userID = req.user._id;
 
     const packet = await unlikePost(postID, userID);
+    return res.json(packet);
+  });
+
+  app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {
+    const { postID } = req.params;
+    const userID = req.user._id;
+
+    const packet = await getLikes(postID, userID)
     return res.json(packet);
   })
 }

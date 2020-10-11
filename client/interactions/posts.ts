@@ -1,5 +1,7 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { Community, CommunityEdge, Post, User } from '../models';
+import { generateSignedImagePromises } from './utilities'
+
 const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
@@ -582,7 +584,30 @@ export async function unlikePost(postID: string, userID: string) {
 }
 
 export async function getLikes(postID: string, userID: string) {
-  
+  try {
+    const post = await Post.findById(postID)
+      .select('likes')
+      .populate({path: 'likes', select: 'firstName lastName profilePicture'}).exec();
+
+    if(!post) return sendPacket(0, 'Could not find post');
+    
+    const { likes } = post;
+    const signedImagePromises = generateSignedImagePromises(likes, 'profile');
+
+    return Promise.all(signedImagePromises).then(signedImageURLs => {
+      for (let i = 0; i < signedImageURLs.length; i++)
+        if (signedImageURLs[i]) 
+          likes[i].profilePicture = signedImageURLs[i];
+
+      return sendPacket(1, 'Successfully retrieved likes', { likes })
+    }).catch(err => {
+      log('info', 'Successfully retrieved likes but failed to retrieve profile pictures');
+      return sendPacket(1, 'Successfully retrieved likes but failed to retrieve profile pictures', { likes });
+    })
+  } catch(err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 //HELPERS

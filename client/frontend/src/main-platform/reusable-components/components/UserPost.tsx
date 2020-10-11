@@ -21,7 +21,7 @@ import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import { makeRequest } from '../../../helpers/functions';
 import RSModal from './RSModal';
-import LikesModal from '../LikesModal';
+import LikesModal from './LikesModal';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -370,7 +370,7 @@ function UserPost(props: Props) {
 
   return (
     <Box borderRadius={10} boxShadow={2} className={props.style || null}>
-      <LikesModal open={showLikesModal} onClose={()=>setShowLikesModal(false)}/>
+      {showLikesModal && <LikesModal open={showLikesModal} onClose={()=>setShowLikesModal(false)} postID={props.postID}/>}
       <div className={styles.wrapper}>
         {renderPostHeader()}
         {renderMessage()}
