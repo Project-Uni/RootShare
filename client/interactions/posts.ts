@@ -619,17 +619,52 @@ function generatePostSignedImagePromises(posts: {
   return profilePicturePromises;
 }
 
-export async function retrieveComments(postID: string){
+export async function retrieveComments(postID: string, startingTimestamp: number=Date.now()){
     try {
-        const commentIDs = Post.findOne({ _id: postID}, [
+        const post = await Post.findOne({ _id: postID}, [
             'comments',
         ])
+        .exec()
 
-        const commentsWithData = Post.find({ _id: { $in: postID}})
-        console.log(commentsWithData)
+        if (!post) return sendPacket(0, 'Post not found');
+
+        const { comments: commentIDs } = post
+        const conditions = { $and: [
+            //{ $match: { $in: ['$_id', commentIDs] }},
+            { _id: { $in: commentIDs } },
+            { createdAt: { $lt: startingTimestamp} }
+        ]}
+
+        const comments = await Comment.aggregate([
+            { $match: conditions },
+            { $sort: {  createdAt: -1 } },
+            { $limit: 10},
+            { $project: {
+                message: '$message'
+            }}
+        ]).exec();
+
+        console.log("Comments:", comments);
+        //const commentsWithData = Comment.find({ _id: { $in: commentIDs}})
+
+       /*
+       const comments = await Post.aggregate([
+           { $match: { _id: postID} },
+           { $limit: 1},
+           { $lookup: {
+               from: 'comments',
+               localField: 'comments',
+               foreignFieldL '_id',
+               as: 'comment',
+           }},
+           { $unwind: { path: '$comments', preserveNullAndEmptyArrays: true } },
+           { $limit: 1},
+
+       ]).exec()
+       */
 
         return sendPacket(1, 'successfully retrieved all comments', {
-            comments: commentsWithData,
+            comments
         });
     } catch (err) {
         log('error', err);
