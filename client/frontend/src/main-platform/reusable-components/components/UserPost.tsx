@@ -20,6 +20,8 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import { makeRequest } from '../../../helpers/functions';
+import RSModal from './RSModal';
+import LikesModal from '../LikesModal';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -115,6 +117,12 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 8,
     marginBottom: 8,
   },
+  likes: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer'
+    }
+  }
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -160,6 +168,7 @@ function UserPost(props: Props) {
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
   const [likeDisabled, setLikeDisabled] = useState(false);
+  const [showLikesModal, setShowLikesModal] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -281,7 +290,7 @@ function UserPost(props: Props) {
             )}
           </IconButton>
 
-          <RSText type="body" color={colors.secondaryText} size={12}>
+          <RSText type="body" color={colors.secondaryText} size={12} className={styles.likes} onClick={()=>{setShowLikesModal(true)}}>
             {likeCount} Likes
           </RSText>
           <a
@@ -361,6 +370,7 @@ function UserPost(props: Props) {
 
   return (
     <Box borderRadius={10} boxShadow={2} className={props.style || null}>
+      <LikesModal open={showLikesModal} onClose={()=>setShowLikesModal(false)}/>
       <div className={styles.wrapper}>
         {renderPostHeader()}
         {renderMessage()}

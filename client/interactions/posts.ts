@@ -581,6 +581,10 @@ export async function unlikePost(postID: string, userID: string) {
   }
 }
 
+export async function getLikes(postID: string, userID: string) {
+  
+}
+
 //HELPERS
 
 async function getValidatedCommunity(
