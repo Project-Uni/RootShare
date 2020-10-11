@@ -406,23 +406,25 @@ export async function leaveCommentOnPost(
     return sendPacket(0, 'Message is empty');
   }
   try {
-    const userExistsPromise = User.exists({ _id: userID }).exec();
-    const postExistsPromise = Post.exists({ _id: postID }).exec();
+    const userExistsPromise = await User.exists({ _id: userID });
+    const postExistsPromise = await Post.exists({ _id: postID });
 
     return Promise.all([userExistsPromise, postExistsPromise])
       .then(async ([userExists, postExists]) => {
         if (!userExists) return sendPacket(0, 'Invalid userID provided');
         if (!postExists) return sendPacket(0, 'Invalid PostID provided');
 
-        const comment = new Comment({
+        const comment = await new Comment({
           user: userID,
           message: cleanedMessage,
           post: postID,
-        });
+        }).save();
 
-        const savedComment = await comment.save();
+        await Post.updateOne({_id: postID}, {$push: {comments: comment._id}}).exec()
+
+
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
-          comment: savedComment,
+          comment,
         });
       })
       .catch((err) => {
@@ -668,6 +670,59 @@ function generatePostSignedImagePromises(posts: {
     }
   }
   return profilePicturePromises;
+}
+
+export async function retrieveComments(postID: string, startingTimestamp: number=Date.now()){
+    try {
+        const post = await Post.findOne({ _id: postID}, [
+            'comments',
+        ])
+        .exec()
+
+        if (!post) return sendPacket(0, 'Post not found');
+
+        const { comments: commentIDs } = post
+        const conditions = { $and: [
+            //{ $match: { $in: ['$_id', commentIDs] }},
+            { _id: { $in: commentIDs } },
+            { createdAt: { $lt: startingTimestamp} }
+        ]}
+
+        const comments = await Comment.aggregate([
+            { $match: conditions },
+            { $sort: {  createdAt: -1 } },
+            { $limit: 10},
+            { $project: {
+                message: '$message'
+            }}
+        ]).exec();
+
+        console.log("Comments:", comments);
+        //const commentsWithData = Comment.find({ _id: { $in: commentIDs}})
+
+       /*
+       const comments = await Post.aggregate([
+           { $match: { _id: postID} },
+           { $limit: 1},
+           { $lookup: {
+               from: 'comments',
+               localField: 'comments',
+               foreignFieldL '_id',
+               as: 'comment',
+           }},
+           { $unwind: { path: '$comments', preserveNullAndEmptyArrays: true } },
+           { $limit: 1},
+
+       ]).exec()
+       */
+
+        return sendPacket(1, 'successfully retrieved all comments', {
+            comments
+        });
+    } catch (err) {
+        log('error', err);
+        return sendPacket(-1, err);
+    }
 }
 
 async function retrievePosts(
