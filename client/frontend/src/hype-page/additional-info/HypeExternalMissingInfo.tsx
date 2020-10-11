@@ -103,7 +103,7 @@ function HypeExternalMissingInfo(props: Props) {
   const [landingRedirect, setLandingRedirect] = useState(false);
   const [additionalRedirect, setAdditionalRedirect] = useState(false);
 
-  const [university, setUniversity] = useState('Purdue');
+  const [university, setUniversity] = useState('Purdue University');
   const [standing, setStanding] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

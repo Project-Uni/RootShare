@@ -7,7 +7,7 @@ import { request } from '@octokit/request';
 import { Express } from 'express';
 
 const PROJECT_OWNER = 'Project-Uni';
-const REPO = 'RootShare';
+const REPO = 'RootShare-Bugs';
 
 export default function feedbackRoutes(app: Express) {
   const requestWithAuth = request.defaults({
@@ -15,21 +15,6 @@ export default function feedbackRoutes(app: Express) {
       authorization: `token ${GITHUB_OAUTH}`,
     },
     org: 'Project-Uni',
-  });
-
-  //TODO - Remove this route after integrating with UI
-  app.get('/api/feedback/testCreateIssues', async (req, res) => {
-    const result = await requestWithAuth(
-      `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
-      {
-        title: 'Test New Issue',
-        body: 'I am testing to see if I can programmatically create a new issue',
-        labels: ['Bug'],
-        assignees: ['caitecap'],
-      }
-    );
-    log('github', `Created new reported bug: title`);
-    return res.json({ result });
   });
 
   app.post('/api/feedback/bug', isAuthenticatedWithJWT, async (req, res) => {
@@ -43,19 +28,23 @@ export default function feedbackRoutes(app: Express) {
 
     const body = generateGithubIssueContent(category, message, req.user);
 
-    //TODO - Figure out failure responses for the API request
-    const result = await requestWithAuth(
-      `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
-      {
-        title,
-        body,
-        labels: ['Bug'],
-        assignees: ['caitecap'],
-      }
-    );
+    try {
+      const result = await requestWithAuth(
+        `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
+        {
+          title,
+          body,
+          labels: ['Bug'],
+          // assignees: ['caitecap'],
+        }
+      );
 
-    log('github', `Created new reported bug: ${title}`);
-    return res.json(sendPacket(1, 'Successfully reported your bug'));
+      log('github', `Created new reported bug: ${title}`);
+      return res.json(sendPacket(1, 'Successfully reported your bug'));
+    } catch (err) {
+      log('error', err);
+      return res.json(sendPacket(-1, 'There was an error reporting this bug'));
+    }
   });
 }
 

@@ -6,7 +6,7 @@ import { useLocation, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { makeRequest } from '../helpers/functions';
+import { checkDesktop, makeRequest } from '../helpers/functions';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
@@ -68,7 +68,13 @@ function Login(props: Props) {
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const [query, setQuery] = useQuery();
-  const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
+  // const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
+  const redirectUrl =
+    query && query[1] !== '/login'
+      ? query[1]
+      : checkDesktop()
+      ? '/home'
+      : '/event/5f7b8a62be8ddb321a9357b2';
 
   useEffect(() => {
     checkAuth();

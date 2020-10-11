@@ -13,8 +13,8 @@ import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host
 
 import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
-const HEADER_HEIGHT = 64;
 const VERTICAL_PADDING_TOTAL = 40;
 
 const useStyles = makeStyles((_: any) => ({

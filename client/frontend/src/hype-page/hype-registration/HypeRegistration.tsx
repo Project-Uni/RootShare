@@ -64,7 +64,7 @@ function HypeRegistration(props: Props) {
   const [username, setUsername] = useState('');
   const [usernameErr, setUsernameErr] = useState('');
 
-  const [university, setUniversity] = useState('Purdue');
+  const [university, setUniversity] = useState('Purdue University');
   const [universityErr, setUniversityErr] = useState('');
 
   const [firstName, setFirstName] = useState('');

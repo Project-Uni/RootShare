@@ -9,11 +9,11 @@ import { log } from '../../../helpers/functions';
 import { connect } from 'react-redux';
 import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 import { MuxMetaDataType } from '../../../helpers/types';
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
 const AD_CONTAINER_HEIGHT = 125;
-const HEADER_HEIGHT = 64;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

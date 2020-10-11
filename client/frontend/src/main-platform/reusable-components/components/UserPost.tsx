@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, TextField, IconButton, CircularProgress } from '@material-ui/core';
+import {
+  Button,
+  TextField,
+  IconButton,
+  CircularProgress,
+  Box,
+} from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
@@ -8,19 +14,21 @@ import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 
-import { makeRequest } from '../../../helpers/functions';
+import {connect} from 'react-redux';
+
 import { Comment } from '../';
 import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+import { makeRequest } from '../../../helpers/functions';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    borderRadius: 1,
+    borderRadius: 10,
     padding: 1,
     paddingLeft: 20,
     paddingRight: 20,
@@ -125,6 +133,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  postID: string;
   _id: string;
   name: string;
   toCommunity?: string;
@@ -136,6 +145,9 @@ type Props = {
   commentCount: number;
   style?: any;
   anonymous?: boolean;
+  liked?: boolean;
+  accessToken: string;
+  refreshToken: string;
 };
 
 function UserPost(props: Props) {
@@ -143,13 +155,14 @@ function UserPost(props: Props) {
   const textFieldStyles = useTextFieldStyles();
 
   const [showFullMessage, setShowFullMessage] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
   const [commentErr, setCommentErr] = useState('');
+  const [likeDisabled, setLikeDisabled] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -157,12 +170,24 @@ function UserPost(props: Props) {
     setShowFullMessage(!showFullMessage);
   }
 
-  function handleLikeStatusChange() {
-    const oldLiked = liked;
-    if (oldLiked) setLikeCount(likeCount - 1);
-    else setLikeCount(likeCount + 1);
+  async function likePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest('POST', `/api/posts/action/${props.postID}/like`, {}, true, props.accessToken, props.refreshToken);
+    if(data.success === 1) {
+      setLiked(true);
+      setLikeCount(likeCount + 1)
+    }
+    setLikeDisabled(false)
+  }
 
-    setLiked(!oldLiked);
+  async function unlikePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest('POST', `/api/posts/action/${props.postID}/unlike`, {}, true, props.accessToken, props.refreshToken);
+    if(data.success === 1) {
+      setLiked(false);
+      setLikeCount(likeCount - 1)
+    }
+    setLikeDisabled(false)
   }
 
   async function handleSendComment() {
@@ -174,7 +199,7 @@ function UserPost(props: Props) {
       setCommentErr('');
     }
 
-    const { data } = await makeRequest();
+    // const { data } = await makeRequest();
   }
 
   function handleMoreCommentsClick() {
@@ -259,7 +284,7 @@ function UserPost(props: Props) {
     return (
       <div className={styles.likesAndCommentsContainer}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={handleLikeStatusChange}>
+          <IconButton onClick={liked ? unlikePost : likePost} disabled={likeDisabled}>
             {liked ? (
               <BsStarFill size={20} color={colors.bright} />
             ) : (
@@ -348,19 +373,20 @@ function UserPost(props: Props) {
   }
 
   return (
-    <div className={[styles.wrapper, props.style || null].join(' ')}>
-      {renderPostHeader()}
-      {renderMessage()}
-      {renderLikesAndCommentCount()}
-      {showComments && renderComments()}
-      {renderLeaveCommentArea()}
-    </div>
+    <Box borderRadius={10} boxShadow={2} className={props.style || null}>
+      <div className={styles.wrapper}>
+        {renderPostHeader()}
+        {renderMessage()}
+        {renderLikesAndCommentCount()}
+        {showComments && renderComments()}
+        {renderLeaveCommentArea()}
+      </div>
+    </Box>
   );
 }
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
-    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };
