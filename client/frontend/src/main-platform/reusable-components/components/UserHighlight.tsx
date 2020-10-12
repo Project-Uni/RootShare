@@ -27,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    border: `1px solid ${colors.primaryText}`,
+    // border: `1px solid ${colors.primaryText}`,
   },
   connectButton: {
     background: colors.bright,
@@ -197,16 +197,18 @@ function UserHighlight(props: Props) {
     >
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${props.userID}`}>
-            <ProfilePicture
-              type="profile"
-              currentPicture={props.profilePic}
-              height={70}
-              width={70}
-              borderRadius={50}
-              className={styles.profilePic}
-            />
-          </a>
+          <Box height={70} width={70} borderRadius={50} boxShadow={5}>
+            <a href={`/profile/${props.userID}`}>
+              <ProfilePicture
+                type="profile"
+                currentPicture={props.profilePic}
+                height={70}
+                width={70}
+                borderRadius={50}
+                className={styles.profilePic}
+              />
+            </a>
+          </Box>
           <div className={styles.textContainer}>
             <div className={styles.nameContainer}>
               <a href={`/profile/${props.userID}`} className={styles.noUnderline}>

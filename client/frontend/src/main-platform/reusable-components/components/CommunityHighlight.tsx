@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    border: `1px solid ${colors.bright}`,
+    // border: `1px solid ${colors.bright}`,
   },
   connectButton: {
     background: colors.bright,
@@ -155,17 +155,19 @@ function CommunityHighlight(props: Props) {
     >
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/community/${props.communityID}`}>
-            <ProfilePicture
-              type="community"
-              height={70}
-              width={70}
-              borderRadius={50}
-              borderWidth={1}
-              currentPicture={props.profilePicture}
-              pictureStyle={styles.profilePic}
-            />
-          </a>
+          <Box height={70} width={70} borderRadius={50} boxShadow={5} style={{border: `1px solid ${colors.bright}`}}>
+            <a href={`/community/${props.communityID}`}>
+              <ProfilePicture
+                type="community"
+                height={70}
+                width={70}
+                borderRadius={50}
+                borderWidth={1}
+                currentPicture={props.profilePicture}
+                pictureStyle={styles.profilePic}
+              />
+            </a>
+          </Box>
           <div className={styles.textContainer}>
             <div style={{ display: 'flex', alignItems: 'center' }}></div>
 
