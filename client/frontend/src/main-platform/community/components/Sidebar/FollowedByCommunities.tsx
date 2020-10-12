@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { Slide } from '@material-ui/core';
-import { TransitionProps } from '@material-ui/core/transitions';
-import RSText from '../../../../base-components/RSText';
-import { colors } from '../../../../theme/Colors';
-import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
-import SingleFollowCommunity from './SingleFollowCommunity';
+
 import { makeRequest } from '../../../../helpers/functions';
+import { colors } from '../../../../theme/Colors';
 import { HEADER_HEIGHT } from '../../../../helpers/constants';
+
+import SingleFollowCommunity from './SingleFollowCommunity';
+import RSText from '../../../../base-components/RSText';
 
 const VERTICAL_PADDING_TOTAL = 40;
 
@@ -57,12 +56,6 @@ function FollowedByCommunities(props: Props) {
     FollowCommunity[]
   >([]);
 
-  const [transition, setTransition] = useState<any>();
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     fetchData();
@@ -107,9 +100,7 @@ function FollowedByCommunities(props: Props) {
     const communitiesFollowing: any = [];
     if (followingCommunities.length === 0) return;
 
-    const numSuggestionsDisplayed =
-      followingCommunities.length > 6 ? 6 : followingCommunities.length;
-    for (let i = 0; i < numSuggestionsDisplayed; i++) {
+    for (let i = 0; i < followingCommunities.length; i++) {
       const currSuggestion = followingCommunities[i];
       communitiesFollowing.push(
         <SingleFollowCommunity
@@ -119,8 +110,7 @@ function FollowedByCommunities(props: Props) {
           type={currSuggestion.type}
           description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
-          isLast={i === numSuggestionsDisplayed - 1}
-          setNotification={setNotification}
+          isLast={i === followingCommunities.length -1 }
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
         />
@@ -146,9 +136,7 @@ function FollowedByCommunities(props: Props) {
     const communitiesFollowedBy: any = [];
     if (followedByCommunities.length === 0) return;
 
-    const numSuggestionsDisplayed =
-      followedByCommunities.length > 6 ? 6 : followedByCommunities.length;
-    for (let i = 0; i < numSuggestionsDisplayed; i++) {
+    for (let i = 0; i < followedByCommunities.length; i++) {
       const currSuggestion = followedByCommunities[i];
       communitiesFollowedBy.push(
         <SingleFollowCommunity
@@ -158,8 +146,7 @@ function FollowedByCommunities(props: Props) {
           type={currSuggestion.type}
           description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
-          isLast={i === numSuggestionsDisplayed - 1}
-          setNotification={setNotification}
+          isLast={i === followedByCommunities.length - 1}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
         />
@@ -181,26 +168,8 @@ function FollowedByCommunities(props: Props) {
     );
   }
 
-  function setNotification(
-    successMode: 'success' | 'notify' | 'error',
-    message: string
-  ) {
-    function slideLeft(props: TransitionProps) {
-      return <Slide {...props} direction="left" />;
-    }
-    setSnackbarMode(successMode);
-    setSnackbarMessage(message);
-    setTransition(() => slideLeft);
-  }
-
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <ManageSpeakersSnackbar
-        message={snackbarMessage}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={() => setSnackbarMode(null)}
-      />
       {renderFollowingCommunities()}
       {renderFollowedByCommunities()}
     </div>

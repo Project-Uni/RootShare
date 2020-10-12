@@ -53,10 +53,6 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.bright,
     marginLeft: 7,
   },
-  fadeOut: {
-    opacity: 0,
-    transition: 'opacity 0.5s',
-  },
   joinedText: {
     marginTop: 10,
   },
@@ -82,12 +78,6 @@ type Props = {
   profilePicture: string;
   type: string;
   _id: string;
-
-  setNotification: (
-    successMode: 'success' | 'notify' | 'error',
-    message: string
-  ) => void;
-
   isLast?: boolean;
   accessToken: string;
   refreshToken: string;
@@ -96,57 +86,9 @@ type Props = {
 function SingleFollowCommunity(props: Props) {
   const styles = useStyles();
 
-  const [visible, setVisible] = useState(true);
-  const [association, setAssociation] = useState('NOT A MEMBER');
-
-  useEffect(() => {
-    updateAssociation();
-  });
-
-  function updateAssociation() {
-    setAssociation('MEMBER');
-  }
-
-  async function requestJoin() {
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${props._id}/join`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) {
-      const message =
-        data['content']['newStatus'] === 'PENDING'
-          ? `Successfully requested to join ${props.name}`
-          : `Successfully joined ${props.name}`;
-      props.setNotification('success', message);
-    } else if (data['success'] === 0) {
-      props.setNotification('notify', 'User is already a part of community');
-    } else {
-      props.setNotification('error', 'There was an error requesting the connection');
-      setVisible(true);
-    }
-  }
-
-  function renderButtons() {
-    return (
-      <div className={styles.buttonContainer}>
-        <Button className={styles.removeButton} size="small" onClick={requestJoin}>
-          {association}
-        </Button>
-        <Button className={styles.connectButton} size="small" onClick={requestJoin}>
-          Join
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
-      <div className={visible ? '' : styles.fadeOut}>
+      <div>
         <div className={styles.communityInfo}>
           <a href={`/community/${props._id}`} className={styles.communityLink}>
             <ProfilePicture
