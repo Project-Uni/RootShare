@@ -11,6 +11,8 @@ import {
   getGeneralFeed,
   getFollowingFeed,
   getPostsByUser,
+  leaveCommentOnPost,
+  retrieveComments,
   //New Community Internal
   createInternalCurrentMemberCommunityPost,
   createInternalAlumniPost,
@@ -62,7 +64,28 @@ export default function postsRoutes(app) {
     }
   );
 
+  app.get('/api/posts/comments/:postID', isAuthenticatedWithJWT, async (req, res) => {
+    const { postID } = req.params;
+    const startingTimestamp = req.query.from;
+
+    const packet = await retrieveComments(postID, startingTimestamp ? new Date(startingTimestamp) : new Date());
+    return res.json(packet);  
+  });
+
   app.post(
+    '/api/posts/comment/new/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const { message } = req.body;
+      if (!message)
+        return res.json(sendPacket(-1, 'Message is missing from request body.'));
+      const packet = await leaveCommentOnPost(req.user._id, postID, message);
+      return res.json(packet);
+    }
+    );
+
+    app.post(
     '/api/posts/community/:communityID/internal/current',
     isAuthenticatedWithJWT,
     async (req, res) => {

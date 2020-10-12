@@ -5,6 +5,7 @@ export type PostType = {
   updatedAt: string;
   likes: number;
   liked: boolean;
+  comments: number;
   user: {
     _id: string;
     firstName: string;
