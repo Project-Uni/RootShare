@@ -1,5 +1,5 @@
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Community, CommunityEdge, Post, User } from '../models';
+import { Community, CommunityEdge, Comment, Post, User } from '../models';
 const mongoose = require('mongoose');
 
 const NUM_POSTS_RETRIEVED = 20;
@@ -396,6 +396,47 @@ export async function getPostsByUser(userID: string, currUserID: string) {
   }
 }
 
+export async function leaveCommentOnPost(
+  userID: string,
+  postID: string,
+  message: string
+) {
+  const cleanedMessage = message.trim();
+  if (cleanedMessage.length === 0) {
+    return sendPacket(0, 'Message is empty');
+  }
+  try {
+    const userExistsPromise = await User.exists({ _id: userID });
+    const postExistsPromise = await Post.exists({ _id: postID });
+
+    return Promise.all([userExistsPromise, postExistsPromise])
+      .then(async ([userExists, postExists]) => {
+        if (!userExists) return sendPacket(0, 'Invalid userID provided');
+        if (!postExists) return sendPacket(0, 'Invalid PostID provided');
+
+        const comment = await new Comment({
+          user: userID,
+          message: cleanedMessage,
+          post: postID,
+        }).save();
+
+        await Post.updateOne({_id: postID}, {$push: {comments: comment._id}}).exec()
+
+
+        return sendPacket(1, `Successfully posted comment on post ${postID}`, {
+          comment,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 export async function getInternalCurrentMemberPosts(
   communityID: string,
   userID: string,
@@ -582,7 +623,6 @@ export async function unlikePost(postID: string, userID: string) {
 }
 
 //HELPERS
-
 async function getValidatedCommunity(
   communityID: string,
   userID: string,
@@ -632,6 +672,75 @@ function generatePostSignedImagePromises(posts: {
   return profilePicturePromises;
 }
 
+export async function retrieveComments(postID: string, startingTimestamp: Date = new Date()){
+  try {
+      const post = await Post.findOne({ _id: postID}, [
+          'comments',
+      ])
+      .exec()
+
+      if (!post) return sendPacket(0, 'Post not found');
+
+      const { comments: commentIDs } = post
+
+      const conditions = { $and: [
+          { _id: { $in: commentIDs } },
+          { createdAt: { $lt: startingTimestamp} }
+      ]}
+
+      const comments = await Comment.aggregate([
+          { $match: conditions },
+          { $sort: {  createdAt: -1 } },
+          { $limit: 10},
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user',
+              foreignField: '_id',
+              as: 'user',
+            },
+          },
+          { $unwind: '$user' },
+          { $project: {
+            message: '$message',
+            likes: { $size: '$likes' },
+            createdAt: '$createdAt',
+            updatedAt: '$updatedAt',
+            user: {
+              _id: '$user._id',
+              firstName: '$user.firstName',
+              lastName: '$user.lastName',
+              profilePicture: '$user.profilePicture',
+            },
+          }}
+      ]).exec();
+
+      const imagePromises = generatePostSignedImagePromises(comments);
+
+      return Promise.all(imagePromises)
+        .then((signedImageURLs) => {
+          for (let i = 0; i < comments.length; i++)
+            if (signedImageURLs[i]) {
+                comments[i].user.profilePicture = signedImageURLs[i];
+            }
+
+          return sendPacket(1, 'Successfully retrieved all comments', {
+            comments
+          });
+        })
+        .catch((err) => {
+          log('error', err);
+          return sendPacket(1, 'Successfully retrieved all comments, but failed to retrieve profile pictures', {
+            comments
+          });
+        });
+      
+  } catch (err) {
+      log('error', err);
+      return sendPacket(-1, err);
+  }
+}
+
 async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
@@ -676,6 +785,9 @@ async function retrievePosts(
       $project: {
         message: '$message',
         likes: { $size: '$likes' },
+        comments: { 
+          $size: { $ifNull: ['$comments', []] }
+        },
         createdAt: '$createdAt',
         updatedAt: '$updatedAt',
         type: '$type',

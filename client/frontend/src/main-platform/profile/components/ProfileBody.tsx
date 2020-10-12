@@ -290,7 +290,7 @@ function ProfileBody(props: Props) {
           })()}
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.post}
           liked={posts[i].liked}
         />

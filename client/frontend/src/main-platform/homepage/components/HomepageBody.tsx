@@ -170,7 +170,7 @@ function HomepageBody(props: Props) {
           }
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.postBox}
           key={posts[i]._id}
           toCommunity={posts[i].toCommunity.name}
