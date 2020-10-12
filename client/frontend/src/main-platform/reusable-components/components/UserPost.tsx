@@ -398,9 +398,11 @@ function UserPost(props: Props) {
           </a>
         </div>
 
-        <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-          See {showFullMessage ? 'less' : 'more'}
-        </Button>
+        {props.message.length !== shortenedMessage.length && 
+          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+            See {showFullMessage ? 'less' : 'more'}
+          </Button> 
+        }
       </div>
     );
   }
