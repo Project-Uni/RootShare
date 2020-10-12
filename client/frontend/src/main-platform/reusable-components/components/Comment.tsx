@@ -7,9 +7,12 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    borderBottom: `1px solid ${colors.fourth}`,
+    borderTop: `1px solid ${colors.background}`,
     paddingTop: 10,
     paddingBottom: 10,
+    '&:hover': {
+      background: colors.background
+    }
   },
   commentProfile: {
     height: 40,
