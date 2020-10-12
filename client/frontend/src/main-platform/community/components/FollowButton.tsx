@@ -132,7 +132,7 @@ function FollowButton(props: Props) {
         setSnackbarMode('notify');
       } else {
         setTransition(() => slideLeft);
-        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMessage(`There was an error requesting to follow ${props.name}.`);
         setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
@@ -167,7 +167,7 @@ function FollowButton(props: Props) {
         setSnackbarMode('notify');
       } else {
         setTransition(() => slideLeft);
-        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMessage('There was an error cancelling your follow request.');
         setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
@@ -198,7 +198,7 @@ function FollowButton(props: Props) {
         setSnackbarMode('notify');
       } else {
         setTransition(() => slideLeft);
-        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMessage(`There was an error trying to unfollow ${props.name}.`);
         setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
