@@ -167,6 +167,8 @@ function UserPost(props: Props) {
   const [showFullMessage, setShowFullMessage] = useState(false);
   const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
+  const [commentCount, setCommentCount] = useState(props.commentCount);
+
   const [comment, setComment] = useState('');
   const [earliestComment, setEarliestComment] = useState(new Date());
   const [showComments, setShowComments] = useState(false);
@@ -222,8 +224,9 @@ function UserPost(props: Props) {
     );
 
     if (data.success === 1){
-        setComment('')
-        const newComment = generateComments([data.content.comment])
+        setComment('');
+        setCommentCount(commentCount + 1);
+        const newComment = generateComments([data.content.comment]);
         setComments((prevComments)=>{
             const newComment =
             <Comment
@@ -237,7 +240,6 @@ function UserPost(props: Props) {
             />
             return prevComments.concat(newComment)
         })
-        console.log(data)
     }
 
   }
@@ -381,7 +383,7 @@ function UserPost(props: Props) {
                       size={12}
                       className={styles.commentCount}
                   >
-                      {props.commentCount} Comments
+                      {commentCount} Comments
                   </RSText>
               </a>
           </a>
