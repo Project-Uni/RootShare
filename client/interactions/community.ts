@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import { COMMUNITY_TYPE } from '../helpers/types';
-import { generateSignedImagePromises } from '../interactions/utilities';
+import {
+  generateSignedImagePromises,
+  connectionsToUserIDStrings,
+  getUserToUserRelationship,
+  addCalculatedUserFields,
+} from '../interactions/utilities';
 
 export async function createNewCommunity(
   name: string,
@@ -137,25 +142,13 @@ export async function getCommunityInformation(communityID: string, userID: strin
 
     return Promise.all([communityPromise, userPromise])
       .then(([community, user]) => {
-        //Calculating Mutual Connections
-        const connections = user['connections'].reduce((output, connection) => {
-          if (connection.accepted) {
-            const otherID =
-              connection['from'].toString() != userID.toString()
-                ? connection['from']
-                : connection['to'];
-
-            output.push(otherID.toString());
-          }
-          return output;
-        }, []);
-
+        //Calculating Connections in Community
+        const connections = connectionsToUserIDStrings(userID, user['connections']);
         const members = community.members.map((member) => member.toString());
 
-        const mutualConnections = members.filter((member) => {
-          if (connections.indexOf(member) !== -1) return true;
-          return false;
-        });
+        const mutualConnections = members.filter(
+          (member) => connections.indexOf(member) !== -1
+        );
 
         log(
           'info',
@@ -818,6 +811,7 @@ export async function unfollowCommunity(
 
 export async function getAllFollowingCommunities(communityID: string) {
   try {
+    //TODO - Update this to use aggregation pipeline
     const community = await Community.findById(communityID)
       .select(['followingCommunities'])
       .populate({
@@ -825,7 +819,7 @@ export async function getAllFollowingCommunities(communityID: string) {
         select: 'to',
         populate: {
           path: 'to',
-          select: 'name description type profilePicture',
+          select: 'name description type profilePicture members',
         },
       });
 
@@ -864,6 +858,7 @@ export async function getAllFollowingCommunities(communityID: string) {
 
 export async function getAllFollowedByCommunities(communityID: string) {
   try {
+    //TODO - Update this to use aggregation pipeline
     const community = await Community.findById(communityID)
       .select(['followedByCommunities'])
       .populate({
@@ -871,7 +866,7 @@ export async function getAllFollowedByCommunities(communityID: string) {
         select: 'from',
         populate: {
           path: 'from',
-          select: 'name description type profilePicture',
+          select: 'name description type profilePicture members',
         },
       });
 
@@ -954,6 +949,79 @@ export async function getAllPendingFollowRequests(communityID: string) {
         log('error', err);
         return sendPacket(-1, err);
       });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getCommunityMembers(userID: string, communityID: string) {
+  try {
+    const communityPromise = Community.findById(communityID)
+      .select(['members', 'name'])
+      .populate({
+        path: 'members',
+        select:
+          'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections',
+        populate: [{ path: 'university', select: 'universityName' }, { path: 'connections', select: 'from to accepted' }],
+      })
+      .exec();
+
+    const userPromise = User.findById(userID)
+      .select(['connections', 'joinedCommunities', 'pendingConnections'])
+      .populate({path: 'connections', select: 'from to accepted'})
+      .exec();
+
+    return Promise.all([communityPromise, userPromise]).then(
+      async ([community, user]) => {
+        if (!community) return sendPacket(0, 'Could not find community');
+        if (!user) return sendPacket(0, 'Could not find current user');
+
+        const { members } = community;
+
+        const userConnections = connectionsToUserIDStrings(
+          userID,
+          user.connections
+        );
+        
+        for (let i = 0; i < members.length; i++) {
+          const cleanedMember = await addCalculatedUserFields(
+            userConnections,
+            user.joinedCommunities,
+            members[i],
+          );
+
+          getUserToUserRelationship(
+            user.connections,
+            user.pendingConnections,
+            members[i],
+            cleanedMember
+          );
+          members[i] = cleanedMember;
+        }
+
+        const imagePromises = await generateSignedImagePromises(members, 'profile');
+
+        return Promise.all(imagePromises)
+          .then((signedImageURLs) => {
+            for (let i = 0; i < signedImageURLs.length; i++)
+              if (signedImageURLs[i]) members[i].profilePicture = signedImageURLs[i];
+
+            log('info', `Successfully retrieved all members for ${community.name}`);
+            return sendPacket(1, 'Successfully all members', {
+              members,
+            });
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(
+              1,
+              'Successfully retrieved all members, but there was an error retrieving profile pictures',
+              { members }
+            );
+          });
+      }
+    );
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);

@@ -379,14 +379,14 @@ export async function getFollowingFeed(userID: string) {
   }
 }
 
-export async function getPostsByUser(userID: string) {
+export async function getPostsByUser(userID: string, currUserID: string) {
   try {
     const user = await User.findById(userID).select(['broadcastedPosts']).exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
     const condition = { _id: { $in: user.broadcastedPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, currUserID);
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });

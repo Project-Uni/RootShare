@@ -11,6 +11,8 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
+import { UserType, UniversityType } from '../../../helpers/types';
+
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -60,11 +62,7 @@ function ConnectionsBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
-  const [connections, setConnections] = useState<{ [key: string]: any }>([]); //TODO: add type to connection
-  const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
-  const [joinedCommunities, setJoinedCommunities] = useState<{
-    [key: string]: any;
-  }>([]);
+  const [connections, setConnections] = useState<UserType[]>([]);
   const [username, setUsername] = useState('User');
 
   useEffect(() => {
@@ -86,11 +84,8 @@ function ConnectionsBody(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-    if (data.success === 1) {
-      setConnections(data.content['connections']);
-      setConnectionIDs(data.content['connectionIDs']);
-      setJoinedCommunities(data.content['joinedCommunities']);
-    }
+
+    if (data.success === 1) setConnections(data.content['connections']);
   }
 
   async function fetchUserBasicInfo() {
@@ -140,42 +135,22 @@ function ConnectionsBody(props: Props) {
 
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
-      const potentialMutualConnections = connections[i].connections.reduce(
-        (
-          extractedConnections: string[],
-          connection: { from: string; to: string }
-        ) => {
-          const otherID =
-            connection['from'].toString() != connections[i].toString()
-              ? connection['from']
-              : connection['to'];
-
-          extractedConnections.push(otherID);
-
-          return extractedConnections;
-        },
-        []
-      );
-      let mutualConnections = connectionIDs.filter((x: string) =>
-        potentialMutualConnections.includes(x)
-      );
-      let mutualCommunities = joinedCommunities.filter((x: string) =>
-        connections[i].joinedCommunities.includes(x)
-      );
       output.push(
+        // <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
         <UserHighlight
           name={`${connections[i].firstName} ${connections[i].lastName}`}
           userID={connections[i]._id}
           profilePic={connections[i].profilePicture}
-          university={connections[i].university.universityName}
+          university={(connections[i].university as UniversityType).universityName}
           graduationYear={connections[i].graduationYear}
           position={connections[i].position}
           company={connections[i].work}
-          mutualConnections={mutualConnections.length}
-          mutualCommunities={mutualCommunities.length}
+          mutualConnections={connections[i].numMutualConnections}
+          mutualCommunities={connections[i].numMutualCommunities}
           style={styles.connectionStyle}
           status="CONNECTION"
         />
+        // </div>
       );
     }
     return output;
