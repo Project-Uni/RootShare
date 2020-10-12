@@ -106,8 +106,6 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   commentsContainer: {
-    // borderTop: `1px solid ${colors.fourth}`,
-    // borderBottom: `1px solid ${colors.fourth}`,
     marginBottom: 15,
   },
   loadingIndicator: {
