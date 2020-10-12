@@ -145,6 +145,7 @@ type Props = {
   style?: any;
   anonymous?: boolean;
   liked?: boolean;
+  user: { [ key: string ]: any }
   accessToken: string;
   refreshToken: string;
 };
@@ -223,10 +224,22 @@ function UserPost(props: Props) {
         props.refreshToken
     );
 
-    if (data.success == 1){
+    if (data.success === 1){
         setComment('')
         const newComment = generateComments([data.content.comment])
-        setComments([...comments, ...newComment])
+        setComments((prevComments)=>{
+            const newComment =
+            <Comment
+                userID={props.user._id}
+                name={`${props.user.firstName} ${props.user.lastName}`}
+                timestamp={`${formatDatePretty(new Date(data.content.comment.createdAt))} at ${formatTime(
+                    new Date(data.content.comment.createdAt)
+                )}`}
+                profilePicture={props.user.profilePicture}
+                message={data.content.comment.message}
+            />
+            return prevComments.concat(newComment)
+        })
         console.log(data)
     }
 
