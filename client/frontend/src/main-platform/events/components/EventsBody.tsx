@@ -76,7 +76,7 @@ function EventsBody(props: Props) {
       props.refreshToken
     );
     if (data.success == 1) {
-      setEvents(data.content['events']);
+      setEvents(data.content['events'].reverse());
       setConnectionIDs(data.content['connectionIDs']);
     }
   }

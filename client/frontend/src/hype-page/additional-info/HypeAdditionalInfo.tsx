@@ -77,7 +77,7 @@ function HypeAdditionalInfo(props: Props) {
   const [currentUser, setCurrentUser] = useState('');
 
   // const redirectURL = '/home';
-  const redirectURL = checkDesktop() ? '/home' : '/event/5f7b8a62be8ddb321a9357b2';
+  const redirectURL = checkDesktop() ? '/home' : '/event/5f7f5653b0f90c4302e10fa6';
 
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
