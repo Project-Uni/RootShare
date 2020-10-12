@@ -21,7 +21,6 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-// import NM_Banner from '../images/NM_Banner.png';
 import BoudreuxBanner from '../images/banners/BoudreauxBanner.png';
 
 import { colors } from '../theme/Colors';
