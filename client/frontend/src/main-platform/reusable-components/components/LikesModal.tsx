@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Button } from '@material-ui/core';
+import { CircularProgress, Button, Box } from '@material-ui/core';
 
 import {connect} from 'react-redux';
 import RSModal from './RSModal';
@@ -9,14 +9,37 @@ import { LeanUser } from '../../../helpers/types'
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import RSText from '../../../base-components/RSText';
 import { makeRequest } from '../../../helpers/functions';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   modal: {
-    maxHeight: 500
+    maxHeight: 500,
+    overflow: 'scroll',
+    width: 400,
   },
   loadingIndicator: {
-    marginTop: 50
+    color: colors.primary
+  },
+  name: {
+    color: 'inherit',
+    textDecoration: 'none',
+    marginLeft: 10,
+    '&:hover': {
+      textDecoration: 'underline'
+    }
+  },
+  singleUserWrapper: {
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    paddingLeft: 15, 
+    paddingRight: 15,
+    '&:hover': {
+      background: colors.background
+    },
+    borderTop: `1px solid ${colors.background}`,
+    paddingTop: 7,
+    paddingBottom: 7
   }
 }));
 
@@ -54,16 +77,21 @@ function LikesModal(props: Props) {
   } 
 
   function renderContent() {
-    return <div></div>
+    return (
+    <div>
+      {users.map(user => renderSingleUser(user))}
+    </div>
+    )
   }
 
   function renderSingleUser(user: LeanUser) {
-    return <div style={{display: 'flex', justifyContent: 'space-between'}}>
-      <div>
-        <ProfilePicture borderRadius={40} height={40} width={40} type='profile' _id={'xxx'} />
-        <RSText size={11}>Ashwin Mahesh</RSText>
+    return <div style={{}} className={styles.singleUserWrapper}>
+      <div style={{display: 'flex', alignItems: 'center'}}>
+        <ProfilePicture borderRadius={30} height={45} width={45} type='profile' _id={user._id} currentPicture={user.profilePicture}/>
+        <a href={`/profile/${user._id}`} className={styles.name}>
+          <RSText size={13} bold>{user.firstName} {user.lastName}</RSText>
+        </a>
       </div>
-      <Button>Connect</Button>
     </div>
   }
   
@@ -71,7 +99,11 @@ function LikesModal(props: Props) {
     <RSModal open={props.open} title="Likes" onClose={props.onClose} className={styles.modal}>
       <div>
         {loading 
-          ? <CircularProgress size={100} className={styles.loadingIndicator} /> 
+          ? (
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 15, paddingBottom: 15}}>
+              <CircularProgress size={60} className={styles.loadingIndicator} />
+            </div>
+            )
           : serverErr
           ? <RSText>There was an error loading the likes</RSText>
           : renderContent()
