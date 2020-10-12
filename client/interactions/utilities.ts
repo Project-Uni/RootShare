@@ -107,31 +107,20 @@ export async function addCalculatedUserFields(
     return otherUserCommunitiesStrings.indexOf(community) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (otherUser.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'profile',
-        otherUser.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
-  let cleanedUser = copyObject(otherUser, [
-    'connections',
-    'connectionUserIDs',
-    'pendingConnections',
-    'joinedCommunities',
-  ]);
-
-  cleanedUser.profilePicture = profilePicture;
-  cleanedUser.numMutualConnections = mutualConnections.length;
-  cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'PUBLIC';
+  const cleanedUser = {
+    _id: otherUser._id,
+    firstName: otherUser.firstName,
+    lastName: otherUser.lastName,
+    university: otherUser.university,
+    work: otherUser.work,
+    position: otherUser.position,
+    graduationYear: otherUser.graduationYear,
+    profilePicture: otherUser.profilePicture,
+    numMutualConnections: mutualConnections.length,
+    numMutualCommunities: mutualCommunities.length,
+    accountType: otherUser.accountType,
+    status: 'PUBLIC',
+  };
 
   return cleanedUser;
 }
@@ -152,20 +141,6 @@ export async function addCalculatedCommunityFields(
     return membersStrings.indexOf(connection) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (community.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'communityProfile',
-        community.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
   const cleanedCommunity = {
     _id: community._id,
     name: community.name,
@@ -173,7 +148,7 @@ export async function addCalculatedCommunityFields(
     description: community.description,
     private: community.private,
     university: community.university,
-    profilePicture,
+    profilePicture: community.profilePicture,
     admin: community.admin,
     numMembers: community.members.length,
     numMutual: mutualMembers.length,

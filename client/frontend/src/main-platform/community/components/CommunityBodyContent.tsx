@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { PostType } from '../../../helpers/types';
+import { PostType, SearchUserType } from '../../../helpers/types';
 
 import {
   makeRequest,
@@ -15,6 +15,7 @@ import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
+import CommunityMembers from './CommunityMembers';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -51,7 +52,8 @@ type CommunityTab =
   | 'internal'
   | 'internal-alumni'
   | 'internal-current'
-  | 'following';
+  | 'following'
+  | 'members';
 
 var tabChangeSemaphore = 0;
 // Semaphore was added in to fix issue where previous tab
@@ -63,12 +65,16 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
+
   const [posts, setPosts] = useState<JSX.Element[]>([]);
+  const [members, setMembers] = useState<SearchUserType[]>([]);
+
   const [fetchErr, setFetchErr] = useState(false);
 
   const tabs = [
     { label: 'External', value: 'external' },
     { label: 'Following', value: 'following' },
+    { label: 'Members', value: 'members' },
   ];
 
   if (props.isAdmin) {
@@ -86,6 +92,14 @@ function CommunityBodyContent(props: Props) {
   }, [selectedTab]);
 
   async function fetchData() {
+    if (selectedTab !== 'members') {
+      await fetchPosts();
+    } else {
+      await fetchMembers();
+    }
+  }
+
+  async function fetchPosts() {
     setPosts([]);
     const currSemaphoreState = tabChangeSemaphore;
     const routeSuffix = getRouteSuffix();
@@ -101,6 +115,26 @@ function CommunityBodyContent(props: Props) {
       if (data.success === 1) {
         setFetchErr(false);
         setPosts(createFeed(data.content['posts']));
+      } else {
+        setFetchErr(true);
+      }
+    }
+  }
+
+  async function fetchMembers() {
+    const currSemaphoreState = tabChangeSemaphore;
+    const { data } = await makeRequest(
+      'GET',
+      `/api/community/${props.communityID}/members`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (tabChangeSemaphore === currSemaphoreState) {
+      if (data.success === 1) {
+        setFetchErr(false);
+        setMembers(data.content['members']);
       } else {
         setFetchErr(true);
       }
@@ -181,6 +215,8 @@ function CommunityBodyContent(props: Props) {
         return renderInternal();
       case 'following':
         return renderFollowing();
+      case 'members':
+        return <CommunityMembers members={members} />;
       default:
         return renderError();
     }
