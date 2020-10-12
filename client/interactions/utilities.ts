@@ -89,14 +89,14 @@ export async function addCalculatedUserFields(
     [key: string]: any;
     _id: string;
     profilePicture?: string;
-    connectionUserIDs: string[];
+    connections: string[];
     joinedCommunities: string[];
     status: string;
-  }
+  },
 ) {
   const userConnectionsStrings = toStringArray(currentUserConnections);
   const userCommunitiesStrings = toStringArray(currentUserJoinedCommunities);
-  const otherUserConnectionsStrings = toStringArray(otherUser.connections);
+  const otherUserConnectionsStrings = toStringArray(connectionsToUserIDStrings(otherUser._id, otherUser.connections))
   const otherUserCommunitiesStrings = toStringArray(otherUser.joinedCommunities);
 
   //Calculating mutual connections and communities
@@ -108,6 +108,7 @@ export async function addCalculatedUserFields(
   });
 
   const cleanedUser = {
+    ...otherUser,
     _id: otherUser._id,
     firstName: otherUser.firstName,
     lastName: otherUser.lastName,
@@ -172,7 +173,7 @@ export function getUserToUserRelationship(
     [key: string]: any;
     _id: string;
     status: string;
-  }
+  },
 ) {
   const otherUserPendingStrings = toStringArray(
     originalOtherUser.pendingConnections

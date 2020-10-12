@@ -135,10 +135,6 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
           return callback(sendPacket(0, 'Could not find the given user'));
 
         let otherUser = otherUserOutput[0];
-        otherUser.connections = connectionsToUserIDStrings(
-          userID,
-          otherUser.connections
-        );
         const selfConnections = connectionsToUserIDStrings(
           selfUserID,
           selfUser.connections
@@ -1046,11 +1042,6 @@ export async function getConnectionsFullData(userID: string) {
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      connectionsWithData[i] = connectionsWithData[i].toObject();
-      connectionsWithData[i].connections = connectionsToUserIDStrings(
-        connectionsWithData[i]._id,
-        connectionsWithData[i].connections
-      );
       connectionsWithData[i] = await addCalculatedUserFields(
         connectionUserIDStrings,
         joinedCommunities,
