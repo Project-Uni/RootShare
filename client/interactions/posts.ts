@@ -4,7 +4,7 @@ import { generateSignedImagePromises } from './utilities'
 
 const mongoose = require('mongoose');
 
-const NUM_POSTS_RETRIEVED = 20;
+const NUM_POSTS_RETRIEVED = 40;
 
 export async function createBroadcastUserPost(message: string, userID: string) {
   try {
