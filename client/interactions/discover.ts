@@ -126,14 +126,10 @@ export async function populateDiscoverForUser(userID: string) {
 
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
-          users[i].connections = connectionsToUserIDStrings(
-            users[i]._id,
-            users[i].connections
-          );
           const cleanedUser = await addCalculatedUserFields(
             connectionUserIDs,
             joinedCommunities,
-            users[i]
+            users[i],
           );
           users[i] = cleanedUser;
         }
@@ -296,16 +292,11 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           currentUser.connections
         );
 
-        for (let i = 0; i < users.length; i++) {
-          users[i] = users[i].toObject();
-          users[i].connectionUserIDs = connectionsToUserIDStrings(
-            users[i]._id,
-            users[i].connections
-          );
+        for (let i = 0; i < users.length; i++) {          
           const cleanedUser = await addCalculatedUserFields(
             selfConnectionUserIDs,
             currentUser.joinedCommunities,
-            users[i]
+            users[i],
           );
 
           getUserToUserRelationship(
