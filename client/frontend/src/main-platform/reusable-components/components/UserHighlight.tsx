@@ -107,7 +107,6 @@ function UserHighlight(props: Props) {
   const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
 
   async function requestConnection() {
-    setUserStatus('TO');
     const { data } = await makeRequest(
       'POST',
       '/user/requestConnection',
@@ -118,11 +117,10 @@ function UserHighlight(props: Props) {
       props.accessToken,
       props.refreshToken
     );
-    if (data.success !== 1) {
-      setUserStatus(props.status);
+    if (data['success'] === 1) setUserStatus('TO');
+    if (data.success !== 1)
       props.setNotification &&
         props.setNotification('error', 'Failed to send connection request');
-    }
   }
 
   async function respondRequest(accepted: boolean) {
