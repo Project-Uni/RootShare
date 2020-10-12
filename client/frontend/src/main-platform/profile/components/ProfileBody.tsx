@@ -280,6 +280,7 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
+          postID={posts[i]._id}
           _id={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={currentPicture}
@@ -291,6 +292,7 @@ function ProfileBody(props: Props) {
           likeCount={posts[i].likes}
           commentCount={0}
           style={styles.post}
+          liked={posts[i].liked}
         />
       );
     }

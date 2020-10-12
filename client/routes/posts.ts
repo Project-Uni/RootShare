@@ -23,6 +23,9 @@ import {
   getExternalPosts,
   getFollowingCommunityPosts,
   broadcastAsCommunityAdmin,
+  //Post Actions
+  likePost,
+  unlikePost
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -36,7 +39,8 @@ export default function postsRoutes(app) {
   });
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
-    const packet = await getGeneralFeed(req.user.university._id);
+    const userID = req.user._id;
+    const packet = await getGeneralFeed(req.user.university._id, userID);
     return res.json(packet);
   });
 
@@ -52,7 +56,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       let { userID } = req.params;
       if (userID === 'user') userID = req.user._id;
-      const packet = await getPostsByUser(userID);
+      const packet = await getPostsByUser(userID, req.user._id);
       return res.json(packet);
     }
   );
@@ -190,8 +194,9 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
+      const userID = req.user._id
 
-      const packet = await getFollowingCommunityPosts(communityID);
+      const packet = await getFollowingCommunityPosts(communityID, userID);
       return res.json(packet);
     }
   );
@@ -228,4 +233,20 @@ export default function postsRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.post('/api/posts/action/:postID/like', isAuthenticatedWithJWT, async (req, res) => {
+    const { postID } = req.params;
+    const userID = req.user._id;
+
+    const packet = await likePost(postID, userID);
+    return res.json(packet);
+  })
+
+  app.post('/api/posts/action/:postID/unlike', isAuthenticatedWithJWT, async (req, res) => {
+    const { postID } = req.params;
+    const userID = req.user._id;
+
+    const packet = await unlikePost(postID, userID);
+    return res.json(packet);
+  })
 }
