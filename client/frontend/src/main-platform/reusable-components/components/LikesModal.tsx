@@ -40,6 +40,11 @@ const useStyles = makeStyles((_: any) => ({
     borderTop: `1px solid ${colors.background}`,
     paddingTop: 7,
     paddingBottom: 7
+  },
+  noLikesText: {
+    marginLeft: 15,
+    marginRight: 15,
+    paddingBottom: 15
   }
 }));
 
@@ -79,7 +84,12 @@ function LikesModal(props: Props) {
   function renderContent() {
     return (
     <div>
-      {users.map(user => renderSingleUser(user))}
+      {users.length > 0 
+      ? users.map(user => renderSingleUser(user)) 
+      : <RSText className={styles.noLikesText} size={13}>
+          There are no likes yet. Be the first
+        </RSText>
+      }
     </div>
     )
   }
