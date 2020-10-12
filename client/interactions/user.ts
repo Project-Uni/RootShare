@@ -162,9 +162,15 @@ export function getUserEvents(userID, callback) {
     {
       $lookup: {
         from: 'webinars',
-        let: { rsvps: '$RSVPWebinars' },
+        let: { attended: '$attendedWebinars', rsvps: '$RSVPWebinars' },
         pipeline: [
-          { $match: { $expr: { $in: ['$_id', '$$rsvps'] } } },
+          { $match: { $and: [ 
+            { $or: [ 
+              { $expr: { $in: ['$_id', '$$rsvps'] } },
+              { $expr: { $in: ['$_id', '$$attended'] } },
+            ] },
+            { isDev: { $ne : true } },
+          ] } },
           { $sort: { dateTime: 1 } },
           {
             $lookup: {
