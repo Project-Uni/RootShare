@@ -449,9 +449,9 @@ function UserPost(props: Props) {
         {renderLikesAndCommentCount()}
         {showComments && (
           <div className={styles.commentsContainer}>
-            <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
+            {comments.length < props.commentCount && <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
                 Show Previous Comments
-            </Button>
+            </Button>}
             {loadingMoreComments && (
                 <div style={{ flex: 1 }}><CircularProgress size={40} className={styles.loadingIndicator} /></div>
             )}
