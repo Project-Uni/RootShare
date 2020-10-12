@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
 import { colors } from '../../../../theme/Colors';
 import RSText from '../../../../base-components/RSText';
 import ProfilePicture from '../../../../base-components/ProfilePicture';
-import { makeRequest } from '../../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -20,29 +18,10 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'flex-start',
   },
-  profilePic: {
-    height: 50,
-    width: 50,
-    borderRadius: 50,
-    marginRight: 10,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textContainer: {
     marginLeft: 10,
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeButton: {
-    color: colors.primaryText,
-    background: colors.fourth,
-    marginRight: 7,
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'flex-end',
     alignItems: 'center',
   },
   lockIcon: {
