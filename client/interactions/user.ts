@@ -5,8 +5,9 @@ import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
   extractOtherUserIDFromConnections,
   addCalculatedUserFields,
-  addProfilePictureToUser,
   generateSignedImagePromises,
+  connectionsToUserIDStrings,
+  connectionsToUserIDs,
 } from './utilities';
 
 export function getCurrentUser(user, callback) {
@@ -71,55 +72,92 @@ export async function getPrivateProfileInformation(userID, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function getPublicProfileInformation(userID, callback) {
+export async function getPublicProfileInformation(selfUserID, userID, callback) {
   try {
     mongoose.Types.ObjectId(userID);
+    mongoose.Types.ObjectId(selfUserID);
+
+    const selfUserPromise = User.findById(selfUserID, [
+      'connections',
+      'joinedCommunities',
+    ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .exec();
+
+    const otherUserPromise = User.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(userID) } },
+      {
+        $lookup: {
+          from: 'universities',
+          localField: 'university',
+          foreignField: '_id',
+          as: 'university',
+        },
+      },
+      { $unwind: '$university' },
+      {
+        $lookup: {
+          from: 'connections',
+          localField: 'connections',
+          foreignField: '_id',
+          as: 'connections',
+        },
+      },
+      {
+        $project: {
+          email: '$email',
+          firstName: '$firstName',
+          lastName: '$lastName',
+          major: '$major',
+          graduationYear: '$graduationYear',
+          work: '$work',
+          position: '$position',
+          department: '$department',
+          interests: '$interests',
+          organizations: '$organizations',
+          graduateSchool: '$graduateSchool',
+          bio: '$bio',
+          connections: '$connections',
+          joinedCommunities: '$joinedCommunities',
+          numConnections: { $size: '$connections' },
+          numCommunities: { $size: '$joinedCommunities' },
+          university: {
+            _id: '$university._id',
+            universityName: '$university.universityName',
+          },
+        },
+      },
+    ]).exec();
+
+    Promise.all([selfUserPromise, otherUserPromise]).then(
+      async ([selfUser, otherUserOutput]) => {
+        if (!selfUser || !otherUserOutput || otherUserOutput.length === 0)
+          return callback(sendPacket(0, 'Could not find the given user'));
+
+        let otherUser = otherUserOutput[0];
+        otherUser.connections = connectionsToUserIDStrings(
+          userID,
+          otherUser.connections
+        );
+        const selfConnections = connectionsToUserIDStrings(
+          selfUserID,
+          selfUser.connections
+        );
+
+        otherUser = await addCalculatedUserFields(
+          selfConnections,
+          selfUser.joinedCommunities,
+          otherUser
+        );
+
+        return callback(
+          sendPacket(1, 'Sending public user information', { user: otherUser })
+        );
+      }
+    );
   } catch (err) {
     return callback(sendPacket(-1, err));
   }
-
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'universities',
-        localField: 'university',
-        foreignField: '_id',
-        as: 'university',
-      },
-    },
-    { $unwind: '$university' },
-    {
-      $project: {
-        email: '$email',
-        firstName: '$firstName',
-        lastName: '$lastName',
-        major: '$major',
-        graduationYear: '$graduationYear',
-        work: '$work',
-        position: '$position',
-        department: '$department',
-        interests: '$interests',
-        organizations: '$organizations',
-        graduateSchool: '$graduateSchool',
-        bio: '$bio',
-        numConnections: { $size: '$connections' },
-        numCommunities: { $size: '$joinedCommunities' },
-        university: {
-          _id: '$university._id',
-          universityName: '$university.universityName',
-        },
-      },
-    },
-  ])
-    .then((users) => {
-      if (!users || users.length === 0)
-        return callback(sendPacket(0, "Couldn't find user"));
-      return callback(
-        sendPacket(1, 'Sending public user information', { user: users[0] })
-      );
-    })
-    .catch((err) => callback(sendPacket(-1, err)));
 }
 
 export function getUserEvents(userID, callback) {
@@ -985,52 +1023,58 @@ export async function getConnectionsFullData(userID: string) {
     const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
       'connections',
       'joinedCommunities',
-    ]).populate({ path: 'connections', select: ['from', 'to'] });
+    ]).populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
-    const connectionIDs = connections.reduce((output, connection) => {
-      const otherID =
-        connection['from'].toString() != userID.toString()
-          ? connection['from']
-          : connection['to'];
+    const connectionUserIDStrings = connectionsToUserIDStrings(userID, connections);
+    const connectionUserIDs = connectionsToUserIDs(userID, connections);
 
-      output.push(otherID);
-
-      return output;
-    }, []);
-
-    const connectionsWithData = await User.find({ _id: { $in: connectionIDs } }, [
-      'firstName',
-      'lastName',
-      'graduationYear',
-      'university',
-      'work',
-      'position',
-      'connections',
-      'joinedCommunities',
-      'profilePicture',
-    ])
+    const connectionsWithData = await User.find(
+      { _id: { $in: connectionUserIDs } },
+      [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'joinedCommunities',
+        'profilePicture',
+      ]
+    )
       .populate({ path: 'university', select: ['universityName'] })
-      .populate({ path: 'connections', select: ['from', 'to'] });
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      if (connectionsWithData[i].profilePicture) {
-        try {
-          const imageURL = await retrieveSignedUrl(
-            'profile',
-            connectionsWithData[i].profilePicture
-          );
-          if (imageURL) connectionsWithData[i].profilePicture = imageURL;
-        } catch (err) {
-          log('error', err);
-        }
-      }
+      connectionsWithData[i] = connectionsWithData[i].toObject();
+      connectionsWithData[i].connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
+      );
+      connectionsWithData[i] = await addCalculatedUserFields(
+        connectionUserIDStrings,
+        joinedCommunities,
+        connectionsWithData[i]
+      );
     }
 
-    return sendPacket(1, 'successfully retrieved all connections', {
-      connections: connectionsWithData,
-      connectionIDs: connectionIDs,
-      joinedCommunities: joinedCommunities,
-    });
+    const imagePromises = generateSignedImagePromises(connectionsWithData, 'profile');
+    return Promise.all(imagePromises).then(signedImageURLS => {
+      for(let i=0; i<connectionsWithData.length; i++) {
+        if(signedImageURLS[i])
+          connectionsWithData[i].profilePicture = signedImageURLS[i];
+      }
+      return sendPacket(1, 'successfully retrieved all connections', {
+        connections: connectionsWithData,
+      });
+    }).catch(err => {
+      log('info', 'Successfully retrieved connections, but failed to retrieve profile pictures');
+      return sendPacket(1, 'Successfully retrieved all connections, but failed to receive profile pictures', {
+        connections: connectionsWithData,
+      });
+    })
+
+    
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);

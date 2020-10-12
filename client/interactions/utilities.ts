@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User } from '../models';
@@ -272,7 +273,7 @@ export function generateSignedImagePromises(
   return profilePicturePromises;
 }
 
-export function convertConnectionsToUserIDs(userID, connections) {
+export function connectionsToUserIDStrings(userID, connections) {
   return connections.reduce((output, connection) => {
     if (connection.accepted) {
       const otherID =
@@ -281,6 +282,20 @@ export function convertConnectionsToUserIDs(userID, connections) {
           : connection['to'];
 
       output.push(otherID.toString());
+    }
+    return output;
+  }, []);
+}
+
+export function connectionsToUserIDs(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (connection.accepted) {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(mongoose.Types.ObjectId(otherID));
     }
     return output;
   }, []);

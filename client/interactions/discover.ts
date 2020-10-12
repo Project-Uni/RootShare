@@ -7,7 +7,7 @@ import {
   generateSignedImagePromises,
   getUserToCommunityRelationship,
   getUserToUserRelationship,
-  convertConnectionsToUserIDs,
+  connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
 import { User, Community } from '../models';
@@ -27,7 +27,7 @@ export async function populateDiscoverForUser(userID: string) {
         'university',
         'joinedCommunities',
       ])
-      .populate('connections')
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
     if (!user) return sendPacket(0, 'No user found with provided ID');
@@ -122,11 +122,11 @@ export async function populateDiscoverForUser(userID: string) {
 
     return Promise.all([communityPromise, userPromise])
       .then(async ([communities, users]) => {
-        const connectionUserIDs = convertConnectionsToUserIDs(userID, connections);
+        const connectionUserIDs = connectionsToUserIDStrings(userID, connections);
 
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
-          users[i].connections = convertConnectionsToUserIDs(
+          users[i].connections = connectionsToUserIDStrings(
             users[i]._id,
             users[i].connections
           );
@@ -242,8 +242,8 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'joinedCommunities',
         'pendingCommunities',
       ])
-      .populate('connections')
-      .populate('pendingConnections')
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] })
       .exec();
 
     const userPromise = User.find({
@@ -267,7 +267,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       ])
       .limit(USER_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
-      .populate('connections')
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
     const communityPromise = Community.find({
@@ -291,14 +291,14 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
-        const selfConnectionUserIDs = convertConnectionsToUserIDs(
+        const selfConnectionUserIDs = connectionsToUserIDStrings(
           userID,
           currentUser.connections
         );
 
         for (let i = 0; i < users.length; i++) {
           users[i] = users[i].toObject();
-          users[i].connectionUserIDs = convertConnectionsToUserIDs(
+          users[i].connectionUserIDs = connectionsToUserIDStrings(
             users[i]._id,
             users[i].connections
           );

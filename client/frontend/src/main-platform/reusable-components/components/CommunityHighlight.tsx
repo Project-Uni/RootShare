@@ -54,6 +54,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 6,
   },
   noUnderline: {
+    width: 'max-content',
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'none',
@@ -63,6 +64,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
   },
   name: {
+    width: 'max-content',
     '&:hover': { textDecoration: 'underline' },
   },
 }));
@@ -165,11 +167,13 @@ function CommunityHighlight(props: Props) {
             />
           </a>
           <div className={styles.textContainer}>
-            <a
-              href={`/community/${props.communityID}`}
-              className={styles.noUnderline}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}></div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <a
+                href={`/community/${props.communityID}`}
+                className={styles.noUnderline}
+              >
                 <RSText
                   type="head"
                   size={13}
@@ -178,15 +182,16 @@ function CommunityHighlight(props: Props) {
                 >
                   {props.name}
                 </RSText>
-                {props.private && (
-                  <FaLock
-                    color={colors.secondaryText}
-                    size={13}
-                    className={styles.lock}
-                  />
-                )}
-              </div>
-            </a>
+              </a>
+              {props.private && (
+                <FaLock
+                  color={colors.secondaryText}
+                  size={13}
+                  className={styles.lock}
+                />
+              )}
+            </div>
+
             <RSText
               type="subhead"
               size={12}
