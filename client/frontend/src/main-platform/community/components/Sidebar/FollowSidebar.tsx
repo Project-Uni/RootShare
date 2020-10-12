@@ -40,6 +40,7 @@ type FollowCommunity = {
   profilePicture: string;
   type: string;
   _id: string;
+  members: string[];
 };
 
 function FollowedByCommunities(props: Props) {
@@ -113,6 +114,7 @@ function FollowedByCommunities(props: Props) {
           isLast={i === followingCommunities.length -1 }
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
+          members={followingCommunities[i].members.length}
         />
       );
       return (
@@ -149,6 +151,7 @@ function FollowedByCommunities(props: Props) {
           isLast={i === followedByCommunities.length - 1}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
+          members={followedByCommunities[i].members.length}
         />
       );
     }

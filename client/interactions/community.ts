@@ -818,6 +818,7 @@ export async function unfollowCommunity(
 
 export async function getAllFollowingCommunities(communityID: string) {
   try {
+    //TODO - Update this to use aggregation pipeline
     const community = await Community.findById(communityID)
       .select(['followingCommunities'])
       .populate({
@@ -825,7 +826,7 @@ export async function getAllFollowingCommunities(communityID: string) {
         select: 'to',
         populate: {
           path: 'to',
-          select: 'name description type profilePicture',
+          select: 'name description type profilePicture members',
         },
       });
 
@@ -864,6 +865,7 @@ export async function getAllFollowingCommunities(communityID: string) {
 
 export async function getAllFollowedByCommunities(communityID: string) {
   try {
+    //TODO - Update this to use aggregation pipeline
     const community = await Community.findById(communityID)
       .select(['followedByCommunities'])
       .populate({
@@ -871,7 +873,7 @@ export async function getAllFollowedByCommunities(communityID: string) {
         select: 'from',
         populate: {
           path: 'from',
-          select: 'name description type profilePicture',
+          select: 'name description type profilePicture members',
         },
       });
 

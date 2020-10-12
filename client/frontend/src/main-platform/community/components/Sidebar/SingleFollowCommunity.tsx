@@ -58,6 +58,7 @@ type Props = {
   type: string;
   _id: string;
   isLast?: boolean;
+  members: number;
   accessToken: string;
   refreshToken: string;
 };
@@ -91,7 +92,7 @@ function SingleFollowCommunity(props: Props) {
             </RSText>
 
             <RSText type="body" italic={false} size={11} color={colors.primaryText}>
-              XX Members
+              {props.members} Members
             </RSText>
           </div>
         </div>
