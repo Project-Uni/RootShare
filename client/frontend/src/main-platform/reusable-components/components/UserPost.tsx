@@ -20,7 +20,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import { makeRequest } from '../../../helpers/functions';
-import RSModal from './RSModal';
+
 import LikesModal from './LikesModal';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
