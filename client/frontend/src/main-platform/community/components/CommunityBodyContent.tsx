@@ -154,7 +154,7 @@ function CommunityBodyContent(props: Props) {
           }
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={post[i].comments}
+          commentCount={posts[i].comments}
           style={styles.postStyle}
           key={posts[i]._id}
           anonymous={anonymous}
