@@ -97,7 +97,16 @@ function LikesModal(props: Props) {
   function renderSingleUser(user: LeanUser) {
     return <div style={{}} className={styles.singleUserWrapper}>
       <div style={{display: 'flex', alignItems: 'center'}}>
-        <ProfilePicture borderRadius={30} height={45} width={45} type='profile' _id={user._id} currentPicture={user.profilePicture}/>
+        <a href={`/profile/${user._id}`}>
+          <ProfilePicture 
+            borderRadius={30} 
+            height={45} 
+            width={45} 
+            type='profile' 
+            _id={user._id} 
+            currentPicture={user.profilePicture}
+          />
+        </a>
         <a href={`/profile/${user._id}`} className={styles.name}>
           <RSText size={13} bold>{user.firstName} {user.lastName}</RSText>
         </a>
