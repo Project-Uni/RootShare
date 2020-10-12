@@ -23,7 +23,6 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     background: 'rgb(227, 227, 227)',
     overflow: 'scroll',
-    minWidth: 600,
   },
   loadingIndicator: {
     color: colors.primary,
