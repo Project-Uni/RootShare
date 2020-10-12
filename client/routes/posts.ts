@@ -57,7 +57,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       let { userID } = req.params;
       if (userID === 'user') userID = req.user._id;
-      const packet = await getPostsByUser(userID);
+      const packet = await getPostsByUser(userID, req.user._id);
       return res.json(packet);
     }
   );

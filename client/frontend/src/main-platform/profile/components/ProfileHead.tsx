@@ -25,11 +25,14 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 50,
   },
   headRight: {
-    textAlign: 'left',
+    display: 'flex',
+    flexDirection: 'column',
+    textAlign: 'right',
   },
   connectionButtonContainer: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignSelf: 'center',
   },
   allConnectionButtons: {
     paddingLeft: 20,
@@ -144,6 +147,7 @@ type Props = {
   numConnections: number;
   numMutualConnections?: number;
   numCommunities: number;
+  numMutualCommunities?: number;
   currentProfileState: ProfileState;
   updateProfileState: () => void;
 
@@ -167,6 +171,15 @@ function ProfileHead(props: Props) {
   const [loadingConnection, setLoadingConnection] = useState(true);
 
   const menuOpen = Boolean(anchorEl);
+
+  const mutualConnections =
+    props.currentProfileState === 'SELF'
+      ? ''
+      : ` | ${props.numMutualConnections || 0} Mutual`;
+  const mutualCommunities =
+    props.currentProfileState === 'SELF'
+      ? ''
+      : ` | ${props.numMutualCommunities || 0} Mutual`;
 
   useEffect(() => {
     setNumConnections(props.numConnections);
@@ -498,23 +511,13 @@ function ProfileHead(props: Props) {
         >
           <RSText
             type="subhead"
-            size={11}
+            size={12}
             color={colors.second}
             className={styles.numbers}
           >
-            {numConnections || 0} Connections
+            {numConnections || 0} Connections {mutualConnections}
           </RSText>
         </a>
-        {props.currentProfileState === 'SELF' || (
-          <RSText
-            type="subhead"
-            size={11}
-            color={colors.second}
-            className={styles.numbers}
-          >
-            {props.numMutualConnections || 0} Mutual
-          </RSText>
-        )}
         <a
           href={`/communities/${
             props.currentProfileState === 'SELF' ? 'user' : props.profileID
@@ -527,7 +530,7 @@ function ProfileHead(props: Props) {
             color={colors.second}
             className={styles.numbers}
           >
-            {props.numCommunities || 0} Communities
+            {props.numCommunities || 0} Communities {mutualCommunities}
           </RSText>
         </a>
       </div>

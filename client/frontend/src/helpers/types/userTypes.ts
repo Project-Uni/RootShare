@@ -59,3 +59,18 @@ export type LeanUser = {
   profilePicture?: string;
   _id: string;
 }
+
+export type SearchUserType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  university: UniversityType;
+  work?: string;
+  position?: string;
+  graduationYear?: number;
+  profilePicture?: string;
+  accountType?: string;
+  numMutualCommunities: number;
+  numMutualConnections: number;
+  status: ProfileState;
+};

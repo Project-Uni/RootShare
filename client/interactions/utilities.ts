@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User } from '../models';
@@ -80,6 +81,7 @@ export function extractOtherUserIDFromConnections(
   return connections;
 }
 
+// Adds profile picture, mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
@@ -90,44 +92,41 @@ export async function addCalculatedUserFields(
     connections: string[];
     joinedCommunities: string[];
     status: string;
-  }
+  },
 ) {
+  const userConnectionsStrings = toStringArray(currentUserConnections);
+  const userCommunitiesStrings = toStringArray(currentUserJoinedCommunities);
+  const otherUserConnectionsStrings = toStringArray(connectionsToUserIDStrings(otherUser._id, otherUser.connections))
+  const otherUserCommunitiesStrings = toStringArray(otherUser.joinedCommunities);
+
   //Calculating mutual connections and communities
-  const mutualConnections = currentUserConnections.filter((connection) => {
-    return otherUser.connections.indexOf(connection) !== -1;
+  const mutualConnections = userConnectionsStrings.filter((connection) => {
+    return otherUserConnectionsStrings.indexOf(connection) !== -1;
   });
-  const mutualCommunities = currentUserJoinedCommunities.filter((community) => {
-    return otherUser.joinedCommunities.indexOf(community) !== -1;
+  const mutualCommunities = userCommunitiesStrings.filter((community) => {
+    return otherUserCommunitiesStrings.indexOf(community) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (otherUser.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'profile',
-        otherUser.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
-  let cleanedUser = copyObject(otherUser, [
-    'connections',
-    'pendingConnections',
-    'joinedCommunities',
-  ]);
-
-  cleanedUser.profilePicture = profilePicture;
-  cleanedUser.numMutualConnections = mutualConnections.length;
-  cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'PUBLIC';
+  const cleanedUser = {
+    ...otherUser,
+    _id: otherUser._id,
+    firstName: otherUser.firstName,
+    lastName: otherUser.lastName,
+    university: otherUser.university,
+    work: otherUser.work,
+    position: otherUser.position,
+    graduationYear: otherUser.graduationYear,
+    profilePicture: otherUser.profilePicture,
+    numMutualConnections: mutualConnections.length,
+    numMutualCommunities: mutualCommunities.length,
+    accountType: otherUser.accountType,
+    status: 'PUBLIC',
+  };
 
   return cleanedUser;
 }
 
+// Adds profile picture and mutual members
 export async function addCalculatedCommunityFields(
   currentUserConnections: string[],
   community: {
@@ -136,23 +135,12 @@ export async function addCalculatedCommunityFields(
     admin: string;
   }
 ) {
-  const mutualMembers = currentUserConnections.filter((connection) => {
-    return community.members.indexOf(connection) !== -1;
-  });
+  const currentUserConnectionsStrings = toStringArray(currentUserConnections);
+  const membersStrings = toStringArray(community.members);
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (community.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'communityProfile',
-        community.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
+  const mutualMembers = currentUserConnectionsStrings.filter((connection) => {
+    return membersStrings.indexOf(connection) !== -1;
+  });
 
   const cleanedCommunity = {
     _id: community._id,
@@ -161,7 +149,7 @@ export async function addCalculatedCommunityFields(
     description: community.description,
     private: community.private,
     university: community.university,
-    profilePicture,
+    profilePicture: community.profilePicture,
     admin: community.admin,
     numMembers: community.members.length,
     numMutual: mutualMembers.length,
@@ -177,7 +165,7 @@ export function getUserToUserRelationship(
   originalOtherUser: {
     [key: string]: any;
     _id: string;
-    connections: string[];
+    connections: any[];
     pendingConnections: string[];
     joinedCommunities: string[];
   },
@@ -185,25 +173,33 @@ export function getUserToUserRelationship(
     [key: string]: any;
     _id: string;
     status: string;
-  }
+  },
 ) {
-  for (let i = 0; i < currentUserConnections.length; i++) {
-    if (originalOtherUser.connections.indexOf(currentUserConnections[i]) !== -1) {
-      cleanedOtherUser.status = 'CONNECTION';
-      return;
-    }
-  }
+  const otherUserPendingStrings = toStringArray(
+    originalOtherUser.pendingConnections
+  );
 
-  for (let i = 0; i < currentUserPendingConnections.length; i++) {
+  for (let i = 0; i < currentUserConnections.length; i++)
+    for (let j = 0; j < originalOtherUser.connections.length; j++)
+      if (
+        currentUserConnections[i]._id.toString() ===
+        originalOtherUser.connections[j]._id.toString()
+      )
+        return (cleanedOtherUser.status = 'CONNECTION');
+
+  for (let i = 0; i < currentUserPendingConnections.length; i++)
     if (
-      originalOtherUser.pendingConnections.indexOf(
-        currentUserPendingConnections[i]
+      otherUserPendingStrings.indexOf(
+        currentUserPendingConnections[i]._id.toString()
       ) !== -1
-    ) {
-      cleanedOtherUser.status = 'PENDING';
-      return;
-    }
-  }
+    )
+      if (
+        currentUserPendingConnections[i].from.toString() ===
+        cleanedOtherUser._id.toString()
+      ) {
+        cleanedOtherUser.status = 'FROM';
+        cleanedOtherUser.connectionRequestID = currentUserPendingConnections[i]._id;
+      } else cleanedOtherUser.status = 'TO';
 }
 
 export function getUserToCommunityRelationship(
@@ -276,4 +272,41 @@ export function generateSignedImagePromises(
   }
 
   return profilePicturePromises;
+}
+
+export function connectionsToUserIDStrings(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (connection.accepted) {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(otherID.toString());
+    }
+    return output;
+  }, []);
+}
+
+export function connectionsToUserIDs(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (connection.accepted) {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(mongoose.Types.ObjectId(otherID));
+    }
+    return output;
+  }, []);
+}
+
+export function toStringArray(array) {
+  let retArray = [];
+  array.forEach((element) => {
+    retArray.push(element.toString());
+  });
+
+  return retArray;
 }
