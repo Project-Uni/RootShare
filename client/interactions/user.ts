@@ -1058,9 +1058,23 @@ export async function getConnectionsFullData(userID: string) {
       );
     }
 
-    return sendPacket(1, 'successfully retrieved all connections', {
-      connections: connectionsWithData,
-    });
+    const imagePromises = generateSignedImagePromises(connectionsWithData, 'profile');
+    return Promise.all(imagePromises).then(signedImageURLS => {
+      for(let i=0; i<connectionsWithData.length; i++) {
+        if(signedImageURLS[i])
+          connectionsWithData[i].profilePicture = signedImageURLS[i];
+      }
+      return sendPacket(1, 'successfully retrieved all connections', {
+        connections: connectionsWithData,
+      });
+    }).catch(err => {
+      log('info', 'Successfully retrieved connections, but failed to retrieve profile pictures');
+      return sendPacket(1, 'Successfully retrieved all connections, but failed to receive profile pictures', {
+        connections: connectionsWithData,
+      });
+    })
+
+    
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
