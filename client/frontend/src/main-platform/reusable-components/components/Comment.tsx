@@ -36,7 +36,7 @@ type Props = {
   name: string;
   timestamp: string;
   message: string;
-  profilePicture: any;
+  profilePicture?: string;
 };
 
 function Comment(props: Props) {
@@ -44,7 +44,7 @@ function Comment(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.commentMainArea}>
-        <ProfilePicture height={40} width={40} borderRadius={40} _id={props.userID} type='profile' />
+        <ProfilePicture height={40} width={40} borderRadius={40} _id={props.userID} type='profile' currentPicture={props.profilePicture} />
         <div className={styles.commentBody}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
             <RSText type="body" size={12} color={colors.secondary} bold>

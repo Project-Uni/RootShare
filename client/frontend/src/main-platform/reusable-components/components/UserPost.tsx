@@ -355,7 +355,7 @@ function UserPost(props: Props) {
                       size={12}
                       className={styles.commentCount}
                   >
-                      {comments.length} Comments
+                      {props.commentCount} Comments
                   </RSText>
               </a>
           </a>
@@ -397,6 +397,7 @@ function UserPost(props: Props) {
 
   function generateComments(commentsList: CommentResponse[]) {
     const output = [];
+    console.log("CommentsList:", commentsList)
     for(let i=0; i<commentsList.length; i++) {
       output.push(
         <Comment
