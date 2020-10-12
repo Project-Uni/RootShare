@@ -171,6 +171,7 @@ function UserPost(props: Props) {
   const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
+  const [earliestComment, setEarliestComment] = useState(new Date());
   const [showComments, setShowComments] = useState(false);
   //const [comments, setComments] = useState<{ [key: string]: any }>([]);
   const [comments, setComments] = useState<JSX.Element[]>([]);
@@ -257,17 +258,28 @@ function UserPost(props: Props) {
     );
 
     if (data.success == 1){
+        if (data.content['comments'].length > 0) setEarliestComment(new Date(data.content['comments'][0].createdAt))
         setComments(generateComments(data.content['comments'].reverse()))
     }
     console.log(data)
 
   }
 
-  function handleMoreCommentsClick() {
-    setLoadingMoreComments(true);
-    setTimeout(() => {
-      setLoadingMoreComments(false);
-    }, 1500);
+  async function handleMoreCommentsClick() {
+
+    const query = qs.stringify({from: new Date(earliestComment)})
+    const { data } = await makeRequest(
+        'GET',
+        `/api/posts/comments/${props.postID}?${query}`,
+        {},
+        true,
+        props.accessToken,
+        props.refreshToken
+    );
+
+    if (data.success == 1){
+        setComments([...generateComments(data.content['comments'].reverse()), ...comments])
+    }
   }
 
   function renderPostHeader() {
@@ -468,11 +480,12 @@ function UserPost(props: Props) {
         {renderLikesAndCommentCount()}
         {showComments && (
           <div className={styles.commentsContainer}>
+              <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
+                Show Previous Comments
+              </Button>
             <div>
               {comments}
-              <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
-                More Comments
-              </Button>
+
             </div>
             {loadingMoreComments && (
               <CircularProgress size={40} className={styles.loadingIndicator} />
