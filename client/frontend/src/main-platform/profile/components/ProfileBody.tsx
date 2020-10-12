@@ -23,8 +23,7 @@ import {
   formatDatePretty,
   formatTime,
 } from '../../../helpers/functions';
-
-const HEADER_HEIGHT = 64;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

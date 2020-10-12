@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
+import { Slide } from '@material-ui/core';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 import qs from 'query-string';
 
-import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
-import { ENTER_KEYCODE } from '../../../helpers/constants';
-
 import { colors } from '../../../theme/Colors';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import RSText from '../../../base-components/RSText';
 import {
   WelcomeMessage,
   UserHighlight,
@@ -18,9 +19,8 @@ import {
 } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import RSText from '../../../base-components/RSText';
-
-const HEADER_HEIGHT = 60;
+import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
+import { ENTER_KEYCODE, HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -82,6 +82,12 @@ function DiscoverBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
   const [renderList, setRenderList] = useState<JSX.Element[]>([]);
 
   const [searchValue, setSearchValue] = useState('');
@@ -141,6 +147,19 @@ function DiscoverBody(props: Props) {
     return cleanedQuery;
   }
 
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
+  function setNotification(
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) {
+    setSnackbarMode(successMode);
+    setSnackbarMessage(message);
+    setTransition(() => slideLeft);
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
@@ -185,6 +204,8 @@ function DiscoverBody(props: Props) {
           mutualConnections={users[i].numMutualConnections}
           mutualCommunities={users[i].numMutualCommunities}
           status={users[i].status}
+          connectionRequestID={users[i]?.connectionRequestID}
+          setNotification={setNotification}
         />
       );
     }
@@ -204,6 +225,7 @@ function DiscoverBody(props: Props) {
           mutualMemberCount={communities[i].numMutual}
           status={communities[i].status}
           admin={communities[i].admin}
+          setNotification={setNotification}
         />
       );
     }
@@ -247,6 +269,13 @@ function DiscoverBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
+
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Discovery"

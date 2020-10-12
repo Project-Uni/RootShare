@@ -15,6 +15,7 @@ import BetaModal from './components/BetaModal';
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
+  HEADER_HEIGHT,
 } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -41,6 +42,7 @@ function Homepage(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
+  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
   const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
@@ -61,6 +63,7 @@ function Homepage(props: Props) {
   }, []);
 
   function handleResize() {
+    setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
 
@@ -285,7 +288,7 @@ function Homepage(props: Props) {
           setShowBetaModal(false);
         }}
       />
-      <div className={styles.body}>
+      <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}

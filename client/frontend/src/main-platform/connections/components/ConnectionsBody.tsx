@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+
 import { Autocomplete } from '@material-ui/lab';
 import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
-import { connect } from 'react-redux';
-
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
-import { SmitHeadshot } from '../../../images/team';
 
 import { makeRequest } from '../../../helpers/functions';
-
-const HEADER_HEIGHT = 60;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

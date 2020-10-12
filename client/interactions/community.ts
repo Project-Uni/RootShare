@@ -7,6 +7,7 @@ import {
   generateSignedImagePromises,
   getUserToUserRelationship,
   addCalculatedUserFields,
+  convertConnectionsToUserIDs,
 } from '../interactions/utilities';
 
 export async function createNewCommunity(
@@ -141,25 +142,13 @@ export async function getCommunityInformation(communityID: string, userID: strin
 
     return Promise.all([communityPromise, userPromise])
       .then(([community, user]) => {
-        //Calculating Mutual Connections
-        const connections = user['connections'].reduce((output, connection) => {
-          if (connection.accepted) {
-            const otherID =
-              connection['from'].toString() != userID.toString()
-                ? connection['from']
-                : connection['to'];
-
-            output.push(otherID.toString());
-          }
-          return output;
-        }, []);
-
+        //Calculating Connections in Community
+        const connections = convertConnectionsToUserIDs(userID, user['connections']);
         const members = community.members.map((member) => member.toString());
 
-        const mutualConnections = members.filter((member) => {
-          if (connections.indexOf(member) !== -1) return true;
-          return false;
-        });
+        const mutualConnections = members.filter(
+          (member) => connections.indexOf(member) !== -1
+        );
 
         log(
           'info',

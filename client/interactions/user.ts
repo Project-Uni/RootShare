@@ -296,6 +296,7 @@ export function getConnections(userID, callback) {
             university: {
               _id: '$university._id',
               universityName: '$university.universityName',
+              nickname: '$university.nickname',
             },
           },
         },
@@ -359,6 +360,7 @@ export function getConnectionSuggestions(userID, callback) {
         university: {
           _id: '$university._id',
           universityName: '$university.universityName',
+          nickname: '$university.nickname',
         },
       },
     },
@@ -417,6 +419,7 @@ export function getConnectionSuggestions(userID, callback) {
     });
 }
 
+// Removes suggestions that are already pending or connected
 function filterSuggestions(user, suggestions) {
   let excludedUsers = new Set();
   excludedUsers.add(user._id.toString());
@@ -470,6 +473,7 @@ export function getPendingRequests(userID, callback) {
                     university: {
                       _id: '$university._id',
                       universityName: '$university.universityName',
+                      nickname: '$university.nickname',
                     },
                   },
                 },
@@ -585,7 +589,11 @@ export function requestConnection(userID, requestUserID, callback) {
               if (!requestedUser)
                 return callback(sendPacket(0, 'Could not save request TO user'));
 
-              callback(sendPacket(1, 'Connection request has been sent!'));
+              callback(
+                sendPacket(1, 'Connection request has been sent!', {
+                  requestID: connectionRequest._id,
+                })
+              );
             });
           });
         });

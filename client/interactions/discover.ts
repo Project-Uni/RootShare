@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
@@ -5,6 +7,7 @@ import {
   generateSignedImagePromises,
   getUserToCommunityRelationship,
   getUserToUserRelationship,
+  convertConnectionsToUserIDs,
 } from '../interactions/utilities';
 
 import { User, Community } from '../models';
@@ -24,6 +27,7 @@ export async function populateDiscoverForUser(userID: string) {
         'university',
         'joinedCommunities',
       ])
+      .populate('connections')
       .exec();
 
     if (!user) return sendPacket(0, 'No user found with provided ID');
@@ -34,6 +38,7 @@ export async function populateDiscoverForUser(userID: string) {
       {
         $match: {
           $and: [
+            { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
             { connections: { $not: { $in: connections } } },
             { pendingConnections: { $not: { $in: pendingConnections } } },
             { university: { $eq: university } },
@@ -50,6 +55,14 @@ export async function populateDiscoverForUser(userID: string) {
         },
       },
       { $unwind: '$university' },
+      {
+        $lookup: {
+          from: 'connections',
+          localField: 'connections',
+          foreignField: '_id',
+          as: 'connections',
+        },
+      },
       {
         $project: {
           firstName: '$firstName',
@@ -109,10 +122,16 @@ export async function populateDiscoverForUser(userID: string) {
 
     return Promise.all([communityPromise, userPromise])
       .then(async ([communities, users]) => {
+        const connectionUserIDs = convertConnectionsToUserIDs(userID, connections);
+
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
+          users[i].connections = convertConnectionsToUserIDs(
+            users[i]._id,
+            users[i].connections
+          );
           const cleanedUser = await addCalculatedUserFields(
-            connections,
+            connectionUserIDs,
             joinedCommunities,
             users[i]
           );
@@ -122,7 +141,7 @@ export async function populateDiscoverForUser(userID: string) {
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
-            connections,
+            connectionUserIDs,
             communities[i]
           );
           communities[i] = cleanedCommunity;
@@ -223,9 +242,16 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'joinedCommunities',
         'pendingCommunities',
       ])
+      .populate('connections')
+      .populate('pendingConnections')
       .exec();
 
-    const userPromise = User.find({ $or: userSearchConditions })
+    const userPromise = User.find({
+      $and: [
+        { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
+        { $or: userSearchConditions },
+      ],
+    })
       .select([
         'firstName',
         'lastName',
@@ -241,6 +267,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       ])
       .limit(USER_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
+      .populate('connections')
       .exec();
 
     const communityPromise = Community.find({
@@ -264,12 +291,23 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
+        const selfConnectionUserIDs = convertConnectionsToUserIDs(
+          userID,
+          currentUser.connections
+        );
+
         for (let i = 0; i < users.length; i++) {
+          users[i] = users[i].toObject();
+          users[i].connectionUserIDs = convertConnectionsToUserIDs(
+            users[i]._id,
+            users[i].connections
+          );
           const cleanedUser = await addCalculatedUserFields(
-            currentUser.connections,
+            selfConnectionUserIDs,
             currentUser.joinedCommunities,
             users[i]
           );
+
           getUserToUserRelationship(
             currentUser.connections,
             currentUser.pendingConnections,
@@ -282,7 +320,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
-            currentUser.connections,
+            selfConnectionUserIDs,
             communities[i]
           );
           getUserToCommunityRelationship(

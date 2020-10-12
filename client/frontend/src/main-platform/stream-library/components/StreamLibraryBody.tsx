@@ -8,7 +8,7 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import Stream from './Stream';
 
-const HEADER_HEIGHT = 60;
+import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
