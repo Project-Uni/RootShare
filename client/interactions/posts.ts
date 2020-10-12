@@ -785,6 +785,10 @@ async function retrievePosts(
       $project: {
         message: '$message',
         likes: { $size: '$likes' },
+        //comments: { $size: '$comments' },
+        comments: { 
+            $ifNull: [{ $size: '$comments' }, 0]
+        },
         createdAt: '$createdAt',
         updatedAt: '$updatedAt',
         type: '$type',

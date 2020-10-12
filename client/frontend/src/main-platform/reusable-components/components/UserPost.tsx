@@ -20,7 +20,7 @@ import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
-import { makeRequest } from '../../../helpers/functions';
+import { formatDatePretty, formatTime, makeRequest } from '../../../helpers/functions';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -149,6 +149,19 @@ type Props = {
   refreshToken: string;
 };
 
+type CommentResponse = {
+    createdAt: string;
+    _id: string;
+    message: string;
+    user: {
+        firstName: string;
+        lastName: string;
+        _id: string;
+        profilePicture?: string;
+    }
+    updatedAt: string;
+}
+
 function UserPost(props: Props) {
   const styles = useStyles();
   const textFieldStyles = useTextFieldStyles();
@@ -157,8 +170,9 @@ function UserPost(props: Props) {
   const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState('');
   const [showComments, setShowComments] = useState(false);
+  //const [comments, setComments] = useState<{ [key: string]: any }>([]);
+  const [comments, setComments] = useState<JSX.Element[]>([]);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
 
   const [commentErr, setCommentErr] = useState('');
@@ -209,6 +223,13 @@ function UserPost(props: Props) {
         props.refreshToken
     );
 
+    if (data.success == 1){
+        setComment('')
+        const newComment = generateComments([data.content.comment])
+        setComments([...comments, ...newComment])
+        console.log(data)
+    }
+
   }
 
   async function handleRetrieveComments() {
@@ -221,6 +242,12 @@ function UserPost(props: Props) {
         props.accessToken,
         props.refreshToken
     );
+
+    if (data.success == 1){
+        setComments(generateComments(data.content['comments'].reverse()))
+    }
+    console.log(data)
+
   }
 
   function handleMoreCommentsClick() {
@@ -321,16 +348,16 @@ function UserPost(props: Props) {
             className={styles.commentCountLink}
             onClick={() => setShowComments(!showComments)}
           >
-              <Button onClick={handleRetrieveComments}>
+              <a onClick={handleRetrieveComments}>
                   <RSText
                       type="body"
                       color={colors.secondaryText}
                       size={12}
                       className={styles.commentCount}
                   >
-                      {props.commentCount} Comments
+                      {comments.length} Comments
                   </RSText>
-              </Button>
+              </a>
           </a>
         </div>
 
@@ -368,16 +395,39 @@ function UserPost(props: Props) {
     );
   }
 
-  function renderComments() {
+  function generateComments(commentsList: CommentResponse[]) {
     const output = [];
-    for (let i = 0; i < 5; i++)
+    for(let i=0; i<commentsList.length; i++) {
       output.push(
         <Comment
-          userID="ABCD_TEST_123"
-          name="Caite Capezzuto"
-          timestamp="July 11, 2020 7:45 PM"
-          message="Hello! Sign up for RootShare! New Hampshire is the best state! TOPANGA!!"
-          profilePicture={CaiteHeadshot}
+          userID={commentsList[i].user._id}
+          name={`${commentsList[i].user.firstName} ${commentsList[i].user.lastName}`}
+          timestamp={`${formatDatePretty(new Date(commentsList[i].createdAt))} at ${formatTime(
+            new Date(commentsList[i].createdAt)
+          )}`}
+          message={commentsList[i].message}
+          profilePicture={commentsList[i].user.profilePicture}
+        />
+      );
+
+    }
+
+    return output;
+  }
+
+  /*
+     function renderComments() {
+    const output = [];
+    for (let i = 0; i < comments.length; i++)
+      output.push(
+        <Comment
+          userID={comments[i].user._id}
+          name={`${comments[i].user.firstName} ${comments[i].user.lastName}`}
+          timestamp={`${formatDatePretty(new Date(comments[i].createdAt))} at ${formatTime(
+            new Date(comments[i].createdAt)
+          )}`}
+          message={comments[i].message}
+          profilePicture={comments[i].user.profilePicture}
         />
       );
     return (
@@ -394,6 +444,7 @@ function UserPost(props: Props) {
       </div>
     );
   }
+   */
 
   return (
     <Box borderRadius={10} boxShadow={2} className={props.style || null}>
@@ -401,7 +452,19 @@ function UserPost(props: Props) {
         {renderPostHeader()}
         {renderMessage()}
         {renderLikesAndCommentCount()}
-        {showComments && renderComments()}
+        {showComments && (
+          <div className={styles.commentsContainer}>
+            <div>
+              {comments}
+              <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
+                More Comments
+              </Button>
+            </div>
+            {loadingMoreComments && (
+              <CircularProgress size={40} className={styles.loadingIndicator} />
+            )}
+          </div>
+          )}
         {renderLeaveCommentArea()}
       </div>
     </Box>
@@ -410,6 +473,7 @@ function UserPost(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

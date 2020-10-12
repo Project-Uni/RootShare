@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import ProfilePicture from '../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,9 +44,7 @@ function Comment(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.commentMainArea}>
-        <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-          <img src={props.profilePicture} className={styles.commentProfile} />
-        </a>
+        <ProfilePicture height={40} width={40} borderRadius={40} _id={props.userID} type='profile' />
         <div className={styles.commentBody}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
             <RSText type="body" size={12} color={colors.secondary} bold>

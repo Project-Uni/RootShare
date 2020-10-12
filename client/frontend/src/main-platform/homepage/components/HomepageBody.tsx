@@ -152,6 +152,7 @@ function HomepageBody(props: Props) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
       const { anonymous } = posts[i];
+      console.log(posts[i])
       output.push(
         <UserPost
           postID={posts[i]._id}
@@ -171,7 +172,7 @@ function HomepageBody(props: Props) {
           }
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.postBox}
           key={posts[i]._id}
           toCommunity={posts[i].toCommunity.name}
