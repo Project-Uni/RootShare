@@ -374,15 +374,13 @@ export function getConnections(userID, callback) {
       if (!user || user.length === 0)
         return callback(sendPacket(-1, 'Could not find connections'));
 
-      const connections = user[0].connections;
-      callback(
-        await addProfilePicturesAll(
-          connections,
-          `Sending User's connections`,
-          'connections',
-          'profile'
-        )
+      const connections = await addProfilePicturesAll(
+        user[0].connections,
+        'profile'
       );
+      if (connections === -1)
+        return callback(sendPacket(-1, 'Could not add images to connections'));
+      return callback(sendPacket(1, `Sending User's Connections`, { connections }));
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
@@ -464,13 +462,11 @@ export function getConnectionSuggestions(userID, callback) {
             suggestions[i] = cleanedSuggestion;
           }
 
-          callback(
-            await addProfilePicturesAll(
-              suggestions,
-              'Sending Connection suggestions',
-              'suggestions',
-              'profile'
-            )
+          suggestions = await addProfilePicturesAll(suggestions, 'profile');
+          if (suggestions === -1)
+            return callback(sendPacket(-1, 'Could not add images to suggestions'));
+          return callback(
+            sendPacket(1, 'Sending Connection Suggestions', { suggestions })
           );
         });
     })
@@ -593,13 +589,11 @@ export function getPendingRequests(userID, callback) {
         pendingRequests[i].from = cleanedUser;
       }
 
-      callback(
-        await addProfilePicturesAll(
-          pendingRequests,
-          `Sending User's Pending Connection Requests`,
-          'pendingRequests',
-          'profile'
-        )
+      pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
+      if (pendingRequests === -1)
+        return callback(sendPacket(-1, 'Could not add images to pending requests'));
+      return callback(
+        sendPacket(1, 'Sending pending requests', { pendingRequests })
       );
     })
     .catch((err) => {
@@ -959,7 +953,7 @@ export async function getSelfUserCommunities(userID: string) {
         `Couldn't find user with id ${userID} to get communities for`
       );
 
-    const { joinedCommunities, pendingCommunities } = user;
+    let { joinedCommunities, pendingCommunities } = user;
     const connections = connectionsToUserIDStrings(userID, user['connections']);
 
     //Cleaning up joined and pending communities
@@ -981,29 +975,24 @@ export async function getSelfUserCommunities(userID: string) {
       pendingCommunities[i].status = 'PENDING';
     }
 
-    const joinedPacket = await addProfilePicturesAll(
+    joinedCommunities = await addProfilePicturesAll(
       joinedCommunities,
-      '',
-      'joined',
       'communityProfile'
     );
-    if (joinedPacket.success !== 1) return joinedPacket;
+    if (joinedCommunities === -1)
+      return sendPacket(-1, 'Could not add images to joined communities');
 
-    const pendingPacket = await addProfilePicturesAll(
+    pendingCommunities = await addProfilePicturesAll(
       pendingCommunities,
-      '',
-      'pending',
       'communityProfile'
     );
-    if (pendingPacket.success !== 1) return pendingPacket;
+    if (pendingCommunities === -1)
+      return sendPacket(-1, 'Could not add images to pending communities');
 
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
-      {
-        joinedCommunities: joinedPacket.content.joined,
-        pendingCommunities: pendingPacket.content.pending,
-      }
+      { joinedCommunities, pendingCommunities }
     );
   } catch (err) {
     log('error', err);
@@ -1059,18 +1048,17 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
       otherUser.joinedCommunities[i] = cleanedCommunity;
     }
 
-    const joinedPacket = await addProfilePicturesAll(
+    const joinedWithImages = await addProfilePicturesAll(
       otherUser.joinedCommunities,
-      '',
-      'joined',
       'communityProfile'
     );
-    if (joinedPacket.success !== 1) return joinedPacket;
+    if (joinedWithImages === -1)
+      return sendPacket(-1, 'Could not add images to joined communities');
 
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
-      { joinedCommunities: joinedPacket.content.joined, pendingCommunities: [] }
+      { joinedCommunities: joinedWithImages, pendingCommunities: [] }
     );
   } catch (err) {
     log('error', err);
@@ -1093,25 +1081,22 @@ export async function getSelfConnectionsFullData(selfID: string) {
 
     const pendingUserIDs = pendingToUserIDs(selfID, currUser.pendingConnections);
 
-    const connectionsWithData = await User.find(
-      { _id: { $in: connectionUserIDs } },
-      [
-        'firstName',
-        'lastName',
-        'graduationYear',
-        'university',
-        'work',
-        'position',
-        'connections',
-        'pendingConnections',
-        'joinedCommunities',
-        'profilePicture',
-      ]
-    )
+    let connectionsWithData = await User.find({ _id: { $in: connectionUserIDs } }, [
+      'firstName',
+      'lastName',
+      'graduationYear',
+      'university',
+      'work',
+      'position',
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'profilePicture',
+    ])
       .populate({ path: 'university', select: ['universityName'] })
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
-    const pendingWithData = await User.find({ _id: { $in: pendingUserIDs } }, [
+    let pendingWithData = await User.find({ _id: { $in: pendingUserIDs } }, [
       'firstName',
       'lastName',
       'graduationYear',
@@ -1164,25 +1149,20 @@ export async function getSelfConnectionsFullData(selfID: string) {
       pendingWithData[i] = cleanedPending;
     }
 
-    const connectionsPacket = await addProfilePicturesAll(
+    connectionsWithData = await addProfilePicturesAll(
       connectionsWithData,
-      '',
-      'connections',
       'profile'
     );
-    if (connectionsPacket.success !== 1) return connectionsPacket;
+    if (connectionsWithData === -1)
+      return sendPacket(-1, 'Could not add images to connections');
 
-    const pendingPacket = await addProfilePicturesAll(
-      pendingWithData,
-      '',
-      'pending',
-      'profile'
-    );
-    if (pendingPacket.success !== 1) return pendingPacket;
+    pendingWithData = await addProfilePicturesAll(pendingWithData, 'profile');
+    if (pendingWithData === -1)
+      return sendPacket(-1, 'Could not add images to pending');
 
     return sendPacket(1, 'Successfully retrieved all connections', {
-      connections: connectionsPacket.content.connections,
-      pendingConnections: pendingPacket.content.pending,
+      connections: connectionsWithData,
+      pendingConnections: pendingWithData,
     });
   } catch (err) {
     log('error', err);
@@ -1218,7 +1198,7 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
       otherUser.connections
     );
 
-    const connectionsWithData = await User.find(
+    let connectionsWithData = await User.find(
       { _id: { $in: otherConnectionUserIDs } },
       [
         'firstName',
@@ -1258,17 +1238,14 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
       connectionsWithData[i] = cleanedConnection;
     }
 
-    const packet = await addProfilePicturesAll(
+    connectionsWithData = await addProfilePicturesAll(
       connectionsWithData,
-      '',
-      'connections',
       'profile'
     );
-    if (packet.success !== 1) return packet;
-    const connectionsWithImages = packet.content.connections;
-
+    if (connectionsWithData === -1)
+      return sendPacket(-1, 'Could not add images to connections');
     return sendPacket(1, 'Successfully retrieved all connections', {
-      connections: connectionsWithImages,
+      connections: connectionsWithData,
       pendingConnections: [],
     });
   } catch (err) {

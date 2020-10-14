@@ -984,7 +984,7 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         if (!community) return sendPacket(0, 'Could not find community');
         if (!user) return sendPacket(0, 'Could not find current user');
 
-        const { members } = community;
+        let { members } = community;
 
         const userConnections = connectionsToUserIDStrings(userID, user.connections);
 
@@ -1004,12 +1004,10 @@ export async function getCommunityMembers(userID: string, communityID: string) {
           members[i] = cleanedMember;
         }
 
-        return addProfilePicturesAll(
-          members,
-          `Successfully retrieved all members for ${community.name}`,
-          'members',
-          'profile'
-        );
+        members = await addProfilePicturesAll(members, 'profile');
+
+        if (members === -1) return sendPacket(-1, 'Could not add profile pictures');
+        return sendPacket(1, 'Sending Community Members', { members });
       }
     );
   } catch (err) {

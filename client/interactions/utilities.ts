@@ -248,8 +248,6 @@ export function generateSignedImagePromises(
 
 export function addProfilePicturesAll(
   entities,
-  message,
-  returnName,
   imageReason: 'profile' | 'communityProfile'
 ) {
   const imagePromises = generateSignedImagePromises(entities, imageReason);
@@ -259,14 +257,11 @@ export function addProfilePicturesAll(
       for (let i = 0; i < signedImageURLs.length; i++)
         if (signedImageURLs[i]) entities[i].profilePicture = signedImageURLs[i];
 
-      log('info', message);
-      const retVal = {};
-      retVal[returnName] = entities;
-      return sendPacket(1, message, retVal);
+      return entities;
     })
     .catch((err) => {
       log('error', err);
-      return sendPacket(-1, err);
+      return -1;
     });
 }
 
