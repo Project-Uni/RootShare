@@ -346,25 +346,6 @@ function CommunityBodyContent(props: Props) {
     );
   }
 
-  // function renderBody() {
-  //   switch (selectedTab) {
-  //     case 'external':
-  //       return renderExternal();
-  //     case 'internal':
-  //       return renderInternal();
-  //     case 'internal-current':
-  //       return renderInternal();
-  //     case 'internal-alumni':
-  //       return renderInternal();
-  //     case 'following':
-  //       return renderFollowing();
-  //     case 'members':
-  //       return <CommunityMembers members={members} />;
-  //     default:
-  //       return renderError();
-  //   }
-  // }
-
   function renderError() {
     return (
       <div className={styles.errorContainer}>

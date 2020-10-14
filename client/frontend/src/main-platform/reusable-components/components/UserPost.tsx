@@ -353,7 +353,7 @@ function UserPost(props: Props) {
               </RSText>
             </a>
 
-            {props.toCommunity && props.toCommunityID !== props.posterID && (
+            {props.toCommunity && (
               <>
                 <GiTreeBranch
                   color={colors.secondary}
