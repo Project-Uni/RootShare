@@ -98,7 +98,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID, accountType } = req.user;
-      const { message } = req.body;
+      const { message, image } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
@@ -107,7 +107,8 @@ export default function postsRoutes(app) {
         communityID,
         userID,
         accountType,
-        message
+        message,
+        image
       );
       return res.json(packet);
     }
@@ -119,7 +120,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID, accountType } = req.user;
-      const { message } = req.body;
+      const { message, image } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
@@ -128,7 +129,8 @@ export default function postsRoutes(app) {
         communityID,
         userID,
         accountType,
-        message
+        message,
+        image
       );
       return res.json(packet);
     }
@@ -141,7 +143,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
-      const { message } = req.body;
+      const { message, image } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
@@ -149,7 +151,8 @@ export default function postsRoutes(app) {
       const packet = await createExternalPostAsCommunityAdmin(
         userID,
         communityID,
-        message
+        message,
+        image
       );
       return res.json(packet);
     }
@@ -161,7 +164,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
       const userID = req.user._id;
-      const { fromCommunityID, message } = req.body;
+      const { fromCommunityID, message, image } = req.body;
 
       if (!fromCommunityID || !message)
         return res.json(
@@ -172,7 +175,8 @@ export default function postsRoutes(app) {
         userID,
         fromCommunityID,
         toCommunityID,
-        message
+        message,
+        image
       );
 
       return res.json(packet);
@@ -238,7 +242,7 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
-      const { message } = req.body;
+      const { message, image } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
@@ -246,7 +250,8 @@ export default function postsRoutes(app) {
       const packet = await createBroadcastCommunityPost(
         userID,
         communityID,
-        message
+        message,
+        image
       );
       return res.json(packet);
     }
@@ -258,12 +263,17 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
-      const { message } = req.body;
+      const { message, image } = req.body;
 
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await createExternalPostAsMember(userID, communityID, message);
+      const packet = await createExternalPostAsMember(
+        userID,
+        communityID,
+        message,
+        image
+      );
       return res.json(packet);
     }
   );

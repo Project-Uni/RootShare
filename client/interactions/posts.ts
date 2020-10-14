@@ -53,7 +53,8 @@ export async function createInternalCurrentMemberCommunityPost(
   communityID: string,
   userID: string,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
-  message: string
+  message: string,
+  image?: string
 ) {
   //Checking that user is a part of the community
   const community = await getValidatedCommunity(communityID, userID, [
@@ -89,9 +90,35 @@ export async function createInternalCurrentMemberCommunityPost(
       university: community.university,
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -113,7 +140,8 @@ export async function createInternalAlumniPost(
   communityID: string,
   userID: string,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
-  message: string
+  message: string,
+  image?: string
 ) {
   //Checking if user is a part of this community
   const community = await getValidatedCommunity(communityID, userID, [
@@ -148,9 +176,36 @@ export async function createInternalAlumniPost(
       type: 'internalAlumni',
       university: community.university,
     }).save();
+
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -174,7 +229,8 @@ export async function createExternalPostAsFollowingCommunityAdmin(
   userID: string,
   fromCommunityID: string,
   toCommunityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const isCommunityAdminPromise = Community.exists({
@@ -217,9 +273,41 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           anonymous: true,
         }).save();
 
+        if (image) {
+          const result = await uploadPostImage(image, raw_post._id, userID);
+          if (result === -1) {
+            log(
+              'info',
+              `Successfully created for user ${userID}, but failed to upload image`
+            );
+            return sendPacket(
+              1,
+              'Successfully created post, but the image was invalid'
+            );
+          }
+          const [imageID, fileName] = result;
+          await Post.updateOne(
+            { _id: raw_post._id },
+            { $push: { images: imageID } }
+          );
+        }
+
         const post = await Post.findById(raw_post._id)
           .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+          .populate({ path: 'images', select: 'fileName' })
           .exec();
+
+        if (post.images && post.images.length > 0) {
+          try {
+            const imageURL = await retrieveSignedUrl(
+              'postImage',
+              post.images[0].fileName
+            );
+            post.images[0].fileName = imageURL;
+          } catch (err) {
+            log('error', err);
+          }
+        }
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },
@@ -259,7 +347,8 @@ export async function createExternalPostAsFollowingCommunityAdmin(
 export async function createExternalPostAsCommunityAdmin(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const raw_post = await new Post({
@@ -271,9 +360,35 @@ export async function createExternalPostAsCommunityAdmin(
       type: 'external',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -294,7 +409,8 @@ export async function createExternalPostAsCommunityAdmin(
 export async function createExternalPostAsMember(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const communityExists = await Community.exists({
@@ -316,9 +432,35 @@ export async function createExternalPostAsMember(
       type: 'external',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -339,7 +481,8 @@ export async function createExternalPostAsMember(
 export async function createBroadcastCommunityPost(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const raw_post = await new Post({
@@ -350,9 +493,35 @@ export async function createBroadcastCommunityPost(
       type: 'broadcast',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
