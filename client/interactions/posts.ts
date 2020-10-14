@@ -753,13 +753,19 @@ async function getValidatedCommunity(
   }
 }
 
-function generatePostSignedImagePromises(posts: {
-  [key: string]: any;
-  user: { [key: string]: any; profilePicture?: string };
-}) {
+function generatePostSignedImagePromises(
+  posts: {
+    [key: string]: any;
+    _id: string;
+    user: { [key: string]: any; profilePicture?: string };
+    images: [{ fileName: string }];
+  },
+  hasImages = false
+) {
   const profilePicturePromises = [];
 
   for (let i = 0; i < posts.length; i++) {
+    //Adding profile picture
     const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
     const picturePath =
       pictureType === 'profile'
@@ -776,6 +782,15 @@ function generatePostSignedImagePromises(posts: {
       }
     } else {
       profilePicturePromises.push(null);
+    }
+
+    //Adding post image picture
+    if (hasImages) {
+      for (let j = 0; j < posts[i].images.length; j++) {
+        const image = posts[i].images[j];
+        const signedImagePromise = retrieveSignedUrl('postImage', image.fileName);
+        profilePicturePromises.push(signedImagePromise);
+      }
     }
   }
   return profilePicturePromises;
@@ -950,17 +965,23 @@ async function retrievePosts(
 
   if (!withProfileImage) return posts;
 
-  const imagePromises = generatePostSignedImagePromises(posts);
+  const imagePromises = generatePostSignedImagePromises(posts, true);
 
   return Promise.all(imagePromises)
     .then((signedImageURLs) => {
-      for (let i = 0; i < posts.length; i++)
-        if (signedImageURLs[i]) {
+      let urlIndex = 0;
+      for (let i = 0; i < posts.length; i++) {
+        if (signedImageURLs[urlIndex]) {
           if (posts[i].anonymous)
-            posts[i].fromCommunity.profilePicture = signedImageURLs[i];
-          else posts[i].user.profilePicture = signedImageURLs[i];
+            posts[i].fromCommunity.profilePicture = signedImageURLs[urlIndex];
+          else posts[i].user.profilePicture = signedImageURLs[urlIndex];
         }
-
+        urlIndex += 1;
+        for (let j = 0; j < posts[i].images.length; j++) {
+          posts[i].images[j].fileName = signedImageURLs[urlIndex + j];
+        }
+        urlIndex += posts[i].images.length;
+      }
       return posts;
     })
     .catch((err) => {
