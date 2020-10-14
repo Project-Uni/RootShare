@@ -11,7 +11,6 @@ import RSText from '../base-components/RSText';
 
 import EventClientHeader from './EventClientHeader';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
-import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
