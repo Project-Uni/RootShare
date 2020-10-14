@@ -17,6 +17,7 @@ var webinarSchema = new Schema(
     muxStreamKey: String,
     muxLiveStreamID: String,
     muxPlaybackID: String,
+    muxAssetPlaybackID: String,
     availableCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },

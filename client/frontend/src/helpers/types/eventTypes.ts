@@ -16,8 +16,20 @@ export type EventType = {
   conversation: string | ConversationType;
   dateTime: Date;
   muxPlaybackID: string;
+  muxAssetPlaybackID: string;
   isDev?: boolean;
   isPrivate?: boolean;
+};
+
+export type LeanEventType = {
+  _id: string;
+  title: string;
+  dateTime: Date;
+  RSVPs: string[];
+  hostCommunity?: HostCommunityType;
+  brief_description: string;
+  full_description: string;
+  muxAssetPlaybackID: string;
 };
 
 export type HostType = {
@@ -25,6 +37,11 @@ export type HostType = {
   firstName: string;
   lastName: string;
   email: string;
+};
+
+export type HostCommunityType = {
+  _id: string;
+  name: string;
 };
 
 export type SpeakerType = {

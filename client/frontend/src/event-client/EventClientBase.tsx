@@ -242,6 +242,16 @@ function EventClientBase(props: Props) {
 
   function renderVideoArea() {
     const currWebinarData = webinarData as EventType;
+
+    if (currWebinarData.muxAssetPlaybackID)
+      return (
+        <EventWatcherVideoContainer
+          muxPlaybackID={currWebinarData.muxAssetPlaybackID}
+          replay
+          muxMetaData={muxMetaData as MuxMetaDataType}
+        />
+      );
+
     if (eventMode === 'viewer')
       return (
         <EventWatcherVideoContainer
