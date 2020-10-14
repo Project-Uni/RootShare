@@ -121,9 +121,10 @@ function HomepageBody(props: Props) {
           )}`}
           profilePicture={props.user.profilePicture}
           message={post.message}
-          likeCount={post.likes}
+          likeCount={0}
           commentCount={0}
           style={styles.postBox}
+          images={post.images}
         />
       );
       return [newEntry].concat(prevState);
@@ -160,6 +161,7 @@ function HomepageBody(props: Props) {
           toCommunityID={posts[i].toCommunity._id}
           anonymous={anonymous}
           liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }

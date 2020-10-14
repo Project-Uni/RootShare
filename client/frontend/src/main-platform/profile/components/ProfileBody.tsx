@@ -293,6 +293,7 @@ function ProfileBody(props: Props) {
           commentCount={posts[i].comments}
           style={styles.post}
           liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }
