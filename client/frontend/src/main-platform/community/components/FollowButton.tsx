@@ -51,11 +51,7 @@ function FollowButton(props: Props) {
   async function getAdminCommunities() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/communities/admin`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/user/${props.user._id}/communities/admin`
     );
 
     if (data.success === 1) {
@@ -113,10 +109,7 @@ function FollowButton(props: Props) {
       const { data } = await makeRequest(
         'POST',
         `/api/community/${props.communityID}/follow`,
-        { followAsCommunityID: communityID },
-        true,
-        props.accessToken,
-        props.refreshToken
+        { followAsCommunityID: communityID }
       );
       if (data.success === 1) {
         const communities = adminCommunities;
@@ -148,10 +141,7 @@ function FollowButton(props: Props) {
       const { data } = await makeRequest(
         'POST',
         `/api/community/${props.communityID}/follow/cancel`,
-        { fromCommunityID: communityID },
-        true,
-        props.accessToken,
-        props.refreshToken
+        { fromCommunityID: communityID }
       );
       if (data.success === 1) {
         const communities = adminCommunities;
@@ -179,10 +169,7 @@ function FollowButton(props: Props) {
       const { data } = await makeRequest(
         'POST',
         `/api/community/${props.communityID}/unfollow`,
-        { fromCommunityID: communityID },
-        true,
-        props.accessToken,
-        props.refreshToken
+        { fromCommunityID: communityID }
       );
       if (data.success === 1) {
         const communities = adminCommunities;

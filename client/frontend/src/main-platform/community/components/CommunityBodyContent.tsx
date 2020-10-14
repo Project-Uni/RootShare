@@ -118,11 +118,7 @@ function CommunityBodyContent(props: Props) {
     const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/community/${props.communityID}/${routeSuffix}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/community/${props.communityID}/${routeSuffix}`
     );
     if (tabChangeSemaphore === currSemaphoreState) {
       if (data.success === 1) {

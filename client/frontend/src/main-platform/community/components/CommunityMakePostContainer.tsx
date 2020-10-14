@@ -161,10 +161,7 @@ function CommunityMakePostContainer(props: Props) {
       {
         fromCommunityID: communityID,
         message: content,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
+      }
     );
 
     setLoading(false);

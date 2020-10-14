@@ -139,11 +139,7 @@ function CommunityGeneralInfo(props: Props) {
     setMenuAnchorEl(null);
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${props.communityID}/join`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/join`
     );
     if (data.success === -1) {
       return alert(
@@ -165,11 +161,7 @@ function CommunityGeneralInfo(props: Props) {
   async function handleLeaveClick() {
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${props.communityID}/leave`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/leave`
     );
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);
@@ -186,11 +178,7 @@ function CommunityGeneralInfo(props: Props) {
   async function handleCancelPendingRequest() {
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${props.communityID}/cancelPending`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/cancelPending`
     );
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);

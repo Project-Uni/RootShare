@@ -81,14 +81,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getCurrent');
     if (data['success'] !== 1) {
       props.updateUser({});
       props.updateAccessToken('');
@@ -100,14 +93,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function fetchCommunityInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/community/${orgID}/info`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/community/${orgID}/info`);
     if (data.success === 1) {
       setCommunityInfo(data.content['community']);
       initializeCommunityStatus(data.content['community']);
