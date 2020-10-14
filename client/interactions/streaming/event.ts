@@ -160,7 +160,6 @@ export async function getAllRecentEvents(userID: string, callback) {
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
-  console.log(events);
 
   const { connections } = await User.findOne({ _id: userID }, [
     'connections',
