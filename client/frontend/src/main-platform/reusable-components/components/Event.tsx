@@ -87,6 +87,7 @@ type Props = {
   mutualSignups: number;
   rsvpYes: boolean;
   style?: any;
+  complete?: boolean;
 };
 
 function Event(props: Props) {
@@ -144,7 +145,14 @@ function Event(props: Props) {
           </RSText>
         </a>
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
-          <img src={props.eventID === '5f7f5653b0f90c4302e10fa6' ? BoudreauxEventPicture : BabyBoilersBanner} className={styles.banner} />
+          <img
+            src={
+              props.eventID === '5f7f5653b0f90c4302e10fa6'
+                ? BoudreauxEventPicture
+                : BabyBoilersBanner
+            }
+            className={styles.banner}
+          />
         </a>
         <RSText
           type="body"
@@ -172,16 +180,26 @@ function Event(props: Props) {
 
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
-            {props.mutualSignups == 0 ? 'No' : props.mutualSignups} Connections
-            Signed Up
+            {props.mutualSignups !== 0 &&
+              `${props.mutualSignups} Connections Signed Up`}
           </RSText>
-          <Button
-            href={`/event/${props.eventID}`}
-            variant="contained"
-            className={styles.goToEventButton}
-          >
-            Enter Event
-          </Button>
+          {props.complete ? (
+            <Button
+              href={`/event/replay/${props.eventID}`}
+              variant="contained"
+              className={styles.goToEventButton}
+            >
+              Watch Again
+            </Button>
+          ) : (
+            <Button
+              href={`/event/${props.eventID}`}
+              variant="contained"
+              className={styles.goToEventButton}
+            >
+              Enter Event
+            </Button>
+          )}
           {/* <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES
           </Button> */}
