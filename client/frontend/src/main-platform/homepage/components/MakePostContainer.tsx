@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Box } from '@material-ui/core';
+import { TextField, Button, Box, IconButton } from '@material-ui/core';
 import { FaCamera } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
@@ -72,6 +72,14 @@ const useStyles = makeStyles((_: any) => ({
   serverMessage: {
     marginLeft: 60,
   },
+  uploadedImage: {
+    maxHeight: 400,
+  },
+  imagePreviewWrapper: {
+    width: '100%',
+    background: `linear-gradient(90deg, rgb(107, 107, 107), rgb(20, 20, 20), rgb(107, 107, 107));`,
+    borderRadius: 8,
+  },
 }));
 
 type Props = {
@@ -91,6 +99,9 @@ function MakePostContainer(props: Props) {
     status: 0 | 1;
     message: string;
   }>();
+  const [imageSrc, setImageSrc] = useState<string>();
+
+  const fileUploader = useRef<HTMLInputElement>(null);
 
   async function handlePostClicked() {
     setLoading(true);
@@ -130,11 +141,41 @@ function MakePostContainer(props: Props) {
   }
 
   function handleImageClicked() {
-    console.log('Clicked image');
+    fileUploader.current?.click();
+  }
+
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files && event.target.files.length > 0) {
+      const imageReader = new FileReader();
+
+      imageReader.onloadend = (event: ProgressEvent) => {
+        const resultBuffer = imageReader.result;
+        setImageSrc(resultBuffer as string);
+      };
+
+      imageReader.readAsDataURL(event.target.files[0]);
+      event.target.value = '';
+    }
   }
 
   return (
     <Box boxShadow={2} borderRadius={8} className={styles.box}>
+      {imageSrc && (
+        <div className={styles.imagePreviewWrapper}>
+          <IconButton
+            style={{ display: 'float', float: 'right' }}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to remove this image?'))
+                setImageSrc(undefined);
+            }}
+          >
+            <RSText color={colors.primaryText} size={16} bold>
+              X
+            </RSText>
+          </IconButton>
+          <img src={imageSrc} className={styles.uploadedImage} />
+        </div>
+      )}
       <div className={styles.messageAreaWrapper}>
         <div className={styles.messageArea}>
           <ProfilePicture
@@ -181,6 +222,13 @@ function MakePostContainer(props: Props) {
               <span style={{ marginLeft: 10 }} />
               Image
             </Button>
+            <input
+              type="file"
+              ref={fileUploader}
+              style={{ display: 'none' }}
+              accept="image/x-png, image/jpeg"
+              onChange={handleImageUpload}
+            />
             <Button
               className={
                 loading || message === '' ? styles.disabledButton : styles.button
