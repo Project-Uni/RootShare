@@ -34,10 +34,10 @@ import {
 export default function postsRoutes(app) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
     const userID = req.user._id;
-    const { message } = req.body;
+    const { message, image } = req.body;
     if (!message) return res.json(sendPacket(-1, 'message is missing from request'));
 
-    const packet = await createBroadcastUserPost(message, userID);
+    const packet = await createBroadcastUserPost(message, userID, image);
     return res.json(packet);
   });
 

@@ -110,7 +110,7 @@ function MakePostContainer(props: Props) {
     const { data } = await makeRequest(
       'POST',
       '/api/posts/broadcast/user',
-      { message },
+      { message, image: imageSrc },
       true,
       props.accessToken,
       props.refreshToken
