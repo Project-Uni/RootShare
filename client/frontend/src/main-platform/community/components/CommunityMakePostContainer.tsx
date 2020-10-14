@@ -86,6 +86,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   uploadedImage: {
     maxHeight: 400,
+    maxWidth: '100%',
+    objectFit: 'contain',
   },
   imagePreviewWrapper: {
     width: '100%',

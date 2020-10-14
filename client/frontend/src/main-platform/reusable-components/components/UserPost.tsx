@@ -36,8 +36,6 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.primaryText,
     borderRadius: 10,
     padding: 1,
-    // paddingLeft: 20,
-    // paddingRight: 20,
   },
   rest: {
     paddingLeft: 20,
@@ -143,10 +141,12 @@ const useStyles = makeStyles((_: any) => ({
     background: `linear-gradient(90deg, rgb(107, 107, 107), rgb(20, 20, 20), rgb(107, 107, 107));`,
   },
   previewImage: {
-    height: 300,
+    maxHeight: 300,
     '&:hover': {
       cursor: 'pointer',
     },
+    maxWidth: '100%',
+    objectFit: 'contain',
   },
 }));
 
