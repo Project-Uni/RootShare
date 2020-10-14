@@ -485,6 +485,7 @@ function UserPost(props: Props) {
           borderRadius={40}
           pictureStyle={styles.commentProfile}
           type="profile"
+          currentPicture={props.user.profilePicture}
         />
         <TextField
           variant="outlined"
