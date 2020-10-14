@@ -7,14 +7,16 @@ import {
   getUserToUserRelationship,
   addCalculatedCommunityFields,
   getUserToCommunityRelationship,
-  generateSignedImagePromises,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
   pendingToUserIDs,
+  addProfilePictureToUser,
+  addProfilePicturesAll,
 } from './utilities';
 
-export function getCurrentUser(user, callback) {
+export async function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
+  await addProfilePictureToUser(user);
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -24,6 +26,7 @@ export function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
+      profilePicture: user.profilePicture,
     })
   );
 }
@@ -138,13 +141,14 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
           return callback(sendPacket(0, 'Could not find the given user'));
 
         let otherUser = otherUserOutput[0];
-        otherUser.connections = connectionsToUserIDStrings(
-          userID,
-          otherUser.connections
-        );
         const selfConnections = connectionsToUserIDStrings(
           selfUserID,
           selfUser.connections
+        );
+
+        otherUser.connections = connectionsToUserIDStrings(
+          otherUser._id,
+          otherUser.connections
         );
 
         otherUser = await addCalculatedUserFields(
@@ -169,9 +173,21 @@ export function getUserEvents(userID, callback) {
     {
       $lookup: {
         from: 'webinars',
-        let: { rsvps: '$RSVPWebinars' },
+        let: { attended: '$attendedWebinars', rsvps: '$RSVPWebinars' },
         pipeline: [
-          { $match: { $expr: { $in: ['$_id', '$$rsvps'] } } },
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { $expr: { $in: ['$_id', '$$rsvps'] } },
+                    { $expr: { $in: ['$_id', '$$attended'] } },
+                  ],
+                },
+                { isDev: { $ne: true } },
+              ],
+            },
+          },
           { $sort: { dateTime: 1 } },
           {
             $lookup: {
@@ -359,18 +375,14 @@ export function getConnections(userID, callback) {
         return callback(sendPacket(-1, 'Could not find connections'));
 
       const connections = user[0].connections;
-      const imagePromises = generateSignedImagePromises(connections, 'profile');
-      Promise.all(imagePromises)
-        .then((signedImageURLs) => {
-          for (let i = 0; i < connections.length; i++)
-            if (signedImageURLs[i])
-              connections[i].profilePicture = signedImageURLs[i];
-
-          callback(sendPacket(1, "Sending User's Connections", { connections }));
-        })
-        .catch((err) => {
-          log('error', err);
-        });
+      callback(
+        await addProfilePicturesAll(
+          connections,
+          `Sending User's connections`,
+          'connections',
+          'profile'
+        )
+      );
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
@@ -452,7 +464,14 @@ export function getConnectionSuggestions(userID, callback) {
             suggestions[i] = cleanedSuggestion;
           }
 
-          callback(sendPacket(1, 'Sending Connection suggestions', { suggestions }));
+          callback(
+            await addProfilePicturesAll(
+              suggestions,
+              'Sending Connection suggestions',
+              'suggestions',
+              'profile'
+            )
+          );
         });
     })
     .catch((err) => {
@@ -575,9 +594,12 @@ export function getPendingRequests(userID, callback) {
       }
 
       callback(
-        sendPacket(1, `Sending User's Pending Connection Requests`, {
+        await addProfilePicturesAll(
           pendingRequests,
-        })
+          `Sending User's Pending Connection Requests`,
+          'pendingRequests',
+          'profile'
+        )
       );
     })
     .catch((err) => {
@@ -959,10 +981,29 @@ export async function getSelfUserCommunities(userID: string) {
       pendingCommunities[i].status = 'PENDING';
     }
 
+    const joinedPacket = await addProfilePicturesAll(
+      joinedCommunities,
+      '',
+      'joined',
+      'communityProfile'
+    );
+    if (joinedPacket.success !== 1) return joinedPacket;
+
+    const pendingPacket = await addProfilePicturesAll(
+      pendingCommunities,
+      '',
+      'pending',
+      'communityProfile'
+    );
+    if (pendingPacket.success !== 1) return pendingPacket;
+
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
-      { joinedCommunities, pendingCommunities }
+      {
+        joinedCommunities: joinedPacket.content.joined,
+        pendingCommunities: pendingPacket.content.pending,
+      }
     );
   } catch (err) {
     log('error', err);
@@ -1018,10 +1059,18 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
       otherUser.joinedCommunities[i] = cleanedCommunity;
     }
 
+    const joinedPacket = await addProfilePicturesAll(
+      otherUser.joinedCommunities,
+      '',
+      'joined',
+      'communityProfile'
+    );
+    if (joinedPacket.success !== 1) return joinedPacket;
+
     return sendPacket(
       1,
       'Successfully retrieved all joined and pending communities.',
-      { joinedCommunities: otherUser.joinedCommunities, pendingCommunities: [] }
+      { joinedCommunities: joinedPacket.content.joined, pendingCommunities: [] }
     );
   } catch (err) {
     log('error', err);
@@ -1115,9 +1164,25 @@ export async function getSelfConnectionsFullData(selfID: string) {
       pendingWithData[i] = cleanedPending;
     }
 
-    return sendPacket(1, 'successfully retrieved all connections', {
-      connections: connectionsWithData,
-      pendingConnections: pendingWithData,
+    const connectionsPacket = await addProfilePicturesAll(
+      connectionsWithData,
+      '',
+      'connections',
+      'profile'
+    );
+    if (connectionsPacket.success !== 1) return connectionsPacket;
+
+    const pendingPacket = await addProfilePicturesAll(
+      pendingWithData,
+      '',
+      'pending',
+      'profile'
+    );
+    if (pendingPacket.success !== 1) return pendingPacket;
+
+    return sendPacket(1, 'Successfully retrieved all connections', {
+      connections: connectionsPacket.content.connections,
+      pendingConnections: pendingPacket.content.pending,
     });
   } catch (err) {
     log('error', err);
@@ -1193,8 +1258,17 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
       connectionsWithData[i] = cleanedConnection;
     }
 
+    const packet = await addProfilePicturesAll(
+      connectionsWithData,
+      '',
+      'connections',
+      'profile'
+    );
+    if (packet.success !== 1) return packet;
+    const connectionsWithImages = packet.content.connections;
+
     return sendPacket(1, 'Successfully retrieved all connections', {
-      connections: connectionsWithData,
+      connections: connectionsWithImages,
       pendingConnections: [],
     });
   } catch (err) {
@@ -1209,7 +1283,7 @@ export async function getUserAdminCommunities(userID: string) {
       .select(['joinedCommunities'])
       .populate({
         path: 'joinedCommunities',
-        select: 'admin name',
+        select: 'admin name profilePicture',
         populate: [
           {
             path: 'followingCommunities',
@@ -1228,6 +1302,14 @@ export async function getUserAdminCommunities(userID: string) {
     const communities = user.joinedCommunities.filter(
       (community) => community.admin.toString() === userID
     );
+
+    for (let i = 0; i < communities.length; i++) {
+      const profilePicture = await retrieveSignedUrl(
+        'communityProfile',
+        communities[i].profilePicture
+      );
+      if (profilePicture) communities[i].profilePicture = profilePicture;
+    }
     log('info', `Retrieved admin communities for user ${userID}`);
     return sendPacket(1, 'Successfully retrieved admin communities', {
       communities,

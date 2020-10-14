@@ -19,16 +19,14 @@ import {
   ProfileDrawer,
   NavigationDrawer,
 } from './drawer-components';
+import { checkDesktop } from '../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   header: {
     background: colors.second,
   },
-  headerLogo: {
-    height: '38px',
-    width: '190px',
-  },
+  headerLogo: {},
   icons: {},
   iconStyle: {},
   toolbar: {
@@ -36,7 +34,6 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   alpha: {
-    height: 24,
     marginLeft: 5,
   },
 }));
@@ -55,6 +52,9 @@ function EventClientHeader(props: Props) {
   const [width, setWidth] = useState(
     window.innerWidth >= minWidth ? window.innerWidth : props.minWidth
   );
+
+  const isDesktop = checkDesktop();
+  const iconSize = isDesktop ? 32 : 24;
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -114,16 +114,16 @@ function EventClientHeader(props: Props) {
     return (
       <>
         <IconButton className={styles.iconStyle} onClick={handleConnectionsClick}>
-          <MdGroupAdd size={32} color={colors.primaryText} />
+          <MdGroupAdd size={iconSize} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
-          <IoMdText size={32} color={colors.primaryText} />
+          <IoMdText size={iconSize} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleCalendarClick}>
-          <FaRegCalendarAlt size={27} color={colors.primaryText} />
+          <FaRegCalendarAlt size={isDesktop ? 27 : 20} color={colors.primaryText} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleProfileClick}>
-          <MdAccountCircle color={colors.primaryText} size={32} />
+          <MdAccountCircle color={colors.primaryText} size={iconSize} />
         </IconButton>
       </>
     );
@@ -148,13 +148,22 @@ function EventClientHeader(props: Props) {
                   src={RootShareLogoWhite}
                   alt="RootShare"
                   className={styles.headerLogo}
+                  style={{
+                    height: isDesktop ? 38 : 28,
+                    width: isDesktop ? 190 : 140,
+                  }}
                 />
               </a>
-              <img src={AlphaLogo} alt="Alpha" className={styles.alpha} />
+              <img
+                src={AlphaLogo}
+                alt="Alpha"
+                className={styles.alpha}
+                style={{ height: isDesktop ? 24 : 16 }}
+              />
             </div>
           </div>
 
-          <div className={styles.icons}>{renderIcons()}</div>
+          <div className={styles.icons}>{isDesktop && renderIcons()}</div>
         </Toolbar>
         <EventDrawer
           open={Boolean(drawerContent)}

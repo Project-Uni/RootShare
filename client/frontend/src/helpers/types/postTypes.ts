@@ -4,6 +4,8 @@ export type PostType = {
   createdAt: string;
   updatedAt: string;
   likes: number;
+  liked: boolean;
+  comments: number;
   user: {
     _id: string;
     firstName: string;
@@ -14,4 +16,11 @@ export type PostType = {
   toCommunity: { name: string; _id: string; profilePicture?: string };
   type: 'broadcast' | 'external' | 'internalCurrent' | 'internalAlumni';
   anonymous?: boolean;
+};
+
+export type CommunityPostingOption = {
+  description: string;
+  routeSuffix: string;
+  communityID?: string;
+  profilePicture?: string;
 };

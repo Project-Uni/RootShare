@@ -82,6 +82,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  user: any;
   profileID: string;
   currentProfileState: ProfileState;
   accessToken: string;
@@ -200,10 +201,6 @@ function ProfileBody(props: Props) {
     }
   }
 
-  function updateCurrentPicture(imageData: string) {
-    setCurrentPicture(imageData);
-  }
-
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
@@ -219,8 +216,9 @@ function ProfileBody(props: Props) {
           height={150}
           width={150}
           borderRadius={150}
-          currentPicture={currentPicture}
-          updateCurrentPicture={updateCurrentPicture}
+          currentPicture={
+            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+          }
           zoomOnClick={props.currentProfileState !== 'SELF'}
           borderWidth={8}
         />
@@ -280,17 +278,21 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
-          _id={props.profileID}
+          postID={posts[i]._id}
+          posterID={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
-          profilePicture={currentPicture}
+          profilePicture={
+            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+          }
           timestamp={(function() {
             const date = new Date(posts[i].createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.post}
+          liked={posts[i].liked}
         />
       );
     }
@@ -367,6 +369,7 @@ function ProfileBody(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

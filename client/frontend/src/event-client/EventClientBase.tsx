@@ -21,7 +21,7 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import KramerBanner from '../images/kramerBanner.png';
+import BoudreuxBanner from '../images/banners/BoudreauxBanner.png';
 
 import { colors } from '../theme/Colors';
 import { EventType, MuxMetaDataType } from '../helpers/types';
@@ -114,6 +114,7 @@ function EventClientBase(props: Props) {
       setLoginRedirect(true);
       return false;
     }
+    props.updateUser({ ...data['content'] });
     return true;
   }
 
@@ -141,7 +142,7 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds() {
-    const ads = [KramerBanner];
+    const ads = [BoudreuxBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }

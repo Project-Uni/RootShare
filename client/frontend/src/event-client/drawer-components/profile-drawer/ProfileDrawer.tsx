@@ -6,26 +6,22 @@ import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
+import { updateUser } from '../../../redux/actions/user';
+import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
 import {
   updateConversations,
   updateCurrConversationID,
   resetNewMessage,
-} from '../../redux/actions/message';
-import { resetMessageSocket } from '../../redux/actions/sockets';
-import { colors } from '../../theme/Colors';
-import UserInfoTextField from './UserInfoTextField';
-import RSText from '../../base-components/RSText';
-import ProfilePicture from '../../base-components/ProfilePicture';
+} from '../../../redux/actions/message';
+import { resetMessageSocket } from '../../../redux/actions/sockets';
+import { colors } from '../../../theme/Colors';
+import UserInfoTextField from '../UserInfoTextField';
+import RSText from '../../../base-components/RSText';
+import ProfilePicture from '../../../base-components/ProfilePicture';
+import BugModal from './BugModal';
 
-import { makeRequest } from '../../helpers/functions';
-import {
-  UserType,
-  UniversityType,
-  ConversationType,
-  MessageType,
-} from '../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
+import { UserType, UniversityType, ConversationType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -103,6 +99,14 @@ const useStyles = makeStyles((_: any) => ({
   root: {
     paddingLeft: 10,
   },
+  reportButton: {
+    width: '361px',
+    marginTop: 10,
+    color: 'red',
+    '&:hover': {
+      background: 'rgba(226, 226, 226, 0.2)',
+    },
+  },
 }));
 
 const PurdueColleges = [
@@ -136,8 +140,6 @@ type Props = {
 
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
-  const [currentPicture, setCurrentPicture] = useState<string>();
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
 
   // Original User Information
@@ -176,30 +178,15 @@ function ProfileDrawer(props: Props) {
   const [updateErr, setUpdateErr] = useState(false);
   const [logoutErr, setLogoutErr] = useState(false);
 
+  const [reportOpen, setReportOpen] = useState(false);
+
+  function handleReport() {
+    setReportOpen(true);
+  }
+
   useEffect(() => {
     getProfile();
-    getCurrentProfilePicture();
   }, []);
-
-  async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.user._id}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) {
-      setCurrentPicture(data['content']['imageURL']);
-    }
-    setImageLoaded(true);
-  }
-
-  function updateCurrentPicture(imageData: string) {
-    setCurrentPicture(imageData);
-  }
 
   async function getProfile() {
     const { data } = await makeRequest(
@@ -431,8 +418,7 @@ function ProfileDrawer(props: Props) {
           height={150}
           width={150}
           borderRadius={150}
-          currentPicture={currentPicture}
-          updateCurrentPicture={updateCurrentPicture}
+          currentPicture={props.user.profilePicture}
           borderWidth={3}
         />
       </div>
@@ -677,7 +663,7 @@ function ProfileDrawer(props: Props) {
     <div className={styles.wrapper}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          {imageLoaded && renderProfilePicture()}
+          {renderProfilePicture()}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {renderNameAndEmail()}
@@ -685,6 +671,7 @@ function ProfileDrawer(props: Props) {
 
         {edit ? renderUpdateView() : renderStaticView()}
       </div>
+
       <div className={styles.logoutButtonWrapper}>
         <Button
           className={logoutErr ? styles.logoutErr : styles.logoutButton}
@@ -692,7 +679,17 @@ function ProfileDrawer(props: Props) {
         >
           {logoutErr ? 'ERROR LOGGING OUT' : 'LOGOUT'}
         </Button>
+        <Button className={styles.reportButton} onClick={handleReport}>
+          {'REPORT A BUG (BETA)'}
+        </Button>
       </div>
+
+      <BugModal
+        open={reportOpen}
+        onClose={() => {
+          setReportOpen(false);
+        }}
+      />
     </div>
   );
 }

@@ -131,7 +131,6 @@ function DiscoverBody(props: Props) {
     );
     if (data.success === 1) {
       const { users, communities } = data.content;
-      console.log(users);
       setRenderList(generateResults(users, communities));
     }
     setLoading(false);
@@ -148,14 +147,14 @@ function DiscoverBody(props: Props) {
     return cleanedQuery;
   }
 
+  function slideLeft(props: TransitionProps) {
+    return <Slide {...props} direction="left" />;
+  }
+
   function setNotification(
     successMode: 'success' | 'notify' | 'error',
     message: string
   ) {
-    function slideLeft(props: TransitionProps) {
-      return <Slide {...props} direction="left" />;
-    }
-
     setSnackbarMode(successMode);
     setSnackbarMessage(message);
     setTransition(() => slideLeft);

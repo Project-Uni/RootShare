@@ -40,6 +40,7 @@ export type AdminCommunityServiceResponse = {
   _id: string;
   name: string;
   admin: string;
+  profilePicture?: string;
   followingCommunities: {
     _id: string;
     to: { _id: string; name: string };

@@ -4,7 +4,7 @@ import { Button, Typography } from '@material-ui/core';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { makeRequest } from '../../helpers/functions';
+import { checkDesktop, makeRequest } from '../../helpers/functions';
 
 import HypeHeader from '../headerFooter/HypeHeader';
 import HypeFooter from '../headerFooter/HypeFooter';
@@ -76,7 +76,8 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  const redirectURL = '/home';
+  // const redirectURL = '/home';
+  const redirectURL = checkDesktop() ? '/home' : '/event/5f7f5653b0f90c4302e10fa6';
 
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(

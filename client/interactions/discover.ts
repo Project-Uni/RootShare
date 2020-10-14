@@ -4,6 +4,7 @@ import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
+  generateSignedImagePromises,
   getUserToCommunityRelationship,
   getUserToUserRelationship,
   connectionsToUserIDStrings,
@@ -129,6 +130,7 @@ export async function populateDiscoverForUser(userID: string) {
             users[i]._id,
             users[i].connections
           );
+
           const cleanedUser = await addCalculatedUserFields(
             connectionUserIDs,
             joinedCommunities,
@@ -146,12 +148,10 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
-        log('info', `Pre-populated discovery page for user ${userID}`);
-
-        return sendPacket(
-          1,
-          'Successfully retrieved users and communities for population',
-          { communities, users }
+        return addCommunityAndUserImages(
+          communities,
+          users,
+          `Pre-populated discovery page for user ${userID}`
         );
       })
       .catch((err) => {
@@ -272,15 +272,16 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         );
 
         for (let i = 0; i < users.length; i++) {
-          users[i] = users[i].toObject();
-          users[i].connectionUserIDs = connectionsToUserIDStrings(
+          let cleanedUser = users[i].toObject();
+          cleanedUser.connections = connectionsToUserIDStrings(
             users[i]._id,
             users[i].connections
           );
-          const cleanedUser = await addCalculatedUserFields(
+
+          cleanedUser = await addCalculatedUserFields(
             selfConnectionUserIDs,
             currentUser.joinedCommunities,
-            users[i]
+            cleanedUser
           );
 
           getUserToUserRelationship(
@@ -309,15 +310,10 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           communities[i] = cleanedCommunity;
         }
 
-        log(
-          'info',
+        return addCommunityAndUserImages(
+          communities,
+          users,
           `Successfully retrieved all matching users and communities for query: ${query}`
-        );
-
-        return sendPacket(
-          1,
-          'Successfully retrieved all users and communities for query',
-          { users, communities }
         );
       })
       .catch((err) => {
@@ -328,4 +324,30 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+function addCommunityAndUserImages(communities, users, message) {
+  const communityImagePromises = generateSignedImagePromises(
+    communities,
+    'communityProfile'
+  );
+  const userImagePromises = generateSignedImagePromises(users, 'profile');
+
+  return Promise.all([...communityImagePromises, ...userImagePromises])
+    .then((images) => {
+      let i = 0;
+      for (i; i < communities.length; i++)
+        if (images[i]) communities[i].profilePicture = images[i];
+
+      for (i; i < communities.length + users.length; i++)
+        if (images[i]) users[i - communities.length].profilePicture = images[i];
+
+      log('info', message);
+
+      return sendPacket(1, message, { users, communities });
+    })
+    .catch((err) => {
+      log('error', err);
+      return sendPacket(-1, err);
+    });
 }

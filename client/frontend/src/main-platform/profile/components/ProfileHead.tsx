@@ -511,7 +511,7 @@ function ProfileHead(props: Props) {
         >
           <RSText
             type="subhead"
-            size={11}
+            size={12}
             color={colors.second}
             className={styles.numbers}
           >

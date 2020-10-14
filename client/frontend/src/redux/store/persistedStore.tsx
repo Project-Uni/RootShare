@@ -25,3 +25,7 @@ export const PersistedStore = createStore(
 PersistedStore.subscribe(() => {
   saveState(PersistedStore.getState());
 });
+
+export function getStore() {
+  return PersistedStore;
+}

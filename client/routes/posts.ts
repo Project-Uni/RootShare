@@ -11,6 +11,8 @@ import {
   getGeneralFeed,
   getFollowingFeed,
   getPostsByUser,
+  leaveCommentOnPost,
+  retrieveComments,
   //New Community Internal
   createInternalCurrentMemberCommunityPost,
   createInternalAlumniPost,
@@ -22,7 +24,11 @@ import {
   createExternalPostAsMember,
   getExternalPosts,
   getFollowingCommunityPosts,
-  broadcastAsCommunityAdmin,
+  createBroadcastCommunityPost,
+  //Post Actions
+  likePost,
+  unlikePost,
+  getLikes,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -36,7 +42,8 @@ export default function postsRoutes(app) {
   });
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
-    const packet = await getGeneralFeed(req.user.university._id);
+    const userID = req.user._id;
+    const packet = await getGeneralFeed(req.user.university._id, userID);
     return res.json(packet);
   });
 
@@ -52,7 +59,35 @@ export default function postsRoutes(app) {
     async (req, res) => {
       let { userID } = req.params;
       if (userID === 'user') userID = req.user._id;
-      const packet = await getPostsByUser(userID);
+      const packet = await getPostsByUser(userID, req.user._id);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/posts/comments/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const startingTimestamp = req.query.from;
+
+      const packet = await retrieveComments(
+        postID,
+        startingTimestamp ? new Date(startingTimestamp) : new Date()
+      );
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/posts/comment/new/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const { message } = req.body;
+      if (!message)
+        return res.json(sendPacket(-1, 'Message is missing from request body.'));
+      const packet = await leaveCommentOnPost(req.user._id, postID, message);
       return res.json(packet);
     }
   );
@@ -123,7 +158,6 @@ export default function postsRoutes(app) {
   app.post(
     '/api/posts/community/:communityID/external/following',
     isAuthenticatedWithJWT,
-    isCommunityMember,
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
       const userID = req.user._id;
@@ -190,8 +224,9 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
+      const userID = req.user._id;
 
-      const packet = await getFollowingCommunityPosts(communityID);
+      const packet = await getFollowingCommunityPosts(communityID, userID);
       return res.json(packet);
     }
   );
@@ -208,7 +243,11 @@ export default function postsRoutes(app) {
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await broadcastAsCommunityAdmin(userID, communityID, message);
+      const packet = await createBroadcastCommunityPost(
+        userID,
+        communityID,
+        message
+      );
       return res.json(packet);
     }
   );
@@ -228,4 +267,36 @@ export default function postsRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.post(
+    '/api/posts/action/:postID/like',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await likePost(postID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/posts/action/:postID/unlike',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await unlikePost(postID, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {
+    const { postID } = req.params;
+    const userID = req.user._id;
+
+    const packet = await getLikes(postID, userID);
+    return res.json(packet);
+  });
 }

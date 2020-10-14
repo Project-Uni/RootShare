@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { ImageReason } from '../helpers/types';
 
 import { User } from '../models';
 
@@ -73,7 +74,7 @@ export async function addCalculatedUserFields(
     [key: string]: any;
     _id: string;
     profilePicture?: string;
-    connectionUserIDs: string[];
+    connections: string[];
     joinedCommunities: string[];
     status: string;
   }
@@ -91,20 +92,6 @@ export async function addCalculatedUserFields(
     return otherUserCommunitiesStrings.indexOf(community) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (otherUser.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'profile',
-        otherUser.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
   let cleanedUser = copyObject(otherUser, [
     'connections',
     'connectionUserIDs',
@@ -112,7 +99,6 @@ export async function addCalculatedUserFields(
     'joinedCommunities',
   ]);
 
-  cleanedUser.profilePicture = profilePicture;
   cleanedUser.numMutualConnections = mutualConnections.length;
   cleanedUser.numMutualCommunities = mutualCommunities.length;
   cleanedUser.status = 'PUBLIC';
@@ -137,22 +123,7 @@ export async function addCalculatedCommunityFields(
     return membersStrings.indexOf(connection) !== -1;
   });
 
-  //Getting profile picture
-  let profilePicture = undefined;
-  if (community.profilePicture) {
-    try {
-      const signedImageURL = await retrieveSignedUrl(
-        'communityProfile',
-        community.profilePicture
-      );
-      if (signedImageURL) profilePicture = signedImageURL;
-    } catch (err) {
-      log('error', err);
-    }
-  }
-
   const cleanedCommunity = copyObject(community, ['members']);
-  cleanedCommunity.profilePicture = profilePicture;
   cleanedCommunity.numMembers = community.members.length;
   cleanedCommunity.numMutual = mutualMembers.length;
   cleanedCommunity.status = 'OPEN';
@@ -273,6 +244,30 @@ export function generateSignedImagePromises(
   }
 
   return profilePicturePromises;
+}
+
+export function addProfilePicturesAll(
+  entities,
+  message,
+  returnName,
+  imageReason: 'profile' | 'communityProfile'
+) {
+  const imagePromises = generateSignedImagePromises(entities, imageReason);
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++)
+        if (signedImageURLs[i]) entities[i].profilePicture = signedImageURLs[i];
+
+      log('info', message);
+      const retVal = {};
+      retVal[returnName] = entities;
+      return sendPacket(1, message, retVal);
+    })
+    .catch((err) => {
+      log('error', err);
+      return sendPacket(-1, err);
+    });
 }
 
 export function connectionsToUserIDStrings(userID, connections) {

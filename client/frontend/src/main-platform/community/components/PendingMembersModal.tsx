@@ -74,11 +74,7 @@ function PendingMembersModal(props: Props) {
   async function fetchPendingUsers() {
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${props.communityID}/pending`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/pending`
     );
 
     if (data.success !== 1) {
@@ -92,10 +88,7 @@ function PendingMembersModal(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/acceptPending`,
-      { userID: _id },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { userID: _id }
     );
 
     if (data.success === 1) {
@@ -122,10 +115,7 @@ function PendingMembersModal(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/rejectPending`,
-      { userID: _id },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { userID: _id }
     );
 
     if (data.success === 1) {
