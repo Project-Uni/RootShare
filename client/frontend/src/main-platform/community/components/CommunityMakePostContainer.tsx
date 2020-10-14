@@ -14,8 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 import { FaCamera } from 'react-icons/fa';
-import { BsFillCaretDownFill, BsStar } from 'react-icons/bs';
-import { MdSend } from 'react-icons/md';
+import { BsFillCaretDownFill } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -38,14 +37,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   messageAreaWrapper: {
     borderRadius: 8,
-    // marginLeft: 1,
-    // marginRight: 1,
-    // paddingLeft: 15,
-    // paddingRight: 15,
-    // paddingTop: 15,
-    // paddingBottom: 10,
-    // marginTop: 0,
-    // marginBottom: 1,
   },
   messageArea: {
     display: 'flex',
@@ -268,6 +259,7 @@ function CommunityMakePostContainer(props: Props) {
               loading || content === '' ? styles.disabledButton : styles.button
             }
             onClick={handleBroadcastClicked}
+            disabled={loading || content === ''}
           >
             <CastForEducationIcon className={styles.broadcastIcon} />
             Broacast
@@ -284,6 +276,7 @@ function CommunityMakePostContainer(props: Props) {
                   setFollowMenuAnchorEl(event.currentTarget);
                 }
           }
+          disabled={loading || content === ''}
         >
           Post {props.postingOptions.length > 1 ? 'As' : ''}
           {props.postingOptions.length > 1 && (
