@@ -12,6 +12,7 @@ export type PostType = {
     lastName: string;
     profilePicture?: string;
   };
+  images: { fileName: string }[];
   fromCommunity: { name: string; _id: string; profilePicture?: string };
   toCommunity: { name: string; _id: string; profilePicture?: string };
   type: 'broadcast' | 'external' | 'internalCurrent' | 'internalAlumni';

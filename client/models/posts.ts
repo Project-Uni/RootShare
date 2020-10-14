@@ -21,6 +21,9 @@ const PostSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.ObjectId, ref: 'comments' }],
       default: [],
     },
+    images: {
+      type: [{ type: mongoose.Schema.ObjectId, ref: 'images' }],
+    },
     toCommunity: { type: mongoose.Schema.ObjectId, ref: 'communities' },
     fromCommunity: { type: mongoose.Schema.ObjectId, ref: 'communities' },
     anonymous: { type: Boolean, default: false },

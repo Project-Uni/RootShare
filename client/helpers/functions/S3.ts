@@ -79,6 +79,8 @@ function getPathPrefix(imageType: ImageReason) {
       return base + 'community/banner/';
     case 'eventBanner':
       return base + 'event/banner/';
+    case 'postImage':
+      return base + 'post/';
     default:
       return null;
   }

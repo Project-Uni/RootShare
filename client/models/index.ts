@@ -8,6 +8,7 @@ import University from './universities';
 import User from './users';
 import Webinar from './webinars';
 import CommunityEdge from './community_edges';
+import Image from './images';
 
 export {
   Comment,
@@ -15,6 +16,7 @@ export {
   CommunityEdge,
   Connection,
   Conversation,
+  Image,
   Message,
   Post,
   University,

@@ -130,16 +130,33 @@ export function timeStampCompare(ObjectA, ObjectB) {
 }
 
 export async function getAllRecentEvents(userID: string, callback) {
-  const initialDate = new Date();
-  initialDate.setDate(initialDate.getDate() - 7);
-  const events = await Webinar.find({ dateTime: { $gte: initialDate } }, [
-    'title',
-    'brief_description',
-    'full_description',
-    'RSVPs',
-    'dateTime',
-    'hostCommunity',
-  ])
+  const events = await Webinar.find(
+    {
+      $and: [
+        { isDev: false },
+        {
+          $or: [
+            { muxAssetPlaybackID: { $ne: undefined } },
+            {
+              $and: [
+                { dateTime: { $lte: new Date().getTime() + 30 * 60 * 1000 } },
+                { dateTime: { $gte: new Date().getTime() - 240 * 60 * 1000 } },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    [
+      'title',
+      'brief_description',
+      'full_description',
+      'RSVPs',
+      'dateTime',
+      'hostCommunity',
+      'muxAssetPlaybackID',
+    ]
+  )
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
@@ -307,6 +324,7 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       'dateTime',
       'conversation',
       'muxPlaybackID',
+      'muxAssetPlaybackID',
     ],
     (err, webinar) => {
       if (err) {
