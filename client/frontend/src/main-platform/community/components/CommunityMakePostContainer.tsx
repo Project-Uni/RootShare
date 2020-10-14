@@ -102,6 +102,7 @@ type Props = {
   profilePicture?: string;
   communityID: string;
   communityName: string;
+  communityProfilePicture?: string;
   postingOptions: CommunityPostingOption[];
   appendNewPost: (post: PostType, profilePicture: string | undefined) => any;
   user: { [key: string]: any };
@@ -137,6 +138,7 @@ function CommunityMakePostContainer(props: Props) {
       setTimeout(() => {
         setServerMessage(undefined);
       }, 5000);
+      props.appendNewPost(data.content['post'], props.communityProfilePicture);
     } else {
       setServerMessage({
         status: 0,
