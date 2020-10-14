@@ -27,6 +27,7 @@ import {
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -35,6 +36,10 @@ const useStyles = makeStyles((_: any) => ({
     background: colors.primaryText,
     borderRadius: 10,
     padding: 1,
+    // paddingLeft: 20,
+    // paddingRight: 20,
+  },
+  rest: {
     paddingLeft: 20,
     paddingRight: 20,
   },
@@ -43,6 +48,8 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginTop: 20,
     marginBottom: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   profilePicContainer: {
     marginLeft: -6,
@@ -79,6 +86,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
     marginLeft: 55,
     marginRight: 10,
+    marginTop: 10,
   },
   messageBody: {
     lineHeight: 1.3,
@@ -130,6 +138,16 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  imagePreviewWrapper: {
+    width: '100%',
+    background: `linear-gradient(90deg, rgb(107, 107, 107), rgb(20, 20, 20), rgb(107, 107, 107));`,
+  },
+  previewImage: {
+    height: 300,
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -163,6 +181,7 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  images?: { fileName: string }[];
 };
 
 type CommentResponse = {
@@ -196,6 +215,8 @@ function UserPost(props: Props) {
   const [commentErr, setCommentErr] = useState('');
   const [likeDisabled, setLikeDisabled] = useState(false);
   const [showLikesModal, setShowLikesModal] = useState(false);
+
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -512,28 +533,50 @@ function UserPost(props: Props) {
       )}
       <div className={styles.wrapper}>
         {renderPostHeader()}
-        {renderMessage()}
-        {renderLikesAndCommentCount()}
-        {showComments && (
-          <div className={styles.commentsContainer}>
-            {comments.length < props.commentCount && (
-              <Button
-                className={styles.seeMoreButton}
-                onClick={handleMoreCommentsClick}
-              >
-                Show Previous Comments
-              </Button>
-            )}
-            {loadingMoreComments && (
-              <div style={{ flex: 1 }}>
-                <CircularProgress size={40} className={styles.loadingIndicator} />
-              </div>
-            )}
-            <div>{comments}</div>
+        {props.images && props.images.length > 0 && (
+          <div className={styles.imagePreviewWrapper}>
+            <img
+              className={styles.previewImage}
+              src={props.images[0].fileName}
+              onClick={() => setIsViewerOpen(true)}
+            />
           </div>
         )}
-        {renderLeaveCommentArea()}
+        <div className={styles.rest}>
+          {renderMessage()}
+          {renderLikesAndCommentCount()}
+          {showComments && (
+            <div className={styles.commentsContainer}>
+              {comments.length < props.commentCount && (
+                <Button
+                  className={styles.seeMoreButton}
+                  onClick={handleMoreCommentsClick}
+                >
+                  Show Previous Comments
+                </Button>
+              )}
+              {loadingMoreComments && (
+                <div style={{ flex: 1 }}>
+                  <CircularProgress size={40} className={styles.loadingIndicator} />
+                </div>
+              )}
+              <div>{comments}</div>
+            </div>
+          )}
+          {renderLeaveCommentArea()}
+        </div>
       </div>
+      <ModalGateway>
+        {isViewerOpen && (
+          <Modal onClose={() => setIsViewerOpen(false)}>
+            <Carousel
+              views={
+                props.images?.map((image) => ({ source: image.fileName })) || []
+              }
+            />
+          </Modal>
+        )}
+      </ModalGateway>
     </Box>
   );
 }

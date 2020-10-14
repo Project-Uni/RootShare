@@ -18,19 +18,27 @@ export async function createBroadcastUserPost(
   image?: string
 ) {
   try {
-    const post = await new Post({ message, user: userID, type: 'broadcast' }).save();
+    let post = await new Post({ message, user: userID, type: 'broadcast' }).save();
     await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
 
     if (image) {
-      const imageID = await uploadPostImage(image, post._id, userID);
-      if (imageID === -1) {
+      const result = await uploadPostImage(image, post._id, userID);
+      if (result === -1) {
         log(
           'info',
           `Successfully created for user ${userID}, but failed to upload image`
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
+      const [imageID, fileName] = result;
       await Post.updateOne({ _id: post._id }, { $push: { images: imageID } });
+      try {
+        const imageURL = await retrieveSignedUrl('postImage', fileName);
+        post = post.toObject();
+        post.images = [{ fileName: imageURL }];
+      } catch (err) {
+        log('error', err);
+      }
     }
 
     log('info', `Successfully created for user ${userID}`);
@@ -1142,7 +1150,7 @@ function getFollowingFeedConditions(
 async function uploadPostImage(image: string, postID: string, userID: string) {
   try {
     const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
-    if (!imageBuffer.data) return -2;
+    if (!imageBuffer.data) return -1;
 
     const fileName = `${postID}_image_01.jpeg`;
 
@@ -1154,7 +1162,7 @@ async function uploadPostImage(image: string, postID: string, userID: string) {
       post: postID,
       fileName,
     }).save();
-    return imageObj._id;
+    return [imageObj._id, fileName];
   } catch (err) {
     log('error', err);
     return -1;

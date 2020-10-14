@@ -16,6 +16,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   notSelectedTab: {
     background: 'rgb(232, 232, 232)',
+    '&:hover': {
+      background: colors.brightHover,
+    },
   },
   tab: {
     flexBasis: '100%',
