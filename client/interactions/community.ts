@@ -963,13 +963,19 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         path: 'members',
         select:
           'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections',
-        populate: [{ path: 'university', select: 'universityName' }, { path: 'connections', select: 'from to accepted' }],
+        populate: [
+          { path: 'university', select: 'universityName' },
+          { path: 'connections', select: 'from to accepted' },
+        ],
       })
       .exec();
 
     const userPromise = User.findById(userID)
       .select(['connections', 'joinedCommunities', 'pendingConnections'])
-      .populate({path: 'connections', select: 'from to accepted'})
+      .populate([
+        { path: 'connections', select: 'from to accepted' },
+        { path: 'pendingConnections', select: 'from to accepted' },
+      ])
       .exec();
 
     return Promise.all([communityPromise, userPromise]).then(
@@ -979,16 +985,13 @@ export async function getCommunityMembers(userID: string, communityID: string) {
 
         const { members } = community;
 
-        const userConnections = connectionsToUserIDStrings(
-          userID,
-          user.connections
-        );
-        
+        const userConnections = connectionsToUserIDStrings(userID, user.connections);
+
         for (let i = 0; i < members.length; i++) {
           const cleanedMember = await addCalculatedUserFields(
             userConnections,
             user.joinedCommunities,
-            members[i],
+            members[i]
           );
 
           getUserToUserRelationship(
