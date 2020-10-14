@@ -120,6 +120,7 @@ function MakePostContainer(props: Props) {
 
     if (data.success === 1) {
       setMessage('');
+      if (imageSrc) setImageSrc(undefined);
       setServerMessage({ status: 1, message: 'Successfully created post.' });
       setTimeout(() => {
         setServerMessage(undefined);

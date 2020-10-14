@@ -30,7 +30,7 @@ export async function createBroadcastUserPost(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      await post.updateOne({ _id: post._id }, { $push: { images: imageID } });
+      await Post.updateOne({ _id: post._id }, { $push: { images: imageID } });
     }
 
     log('info', `Successfully created for user ${userID}`);
@@ -894,6 +894,14 @@ async function retrievePosts(
         as: 'toCommunity',
       },
     },
+    {
+      $lookup: {
+        from: 'images',
+        localField: 'images',
+        foreignField: '_id',
+        as: 'images',
+      },
+    },
     { $unwind: '$user' },
     { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
     { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
@@ -926,6 +934,15 @@ async function retrievePosts(
         },
         liked: {
           $in: [mongoose.Types.ObjectId(userID), '$likes'],
+        },
+        images: {
+          $map: {
+            input: '$images',
+            as: 'image',
+            in: {
+              fileName: '$$image.fileName',
+            },
+          },
         },
       },
     },
