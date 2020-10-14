@@ -8,16 +8,25 @@ import {
   Box,
 } from '@material-ui/core';
 
+import { connect } from 'react-redux';
+import qs from 'query-string';
+
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import { Comment } from '../';
-import { CaiteHeadshot } from '../../../images/team';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+import {
+  formatDatePretty,
+  formatTime,
+  makeRequest,
+} from '../../../helpers/functions';
+
+import LikesModal from './LikesModal';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -108,14 +117,18 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   commentsContainer: {
-    borderTop: `1px solid ${colors.fourth}`,
-    borderBottom: `1px solid ${colors.fourth}`,
     marginBottom: 15,
   },
   loadingIndicator: {
     color: colors.secondaryText,
     marginTop: 8,
     marginBottom: 8,
+  },
+  likes: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
   },
 }));
 
@@ -133,6 +146,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  postID: string;
   posterID: string;
   name: string;
   type?: string;
@@ -145,6 +159,23 @@ type Props = {
   commentCount: number;
   style?: any;
   anonymous?: boolean;
+  liked?: boolean;
+  user: { [key: string]: any };
+  accessToken: string;
+  refreshToken: string;
+};
+
+type CommentResponse = {
+  createdAt: string;
+  _id: string;
+  message: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    _id: string;
+    profilePicture?: string;
+  };
+  updatedAt: string;
 };
 
 function UserPost(props: Props) {
@@ -152,11 +183,19 @@ function UserPost(props: Props) {
   const textFieldStyles = useTextFieldStyles();
 
   const [showFullMessage, setShowFullMessage] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
+  const [commentCount, setCommentCount] = useState(props.commentCount);
+
   const [comment, setComment] = useState('');
+  const [earliestComment, setEarliestComment] = useState(new Date());
   const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<JSX.Element[]>([]);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
+
+  const [commentErr, setCommentErr] = useState('');
+  const [likeDisabled, setLikeDisabled] = useState(false);
+  const [showLikesModal, setShowLikesModal] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -164,23 +203,124 @@ function UserPost(props: Props) {
     setShowFullMessage(!showFullMessage);
   }
 
-  function handleLikeStatusChange() {
-    const oldLiked = liked;
-    if (oldLiked) setLikeCount(likeCount - 1);
-    else setLikeCount(likeCount + 1);
-
-    setLiked(!oldLiked);
+  async function likePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest(
+      'POST',
+      `/api/posts/action/${props.postID}/like`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setLiked(true);
+      setLikeCount(likeCount + 1);
+    }
+    setLikeDisabled(false);
   }
 
-  function handleSendComment() {
-    console.log('Comment:', comment);
+  async function unlikePost() {
+    setLikeDisabled(true);
+    const { data } = await makeRequest(
+      'POST',
+      `/api/posts/action/${props.postID}/unlike`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data.success === 1) {
+      setLiked(false);
+      setLikeCount(likeCount - 1);
+    }
+    setLikeDisabled(false);
   }
 
-  function handleMoreCommentsClick() {
+  async function handleSendComment() {
+    const cleanedComment = comment.trim();
+    if (cleanedComment.length === 0) {
+      setCommentErr('Please enter a comment.');
+      return;
+    } else {
+      setCommentErr('');
+    }
+
+    const message = comment;
+    const { data } = await makeRequest(
+      'POST',
+      `/api/posts/comment/new/${props.postID}`,
+      { message },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success === 1) {
+      setComment('');
+      setCommentCount(commentCount + 1);
+      const newComment = generateComments([data.content.comment]);
+      setComments((prevComments) => {
+        const newComment = (
+          <Comment
+            userID={props.user._id}
+            name={`${props.user.firstName} ${props.user.lastName}`}
+            timestamp={`${formatDatePretty(
+              new Date(data.content.comment.createdAt)
+            )} at ${formatTime(new Date(data.content.comment.createdAt))}`}
+            profilePicture={props.user.profilePicture}
+            message={data.content.comment.message}
+          />
+        );
+        return prevComments.concat(newComment);
+      });
+    }
+  }
+
+  async function handleRetrieveComments() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/posts/comments/${props.postID}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success == 1) {
+      if (data.content['comments'].length > 0)
+        setEarliestComment(
+          new Date(
+            data.content['comments'][data.content.comments.length - 1].createdAt
+          )
+        );
+      setComments(generateComments(data.content['comments'].reverse()));
+    }
+  }
+
+  async function handleMoreCommentsClick() {
     setLoadingMoreComments(true);
-    setTimeout(() => {
-      setLoadingMoreComments(false);
-    }, 1500);
+    const query = qs.stringify({ from: earliestComment });
+    const { data } = await makeRequest(
+      'GET',
+      `/api/posts/comments/${props.postID}?${query}`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data.success == 1) {
+      if (data.content['comments'].length > 0)
+        setEarliestComment(
+          new Date(data.content.comments[data.content.comments.length - 1].createdAt)
+        );
+      setComments([
+        ...generateComments(data.content['comments'].reverse()),
+        ...comments,
+      ]);
+    }
+    setLoadingMoreComments(false);
   }
 
   function renderPostHeader() {
@@ -266,7 +406,10 @@ function UserPost(props: Props) {
     return (
       <div className={styles.likesAndCommentsContainer}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={handleLikeStatusChange}>
+          <IconButton
+            onClick={liked ? unlikePost : likePost}
+            disabled={likeDisabled}
+          >
             {liked ? (
               <BsStarFill size={20} color={colors.bright} />
             ) : (
@@ -274,7 +417,15 @@ function UserPost(props: Props) {
             )}
           </IconButton>
 
-          <RSText type="body" color={colors.secondaryText} size={12}>
+          <RSText
+            type="body"
+            color={colors.secondaryText}
+            size={12}
+            className={styles.likes}
+            onClick={() => {
+              setShowLikesModal(true);
+            }}
+          >
             {likeCount} Likes
           </RSText>
           <a
@@ -282,20 +433,24 @@ function UserPost(props: Props) {
             className={styles.commentCountLink}
             onClick={() => setShowComments(!showComments)}
           >
-            <RSText
-              type="body"
-              color={colors.secondaryText}
-              size={12}
-              className={styles.commentCount}
-            >
-              {props.commentCount} Comments
-            </RSText>
+            <a onClick={handleRetrieveComments}>
+              <RSText
+                type="body"
+                color={colors.secondaryText}
+                size={12}
+                className={styles.commentCount}
+              >
+                {commentCount} Comments
+              </RSText>
+            </a>
           </a>
         </div>
 
-        <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
-          See {showFullMessage ? 'less' : 'more'}
-        </Button>
+        {props.message.length !== shortenedMessage.length && (
+          <Button className={styles.seeMoreButton} onClick={handleShowMoreClick}>
+            See {showFullMessage ? 'less' : 'more'}
+          </Button>
+        )}
       </div>
     );
   }
@@ -317,6 +472,8 @@ function UserPost(props: Props) {
           onChange={(event: any) => setComment(event.target.value)}
           className={textFieldStyles.commentTextField}
           multiline
+          error={commentErr !== ''}
+          helperText={commentErr}
         />
         <IconButton onClick={handleSendComment}>
           <MdSend size={22} color={colors.bright} />
@@ -325,44 +482,72 @@ function UserPost(props: Props) {
     );
   }
 
-  function renderComments() {
+  function generateComments(commentsList: CommentResponse[]) {
     const output = [];
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < commentsList.length; i++) {
       output.push(
         <Comment
-          userID="ABCD_TEST_123"
-          name="Caite Capezzuto"
-          timestamp="July 11, 2020 7:45 PM"
-          message="Hello! Sign up for RootShare! New Hampshire is the best state! TOPANGA!!"
-          profilePicture={CaiteHeadshot}
+          userID={commentsList[i].user._id}
+          name={`${commentsList[i].user.firstName} ${commentsList[i].user.lastName}`}
+          timestamp={`${formatDatePretty(
+            new Date(commentsList[i].createdAt)
+          )} at ${formatTime(new Date(commentsList[i].createdAt))}`}
+          message={commentsList[i].message}
+          profilePicture={commentsList[i].user.profilePicture}
         />
       );
-    return (
-      <div className={styles.commentsContainer}>
-        <div>
-          {output}
-          <Button className={styles.seeMoreButton} onClick={handleMoreCommentsClick}>
-            More Comments
-          </Button>
-        </div>
-        {loadingMoreComments && (
-          <CircularProgress size={40} className={styles.loadingIndicator} />
-        )}
-      </div>
-    );
+    }
+
+    return output;
   }
 
   return (
     <Box borderRadius={10} boxShadow={2} className={props.style || null}>
+      {showLikesModal && (
+        <LikesModal
+          open={showLikesModal}
+          onClose={() => setShowLikesModal(false)}
+          postID={props.postID}
+        />
+      )}
       <div className={styles.wrapper}>
         {renderPostHeader()}
         {renderMessage()}
         {renderLikesAndCommentCount()}
-        {showComments && renderComments()}
+        {showComments && (
+          <div className={styles.commentsContainer}>
+            {comments.length < props.commentCount && (
+              <Button
+                className={styles.seeMoreButton}
+                onClick={handleMoreCommentsClick}
+              >
+                Show Previous Comments
+              </Button>
+            )}
+            {loadingMoreComments && (
+              <div style={{ flex: 1 }}>
+                <CircularProgress size={40} className={styles.loadingIndicator} />
+              </div>
+            )}
+            <div>{comments}</div>
+          </div>
+        )}
         {renderLeaveCommentArea()}
       </div>
     </Box>
   );
 }
 
-export default UserPost;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserPost);

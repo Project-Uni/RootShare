@@ -278,6 +278,7 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
+          postID={posts[i]._id}
           posterID={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={
@@ -289,8 +290,9 @@ function ProfileBody(props: Props) {
           })()}
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.post}
+          liked={posts[i].liked}
         />
       );
     }
@@ -331,6 +333,7 @@ function ProfileBody(props: Props) {
               numConnections={profile.numConnections!}
               numMutualConnections={profile.numMutualConnections!}
               numCommunities={profile.numCommunities!}
+              numMutualCommunities={profile.numMutualCommunities}
               currentProfileState={props.currentProfileState}
               accessToken={props.accessToken}
               refreshToken={props.refreshToken}

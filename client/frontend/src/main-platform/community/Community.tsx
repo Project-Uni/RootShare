@@ -7,8 +7,10 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
-import { MainNavigator, DiscoverySidebar } from '../reusable-components';
+import { MainNavigator } from '../reusable-components';
 import CommunityBody from './components/CommunityBody';
+
+import FollowSidebar from './components/Sidebar/FollowSidebar';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -173,7 +175,9 @@ function CommunityDetails(props: Props) {
             userID={props.user._id}
           />
         )}
-        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (
+          <FollowSidebar communityID={orgID} />
+        )}
       </div>
     </div>
   );

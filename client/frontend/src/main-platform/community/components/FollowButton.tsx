@@ -132,7 +132,7 @@ function FollowButton(props: Props) {
         setSnackbarMode('notify');
       } else {
         setTransition(() => slideLeft);
-        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMessage(`There was an error requesting to follow ${props.name}.`);
         setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
@@ -167,15 +167,41 @@ function FollowButton(props: Props) {
         setSnackbarMode('notify');
       } else {
         setTransition(() => slideLeft);
-        setSnackbarMessage('There was an error performing this action.');
+        setSnackbarMessage('There was an error cancelling your follow request.');
         setSnackbarMode('error');
       }
     } else setFollowMenuAnchorEl(null);
   }
 
   async function handleUnfollow(communityID: string) {
-    console.log('Calling unfollow');
-    //TODO - Write the backend for this
+    if (window.confirm(`Are you sure you want to unfollow ${props.name}?`)) {
+      setFollowMenuAnchorEl(null);
+      const { data } = await makeRequest(
+        'POST',
+        `/api/community/${props.communityID}/unfollow`,
+        { fromCommunityID: communityID },
+        true,
+        props.accessToken,
+        props.refreshToken
+      );
+      if (data.success === 1) {
+        const communities = adminCommunities;
+        for (let i = 0; i < communities.length; i++) {
+          if (communities[i]._id === communityID) {
+            communities[i].currentCommunityRelationship = 'open';
+            setAdminCommunities(communities);
+            break;
+          }
+        }
+        setTransition(() => slideLeft);
+        setSnackbarMessage(`Successfully unfollowed ${props.name}`);
+        setSnackbarMode('notify');
+      } else {
+        setTransition(() => slideLeft);
+        setSnackbarMessage(`There was an error trying to unfollow ${props.name}.`);
+        setSnackbarMode('error');
+      }
+    } else setFollowMenuAnchorEl(null);
   }
 
   return adminCommunities.length > 0 ? (

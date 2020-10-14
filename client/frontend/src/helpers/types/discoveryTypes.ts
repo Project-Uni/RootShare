@@ -26,4 +26,5 @@ export type DiscoverUser = {
   numMutualConnections: number;
   numMutualCommunities: number;
   status: ProfileState;
+  connectionRequestID?: string;
 };

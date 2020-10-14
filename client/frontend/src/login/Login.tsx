@@ -74,7 +74,7 @@ function Login(props: Props) {
       ? query[1]
       : checkDesktop()
       ? '/home'
-      : '/event/5f7b8a62be8ddb321a9357b2';
+      : '/event/5f7f5653b0f90c4302e10fa6';
 
   useEffect(() => {
     checkAuth();

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
 import { Button, Box } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
@@ -7,7 +8,8 @@ import { colors } from '../../../theme/Colors';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { ProfileState } from '../../../helpers/types';
+import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -34,10 +36,23 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.primary,
     },
   },
+  pendingButtonContainer: {
+    display: 'flex',
+  },
+  removeButton: {
+    color: colors.primaryText,
+    background: 'gray',
+  },
+  acceptButton: {
+    color: colors.primaryText,
+    background: colors.bright,
+    marginLeft: 8,
+  },
   textContainer: {
     marginLeft: 20,
   },
   name: {
+    width: 'max-content',
     marginBottom: 3,
     '&:hover': {
       textDecoration: 'underline',
@@ -45,6 +60,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   work: {
     marginBottom: 3,
+  },
+  nameContainer: {
+    display: 'flex',
   },
   noUnderline: {
     textDecoration: 'none',
@@ -54,6 +72,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   pendingStatus: {
     background: colors.secondaryText,
+    padding: 3,
+    paddingLeft: 5,
+    paddingRight: 5,
+    borderRadius: 3,
   },
 }));
 
@@ -66,32 +88,104 @@ type Props = {
   graduationYear?: number;
   position?: string;
   company?: string;
-  mutualConnections: number;
-  mutualCommunities: number;
+  mutualConnections?: number;
+  mutualCommunities?: number;
   status: ProfileState;
+  connectionRequestID?: string;
+  setNotification?: (
+    successMode: 'success' | 'notify' | 'error',
+    message: string
+  ) => void;
+
+  accessToken: string;
+  refreshToken: string;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
 
+  const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
+
+  async function requestConnection() {
+    const { data } = await makeRequest(
+      'POST',
+      '/user/requestConnection',
+      {
+        requestUserID: props.userID,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (data['success'] === 1) setUserStatus('TO');
+    if (data.success !== 1)
+      props.setNotification &&
+        props.setNotification('error', 'Failed to send connection request');
+  }
+
+  async function respondRequest(accepted: boolean) {
+    setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
+    const { data } = await makeRequest(
+      'POST',
+      '/user/respondConnection',
+      {
+        requestID: props.connectionRequestID,
+        accepted,
+      },
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+
+    if (data['success'] !== 1) {
+      setUserStatus(props.status);
+      props.setNotification &&
+        props.setNotification(
+          'error',
+          `Failed to ${accepted ? 'accept' : 'remove'} connection request`
+        );
+    }
+  }
+
   function renderStatus() {
-    if (props.status === 'PUBLIC')
-      return <Button className={styles.connectButton}>Connect</Button>;
-    else if (props.status === 'CONNECTION')
+    if (userStatus === 'PUBLIC')
+      return (
+        <Button className={styles.connectButton} onClick={requestConnection}>
+          Connect
+        </Button>
+      );
+    else if (userStatus === 'CONNECTION')
       return (
         <RSText color={colors.primary} size={11}>
           CONNECTED
         </RSText>
       );
-    else if (props.status === 'PENDING')
+    else if (userStatus === 'TO')
       return (
         <RSText
           color={colors.primaryText}
-          size={11}
+          size={12}
           className={styles.pendingStatus}
         >
           PENDING
         </RSText>
+      );
+    else if (userStatus === 'FROM')
+      return (
+        <div className={styles.pendingButtonContainer}>
+          <Button
+            className={styles.removeButton}
+            onClick={() => respondRequest(false)}
+          >
+            Remove
+          </Button>
+          <Button
+            className={styles.acceptButton}
+            onClick={() => respondRequest(true)}
+          >
+            Accept
+          </Button>
+        </div>
       );
   }
 
@@ -114,16 +208,18 @@ function UserHighlight(props: Props) {
             />
           </a>
           <div className={styles.textContainer}>
-            <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-              <RSText
-                type="head"
-                size={13}
-                color={colors.second}
-                className={styles.name}
-              >
-                {props.name}
-              </RSText>
-            </a>
+            <div className={styles.nameContainer}>
+              <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+                <RSText
+                  type="head"
+                  size={13}
+                  color={colors.second}
+                  className={styles.name}
+                >
+                  {props.name}
+                </RSText>
+              </a>
+            </div>
             <RSText type="subhead" size={12} color={colors.secondaryText}>
               {props.university}
               {props.graduationYear ? ' ' + props.graduationYear : null}
@@ -139,8 +235,8 @@ function UserHighlight(props: Props) {
               {props.company ? props.company : null}
             </RSText>
             <RSText type="subhead" size={12} color={colors.second}>
-              {props.mutualConnections} Mutual Connections |{' '}
-              {props.mutualCommunities} Mutual Communities
+              {props.mutualConnections || 0} Mutual Connections |{' '}
+              {props.mutualCommunities || 0} Mutual Communities
             </RSText>
           </div>
         </div>
@@ -152,4 +248,15 @@ function UserHighlight(props: Props) {
   );
 }
 
-export default UserHighlight;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserHighlight);

@@ -28,6 +28,7 @@ type Props = {
   color?: string;
   hoverColor?: string;
   children?: React.ReactNode;
+  onClick?: () => any;
 };
 
 function RSText(props: Props) {
@@ -59,6 +60,7 @@ function RSText(props: Props) {
       style={style}
       onMouseEnter={props.hoverColor ? handleMouseOver : undefined}
       onMouseLeave={props.hoverColor ? handleMouseLeave : undefined}
+      onClick={props.onClick}
     >
       {props.children}
     </p>
