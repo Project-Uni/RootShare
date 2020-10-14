@@ -325,6 +325,7 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       'dateTime',
       'conversation',
       'muxPlaybackID',
+      'muxAssetPlaybackID',
     ],
     (err, webinar) => {
       if (err) {

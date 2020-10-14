@@ -183,23 +183,13 @@ function Event(props: Props) {
             {props.mutualSignups !== 0 &&
               `${props.mutualSignups} Connections Signed Up`}
           </RSText>
-          {props.complete ? (
-            <Button
-              href={`/event/replay/${props.eventID}`}
-              variant="contained"
-              className={styles.goToEventButton}
-            >
-              Watch Again
-            </Button>
-          ) : (
-            <Button
-              href={`/event/${props.eventID}`}
-              variant="contained"
-              className={styles.goToEventButton}
-            >
-              Enter Event
-            </Button>
-          )}
+          <Button
+            href={`/event/${props.eventID}`}
+            variant="contained"
+            className={styles.goToEventButton}
+          >
+            {props.complete ? 'Watch Again' : 'Enter Event'}
+          </Button>
           {/* <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES
           </Button> */}
