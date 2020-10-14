@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
-import AlphaLogo from '../images/alpha.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -154,12 +153,12 @@ function EventClientHeader(props: Props) {
                   }}
                 />
               </a>
-              <img
+              {/* <img
                 src={AlphaLogo}
                 alt="Alpha"
                 className={styles.alpha}
                 style={{ height: isDesktop ? 24 : 16 }}
-              />
+              /> */}
             </div>
           </div>
 
