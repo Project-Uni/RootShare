@@ -291,6 +291,7 @@ function CommunityBodyContent(props: Props) {
             selectedTab === 'following' ? currPost.toCommunity._id : undefined
           }
           liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }
