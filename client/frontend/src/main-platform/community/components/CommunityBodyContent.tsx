@@ -313,6 +313,7 @@ function CommunityBodyContent(props: Props) {
             communityName={props.name}
             postingOptions={postingOptions}
             appendNewPost={appendPost}
+            isAdmin={props.isAdmin}
           />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}

@@ -4,8 +4,12 @@ import { connect } from 'react-redux';
 
 import { TextField, Button, Box, Menu, MenuItem } from '@material-ui/core';
 import Tooltip from '@material-ui/core/Tooltip';
+
+import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 import { FaCamera } from 'react-icons/fa';
-import { BsFillCaretDownFill } from 'react-icons/bs';
+import { BsFillCaretDownFill, BsStar } from 'react-icons/bs';
+import { MdSend } from 'react-icons/md';
+
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
@@ -57,6 +61,9 @@ const useStyles = makeStyles((_: any) => ({
     color: colors.primaryText,
     marginLeft: 10,
     marginRight: 1,
+    '&:hover': {
+      background: colors.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -73,6 +80,12 @@ const useStyles = makeStyles((_: any) => ({
   serverMessage: {
     marginLeft: 60,
   },
+  broadcastIcon: {
+    color: colors.primaryText,
+    height: 20,
+    width: 20,
+    marginRight: 8,
+  },
 }));
 
 const CustomTooltip = withStyles((theme: Theme) => ({
@@ -85,6 +98,7 @@ const CustomTooltip = withStyles((theme: Theme) => ({
 }))(Tooltip);
 
 type Props = {
+  isAdmin?: boolean;
   profilePicture?: string;
   communityID: string;
   communityName: string;
@@ -105,6 +119,35 @@ function CommunityMakePostContainer(props: Props) {
     status: 0 | 1;
     message: string;
   }>();
+
+  async function handleBroadcastClicked() {
+    setLoading(true);
+    setServerMessage(undefined);
+    setFollowMenuAnchorEl(null);
+
+    const { data } = await makeRequest(
+      'POST',
+      `/api/posts/community/${props.communityID}/broadcast`,
+      { message: content }
+    );
+
+    if (data.success === 1) {
+      setContent('');
+      setServerMessage({ status: 1, message: 'Successfully created post.' });
+      setTimeout(() => {
+        setServerMessage(undefined);
+      }, 5000);
+    } else {
+      setServerMessage({
+        status: 0,
+        message: 'There was an error creating your post.',
+      });
+      setTimeout(() => {
+        setServerMessage(undefined);
+      }, 10000);
+    }
+    setLoading(false);
+  }
 
   async function handlePostClicked(postingData: CommunityPostingOption) {
     setLoading(true);
@@ -163,7 +206,40 @@ function CommunityMakePostContainer(props: Props) {
           <span style={{ marginLeft: 10 }} />
           Image
         </Button>
-        {props.postingOptions.length === 1 && props.postingOptions[0].communityID ? (
+        {props.isAdmin && (
+          <Button
+            className={
+              loading || content === '' ? styles.disabledButton : styles.button
+            }
+            onClick={handleBroadcastClicked}
+          >
+            <CastForEducationIcon className={styles.broadcastIcon} />
+            Broacast
+          </Button>
+        )}
+        <Button
+          className={
+            loading || content === '' ? styles.disabledButton : styles.button
+          }
+          onClick={
+            props.postingOptions.length === 1
+              ? () => handlePostClicked(props.postingOptions[0])
+              : (event: any) => {
+                  setFollowMenuAnchorEl(event.currentTarget);
+                }
+          }
+        >
+          Post {props.postingOptions.length > 1 ? 'As' : ''}
+          {props.postingOptions.length > 1 && (
+            <>
+              <span style={{ marginLeft: 8, marginRight: 8 }}>|</span>
+              <span>
+                <BsFillCaretDownFill size={12} color={colors.primaryText} />
+              </span>
+            </>
+          )}
+        </Button>
+        {/* {props.postingOptions.length === 1 && props.postingOptions[0].communityID ? (
           <CustomTooltip
             title={`This post will be visible to all of ${props.communityName}'s followers`}
           >
@@ -212,6 +288,33 @@ function CommunityMakePostContainer(props: Props) {
               : 'Post'}
           </Button>
         )}
+        <Menu
+          open={Boolean(followMenuAnchorEl)}
+          anchorEl={followMenuAnchorEl}
+          onClose={() => setFollowMenuAnchorEl(null)}
+        >
+          {props.postingOptions.map((postingOption) => {
+            return postingOption.communityID ? (
+              <CustomTooltip
+                title={`This post will be visible to all of ${props.communityName}'s followers`}
+              >
+                <MenuItem
+                  onClick={() => handlePostClicked(postingOption)}
+                  key={postingOption.routeSuffix}
+                >
+                  <RSText>{postingOption.description}</RSText>
+                </MenuItem>
+              </CustomTooltip>
+            ) : (
+              <MenuItem
+                onClick={() => handlePostClicked(postingOption)}
+                key={postingOption.routeSuffix}
+              >
+                <RSText>{postingOption.description}</RSText>
+              </MenuItem>
+            );
+          })}
+        </Menu> */}
         <Menu
           open={Boolean(followMenuAnchorEl)}
           anchorEl={followMenuAnchorEl}

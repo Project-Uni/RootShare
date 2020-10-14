@@ -29,6 +29,7 @@ const colors = {
 
   // HIGHLIGHTS OF BLUE
   bright: '#6699FF', // Bright
+  brightHover: '#9cbdff',
 };
 
 export { colors };
