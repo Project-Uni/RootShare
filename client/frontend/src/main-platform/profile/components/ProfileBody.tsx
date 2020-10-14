@@ -24,6 +24,7 @@ import {
   formatTime,
 } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import ProfileBanner from '../../../base-components/ProfileBanner';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,10 +44,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   eventBox: {
     marginBottom: 4,
-  },
-  coverPhoto: {
-    background: colors.bright,
-    height: 200,
   },
   profilePictureContainer: {
     marginTop: -88,
@@ -204,10 +201,13 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div
-          className={styles.coverPhoto}
-          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
-        ></div>
+        <ProfileBanner
+          type="profile"
+          height={200}
+          editable={props.currentProfileState === 'SELF'}
+          zoomOnClick={props.currentProfileState !== 'SELF'}
+          borderRadius={10}
+        />
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}
