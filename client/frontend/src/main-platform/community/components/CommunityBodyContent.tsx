@@ -298,7 +298,7 @@ function CommunityBodyContent(props: Props) {
     return output;
   }
 
-  function appendPost(newPostInfo: any, profilePicture: string | undefined) {
+  function appendPost(newPostInfo: PostType, profilePicture: string | undefined) {
     setPosts((prevPosts) => {
       const { anonymous } = newPostInfo;
       const newPost = (
@@ -321,6 +321,7 @@ function CommunityBodyContent(props: Props) {
           style={styles.postStyle}
           key={newPostInfo._id}
           anonymous={anonymous}
+          images={newPostInfo.images}
         />
       );
 
