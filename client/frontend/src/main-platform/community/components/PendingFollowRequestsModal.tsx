@@ -74,11 +74,7 @@ function PendingFollowRequestsModal(props: Props) {
   async function fetchPendingRequests() {
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${props.communityID}/follow/pending`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/follow/pending`
     );
 
     if (data.success !== 1) {
@@ -92,10 +88,7 @@ function PendingFollowRequestsModal(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/follow/accept`,
-      { edgeID },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { edgeID }
     );
     if (data.success === 1) {
       let spliceIndex: number = -1;
@@ -118,10 +111,7 @@ function PendingFollowRequestsModal(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/community/${props.communityID}/follow/reject`,
-      { edgeID },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { edgeID }
     );
     if (data.success === 1) {
       let spliceIndex: number = -1;

@@ -68,6 +68,7 @@ type Props = {
   userID: string;
   status: CommunityStatus;
   name: string;
+  universityName: string;
   description: string;
   numMembers: number;
   numMutual: number;
@@ -111,11 +112,7 @@ function CommunityBody(props: Props) {
   async function getProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/images/community/${props.communityID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/images/community/${props.communityID}`
     );
 
     if (data['success'] === 1) {
@@ -199,6 +196,10 @@ function CommunityBody(props: Props) {
           <CommunityBodyContent
             className={styles.bodyContent}
             communityID={props.communityID}
+            universityName={props.universityName}
+            communityProfilePicture={currentProfile}
+            name={props.name}
+            status={props.status}
             isAdmin={props.isAdmin}
           />
         )}

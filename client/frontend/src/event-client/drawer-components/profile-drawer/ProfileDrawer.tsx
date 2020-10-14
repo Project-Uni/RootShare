@@ -140,8 +140,6 @@ type Props = {
 
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
-  const [currentPicture, setCurrentPicture] = useState<string>();
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [edit, setEdit] = useState(false);
 
   // Original User Information
@@ -188,28 +186,7 @@ function ProfileDrawer(props: Props) {
 
   useEffect(() => {
     getProfile();
-    getCurrentProfilePicture();
   }, []);
-
-  async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.user._id}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    if (data['success'] === 1) {
-      setCurrentPicture(data['content']['imageURL']);
-    }
-    setImageLoaded(true);
-  }
-
-  function updateCurrentPicture(imageData: string) {
-    setCurrentPicture(imageData);
-  }
 
   async function getProfile() {
     const { data } = await makeRequest(
@@ -441,8 +418,7 @@ function ProfileDrawer(props: Props) {
           height={150}
           width={150}
           borderRadius={150}
-          currentPicture={currentPicture}
-          updateCurrentPicture={updateCurrentPicture}
+          currentPicture={props.user.profilePicture}
           borderWidth={3}
         />
       </div>
@@ -687,7 +663,7 @@ function ProfileDrawer(props: Props) {
     <div className={styles.wrapper}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          {imageLoaded && renderProfilePicture()}
+          {renderProfilePicture()}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           {renderNameAndEmail()}

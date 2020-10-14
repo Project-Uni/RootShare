@@ -9,7 +9,6 @@ import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import ProfileBody from './components/ProfileBody';
-
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
@@ -83,6 +82,7 @@ function Profile(props: Props) {
       props.updateRefreshToken('');
       return false;
     }
+    props.updateUser({ ...data['content'] });
     return true;
   }
 

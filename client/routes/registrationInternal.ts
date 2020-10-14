@@ -1,7 +1,12 @@
 var passport = require('passport');
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { log, sendPacket, generateJWT } from '../helpers/functions';
+import {
+  log,
+  sendPacket,
+  generateJWT,
+  retrieveSignedUrl,
+} from '../helpers/functions';
 var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
@@ -22,17 +27,22 @@ module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
     passport.authenticate('local-login', (err, user, info) => {
       if (user) {
-        req.login(user, (err) => {
+        req.login(user, async (err) => {
           if (err) {
             log('error', `Failed serializing ${user.email}`);
             return res.json(sendPacket(-1, 'Failed to serialize user'));
           }
           log('info', `Successfully logged in ${user.email} locally`);
+          const profilePicture = await retrieveSignedUrl(
+            'profile',
+            user.profilePicture
+          );
           return res.json(
             sendPacket(1, 'Successfully logged in', {
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
+              profilePicture,
               _id: user._id,
               privilegeLevel: user.privilegeLevel || 1,
               accountType: user.accountType,

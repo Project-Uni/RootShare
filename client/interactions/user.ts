@@ -8,10 +8,12 @@ import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
+  addProfilePictureToUser,
 } from './utilities';
 
-export function getCurrentUser(user, callback) {
+export async function getCurrentUser(user, callback) {
   if (!user) return callback(sendPacket(0, 'User not found'));
+  await addProfilePictureToUser(user);
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -21,6 +23,7 @@ export function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
+      profilePicture: user.profilePicture,
     })
   );
 }
@@ -164,13 +167,19 @@ export function getUserEvents(userID, callback) {
         from: 'webinars',
         let: { attended: '$attendedWebinars', rsvps: '$RSVPWebinars' },
         pipeline: [
-          { $match: { $and: [ 
-            { $or: [ 
-              { $expr: { $in: ['$_id', '$$rsvps'] } },
-              { $expr: { $in: ['$_id', '$$attended'] } },
-            ] },
-            { isDev: { $ne : true } },
-          ] } },
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { $expr: { $in: ['$_id', '$$rsvps'] } },
+                    { $expr: { $in: ['$_id', '$$attended'] } },
+                  ],
+                },
+                { isDev: { $ne: true } },
+              ],
+            },
+          },
           { $sort: { dateTime: 1 } },
           {
             $lookup: {
@@ -1055,23 +1064,33 @@ export async function getConnectionsFullData(userID: string) {
       );
     }
 
-    const imagePromises = generateSignedImagePromises(connectionsWithData, 'profile');
-    return Promise.all(imagePromises).then(signedImageURLS => {
-      for(let i=0; i<connectionsWithData.length; i++) {
-        if(signedImageURLS[i])
-          connectionsWithData[i].profilePicture = signedImageURLS[i];
-      }
-      return sendPacket(1, 'successfully retrieved all connections', {
-        connections: connectionsWithData,
+    const imagePromises = generateSignedImagePromises(
+      connectionsWithData,
+      'profile'
+    );
+    return Promise.all(imagePromises)
+      .then((signedImageURLS) => {
+        for (let i = 0; i < connectionsWithData.length; i++) {
+          if (signedImageURLS[i])
+            connectionsWithData[i].profilePicture = signedImageURLS[i];
+        }
+        return sendPacket(1, 'successfully retrieved all connections', {
+          connections: connectionsWithData,
+        });
+      })
+      .catch((err) => {
+        log(
+          'info',
+          'Successfully retrieved connections, but failed to retrieve profile pictures'
+        );
+        return sendPacket(
+          1,
+          'Successfully retrieved all connections, but failed to receive profile pictures',
+          {
+            connections: connectionsWithData,
+          }
+        );
       });
-    }).catch(err => {
-      log('info', 'Successfully retrieved connections, but failed to retrieve profile pictures');
-      return sendPacket(1, 'Successfully retrieved all connections, but failed to receive profile pictures', {
-        connections: connectionsWithData,
-      });
-    })
-
-    
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -1084,7 +1103,7 @@ export async function getUserAdminCommunities(userID: string) {
       .select(['joinedCommunities'])
       .populate({
         path: 'joinedCommunities',
-        select: 'admin name',
+        select: 'admin name profilePicture',
         populate: [
           {
             path: 'followingCommunities',
@@ -1103,6 +1122,14 @@ export async function getUserAdminCommunities(userID: string) {
     const communities = user.joinedCommunities.filter(
       (community) => community.admin.toString() === userID
     );
+
+    for (let i = 0; i < communities.length; i++) {
+      const profilePicture = await retrieveSignedUrl(
+        'communityProfile',
+        communities[i].profilePicture
+      );
+      if (profilePicture) communities[i].profilePicture = profilePicture;
+    }
     log('info', `Retrieved admin communities for user ${userID}`);
     return sendPacket(1, 'Successfully retrieved admin communities', {
       communities,

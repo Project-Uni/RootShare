@@ -4,10 +4,10 @@
   },
   "editor.formatOnSave": true,
   "[javascript]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
   },
   "[javascriptreact]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
   },
   "editor.tabSize": 2,
   "editor.wordWrapColumn": 90,

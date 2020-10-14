@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
-
 import { connect } from 'react-redux';
-import { PostType, SearchUserType } from '../../../helpers/types';
-
-import {
-  makeRequest,
-  formatDatePretty,
-  formatTime,
-} from '../../../helpers/functions';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
 import CommunityMembers from './CommunityMembers';
+
+import {
+  PostType,
+  AdminCommunityServiceResponse,
+  CommunityStatus,
+  CommunityPostingOption,
+  SearchUserType,
+} from '../../../helpers/types';
+import {
+  makeRequest,
+  formatDatePretty,
+  formatTime,
+} from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -41,6 +46,10 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   className?: string;
   communityID: string;
+  universityName: string;
+  communityProfilePicture?: string;
+  name: string;
+  status: CommunityStatus;
   isAdmin?: boolean;
   user: { [key: string]: any };
   accessToken: string;
@@ -65,7 +74,7 @@ function CommunityBodyContent(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
-
+  const [postingOptions, setPostingOptions] = useState<CommunityPostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [members, setMembers] = useState<SearchUserType[]>([]);
 
@@ -86,10 +95,14 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    fetchData().then(() => {
+    Promise.all([fetchData(), updatePostingOptions()]).then(() => {
       setLoading(false);
     });
   }, [selectedTab]);
+
+  useEffect(() => {
+    updatePostingOptions();
+  }, [selectedTab, props.communityProfilePicture]);
 
   async function fetchData() {
     if (selectedTab !== 'members') {
@@ -105,11 +118,7 @@ function CommunityBodyContent(props: Props) {
     const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/community/${props.communityID}/${routeSuffix}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/community/${props.communityID}/${routeSuffix}`
     );
     if (tabChangeSemaphore === currSemaphoreState) {
       if (data.success === 1) {
@@ -119,6 +128,30 @@ function CommunityBodyContent(props: Props) {
         setFetchErr(true);
       }
     }
+  }
+
+  async function getAdminCommunities() {
+    const { data } = await makeRequest(
+      'GET',
+      `/api/user/${props.user._id}/communities/admin`
+    );
+
+    if (data.success === 1) {
+      const communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
+        (community: AdminCommunityServiceResponse) => {
+          let currFollowing = false;
+          for (let i = 0; i < community.followingCommunities.length; i++)
+            if (community.followingCommunities[i].to._id === props.communityID) {
+              currFollowing = true;
+              break;
+            }
+
+          return currFollowing;
+        }
+      );
+
+      return communities;
+    } else return [];
   }
 
   async function fetchMembers() {
@@ -158,6 +191,61 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
+  async function updatePostingOptions() {
+    let newPostingOptions: CommunityPostingOption[] = [];
+    //Internal
+    if (
+      selectedTab === 'internal-current' ||
+      (selectedTab === 'internal' && props.user.accountType === 'student')
+    ) {
+      newPostingOptions.push({
+        description: 'Post',
+        routeSuffix: 'internal/current',
+        profilePicture: props.user.profilePicture,
+      });
+    } else if (
+      selectedTab === 'internal-alumni' ||
+      (selectedTab === 'internal' && props.user.accountType === 'alumni')
+    ) {
+      newPostingOptions.push({
+        description: 'Post',
+        routeSuffix: 'internal/alumni',
+        profilePicture: props.user.profilePicture,
+      });
+    }
+    //External
+    else if (selectedTab === 'external') {
+      if (props.isAdmin) {
+        newPostingOptions.push({
+          description: `${props.name}`,
+          routeSuffix: 'external/admin',
+          profilePicture: props.communityProfilePicture,
+        });
+      }
+
+      const followingCommunities = await getAdminCommunities();
+
+      if (followingCommunities.length > 0) {
+        followingCommunities.forEach((followingCommunity) => {
+          newPostingOptions.push({
+            description: `${followingCommunity.name}`,
+            routeSuffix: 'external/following',
+            communityID: followingCommunity._id,
+            profilePicture: followingCommunity.profilePicture,
+          });
+        });
+      }
+
+      if (props.status === 'JOINED')
+        newPostingOptions.unshift({
+          description: `${props.user.firstName} ${props.user.lastName}`,
+          routeSuffix: 'external/member',
+          profilePicture: props.user.profilePicture,
+        });
+    }
+    setPostingOptions(newPostingOptions);
+  }
+
   function handleTabChange(newTab: CommunityTab) {
     if (newTab !== selectedTab) {
       tabChangeSemaphore++;
@@ -168,35 +256,39 @@ function CommunityBodyContent(props: Props) {
   function createFeed(posts: PostType[]) {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
-      const { anonymous } = posts[i];
+      const currPost = posts[i];
+      const { anonymous } = currPost;
       output.push(
         <UserPost
           postID={posts[i]._id}
-          _id={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
+          posterID={
+            currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id
+          }
           name={
             anonymous
-              ? `${posts[i].fromCommunity.name}`
-              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
+              ? `${currPost.fromCommunity.name}`
+              : `${currPost.user.firstName} ${currPost.user.lastName}`
           }
           timestamp={`${formatDatePretty(
-            new Date(posts[i].createdAt)
-          )} at ${formatTime(new Date(posts[i].createdAt))}`}
+            new Date(currPost.createdAt)
+          )} at ${formatTime(new Date(currPost.createdAt))}`}
           profilePicture={
             anonymous
-              ? posts[i].fromCommunity.profilePicture
-              : posts[i].user.profilePicture
+              ? currPost.fromCommunity.profilePicture
+              : currPost.user.profilePicture
           }
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
+          type={currPost.type}
+          message={currPost.message}
+          likeCount={currPost.likes}
+          commentCount={currPost.comments}
           style={styles.postStyle}
-          key={posts[i]._id}
+          key={currPost._id}
           anonymous={anonymous}
           toCommunity={
-            selectedTab === 'following' ? posts[i].toCommunity.name : undefined
+            selectedTab === 'following' ? currPost.toCommunity.name : undefined
           }
           toCommunityID={
-            selectedTab === 'following' ? posts[i].toCommunity._id : undefined
+            selectedTab === 'following' ? currPost.toCommunity._id : undefined
           }
           liked={posts[i].liked}
         />
@@ -205,45 +297,53 @@ function CommunityBodyContent(props: Props) {
     return output;
   }
 
+  function appendPost(newPostInfo: any, profilePicture: string | undefined) {
+    setPosts((prevPosts) => {
+      const { anonymous } = newPostInfo;
+      const newPost = (
+        <UserPost
+          postID={newPostInfo._id}
+          posterID={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
+          name={
+            anonymous
+              ? `${newPostInfo.fromCommunity.name}`
+              : `${newPostInfo.user.firstName} ${newPostInfo.user.lastName}`
+          }
+          timestamp={`${formatDatePretty(
+            new Date(newPostInfo.createdAt)
+          )} at ${formatTime(new Date(newPostInfo.createdAt))}`}
+          profilePicture={profilePicture}
+          message={newPostInfo.message}
+          type={newPostInfo.type}
+          likeCount={0}
+          commentCount={0}
+          style={styles.postStyle}
+          key={newPostInfo._id}
+          anonymous={anonymous}
+        />
+      );
+
+      return [newPost].concat(prevPosts);
+    });
+  }
+
   function renderBody() {
-    switch (selectedTab) {
-      case 'external':
-        return renderExternal();
-      case 'internal':
-        return renderInternal();
-      case 'internal-current':
-        return renderInternal();
-      case 'internal-alumni':
-        return renderInternal();
-      case 'following':
-        return renderFollowing();
-      case 'members':
-        return <CommunityMembers members={members} />;
-      default:
-        return renderError();
-    }
-  }
-
-  function renderExternal() {
+    if (selectedTab === 'members') return <CommunityMembers members={members} />;
     return (
       <div>
-        <CommunityMakePostContainer />
+        {postingOptions.length > 0 && (
+          <CommunityMakePostContainer
+            communityID={props.communityID}
+            communityName={props.name}
+            postingOptions={postingOptions}
+            appendNewPost={appendPost}
+            isAdmin={props.isAdmin}
+            communityProfilePicture={props.communityProfilePicture}
+          />
+        )}
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
     );
-  }
-
-  function renderInternal() {
-    return (
-      <div>
-        <CommunityMakePostContainer />
-        {posts.length > 0 ? posts : renderNoPosts()}
-      </div>
-    );
-  }
-
-  function renderFollowing() {
-    return <div>{posts.length > 0 ? posts : renderNoPosts()}</div>;
   }
 
   function renderError() {

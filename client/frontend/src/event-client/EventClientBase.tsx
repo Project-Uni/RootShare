@@ -114,6 +114,7 @@ function EventClientBase(props: Props) {
       setLoginRedirect(true);
       return false;
     }
+    props.updateUser({ ...data['content'] });
     return true;
   }
 

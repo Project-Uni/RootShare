@@ -24,11 +24,11 @@ import {
   createExternalPostAsMember,
   getExternalPosts,
   getFollowingCommunityPosts,
-  broadcastAsCommunityAdmin,
+  createBroadcastCommunityPost,
   //Post Actions
   likePost,
   unlikePost,
-  getLikes
+  getLikes,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -64,13 +64,20 @@ export default function postsRoutes(app) {
     }
   );
 
-  app.get('/api/posts/comments/:postID', isAuthenticatedWithJWT, async (req, res) => {
-    const { postID } = req.params;
-    const startingTimestamp = req.query.from;
+  app.get(
+    '/api/posts/comments/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const startingTimestamp = req.query.from;
 
-    const packet = await retrieveComments(postID, startingTimestamp ? new Date(startingTimestamp) : new Date());
-    return res.json(packet);  
-  });
+      const packet = await retrieveComments(
+        postID,
+        startingTimestamp ? new Date(startingTimestamp) : new Date()
+      );
+      return res.json(packet);
+    }
+  );
 
   app.post(
     '/api/posts/comment/new/:postID',
@@ -83,9 +90,9 @@ export default function postsRoutes(app) {
       const packet = await leaveCommentOnPost(req.user._id, postID, message);
       return res.json(packet);
     }
-    );
+  );
 
-    app.post(
+  app.post(
     '/api/posts/community/:communityID/internal/current',
     isAuthenticatedWithJWT,
     async (req, res) => {
@@ -151,7 +158,6 @@ export default function postsRoutes(app) {
   app.post(
     '/api/posts/community/:communityID/external/following',
     isAuthenticatedWithJWT,
-    isCommunityMember,
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
       const userID = req.user._id;
@@ -218,7 +224,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id
+      const userID = req.user._id;
 
       const packet = await getFollowingCommunityPosts(communityID, userID);
       return res.json(packet);
@@ -237,7 +243,11 @@ export default function postsRoutes(app) {
       if (!message)
         return res.json(sendPacket(-1, 'message is missing from request body'));
 
-      const packet = await broadcastAsCommunityAdmin(userID, communityID, message);
+      const packet = await createBroadcastCommunityPost(
+        userID,
+        communityID,
+        message
+      );
       return res.json(packet);
     }
   );
@@ -258,27 +268,35 @@ export default function postsRoutes(app) {
     }
   );
 
-  app.post('/api/posts/action/:postID/like', isAuthenticatedWithJWT, async (req, res) => {
-    const { postID } = req.params;
-    const userID = req.user._id;
+  app.post(
+    '/api/posts/action/:postID/like',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const userID = req.user._id;
 
-    const packet = await likePost(postID, userID);
-    return res.json(packet);
-  });
+      const packet = await likePost(postID, userID);
+      return res.json(packet);
+    }
+  );
 
-  app.post('/api/posts/action/:postID/unlike', isAuthenticatedWithJWT, async (req, res) => {
-    const { postID } = req.params;
-    const userID = req.user._id;
+  app.post(
+    '/api/posts/action/:postID/unlike',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const userID = req.user._id;
 
-    const packet = await unlikePost(postID, userID);
-    return res.json(packet);
-  });
+      const packet = await unlikePost(postID, userID);
+      return res.json(packet);
+    }
+  );
 
   app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {
     const { postID } = req.params;
     const userID = req.user._id;
 
-    const packet = await getLikes(postID, userID)
+    const packet = await getLikes(postID, userID);
     return res.json(packet);
-  })
+  });
 }
