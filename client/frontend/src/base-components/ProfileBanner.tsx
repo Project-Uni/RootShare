@@ -10,6 +10,7 @@ import {
   Button,
   CircularProgress,
 } from '@material-ui/core';
+import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -23,7 +24,7 @@ import {
   getCroppedImage,
   imageURLToFile,
 } from './profileHelpers/profilePictureHelpers';
-import { log, makeRequest } from '../helpers/functions';
+import { checkDesktop, log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
 
 const useStyles = makeStyles((_: any) => ({
@@ -44,16 +45,18 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   paper: {
-    background: colors.secondary,
+    background: colors.primaryText,
+    borderRadius: 10,
+    padding: 0,
   },
   dialogText: {
-    color: colors.primaryText,
+    color: 'black',
   },
   cancelButton: {
     color: colors.secondaryText,
   },
   saveButton: {
-    background: colors.bright,
+    background: colors.primary,
     color: colors.primaryText,
   },
   loadingIndicator: {
@@ -93,15 +96,14 @@ function ProfileBanner(props: Props) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
-    aspect: 1,
-    // height: 300,
-    // top: 100,
-    // left: 100,
+    aspect: 16 / 6,
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
   const placeholder = useRef<HTMLDivElement>(null);
   const picture = useRef<HTMLImageElement>(null);
+
+  const isDesktop = checkDesktop();
 
   function handleMouseOver() {
     setHovering(true);
@@ -121,6 +123,7 @@ function ProfileBanner(props: Props) {
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
+      setCrop({ aspect: 16 / 6 });
       const imageReader = new FileReader();
 
       imageReader.onloadend = (event: ProgressEvent) => {
@@ -164,27 +167,27 @@ function ProfileBanner(props: Props) {
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
-    setLoading(true);
-    const path =
-      props.type === 'profile'
-        ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${props._id}/updateProfilePicture`;
+    // setLoading(true);
+    // const path =
+    //   props.type === 'profile'
+    //     ? '/api/images/profile/updateProfilePicture'
+    //     : `/api/images/community/${props._id}/updateProfilePicture`;
 
-    const { data } = await makeRequest('POST', path, {
-      image: imageData,
-    });
-    setLoading(false);
-    if (data['success'] !== 1) {
-      setUploadErr(data.message);
-      return;
-    }
-    setUploadErr('');
+    // const { data } = await makeRequest('POST', path, {
+    //   image: imageData,
+    // });
+    // setLoading(false);
+    // if (data['success'] !== 1) {
+    //   setUploadErr(data.message);
+    //   return;
+    // }
+    // setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile') {
-      let currUser = { ...props.user };
-      currUser.profilePicture = imageData as string;
-      props.updateUser(currUser);
-    }
+    // if (props.type === 'profile') {
+    //   let currUser = { ...props.user };
+    //   currUser.profilePicture = imageData as string;
+    //   props.updateUser(currUser);
+    // }
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
@@ -200,7 +203,9 @@ function ProfileBanner(props: Props) {
             style={{
               height: props.height,
               width: '100%',
-              borderRadius: props.borderRadius || 0,
+              objectFit: 'cover',
+              borderTopRightRadius: props.borderRadius || 0,
+              borderTopLeftRadius: props.borderRadius || 0,
             }}
             onMouseEnter={props.editable ? handleMouseOver : undefined}
             onMouseLeave={props.editable ? handleMouseLeave : undefined}
@@ -232,14 +237,14 @@ function ProfileBanner(props: Props) {
         <div className={styles.cameraContainer}>
           {hovering && (
             <FaCamera
-              color={colors.secondaryText}
+              color={`rgba(220,220,220,0.8)`}
               size={32}
               style={{
                 position: 'absolute',
                 bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
                 left:
                   Math.floor(
-                    ((picture
+                    ((props.currentPicture
                       ? picture.current?.width
                       : placeholder.current?.clientWidth) || window.innerWidth) / 2
                   ) -
@@ -279,22 +284,25 @@ function ProfileBanner(props: Props) {
 
   function renderCrop() {
     return (
-      <Dialog open={Boolean(imageSrc)} className={styles.paper}>
+      <Dialog open={Boolean(imageSrc)} PaperComponent={PaperComponent}>
         <DialogTitle className={styles.dialogText} id="draggable-title">
           <RSText type="head" size={16} bold>
             Crop Image
           </RSText>
         </DialogTitle>
         <DialogContent>
-          <div style={{ maxHeight: 500, maxWidth: 500 }}>
+          <div
+            style={{
+              maxHeight: isDesktop ? 400 : window.innerWidth - 25,
+              maxWidth: isDesktop ? 700 : window.innerWidth - 25,
+            }}
+          >
             <ReactCrop
               src={imageSrc!}
               crop={crop}
               onImageLoaded={handleImageLoaded}
               onChange={handleCropChange}
               onComplete={handleCropComplete}
-              circularCrop
-              // ruleOfThirds
             />
             {loading && (
               <div style={{ position: 'relative', height: 0, width: 0 }}>
@@ -361,3 +369,8 @@ const mapDispatchToProps = (dispatch: any) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileBanner);
+
+function PaperComponent(props: PaperProps) {
+  const styles = useStyles();
+  return <Paper {...props} className={styles.paper} square={false} />;
+}

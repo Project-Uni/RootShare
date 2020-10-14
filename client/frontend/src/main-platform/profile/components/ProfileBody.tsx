@@ -92,6 +92,7 @@ function ProfileBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [currentPicture, setCurrentPicture] = useState<string>();
+  const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
   const [events, setEvents] = useState<EventType[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -207,6 +208,8 @@ function ProfileBody(props: Props) {
           editable={props.currentProfileState === 'SELF'}
           zoomOnClick={props.currentProfileState !== 'SELF'}
           borderRadius={10}
+          currentPicture={currentBanner}
+          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
         />
         <ProfilePicture
           type="profile"
