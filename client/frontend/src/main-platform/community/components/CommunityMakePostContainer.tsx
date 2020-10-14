@@ -99,7 +99,6 @@ const CustomTooltip = withStyles((theme: Theme) => ({
 
 type Props = {
   isAdmin?: boolean;
-  profilePicture?: string;
   communityID: string;
   communityName: string;
   communityProfilePicture?: string;
@@ -241,82 +240,6 @@ function CommunityMakePostContainer(props: Props) {
             </>
           )}
         </Button>
-        {/* {props.postingOptions.length === 1 && props.postingOptions[0].communityID ? (
-          <CustomTooltip
-            title={`This post will be visible to all of ${props.communityName}'s followers`}
-          >
-            <Button
-              endIcon={
-                props.postingOptions.length === 1 || (
-                  <BsFillCaretDownFill color={colors.primaryText} size={12} />
-                )
-              }
-              className={
-                loading || content === '' ? styles.disabledButton : styles.button
-              }
-              onClick={
-                props.postingOptions.length === 1
-                  ? () => handlePostClicked(props.postingOptions[0])
-                  : (event: any) => {
-                      setFollowMenuAnchorEl(event.currentTarget);
-                    }
-              }
-              disabled={loading || content === ''}
-            >
-              {props.postingOptions[0].description}
-            </Button>
-          </CustomTooltip>
-        ) : (
-          <Button
-            endIcon={
-              props.postingOptions.length === 1 || (
-                <BsFillCaretDownFill color={colors.primaryText} size={12} />
-              )
-            }
-            className={
-              loading || content === '' ? styles.disabledButton : styles.button
-            }
-            onClick={
-              props.postingOptions.length === 1
-                ? () => handlePostClicked(props.postingOptions[0])
-                : (event: any) => {
-                    setFollowMenuAnchorEl(event.currentTarget);
-                  }
-            }
-            disabled={loading || content === ''}
-          >
-            {props.postingOptions.length === 1
-              ? props.postingOptions[0].description
-              : 'Post'}
-          </Button>
-        )}
-        <Menu
-          open={Boolean(followMenuAnchorEl)}
-          anchorEl={followMenuAnchorEl}
-          onClose={() => setFollowMenuAnchorEl(null)}
-        >
-          {props.postingOptions.map((postingOption) => {
-            return postingOption.communityID ? (
-              <CustomTooltip
-                title={`This post will be visible to all of ${props.communityName}'s followers`}
-              >
-                <MenuItem
-                  onClick={() => handlePostClicked(postingOption)}
-                  key={postingOption.routeSuffix}
-                >
-                  <RSText>{postingOption.description}</RSText>
-                </MenuItem>
-              </CustomTooltip>
-            ) : (
-              <MenuItem
-                onClick={() => handlePostClicked(postingOption)}
-                key={postingOption.routeSuffix}
-              >
-                <RSText>{postingOption.description}</RSText>
-              </MenuItem>
-            );
-          })}
-        </Menu> */}
         <Menu
           open={Boolean(followMenuAnchorEl)}
           anchorEl={followMenuAnchorEl}
@@ -356,7 +279,7 @@ function CommunityMakePostContainer(props: Props) {
             height={50}
             width={50}
             borderRadius={50}
-            currentPicture={props.profilePicture}
+            currentPicture={props.user.profilePicture}
             type="profile"
             className={styles.profilePictureContainer}
             pictureStyle={styles.profilePicture}

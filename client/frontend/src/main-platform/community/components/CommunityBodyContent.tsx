@@ -197,35 +197,31 @@ function CommunityBodyContent(props: Props) {
 
   async function updatePostingOptions() {
     let newPostingOptions: CommunityPostingOption[] = [];
+    //Internal
     if (
       selectedTab === 'internal-current' ||
       (selectedTab === 'internal' && props.user.accountType === 'student')
-    )
+    ) {
       newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/current',
         profilePicture: props.user.profilePicture,
       });
-    else if (
+    } else if (
       selectedTab === 'internal-alumni' ||
       (selectedTab === 'internal' && props.user.accountType === 'alumni')
-    )
+    ) {
       newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/alumni',
         profilePicture: props.user.profilePicture,
       });
+    }
+    //External
     else if (selectedTab === 'external') {
-      let memberDescription = 'Post';
       if (props.isAdmin) {
-        memberDescription = 'Post as yourself';
         newPostingOptions.push({
-          description: `Broadcast to ${props.universityName} as ${props.name}`,
-          routeSuffix: 'broadcast',
-          profilePicture: props.communityProfilePicture,
-        });
-        newPostingOptions.push({
-          description: `Post as ${props.name}`,
+          description: `${props.name}`,
           routeSuffix: 'external/admin',
           profilePicture: props.communityProfilePicture,
         });
@@ -234,10 +230,9 @@ function CommunityBodyContent(props: Props) {
       const followingCommunities = await getAdminCommunities();
 
       if (followingCommunities.length > 0) {
-        memberDescription = 'Post as yourself';
         followingCommunities.forEach((followingCommunity) => {
           newPostingOptions.push({
-            description: `Post as ${followingCommunity.name}`,
+            description: `${followingCommunity.name}`,
             routeSuffix: 'external/following',
             communityID: followingCommunity._id,
             profilePicture: followingCommunity.profilePicture,
@@ -247,12 +242,11 @@ function CommunityBodyContent(props: Props) {
 
       if (props.status === 'JOINED')
         newPostingOptions.unshift({
-          description: memberDescription,
+          description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',
           profilePicture: props.user.profilePicture,
         });
     }
-
     setPostingOptions(newPostingOptions);
   }
 
