@@ -41,7 +41,7 @@ export async function updateUserBanner(image: string, userID: string) {
     if (!success) return sendPacket(0, 'Failed to upload image');
 
     await User.updateOne({ _id: userID }, { bannerPicture: fileName });
-    log('info', `Updated profile picture for ${userID}`);
+    log('info', `Updated banner for ${userID}`);
     return sendPacket(1, 'Successfully uploaded image');
   } catch (err) {
     log('error', err);
@@ -86,7 +86,23 @@ export async function updateCommunityProfilePicture(
   return sendPacket(1, 'Successfully updated profile picture for community.');
 }
 
-export async function updateCommunityBanner(image: string, communityID: string) {}
+export async function updateCommunityBanner(image: string, communityID: string) {
+  const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+  if (!imageBuffer.data) return sendPacket(0, 'Invalid base64 image');
+
+  const fileName = `${communityID}_banner.jpeg`;
+  try {
+    const success = await uploadFile('communityBanner', fileName, imageBuffer.data);
+    if (!success) return sendPacket(0, 'Failed to upload image');
+
+    await Community.updateOne({ _id: communityID }, { bannerPicture: fileName });
+    log('info', `Updated banner for ${communityID}`);
+    return sendPacket(1, 'Successfully uploaded image');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'Failed to update user model with picture');
+  }
+}
 
 //GETTERS
 

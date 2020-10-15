@@ -7,6 +7,7 @@ import {
   updateUserProfilePicture,
   updateUserBanner,
   updateCommunityProfilePicture,
+  updateCommunityBanner,
   getUserProfileAndBanner,
   getCommunityProfileAndBanner,
 } from '../interactions/images';
@@ -36,6 +37,35 @@ export default function imageRoutes(app) {
     }
   );
 
+  app.post(
+    '/api/images/community/:communityID/updateProfilePicture',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
+
+      const packet = await updateCommunityProfilePicture(image, communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/images/community/:communityID/banner',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
+
+      const packet = await updateCommunityBanner(image, communityID);
+      return res.json(packet);
+    }
+  );
+
   app.get(
     '/api/images/profile/:userID',
     isAuthenticatedWithJWT,
@@ -48,21 +78,6 @@ export default function imageRoutes(app) {
         isCurrentUser = true;
       }
       const packet = await getUserProfileAndBanner(userID, isCurrentUser);
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/images/community/:communityID/updateProfilePicture',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-
-      const { image } = req.body;
-      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
-
-      const packet = await updateCommunityProfilePicture(image, communityID);
       return res.json(packet);
     }
   );
