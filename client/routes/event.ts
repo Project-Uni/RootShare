@@ -8,6 +8,8 @@ import {
   getAllEventsUser,
   getWebinarDetails,
   updateRSVP,
+  addEventImage,
+  addEventBanner,
 } from '../interactions/streaming/event';
 
 import { updateAttendingList } from '../interactions/user';
@@ -23,6 +25,22 @@ module.exports = (app) => {
       );
     await createEvent(req.body, req.user, (packet) => res.json(packet));
   });
+
+  app.post(
+    '/api/webinar/uploadEventImage',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      res.json(await addEventImage(req.body.eventID, req.body.eventImage));
+    }
+  );
+
+  app.post(
+    '/api/webinar/uploadEventBanner',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      res.json(await addEventBanner(req.body.eventID, req.body.eventBanner));
+    }
+  );
 
   app.get('/api/webinar/recents', isAuthenticatedWithJWT, (req, res) => {
     getAllRecentEvents(req.user._id, (packet) => res.json(packet));

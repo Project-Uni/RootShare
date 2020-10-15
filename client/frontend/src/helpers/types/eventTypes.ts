@@ -19,6 +19,8 @@ export type EventType = {
   muxAssetPlaybackID: string;
   isDev?: boolean;
   isPrivate?: boolean;
+  eventImage: string;
+  eventBanner: string;
 };
 
 export type LeanEventType = {
