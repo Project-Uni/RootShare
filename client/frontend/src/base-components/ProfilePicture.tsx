@@ -348,9 +348,5 @@ export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();
-  return (
-    <Draggable cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} className={styles.paper} square={false} />
-    </Draggable>
-  );
+  return <Paper {...props} className={styles.paper} square={false} />;
 }
