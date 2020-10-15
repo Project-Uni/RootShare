@@ -14,6 +14,7 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
+  registerBetaTester,
   getUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
@@ -81,6 +82,15 @@ module.exports = (app) => {
       req.user._id,
       req.body.requestID,
       req.body.accepted,
+      (packet) => res.json(packet)
+    );
+  });
+
+  app.post('/user/registerBetaTester', isAuthenticatedWithJWT, (req, res) => {
+    const { message } = req.body;
+    registerBetaTester(
+      req.user._id,
+      message,
       (packet) => res.json(packet)
     );
   });

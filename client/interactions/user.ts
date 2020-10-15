@@ -1074,3 +1074,24 @@ export async function getBasicUserInfo(userID: string) {
   log('info', `Retrieved basic info for user ${userID}`);
   return sendPacket(1, 'Found user info', { user });
 }
+
+export async function registerBetaTester(userID: string, phoneNumber: string, callback){
+  User.findById(
+    userID,
+    [
+      'isBeta',
+      'phoneNumber',
+    ],
+    (err, user) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!user) return callback(sendPacket(0, 'Could not find user'));
+
+      user.isBeta = true;
+      if (phoneNumber) user.phoneNumber = phoneNumber;
+      user.save((err) => {
+        if (err) return callback(sendPacket(-1, err));
+        return callback(sendPacket(1, 'Successfully registered as beta tester!'));
+      });
+    }
+  );
+}

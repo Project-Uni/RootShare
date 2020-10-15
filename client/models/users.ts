@@ -31,6 +31,8 @@ var userSchema = new Schema(
     sendEmails: { type: Boolean, required: true, default: true },
     confirmed: { type: Boolean, required: true, default: false },
     verified: { type: Boolean, required: true, default: false },
+    isBeta: { type: Boolean, required: true, default: false },
+    sendTexts: { type: Boolean, required: true, default: false },
     RSVPWebinars: {
       type: [{ type: Schema.ObjectId, ref: 'webinars' }],
     },
