@@ -363,8 +363,8 @@ export async function getWebinarDetails(userID, webinarID, callback) {
         'eventBanner',
         webinar.eventBanner
       );
-      if (eventImage) webinar.eventImage = eventImage;
-      if (eventBanner) webinar.eventBanner = eventBanner;
+      webinar.eventImage = eventImage || undefined;
+      webinar.eventBanner = eventBanner || undefined;
 
       return callback(
         sendPacket(1, 'Succesfully found webinar details', { webinar })
