@@ -13,6 +13,7 @@ import communityRoutes from './routes/community';
 import feedbackRoutes from './routes/feedback';
 import discoverRoutes from './routes/discover';
 import postRoutes from './routes/posts';
+import imageRoutes from './routes/images';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -66,13 +67,12 @@ require('./routes/mocks')(app);
 
 require('./routes/proxy')(app);
 
-require('./routes/images')(app);
-
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
 communityRoutes(app);
 feedbackRoutes(app);
 discoverRoutes(app);
 postRoutes(app);
+imageRoutes(app);
 
 require('./config/setup')(passport);
 
