@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { IconButton } from '@material-ui/core';
@@ -13,9 +13,60 @@ type Props = {};
 
 function DynamicLike(props: Props) {
   const styles = useStyles();
+
+  const [liked, setLiked] = useState(false);
+
+  const timeline = new mojs.Timeline();
+  const iconRef = useRef<HTMLDivElement>(null);
+  addEffects();
+
+  function addEffects() {
+    const tween1 = new mojs.Burst({
+      parent: iconRef.current,
+      duration: 1500,
+      shape: 'circle',
+      fill: colors.bright,
+      stroke: colors.bright,
+      opacity: 0.6,
+      children: {
+        fill: ['#DE8AA0', '#988ADE'],
+      },
+      childOptions: { radius: { 20: 0 } },
+      radius: { 20: 80 },
+      count: 6,
+      isSwirl: true,
+      easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
+    });
+    // ring animation
+    const tween2 = new mojs.Transit({
+      parent: iconRef.current,
+      duration: 750,
+      type: 'circle',
+      radius: { 0: 40 },
+      fill: 'transparent',
+      stroke: '#8AD1DE',
+      strokeWidth: { 15: 0 },
+      opacity: 0.6,
+      easing: mojs.easing.bezier(0, 1, 0.5, 1),
+    });
+
+    timeline.add(tween1, tween2);
+  }
+
   return (
-    <IconButton>
-      <BsStar color={colors.bright} size={20} />
+    <IconButton
+      onClick={() => {
+        timeline.replay();
+        setLiked(!liked);
+      }}
+    >
+      <div ref={iconRef}>
+        {liked ? (
+          <BsStarFill color={colors.bright} size={20} />
+        ) : (
+          <BsStar color={colors.bright} size={20} />
+        )}
+      </div>
     </IconButton>
   );
 }
