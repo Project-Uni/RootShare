@@ -122,11 +122,6 @@ function ProfilePicture(props: Props) {
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
-      if (event.target.files[0].size > 1440000) {
-        setUploadErr('The image file is too big.');
-        event.target.value = '';
-        return;
-      }
       const imageReader = new FileReader();
 
       imageReader.onloadend = (event: ProgressEvent) => {

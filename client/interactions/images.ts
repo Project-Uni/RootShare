@@ -140,9 +140,9 @@ export async function getUserProfileAndBanner(
 
 export async function getCommunityProfileAndBanner(communityID: string) {
   try {
-    const community = await Community.findById(communityID, [
-      'profilePicture bannerPicture',
-    ]);
+    const community = await Community.findById(communityID).select(
+      'profilePicture bannerPicture'
+    );
     if (!community) return sendPacket(0, 'Could not find this community');
 
     const imagePromises = [];
@@ -159,7 +159,7 @@ export async function getCommunityProfileAndBanner(communityID: string) {
     else imagePromises.push(null);
 
     return Promise.all(imagePromises).then(([profile, banner]) => {
-      return sendPacket(1, 'Retrieved user profile and banner image', {
+      return sendPacket(1, 'Retrieved community profile and banner image', {
         profile,
         banner,
       });

@@ -123,11 +123,6 @@ function ProfileBanner(props: Props) {
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
-      if (event.target.files[0].size > 1440000) {
-        setUploadErr('The image file is too big.');
-        event.target.value = '';
-        return;
-      }
       setCrop({ aspect: 16 / 6 });
       const imageReader = new FileReader();
 
@@ -173,7 +168,10 @@ function ProfileBanner(props: Props) {
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
-    const path = props.type === 'profile' ? '/api/images/profile/banner' : ``;
+    const path =
+      props.type === 'profile'
+        ? '/api/images/profile/banner'
+        : `/api/images/community/${props._id}/banner`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,
@@ -291,8 +289,8 @@ function ProfileBanner(props: Props) {
         <DialogContent>
           <div
             style={{
-              maxHeight: isDesktop ? 400 : window.innerWidth - 25,
-              maxWidth: isDesktop ? 700 : window.innerWidth - 25,
+              maxHeight: isDesktop ? 600 : window.innerWidth - 25,
+              maxWidth: isDesktop ? 900 : window.innerWidth - 25,
             }}
           >
             <ReactCrop
