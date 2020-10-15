@@ -123,6 +123,11 @@ function ProfileBanner(props: Props) {
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
+      if (event.target.files[0].size > 1440000) {
+        setUploadErr('The image file is too big.');
+        event.target.value = '';
+        return;
+      }
       setCrop({ aspect: 16 / 6 });
       const imageReader = new FileReader();
 
