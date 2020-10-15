@@ -16,10 +16,11 @@ import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
+import Carousel, { Modal, ModalGateway } from 'react-images';
+
 import { Comment } from '../';
-import RSText from '../../../base-components/RSText';
+import { RSText, ProfilePicture, DynamicLike } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
-import ProfilePicture from '../../../base-components/ProfilePicture';
 import {
   formatDatePretty,
   formatTime,
@@ -27,7 +28,6 @@ import {
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
-import Carousel, { Modal, ModalGateway } from 'react-images';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -155,7 +155,6 @@ const useTextFieldStyles = makeStyles((_: any) => ({
     flex: 1,
     marginLeft: 15,
     width: '100%',
-    background: colors.primaryText,
     borderRadius: 10,
     [`& fieldset`]: {
       borderRadius: 10,
@@ -427,7 +426,12 @@ function UserPost(props: Props) {
     return (
       <div className={styles.likesAndCommentsContainer}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton
+          <DynamicLike
+            onClick={liked ? unlikePost : likePost}
+            disabled={likeDisabled}
+            liked={liked}
+          />
+          {/* <IconButton
             onClick={liked ? unlikePost : likePost}
             disabled={likeDisabled}
           >
@@ -436,7 +440,7 @@ function UserPost(props: Props) {
             ) : (
               <BsStar size={20} color={colors.secondaryText} />
             )}
-          </IconButton>
+          </IconButton> */}
 
           <RSText
             type="body"

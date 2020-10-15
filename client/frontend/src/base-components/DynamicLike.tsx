@@ -9,18 +9,21 @@ import * as mojs from '@mojs/core';
 
 const useStyles = makeStyles((_: any) => ({}));
 
-type Props = {};
+type Props = {
+  onClick: () => any;
+  disabled?: boolean;
+  liked?: boolean;
+};
 
 function DynamicLike(props: Props) {
   const styles = useStyles();
-
-  const [liked, setLiked] = useState(false);
 
   const timeline = new mojs.Timeline();
   const iconRef = useRef<HTMLDivElement>(null);
   addEffects();
 
   function addEffects() {
+    //Circle Burst Animation
     const tween1 = new mojs.Burst({
       parent: iconRef.current,
       duration: 1500,
@@ -37,6 +40,7 @@ function DynamicLike(props: Props) {
       isSwirl: true,
       easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
     });
+
     // ring animation
     const tween2 = new mojs.Transit({
       parent: iconRef.current,
@@ -53,15 +57,15 @@ function DynamicLike(props: Props) {
     timeline.add(tween1, tween2);
   }
 
+  function handleClick() {
+    timeline.replay();
+    props.onClick();
+  }
+
   return (
-    <IconButton
-      onClick={() => {
-        timeline.replay();
-        setLiked(!liked);
-      }}
-    >
+    <IconButton onClick={handleClick} disabled={props.disabled}>
       <div ref={iconRef}>
-        {liked ? (
+        {props.liked ? (
           <BsStarFill color={colors.bright} size={20} />
         ) : (
           <BsStar color={colors.bright} size={20} />
