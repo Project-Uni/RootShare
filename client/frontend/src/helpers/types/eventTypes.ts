@@ -32,6 +32,7 @@ export type LeanEventType = {
   brief_description: string;
   full_description: string;
   muxAssetPlaybackID: string;
+  eventImage: string;
 };
 
 export type HostType = {

@@ -26,7 +26,7 @@ type Props = {
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
   replay?: boolean;
-  eventImage: any;
+  eventImage: string;
 
   accessToken: string;
   refreshToken: string;

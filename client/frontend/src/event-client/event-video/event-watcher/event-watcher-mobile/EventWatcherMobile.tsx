@@ -28,7 +28,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
-  eventImage: any;
+  eventImage: string;
 };
 
 function EventWatcherMobile(props: Props) {

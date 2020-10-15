@@ -20,7 +20,7 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import RootShareDefaultBanner from '../images/RootShareDefaultBanner.png';
+import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
 
 import { colors } from '../theme/Colors';
 import { EventType, MuxMetaDataType } from '../helpers/types';
