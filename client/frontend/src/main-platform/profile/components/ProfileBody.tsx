@@ -48,6 +48,7 @@ const useStyles = makeStyles((_: any) => ({
   profilePictureContainer: {
     marginTop: -88,
     marginLeft: 50,
+    display: 'inline-block',
   },
   profilePicture: {
     border: `8px solid ${colors.primaryText}`,
@@ -154,7 +155,10 @@ function ProfileBody(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
+    if (data['success'] === 1) {
+      setCurrentPicture(data['content']['profile']);
+      setCurrentBanner(data.content.banner);
+    }
   }
 
   async function fetchEvents() {

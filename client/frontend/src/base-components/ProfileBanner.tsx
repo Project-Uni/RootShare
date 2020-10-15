@@ -167,27 +167,20 @@ function ProfileBanner(props: Props) {
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
-    // setLoading(true);
-    // const path =
-    //   props.type === 'profile'
-    //     ? '/api/images/profile/updateProfilePicture'
-    //     : `/api/images/community/${props._id}/updateProfilePicture`;
+    setLoading(true);
+    const path = props.type === 'profile' ? '/api/images/profile/banner' : ``;
 
-    // const { data } = await makeRequest('POST', path, {
-    //   image: imageData,
-    // });
-    // setLoading(false);
-    // if (data['success'] !== 1) {
-    //   setUploadErr(data.message);
-    //   return;
-    // }
-    // setUploadErr('');
+    const { data } = await makeRequest('POST', path, {
+      image: imageData,
+    });
+    setLoading(false);
+    if (data['success'] !== 1) {
+      setUploadErr(data.message);
+      return;
+    }
+    setUploadErr('');
     setImageSrc(undefined);
-    // if (props.type === 'profile') {
-    //   let currUser = { ...props.user };
-    //   currUser.profilePicture = imageData as string;
-    //   props.updateUser(currUser);
-    // }
+
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 

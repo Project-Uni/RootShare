@@ -23,14 +23,14 @@ module.exports = (app) => {
       const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
       if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
 
-      const success = await uploadFile(
-        'profile',
-        `${req.user._id}_profile.jpeg`,
-        imageBuffer.data
-      );
-      if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
-
       try {
+        const success = await uploadFile(
+          'profile',
+          `${req.user._id}_profile.jpeg`,
+          imageBuffer.data
+        );
+        if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
+
         const user = await User.findById(req.user._id);
         user.profilePicture = `${req.user._id}_profile.jpeg`;
         user.save();
@@ -47,31 +47,73 @@ module.exports = (app) => {
     }
   );
 
+  app.post(
+    '/api/images/profile/banner',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
+
+      const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+      if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
+
+      const fileName = `${req.user._id}_banner.jpeg`;
+      try {
+        const success = await uploadFile(
+          'profileBanner',
+          fileName,
+          imageBuffer.data
+        );
+        if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
+
+        await User.updateOne({ _id: req.user._id }, { bannerPicture: fileName });
+        log(
+          'info',
+          `Updated profile picture for ${req.user.firstName} ${req.user.lastName}`
+        );
+        return res.json(sendPacket(1, 'Successfully uploaded image'));
+      } catch (err) {
+        log('error', err);
+        return res.json(sendPacket(-1, 'Failed to update user model with picture'));
+      }
+    }
+  );
+
   app.get(
     '/api/images/profile/:userID',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { userID } = req.params;
-      let pictureFileName = ``;
-      if (userID === 'user') pictureFileName = `${req.user._id}_profile.jpeg`;
-      else pictureFileName = `${userID}_profile.jpeg`;
+      let { userID } = req.params;
 
+      if (userID === 'user') userID = req.user._id;
       try {
-        const user = await User.findById(userID);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
+        const user = await User.findById(userID)
+          .select('profilePicture bannerPicture')
+          .exec();
+
+        if (!user) return res.json(sendPacket(0, 'Could not find this user'));
+
+        const imagePromises = [];
+        if (req.params.userID !== 'user' && user.profilePicture)
+          imagePromises.push(retrieveSignedUrl('profile', user.profilePicture));
+        else imagePromises.push(null);
+
+        if (user.bannerPicture)
+          imagePromises.push(retrieveSignedUrl('profileBanner', user.bannerPicture));
+        else imagePromises.push(null);
+
+        return Promise.all(imagePromises).then(([profile, banner]) => {
+          return res.json(
+            sendPacket(1, 'Retrieved user profile and banner image', {
+              profile,
+              banner,
+            })
+          );
+        });
       } catch (err) {
-        log('err', err);
+        log('error', err);
+        return res.json(sendPacket(-1, err));
       }
-
-      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
-
-      if (!imageURL) {
-        return res.json(sendPacket(0, 'No profile image found for user'));
-      }
-
-      return res.json(
-        sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
-      );
     }
   );
 
