@@ -130,6 +130,9 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: '100%',
     objectFit: 'contain',
   },
+  imageSection: {
+    height: 400,
+  },
   imagePreviewWrapper: {
     display: 'flex',
     flexDirection: 'column',
@@ -677,55 +680,59 @@ function AdminEventCreator(props: Props) {
   function renderImageInputs() {
     return (
       <div className={styles.imageWrapper}>
-        <Button onClick={handleEventImageClicked}>Update Event Image</Button>
-        <input
-          type="file"
-          ref={eventImageUploader}
-          style={{ display: 'none' }}
-          accept="image/x-png, image/jpeg"
-          onChange={handleEventImageUpload}
-        />
-        {eventImage && (
-          <div className={styles.imagePreviewWrapper}>
-            <IconButton
-              style={{ display: 'float', float: 'right' }}
-              onClick={() => {
-                if (window.confirm('Are you sure you want to remove this image?'))
-                  setEventImage('');
-              }}
-            >
-              <RSText color={colors.secondaryText} size={16} bold>
-                X
-              </RSText>
-            </IconButton>
-            <img src={eventImage} className={styles.uploadedImage} />
-          </div>
-        )}
+        <div className={styles.imageSection}>
+          <Button onClick={handleEventImageClicked}>Update Event Image</Button>
+          <input
+            type="file"
+            ref={eventImageUploader}
+            style={{ display: 'none' }}
+            accept="image/x-png, image/jpeg"
+            onChange={handleEventImageUpload}
+          />
+          {eventImage && (
+            <div className={styles.imagePreviewWrapper}>
+              <IconButton
+                style={{ display: 'float', float: 'right' }}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to remove this image?'))
+                    setEventImage('');
+                }}
+              >
+                <RSText color={colors.secondaryText} size={16} bold>
+                  X
+                </RSText>
+              </IconButton>
+              <img src={eventImage} className={styles.uploadedImage} />
+            </div>
+          )}
+        </div>
 
-        <Button onClick={handleEventBannerClicked}>Update Event Banner</Button>
-        <input
-          type="file"
-          ref={eventBannerUploader}
-          style={{ display: 'none' }}
-          accept="image/x-png, image/jpeg"
-          onChange={handleEventBannerUpload}
-        />
-        {eventBanner && (
-          <div className={styles.imagePreviewWrapper}>
-            <IconButton
-              style={{ display: 'float', float: 'right' }}
-              onClick={() => {
-                if (window.confirm('Are you sure you want to remove this image?'))
-                  setEventBanner('');
-              }}
-            >
-              <RSText color={colors.secondaryText} size={16} bold>
-                X
-              </RSText>
-            </IconButton>
-            <img src={eventBanner} className={styles.uploadedImage} />
-          </div>
-        )}
+        <div className={styles.imageSection}>
+          <Button onClick={handleEventBannerClicked}>Update Event Banner</Button>
+          <input
+            type="file"
+            ref={eventBannerUploader}
+            style={{ display: 'none' }}
+            accept="image/x-png, image/jpeg"
+            onChange={handleEventBannerUpload}
+          />
+          {eventBanner && (
+            <div className={styles.imagePreviewWrapper}>
+              <IconButton
+                style={{ display: 'float', float: 'right' }}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to remove this image?'))
+                    setEventBanner('');
+                }}
+              >
+                <RSText color={colors.secondaryText} size={16} bold>
+                  X
+                </RSText>
+              </IconButton>
+              <img src={eventBanner} className={styles.uploadedImage} />
+            </div>
+          )}
+        </div>
       </div>
     );
   }
