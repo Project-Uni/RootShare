@@ -33,7 +33,5 @@ export function makeRequest(
       return axios.put(url, data, accessToken && refreshToken ? config : {});
     case 'DELETE':
       return axios.delete(url, accessToken && refreshToken ? config : {});
-    default:
-      return { data: { success: -1, message: 'Invalid HTTP method' } };
   }
 }

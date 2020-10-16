@@ -6,6 +6,8 @@ import {
   IconButton,
   CircularProgress,
   Box,
+  Menu,
+  MenuItem,
 } from '@material-ui/core';
 
 import { connect } from 'react-redux';
@@ -28,6 +30,7 @@ import {
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
+import { FaEllipsisH } from 'react-icons/fa';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -43,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   top: {
     display: 'flex',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     marginTop: 20,
     marginBottom: 10,
     paddingLeft: 20,
@@ -217,6 +220,7 @@ function UserPost(props: Props) {
   const [showLikesModal, setShowLikesModal] = useState(false);
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -360,6 +364,7 @@ function UserPost(props: Props) {
   }
 
   async function handleDeleteClicked() {
+    setMenuAnchorEl(null);
     if (
       window.confirm(
         'Are you sure you want to delete this post? This action cannot be undone.'
@@ -376,60 +381,79 @@ function UserPost(props: Props) {
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a
-          href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
-          className={styles.noUnderline}
-        >
-          <ProfilePicture
-            height={50}
-            width={50}
-            borderRadius={50}
-            className={styles.profilePicContainer}
-            type="profile"
-            currentPicture={props.profilePicture}
-          />
-        </a>
+        <div style={{ display: 'flex' }}>
+          <a
+            href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
+            className={styles.noUnderline}
+          >
+            <ProfilePicture
+              height={50}
+              width={50}
+              borderRadius={50}
+              className={styles.profilePicContainer}
+              type="profile"
+              currentPicture={props.profilePicture}
+            />
+          </a>
 
-        <div className={styles.postHeadText}>
-          <div className={styles.nameAndOrgDiv}>
-            <a
-              href={`/${props.anonymous ? 'community' : 'profile'}/${
-                props.posterID
-              }`}
-              className={styles.noUnderline}
-            >
-              <RSText type="subhead" color={colors.secondary} bold size={14}>
-                {props.name}
-              </RSText>
-            </a>
+          <div className={styles.postHeadText}>
+            <div className={styles.nameAndOrgDiv}>
+              <a
+                href={`/${props.anonymous ? 'community' : 'profile'}/${
+                  props.posterID
+                }`}
+                className={styles.noUnderline}
+              >
+                <RSText type="subhead" color={colors.secondary} bold size={14}>
+                  {props.name}
+                </RSText>
+              </a>
 
-            {props.toCommunity && (
-              <>
-                <GiTreeBranch
-                  color={colors.secondary}
-                  size={16}
-                  className={styles.plantIcon}
+              {props.toCommunity && (
+                <>
+                  <GiTreeBranch
+                    color={colors.secondary}
+                    size={16}
+                    className={styles.plantIcon}
+                  />
+                  <a
+                    href={`/community/${props.toCommunityID}`}
+                    className={styles.noUnderline}
+                  >
+                    <RSText type="subhead" color={colors.secondary} bold size={14}>
+                      {props.toCommunity}
+                    </RSText>
+                  </a>
+                </>
+              )}
+              {props.type === 'broadcast' && (
+                <CastForEducationIcon
+                  color={'action'}
+                  className={styles.broadcastIcon}
                 />
-                <a
-                  href={`/community/${props.toCommunityID}`}
-                  className={styles.noUnderline}
-                >
-                  <RSText type="subhead" color={colors.secondary} bold size={14}>
-                    {props.toCommunity}
-                  </RSText>
-                </a>
-              </>
-            )}
-            {props.type === 'broadcast' && (
-              <CastForEducationIcon
-                color={'action'}
-                className={styles.broadcastIcon}
-              />
-            )}
+              )}
+            </div>
+            <RSText type="subhead" color={colors.secondaryText} size={12}>
+              {props.timestamp}
+            </RSText>
           </div>
-          <RSText type="subhead" color={colors.secondaryText} size={12}>
-            {props.timestamp}
-          </RSText>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <IconButton
+            style={{ height: 30 }}
+            onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
+          >
+            <FaEllipsisH color={colors.secondaryText} size={18} />
+          </IconButton>
+          <Menu
+            open={Boolean(menuAnchorEl)}
+            anchorEl={menuAnchorEl}
+            onClose={() => setMenuAnchorEl(null)}
+          >
+            <MenuItem onClick={handleDeleteClicked}>
+              <RSText color={colors.brightError}>Delete</RSText>
+            </MenuItem>
+          </Menu>
         </div>
       </div>
     );
