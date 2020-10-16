@@ -505,7 +505,6 @@ function UserPost(props: Props) {
           className={textFieldStyles.commentTextField}
           multiline
           error={commentErr !== ''}
-          helperText={commentErr}
         />
         <DynamicIconButton onClick={handleSendComment}>
           <MdSend size={22} color={colors.bright} />
