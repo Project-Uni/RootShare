@@ -4,6 +4,7 @@ import {
   retrieveSignedUrl,
   uploadFile,
   decodeBase64Image,
+  deleteFile,
 } from '../helpers/functions';
 import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
 import { generateSignedImagePromises } from './utilities';
@@ -975,9 +976,14 @@ export async function deletePost(postID: string, userID: string) {
 
     //4 - Delete images
     if (post.images && post.images.length > 0) {
-      //Create S3 function for deleting images
-      const imageDBPromise = Image.deleteMany({ _id: { $in: post.images } }).exec;
+      const imageIDs = post.images.map((image) => image._id);
+      const imageS3Promises = post.images.map((image) =>
+        deleteFile('postImage', image.fileName)
+      );
+      const imageDBPromise = Image.deleteMany({ _id: { $in: imageIDs } }).exec;
+
       promises.push(imageDBPromise);
+      promises.push(imageS3Promises);
     }
     //5 - Delete post
     const postPromise = Post.deleteOne({ _id: postID }).exec();
