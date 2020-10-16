@@ -210,6 +210,7 @@ function UserPost(props: Props) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<JSX.Element[]>([]);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
+  const [initialCommentsLoaded, setInitialCommentsLoaded] = useState(false);
 
   const [commentErr, setCommentErr] = useState('');
   const [likeDisabled, setLikeDisabled] = useState(false);
@@ -459,18 +460,23 @@ function UserPost(props: Props) {
           <a
             href={undefined}
             className={styles.commentCountLink}
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => {
+              if (props.commentCount === 0 && comments.length === 0) return;
+              setShowComments(!showComments);
+              if (!initialCommentsLoaded) {
+                handleRetrieveComments();
+                setInitialCommentsLoaded(true);
+              }
+            }}
           >
-            <a onClick={handleRetrieveComments}>
-              <RSText
-                type="body"
-                color={colors.secondaryText}
-                size={12}
-                className={styles.commentCount}
-              >
-                {commentCount} Comments
-              </RSText>
-            </a>
+            <RSText
+              type="body"
+              color={colors.secondaryText}
+              size={12}
+              className={styles.commentCount}
+            >
+              {commentCount} Comments
+            </RSText>
           </a>
         </div>
 
