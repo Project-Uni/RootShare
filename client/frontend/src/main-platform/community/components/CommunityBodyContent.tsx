@@ -87,7 +87,7 @@ function CommunityBodyContent(props: Props) {
     { label: 'Members', value: 'members' },
   ];
 
-  if (props.private) {
+  if (props.private && props.status === 'JOINED') {
     if (props.isAdmin) {
       tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
       tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
