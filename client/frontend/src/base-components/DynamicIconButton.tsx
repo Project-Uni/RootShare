@@ -12,6 +12,7 @@ type Props = {
   onClick: () => any;
   disabled?: boolean;
   liked?: boolean;
+  className?: string;
   children: JSX.Element;
 };
 
@@ -66,7 +67,12 @@ function DynamicIconButton(props: Props) {
   }
 
   return (
-    <IconButton onClick={handleClick} disabled={props.disabled} ref={buttonRef}>
+    <IconButton
+      onClick={handleClick}
+      disabled={props.disabled}
+      ref={buttonRef}
+      className={props.className}
+    >
       {props.children}
     </IconButton>
   );
