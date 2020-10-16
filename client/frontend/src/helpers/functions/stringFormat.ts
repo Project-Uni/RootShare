@@ -1,4 +1,5 @@
 export function capitalizeFirstLetter(word: string) {
+  if (!word) return '';
   return word.replace(/^./, word[0].toUpperCase());
 }
 
