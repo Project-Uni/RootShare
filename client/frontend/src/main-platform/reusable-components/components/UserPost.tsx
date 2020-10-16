@@ -258,6 +258,18 @@ function UserPost(props: Props) {
     setLikeDisabled(false);
   }
 
+  function handleShowComments() {
+    if (props.commentCount === 0) return;
+
+    if (comments.length > 0 && !initialCommentsLoaded) setShowComments(true);
+    else setShowComments(!showComments);
+
+    if (!initialCommentsLoaded) {
+      handleRetrieveComments();
+      setInitialCommentsLoaded(true);
+    }
+  }
+
   async function handleSendComment() {
     const cleanedComment = comment.trim();
     if (cleanedComment.length === 0) {
@@ -461,16 +473,7 @@ function UserPost(props: Props) {
           <a
             href={undefined}
             className={styles.commentCountLink}
-            onClick={() => {
-              if (props.commentCount === 0) return;
-              if (comments.length > 0 && !initialCommentsLoaded)
-                setShowComments(true);
-              else setShowComments(!showComments);
-              if (!initialCommentsLoaded) {
-                handleRetrieveComments();
-                setInitialCommentsLoaded(true);
-              }
-            }}
+            onClick={handleShowComments}
           >
             <RSText
               type="body"
