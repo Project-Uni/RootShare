@@ -932,7 +932,7 @@ export async function deletePost(postID: string, userID: string) {
     //2 - Pull post from user if broadcast
     if (post.type === 'broadcast') {
       if (!post.fromCommunity) {
-        const userPromise = User.udpateOne(
+        const userPromise = User.updateOne(
           { _id: userID },
           { $pull: { broadcastedPosts: postID } }
         ).exec();

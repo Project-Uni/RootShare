@@ -16,6 +16,7 @@ import qs from 'query-string';
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
+import { FaEllipsisH } from 'react-icons/fa';
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
@@ -27,10 +28,11 @@ import {
   formatDatePretty,
   formatTime,
   makeRequest,
+  slideLeft,
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
-import { FaEllipsisH } from 'react-icons/fa';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -151,6 +153,9 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: '100%',
     objectFit: 'contain',
   },
+  deleted: {
+    display: 'none',
+  },
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -222,6 +227,15 @@ function UserPost(props: Props) {
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [showDeletedMessage, setShowDeletedMessage] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -376,9 +390,16 @@ function UserPost(props: Props) {
         `/api/posts/delete/${props.postID}`
       );
       if (data.success === 1) {
-        //Remove the post from DOM
+        setIsDeleted(true);
+        setShowDeletedMessage(true);
+        setTimeout(() => setShowDeletedMessage(false), 5000);
+        setSnackbarMessage('Successfully deleted post');
+        setSnackbarMode('notify');
+        setTransition(() => slideLeft);
       } else {
-        //Snackbar that there was an error trying to remove the post
+        setSnackbarMessage('There was an error trying to delete this post');
+        setSnackbarMode('error');
+        setTransition(() => slideLeft);
       }
     }
   }
@@ -567,6 +588,18 @@ function UserPost(props: Props) {
     );
   }
 
+  function renderDeletedMessage() {
+    return showDeletedMessage ? (
+      <div>
+        <RSText color={colors.success} italic>
+          Successfully deleted post!
+        </RSText>
+      </div>
+    ) : (
+      <></>
+    );
+  }
+
   function generateComments(commentsList: CommentResponse[]) {
     const output = [];
     for (let i = 0; i < commentsList.length; i++) {
@@ -587,61 +620,80 @@ function UserPost(props: Props) {
   }
 
   return (
-    <Box borderRadius={10} boxShadow={2} className={props.style || null}>
-      {showLikesModal && (
-        <LikesModal
-          open={showLikesModal}
-          onClose={() => setShowLikesModal(false)}
-          postID={props.postID}
-        />
-      )}
-      <div className={styles.wrapper}>
-        {renderPostHeader()}
-        {props.images && props.images.length > 0 && (
-          <div className={styles.imagePreviewWrapper}>
-            <img
-              className={styles.previewImage}
-              src={props.images[0].fileName}
-              onClick={() => setIsViewerOpen(true)}
-            />
-          </div>
+    <>
+      <ManageSpeakersSnackbar
+        mode={snackbarMode}
+        message={snackbarMessage}
+        transition={transition}
+        handleClose={() => setSnackbarMode(null)}
+      />
+      {renderDeletedMessage()}
+      <Box
+        borderRadius={10}
+        boxShadow={2}
+        className={[props.style || null, isDeleted ? styles.deleted : null].join(
+          ' '
         )}
-        <div className={styles.rest}>
-          {renderMessage()}
-          {renderLikesAndCommentCount()}
-          {showComments && (
-            <div className={styles.commentsContainer}>
-              {comments.length < props.commentCount && (
-                <Button
-                  className={styles.seeMoreButton}
-                  onClick={handleMoreCommentsClick}
-                >
-                  Show Previous Comments
-                </Button>
-              )}
-              {loadingMoreComments && (
-                <div style={{ flex: 1 }}>
-                  <CircularProgress size={40} className={styles.loadingIndicator} />
-                </div>
-              )}
-              <div>{comments}</div>
+      >
+        {showLikesModal && (
+          <LikesModal
+            open={showLikesModal}
+            onClose={() => setShowLikesModal(false)}
+            postID={props.postID}
+          />
+        )}
+
+        <div className={styles.wrapper}>
+          {renderPostHeader()}
+          {props.images && props.images.length > 0 && (
+            <div className={styles.imagePreviewWrapper}>
+              <img
+                className={styles.previewImage}
+                src={props.images[0].fileName}
+                onClick={() => setIsViewerOpen(true)}
+              />
             </div>
           )}
-          {renderLeaveCommentArea()}
+          <div className={styles.rest}>
+            {renderMessage()}
+            {renderLikesAndCommentCount()}
+            {showComments && (
+              <div className={styles.commentsContainer}>
+                {comments.length < props.commentCount && (
+                  <Button
+                    className={styles.seeMoreButton}
+                    onClick={handleMoreCommentsClick}
+                  >
+                    Show Previous Comments
+                  </Button>
+                )}
+                {loadingMoreComments && (
+                  <div style={{ flex: 1 }}>
+                    <CircularProgress
+                      size={40}
+                      className={styles.loadingIndicator}
+                    />
+                  </div>
+                )}
+                <div>{comments}</div>
+              </div>
+            )}
+            {renderLeaveCommentArea()}
+          </div>
         </div>
-      </div>
-      <ModalGateway>
-        {isViewerOpen && (
-          <Modal onClose={() => setIsViewerOpen(false)}>
-            <Carousel
-              views={
-                props.images?.map((image) => ({ source: image.fileName })) || []
-              }
-            />
-          </Modal>
-        )}
-      </ModalGateway>
-    </Box>
+        <ModalGateway>
+          {isViewerOpen && (
+            <Modal onClose={() => setIsViewerOpen(false)}>
+              <Carousel
+                views={
+                  props.images?.map((image) => ({ source: image.fileName })) || []
+                }
+              />
+            </Modal>
+          )}
+        </ModalGateway>
+      </Box>
+    </>
   );
 }
 
