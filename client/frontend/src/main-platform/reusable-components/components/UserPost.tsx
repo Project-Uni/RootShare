@@ -453,9 +453,9 @@ function UserPost(props: Props) {
             disabled={likeDisabled}
           >
             {liked ? (
-              <BsStarFill color={colors.bright} size={20} />
+              <BsStarFill color={colors.bright} size={24} />
             ) : (
-              <BsStar color={colors.bright} size={20} />
+              <BsStar color={colors.bright} size={24} />
             )}
           </DynamicIconButton>
 
