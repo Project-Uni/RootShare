@@ -19,7 +19,7 @@ import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
 import { Comment } from '../';
-import { RSText, ProfilePicture, DynamicLike } from '../../../base-components';
+import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
 import {
   formatDatePretty,
@@ -432,11 +432,21 @@ function UserPost(props: Props) {
             justifyContent: 'flex-start',
           }}
         >
-          <DynamicLike
+          {/* <DynamicLike
             onClick={liked ? unlikePost : likePost}
             disabled={likeDisabled}
             liked={liked}
-          />
+          /> */}
+          <DynamicIconButton
+            onClick={liked ? unlikePost : likePost}
+            disabled={likeDisabled}
+          >
+            {liked ? (
+              <BsStarFill color={colors.bright} size={20} />
+            ) : (
+              <BsStar color={colors.bright} size={20} />
+            )}
+          </DynamicIconButton>
 
           <RSText
             type="body"

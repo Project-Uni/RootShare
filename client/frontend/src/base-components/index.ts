@@ -1,5 +1,5 @@
 import ProfilePicture from './ProfilePicture';
 import RSText from './RSText';
-import DynamicLike from './DynamicLike';
+import DynamicIconButton from './DynamicIconButton';
 
-export { ProfilePicture, RSText, DynamicLike };
+export { ProfilePicture, RSText, DynamicIconButton };

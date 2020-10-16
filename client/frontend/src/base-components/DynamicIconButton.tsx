@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { IconButton } from '@material-ui/core';
-import { BsStar, BsStarFill } from 'react-icons/bs';
 import { colors } from '../theme/Colors';
 
 import * as mojs from '@mojs/core';
@@ -13,9 +12,10 @@ type Props = {
   onClick: () => any;
   disabled?: boolean;
   liked?: boolean;
+  children: JSX.Element;
 };
 
-function DynamicLike(props: Props) {
+function DynamicIconButton(props: Props) {
   const styles = useStyles();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -67,13 +67,9 @@ function DynamicLike(props: Props) {
 
   return (
     <IconButton onClick={handleClick} disabled={props.disabled} ref={buttonRef}>
-      {props.liked ? (
-        <BsStarFill color={colors.bright} size={20} />
-      ) : (
-        <BsStar color={colors.bright} size={20} />
-      )}
+      {props.children}
     </IconButton>
   );
 }
 
-export default DynamicLike;
+export default DynamicIconButton;
