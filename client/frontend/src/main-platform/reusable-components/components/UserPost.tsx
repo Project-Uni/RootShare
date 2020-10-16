@@ -434,11 +434,6 @@ function UserPost(props: Props) {
             justifyContent: 'flex-start',
           }}
         >
-          {/* <DynamicLike
-            onClick={liked ? unlikePost : likePost}
-            disabled={likeDisabled}
-            liked={liked}
-          /> */}
           <DynamicIconButton
             onClick={liked ? unlikePost : likePost}
             disabled={likeDisabled}
