@@ -1193,16 +1193,23 @@ async function getExternalPostsNonMember_Helper(
   user: { [key: string]: any; joinedCommunities }
 ) {
   try {
-    //retrieve community and check if any of the user's communities are in its following list
-    const community = await Community.findOne({
-      _id: communityID,
-      $elemMatch: { followedByCommunities: { $in: user.joinedCommunities } },
-    })
-      .select('externalPosts')
+    const community = await Community.findById(communityID)
+      .select('followedByCommunities private externalPosts')
+      .populate({ path: 'followedByCommunities', select: 'from' })
       .exec();
+
     if (!community) return sendPacket(0, 'Community does not exist');
 
-    // Retrieve all posts from external feed
+    if (community.private) {
+      const followedByCommunities = community.followedByCommunities.map(
+        (community) => community.from.toString()
+      );
+      const communityIntersections = user.joinedCommunities.filter((community) =>
+        followedByCommunities.includes(community.toString())
+      );
+      if (communityIntersections.length === 0)
+        return sendPacket(0, 'User does not have access to this feed');
+    }
 
     const condition = { _id: { $in: community.externalPosts } };
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, user._id);

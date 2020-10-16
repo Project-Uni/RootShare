@@ -54,6 +54,7 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  private?: boolean;
 };
 
 type CommunityTab =
@@ -86,11 +87,13 @@ function CommunityBodyContent(props: Props) {
     { label: 'Members', value: 'members' },
   ];
 
-  if (props.isAdmin) {
-    tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
-    tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
-  } else {
-    tabs.splice(1, 0, { label: 'Internal', value: 'internal' });
+  if (props.private) {
+    if (props.isAdmin) {
+      tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
+      tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
+    } else {
+      tabs.splice(1, 0, { label: 'Internal', value: 'internal' });
+    }
   }
 
   useEffect(() => {
