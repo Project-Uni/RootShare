@@ -374,7 +374,11 @@ function UserPost(props: Props) {
         'DELETE',
         `/api/posts/delete/${props.postID}`
       );
-      console.log('Data:', data);
+      if (data.success === 1) {
+        //Remove the post from DOM
+      } else {
+        //Snackbar that there was an error trying to remove the post
+      }
     }
   }
 
@@ -443,7 +447,7 @@ function UserPost(props: Props) {
             style={{ height: 30 }}
             onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
           >
-            <FaEllipsisH color={colors.secondaryText} size={18} />
+            <FaEllipsisH color={colors.secondaryText} size={16} />
           </IconButton>
           <Menu
             open={Boolean(menuAnchorEl)}
