@@ -168,6 +168,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 type Props = {
   postID: string;
   posterID: string;
+  isOwnPost?: boolean;
   name: string;
   type?: string;
   toCommunity?: string;
@@ -442,23 +443,25 @@ function UserPost(props: Props) {
             </RSText>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <IconButton
-            style={{ height: 30 }}
-            onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
-          >
-            <FaEllipsisH color={colors.secondaryText} size={16} />
-          </IconButton>
-          <Menu
-            open={Boolean(menuAnchorEl)}
-            anchorEl={menuAnchorEl}
-            onClose={() => setMenuAnchorEl(null)}
-          >
-            <MenuItem onClick={handleDeleteClicked}>
-              <RSText color={colors.brightError}>Delete</RSText>
-            </MenuItem>
-          </Menu>
-        </div>
+        {props.isOwnPost ? (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <IconButton
+              style={{ height: 30 }}
+              onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
+            >
+              <FaEllipsisH color={colors.secondaryText} size={16} />
+            </IconButton>
+            <Menu
+              open={Boolean(menuAnchorEl)}
+              anchorEl={menuAnchorEl}
+              onClose={() => setMenuAnchorEl(null)}
+            >
+              <MenuItem onClick={handleDeleteClicked}>
+                <RSText color={colors.brightError}>Delete</RSText>
+              </MenuItem>
+            </Menu>
+          </div>
+        ) : null}
       </div>
     );
   }
