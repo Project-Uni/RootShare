@@ -425,22 +425,18 @@ function UserPost(props: Props) {
   function renderLikesAndCommentCount() {
     return (
       <div className={styles.likesAndCommentsContainer}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+          }}
+        >
           <DynamicLike
             onClick={liked ? unlikePost : likePost}
             disabled={likeDisabled}
             liked={liked}
           />
-          {/* <IconButton
-            onClick={liked ? unlikePost : likePost}
-            disabled={likeDisabled}
-          >
-            {liked ? (
-              <BsStarFill size={20} color={colors.bright} />
-            ) : (
-              <BsStar size={20} color={colors.secondaryText} />
-            )}
-          </IconButton> */}
 
           <RSText
             type="body"
