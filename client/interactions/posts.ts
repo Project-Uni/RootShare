@@ -908,6 +908,32 @@ export async function getLikes(postID: string, userID: string) {
   }
 }
 
+//REMOVERS
+
+export async function deletePost(postID: string, userID: string) {
+  try {
+    const postExists = await Post.exists({ _id: postID, user: userID });
+    if (!postExists)
+      return sendPacket(0, 'Post does not exist or user did not create post');
+
+    const post = await Post.findById(postID)
+      .select(['comments', 'toCommunity', 'fromCommunity', 'type', 'images'])
+      .populate({ path: 'images', select: 'fileName' })
+      .exec();
+
+    console.log('Retrieved post:', post);
+    //Actions:
+    //1 - Delete Comments
+    //2 - Pull post from user if broadcast
+    //3 - Pull post from community based on relations
+    //4 - Delete images
+    //5 - Delete post
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
 //HELPERS
 async function getValidatedCommunity(
   communityID: string,

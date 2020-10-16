@@ -359,6 +359,20 @@ function UserPost(props: Props) {
     setLoadingMoreComments(false);
   }
 
+  async function handleDeleteClicked() {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this post? This action cannot be undone.'
+      )
+    ) {
+      const { data } = await makeRequest(
+        'DELETE',
+        `/api/posts/delete/${props.postID}`
+      );
+      console.log('Data:', data);
+    }
+  }
+
   function renderPostHeader() {
     return (
       <div className={styles.top}>
