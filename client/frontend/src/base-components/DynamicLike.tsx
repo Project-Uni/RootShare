@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { IconButton } from '@material-ui/core';
@@ -21,7 +21,9 @@ function DynamicLike(props: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const timeline = new mojs.Timeline();
 
-  addEffects();
+  useEffect(() => {
+    addEffects();
+  });
 
   function addEffects() {
     //Circle Burst Animation
@@ -44,7 +46,6 @@ function DynamicLike(props: Props) {
 
     // ring animation
     const tween2 = new mojs.Transit({
-      // parent: iconRef.current,
       parent: buttonRef.current,
       duration: 750,
       type: 'circle',
@@ -65,10 +66,6 @@ function DynamicLike(props: Props) {
   }
 
   return (
-    // <span
-    //   ref={iconRef}
-    //   style={{ margin: 0, padding: 0, zIndex: 999, border: '1px solid red' }}
-    // >
     <IconButton onClick={handleClick} disabled={props.disabled} ref={buttonRef}>
       {props.liked ? (
         <BsStarFill color={colors.bright} size={20} />
@@ -76,7 +73,6 @@ function DynamicLike(props: Props) {
         <BsStar color={colors.bright} size={20} />
       )}
     </IconButton>
-    // </span>
   );
 }
 
