@@ -416,7 +416,12 @@ export async function createExternalPostAsMember(
     const communityExists = await Community.exists({
       $and: [
         { _id: communityID },
-        { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } },
+        {
+          $or: [
+            { private: { $eq: false } },
+            { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } },
+          ],
+        },
       ],
     });
     if (!communityExists)

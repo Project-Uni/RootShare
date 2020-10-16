@@ -239,7 +239,7 @@ function CommunityBodyContent(props: Props) {
         });
       }
 
-      if (props.status === 'JOINED')
+      if (props.status === 'JOINED' || !props.private)
         newPostingOptions.unshift({
           description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',
