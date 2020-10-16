@@ -11,7 +11,6 @@ const useStyles = makeStyles((_: any) => ({}));
 type Props = {
   onClick: () => any;
   disabled?: boolean;
-  liked?: boolean;
   className?: string;
   children: JSX.Element;
 };
