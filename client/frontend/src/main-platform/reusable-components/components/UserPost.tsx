@@ -298,6 +298,7 @@ function UserPost(props: Props) {
   }
 
   async function handleRetrieveComments() {
+    setLoadingMoreComments(true);
     const { data } = await makeRequest(
       'GET',
       `/api/posts/comments/${props.postID}`,
@@ -316,6 +317,7 @@ function UserPost(props: Props) {
         );
       setComments(generateComments(data.content['comments'].reverse()));
     }
+    setLoadingMoreComments(false);
   }
 
   async function handleMoreCommentsClick() {
