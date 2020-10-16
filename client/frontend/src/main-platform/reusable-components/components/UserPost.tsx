@@ -507,9 +507,9 @@ function UserPost(props: Props) {
           error={commentErr !== ''}
           helperText={commentErr}
         />
-        <IconButton onClick={handleSendComment}>
+        <DynamicIconButton onClick={handleSendComment}>
           <MdSend size={22} color={colors.bright} />
-        </IconButton>
+        </DynamicIconButton>
       </div>
     );
   }
