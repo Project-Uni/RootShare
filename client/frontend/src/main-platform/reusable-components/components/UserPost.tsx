@@ -295,6 +295,7 @@ function UserPost(props: Props) {
         );
         return prevComments.concat(newComment);
       });
+      if (!showComments) setShowComments(true);
     }
   }
 
@@ -461,8 +462,10 @@ function UserPost(props: Props) {
             href={undefined}
             className={styles.commentCountLink}
             onClick={() => {
-              if (props.commentCount === 0 && comments.length === 0) return;
-              setShowComments(!showComments);
+              if (props.commentCount === 0) return;
+              if (comments.length > 0 && !initialCommentsLoaded)
+                setShowComments(true);
+              else setShowComments(!showComments);
               if (!initialCommentsLoaded) {
                 handleRetrieveComments();
                 setInitialCommentsLoaded(true);
