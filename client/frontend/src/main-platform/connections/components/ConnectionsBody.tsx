@@ -145,7 +145,7 @@ function ConnectionsBody(props: Props) {
       output.push(
         <UserHighlight
           name={`${currPending.firstName} ${currPending.lastName}`}
-          userID={currPending._id === props.user._id ? 'user' : currPending._id}
+          userID={currPending._id}
           profilePic={currPending.profilePicture}
           university={(currPending.university as UniversityType).universityName}
           graduationYear={currPending.graduationYear}
@@ -171,9 +171,7 @@ function ConnectionsBody(props: Props) {
       output.push(
         <UserHighlight
           name={`${currConnection.firstName} ${currConnection.lastName}`}
-          userID={
-            currConnection._id === props.user._id ? 'user' : currConnection._id
-          }
+          userID={currConnection._id}
           profilePic={currConnection.profilePicture}
           university={(currConnection.university as UniversityType).universityName}
           graduationYear={currConnection.graduationYear}
