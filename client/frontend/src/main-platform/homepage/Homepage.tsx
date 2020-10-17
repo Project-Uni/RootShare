@@ -10,7 +10,8 @@ import { makeRequest, checkDesktop } from '../../helpers/functions';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
-import BetaModal from './components/BetaModal';
+
+// import BetaModal from './components/BetaModal';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -45,7 +46,7 @@ function Homepage(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
-  const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
+  // const [showBetaModal, setShowBetaModal] = useState(checkDesktop());
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -88,12 +89,12 @@ function Homepage(props: Props) {
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
       <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
       {/* TODO IMPORTANT- Figure out why Material UI Dialog can't be closed on mobile devices  */}
-      <BetaModal
+      {/* <BetaModal
         open={showBetaModal}
         onAck={() => {
           setShowBetaModal(false);
         }}
-      />
+      /> */}
       <div className={styles.body} style={{ height: height }}>
         {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
         <HomepageBody />
