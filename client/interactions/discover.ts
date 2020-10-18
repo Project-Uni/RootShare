@@ -148,11 +148,14 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
-        return addCommunityAndUserImages(
-          communities,
-          users,
-          `Pre-populated discovery page for user ${userID}`
-        );
+        const imageInfo = await addCommunityAndUserImages(communities, users);
+        if (!imageInfo)
+          return sendPacket(-1, `Couldn't add images to communities and users`);
+
+        return sendPacket(1, `Pre-populated discovery page for user ${userID}`, {
+          communities: imageInfo['communities'],
+          users: imageInfo['users'],
+        });
       })
       .catch((err) => {
         log('error', err);
@@ -310,10 +313,17 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           communities[i] = cleanedCommunity;
         }
 
-        return addCommunityAndUserImages(
-          communities,
-          users,
-          `Successfully retrieved all matching users and communities for query: ${query}`
+        const imageInfo = await addCommunityAndUserImages(communities, users);
+        if (!imageInfo)
+          return sendPacket(-1, `Couldn't add images to communities and users`);
+
+        return sendPacket(
+          1,
+          `Successfully retrieved all matching users and communities for query: ${query}`,
+          {
+            communities: imageInfo['communities'],
+            users: imageInfo['users'],
+          }
         );
       })
       .catch((err) => {
@@ -326,7 +336,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
   }
 }
 
-function addCommunityAndUserImages(communities, users, message) {
+function addCommunityAndUserImages(communities, users) {
   const communityImagePromises = generateSignedImagePromises(
     communities,
     'communityProfile'
@@ -342,12 +352,10 @@ function addCommunityAndUserImages(communities, users, message) {
       for (i; i < communities.length + users.length; i++)
         if (images[i]) users[i - communities.length].profilePicture = images[i];
 
-      log('info', message);
-
-      return sendPacket(1, message, { users, communities });
+      return { communities, users };
     })
     .catch((err) => {
       log('error', err);
-      return sendPacket(-1, err);
+      return false;
     });
 }
