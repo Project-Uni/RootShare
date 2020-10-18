@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
 import { useLocation, Redirect } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
@@ -55,6 +56,8 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
+
+  location: any;
 };
 
 // TODO - Set up login, signup and reset password to work with chrome’s credential standards
@@ -67,20 +70,19 @@ function Login(props: Props) {
   const [redirectHome, setRedirectHome] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
-  const [query, setQuery] = useQuery();
-  // const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
-  const redirectUrl =
-    query && query[1] !== '/login'
-      ? query[1]
-      : checkDesktop()
-      ? '/home'
-      : '/event/5f7b8a62be8ddb321a9357b2';
+  const values = queryString.parse(props.location.search);
+  const redirectUrl = (values.redirect as string) || '/home';
+  const accessToken = values.accessToken as string;
+  const refreshToken = values.refreshToken as string;
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   async function checkAuth() {
+    if (accessToken) props.updateAccessToken(accessToken);
+    if (refreshToken) props.updateRefreshToken(refreshToken);
+
     const { data } = await makeRequest(
       'GET',
       '/user/getCurrent',
@@ -91,7 +93,14 @@ function Login(props: Props) {
     );
     if (data['success'] === 1) {
       props.updateUser({ ...data['content'] });
+      if (accessToken) props.updateAccessToken(accessToken);
+      if (refreshToken) props.updateRefreshToken(refreshToken);
       setRedirectHome(true);
+    } else {
+      props.updateUser({});
+      props.updateAccessToken('');
+      props.updateRefreshToken('');
+      // TODO: show login error message
     }
   }
 
@@ -183,7 +192,11 @@ function Login(props: Props) {
             <GoogleButton messageType={'login'} width={300} />
           </div>
           <div className={styles.externalWrapper}>
-            <LinkedInButton messageType={'login'} width={300} />
+            <LinkedInButton
+              messageType={'login'}
+              width={300}
+              redirect={redirectUrl}
+            />
           </div>
           <Link
             href={undefined}

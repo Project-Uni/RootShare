@@ -44,18 +44,21 @@ const useStyles = makeStyles((theme) => ({
 type Props = {
   messageType: 'login' | 'signup';
   width?: number;
+  redirect?: string;
 };
 
 export default function LinkedInButton(props: Props) {
   const styles = useStyles();
 
+  let queryString = '/auth/login/linkedin';
+  if (props.redirect) queryString = `${queryString}?redirect=${props.redirect}`;
   return (
     <Paper
       className={styles.linkedinPaper}
       elevation={3}
       style={{ width: props.width || 250 }}
     >
-      <a href="/auth/login/linkedin" className={styles.linkedinLink}>
+      <a href={queryString} className={styles.linkedinLink}>
         <img src={linkedInLogo} alt="Google logo" className={styles.logoStyle} />
 
         <p className={styles.linkedinText}>

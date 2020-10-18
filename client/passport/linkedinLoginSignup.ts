@@ -21,7 +21,6 @@ module.exports = (passport) => {
             ? '/auth/callback/linkedin'
             : 'https://rootshare.io/auth/callback/linkedin',
         scope: ['r_emailaddress', 'r_liteprofile'],
-        state: true,
       },
       async function (accessToken, refreshToken, profile, done) {
         let email = profile.emails[0].value.toLowerCase();
