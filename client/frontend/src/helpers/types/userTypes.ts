@@ -51,3 +51,26 @@ export type ProfileState =
   | 'PENDING';
 
 //NOTE - Pending added for general display when figuring out from / to not needed
+
+export type LeanUser = {
+  firstName: string;
+  lastName: string;
+  state: ProfileState;
+  profilePicture?: string;
+  _id: string;
+}
+
+export type SearchUserType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  university: UniversityType;
+  work?: string;
+  position?: string;
+  graduationYear?: number;
+  profilePicture?: string;
+  accountType?: string;
+  numMutualCommunities: number;
+  numMutualConnections: number;
+  status: ProfileState;
+};

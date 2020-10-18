@@ -7,7 +7,7 @@ import { CircularProgress, Box } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { WelcomeMessage, UserPost } from '../../reusable-components';
+import { UserPost } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -278,6 +278,7 @@ function ProfileBody(props: Props) {
     for (let i = 0; i < posts.length; i++) {
       output.push(
         <UserPost
+          postID={posts[i]._id}
           posterID={props.profileID}
           name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
           profilePicture={
@@ -289,8 +290,10 @@ function ProfileBody(props: Props) {
           })()}
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.post}
+          liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }
@@ -305,14 +308,6 @@ function ProfileBody(props: Props) {
 
     return (
       <div className={styles.profileWrapper} style={{ height: height }}>
-        {/* {showWelcomeModal && (
-          <WelcomeMessage
-            title="Profile"
-            message="See detailed information about each user, what organizations they have joined, and what virtual events they will attend."
-            onClose={closeWelcomeMessage}
-          />
-        )} */}
-
         <div className={styles.body}>
           <Box
             boxShadow={2}
@@ -331,6 +326,7 @@ function ProfileBody(props: Props) {
               numConnections={profile.numConnections!}
               numMutualConnections={profile.numMutualConnections!}
               numCommunities={profile.numCommunities!}
+              numMutualCommunities={profile.numMutualCommunities}
               currentProfileState={props.currentProfileState}
               accessToken={props.accessToken}
               refreshToken={props.refreshToken}

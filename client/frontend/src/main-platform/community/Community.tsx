@@ -7,8 +7,10 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
-import { MainNavigator, DiscoverySidebar } from '../reusable-components';
+import { MainNavigator } from '../reusable-components';
 import CommunityBody from './components/CommunityBody';
+
+import FollowSidebar from './components/Sidebar/FollowSidebar';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
@@ -79,14 +81,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getCurrent');
     if (data['success'] !== 1) {
       props.updateUser({});
       props.updateAccessToken('');
@@ -98,14 +93,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function fetchCommunityInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/community/${orgID}/info`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/community/${orgID}/info`);
     if (data.success === 1) {
       setCommunityInfo(data.content['community']);
       initializeCommunityStatus(data.content['community']);
@@ -173,7 +161,9 @@ function CommunityDetails(props: Props) {
             userID={props.user._id}
           />
         )}
-        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (
+          <FollowSidebar communityID={orgID} />
+        )}
       </div>
     </div>
   );

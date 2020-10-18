@@ -1,13 +1,45 @@
-import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { Community, CommunityEdge, Post, User } from '../models';
+import {
+  log,
+  sendPacket,
+  retrieveSignedUrl,
+  uploadFile,
+  decodeBase64Image,
+} from '../helpers/functions';
+import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
+import { generateSignedImagePromises } from './utilities';
+
 const mongoose = require('mongoose');
 
-const NUM_POSTS_RETRIEVED = 20;
+const NUM_POSTS_RETRIEVED = 40;
 
-export async function createBroadcastUserPost(message: string, userID: string) {
+export async function createBroadcastUserPost(
+  message: string,
+  userID: string,
+  image?: string
+) {
   try {
-    const post = await new Post({ message, user: userID, type: 'broadcast' }).save();
+    let post = await new Post({ message, user: userID, type: 'broadcast' }).save();
     await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
+
+    if (image) {
+      const result = await uploadPostImage(image, post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: post._id }, { $push: { images: imageID } });
+      try {
+        const imageURL = await retrieveSignedUrl('postImage', fileName);
+        post = post.toObject();
+        post.images = [{ fileName: imageURL }];
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     log('info', `Successfully created for user ${userID}`);
     return sendPacket(1, 'Successfully created post', { newPost: post });
@@ -21,7 +53,8 @@ export async function createInternalCurrentMemberCommunityPost(
   communityID: string,
   userID: string,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
-  message: string
+  message: string,
+  image?: string
 ) {
   //Checking that user is a part of the community
   const community = await getValidatedCommunity(communityID, userID, [
@@ -57,9 +90,35 @@ export async function createInternalCurrentMemberCommunityPost(
       university: community.university,
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -81,7 +140,8 @@ export async function createInternalAlumniPost(
   communityID: string,
   userID: string,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
-  message: string
+  message: string,
+  image?: string
 ) {
   //Checking if user is a part of this community
   const community = await getValidatedCommunity(communityID, userID, [
@@ -116,9 +176,36 @@ export async function createInternalAlumniPost(
       type: 'internalAlumni',
       university: community.university,
     }).save();
+
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -142,7 +229,8 @@ export async function createExternalPostAsFollowingCommunityAdmin(
   userID: string,
   fromCommunityID: string,
   toCommunityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const isCommunityAdminPromise = Community.exists({
@@ -185,9 +273,41 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           anonymous: true,
         }).save();
 
+        if (image) {
+          const result = await uploadPostImage(image, raw_post._id, userID);
+          if (result === -1) {
+            log(
+              'info',
+              `Successfully created for user ${userID}, but failed to upload image`
+            );
+            return sendPacket(
+              1,
+              'Successfully created post, but the image was invalid'
+            );
+          }
+          const [imageID, fileName] = result;
+          await Post.updateOne(
+            { _id: raw_post._id },
+            { $push: { images: imageID } }
+          );
+        }
+
         const post = await Post.findById(raw_post._id)
           .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+          .populate({ path: 'images', select: 'fileName' })
           .exec();
+
+        if (post.images && post.images.length > 0) {
+          try {
+            const imageURL = await retrieveSignedUrl(
+              'postImage',
+              post.images[0].fileName
+            );
+            post.images[0].fileName = imageURL;
+          } catch (err) {
+            log('error', err);
+          }
+        }
 
         const fromCommunityUpdate = Community.updateOne(
           { _id: fromCommunityID },
@@ -227,7 +347,8 @@ export async function createExternalPostAsFollowingCommunityAdmin(
 export async function createExternalPostAsCommunityAdmin(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const raw_post = await new Post({
@@ -239,9 +360,35 @@ export async function createExternalPostAsCommunityAdmin(
       type: 'external',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -262,7 +409,8 @@ export async function createExternalPostAsCommunityAdmin(
 export async function createExternalPostAsMember(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const communityExists = await Community.exists({
@@ -284,9 +432,35 @@ export async function createExternalPostAsMember(
       type: 'external',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -307,7 +481,8 @@ export async function createExternalPostAsMember(
 export async function createBroadcastCommunityPost(
   userID: string,
   communityID: string,
-  message: string
+  message: string,
+  image?: string
 ) {
   try {
     const raw_post = await new Post({
@@ -318,9 +493,35 @@ export async function createBroadcastCommunityPost(
       type: 'broadcast',
     }).save();
 
+    if (image) {
+      const result = await uploadPostImage(image, raw_post._id, userID);
+      if (result === -1) {
+        log(
+          'info',
+          `Successfully created for user ${userID}, but failed to upload image`
+        );
+        return sendPacket(1, 'Successfully created post, but the image was invalid');
+      }
+      const [imageID, fileName] = result;
+      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+    }
+
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
       .exec();
+
+    if (post.images && post.images.length > 0) {
+      try {
+        const imageURL = await retrieveSignedUrl(
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL;
+      } catch (err) {
+        log('error', err);
+      }
+    }
 
     await Community.updateOne(
       { _id: communityID },
@@ -337,14 +538,14 @@ export async function createBroadcastCommunityPost(
 
 // GETTERS
 
-export async function getGeneralFeed(universityID: string) {
+export async function getGeneralFeed(universityID: string, userID: string = '') {
   try {
     const condition = {
       university: universityID,
       toCommunity: null,
       type: { $eq: 'broadcast' },
     };
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -390,7 +591,7 @@ export async function getFollowingFeed(userID: string) {
       followingCommunities
     );
 
-    const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(conditions, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -400,17 +601,60 @@ export async function getFollowingFeed(userID: string) {
   }
 }
 
-export async function getPostsByUser(userID: string) {
+export async function getPostsByUser(userID: string, currUserID: string) {
   try {
     const user = await User.findById(userID).select(['broadcastedPosts']).exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
     const condition = { _id: { $in: user.broadcastedPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, currUserID);
 
     log('info', `Successfully retrieved all posts by user ${userID}`);
     return sendPacket(1, 'Successfully retrieved all posts by user', { posts });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function leaveCommentOnPost(
+  userID: string,
+  postID: string,
+  message: string
+) {
+  const cleanedMessage = message.trim();
+  if (cleanedMessage.length === 0) {
+    return sendPacket(0, 'Message is empty');
+  }
+  try {
+    const userExistsPromise = await User.exists({ _id: userID });
+    const postExistsPromise = await Post.exists({ _id: postID });
+
+    return Promise.all([userExistsPromise, postExistsPromise])
+      .then(async ([userExists, postExists]) => {
+        if (!userExists) return sendPacket(0, 'Invalid userID provided');
+        if (!postExists) return sendPacket(0, 'Invalid PostID provided');
+
+        const comment = await new Comment({
+          user: userID,
+          message: cleanedMessage,
+          post: postID,
+        }).save();
+
+        await Post.updateOne(
+          { _id: postID },
+          { $push: { comments: comment._id } }
+        ).exec();
+
+        return sendPacket(1, `Successfully posted comment on post ${postID}`, {
+          comment,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(-1, err);
+      });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -450,7 +694,7 @@ export async function getInternalCurrentMemberPosts(
   try {
     const condition = { _id: { $in: community.internalCurrentMemberPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -491,7 +735,7 @@ export async function getInternalAlumniPosts(
   try {
     const condition = { _id: { $in: community.internalAlumniPosts } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -508,7 +752,7 @@ export async function getExternalPosts(communityID: string, userID: string) {
 
     // user is a member of the community itself
     if (user.joinedCommunities.indexOf(communityID) !== -1)
-      return getExternalPostsMember_Helper(communityID);
+      return getExternalPostsMember_Helper(communityID, userID);
 
     // user is a member of one of the communities that is following this community
     return getExternalPostsNonMember_Helper(communityID, user);
@@ -518,7 +762,10 @@ export async function getExternalPosts(communityID: string, userID: string) {
   }
 }
 
-export async function getFollowingCommunityPosts(communityID: string) {
+export async function getFollowingCommunityPosts(
+  communityID: string,
+  userID: string
+) {
   try {
     const community = await Community.findById(communityID)
       .select(['followingCommunities'])
@@ -539,7 +786,7 @@ export async function getFollowingCommunityPosts(communityID: string) {
 
     const condition = { _id: { $in: postIDs } };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -549,8 +796,119 @@ export async function getFollowingCommunityPosts(communityID: string) {
   }
 }
 
-//HELPERS
+//Actions
+export async function likePost(postID: string, userID: string) {
+  try {
+    const postExistsPromise = Post.exists({ _id: postID });
+    const userExistsPromise = User.exists({ _id: userID });
 
+    return Promise.all([postExistsPromise, userExistsPromise]).then(
+      ([postExists, userExists]) => {
+        if (!postExists) return sendPacket(0, 'Post does not exist');
+        if (!userExists) return sendPacket(0, 'User does not exist');
+
+        const postUpdate = Post.updateOne(
+          { _id: postID },
+          { $addToSet: { likes: userID } }
+        ).exec();
+        const userUpdate = User.updateOne(
+          { _id: userID },
+          { $addToSet: { likes: postID } }
+        ).exec();
+
+        return Promise.all([postUpdate, userUpdate])
+          .then(() => {
+            log('info', `User ${userID} successfully liked post ${postID}`);
+            return sendPacket(1, 'Successfully liked post');
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(-1, 'There was an error updating the models');
+          });
+      }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function unlikePost(postID: string, userID: string) {
+  try {
+    const postExistsPromise = Post.exists({ _id: postID });
+    const userExistsPromise = User.exists({ _id: userID });
+
+    return Promise.all([postExistsPromise, userExistsPromise]).then(
+      ([postExists, userExists]) => {
+        if (!postExists) return sendPacket(0, 'Post does not exist');
+        if (!userExists) return sendPacket(0, 'User does not exist');
+
+        const postUpdate = Post.updateOne(
+          { _id: postID },
+          { $pull: { likes: userID } }
+        ).exec();
+        const userUpdate = User.updateOne(
+          { _id: userID },
+          { $pull: { likes: postID } }
+        ).exec();
+
+        return Promise.all([postUpdate, userUpdate])
+          .then(() => {
+            log(
+              'info',
+              `User ${userID} successfully removed like from post ${postID}`
+            );
+            return sendPacket(1, 'Successfully removed like from post');
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(-1, 'There was an error updating the models');
+          });
+      }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getLikes(postID: string, userID: string) {
+  try {
+    const post = await Post.findById(postID)
+      .select('likes')
+      .populate({ path: 'likes', select: 'firstName lastName profilePicture' })
+      .exec();
+
+    if (!post) return sendPacket(0, 'Could not find post');
+
+    const { likes } = post;
+    const signedImagePromises = generateSignedImagePromises(likes, 'profile');
+
+    return Promise.all(signedImagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < signedImageURLs.length; i++)
+          if (signedImageURLs[i]) likes[i].profilePicture = signedImageURLs[i];
+
+        return sendPacket(1, 'Successfully retrieved likes', { likes });
+      })
+      .catch((err) => {
+        log(
+          'info',
+          'Successfully retrieved likes but failed to retrieve profile pictures'
+        );
+        return sendPacket(
+          1,
+          'Successfully retrieved likes but failed to retrieve profile pictures',
+          { likes }
+        );
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+//HELPERS
 async function getValidatedCommunity(
   communityID: string,
   userID: string,
@@ -572,13 +930,19 @@ async function getValidatedCommunity(
   }
 }
 
-function generatePostSignedImagePromises(posts: {
-  [key: string]: any;
-  user: { [key: string]: any; profilePicture?: string };
-}) {
+function generatePostSignedImagePromises(
+  posts: {
+    [key: string]: any;
+    _id: string;
+    user: { [key: string]: any; profilePicture?: string };
+    images: [{ fileName: string }];
+  },
+  hasImages = false
+) {
   const profilePicturePromises = [];
 
   for (let i = 0; i < posts.length; i++) {
+    //Adding profile picture
     const pictureType = posts[i].anonymous ? 'communityProfile' : 'profile';
     const picturePath =
       pictureType === 'profile'
@@ -596,13 +960,99 @@ function generatePostSignedImagePromises(posts: {
     } else {
       profilePicturePromises.push(null);
     }
+
+    //Adding post image picture
+    if (hasImages) {
+      for (let j = 0; j < posts[i].images.length; j++) {
+        const image = posts[i].images[j];
+        const signedImagePromise = retrieveSignedUrl('postImage', image.fileName);
+        profilePicturePromises.push(signedImagePromise);
+      }
+    }
   }
   return profilePicturePromises;
+}
+
+export async function retrieveComments(
+  postID: string,
+  startingTimestamp: Date = new Date()
+) {
+  try {
+    const post = await Post.findOne({ _id: postID }, ['comments']).exec();
+
+    if (!post) return sendPacket(0, 'Post not found');
+
+    const { comments: commentIDs } = post;
+
+    const conditions = {
+      $and: [
+        { _id: { $in: commentIDs } },
+        { createdAt: { $lt: startingTimestamp } },
+      ],
+    };
+
+    const comments = await Comment.aggregate([
+      { $match: conditions },
+      { $sort: { createdAt: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+          },
+        },
+      },
+    ]).exec();
+
+    const imagePromises = generatePostSignedImagePromises(comments);
+
+    return Promise.all(imagePromises)
+      .then((signedImageURLs) => {
+        for (let i = 0; i < comments.length; i++)
+          if (signedImageURLs[i]) {
+            comments[i].user.profilePicture = signedImageURLs[i];
+          }
+
+        return sendPacket(1, 'Successfully retrieved all comments', {
+          comments,
+        });
+      })
+      .catch((err) => {
+        log('error', err);
+        return sendPacket(
+          1,
+          'Successfully retrieved all comments, but failed to retrieve profile pictures',
+          {
+            comments,
+          }
+        );
+      });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
 }
 
 async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
+  userID: string,
   numSkipped: number = 0, //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
   withProfileImage: boolean = true
@@ -636,6 +1086,14 @@ async function retrievePosts(
         as: 'toCommunity',
       },
     },
+    {
+      $lookup: {
+        from: 'images',
+        localField: 'images',
+        foreignField: '_id',
+        as: 'images',
+      },
+    },
     { $unwind: '$user' },
     { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
     { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
@@ -643,6 +1101,9 @@ async function retrievePosts(
       $project: {
         message: '$message',
         likes: { $size: '$likes' },
+        comments: {
+          $size: { $ifNull: ['$comments', []] },
+        },
         createdAt: '$createdAt',
         updatedAt: '$updatedAt',
         type: '$type',
@@ -663,23 +1124,41 @@ async function retrievePosts(
           name: '$fromCommunity.name',
           profilePicture: '$fromCommunity.profilePicture',
         },
+        liked: {
+          $in: [mongoose.Types.ObjectId(userID), '$likes'],
+        },
+        images: {
+          $map: {
+            input: '$images',
+            as: 'image',
+            in: {
+              fileName: '$$image.fileName',
+            },
+          },
+        },
       },
     },
   ]).exec();
 
   if (!withProfileImage) return posts;
 
-  const imagePromises = generatePostSignedImagePromises(posts);
+  const imagePromises = generatePostSignedImagePromises(posts, true);
 
   return Promise.all(imagePromises)
     .then((signedImageURLs) => {
-      for (let i = 0; i < posts.length; i++)
-        if (signedImageURLs[i]) {
+      let urlIndex = 0;
+      for (let i = 0; i < posts.length; i++) {
+        if (signedImageURLs[urlIndex]) {
           if (posts[i].anonymous)
-            posts[i].fromCommunity.profilePicture = signedImageURLs[i];
-          else posts[i].user.profilePicture = signedImageURLs[i];
+            posts[i].fromCommunity.profilePicture = signedImageURLs[urlIndex];
+          else posts[i].user.profilePicture = signedImageURLs[urlIndex];
         }
-
+        urlIndex += 1;
+        for (let j = 0; j < posts[i].images.length; j++) {
+          posts[i].images[j].fileName = signedImageURLs[urlIndex + j];
+        }
+        urlIndex += posts[i].images.length;
+      }
       return posts;
     })
     .catch((err) => {
@@ -688,7 +1167,7 @@ async function retrievePosts(
     });
 }
 
-async function getExternalPostsMember_Helper(communityID: string) {
+async function getExternalPostsMember_Helper(communityID: string, userID: string) {
   try {
     const community = await Community.findById(communityID)
       .select(['externalPosts', 'broadcastedPosts'])
@@ -699,7 +1178,7 @@ async function getExternalPostsMember_Helper(communityID: string) {
       _id: { $in: community.externalPosts.concat(community.broadcastedPosts) },
     };
 
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -726,7 +1205,7 @@ async function getExternalPostsNonMember_Helper(
     // Retrieve all posts from external feed
 
     const condition = { _id: { $in: community.externalPosts } };
-    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED);
+    const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, user._id);
     if (!posts) return sendPacket(-1, 'There was an error');
 
     return sendPacket(1, 'Successfully retrieved the latest posts', { posts });
@@ -835,4 +1314,26 @@ function getFollowingFeedConditions(
   const finalConditions = { $or: conditions };
 
   return finalConditions;
+}
+
+async function uploadPostImage(image: string, postID: string, userID: string) {
+  try {
+    const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+    if (!imageBuffer.data) return -1;
+
+    const fileName = `${postID}_image_01.jpeg`;
+
+    const success = await uploadFile('postImage', fileName, imageBuffer.data);
+    if (!success) return -1;
+
+    const imageObj = await new Image({
+      user: userID,
+      post: postID,
+      fileName,
+    }).save();
+    return [imageObj._id, fileName];
+  } catch (err) {
+    log('error', err);
+    return -1;
+  }
 }

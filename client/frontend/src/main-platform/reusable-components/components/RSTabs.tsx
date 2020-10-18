@@ -16,11 +16,17 @@ const useStyles = makeStyles((_: any) => ({
   },
   notSelectedTab: {
     background: 'rgb(232, 232, 232)',
+    '&:hover': {
+      background: colors.brightHover,
+    },
   },
   tab: {
     flexBasis: '100%',
     paddingTop: 15,
     paddingBottom: 15,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   whiteText: {
     color: colors.primaryText,
@@ -57,7 +63,7 @@ function RSTabs(props: Props) {
           }}
         >
           <RSText
-            size={12}
+            size={11}
             className={
               props.selected === props.tabs[i].value
                 ? styles.whiteText

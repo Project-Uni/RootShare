@@ -9,6 +9,7 @@ import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { LeanEventType } from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
@@ -56,7 +57,7 @@ function EventsBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
-  const [events, setEvents] = useState<{ [key: string]: any }>([]);
+  const [events, setEvents] = useState<LeanEventType[]>([]);
   const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
 
   useEffect(() => {
@@ -76,7 +77,7 @@ function EventsBody(props: Props) {
       props.refreshToken
     );
     if (data.success == 1) {
-      setEvents(data.content['events']);
+      setEvents(data.content['events'].reverse());
       setConnectionIDs(data.content['connectionIDs']);
     }
   }
@@ -88,24 +89,26 @@ function EventsBody(props: Props) {
   function renderEvents() {
     const output = [];
     for (let i = 0; i < events.length; i++) {
+      const currEvent = events[i];
       let varMutualSignups = connectionIDs.filter((x: string) =>
-        events[i].RSVPs.includes(x)
+        currEvent.RSVPs.includes(x)
       );
-      const eventDateTime = new Date(events[i].dateTime);
+      const eventDateTime = new Date(currEvent.dateTime);
       const eventDate = formatDatePretty(eventDateTime); //Aug 14, 2020
       const eventTime = formatTime(eventDateTime);
       output.push(
         <Event
-          title={events[i].title}
-          eventID={events[i]._id}
-          communityName={events[i].hostCommunity?._id}
-          communityID={events[i].hostCommunity?.name}
-          summary={events[i].brief_description}
-          description={events[i].full_description}
+          title={currEvent.title}
+          eventID={currEvent._id}
+          communityName={currEvent.hostCommunity?._id}
+          communityID={currEvent.hostCommunity?.name}
+          summary={currEvent.brief_description}
+          description={currEvent.full_description}
           timestamp={eventDate + ' at ' + eventTime}
           mutualSignups={varMutualSignups.length}
-          rsvpYes={events[i].RSVPs.includes(props.user._id)}
+          rsvpYes={currEvent.RSVPs.includes(props.user._id)}
           style={styles.eventStyle}
+          complete={!!currEvent.muxAssetPlaybackID}
         />
       );
     }

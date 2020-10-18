@@ -23,7 +23,6 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     background: 'rgb(227, 227, 227)',
     overflow: 'scroll',
-    minWidth: 600,
   },
   loadingIndicator: {
     color: colors.primary,
@@ -114,6 +113,7 @@ function HomepageBody(props: Props) {
     setFeed((prevState) => {
       const newEntry = (
         <UserPost
+          postID={post._id}
           posterID={props.user._id}
           name={`${props.user.firstName} ${props.user.lastName}`}
           timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
@@ -121,9 +121,10 @@ function HomepageBody(props: Props) {
           )}`}
           profilePicture={props.user.profilePicture}
           message={post.message}
-          likeCount={post.likes}
+          likeCount={0}
           commentCount={0}
           style={styles.postBox}
+          images={post.images}
         />
       );
       return [newEntry].concat(prevState);
@@ -136,6 +137,7 @@ function HomepageBody(props: Props) {
       const { anonymous } = posts[i];
       output.push(
         <UserPost
+          postID={posts[i]._id}
           posterID={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
           name={
             anonymous
@@ -152,12 +154,14 @@ function HomepageBody(props: Props) {
           }
           message={posts[i].message}
           likeCount={posts[i].likes}
-          commentCount={0}
+          commentCount={posts[i].comments}
           style={styles.postBox}
           key={posts[i]._id}
           toCommunity={posts[i].toCommunity.name}
           toCommunityID={posts[i].toCommunity._id}
           anonymous={anonymous}
+          liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }

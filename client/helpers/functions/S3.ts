@@ -18,7 +18,8 @@ type ImageReason =
   | 'profileBanner'
   | 'communityProfile'
   | 'communityBanner'
-  | 'eventBanner';
+  | 'eventBanner'
+  | 'postImage';
 
 export async function uploadFile(reason: ImageReason, fileName: string, file: any) {
   const prefix = getPathPrefix(reason);
@@ -84,6 +85,8 @@ function getPathPrefix(imageType: ImageReason) {
       return base + 'community/banner/';
     case 'eventBanner':
       return base + 'event/banner/';
+    case 'postImage':
+      return base + 'post/';
     default:
       return null;
   }

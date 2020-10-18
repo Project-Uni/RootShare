@@ -1,9 +1,13 @@
+const mongoose = require('mongoose');
+
 import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
+  generateSignedImagePromises,
   getUserToCommunityRelationship,
   getUserToUserRelationship,
+  connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
 import { User, Community } from '../models';
@@ -23,6 +27,7 @@ export async function populateDiscoverForUser(userID: string) {
         'university',
         'joinedCommunities',
       ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
     if (!user) return sendPacket(0, 'No user found with provided ID');
@@ -33,6 +38,7 @@ export async function populateDiscoverForUser(userID: string) {
       {
         $match: {
           $and: [
+            { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
             { connections: { $not: { $in: connections } } },
             { pendingConnections: { $not: { $in: pendingConnections } } },
             { university: { $eq: university } },
@@ -49,6 +55,14 @@ export async function populateDiscoverForUser(userID: string) {
         },
       },
       { $unwind: '$university' },
+      {
+        $lookup: {
+          from: 'connections',
+          localField: 'connections',
+          foreignField: '_id',
+          as: 'connections',
+        },
+      },
       {
         $project: {
           firstName: '$firstName',
@@ -108,12 +122,14 @@ export async function populateDiscoverForUser(userID: string) {
 
     return Promise.all([communityPromise, userPromise])
       .then(async ([communities, users]) => {
+        const connectionUserIDs = connectionsToUserIDStrings(userID, connections);
+
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
           const cleanedUser = await addCalculatedUserFields(
-            connections,
+            connectionUserIDs,
             joinedCommunities,
-            users[i]
+            users[i],
           );
           users[i] = cleanedUser;
         }
@@ -121,19 +137,43 @@ export async function populateDiscoverForUser(userID: string) {
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
-            connections,
+            connectionUserIDs,
             communities[i]
           );
           communities[i] = cleanedCommunity;
         }
 
-        log('info', `Pre-populated discovery page for user ${userID}`);
-
-        return sendPacket(
-          1,
-          'Successfully retrieved users and communities for population',
-          { communities, users }
+        const communityImagePromises = generateSignedImagePromises(
+          communities,
+          'communityProfile'
         );
+        const userImagePromises = generateSignedImagePromises(users, 'profile');
+
+        return Promise.all([...communityImagePromises, ...userImagePromises])
+          .then((images) => {
+            let i = 0;
+            for (i; i < communities.length; i++)
+              if (images[i]) communities[i].profilePicture = images[i];
+
+            for (i; i < communities.length + users.length; i++)
+              if (images[i])
+                users[i - communities.length].profilePicture = images[i];
+            log('info', `Pre-populated discovery page for user ${userID}`);
+
+            return sendPacket(
+              1,
+              'Successfully retrieved users and communities for population',
+              { communities, users }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(
+              1,
+              'Successfully retrieved users and communities, but there was an error retrieving profile images',
+              { communities, user }
+            );
+          });
       })
       .catch((err) => {
         log('error', err);
@@ -198,9 +238,16 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'joinedCommunities',
         'pendingCommunities',
       ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] })
       .exec();
 
-    const userPromise = User.find({ $or: userSearchConditions })
+    const userPromise = User.find({
+      $and: [
+        { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
+        { $or: userSearchConditions },
+      ],
+    })
       .select([
         'firstName',
         'lastName',
@@ -216,6 +263,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       ])
       .limit(USER_LIMIT)
       .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
     const communityPromise = Community.find({
@@ -239,12 +287,18 @@ export async function exactMatchSearchFor(userID: string, query: string) {
       .then(async ([currentUser, users, communities]) => {
         if (!currentUser) return sendPacket(0, 'Could not find current user entry');
 
-        for (let i = 0; i < users.length; i++) {
+        const selfConnectionUserIDs = connectionsToUserIDStrings(
+          userID,
+          currentUser.connections
+        );
+
+        for (let i = 0; i < users.length; i++) {          
           const cleanedUser = await addCalculatedUserFields(
-            currentUser.connections,
+            selfConnectionUserIDs,
             currentUser.joinedCommunities,
-            users[i].toObject()
+            users[i],
           );
+
           getUserToUserRelationship(
             currentUser.connections,
             currentUser.pendingConnections,
@@ -257,7 +311,7 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         //Cleaning communities array
         for (let i = 0; i < communities.length; i++) {
           const cleanedCommunity = await addCalculatedCommunityFields(
-            currentUser.connections,
+            selfConnectionUserIDs,
             communities[i]
           );
           getUserToCommunityRelationship(
@@ -269,16 +323,41 @@ export async function exactMatchSearchFor(userID: string, query: string) {
           communities[i] = cleanedCommunity;
         }
 
-        log(
-          'info',
-          `Successfully retrieved all matching users and communities for query: ${query}`
+        const communityImagePromises = generateSignedImagePromises(
+          communities,
+          'communityProfile'
         );
+        const userImagePromises = generateSignedImagePromises(users, 'profile');
 
-        return sendPacket(
-          1,
-          'Successfully retrieved all users and communities for query',
-          { users, communities }
-        );
+        return Promise.all([...communityImagePromises, ...userImagePromises])
+          .then((images) => {
+            let i = 0;
+            for (i; i < communities.length; i++)
+              if (images[i]) communities[i].profilePicture = images[i];
+
+            for (i; i < communities.length + users.length; i++)
+              if (images[i])
+                users[i - communities.length].profilePicture = images[i];
+
+            log(
+              'info',
+              `Successfully retrieved all matching users and communities for query: ${query}`
+            );
+
+            return sendPacket(
+              1,
+              'Successfully retrieved all users and communities for query',
+              { users, communities }
+            );
+          })
+          .catch((err) => {
+            log('error', err);
+            return sendPacket(
+              1,
+              'Successfully retrieved discover search, but there was an error retrieving images',
+              { users, communities }
+            );
+          });
       })
       .catch((err) => {
         log('error', err);

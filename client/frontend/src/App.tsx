@@ -69,6 +69,7 @@ function App(props: Props) {
               component={ResetPassword}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
+
             <Route exact path="/login" component={Login} />
 
             <Route path="/admin" component={AdminRoutes} />

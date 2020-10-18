@@ -7,12 +7,14 @@ import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
+import CommunityMembers from './CommunityMembers';
 
 import {
   PostType,
   AdminCommunityServiceResponse,
   CommunityStatus,
   CommunityPostingOption,
+  SearchUserType,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -41,13 +43,6 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type CommunityTab =
-  | 'external'
-  | 'internal'
-  | 'internal-alumni'
-  | 'internal-current'
-  | 'following';
-
 type Props = {
   className?: string;
   communityID: string;
@@ -61,6 +56,14 @@ type Props = {
   refreshToken: string;
 };
 
+type CommunityTab =
+  | 'external'
+  | 'internal'
+  | 'internal-alumni'
+  | 'internal-current'
+  | 'following'
+  | 'members';
+
 var tabChangeSemaphore = 0;
 // Semaphore was added in to fix issue where previous tab
 // posts would be loaded into an incorrect tab if the user
@@ -73,11 +76,14 @@ function CommunityBodyContent(props: Props) {
   const [selectedTab, setSelectedTab] = useState<CommunityTab>('external');
   const [postingOptions, setPostingOptions] = useState<CommunityPostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
+  const [members, setMembers] = useState<SearchUserType[]>([]);
+
   const [fetchErr, setFetchErr] = useState(false);
 
   const tabs = [
     { label: 'External', value: 'external' },
     { label: 'Following', value: 'following' },
+    { label: 'Members', value: 'members' },
   ];
 
   if (props.isAdmin) {
@@ -99,16 +105,20 @@ function CommunityBodyContent(props: Props) {
   }, [selectedTab, props.communityProfilePicture]);
 
   async function fetchData() {
+    if (selectedTab !== 'members') {
+      await fetchPosts();
+    } else {
+      await fetchMembers();
+    }
+  }
+
+  async function fetchPosts() {
     setPosts([]);
     const currSemaphoreState = tabChangeSemaphore;
     const routeSuffix = getRouteSuffix();
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/community/${props.communityID}/${routeSuffix}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/community/${props.communityID}/${routeSuffix}`
     );
     if (tabChangeSemaphore === currSemaphoreState) {
       if (data.success === 1) {
@@ -123,11 +133,7 @@ function CommunityBodyContent(props: Props) {
   async function getAdminCommunities() {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${props.user._id}/communities/admin`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/user/${props.user._id}/communities/admin`
     );
 
     if (data.success === 1) {
@@ -146,6 +152,26 @@ function CommunityBodyContent(props: Props) {
 
       return communities;
     } else return [];
+  }
+
+  async function fetchMembers() {
+    const currSemaphoreState = tabChangeSemaphore;
+    const { data } = await makeRequest(
+      'GET',
+      `/api/community/${props.communityID}/members`,
+      {},
+      true,
+      props.accessToken,
+      props.refreshToken
+    );
+    if (tabChangeSemaphore === currSemaphoreState) {
+      if (data.success === 1) {
+        setFetchErr(false);
+        setMembers(data.content['members']);
+      } else {
+        setFetchErr(true);
+      }
+    }
   }
 
   function getRouteSuffix() {
@@ -167,35 +193,31 @@ function CommunityBodyContent(props: Props) {
 
   async function updatePostingOptions() {
     let newPostingOptions: CommunityPostingOption[] = [];
+    //Internal
     if (
       selectedTab === 'internal-current' ||
       (selectedTab === 'internal' && props.user.accountType === 'student')
-    )
+    ) {
       newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/current',
         profilePicture: props.user.profilePicture,
       });
-    else if (
+    } else if (
       selectedTab === 'internal-alumni' ||
       (selectedTab === 'internal' && props.user.accountType === 'alumni')
-    )
+    ) {
       newPostingOptions.push({
         description: 'Post',
         routeSuffix: 'internal/alumni',
         profilePicture: props.user.profilePicture,
       });
+    }
+    //External
     else if (selectedTab === 'external') {
-      let memberDescription = 'Post';
       if (props.isAdmin) {
-        memberDescription = 'Post as yourself';
         newPostingOptions.push({
-          description: `Broadcast to ${props.universityName} as ${props.name}`,
-          routeSuffix: 'broadcast',
-          profilePicture: props.communityProfilePicture,
-        });
-        newPostingOptions.push({
-          description: `Post as ${props.name}`,
+          description: `${props.name}`,
           routeSuffix: 'external/admin',
           profilePicture: props.communityProfilePicture,
         });
@@ -204,10 +226,9 @@ function CommunityBodyContent(props: Props) {
       const followingCommunities = await getAdminCommunities();
 
       if (followingCommunities.length > 0) {
-        memberDescription = 'Post as yourself';
         followingCommunities.forEach((followingCommunity) => {
           newPostingOptions.push({
-            description: `Post as ${followingCommunity.name}`,
+            description: `${followingCommunity.name}`,
             routeSuffix: 'external/following',
             communityID: followingCommunity._id,
             profilePicture: followingCommunity.profilePicture,
@@ -217,12 +238,11 @@ function CommunityBodyContent(props: Props) {
 
       if (props.status === 'JOINED')
         newPostingOptions.unshift({
-          description: memberDescription,
+          description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',
           profilePicture: props.user.profilePicture,
         });
     }
-
     setPostingOptions(newPostingOptions);
   }
 
@@ -240,6 +260,7 @@ function CommunityBodyContent(props: Props) {
       const { anonymous } = currPost;
       output.push(
         <UserPost
+          postID={posts[i]._id}
           posterID={
             currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id
           }
@@ -259,7 +280,7 @@ function CommunityBodyContent(props: Props) {
           type={currPost.type}
           message={currPost.message}
           likeCount={currPost.likes}
-          commentCount={0}
+          commentCount={currPost.comments}
           style={styles.postStyle}
           key={currPost._id}
           anonymous={anonymous}
@@ -269,17 +290,20 @@ function CommunityBodyContent(props: Props) {
           toCommunityID={
             selectedTab === 'following' ? currPost.toCommunity._id : undefined
           }
+          liked={posts[i].liked}
+          images={posts[i].images}
         />
       );
     }
     return output;
   }
 
-  function appendPost(newPostInfo: any, profilePicture: string | undefined) {
+  function appendPost(newPostInfo: PostType, profilePicture: string | undefined) {
     setPosts((prevPosts) => {
       const { anonymous } = newPostInfo;
       const newPost = (
         <UserPost
+          postID={newPostInfo._id}
           posterID={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
           name={
             anonymous
@@ -297,6 +321,7 @@ function CommunityBodyContent(props: Props) {
           style={styles.postStyle}
           key={newPostInfo._id}
           anonymous={anonymous}
+          images={newPostInfo.images}
         />
       );
 
@@ -305,6 +330,7 @@ function CommunityBodyContent(props: Props) {
   }
 
   function renderBody() {
+    if (selectedTab === 'members') return <CommunityMembers members={members} />;
     return (
       <div>
         {postingOptions.length > 0 && (
@@ -313,6 +339,8 @@ function CommunityBodyContent(props: Props) {
             communityName={props.name}
             postingOptions={postingOptions}
             appendNewPost={appendPost}
+            isAdmin={props.isAdmin}
+            communityProfilePicture={props.communityProfilePicture}
           />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}

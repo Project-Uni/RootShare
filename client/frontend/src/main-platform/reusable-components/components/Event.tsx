@@ -8,6 +8,7 @@ import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
+import BoudreauxEventPicture from '../../../images/banners/BoudreauxEventPicture.jpeg';
 
 const MAX_SUBSTR_LEN = 200;
 
@@ -86,6 +87,7 @@ type Props = {
   mutualSignups: number;
   rsvpYes: boolean;
   style?: any;
+  complete?: boolean;
 };
 
 function Event(props: Props) {
@@ -143,7 +145,14 @@ function Event(props: Props) {
           </RSText>
         </a>
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
-          <img src={BabyBoilersBanner} className={styles.banner} />
+          <img
+            src={
+              props.eventID === '5f7f5653b0f90c4302e10fa6'
+                ? BoudreauxEventPicture
+                : BabyBoilersBanner
+            }
+            className={styles.banner}
+          />
         </a>
         <RSText
           type="body"
@@ -171,15 +180,15 @@ function Event(props: Props) {
 
         <div className={styles.bottom}>
           <RSText type="body" color={colors.fourth} size={13}>
-            {props.mutualSignups == 0 ? 'No' : props.mutualSignups} Connections
-            Signed Up
+            {props.mutualSignups !== 0 &&
+              `${props.mutualSignups} Connections Signed Up`}
           </RSText>
           <Button
             href={`/event/${props.eventID}`}
             variant="contained"
             className={styles.goToEventButton}
           >
-            Enter Event
+            {props.complete ? 'Watch Again' : 'Enter Event'}
           </Button>
           {/* <Button variant="contained" className={styles.rsvpButton}>
             RSVP YES

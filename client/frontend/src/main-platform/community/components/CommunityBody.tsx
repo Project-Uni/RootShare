@@ -112,11 +112,7 @@ function CommunityBody(props: Props) {
   async function getProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/images/community/${props.communityID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/images/community/${props.communityID}`
     );
 
     if (data['success'] === 1) {
