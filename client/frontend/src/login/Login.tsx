@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Link } from '@material-ui/core';
+import { TextField, Button, Link, CircularProgress } from '@material-ui/core';
 import { useLocation, Redirect } from 'react-router-dom';
 import queryString from 'query-string';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { checkDesktop, makeRequest } from '../helpers/functions';
+import { makeRequest } from '../helpers/functions';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
@@ -47,6 +47,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
     marginBottom: 10,
   },
+  loadingIndicator: {
+    color: colors.primary,
+  },
 }));
 
 type Props = {
@@ -63,7 +66,7 @@ type Props = {
 // TODO - Set up login, signup and reset password to work with chrome’s credential standards
 function Login(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
@@ -80,6 +83,7 @@ function Login(props: Props) {
   }, []);
 
   async function checkAuth() {
+    setLoading(true);
     if (accessToken) props.updateAccessToken(accessToken);
     if (refreshToken) props.updateRefreshToken(refreshToken);
 
@@ -91,6 +95,8 @@ function Login(props: Props) {
       props.accessToken,
       props.refreshToken
     );
+
+    setLoading(false);
     if (data['success'] === 1) {
       props.updateUser({ ...data['content'] });
       if (accessToken) props.updateAccessToken(accessToken);
@@ -154,7 +160,9 @@ function Login(props: Props) {
   return (
     <div className={styles.wrapper}>
       {redirectHome && <Redirect to={redirectUrl} />}
-      {forgotPassword ? (
+      {loading ? (
+        <CircularProgress size={100} className={styles.loadingIndicator} />
+      ) : forgotPassword ? (
         <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
       ) : (
         <HypeCard width={375} loading={loading} headerText="Login">
@@ -189,7 +197,7 @@ function Login(props: Props) {
             Login
           </Button>
           <div className={styles.externalWrapper}>
-            <GoogleButton messageType={'login'} width={300} />
+            <GoogleButton messageType={'login'} width={300} redirect={redirectUrl} />
           </div>
           <div className={styles.externalWrapper}>
             <LinkedInButton

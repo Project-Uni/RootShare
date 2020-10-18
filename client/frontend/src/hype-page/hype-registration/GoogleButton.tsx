@@ -38,10 +38,14 @@ const useStyles = makeStyles((theme) => ({
 type Props = {
   messageType: 'login' | 'signup';
   width?: number;
+  redirect?: string;
 };
 
 export default function GoogleButton(props: Props) {
   const styles = useStyles();
+
+  let queryString = '/auth/login/google';
+  if (props.redirect) queryString = `${queryString}?redirect=${props.redirect}`;
 
   return (
     <Paper
@@ -49,7 +53,7 @@ export default function GoogleButton(props: Props) {
       elevation={3}
       style={{ width: props.width || 250 }}
     >
-      <a href="/auth/login/google" className={styles.googleLink}>
+      <a href={queryString} className={styles.googleLink}>
         <img src={googleLogo} alt="Google logo" />
         <p className={styles.googleText}>
           {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}

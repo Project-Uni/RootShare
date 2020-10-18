@@ -52,6 +52,7 @@ export default function LinkedInButton(props: Props) {
 
   let queryString = '/auth/login/linkedin';
   if (props.redirect) queryString = `${queryString}?redirect=${props.redirect}`;
+
   return (
     <Paper
       className={styles.linkedinPaper}
