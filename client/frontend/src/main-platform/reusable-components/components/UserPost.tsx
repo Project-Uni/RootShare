@@ -16,10 +16,11 @@ import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
+import Carousel, { Modal, ModalGateway } from 'react-images';
+
 import { Comment } from '../';
-import RSText from '../../../base-components/RSText';
+import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
-import ProfilePicture from '../../../base-components/ProfilePicture';
 import {
   formatDatePretty,
   formatTime,
@@ -27,7 +28,6 @@ import {
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
-import Carousel, { Modal, ModalGateway } from 'react-images';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -155,7 +155,6 @@ const useTextFieldStyles = makeStyles((_: any) => ({
     flex: 1,
     marginLeft: 15,
     width: '100%',
-    background: colors.primaryText,
     borderRadius: 10,
     [`& fieldset`]: {
       borderRadius: 10,
@@ -211,6 +210,7 @@ function UserPost(props: Props) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<JSX.Element[]>([]);
   const [loadingMoreComments, setLoadingMoreComments] = useState(false);
+  const [initialCommentsLoaded, setInitialCommentsLoaded] = useState(false);
 
   const [commentErr, setCommentErr] = useState('');
   const [likeDisabled, setLikeDisabled] = useState(false);
@@ -258,6 +258,18 @@ function UserPost(props: Props) {
     setLikeDisabled(false);
   }
 
+  function handleShowComments() {
+    if (props.commentCount === 0) return;
+
+    if (comments.length > 0 && !initialCommentsLoaded) setShowComments(true);
+    else setShowComments(!showComments);
+
+    if (!initialCommentsLoaded) {
+      handleRetrieveComments();
+      setInitialCommentsLoaded(true);
+    }
+  }
+
   async function handleSendComment() {
     const cleanedComment = comment.trim();
     if (cleanedComment.length === 0) {
@@ -295,10 +307,12 @@ function UserPost(props: Props) {
         );
         return prevComments.concat(newComment);
       });
+      if (!showComments) setShowComments(true);
     }
   }
 
   async function handleRetrieveComments() {
+    setLoadingMoreComments(true);
     const { data } = await makeRequest(
       'GET',
       `/api/posts/comments/${props.postID}`,
@@ -317,6 +331,7 @@ function UserPost(props: Props) {
         );
       setComments(generateComments(data.content['comments'].reverse()));
     }
+    setLoadingMoreComments(false);
   }
 
   async function handleMoreCommentsClick() {
@@ -426,17 +441,23 @@ function UserPost(props: Props) {
   function renderLikesAndCommentCount() {
     return (
       <div className={styles.likesAndCommentsContainer}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+          }}
+        >
+          <DynamicIconButton
             onClick={liked ? unlikePost : likePost}
             disabled={likeDisabled}
           >
             {liked ? (
-              <BsStarFill size={20} color={colors.bright} />
+              <BsStarFill color={colors.bright} size={24} />
             ) : (
-              <BsStar size={20} color={colors.secondaryText} />
+              <BsStar color={colors.bright} size={24} />
             )}
-          </IconButton>
+          </DynamicIconButton>
 
           <RSText
             type="body"
@@ -452,18 +473,16 @@ function UserPost(props: Props) {
           <a
             href={undefined}
             className={styles.commentCountLink}
-            onClick={() => setShowComments(!showComments)}
+            onClick={handleShowComments}
           >
-            <a onClick={handleRetrieveComments}>
-              <RSText
-                type="body"
-                color={colors.secondaryText}
-                size={12}
-                className={styles.commentCount}
-              >
-                {commentCount} Comments
-              </RSText>
-            </a>
+            <RSText
+              type="body"
+              color={colors.secondaryText}
+              size={12}
+              className={styles.commentCount}
+            >
+              {commentCount} Comments
+            </RSText>
           </a>
         </div>
 
@@ -495,11 +514,10 @@ function UserPost(props: Props) {
           className={textFieldStyles.commentTextField}
           multiline
           error={commentErr !== ''}
-          helperText={commentErr}
         />
-        <IconButton onClick={handleSendComment}>
+        <DynamicIconButton onClick={handleSendComment}>
           <MdSend size={22} color={colors.bright} />
-        </IconButton>
+        </DynamicIconButton>
       </div>
     );
   }
