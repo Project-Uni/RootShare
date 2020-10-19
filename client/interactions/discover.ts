@@ -344,9 +344,11 @@ function addCommunityAndUserImages(communities, users) {
       let i = 0;
       for (i; i < communities.length; i++)
         if (images[i]) communities[i].profilePicture = images[i];
+        else communities[i].profilePicture = undefined;
 
       for (i; i < communities.length + users.length; i++)
         if (images[i]) users[i - communities.length].profilePicture = images[i];
+        else users[i - communities.length].profilePicture = undefined;
 
       return { communities, users };
     })

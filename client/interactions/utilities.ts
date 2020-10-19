@@ -253,8 +253,10 @@ export function addProfilePicturesAll(
 
   return Promise.all(imagePromises)
     .then((signedImageURLs) => {
-      for (let i = 0; i < signedImageURLs.length; i++)
+      for (let i = 0; i < signedImageURLs.length; i++) {
         if (signedImageURLs[i]) entities[i].profilePicture = signedImageURLs[i];
+        else entities[i].profilePicture = undefined;
+      }
 
       return entities;
     })
