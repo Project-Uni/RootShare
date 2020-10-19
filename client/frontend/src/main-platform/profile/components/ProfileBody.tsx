@@ -79,6 +79,9 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 60,
     color: colors.primary,
   },
+  noPosts: {
+    marginTop: 20,
+  },
 }));
 
 type Props = {
@@ -297,6 +300,13 @@ function ProfileBody(props: Props) {
         />
       );
     }
+
+    if (posts.length === 0)
+      output.push(
+        <RSText size={16} type="head" className={styles.noPosts}>
+          There are no posts yet.
+        </RSText>
+      );
     return (
       <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
     );
