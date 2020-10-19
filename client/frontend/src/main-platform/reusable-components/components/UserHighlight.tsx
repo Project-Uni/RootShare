@@ -97,6 +97,7 @@ type Props = {
     message: string
   ) => void;
 
+  user: any;
   accessToken: string;
   refreshToken: string;
 };
@@ -148,7 +149,7 @@ function UserHighlight(props: Props) {
   }
 
   function renderStatus() {
-    if (props.userID === 'user') return;
+    if (props.userID === props.user._id) return;
     else if (userStatus === 'CONNECTION')
       return (
         <RSText color={colors.primary} size={11}>
@@ -235,7 +236,7 @@ function UserHighlight(props: Props) {
               {props.position && props.company ? ', ' : null}
               {props.company ? props.company : null}
             </RSText>
-            {props.userID === 'user' || (
+            {props.userID === props.user._id || (
               <RSText type="subhead" size={12} color={colors.second}>
                 {props.mutualConnections || 0} Mutual Connections |{' '}
                 {props.mutualCommunities || 0} Mutual Communities
@@ -253,6 +254,7 @@ function UserHighlight(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
+    user: state.user,
     accessToken: state.accessToken,
     refreshToken: state.refreshToken,
   };

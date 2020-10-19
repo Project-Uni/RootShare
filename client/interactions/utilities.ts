@@ -260,7 +260,17 @@ export function addProfilePicturesAll(
     })
     .catch((err) => {
       log('error', err);
-      return -1;
+      for (let i = 0; i < entities.length; i++) {
+        const imageURL = entities[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          entities[i].profilePicture = undefined;
+      }
+      return entities;
     });
 }
 

@@ -989,10 +989,16 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         const userConnections = connectionsToUserIDStrings(userID, user.connections);
 
         for (let i = 0; i < members.length; i++) {
-          const cleanedMember = await addCalculatedUserFields(
+          let cleanedMember = members[i].toObject();
+          cleanedMember.connections = connectionsToUserIDStrings(
+            cleanedMember._id,
+            cleanedMember.connections
+          );
+
+          cleanedMember = await addCalculatedUserFields(
             userConnections,
             user.joinedCommunities,
-            members[i]
+            cleanedMember
           );
 
           getUserToUserRelationship(
@@ -1005,8 +1011,6 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         }
 
         members = await addProfilePicturesAll(members, 'profile');
-
-        if (members === -1) return sendPacket(-1, 'Could not add profile pictures');
         return sendPacket(1, 'Sending Community Members', { members });
       }
     );
