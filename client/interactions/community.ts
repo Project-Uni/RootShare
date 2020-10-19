@@ -1011,8 +1011,6 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         }
 
         members = await addProfilePicturesAll(members, 'profile');
-
-        if (members === -1) return sendPacket(-1, 'Could not add profile pictures');
         return sendPacket(1, 'Sending Community Members', { members });
       }
     );

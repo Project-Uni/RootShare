@@ -149,8 +149,6 @@ export async function populateDiscoverForUser(userID: string) {
         }
 
         const imageInfo = await addCommunityAndUserImages(communities, users);
-        if (!imageInfo)
-          return sendPacket(-1, `Couldn't add images to communities and users`);
 
         return sendPacket(1, `Pre-populated discovery page for user ${userID}`, {
           communities: imageInfo['communities'],
@@ -314,8 +312,6 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         }
 
         const imageInfo = await addCommunityAndUserImages(communities, users);
-        if (!imageInfo)
-          return sendPacket(-1, `Couldn't add images to communities and users`);
 
         return sendPacket(
           1,
@@ -356,6 +352,28 @@ function addCommunityAndUserImages(communities, users) {
     })
     .catch((err) => {
       log('error', err);
-      return false;
+      for (let i = 0; i < communities.length; i++) {
+        const imageURL = communities[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          communities[i].profilePicture = undefined;
+      }
+
+      for (let i = 0; i < users.length; i++) {
+        const imageURL = users[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          users[i].profilePicture = undefined;
+      }
+
+      return { communities, users };
     });
 }

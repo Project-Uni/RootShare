@@ -378,8 +378,7 @@ export function getConnections(userID, callback) {
         user[0].connections,
         'profile'
       );
-      if (connections === -1)
-        return callback(sendPacket(-1, 'Could not add images to connections'));
+
       return callback(sendPacket(1, `Sending User's Connections`, { connections }));
     })
     .catch((err) => {
@@ -463,8 +462,6 @@ export function getConnectionSuggestions(userID, callback) {
           }
 
           suggestions = await addProfilePicturesAll(suggestions, 'profile');
-          if (suggestions === -1)
-            return callback(sendPacket(-1, 'Could not add images to suggestions'));
           return callback(
             sendPacket(1, 'Sending Connection Suggestions', { suggestions })
           );
@@ -591,10 +588,9 @@ export function getPendingRequests(userID, callback) {
 
       pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
       if (pendingRequests === -1)
-        return callback(sendPacket(-1, 'Could not add images to pending requests'));
-      return callback(
-        sendPacket(1, 'Sending pending requests', { pendingRequests })
-      );
+        return callback(
+          sendPacket(1, 'Sending pending requests', { pendingRequests })
+        );
     })
     .catch((err) => {
       if (err) callback(sendPacket(-1, err));
@@ -979,15 +975,10 @@ export async function getSelfUserCommunities(userID: string) {
       joinedCommunities,
       'communityProfile'
     );
-    if (joinedCommunities === -1)
-      return sendPacket(-1, 'Could not add images to joined communities');
-
     pendingCommunities = await addProfilePicturesAll(
       pendingCommunities,
       'communityProfile'
     );
-    if (pendingCommunities === -1)
-      return sendPacket(-1, 'Could not add images to pending communities');
 
     return sendPacket(
       1,
@@ -1052,8 +1043,6 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
       otherUser.joinedCommunities,
       'communityProfile'
     );
-    if (joinedWithImages === -1)
-      return sendPacket(-1, 'Could not add images to joined communities');
 
     return sendPacket(
       1,
@@ -1153,12 +1142,7 @@ export async function getSelfConnectionsFullData(selfID: string) {
       connectionsWithData,
       'profile'
     );
-    if (connectionsWithData === -1)
-      return sendPacket(-1, 'Could not add images to connections');
-
     pendingWithData = await addProfilePicturesAll(pendingWithData, 'profile');
-    if (pendingWithData === -1)
-      return sendPacket(-1, 'Could not add images to pending');
 
     return sendPacket(1, 'Successfully retrieved all connections', {
       connections: connectionsWithData,
@@ -1242,8 +1226,6 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
       connectionsWithData,
       'profile'
     );
-    if (connectionsWithData === -1)
-      return sendPacket(-1, 'Could not add images to connections');
     return sendPacket(1, 'Successfully retrieved all connections', {
       connections: connectionsWithData,
       pendingConnections: [],
