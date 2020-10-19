@@ -98,7 +98,7 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchData(), updatePostingOptions()]).then(() => {
+    fetchData().then(() => {
       setLoading(false);
     });
   }, [selectedTab]);
@@ -130,6 +130,7 @@ function CommunityBodyContent(props: Props) {
       } else {
         setFetchErr(true);
       }
+      await updatePostingOptions();
     }
   }
 
