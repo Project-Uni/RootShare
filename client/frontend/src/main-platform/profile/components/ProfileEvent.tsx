@@ -144,6 +144,8 @@ function ProfileEvent(props: Props) {
             {props.event.full_description}
           </RSText>
         </div>
+        {/* --- Hiding this for now because removing RSVP/Attended isn't well-defined yet
+
         {props.currentProfileState === 'SELF' && (
           <div className={styles.right}>
             {participationType === 'ATTENDEE' && (
@@ -152,7 +154,7 @@ function ProfileEvent(props: Props) {
               </Button>
             )}
           </div>
-        )}
+        )} */}
       </div>
     );
   }
