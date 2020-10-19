@@ -983,7 +983,7 @@ export async function deletePost(postID: string, userID: string) {
       const imageDBPromise = Image.deleteMany({ _id: { $in: imageIDs } }).exec;
 
       promises.push(imageDBPromise);
-      promises.push(imageS3Promises);
+      promises.push(...imageS3Promises);
     }
     //5 - Delete post
     const postPromise = Post.deleteOne({ _id: postID }).exec();
