@@ -7,7 +7,7 @@ import { CircularProgress, Box } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { UserPost } from '../../reusable-components';
+import { UserPost, MakePostContainer } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -204,6 +204,12 @@ function ProfileBody(props: Props) {
     }
   }
 
+  function appendNewPost(post: PostType) {
+    setPosts((prevState) => {
+      return [post].concat(prevState);
+    });
+  }
+
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
@@ -283,7 +289,7 @@ function ProfileBody(props: Props) {
         <UserPost
           postID={posts[i]._id}
           posterID={props.profileID}
-          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          name={`${props.user.firstName} ${props.user.lastName}`}
           profilePicture={
             props.profileID === 'user' ? props.user.profilePicture : currentPicture
           }
@@ -345,6 +351,10 @@ function ProfileBody(props: Props) {
           </Box>
 
           {renderRegisteredEvents()}
+          <MakePostContainer
+            appendNewPost={appendNewPost}
+            profilePicture={props.user.profilePicture}
+          />
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
