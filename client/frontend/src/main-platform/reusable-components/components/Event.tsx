@@ -147,7 +147,7 @@ function Event(props: Props) {
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
           <img
             src={
-              props.eventID === '5f7f5653b0f90c4302e10fa6'
+              props.eventID === '5f89f333821f7f6046243a53'
                 ? BoudreauxEventPicture
                 : BabyBoilersBanner
             }
