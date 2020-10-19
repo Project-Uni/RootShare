@@ -9,6 +9,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
 import BoudreauxEventPicture from '../../../images/banners/BoudreauxEventPicture.jpeg';
+import BoudreauxEvent1Picture from '../../../images/banners/BoudreauxEvent1Picture.jpeg';
 
 const MAX_SUBSTR_LEN = 200;
 
@@ -149,6 +150,8 @@ function Event(props: Props) {
             src={
               props.eventID === '5f89f333821f7f6046243a53'
                 ? BoudreauxEventPicture
+                : props.eventID === '5f7f5653b0f90c4302e10fa6'
+                ? BoudreauxEvent1Picture
                 : BabyBoilersBanner
             }
             className={styles.banner}
