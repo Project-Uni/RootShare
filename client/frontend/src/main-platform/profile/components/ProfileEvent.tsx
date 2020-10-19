@@ -59,6 +59,12 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 4,
     marginBottom: 6,
   },
+  navigationText: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -164,15 +170,17 @@ function ProfileEvent(props: Props) {
           <RSText type="body" size={11} italic color={colors.secondaryText}>
             {eventDate}
           </RSText>
-          <RSText
-            type="body"
-            size={12}
-            bold
-            color={colors.second}
-            className={styles.eventTitle}
-          >
-            {props.event.title}
-          </RSText>
+          <a href={`/event/${props.event._id}`} className={styles.navigationText}>
+            <RSText
+              type="body"
+              size={12}
+              bold
+              color={colors.second}
+              className={styles.eventTitle}
+            >
+              {props.event.title}
+            </RSText>
+          </a>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <RSText type="body" size={12} color={colors.second}>
