@@ -292,6 +292,7 @@ function CommunityBodyContent(props: Props) {
           }
           liked={posts[i].liked}
           images={posts[i].images}
+          isOwnPost={props.user._id === posts[i].user._id}
         />
       );
     }
@@ -322,6 +323,7 @@ function CommunityBodyContent(props: Props) {
           key={newPostInfo._id}
           anonymous={anonymous}
           images={newPostInfo.images}
+          isOwnPost
         />
       );
 

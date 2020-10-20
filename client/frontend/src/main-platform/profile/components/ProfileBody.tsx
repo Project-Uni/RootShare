@@ -304,6 +304,7 @@ function ProfileBody(props: Props) {
           style={styles.post}
           liked={currPost.liked}
           images={currPost.images}
+          isOwnPost={props.profileID === 'user'}
         />
       );
     }
