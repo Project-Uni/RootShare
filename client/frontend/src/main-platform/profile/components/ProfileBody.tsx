@@ -285,24 +285,25 @@ function ProfileBody(props: Props) {
   function renderPosts() {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
+      const currPost = posts[i];
       output.push(
         <UserPost
-          postID={posts[i]._id}
+          postID={currPost._id}
           posterID={props.profileID}
-          name={`${props.user.firstName} ${props.user.lastName}`}
+          name={`${currPost.user?.firstName} ${currPost.user?.lastName}`}
           profilePicture={
             props.profileID === 'user' ? props.user.profilePicture : currentPicture
           }
           timestamp={(function() {
-            const date = new Date(posts[i].createdAt);
+            const date = new Date(currPost.createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
+          message={currPost.message}
+          likeCount={currPost.likes}
+          commentCount={currPost.comments}
           style={styles.post}
-          liked={posts[i].liked}
-          images={posts[i].images}
+          liked={currPost.liked}
+          images={currPost.images}
         />
       );
     }
@@ -351,10 +352,12 @@ function ProfileBody(props: Props) {
           </Box>
 
           {renderRegisteredEvents()}
-          <MakePostContainer
-            appendNewPost={appendNewPost}
-            profilePicture={props.user.profilePicture}
-          />
+          {props.profileID === 'user' && (
+            <MakePostContainer
+              appendNewPost={appendNewPost}
+              profilePicture={props.user.profilePicture}
+            />
+          )}
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
