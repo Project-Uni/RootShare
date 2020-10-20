@@ -4,6 +4,8 @@ const AWSKeys = require('../../../keys/aws_key.json');
 
 import { log } from './logger';
 
+import { ImageReason } from '../types';
+
 const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,
   secretAccessKey: AWSKeys.secretAccessKey,
@@ -12,14 +14,6 @@ const s3 = new AWS.S3({
 });
 
 const BUCKET = 'rootshare-profile-images';
-
-type ImageReason =
-  | 'profile'
-  | 'profileBanner'
-  | 'communityProfile'
-  | 'communityBanner'
-  | 'eventBanner'
-  | 'postImage';
 
 export async function uploadFile(reason: ImageReason, fileName: string, file: any) {
   const prefix = getPathPrefix(reason);
