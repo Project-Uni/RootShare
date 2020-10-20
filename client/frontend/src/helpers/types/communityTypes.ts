@@ -1,14 +1,10 @@
+import { UserType } from './index';
+
 export type Community = {
   _id: string;
   name: string;
   description: string;
-  admin: {
-    [key: string]: any;
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  admin: string | UserType;
   university: {
     _id: string;
     universityName: string;
@@ -24,6 +20,10 @@ export type Community = {
     | 'Student Organization'
     | 'Academic';
   incomingPendingCommunityFollowRequests: string[];
+  numMembers?: number;
+  numMutual?: number;
+  profilePicture?: string;
+  status: CommunityStatus;
 };
 
 export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';

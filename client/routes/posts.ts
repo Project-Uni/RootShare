@@ -29,6 +29,7 @@ import {
   likePost,
   unlikePost,
   getLikes,
+  deletePost,
 } from '../interactions/posts';
 
 export default function postsRoutes(app) {
@@ -309,4 +310,16 @@ export default function postsRoutes(app) {
     const packet = await getLikes(postID, userID);
     return res.json(packet);
   });
+
+  app.delete(
+    '/api/posts/delete/:postID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { postID } = req.params;
+      const userID = req.user._id;
+
+      const packet = await deletePost(postID, userID);
+      return res.json(packet);
+    }
+  );
 }

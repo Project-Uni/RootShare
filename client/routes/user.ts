@@ -14,10 +14,12 @@ import {
   getPendingRequests,
   requestConnection,
   respondConnection,
-  getUserCommunities,
+  getSelfUserCommunities,
+  getOtherUserCommunities,
   checkConnectedWithUser,
   getConnectionWithUser,
-  getConnectionsFullData,
+  getSelfConnectionsFullData,
+  getOtherConnectionsFullData,
   getUserAdminCommunities,
   getBasicUserInfo,
 } from '../interactions/user';
@@ -67,7 +69,10 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      const packet = await getConnectionsFullData(userID);
+      let packet;
+      if (req.user._id.toString() === userID.toString())
+        packet = await getSelfConnectionsFullData(userID);
+      else packet = await getOtherConnectionsFullData(req.user._id, userID);
       return res.json(packet);
     }
   );
@@ -141,7 +146,10 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
-      const packet = await getUserCommunities(userID);
+      let packet;
+      if (req.user._id.toString() === userID.toString())
+        packet = await getSelfUserCommunities(userID);
+      else packet = await getOtherUserCommunities(req.user._id, userID);
       return res.json(packet);
     }
   );

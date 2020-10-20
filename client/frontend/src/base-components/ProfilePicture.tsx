@@ -197,10 +197,18 @@ function ProfilePicture(props: Props) {
   }
 
   function renderImage() {
+    let currentPicture: string = props.currentPicture;
+    if (
+      !currentPicture ||
+      currentPicture.length < 4 ||
+      currentPicture.substring(0, 4) !== 'http'
+    )
+      currentPicture = DefaultProfilePicture;
+
     return (
       <div className={props.className}>
         <img
-          src={props.currentPicture || DefaultProfilePicture}
+          src={currentPicture}
           alt="Profile Picture"
           className={[styles.image, props.pictureStyle].join(' ')}
           style={{
