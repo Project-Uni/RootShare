@@ -353,16 +353,20 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       }
 
       webinar = webinar.toObject();
-      const eventImage = await retrieveSignedUrl('eventImage', webinar.eventImage);
-      const eventBanner = await retrieveSignedUrl(
+      const eventImagePromise = retrieveSignedUrl('eventImage', webinar.eventImage);
+      const eventBannerPromise = retrieveSignedUrl(
         'eventBanner',
         webinar.eventBanner
       );
-      webinar.eventImage = eventImage || undefined;
-      webinar.eventBanner = eventBanner || undefined;
+      Promise.all([eventImagePromise, eventBannerPromise]).then(
+        ([eventImage, eventBanner]) => {
+          webinar.eventImage = eventImage || undefined;
+          webinar.eventBanner = eventBanner || undefined;
 
-      return callback(
-        sendPacket(1, 'Succesfully found webinar details', { webinar })
+          return callback(
+            sendPacket(1, 'Succesfully found webinar details', { webinar })
+          );
+        }
       );
     }
   );
