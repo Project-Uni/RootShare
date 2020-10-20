@@ -6,6 +6,8 @@ import {
   IconButton,
   CircularProgress,
   Box,
+  Menu,
+  MenuItem,
 } from '@material-ui/core';
 
 import { connect } from 'react-redux';
@@ -14,6 +16,7 @@ import qs from 'query-string';
 import { GiTreeBranch } from 'react-icons/gi';
 import { BsStar, BsStarFill } from 'react-icons/bs';
 import { MdSend } from 'react-icons/md';
+import { FaEllipsisH } from 'react-icons/fa';
 import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
@@ -25,9 +28,11 @@ import {
   formatDatePretty,
   formatTime,
   makeRequest,
+  slideLeft,
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -43,7 +48,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   top: {
     display: 'flex',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     marginTop: 20,
     marginBottom: 10,
     paddingLeft: 20,
@@ -148,6 +153,9 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: '100%',
     objectFit: 'contain',
   },
+  deleted: {
+    display: 'none',
+  },
 }));
 
 const useTextFieldStyles = makeStyles((_: any) => ({
@@ -165,6 +173,7 @@ const useTextFieldStyles = makeStyles((_: any) => ({
 type Props = {
   postID: string;
   posterID: string;
+  isOwnPost?: boolean;
   name: string;
   type?: string;
   toCommunity?: string;
@@ -217,6 +226,16 @@ function UserPost(props: Props) {
   const [showLikesModal, setShowLikesModal] = useState(false);
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [showDeletedMessage, setShowDeletedMessage] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
@@ -359,64 +378,111 @@ function UserPost(props: Props) {
     setLoadingMoreComments(false);
   }
 
+  async function handleDeleteClicked() {
+    setMenuAnchorEl(null);
+    if (
+      window.confirm(
+        'Are you sure you want to delete this post? This action cannot be undone.'
+      )
+    ) {
+      const { data } = await makeRequest(
+        'DELETE',
+        `/api/posts/delete/${props.postID}`
+      );
+      if (data.success === 1) {
+        setIsDeleted(true);
+        setShowDeletedMessage(true);
+        setTimeout(() => setShowDeletedMessage(false), 5000);
+        setSnackbarMessage('Successfully deleted post');
+        setSnackbarMode('notify');
+        setTransition(() => slideLeft);
+      } else {
+        setSnackbarMessage('There was an error trying to delete this post');
+        setSnackbarMode('error');
+        setTransition(() => slideLeft);
+      }
+    }
+  }
+
   function renderPostHeader() {
     return (
       <div className={styles.top}>
-        <a
-          href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
-          className={styles.noUnderline}
-        >
-          <ProfilePicture
-            height={50}
-            width={50}
-            borderRadius={50}
-            className={styles.profilePicContainer}
-            type="profile"
-            currentPicture={props.profilePicture}
-          />
-        </a>
+        <div style={{ display: 'flex' }}>
+          <a
+            href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
+            className={styles.noUnderline}
+          >
+            <ProfilePicture
+              height={50}
+              width={50}
+              borderRadius={50}
+              className={styles.profilePicContainer}
+              type="profile"
+              currentPicture={props.profilePicture}
+            />
+          </a>
 
-        <div className={styles.postHeadText}>
-          <div className={styles.nameAndOrgDiv}>
-            <a
-              href={`/${props.anonymous ? 'community' : 'profile'}/${
-                props.posterID
-              }`}
-              className={styles.noUnderline}
-            >
-              <RSText type="subhead" color={colors.secondary} bold size={14}>
-                {props.name}
-              </RSText>
-            </a>
+          <div className={styles.postHeadText}>
+            <div className={styles.nameAndOrgDiv}>
+              <a
+                href={`/${props.anonymous ? 'community' : 'profile'}/${
+                  props.posterID
+                }`}
+                className={styles.noUnderline}
+              >
+                <RSText type="subhead" color={colors.secondary} bold size={14}>
+                  {props.name}
+                </RSText>
+              </a>
 
-            {props.toCommunity && (
-              <>
-                <GiTreeBranch
-                  color={colors.secondary}
-                  size={16}
-                  className={styles.plantIcon}
+              {props.toCommunity && (
+                <>
+                  <GiTreeBranch
+                    color={colors.secondary}
+                    size={16}
+                    className={styles.plantIcon}
+                  />
+                  <a
+                    href={`/community/${props.toCommunityID}`}
+                    className={styles.noUnderline}
+                  >
+                    <RSText type="subhead" color={colors.secondary} bold size={14}>
+                      {props.toCommunity}
+                    </RSText>
+                  </a>
+                </>
+              )}
+              {props.type === 'broadcast' && (
+                <CastForEducationIcon
+                  color={'action'}
+                  className={styles.broadcastIcon}
                 />
-                <a
-                  href={`/community/${props.toCommunityID}`}
-                  className={styles.noUnderline}
-                >
-                  <RSText type="subhead" color={colors.secondary} bold size={14}>
-                    {props.toCommunity}
-                  </RSText>
-                </a>
-              </>
-            )}
-            {props.type === 'broadcast' && (
-              <CastForEducationIcon
-                color={'action'}
-                className={styles.broadcastIcon}
-              />
-            )}
+              )}
+            </div>
+            <RSText type="subhead" color={colors.secondaryText} size={12}>
+              {props.timestamp}
+            </RSText>
           </div>
-          <RSText type="subhead" color={colors.secondaryText} size={12}>
-            {props.timestamp}
-          </RSText>
         </div>
+        {props.isOwnPost ? (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <IconButton
+              style={{ height: 30 }}
+              onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
+            >
+              <FaEllipsisH color={colors.secondaryText} size={16} />
+            </IconButton>
+            <Menu
+              open={Boolean(menuAnchorEl)}
+              anchorEl={menuAnchorEl}
+              onClose={() => setMenuAnchorEl(null)}
+            >
+              <MenuItem onClick={handleDeleteClicked}>
+                <RSText color={colors.brightError}>Delete</RSText>
+              </MenuItem>
+            </Menu>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -522,6 +588,18 @@ function UserPost(props: Props) {
     );
   }
 
+  function renderDeletedMessage() {
+    return showDeletedMessage ? (
+      <div>
+        <RSText color={colors.success} italic>
+          Successfully deleted post!
+        </RSText>
+      </div>
+    ) : (
+      <></>
+    );
+  }
+
   function generateComments(commentsList: CommentResponse[]) {
     const output = [];
     for (let i = 0; i < commentsList.length; i++) {
@@ -542,61 +620,80 @@ function UserPost(props: Props) {
   }
 
   return (
-    <Box borderRadius={10} boxShadow={2} className={props.style || null}>
-      {showLikesModal && (
-        <LikesModal
-          open={showLikesModal}
-          onClose={() => setShowLikesModal(false)}
-          postID={props.postID}
-        />
-      )}
-      <div className={styles.wrapper}>
-        {renderPostHeader()}
-        {props.images && props.images.length > 0 && (
-          <div className={styles.imagePreviewWrapper}>
-            <img
-              className={styles.previewImage}
-              src={props.images[0].fileName}
-              onClick={() => setIsViewerOpen(true)}
-            />
-          </div>
+    <>
+      <ManageSpeakersSnackbar
+        mode={snackbarMode}
+        message={snackbarMessage}
+        transition={transition}
+        handleClose={() => setSnackbarMode(null)}
+      />
+      {renderDeletedMessage()}
+      <Box
+        borderRadius={10}
+        boxShadow={2}
+        className={[props.style || null, isDeleted ? styles.deleted : null].join(
+          ' '
         )}
-        <div className={styles.rest}>
-          {renderMessage()}
-          {renderLikesAndCommentCount()}
-          {showComments && (
-            <div className={styles.commentsContainer}>
-              {comments.length < props.commentCount && (
-                <Button
-                  className={styles.seeMoreButton}
-                  onClick={handleMoreCommentsClick}
-                >
-                  Show Previous Comments
-                </Button>
-              )}
-              {loadingMoreComments && (
-                <div style={{ flex: 1 }}>
-                  <CircularProgress size={40} className={styles.loadingIndicator} />
-                </div>
-              )}
-              <div>{comments}</div>
+      >
+        {showLikesModal && (
+          <LikesModal
+            open={showLikesModal}
+            onClose={() => setShowLikesModal(false)}
+            postID={props.postID}
+          />
+        )}
+
+        <div className={styles.wrapper}>
+          {renderPostHeader()}
+          {props.images && props.images.length > 0 && (
+            <div className={styles.imagePreviewWrapper}>
+              <img
+                className={styles.previewImage}
+                src={props.images[0].fileName}
+                onClick={() => setIsViewerOpen(true)}
+              />
             </div>
           )}
-          {renderLeaveCommentArea()}
+          <div className={styles.rest}>
+            {renderMessage()}
+            {renderLikesAndCommentCount()}
+            {showComments && (
+              <div className={styles.commentsContainer}>
+                {comments.length < props.commentCount && (
+                  <Button
+                    className={styles.seeMoreButton}
+                    onClick={handleMoreCommentsClick}
+                  >
+                    Show Previous Comments
+                  </Button>
+                )}
+                {loadingMoreComments && (
+                  <div style={{ flex: 1 }}>
+                    <CircularProgress
+                      size={40}
+                      className={styles.loadingIndicator}
+                    />
+                  </div>
+                )}
+                <div>{comments}</div>
+              </div>
+            )}
+            {renderLeaveCommentArea()}
+          </div>
         </div>
-      </div>
-      <ModalGateway>
-        {isViewerOpen && (
-          <Modal onClose={() => setIsViewerOpen(false)}>
-            <Carousel
-              views={
-                props.images?.map((image) => ({ source: image.fileName })) || []
-              }
-            />
-          </Modal>
-        )}
-      </ModalGateway>
-    </Box>
+        <ModalGateway>
+          {isViewerOpen && (
+            <Modal onClose={() => setIsViewerOpen(false)}>
+              <Carousel
+                views={
+                  props.images?.map((image) => ({ source: image.fileName })) || []
+                }
+              />
+            </Modal>
+          )}
+        </ModalGateway>
+      </Box>
+    </>
   );
 }
 
