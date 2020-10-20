@@ -37,9 +37,6 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.ternary,
     },
   },
-  fillSpace: {
-    height: 32,
-  },
 }));
 
 type Props = {

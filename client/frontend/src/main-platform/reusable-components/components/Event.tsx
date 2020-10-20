@@ -7,7 +7,13 @@ import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+<<<<<<< HEAD
 import RootSharePreviewBanner from '../../../images/event/RootSharePreviewBanner.png';
+=======
+import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
+import BoudreauxEventPicture from '../../../images/banners/BoudreauxEventPicture.jpeg';
+import BoudreauxEvent1Picture from '../../../images/banners/BoudreauxEvent1Picture.jpeg';
+>>>>>>> master
 
 const MAX_SUBSTR_LEN = 200;
 

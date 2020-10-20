@@ -215,8 +215,8 @@ function ConnectionsBody(props: Props) {
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
           <div>
-            {renderPending()}
             {renderConnections()}
+            {renderPending()}
           </div>
         )}
       </div>

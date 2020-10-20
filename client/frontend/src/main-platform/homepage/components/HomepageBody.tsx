@@ -125,6 +125,7 @@ function HomepageBody(props: Props) {
           commentCount={0}
           style={styles.postBox}
           images={post.images}
+          isOwnPost
         />
       );
       return [newEntry].concat(prevState);
@@ -162,6 +163,7 @@ function HomepageBody(props: Props) {
           anonymous={anonymous}
           liked={posts[i].liked}
           images={posts[i].images}
+          isOwnPost={props.user._id === posts[i].user._id}
         />
       );
     }

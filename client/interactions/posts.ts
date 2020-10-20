@@ -4,6 +4,7 @@ import {
   retrieveSignedUrl,
   uploadFile,
   decodeBase64Image,
+  deleteFile,
 } from '../helpers/functions';
 import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
 import { generateSignedImagePromises } from './utilities';
@@ -902,6 +903,96 @@ export async function getLikes(postID: string, userID: string) {
           { likes }
         );
       });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+//REMOVERS
+
+export async function deletePost(postID: string, userID: string) {
+  try {
+    const postExists = await Post.exists({ _id: postID, user: userID });
+    if (!postExists)
+      return sendPacket(0, 'Post does not exist or user did not create post');
+
+    const post = await Post.findById(postID)
+      .select(['comments', 'toCommunity', 'fromCommunity', 'type', 'images'])
+      .populate({ path: 'images', select: 'fileName' })
+      .exec();
+
+    //Actions:
+    //1 - Delete Comments
+    const promises = [];
+    const commentDeletion = Comment.deleteMany({
+      _id: { $in: post.comments },
+    }).exec();
+    promises.push(commentDeletion);
+    //2 - Pull post from user if broadcast
+    if (post.type === 'broadcast') {
+      if (!post.fromCommunity) {
+        const userPromise = User.updateOne(
+          { _id: userID },
+          { $pull: { broadcastedPosts: postID } }
+        ).exec();
+        promises.push(userPromise);
+      } else {
+        const communityPromise = Community.updateOne(
+          { _id: post.fromCommunity },
+          { $pull: { broadcastedPosts: postID } }
+        ).exec();
+        promises.push(communityPromise);
+      }
+    }
+    //3 - Pull post from community based on relations
+    else if (post.type === 'external') {
+      const toCommunityPromise = Community.updateOne(
+        { _id: post.toCommunity },
+        { $pull: { externalPosts: postID } }
+      ).exec();
+      promises.push(toCommunityPromise);
+      if (post.fromCommunity !== post.toCommunity) {
+        const fromCommunityPromise = Community.updateOne(
+          { _id: post.fromCommunity },
+          { $pull: { postsToOtherCommunities: postID } }
+        ).exec();
+        promises.push(fromCommunityPromise);
+      }
+    } else if (post.type === 'internalCurrent') {
+      const communityPromise = Community.updateOne(
+        { _id: post.toCommunity },
+        { $pull: { internalCurrentMemberPosts: postID } }
+      ).exec();
+      promises.push(communityPromise);
+    } else {
+      //post.type === 'internalAlumni'
+      const communityPromise = Community.updateOne(
+        { _id: post.toCommunity },
+        { $pull: { internalAlumniPosts: postID } }
+      ).exec();
+      promises.push(communityPromise);
+    }
+
+    //4 - Delete images
+    if (post.images && post.images.length > 0) {
+      const imageIDs = post.images.map((image) => image._id);
+      const imageS3Promises = post.images.map((image) =>
+        deleteFile('postImage', image.fileName)
+      );
+      const imageDBPromise = Image.deleteMany({ _id: { $in: imageIDs } }).exec;
+
+      promises.push(imageDBPromise);
+      promises.push(...imageS3Promises);
+    }
+    //5 - Delete post
+    const postPromise = Post.deleteOne({ _id: postID }).exec();
+    promises.push(postPromise);
+
+    return Promise.all([promises]).then((values) => {
+      log('info', `Successfully deleted post ${postID} for user ${userID}`);
+      return sendPacket(1, 'Successfully deleted post');
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);

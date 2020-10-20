@@ -35,6 +35,21 @@ export async function uploadFile(reason: ImageReason, fileName: string, file: an
   }
 }
 
+export async function deleteFile(reason: ImageReason, fileName: string) {
+  const prefix = getPathPrefix(reason);
+  if (!prefix) return false;
+
+  const params = { Bucket: BUCKET, Key: prefix + fileName };
+  try {
+    const data = await s3.deleteObject(params).promise();
+    log('info', `Successfully deleted image: ${prefix + fileName}`);
+    return true;
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+}
+
 export async function retrieveFile(reason: ImageReason, fileName: string) {
   const prefix = getPathPrefix(reason);
   if (!prefix) return false;
