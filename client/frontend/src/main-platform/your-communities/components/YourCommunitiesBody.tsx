@@ -172,7 +172,7 @@ function YourCommunitiesBody(props: Props) {
       const noCommunitiesMessage =
         props.requestUserID === 'user'
           ? `You aren't a part of any communities yet. Get involved!`
-          : `${username} isn't a part of any communities yet. Send an invite!`;
+          : `${username} isn't a part of any communities yet.`;
 
       return (
         <RSText size={20} type="head" className={styles.noCommunities}>
