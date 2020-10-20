@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
+import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { CommunityType } from '../../../helpers/types';
@@ -28,6 +29,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginLeft: 20,
     marginRight: 20,
+  },
+  noCommunities: {
+    marginTop: 30,
   },
   singleCommunity: {
     margin: 8,
@@ -164,6 +168,19 @@ function YourCommunitiesBody(props: Props) {
   }
 
   function renderCommunities() {
+    if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
+      const noCommunitiesMessage =
+        props.requestUserID === 'user'
+          ? `You aren't a part of any communities yet. Get involved!`
+          : `${username} isn't a part of any communities yet. Send an invite!`;
+
+      return (
+        <RSText size={20} type="head" className={styles.noCommunities}>
+          {noCommunitiesMessage}
+        </RSText>
+      );
+    }
+
     return (
       <>
         {renderPendingCommunities()}

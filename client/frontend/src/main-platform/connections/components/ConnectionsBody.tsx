@@ -9,10 +9,10 @@ import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
+import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { UserType, UniversityType } from '../../../helpers/types';
-
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -33,6 +33,9 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 1,
     paddingBottom: 10,
   },
+  noConnections: {
+    marginTop: 30,
+  },
   connectionStyle: {
     margin: 8,
   },
@@ -51,6 +54,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   requestUserID: string;
+
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -133,10 +137,17 @@ function ConnectionsBody(props: Props) {
   function renderConnections() {
     const output = [];
 
+    if (connections.length === 0)
+      return (
+        <RSText size={20} type="head" className={styles.noConnections}>
+          {props.requestUserID === 'user' ? `You don't` : `${username} doesn't`} have
+          any connections yet. Send a request!
+        </RSText>
+      );
+
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
       output.push(
-        // <div style={{ borderBottom: `1px solid ${colors.fourth}` }}>
         <UserHighlight
           name={`${connections[i].firstName} ${connections[i].lastName}`}
           userID={connections[i]._id}
@@ -150,7 +161,6 @@ function ConnectionsBody(props: Props) {
           style={styles.connectionStyle}
           status="CONNECTION"
         />
-        // </div>
       );
     }
     return output;
