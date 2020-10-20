@@ -657,7 +657,7 @@ function UserPost(props: Props) {
             {renderLikesAndCommentCount()}
             {showComments && (
               <div className={styles.commentsContainer}>
-                {comments.length < props.commentCount && (
+                {comments.length < props.commentCount && !loadingMoreComments && (
                   <Button
                     className={styles.seeMoreButton}
                     onClick={handleMoreCommentsClick}
