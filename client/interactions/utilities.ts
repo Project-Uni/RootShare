@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { ImageReason } from '../helpers/types';
 
 import { User } from '../models';
 
@@ -65,22 +66,6 @@ function countAccountType(users) {
   return retCounts;
 }
 
-export function extractOtherUserIDFromConnections(
-  userID,
-  connectionsDBArray: [{ [key: string]: any; from: string; to: string }]
-): string[] {
-  const connections = connectionsDBArray.reduce((output, connection) => {
-    const otherID =
-      connection['from'].toString() != userID.toString()
-        ? connection['from']
-        : connection['to'];
-
-    output.push(otherID.toString());
-    return output;
-  }, []);
-  return connections;
-}
-
 // Adds profile picture, mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
@@ -92,11 +77,11 @@ export async function addCalculatedUserFields(
     connections: string[];
     joinedCommunities: string[];
     status: string;
-  },
+  }
 ) {
   const userConnectionsStrings = toStringArray(currentUserConnections);
   const userCommunitiesStrings = toStringArray(currentUserJoinedCommunities);
-  const otherUserConnectionsStrings = toStringArray(connectionsToUserIDStrings(otherUser._id, otherUser.connections))
+  const otherUserConnectionsStrings = toStringArray(otherUser.connections);
   const otherUserCommunitiesStrings = toStringArray(otherUser.joinedCommunities);
 
   //Calculating mutual connections and communities
@@ -107,21 +92,16 @@ export async function addCalculatedUserFields(
     return otherUserCommunitiesStrings.indexOf(community) !== -1;
   });
 
-  const cleanedUser = {
-    ...otherUser,
-    _id: otherUser._id,
-    firstName: otherUser.firstName,
-    lastName: otherUser.lastName,
-    university: otherUser.university,
-    work: otherUser.work,
-    position: otherUser.position,
-    graduationYear: otherUser.graduationYear,
-    profilePicture: otherUser.profilePicture,
-    numMutualConnections: mutualConnections.length,
-    numMutualCommunities: mutualCommunities.length,
-    accountType: otherUser.accountType,
-    status: 'PUBLIC',
-  };
+  let cleanedUser = copyObject(otherUser, [
+    'connections',
+    'connectionUserIDs',
+    'pendingConnections',
+    'joinedCommunities',
+  ]);
+
+  cleanedUser.numMutualConnections = mutualConnections.length;
+  cleanedUser.numMutualCommunities = mutualCommunities.length;
+  cleanedUser.status = 'PUBLIC';
 
   return cleanedUser;
 }
@@ -133,6 +113,7 @@ export async function addCalculatedCommunityFields(
     [key: string]: any;
     _id: string;
     admin: string;
+    members: string[];
   }
 ) {
   const currentUserConnectionsStrings = toStringArray(currentUserConnections);
@@ -142,19 +123,10 @@ export async function addCalculatedCommunityFields(
     return membersStrings.indexOf(connection) !== -1;
   });
 
-  const cleanedCommunity = {
-    _id: community._id,
-    name: community.name,
-    type: community.type,
-    description: community.description,
-    private: community.private,
-    university: community.university,
-    profilePicture: community.profilePicture,
-    admin: community.admin,
-    numMembers: community.members.length,
-    numMutual: mutualMembers.length,
-    status: 'OPEN',
-  };
+  const cleanedCommunity = copyObject(community, ['members']);
+  cleanedCommunity.numMembers = community.members.length;
+  cleanedCommunity.numMutual = mutualMembers.length;
+  cleanedCommunity.status = 'OPEN';
 
   return cleanedCommunity;
 }
@@ -173,7 +145,7 @@ export function getUserToUserRelationship(
     [key: string]: any;
     _id: string;
     status: string;
-  },
+  }
 ) {
   const otherUserPendingStrings = toStringArray(
     originalOtherUser.pendingConnections
@@ -274,11 +246,42 @@ export function generateSignedImagePromises(
   return profilePicturePromises;
 }
 
+export function addProfilePicturesAll(
+  entities,
+  imageReason: 'profile' | 'communityProfile'
+) {
+  const imagePromises = generateSignedImagePromises(entities, imageReason);
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++) {
+        if (signedImageURLs[i]) entities[i].profilePicture = signedImageURLs[i];
+        else entities[i].profilePicture = undefined;
+      }
+
+      return entities;
+    })
+    .catch((err) => {
+      log('error', err);
+      for (let i = 0; i < entities.length; i++) {
+        const imageURL = entities[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          entities[i].profilePicture = undefined;
+      }
+      return entities;
+    });
+}
+
 export function connectionsToUserIDStrings(userID, connections) {
   return connections.reduce((output, connection) => {
     if (connection.accepted) {
       const otherID =
-        connection['from'].toString() != userID.toString()
+        connection['from'].toString() !== userID.toString()
           ? connection['from']
           : connection['to'];
 
@@ -292,7 +295,21 @@ export function connectionsToUserIDs(userID, connections) {
   return connections.reduce((output, connection) => {
     if (connection.accepted) {
       const otherID =
-        connection['from'].toString() != userID.toString()
+        connection['from'].toString() !== userID.toString()
+          ? connection['from']
+          : connection['to'];
+
+      output.push(mongoose.Types.ObjectId(otherID));
+    }
+    return output;
+  }, []);
+}
+
+export function pendingToUserIDs(userID, connections) {
+  return connections.reduce((output, connection) => {
+    if (!connection.accepted) {
+      const otherID =
+        connection['from'].toString() !== userID.toString()
           ? connection['from']
           : connection['to'];
 
@@ -303,6 +320,8 @@ export function connectionsToUserIDs(userID, connections) {
 }
 
 export function toStringArray(array) {
+  if (!array)
+    log('ERROR', 'Array is undefined and cannot be converted to string array');
   let retArray = [];
   array.forEach((element) => {
     retArray.push(element.toString());

@@ -25,3 +25,11 @@ export const CommunityMap = {
   'Student Organization': 4,
   Academic: 5,
 };
+
+export type ImageReason =
+  | 'profile'
+  | 'profileBanner'
+  | 'communityProfile'
+  | 'communityBanner'
+  | 'eventBanner'
+  | 'postImage';

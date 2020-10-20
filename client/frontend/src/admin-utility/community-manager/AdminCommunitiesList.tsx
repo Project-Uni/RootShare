@@ -14,10 +14,10 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 
-import { Community } from '../../helpers/types';
-
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
+
+import { Community, UserType } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -127,7 +127,8 @@ function AdminCommunitiesList(props: Props) {
             </TableCell>
             <TableCell align="right">
               <RSText>
-                {community.admin.firstName} {community.admin.lastName}
+                {(community.admin as UserType).firstName}{' '}
+                {(community.admin as UserType).lastName}
               </RSText>
             </TableCell>
             <TableCell align="right">

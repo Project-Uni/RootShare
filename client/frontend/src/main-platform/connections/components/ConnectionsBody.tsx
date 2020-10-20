@@ -12,7 +12,8 @@ import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import { UserType, UniversityType } from '../../../helpers/types';
+import { DiscoverUser, UniversityType } from '../../../helpers/types';
+
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -66,7 +67,8 @@ function ConnectionsBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
-  const [connections, setConnections] = useState<UserType[]>([]);
+  const [connections, setConnections] = useState<DiscoverUser[]>([]);
+  const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
   useEffect(() => {
@@ -89,7 +91,10 @@ function ConnectionsBody(props: Props) {
       props.refreshToken
     );
 
-    if (data.success === 1) setConnections(data.content['connections']);
+    if (data.success === 1) {
+      setConnections(data.content['connections']);
+      setPendingConnections(data.content['pendingConnections']);
+    }
   }
 
   async function fetchUserBasicInfo() {
@@ -121,7 +126,9 @@ function ConnectionsBody(props: Props) {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search your connections"
+              label={`Search ${
+                props.requestUserID === 'user' ? 'your' : `${username}'s`
+              } connections`}
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
             />
@@ -132,6 +139,32 @@ function ConnectionsBody(props: Props) {
         </IconButton>
       </div>
     );
+  }
+
+  function renderPending() {
+    const output = [];
+
+    //TODO: Add logic in case an optional field does not exist
+    for (let i = 0; i < pendingConnections.length; i++) {
+      const currPending: DiscoverUser = pendingConnections[i];
+      output.push(
+        <UserHighlight
+          name={`${currPending.firstName} ${currPending.lastName}`}
+          userID={currPending._id}
+          profilePic={currPending.profilePicture}
+          university={(currPending.university as UniversityType).universityName}
+          graduationYear={currPending.graduationYear}
+          position={currPending.position}
+          company={currPending.work}
+          mutualConnections={currPending.numMutualConnections}
+          mutualCommunities={currPending.numMutualCommunities}
+          style={styles.connectionStyle}
+          status={currPending.status}
+          connectionRequestID={currPending.connectionRequestID}
+        />
+      );
+    }
+    return output;
   }
 
   function renderConnections() {
@@ -147,19 +180,21 @@ function ConnectionsBody(props: Props) {
 
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
+      const currConnection: DiscoverUser = connections[i];
       output.push(
         <UserHighlight
-          name={`${connections[i].firstName} ${connections[i].lastName}`}
-          userID={connections[i]._id}
-          profilePic={connections[i].profilePicture}
-          university={(connections[i].university as UniversityType).universityName}
-          graduationYear={connections[i].graduationYear}
-          position={connections[i].position}
-          company={connections[i].work}
-          mutualConnections={connections[i].numMutualConnections}
-          mutualCommunities={connections[i].numMutualCommunities}
+          name={`${currConnection.firstName} ${currConnection.lastName}`}
+          userID={currConnection._id}
+          profilePic={currConnection.profilePicture}
+          university={(currConnection.university as UniversityType).universityName}
+          graduationYear={currConnection.graduationYear}
+          position={currConnection.position}
+          company={currConnection.work}
+          mutualConnections={currConnection.numMutualConnections}
+          mutualCommunities={currConnection.numMutualCommunities}
           style={styles.connectionStyle}
-          status="CONNECTION"
+          status={currConnection.status}
+          connectionRequestID={currConnection.connectionRequestID}
         />
       );
     }
@@ -192,7 +227,10 @@ function ConnectionsBody(props: Props) {
         {loading ? (
           <CircularProgress size={100} className={styles.loadingIndicator} />
         ) : (
-          renderConnections()
+          <div>
+            {renderConnections()}
+            {renderPending()}
+          </div>
         )}
       </div>
     </div>
