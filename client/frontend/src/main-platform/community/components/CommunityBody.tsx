@@ -87,6 +87,7 @@ type Props = {
   refreshToken: string;
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
+  hasFollowingAccess?: boolean;
 };
 
 function CommunityBody(props: Props) {
@@ -95,7 +96,8 @@ function CommunityBody(props: Props) {
   const [currentProfile, setCurrentProfile] = useState<string>();
 
   const locked =
-    props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
+    props.status === 'PENDING' ||
+    (props.status === 'OPEN' && props.private && !props.hasFollowingAccess);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -201,6 +203,7 @@ function CommunityBody(props: Props) {
             name={props.name}
             status={props.status}
             isAdmin={props.isAdmin}
+            private={props.private}
           />
         )}
       </div>
