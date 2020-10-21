@@ -83,9 +83,12 @@ function CommunityBodyContent(props: Props) {
 
   const tabs = [
     { label: 'External', value: 'external' },
-    { label: 'Following', value: 'following' },
     { label: 'Members', value: 'members' },
   ];
+
+  if (!props.private || props.status === 'JOINED') {
+    tabs.splice(1, 0, { label: 'Following', value: 'following' });
+  }
 
   if (props.private && props.status === 'JOINED') {
     if (props.isAdmin) {

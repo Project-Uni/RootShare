@@ -135,6 +135,7 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
       cursor: 'pointer',
     },
+    zIndex: 2,
   },
   imagePreviewWrapper: {
     width: '100%',
