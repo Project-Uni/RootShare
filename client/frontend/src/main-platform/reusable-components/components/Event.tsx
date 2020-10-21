@@ -7,9 +7,7 @@ import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import BabyBoilersBanner from '../../../images/PurdueHypeAlt.png';
-import BoudreauxEventPicture from '../../../images/banners/BoudreauxEventPicture.jpeg';
-import BoudreauxEvent1Picture from '../../../images/banners/BoudreauxEvent1Picture.jpeg';
+import RootSharePreviewBanner from '../../../images/event/RootSharePreviewBanner.png';
 
 const MAX_SUBSTR_LEN = 200;
 
@@ -23,6 +21,10 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 1,
     textAlign: 'left',
     padding: 15,
+  },
+  bodyWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   banner: {
     height: 125,
@@ -85,6 +87,7 @@ type Props = {
   summary: string;
   description: string;
   timestamp: string;
+  eventImage: string;
   mutualSignups: number;
   rsvpYes: boolean;
   style?: any;
@@ -136,7 +139,7 @@ function Event(props: Props) {
 
   function renderEventBody() {
     return (
-      <>
+      <div className={styles.bodyWrapper}>
         <a
           href={props.communityID ? `/community/${props.communityID}` : undefined}
           className={styles.hostLink}
@@ -147,13 +150,7 @@ function Event(props: Props) {
         </a>
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
           <img
-            src={
-              props.eventID === '5f89f333821f7f6046243a53'
-                ? BoudreauxEventPicture
-                : props.eventID === '5f7f5653b0f90c4302e10fa6'
-                ? BoudreauxEvent1Picture
-                : BabyBoilersBanner
-            }
+            src={props.eventImage || RootSharePreviewBanner}
             className={styles.banner}
           />
         </a>
@@ -197,7 +194,7 @@ function Event(props: Props) {
             RSVP YES
           </Button> */}
         </div>
-      </>
+      </div>
     );
   }
 

@@ -28,6 +28,7 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
+  eventImage: string;
 };
 
 function EventWatcherMobile(props: Props) {
@@ -75,6 +76,7 @@ function EventWatcherMobile(props: Props) {
           height={playerHeight}
           width={playerWidth}
           muxMetaData={props.muxMetaData}
+          eventImage={props.eventImage}
         />
       ) : (
         <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />

@@ -11,7 +11,6 @@ import RSText from '../base-components/RSText';
 
 import EventClientHeader from './EventClientHeader';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
-import HypeFooter from '../hype-page/headerFooter/HypeFooter';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
 import EventHostContainer from './event-video/event-host/EventHostContainer';
@@ -21,7 +20,7 @@ import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 import EventWelcomeModal from './EventWelcomeModal';
 
-import BoudreuxBanner from '../images/banners/BoudreauxBanner.png';
+import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
 
 import { colors } from '../theme/Colors';
 import { EventType, MuxMetaDataType } from '../helpers/types';
@@ -93,7 +92,6 @@ function EventClientBase(props: Props) {
 
   useEffect(() => {
     if (checkAuth()) {
-      fetchAds();
       fetchEventInfo();
     }
   }, []);
@@ -130,6 +128,7 @@ function EventClientBase(props: Props) {
     if (data['success'] === 1) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
+      fetchAds(webinar.eventBanner);
       setMuxMetaData({
         viewerUserID: props.user._id,
         webinarID: webinar._id,
@@ -141,8 +140,8 @@ function EventClientBase(props: Props) {
     }
   }
 
-  function fetchAds() {
-    const ads = [BoudreuxBanner];
+  function fetchAds(eventBanner: any) {
+    const ads = [eventBanner || RootShareDefaultBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }
@@ -249,6 +248,7 @@ function EventClientBase(props: Props) {
           muxPlaybackID={currWebinarData.muxAssetPlaybackID}
           replay
           muxMetaData={muxMetaData as MuxMetaDataType}
+          eventImage={currWebinarData.eventImage}
         />
       );
 
@@ -257,13 +257,14 @@ function EventClientBase(props: Props) {
         <EventWatcherVideoContainer
           muxPlaybackID={currWebinarData.muxPlaybackID}
           muxMetaData={muxMetaData as MuxMetaDataType}
+          eventImage={currWebinarData.eventImage}
         />
       );
     else
       return (
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
-          webinar={webinarData}
+          webinar={webinarData as EventType}
           speaking_token={speaking_token}
           sessionID={sessionID}
         />
@@ -301,6 +302,7 @@ function EventClientBase(props: Props) {
           <EventWatcherMobile
             muxPlaybackID={webinarEvent.muxPlaybackID}
             muxMetaData={muxMetaData as MuxMetaDataType}
+            eventImage={webinarEvent.eventImage}
           />
           <div className={styles.adContainer}>
             {adLoaded && (

@@ -31,5 +31,6 @@ export type ImageReason =
   | 'profileBanner'
   | 'communityProfile'
   | 'communityBanner'
+  | 'eventImage'
   | 'eventBanner'
   | 'postImage';
