@@ -3,12 +3,15 @@ import { User, Connection, Webinar } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
-  extractOtherUserIDFromConnections,
   addCalculatedUserFields,
-  generateSignedImagePromises,
+  getUserToUserRelationship,
+  addCalculatedCommunityFields,
+  getUserToCommunityRelationship,
   connectionsToUserIDStrings,
   connectionsToUserIDs,
+  pendingToUserIDs,
   addProfilePictureToUser,
+  addProfilePicturesAll,
 } from './utilities';
 
 export async function getCurrentUser(user, callback) {
@@ -141,6 +144,11 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
         const selfConnections = connectionsToUserIDStrings(
           selfUserID,
           selfUser.connections
+        );
+
+        otherUser.connections = connectionsToUserIDStrings(
+          otherUser._id,
+          otherUser.connections
         );
 
         otherUser = await addCalculatedUserFields(
@@ -366,19 +374,12 @@ export function getConnections(userID, callback) {
       if (!user || user.length === 0)
         return callback(sendPacket(-1, 'Could not find connections'));
 
-      const connections = user[0].connections;
-      const imagePromises = generateSignedImagePromises(connections, 'profile');
-      Promise.all(imagePromises)
-        .then((signedImageURLs) => {
-          for (let i = 0; i < connections.length; i++)
-            if (signedImageURLs[i])
-              connections[i].profilePicture = signedImageURLs[i];
+      const connections = await addProfilePicturesAll(
+        user[0].connections,
+        'profile'
+      );
 
-          callback(sendPacket(1, "Sending User's Connections", { connections }));
-        })
-        .catch((err) => {
-          log('error', err);
-        });
+      return callback(sendPacket(1, `Sending User's Connections`, { connections }));
     })
     .catch((err) => {
       if (err) return callback(sendPacket(-1, err));
@@ -460,7 +461,10 @@ export function getConnectionSuggestions(userID, callback) {
             suggestions[i] = cleanedSuggestion;
           }
 
-          callback(sendPacket(1, 'Sending Connection suggestions', { suggestions }));
+          suggestions = await addProfilePicturesAll(suggestions, 'profile');
+          return callback(
+            sendPacket(1, 'Sending Connection Suggestions', { suggestions })
+          );
         });
     })
     .catch((err) => {
@@ -582,11 +586,11 @@ export function getPendingRequests(userID, callback) {
         pendingRequests[i].from = cleanedUser;
       }
 
-      callback(
-        sendPacket(1, `Sending User's Pending Connection Requests`, {
-          pendingRequests,
-        })
-      );
+      pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
+      if (pendingRequests === -1)
+        return callback(
+          sendPacket(1, 'Sending pending requests', { pendingRequests })
+        );
     })
     .catch((err) => {
       if (err) callback(sendPacket(-1, err));
@@ -919,7 +923,7 @@ export async function updateAttendingList(
   }
 }
 
-export async function getUserCommunities(userID: string) {
+export async function getSelfUserCommunities(userID: string) {
   try {
     //Getting correct values from database
     const communitySelectFields = [
@@ -934,89 +938,47 @@ export async function getUserCommunities(userID: string) {
 
     const user = await User.findById(userID)
       .select(['joinedCommunities', 'pendingCommunities', 'connections'])
-      .populate({ path: 'connections', select: ['from', 'to'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .populate({ path: 'joinedCommunities', select: communitySelectFields })
       .populate({ path: 'pendingCommunities', select: communitySelectFields })
       .exec();
 
-    if (!user) return sendPacket(0, `Could find user with id ${userID}`);
+    if (!user)
+      return sendPacket(
+        0,
+        `Couldn't find user with id ${userID} to get communities for`
+      );
 
-    const { joinedCommunities, pendingCommunities } = user;
-    const connections = extractOtherUserIDFromConnections(
-      userID,
-      user['connections']
-    );
+    let { joinedCommunities, pendingCommunities } = user;
+    const connections = connectionsToUserIDStrings(userID, user['connections']);
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < joinedCommunities.length; i++) {
-      //Updating Profile Picture
-      if (joinedCommunities[i].profilePicture) {
-        try {
-          const signedProfilePicture = await retrieveSignedUrl(
-            'communityProfile',
-            joinedCommunities[i].profilePicture
-          );
-          if (signedProfilePicture)
-            joinedCommunities[i].profilePicture = signedProfilePicture;
-        } catch (err) {
-          log('error', err);
-        }
-      }
+      joinedCommunities[i] = await addCalculatedCommunityFields(
+        connections,
+        joinedCommunities[i].toObject()
+      );
 
-      //Calculating Mutual Connections
-      const mutualConnections = connections.filter((connection) => {
-        return joinedCommunities[i].members.indexOf(connection) !== -1;
-      });
-
-      const cleanedCommunity = {
-        _id: joinedCommunities[i]._id,
-        name: joinedCommunities[i].name,
-        description: joinedCommunities[i].description,
-        private: joinedCommunities[i].private,
-        type: joinedCommunities[i].type,
-        admin: joinedCommunities[i].admin,
-        profilePicture: joinedCommunities[i].profilePicture,
-        numMembers: joinedCommunities[i].members.length,
-        numMutual: mutualConnections.length,
-      };
-
-      joinedCommunities[i] = cleanedCommunity;
+      joinedCommunities[i].status = 'JOINED';
     }
 
     for (let i = 0; i < pendingCommunities.length; i++) {
-      //Updating Profile Picture
-      if (pendingCommunities[i].profilePicture) {
-        try {
-          const signedProfilePicture = await retrieveSignedUrl(
-            'communityProfile',
-            pendingCommunities[i].profilePicture
-          );
-          if (signedProfilePicture)
-            pendingCommunities[i].profilePicture = signedProfilePicture;
-        } catch (err) {
-          log('error', err);
-        }
-      }
+      pendingCommunities[i] = await addCalculatedCommunityFields(
+        connections,
+        pendingCommunities[i].toObject()
+      );
 
-      //Calculating Mutual Connections
-      const mutualConnections = connections.filter((connection) => {
-        return pendingCommunities[i].members.indexOf(connection) !== -1;
-      });
-
-      const cleanedCommunity = {
-        _id: pendingCommunities[i]._id,
-        name: pendingCommunities[i].name,
-        description: pendingCommunities[i].description,
-        private: pendingCommunities[i].private,
-        type: pendingCommunities[i].type,
-        admin: pendingCommunities[i].admin,
-        profilePicture: pendingCommunities[i].profilePicture,
-        numMembers: pendingCommunities[i].members.length,
-        numMutual: mutualConnections.length,
-      };
-
-      pendingCommunities[i] = cleanedCommunity;
+      pendingCommunities[i].status = 'PENDING';
     }
+
+    joinedCommunities = await addProfilePicturesAll(
+      joinedCommunities,
+      'communityProfile'
+    );
+    pendingCommunities = await addProfilePicturesAll(
+      pendingCommunities,
+      'communityProfile'
+    );
 
     return sendPacket(
       1,
@@ -1029,18 +991,199 @@ export async function getUserCommunities(userID: string) {
   }
 }
 
-export async function getConnectionsFullData(userID: string) {
+export async function getOtherUserCommunities(selfID: string, userID: string) {
   try {
-    const { connections, joinedCommunities } = await User.findOne({ _id: userID }, [
+    //Getting correct values from database
+    const communitySelectFields = [
+      'name',
+      'description',
+      'private',
+      'members',
+      'type',
+      'profilePicture',
+      'admin',
+    ];
+
+    const selfUser = await User.findById(selfID)
+      .select(['joinedCommunities', 'pendingCommunities', 'connections'])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .exec();
+
+    const otherUser = await User.findById(userID)
+      .select(['joinedCommunities'])
+      .populate({ path: 'joinedCommunities', select: communitySelectFields })
+      .exec();
+
+    if (!selfUser || !otherUser)
+      return sendPacket(0, `Couldn't find User to get communities for`);
+
+    const selfUserConnections = connectionsToUserIDStrings(
+      selfID,
+      selfUser['connections']
+    );
+
+    //Cleaning up joined and pending communities
+    for (let i = 0; i < otherUser.joinedCommunities.length; i++) {
+      const cleanedCommunity = await addCalculatedCommunityFields(
+        selfUserConnections,
+        otherUser.joinedCommunities[i].toObject()
+      );
+
+      getUserToCommunityRelationship(
+        selfUser.joinedCommunities,
+        selfUser.pendingCommunities,
+        otherUser.joinedCommunities[i],
+        cleanedCommunity
+      );
+
+      otherUser.joinedCommunities[i] = cleanedCommunity;
+    }
+
+    const joinedWithImages = await addProfilePicturesAll(
+      otherUser.joinedCommunities,
+      'communityProfile'
+    );
+
+    return sendPacket(
+      1,
+      'Successfully retrieved all joined and pending communities.',
+      { joinedCommunities: joinedWithImages, pendingCommunities: [] }
+    );
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getSelfConnectionsFullData(selfID: string) {
+  try {
+    const currUser = await User.findOne({ _id: selfID }, [
       'connections',
+      'pendingConnections',
       'joinedCommunities',
-    ]).populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+      'firstName',
+    ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] });
 
-    const connectionUserIDStrings = connectionsToUserIDStrings(userID, connections);
-    const connectionUserIDs = connectionsToUserIDs(userID, connections);
+    const connectionUserIDs = connectionsToUserIDs(selfID, currUser.connections);
 
-    const connectionsWithData = await User.find(
-      { _id: { $in: connectionUserIDs } },
+    const pendingUserIDs = pendingToUserIDs(selfID, currUser.pendingConnections);
+
+    let connectionsWithData = await User.find({ _id: { $in: connectionUserIDs } }, [
+      'firstName',
+      'lastName',
+      'graduationYear',
+      'university',
+      'work',
+      'position',
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'profilePicture',
+    ])
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    let pendingWithData = await User.find({ _id: { $in: pendingUserIDs } }, [
+      'firstName',
+      'lastName',
+      'graduationYear',
+      'university',
+      'work',
+      'position',
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'profilePicture',
+    ])
+      .populate({ path: 'university', select: ['universityName'] })
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
+
+    for (let i = 0; i < connectionsWithData.length; i++) {
+      let cleanedConnection = connectionsWithData[i].toObject();
+      cleanedConnection.connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
+      );
+      cleanedConnection = await addCalculatedUserFields(
+        connectionUserIDs,
+        currUser.joinedCommunities,
+        cleanedConnection
+      );
+
+      cleanedConnection.status = 'CONNECTION';
+      connectionsWithData[i] = cleanedConnection;
+    }
+
+    for (let i = 0; i < pendingWithData.length; i++) {
+      let cleanedPending = pendingWithData[i].toObject();
+      cleanedPending.connections = connectionsToUserIDStrings(
+        pendingWithData[i]._id,
+        pendingWithData[i].connections
+      );
+      cleanedPending = await addCalculatedUserFields(
+        connectionUserIDs,
+        currUser.joinedCommunities,
+        cleanedPending
+      );
+
+      getUserToUserRelationship(
+        currUser.connections,
+        currUser.pendingConnections,
+        pendingWithData[i],
+        cleanedPending
+      );
+
+      pendingWithData[i] = cleanedPending;
+    }
+
+    connectionsWithData = await addProfilePicturesAll(
+      connectionsWithData,
+      'profile'
+    );
+    pendingWithData = await addProfilePicturesAll(pendingWithData, 'profile');
+
+    return sendPacket(1, 'Successfully retrieved all connections', {
+      connections: connectionsWithData,
+      pendingConnections: pendingWithData,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
+  }
+}
+
+export async function getOtherConnectionsFullData(selfID: string, userID: string) {
+  try {
+    const selfUser = await User.findOne({ _id: selfID }, [
+      'connections',
+      'pendingConnections',
+      'joinedCommunities',
+      'firstName',
+    ])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .populate({ path: 'pendingConnections', select: ['from', 'to'] });
+
+    const otherUser = await User.findOne({ _id: userID }, [
+      'connections',
+      'firstName',
+    ]).populate({
+      path: 'connections',
+      select: ['accepted', 'from', 'to'],
+    });
+
+    const selfConnectionUserIDStrings = connectionsToUserIDStrings(
+      selfID,
+      selfUser.connections
+    );
+    const otherConnectionUserIDs = connectionsToUserIDs(
+      userID,
+      otherUser.connections
+    );
+
+    let connectionsWithData = await User.find(
+      { _id: { $in: otherConnectionUserIDs } },
       [
         'firstName',
         'lastName',
@@ -1049,6 +1192,7 @@ export async function getConnectionsFullData(userID: string) {
         'work',
         'position',
         'connections',
+        'pendingConnections',
         'joinedCommunities',
         'profilePicture',
       ]
@@ -1057,40 +1201,35 @@ export async function getConnectionsFullData(userID: string) {
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      connectionsWithData[i] = await addCalculatedUserFields(
-        connectionUserIDStrings,
-        joinedCommunities,
-        connectionsWithData[i]
+      let cleanedConnection = connectionsWithData[i].toObject();
+      cleanedConnection.connections = connectionsToUserIDStrings(
+        connectionsWithData[i]._id,
+        connectionsWithData[i].connections
       );
+      cleanedConnection = await addCalculatedUserFields(
+        selfConnectionUserIDStrings,
+        selfUser.joinedCommunities,
+        cleanedConnection
+      );
+
+      getUserToUserRelationship(
+        selfUser.connections,
+        selfUser.pendingConnections,
+        connectionsWithData[i],
+        cleanedConnection
+      );
+
+      connectionsWithData[i] = cleanedConnection;
     }
 
-    const imagePromises = generateSignedImagePromises(
+    connectionsWithData = await addProfilePicturesAll(
       connectionsWithData,
       'profile'
     );
-    return Promise.all(imagePromises)
-      .then((signedImageURLS) => {
-        for (let i = 0; i < connectionsWithData.length; i++) {
-          if (signedImageURLS[i])
-            connectionsWithData[i].profilePicture = signedImageURLS[i];
-        }
-        return sendPacket(1, 'successfully retrieved all connections', {
-          connections: connectionsWithData,
-        });
-      })
-      .catch((err) => {
-        log(
-          'info',
-          'Successfully retrieved connections, but failed to retrieve profile pictures'
-        );
-        return sendPacket(
-          1,
-          'Successfully retrieved all connections, but failed to receive profile pictures',
-          {
-            connections: connectionsWithData,
-          }
-        );
-      });
+    return sendPacket(1, 'Successfully retrieved all connections', {
+      connections: connectionsWithData,
+      pendingConnections: [],
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);

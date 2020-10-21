@@ -19,6 +19,9 @@ const useStyles = makeStyles((_: any) => ({
     padding: 20,
     overflow: 'scroll',
   },
+  followsWrapper: {
+    marginBottom: 50,
+  },
   peopleText: {
     textAlign: 'center',
   },
@@ -31,6 +34,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   accessToken: string;
   refreshToken: string;
+
   communityID: string;
 };
 
@@ -99,7 +103,6 @@ function FollowedByCommunities(props: Props) {
 
   function renderFollowingCommunities() {
     const communitiesFollowing: any = [];
-    if (followingCommunities.length === 0) return;
 
     for (let i = 0; i < followingCommunities.length; i++) {
       const currSuggestion = followingCommunities[i];
@@ -111,32 +114,45 @@ function FollowedByCommunities(props: Props) {
           type={currSuggestion.type}
           description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
-          isLast={i === followingCommunities.length -1 }
+          isLast={i === followingCommunities.length - 1}
           accessToken={props.accessToken}
           refreshToken={props.refreshToken}
           members={followingCommunities[i].members.length}
         />
       );
-      return (
-        <div>
-          <RSText
-            size={18}
-            type="head"
-            bold
-            color={colors.primaryText}
-            className={styles.communityText}
-          >
-            Following
-          </RSText>
-          {communitiesFollowing}
-        </div>
-      );
     }
+
+    if (communitiesFollowing.length === 0)
+      communitiesFollowing.push(
+        <RSText
+          size={14}
+          type="body"
+          bold
+          color={colors.secondaryText}
+          className={styles.communityText}
+        >
+          Not following any communities yet
+        </RSText>
+      );
+
+    return (
+      <div className={styles.followsWrapper}>
+        <RSText
+          size={18}
+          type="head"
+          bold
+          color={colors.primaryText}
+          className={styles.communityText}
+        >
+          Following
+        </RSText>
+        {communitiesFollowing}
+      </div>
+    );
   }
 
   function renderFollowedByCommunities() {
     const communitiesFollowedBy: any = [];
-    if (followedByCommunities.length === 0) return;
 
     for (let i = 0; i < followedByCommunities.length; i++) {
       const currSuggestion = followedByCommunities[i];
@@ -155,8 +171,22 @@ function FollowedByCommunities(props: Props) {
         />
       );
     }
+
+    if (communitiesFollowedBy.length === 0)
+      communitiesFollowedBy.push(
+        <RSText
+          size={14}
+          type="body"
+          bold
+          color={colors.secondaryText}
+          className={styles.communityText}
+        >
+          Not followed by any communities yet
+        </RSText>
+      );
+
     return (
-      <div>
+      <div className={styles.followsWrapper}>
         <RSText
           size={18}
           type="head"

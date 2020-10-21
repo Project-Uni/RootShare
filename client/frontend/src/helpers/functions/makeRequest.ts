@@ -10,7 +10,7 @@ type Config = {
 const store = getStore();
 
 export function makeRequest(
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   data: { [key: string]: any } = {},
   ...rest: any
@@ -24,6 +24,14 @@ export function makeRequest(
     },
   };
 
-  if (method === 'GET') return axios.get(url, ( accessToken && refreshToken ) ? config : {});
-  return axios.post(url, data, ( accessToken && refreshToken ) ? config : {});
+  switch (method) {
+    case 'GET':
+      return axios.get(url, accessToken && refreshToken ? config : {});
+    case 'POST':
+      return axios.post(url, data, accessToken && refreshToken ? config : {});
+    case 'PUT':
+      return axios.put(url, data, accessToken && refreshToken ? config : {});
+    case 'DELETE':
+      return axios.delete(url, accessToken && refreshToken ? config : {});
+  }
 }

@@ -4,6 +4,8 @@ const AWSKeys = require('../../../keys/aws_key.json');
 
 import { log } from './logger';
 
+import { ImageReason } from '../types';
+
 const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,
   secretAccessKey: AWSKeys.secretAccessKey,
@@ -12,14 +14,6 @@ const s3 = new AWS.S3({
 });
 
 const BUCKET = 'rootshare-profile-images';
-
-type ImageReason =
-  | 'profile'
-  | 'profileBanner'
-  | 'communityProfile'
-  | 'communityBanner'
-  | 'eventBanner'
-  | 'postImage';
 
 export async function uploadFile(reason: ImageReason, fileName: string, file: any) {
   const prefix = getPathPrefix(reason);
@@ -34,6 +28,21 @@ export async function uploadFile(reason: ImageReason, fileName: string, file: an
   try {
     const data = await s3.upload(params).promise();
     log('info', `Successfully uploaded: ${data.Location}`);
+    return true;
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+}
+
+export async function deleteFile(reason: ImageReason, fileName: string) {
+  const prefix = getPathPrefix(reason);
+  if (!prefix) return false;
+
+  const params = { Bucket: BUCKET, Key: prefix + fileName };
+  try {
+    const data = await s3.deleteObject(params).promise();
+    log('info', `Successfully deleted image: ${prefix + fileName}`);
     return true;
   } catch (err) {
     log('error', err.message);
@@ -83,6 +92,8 @@ function getPathPrefix(imageType: ImageReason) {
       return base + 'community/profile/';
     case 'communityBanner':
       return base + 'community/banner/';
+    case 'eventImage':
+      return base + 'event/image/';
     case 'eventBanner':
       return base + 'event/banner/';
     case 'postImage':

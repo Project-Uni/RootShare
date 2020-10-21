@@ -8,6 +8,7 @@ import {
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
+  addProfilePicturesAll,
 } from '../interactions/utilities';
 
 export async function createNewCommunity(
@@ -983,15 +984,21 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         if (!community) return sendPacket(0, 'Could not find community');
         if (!user) return sendPacket(0, 'Could not find current user');
 
-        const { members } = community;
+        let { members } = community;
 
         const userConnections = connectionsToUserIDStrings(userID, user.connections);
 
         for (let i = 0; i < members.length; i++) {
-          const cleanedMember = await addCalculatedUserFields(
+          let cleanedMember = members[i].toObject();
+          cleanedMember.connections = connectionsToUserIDStrings(
+            cleanedMember._id,
+            cleanedMember.connections
+          );
+
+          cleanedMember = await addCalculatedUserFields(
             userConnections,
             user.joinedCommunities,
-            members[i]
+            cleanedMember
           );
 
           getUserToUserRelationship(
@@ -1003,26 +1010,8 @@ export async function getCommunityMembers(userID: string, communityID: string) {
           members[i] = cleanedMember;
         }
 
-        const imagePromises = await generateSignedImagePromises(members, 'profile');
-
-        return Promise.all(imagePromises)
-          .then((signedImageURLs) => {
-            for (let i = 0; i < signedImageURLs.length; i++)
-              if (signedImageURLs[i]) members[i].profilePicture = signedImageURLs[i];
-
-            log('info', `Successfully retrieved all members for ${community.name}`);
-            return sendPacket(1, 'Successfully all members', {
-              members,
-            });
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(
-              1,
-              'Successfully retrieved all members, but there was an error retrieving profile pictures',
-              { members }
-            );
-          });
+        members = await addProfilePicturesAll(members, 'profile');
+        return sendPacket(1, 'Sending Community Members', { members });
       }
     );
   } catch (err) {
