@@ -4,10 +4,10 @@ import RSText from '../../../base-components/RSText';
 import { IconButton, Modal } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
+    borderRadius: 5,
   },
 
   top: {
@@ -22,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  open: boolean
+  open: boolean;
   className?: string;
   title: string;
   children?: React.ReactNode;
@@ -32,11 +32,14 @@ type Props = {
 function RSModal(props: Props) {
   const styles = useStyles();
   return (
-    <Modal open={props.open}>
+    <Modal
+      open={props.open}
+      disableEnforceFocus
+      disableAutoFocus
+      onClose={props.onClose}
+    >
       <div
-        className={[styles.wrapper, props.className].join(
-          ' '
-        )}
+        className={[styles.wrapper, props.className].join(' ')}
         style={{
           position: 'absolute',
           top: `${50}%`,
