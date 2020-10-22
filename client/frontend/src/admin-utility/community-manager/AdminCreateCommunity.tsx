@@ -161,13 +161,11 @@ function AdminCreateCommunity(props: Props) {
         `/api/admin/community/${communityID}`
       );
 
-      if (data.success !== 1) {
-        console.log(data);
+      if (data.success !== 1)
         return setServerMessage({
           success: false,
           message: `There was an error deleting the community ${name}`,
         });
-      }
 
       setServerMessage({
         success: true,
