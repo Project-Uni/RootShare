@@ -78,7 +78,7 @@ export async function deleteCommunity(communityID) {
       ])
       .populate('followedByCommunities', 'from')
       .populate('followingCommunities', 'to')
-      .popualate('incomingPendingCommunityFollowRequests', 'from')
+      .populate('incomingPendingCommunityFollowRequests', 'from')
       .populate('outgoingPendingCommunityFollowRequests', 'to')
       .populate('internalCurrentMemberPosts', 'user')
       .populate('internalAlumniPosts', 'user')
@@ -106,14 +106,14 @@ export async function deleteCommunity(communityID) {
       promises.push(deletePost(currPost._id, currPost.user));
     });
     //2 - Remove self from other communities' pending lists
-    community.outgoingPendingCommunityFollowRequests.forEach((currRequest) => {
+    community.outgoingPendingCommunityFollowRequests.forEach(async (currRequest) => {
       promises.push(
         Community.updateOne(
           { _id: currRequest.to },
           { $pull: { incomingPendingCommunityFollowRequests: currRequest._id } }
         ).exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
     community.incomingPendingCommunityFollowRequests.forEach((currRequest) => {
       promises.push(
@@ -122,7 +122,7 @@ export async function deleteCommunity(communityID) {
           { $pull: { outgoingPendingCommunityFollowRequests: currRequest._id } }
         ).exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
     //3 - Remove self from other communities' follow lists
     community.followingCommunities.forEach((currRequest) => {
@@ -132,7 +132,7 @@ export async function deleteCommunity(communityID) {
           { $pull: { followedByCommunities: currRequest._id } }
         ).exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
     community.followedByCommunities.forEach((currRequest) => {
       promises.push(
@@ -141,7 +141,7 @@ export async function deleteCommunity(communityID) {
           { $pull: { followingCommunities: currRequest._id } }
         ).exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
     //4 - Remove self from pending and existing members' community lists
     community.pendingMembers.forEach((currPending) => {
@@ -174,8 +174,11 @@ export async function deleteCommunity(communityID) {
     promises.push(Community.deleteOne({ _id: communityID }).exec());
 
     return Promise.all([promises]).then((values) => {
-      log('info', `Successfully deleted community ${community.name}`);
-      return sendPacket(1, 'Successfully deleted community');
+      log(
+        'info',
+        `Successfully deleted community ${community.name} and handled all propagation`
+      );
+      return sendPacket(1, `Successfully deleted community ${community.name}`);
     });
   } catch (err) {
     log('error', err);

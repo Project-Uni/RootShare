@@ -9,6 +9,7 @@ import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
+  deleteCommunity,
   //General Community Actions
   getCommunityInformation,
   joinCommunity,
@@ -111,6 +112,21 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.delete(
+    '/api/admin/community/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+        return res.json(
+          sendPacket(-1, 'User is not authorized to perform this action')
+        );
+
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
 
   app.get(
     '/api/community/:communityID/info',
