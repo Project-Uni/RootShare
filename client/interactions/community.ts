@@ -123,6 +123,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'pendingMembers',
       'university',
       'profilePicture',
+      'followedByCommunities',
       'incomingPendingCommunityFollowRequests',
     ])
       .populate({ path: 'university', select: 'universityName' })
@@ -134,10 +135,11 @@ export async function getCommunityInformation(communityID: string, userID: strin
         path: 'incomingPendingCommunityFollowRequests',
         select: 'from',
       })
+      .populate({ path: 'followedByCommunities', select: 'from' })
       .exec();
 
     const userPromise = User.findById(userID)
-      .select('connections')
+      .select(['connections', 'joinedCommunities'])
       .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
       .exec();
 
@@ -151,6 +153,18 @@ export async function getCommunityInformation(communityID: string, userID: strin
           (member) => connections.indexOf(member) !== -1
         );
 
+        let hasFollowingAccess = false;
+
+        if (community.private) {
+          const followedByCommunities = community.followedByCommunities.map(
+            (community) => community.from.toString()
+          );
+          const communityIntersection = user.joinedCommunities.filter((community) =>
+            followedByCommunities.includes(community.toString())
+          );
+          if (communityIntersection.length > 0) hasFollowingAccess = true;
+        }
+
         log(
           'info',
           `Successfully retrieved community information for ${community.name}`
@@ -158,6 +172,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
         return sendPacket(1, 'Successfully retrieved community', {
           community,
           mutualConnections,
+          hasFollowingAccess,
         });
       })
       .catch((err) => {
