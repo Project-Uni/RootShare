@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 
-import { Community, CommunityEdge, User } from '../models';
-import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { Community, CommunityEdge, User, University } from '../models';
+import {
+  log,
+  sendPacket,
+  retrieveSignedUrl,
+  deleteFile,
+} from '../helpers/functions';
 import { COMMUNITY_TYPE } from '../helpers/types';
 import {
   generateSignedImagePromises,
@@ -10,6 +15,7 @@ import {
   addCalculatedUserFields,
   addProfilePicturesAll,
 } from '../interactions/utilities';
+import { deletePost } from './posts';
 
 export async function createNewCommunity(
   name: string,
@@ -44,6 +50,136 @@ export async function createNewCommunity(
   } catch (err) {
     log('error', err);
     return sendPacket(0, `Failed to create community ${name}`);
+  }
+}
+
+export async function deleteCommunity(communityID) {
+  try {
+    const communityExists = await Community.exists({ _id: communityID });
+    if (!communityExists) return sendPacket(0, 'Community does not exist');
+
+    const community = await Community.findById(communityID)
+      .select([
+        'name',
+        'members',
+        'pendingMembers',
+        'university',
+        'profilePicture',
+        'bannerPicture',
+        'followedByCommunities',
+        'followingCommunities',
+        'outgoingPendingCommunityFollowRequests',
+        'incomingPendingCommunityFollowRequests',
+        'internalCurrentMemberPosts',
+        'internalAlumniPosts',
+        'externalPosts',
+        'postsToOtherCommunities',
+        'broadcastedPosts',
+      ])
+      .populate('followedByCommunities', 'from')
+      .populate('followingCommunities', 'to')
+      .popualate('incomingPendingCommunityFollowRequests', 'from')
+      .populate('outgoingPendingCommunityFollowRequests', 'to')
+      .populate('internalCurrentMemberPosts', 'user')
+      .populate('internalAlumniPosts', 'user')
+      .populate('externalPosts', 'user')
+      .populate('postsToOtherCommunities', 'user')
+      .populate('broadcastedPosts', 'user')
+      .exec();
+
+    //Actions:
+    const promises = [];
+    //1 - Delete Posts
+    community.internalCurrentMemberPosts.forEach((currPost) => {
+      promises.push(deletePost(currPost._id, currPost.user));
+    });
+    community.internalAlumniPosts.forEach((currPost) => {
+      promises.push(deletePost(currPost._id, currPost.user));
+    });
+    community.externalPosts.forEach((currPost) => {
+      promises.push(deletePost(currPost._id, currPost.user));
+    });
+    community.postsToOtherCommunities.forEach((currPost) => {
+      promises.push(deletePost(currPost._id, currPost.user));
+    });
+    community.broadcastedPosts.forEach((currPost) => {
+      promises.push(deletePost(currPost._id, currPost.user));
+    });
+    //2 - Remove self from other communities' pending lists
+    community.outgoingPendingCommunityFollowRequests.forEach((currRequest) => {
+      promises.push(
+        Community.updateOne(
+          { _id: currRequest.to },
+          { $pull: { incomingPendingCommunityFollowRequests: currRequest._id } }
+        ).exec()
+      );
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+    });
+    community.incomingPendingCommunityFollowRequests.forEach((currRequest) => {
+      promises.push(
+        Community.updateOne(
+          { _id: currRequest.from },
+          { $pull: { outgoingPendingCommunityFollowRequests: currRequest._id } }
+        ).exec()
+      );
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+    });
+    //3 - Remove self from other communities' follow lists
+    community.followingCommunities.forEach((currRequest) => {
+      promises.push(
+        Community.updateOne(
+          { _id: currRequest.to },
+          { $pull: { followedByCommunities: currRequest._id } }
+        ).exec()
+      );
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+    });
+    community.followedByCommunities.forEach((currRequest) => {
+      promises.push(
+        Community.updateOne(
+          { _id: currRequest.from },
+          { $pull: { followingCommunities: currRequest._id } }
+        ).exec()
+      );
+      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }));
+    });
+    //4 - Remove self from pending and existing members' community lists
+    community.pendingMembers.forEach((currPending) => {
+      promises.push(
+        User.updateOne(
+          { _id: currPending },
+          { $pull: { pendingCommunities: community._id } }
+        )
+      );
+    });
+    community.members.forEach((currMember) => {
+      promises.push(
+        User.updateOne(
+          { _id: currMember },
+          { $pull: { joinedCommunities: community._id } }
+        )
+      );
+    });
+    //5 - Remove self from University's communities list
+    promises.push(
+      University.updateOne(
+        { _id: community.university },
+        { $pull: { communities: community._id } }
+      ).exec()
+    );
+    //6 - Delete images
+    promises.push(deleteFile('communityProfile', community.profilePicture));
+    promises.push(deleteFile('communityBanner', community.bannerPicture));
+    //7 - Delete community
+    promises.push(Community.deleteOne({ _id: communityID }).exec());
+
+    return Promise.all([promises]).then((values) => {
+      log('info', `Successfully deleted community ${community.name}`);
+      return sendPacket(1, 'Successfully deleted community');
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err);
   }
 }
 
