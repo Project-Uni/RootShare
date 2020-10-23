@@ -304,8 +304,8 @@ function AdminEventCreator(props: Props) {
 
   function handleEventImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
-      if (event.target.files[0].size > 1440000) {
-        setTopMessage('The image file is too big.');
+      if (event.target.files[0].size > 1050000) {
+        setTopMessage('f: Image file must be smaller than 1MB');
         event.target.value = '';
         return;
       }
@@ -323,8 +323,8 @@ function AdminEventCreator(props: Props) {
 
   function handleEventBannerUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
-      if (event.target.files[0].size > 1440000) {
-        setTopMessage('The image file is too big.');
+      if (event.target.files[0].size > 1050000) {
+        setTopMessage('f: Image file must be smaller than 1MB');
         event.target.value = '';
         return;
       }

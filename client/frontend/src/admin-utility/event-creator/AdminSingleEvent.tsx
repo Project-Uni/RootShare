@@ -6,6 +6,7 @@ import { IconButton } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 import { monthDict } from '../../helpers/constants';
+import { cropText } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -102,7 +103,7 @@ function AdminSingleEvent(props: Props) {
             </RSText>
           </IconButton>
           <RSText bold size={12} color={colors.primaryText} className={styles.name}>
-            {event.title}
+            {cropText(event.title, 26)}
           </RSText>
         </div>
         <div>
