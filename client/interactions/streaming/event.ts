@@ -49,8 +49,7 @@ export async function createEvent(
       addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
       sendEventEmailConfirmation(
         webinar,
-        eventBody['speakerEmails'],
-        eventBody['host']['email']
+        formatSpeakers(eventBody['speakerEmails'], eventBody['host']['email'])
       );
 
       callback(sendPacket(1, 'Successfully created webinar', { webinar }));
@@ -58,12 +57,30 @@ export async function createEvent(
   });
 }
 
-function updateEvent(eventBody, callback) {
-  Webinar.findById(eventBody['editEvent'], (err, webinar) => {
-    if (err || !webinar)
-      return callback(sendPacket(-1, "Couldn't find event to update"));
+async function updateEvent(eventBody, callback) {
+  try {
+    const webinar = await Webinar.findById(eventBody['editEvent'])
+      .populate('speakers', 'email')
+      .populate('host', 'email');
+    if (!webinar) return callback(sendPacket(-1, "Couldn't find event to update"));
 
-    removeRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
+    const oldSpeakers = formatSpeakers(
+      webinar.speakers.map((speaker) => speaker._id),
+      webinar.host._id
+    );
+    const oldSpeakerEmails = formatSpeakers(
+      webinar.speakers.map((speaker) => speaker.email),
+      webinar.host.email
+    );
+    const newSpeakers = formatSpeakers(
+      eventBody['speakers'],
+      eventBody['host']['_id']
+    );
+    const newSpeakerEmails = formatSpeakers(
+      eventBody['speakerEmails'],
+      eventBody['host']['email']
+    );
+    removeRSVPs(webinar._id, oldSpeakers);
     webinar.title = eventBody['title'];
     webinar.brief_description = eventBody['brief_description'];
     webinar.full_description = eventBody['full_description'];
@@ -82,16 +99,15 @@ function updateEvent(eventBody, callback) {
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
 
-      addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
-      sendEventEmailConfirmation(
-        webinar,
-        eventBody['speakerEmails'],
-        eventBody['host']['email']
+      addRSVPs(webinar._id, newSpeakers);
+      const confirmationSpeakerEmails = newSpeakerEmails.filter(
+        (speaker) => !oldSpeakerEmails.includes(speaker)
       );
+      sendEventEmailConfirmation(webinar, confirmationSpeakerEmails);
 
       return callback(sendPacket(1, 'Successfully updated webinar', { webinar }));
     });
-  });
+  } catch (err) {}
 }
 
 function addRSVPs(webinarID, speakers) {
@@ -533,9 +549,11 @@ function formatSpeakers(speakers, host) {
 
 function sendEventEmailConfirmation(
   webinarData: { [key: string]: any },
-  speakerEmails: string[],
-  hostEmail: string
+  speakerEmails: string[]
 ) {
+  console.log(speakerEmails);
+  if (speakerEmails.length === 0) return;
+
   const eventDateTime = webinarData['dateTime'];
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
@@ -564,7 +582,7 @@ function sendEventEmailConfirmation(
 
   var params = {
     Destination: {
-      ToAddresses: [...speakerEmails, hostEmail],
+      ToAddresses: speakerEmails,
     },
     Source: `RootShare Team <dev@rootshare.io>`,
     ReplyToAddresses: [],
@@ -588,6 +606,6 @@ function sendEventEmailConfirmation(
       // log('info', data)
     })
     .catch((err) => {
-      log('error', err);
+      log('email error', err);
     });
 }
