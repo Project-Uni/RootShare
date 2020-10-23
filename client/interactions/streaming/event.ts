@@ -193,7 +193,7 @@ export async function getAllRecentEvents(userID: string, callback) {
 export async function getAllEventsAdmin(callback) {
   Webinar.aggregate([
     // { $match: { dateTime: { $gt: new Date() } } },
-    { $sort: { createdAt: 1 } },
+    { $sort: { createdAt: -1 } },
     {
       $lookup: {
         from: 'users',
