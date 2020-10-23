@@ -547,14 +547,15 @@ function formatSpeakers(speakers, host) {
   else return speakers.concat(host);
 }
 
-function sendEventEmailConfirmation(
+export function sendEventEmailConfirmation(
   webinarData: { [key: string]: any },
-  speakerEmails: string[]
+  speakerEmails: string[],
+  callback?: any
 ) {
-  console.log(speakerEmails);
-  if (speakerEmails.length === 0) return;
+  if (!webinarData || speakerEmails.length === 0)
+    return callback && callback(sendPacket(0, 'Invalid inputs'));
 
-  const eventDateTime = webinarData['dateTime'];
+  const eventDateTime = new Date(webinarData['dateTime']);
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
 
@@ -604,8 +605,11 @@ function sendEventEmailConfirmation(
     .promise()
     .then((data) => {
       // log('info', data)
+      if (callback) callback(sendPacket(1, 'Successfully sent all emails'));
     })
     .catch((err) => {
       log('email error', err);
+      if (callback)
+        callback(sendPacket(-1, 'There was an error sending the emails'));
     });
 }

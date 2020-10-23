@@ -66,14 +66,26 @@ const useStyles = makeStyles((_: any) => ({
     padding: 0,
     margin: 0,
   },
+  buttonWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+  },
   submitButton: {
-    width: '60%',
+    width: '40%',
     background: '#3D66DE',
     '&:hover': {
       background: '#7c97e9',
     },
     fontSize: 16,
     color: 'white',
+    marginRight: 20,
+  },
+  emailButton: {
+    width: '40%',
+    background: colors.secondaryText,
+    fontSize: 16,
+    color: colors.primaryText,
   },
   loadingGray: {
     width: '60%',
@@ -433,6 +445,35 @@ function AdminEventCreator(props: Props) {
     setLoadingSubmit(false);
   }
 
+  async function handleResendEmails() {
+    if (
+      !window.confirm(
+        'Are you sure you want to resend an email invite to all speakers and host?\n\nREMINDER: They would have received an email at least once when they were first added as a speaker'
+      )
+    )
+      return;
+
+    const webinarData = {
+      _id: editEvent,
+      title,
+      brief_description: briefDesc,
+      full_description: fullDesc,
+      dateTime: eventDateTime,
+    };
+    let speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
+    speakerEmails = speakerEmails.includes((host as HostType).email)
+      ? speakerEmails
+      : speakerEmails.concat((host as HostType).email);
+
+    const { data } = await makeRequest('POST', '/api/webinar/resendSpeakerInvites', {
+      webinarData,
+      speakerEmails,
+    });
+
+    if (data.success === 1) setTopMessage(`s: ${data['message']}`);
+    else setTopMessage(`f: ${data['message']}`);
+  }
+
   function editClientEvents() {
     if (editEvent === '') fetchEvents();
     else
@@ -769,14 +810,26 @@ function AdminEventCreator(props: Props) {
           {renderTextInputs()}
           {renderImageInputs()}
         </div>
-        <Button
-          variant="contained"
-          className={loadingSubmit ? styles.loadingGray : styles.submitButton}
-          onClick={handleSubmit}
-          disabled={loadingSubmit}
-        >
-          {editEvent === '' ? 'CREATE' : 'UPDATE'}
-        </Button>
+        <div className={styles.buttonWrapper}>
+          <Button
+            variant="contained"
+            className={loadingSubmit ? styles.loadingGray : styles.submitButton}
+            onClick={handleSubmit}
+            disabled={loadingSubmit}
+          >
+            {editEvent === '' ? 'CREATE' : 'UPDATE'}
+          </Button>
+          {editEvent && (
+            <Button
+              variant="contained"
+              className={loadingSubmit ? styles.loadingGray : styles.emailButton}
+              onClick={handleResendEmails}
+              disabled={loadingSubmit}
+            >
+              Resend Event Invites
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
