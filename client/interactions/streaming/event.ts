@@ -176,14 +176,14 @@ export async function getAllRecentEvents(userID: string, callback) {
       'dateTime',
       'hostCommunity',
       'muxAssetPlaybackID',
-      'eventImage',
+      'eventBanner',
     ]
   )
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
 
-  events = await addEventImagesAll(events, 'eventImage');
+  events = await addEventImagesAll(events, 'eventBanner');
   if (!events) return callback(sendPacket(-1, `Couldn't get recent events`));
 
   const { connections } = await User.findOne({ _id: userID }, [
