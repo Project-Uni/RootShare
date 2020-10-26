@@ -571,7 +571,7 @@ export function sendEventEmailConfirmation(
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${formatDate(
     eventDateTime
-  )} at ${formatTime(eventDateTime)}<b></p>
+  )} at ${formatTime(eventDateTime)} PT<b></p>
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${
     webinarData['_id']
   }</p>
