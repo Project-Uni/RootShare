@@ -114,6 +114,7 @@ export default function communityRoutes(app) {
 
   app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
     const { name, description, type, isPrivate } = req.body;
+
     if (
       !name ||
       !description ||

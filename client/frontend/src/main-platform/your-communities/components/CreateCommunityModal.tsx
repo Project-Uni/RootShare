@@ -13,12 +13,14 @@ import {
 
 import { FaHome } from 'react-icons/fa';
 
-import { makeRequest } from '../../../helpers/functions';
+import { makeRequest, slideLeft } from '../../../helpers/functions';
 
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
 import { Community } from '../../../helpers/types';
+
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -107,6 +109,12 @@ function CreateCommunityModal(props: Props) {
 
   const [serverErr, setServerErr] = useState(false);
 
+  const [transition, setTransition] = useState<any>();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+
   const helperText =
     'Post to the community, broadcast to the university, and follow and post to other communities';
 
@@ -184,8 +192,13 @@ function CreateCommunityModal(props: Props) {
       setDesc('');
       setType(undefined);
       setIsPrivate('no');
+
       props.appendCommunity(data.content.community);
       props.onClose();
+
+      setSnackbarMessage('Successfully created community');
+      setSnackbarMode('notify');
+      setTransition(() => slideLeft);
     } else {
       setServerErr(true);
     }
@@ -229,68 +242,76 @@ function CreateCommunityModal(props: Props) {
   }
 
   return (
-    <RSModal
-      open={props.open}
-      title="Create Community"
-      onClose={props.onClose}
-      className={styles.wrapper}
-      helperText={helperText}
-      helperIcon={<FaHome color="black" size={64} />}
-    >
-      <div style={{ marginLeft: 20, marginRight: 20 }}>
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Community Name
-        </RSText>
-        <TextField
-          variant="outlined"
-          value={name}
-          label="Community Name"
-          className={styles.textField}
-          onChange={handleNameChange}
-          error={nameErr !== ''}
-          helperText={nameErr !== '' ? nameErr : null}
-        />
-
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Description
-        </RSText>
-        <TextField
-          variant="outlined"
-          value={desc}
-          label="Description"
-          className={styles.textField}
-          multiline
-          onChange={handleDescChange}
-          error={descErr !== ''}
-          helperText={descErr !== '' ? descErr : null}
-        />
-
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Community Type
-        </RSText>
-        {renderCommunityTypeSelect()}
-
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Private
-        </RSText>
-        {renderPrivateSelect()}
-
-        <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-          <Button
-            className={loading ? styles.disabledButton : styles.createButton}
-            disabled={loading}
-            onClick={handleCreateClicked}
-          >
-            {loading ? <CircularProgress size={30} /> : 'Create'}
-          </Button>
-        </div>
-        {serverErr && (
-          <RSText color={colors.brightError} italic>
-            There was an error creating the community.
+    <>
+      <ManageSpeakersSnackbar
+        mode={snackbarMode}
+        message={snackbarMessage}
+        transition={transition}
+        handleClose={() => setSnackbarMode(null)}
+      />
+      <RSModal
+        open={props.open}
+        title="Create Community"
+        onClose={props.onClose}
+        className={styles.wrapper}
+        helperText={helperText}
+        helperIcon={<FaHome color="black" size={64} />}
+      >
+        <div style={{ marginLeft: 20, marginRight: 20 }}>
+          <RSText type="body" bold size={12} className={styles.fieldLabel}>
+            Community Name
           </RSText>
-        )}
-      </div>
-    </RSModal>
+          <TextField
+            variant="outlined"
+            value={name}
+            label="Community Name"
+            className={styles.textField}
+            onChange={handleNameChange}
+            error={nameErr !== ''}
+            helperText={nameErr !== '' ? nameErr : null}
+          />
+
+          <RSText type="body" bold size={12} className={styles.fieldLabel}>
+            Description
+          </RSText>
+          <TextField
+            variant="outlined"
+            value={desc}
+            label="Description"
+            className={styles.textField}
+            multiline
+            onChange={handleDescChange}
+            error={descErr !== ''}
+            helperText={descErr !== '' ? descErr : null}
+          />
+
+          <RSText type="body" bold size={12} className={styles.fieldLabel}>
+            Community Type
+          </RSText>
+          {renderCommunityTypeSelect()}
+
+          <RSText type="body" bold size={12} className={styles.fieldLabel}>
+            Private
+          </RSText>
+          {renderPrivateSelect()}
+
+          <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
+            <Button
+              className={loading ? styles.disabledButton : styles.createButton}
+              disabled={loading}
+              onClick={handleCreateClicked}
+            >
+              {loading ? <CircularProgress size={30} /> : 'Create'}
+            </Button>
+          </div>
+          {serverErr && (
+            <RSText color={colors.brightError} italic>
+              There was an error creating the community.
+            </RSText>
+          )}
+        </div>
+      </RSModal>
+    </>
   );
 }
 
