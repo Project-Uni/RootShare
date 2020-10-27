@@ -81,8 +81,53 @@ type Props = {
 function CreateCommunityModal(props: Props) {
   const styles = useStyles();
 
+  const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
+  const [type, setType] = useState<CommunityType>();
+  const [isPrivate, setIsPrivate] = useState('no');
+
+  const [nameErr, setNameErr] = useState('');
+  const [descErr, setDescErr] = useState('');
+  const [typeErr, setTypeErr] = useState('');
+
   const helperText =
     'Post to the community, broadcast to the university, and follow and post to other communities';
+
+  function handleNameChange(event: any) {
+    setName(event.target.value);
+  }
+
+  function handleDescChange(event: any) {
+    setDesc(event.target.value);
+  }
+
+  function handleCommunityTypeChange(event: any) {
+    setType(event.target.value);
+  }
+
+  function handlePrivateChange(event: any) {
+    setIsPrivate(event.target.value);
+  }
+
+  function validateInput() {
+    let hasErr = false;
+    if (name === '') {
+      setNameErr('Name is required.');
+      hasErr = true;
+    } else setNameErr('');
+
+    if (desc === '') {
+      setDescErr('Description is required.');
+      hasErr = true;
+    } else setDescErr('');
+
+    if (!type) {
+      setTypeErr('Community type is required.');
+      hasErr = true;
+    } else setTypeErr('');
+
+    return hasErr;
+  }
 
   function renderCommunityTypeSelect() {
     return (
@@ -90,19 +135,17 @@ function CreateCommunityModal(props: Props) {
         <FormControl
           className={styles.communitySelect}
           variant="outlined"
-          // error={typeErr !== ''}
+          error={typeErr !== ''}
         >
           <InputLabel>Type</InputLabel>
-          <Select
-          // value={type} onChange={handleCommunityTypeChange}
-          >
+          <Select value={type} onChange={handleCommunityTypeChange}>
             {COMMUNITY_TYPES.map((communityType) => (
               <MenuItem value={communityType} key={communityType}>
                 {communityType}
               </MenuItem>
             ))}
           </Select>
-          {/* {typeErr !== '' && <FormHelperText>{typeErr}</FormHelperText>} */}
+          {typeErr !== '' && <FormHelperText>{typeErr}</FormHelperText>}
         </FormControl>
       </div>
     );
@@ -113,9 +156,7 @@ function CreateCommunityModal(props: Props) {
       <div className={styles.communitySelectDiv}>
         <FormControl className={styles.privateSelect} variant="outlined">
           <InputLabel>Private</InputLabel>
-          <Select
-          // value={isPrivate} onChange={handlePrivateChange}
-          >
+          <Select value={isPrivate} onChange={handlePrivateChange}>
             <MenuItem value={'yes'}>Yes</MenuItem>
             <MenuItem value={'no'}>No</MenuItem>
           </Select>
@@ -139,12 +180,12 @@ function CreateCommunityModal(props: Props) {
         </RSText>
         <TextField
           variant="outlined"
-          // value={name}
+          value={name}
           label="Community Name"
           className={styles.textField}
-          // onChange={handleNameChange}
-          // error={nameErr !== ''}
-          // helperText={nameErr !== '' ? nameErr : null}
+          onChange={handleNameChange}
+          error={nameErr !== ''}
+          helperText={nameErr !== '' ? nameErr : null}
         />
 
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
@@ -152,13 +193,13 @@ function CreateCommunityModal(props: Props) {
         </RSText>
         <TextField
           variant="outlined"
-          // value={desc}
+          value={desc}
           label="Description"
           className={styles.textField}
           multiline
-          // onChange={handleDescChange}
-          // error={descErr !== ''}
-          // helperText={descErr !== '' ? descErr : null}
+          onChange={handleDescChange}
+          error={descErr !== ''}
+          helperText={descErr !== '' ? descErr : null}
         />
 
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
