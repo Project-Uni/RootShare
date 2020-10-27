@@ -8,6 +8,7 @@ import {
   FormHelperText,
   MenuItem,
   Button,
+  CircularProgress,
 } from '@material-ui/core';
 
 import { FaHome } from 'react-icons/fa';
@@ -54,6 +55,14 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.ternary,
     },
   },
+  disabledButton: {
+    background: 'lightgray',
+    marginTop: 20,
+    marginBottom: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+    width: 300,
+  },
 }));
 
 type CommunityType =
@@ -81,6 +90,8 @@ type Props = {
 function CreateCommunityModal(props: Props) {
   const styles = useStyles();
 
+  const [loading, setLoading] = useState(false);
+
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [type, setType] = useState<CommunityType>();
@@ -89,6 +100,11 @@ function CreateCommunityModal(props: Props) {
   const [nameErr, setNameErr] = useState('');
   const [descErr, setDescErr] = useState('');
   const [typeErr, setTypeErr] = useState('');
+
+  const [serverMessage, setServerMessage] = useState<{
+    success: boolean;
+    message: string;
+  }>();
 
   const helperText =
     'Post to the community, broadcast to the university, and follow and post to other communities';
@@ -127,6 +143,49 @@ function CreateCommunityModal(props: Props) {
     } else setTypeErr('');
 
     return hasErr;
+  }
+
+  function handleCreateClicked() {
+    setLoading(true);
+    const hasErrors = validateInput();
+    if (hasErrors) {
+      setLoading(false);
+      return;
+    }
+
+    const isPrivateBool = isPrivate === 'yes' ? true : false;
+
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   '/api/admin/community/edit',
+    //   {
+    //     _id: (props.editingCommunity as Community)._id,
+    //     name,
+    //     description: desc,
+    //     adminID: (admin as HostType)._id,
+    //     type,
+    //     isPrivate: isPrivateBool,
+    //   },
+    //   true,
+    //   props.accessToken,
+    //   props.refreshToken
+    // );
+
+    // if (data.success === 1) {
+    //   setName('');
+    //   setDesc('');
+    //   setType(undefined);
+    //   setIsPrivate('no');
+    //   setServerMessage({
+    //     success: true,
+    //     message: `Successfully created community ${name}`,
+    //   });
+    //   props.onCancelEdit();
+    //   props.onUpdateCommunity();
+    // } else {
+    //   setServerMessage({ success: false, message: `${data.message}` });
+    // }
+    setLoading(false);
   }
 
   function renderCommunityTypeSelect() {
@@ -213,7 +272,12 @@ function CreateCommunityModal(props: Props) {
         {renderPrivateSelect()}
 
         <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-          <Button className={styles.createButton}>Create</Button>
+          <Button
+            className={loading ? styles.disabledButton : styles.createButton}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={30} /> : 'Create'}
+          </Button>
         </div>
       </div>
     </RSModal>
