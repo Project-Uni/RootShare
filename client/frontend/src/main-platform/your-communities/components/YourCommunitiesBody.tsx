@@ -8,6 +8,7 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityOverview from './CommunityOverview';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
+import CreateCommunityModal from './CreateCommunityModal';
 
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
@@ -58,6 +59,10 @@ function YourCommunitiesBody(props: Props) {
   const [username, setUsername] = useState('User');
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
   const [pendingCommunities, setPendingCommunities] = useState<Community[]>([]);
+
+  const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
+    false
+  );
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -203,6 +208,10 @@ function YourCommunitiesBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <CreateCommunityModal
+        open={showCreateCommunitiesModal}
+        onClose={() => setShowCreateCommunitiesModal(false)}
+      />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
           title={`${
@@ -211,6 +220,8 @@ function YourCommunitiesBody(props: Props) {
           message={`All of the communities that ${
             props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
           } to will be displayed on this page.`}
+          buttonText={'Create Community'}
+          buttonAction={() => setShowCreateCommunitiesModal(true)}
         />
       </Box>
       <div className={styles.body}>

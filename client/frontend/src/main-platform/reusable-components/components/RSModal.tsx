@@ -19,12 +19,17 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 15,
     marginRight: 15,
   },
+  helperText: {
+    marginLeft: 15,
+    marginRight: 15,
+  },
 }));
 
 type Props = {
   open: boolean;
   className?: string;
   title: string;
+  helperText?: string;
   children?: React.ReactNode;
   onClose: () => any;
 };
@@ -55,6 +60,17 @@ function RSModal(props: Props) {
             X
           </IconButton>
         </div>
+        {props.helperText && (
+          <RSText
+            type="subhead"
+            className={styles.helperText}
+            size={12}
+            italic
+            color={colors.secondaryText}
+          >
+            {props.helperText}
+          </RSText>
+        )}
         {props.children}
       </div>
     </Modal>
