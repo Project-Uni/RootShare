@@ -107,6 +107,26 @@ function YourCommunitiesBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
+  function appendNewCommunity(community: Community) {
+    const newCommunity = (
+      <CommunityHighlight
+        userID={props.user._id}
+        style={styles.singleCommunity}
+        communityID={community._id}
+        private={community.private}
+        name={community.name}
+        type={community.type}
+        description={community.description}
+        profilePicture={community.profilePicture}
+        memberCount={community.numMembers!}
+        mutualMemberCount={community.numMutual!}
+        status={community.status}
+        admin={props.user._id}
+      />
+    );
+    setJoinedCommunities([newCommunity, ...joinedCommunities]);
+  }
+
   function generateCommunities(communities: Community[]) {
     const output = [];
     for (let i = 0; i < communities.length; i++) {
@@ -135,6 +155,7 @@ function YourCommunitiesBody(props: Props) {
       <CreateCommunityModal
         open={showCreateCommunitiesModal}
         onClose={() => setShowCreateCommunitiesModal(false)}
+        appendCommunity={appendNewCommunity}
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage

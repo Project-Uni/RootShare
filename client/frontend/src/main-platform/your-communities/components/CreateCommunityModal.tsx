@@ -18,6 +18,7 @@ import { makeRequest } from '../../../helpers/functions';
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
+import { Community } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -87,7 +88,7 @@ const COMMUNITY_TYPES = [
 type Props = {
   open: boolean;
   onClose: () => any;
-  // appendCommunity: () => any;
+  appendCommunity: (community: Community) => any;
 };
 
 function CreateCommunityModal(props: Props) {
@@ -183,6 +184,7 @@ function CreateCommunityModal(props: Props) {
       setDesc('');
       setType(undefined);
       setIsPrivate('no');
+      props.appendCommunity(data.content.community);
       props.onClose();
     } else {
       setServerErr(true);
