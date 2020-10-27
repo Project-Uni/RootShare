@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   TextField,
@@ -12,6 +12,8 @@ import {
 } from '@material-ui/core';
 
 import { FaHome } from 'react-icons/fa';
+
+import { makeRequest } from '../../../helpers/functions';
 
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
@@ -101,13 +103,24 @@ function CreateCommunityModal(props: Props) {
   const [descErr, setDescErr] = useState('');
   const [typeErr, setTypeErr] = useState('');
 
-  const [serverMessage, setServerMessage] = useState<{
-    success: boolean;
-    message: string;
-  }>();
+  const [serverErr, setServerErr] = useState(false);
 
   const helperText =
     'Post to the community, broadcast to the university, and follow and post to other communities';
+
+  useEffect(() => {
+    if (props.open) {
+      setServerErr(false);
+      setName('');
+      setDesc('');
+      setType(undefined);
+      setIsPrivate('no');
+
+      setNameErr('');
+      setDescErr('');
+      setTypeErr('');
+    }
+  }, [props.open]);
 
   function handleNameChange(event: any) {
     setName(event.target.value);
@@ -145,7 +158,8 @@ function CreateCommunityModal(props: Props) {
     return hasErr;
   }
 
-  function handleCreateClicked() {
+  async function handleCreateClicked() {
+    setServerErr(false);
     setLoading(true);
     const hasErrors = validateInput();
     if (hasErrors) {
@@ -155,36 +169,23 @@ function CreateCommunityModal(props: Props) {
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
 
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   '/api/admin/community/edit',
-    //   {
-    //     _id: (props.editingCommunity as Community)._id,
-    //     name,
-    //     description: desc,
-    //     adminID: (admin as HostType)._id,
-    //     type,
-    //     isPrivate: isPrivateBool,
-    //   },
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
+    const { data } = await makeRequest('POST', '/api/community/create', {
+      name,
+      description: desc,
+      type,
+      isPrivate: isPrivateBool,
+    });
 
-    // if (data.success === 1) {
-    //   setName('');
-    //   setDesc('');
-    //   setType(undefined);
-    //   setIsPrivate('no');
-    //   setServerMessage({
-    //     success: true,
-    //     message: `Successfully created community ${name}`,
-    //   });
-    //   props.onCancelEdit();
-    //   props.onUpdateCommunity();
-    // } else {
-    //   setServerMessage({ success: false, message: `${data.message}` });
-    // }
+    if (data.success === 1) {
+      setServerErr(false);
+      setName('');
+      setDesc('');
+      setType(undefined);
+      setIsPrivate('no');
+      props.onClose();
+    } else {
+      setServerErr(true);
+    }
     setLoading(false);
   }
 
@@ -275,10 +276,16 @@ function CreateCommunityModal(props: Props) {
           <Button
             className={loading ? styles.disabledButton : styles.createButton}
             disabled={loading}
+            onClick={handleCreateClicked}
           >
             {loading ? <CircularProgress size={30} /> : 'Create'}
           </Button>
         </div>
+        {serverErr && (
+          <RSText color={colors.brightError} italic>
+            There was an error creating the community.
+          </RSText>
+        )}
       </div>
     </RSModal>
   );
