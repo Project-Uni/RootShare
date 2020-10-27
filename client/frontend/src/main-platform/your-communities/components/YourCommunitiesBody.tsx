@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
-import CommunityOverview from './CommunityOverview';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
 
@@ -57,8 +56,9 @@ function YourCommunitiesBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [username, setUsername] = useState('User');
-  const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
-  const [pendingCommunities, setPendingCommunities] = useState<Community[]>([]);
+
+  const [joinedCommunities, setJoinedCommunities] = useState<JSX.Element[]>([]);
+  const [pendingCommunities, setPendingCommunities] = useState<JSX.Element[]>([]);
 
   const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
     false
@@ -84,8 +84,8 @@ function YourCommunitiesBody(props: Props) {
       props.refreshToken
     );
     if (data.success === 1) {
-      setJoinedCommunities(data.content['joinedCommunities']);
-      setPendingCommunities(data.content['pendingCommunities']);
+      setJoinedCommunities(generateCommunities(data.content['joinedCommunities']));
+      setPendingCommunities(generateCommunities(data.content['pendingCommunities']));
     }
   }
 
@@ -107,103 +107,27 @@ function YourCommunitiesBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function renderJoinedCommunities() {
+  function generateCommunities(communities: Community[]) {
     const output = [];
-    for (let i = 0; i < joinedCommunities.length; i++) {
-      // output.push(
-      //   <CommunityHighlight
-      //     userID={props.user._id}
-      //     style={styles.singleCommunity}
-      //     communityID={joinedCommunities[i]._id}
-      //     private={joinedCommunities[i].private}
-      //     name={joinedCommunities[i].name}
-      //     type={joinedCommunities[i].type}
-      //     description={joinedCommunities[i].description}
-      //     profilePicture={joinedCommunities[i].profilePicture}
-      //     memberCount={joinedCommunities[i].numMembers!}
-      //     mutualMemberCount={joinedCommunities[i].numMutual!}
-      //     status={joinedCommunities[i].status}
-      //     admin={joinedCommunities[i].admin as string}
-      //     // setNotification={setNotification}
-      //   />
-      // );
-
+    for (let i = 0; i < communities.length; i++) {
       output.push(
-        <CommunityOverview
+        <CommunityHighlight
           userID={props.user._id}
           style={styles.singleCommunity}
-          communityID={joinedCommunities[i]._id}
-          private={joinedCommunities[i].private}
-          name={joinedCommunities[i].name}
-          type={joinedCommunities[i].type}
-          description={joinedCommunities[i].description}
-          profilePicture={joinedCommunities[i].profilePicture}
-          memberCount={joinedCommunities[i].numMembers!}
-          mutualMemberCount={joinedCommunities[i].numMutual!}
-          status={joinedCommunities[i].status}
-          admin={joinedCommunities[i].admin as string}
-          // setNotification={setNotification}
-
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
+          communityID={communities[i]._id}
+          private={communities[i].private}
+          name={communities[i].name}
+          type={communities[i].type}
+          description={communities[i].description}
+          profilePicture={communities[i].profilePicture}
+          memberCount={communities[i].numMembers!}
+          mutualMemberCount={communities[i].numMutual!}
+          status={communities[i].status}
+          admin={communities[i].admin as string}
         />
       );
     }
     return output;
-  }
-
-  function renderPendingCommunities() {
-    const output = [];
-    for (let i = 0; i < pendingCommunities.length; i++) {
-      // output.push(
-      //   <CommunityHighlight
-      //     userID={props.user._id}
-      //     communityID={pendingCommunities[i]._id}
-      //     name={pendingCommunities[i].name}
-      //     private={pendingCommunities[i].private}
-      //     style={styles.singleCommunity}
-      //     description={pendingCommunities[i].description}
-      //     type={pendingCommunities[i].type}
-      //     admin={pendingCommunities[i].admin as string}
-      //     memberCount={pendingCommunities[i].numMembers!}
-      //     mutualMemberCount={pendingCommunities[i].numMutual!}
-      //     profilePicture={pendingCommunities[i].profilePicture}
-      //     status={pendingCommunities[i].status}
-      //     // setNotification={setNotification}
-      //   />
-      // );
-
-      output.push(
-        <CommunityOverview
-          userID={props.user._id}
-          communityID={pendingCommunities[i]._id}
-          name={pendingCommunities[i].name}
-          private={pendingCommunities[i].private}
-          style={styles.singleCommunity}
-          description={pendingCommunities[i].description}
-          type={pendingCommunities[i].type}
-          admin={pendingCommunities[i].admin as string}
-          memberCount={pendingCommunities[i].numMembers!}
-          mutualMemberCount={pendingCommunities[i].numMutual!}
-          profilePicture={pendingCommunities[i].profilePicture}
-          status={pendingCommunities[i].status}
-          // setNotification={setNotification}
-
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
-        />
-      );
-    }
-    return output;
-  }
-
-  function renderCommunities() {
-    return (
-      <>
-        {renderJoinedCommunities()}
-        {renderPendingCommunities()}
-      </>
-    );
   }
 
   return (
@@ -228,7 +152,10 @@ function YourCommunitiesBody(props: Props) {
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />
         ) : (
-          renderCommunities()
+          <>
+            {joinedCommunities}
+            {pendingCommunities}
+          </>
         )}
       </div>
     </div>

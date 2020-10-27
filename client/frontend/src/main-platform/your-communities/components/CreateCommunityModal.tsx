@@ -87,6 +87,7 @@ const COMMUNITY_TYPES = [
 type Props = {
   open: boolean;
   onClose: () => any;
+  // appendCommunity: () => any;
 };
 
 function CreateCommunityModal(props: Props) {
