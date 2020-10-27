@@ -30,6 +30,7 @@ type Props = {
   className?: string;
   title: string;
   helperText?: string;
+  helperIcon?: JSX.Element;
   children?: React.ReactNode;
   onClose: () => any;
 };
@@ -60,6 +61,18 @@ function RSModal(props: Props) {
             X
           </IconButton>
         </div>
+        {props.helperIcon && (
+          <div
+            style={{
+              display: 'flex',
+              flex: 1,
+              justifyContent: 'center',
+              marginBottom: 10,
+            }}
+          >
+            {props.helperIcon}
+          </div>
+        )}
         {props.helperText && (
           <RSText
             type="subhead"

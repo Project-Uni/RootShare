@@ -10,6 +10,8 @@ import {
   Button,
 } from '@material-ui/core';
 
+import { FaHome } from 'react-icons/fa';
+
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
@@ -129,6 +131,7 @@ function CreateCommunityModal(props: Props) {
       onClose={props.onClose}
       className={styles.wrapper}
       helperText={helperText}
+      helperIcon={<FaHome color="black" size={64} />}
     >
       <div style={{ marginLeft: 20, marginRight: 20 }}>
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
