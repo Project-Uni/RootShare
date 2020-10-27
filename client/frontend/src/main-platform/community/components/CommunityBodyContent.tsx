@@ -54,6 +54,7 @@ type Props = {
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
+  private?: boolean;
 };
 
 type CommunityTab =
@@ -82,20 +83,25 @@ function CommunityBodyContent(props: Props) {
 
   const tabs = [
     { label: 'External', value: 'external' },
-    { label: 'Following', value: 'following' },
     { label: 'Members', value: 'members' },
   ];
 
-  if (props.isAdmin) {
-    tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
-    tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
-  } else {
-    tabs.splice(1, 0, { label: 'Internal', value: 'internal' });
+  if (!props.private || props.status === 'JOINED') {
+    tabs.splice(1, 0, { label: 'Following', value: 'following' });
+  }
+
+  if (props.private && props.status === 'JOINED') {
+    if (props.isAdmin) {
+      tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
+      tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
+    } else {
+      tabs.splice(1, 0, { label: 'Internal', value: 'internal' });
+    }
   }
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchData(), updatePostingOptions()]).then(() => {
+    fetchData().then(() => {
       setLoading(false);
     });
   }, [selectedTab]);
@@ -127,6 +133,7 @@ function CommunityBodyContent(props: Props) {
       } else {
         setFetchErr(true);
       }
+      await updatePostingOptions();
     }
   }
 
@@ -236,7 +243,7 @@ function CommunityBodyContent(props: Props) {
         });
       }
 
-      if (props.status === 'JOINED')
+      if (props.status === 'JOINED' || !props.private)
         newPostingOptions.unshift({
           description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',
