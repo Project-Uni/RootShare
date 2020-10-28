@@ -18,7 +18,6 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
-import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
@@ -192,7 +191,7 @@ function ProfileBanner(props: Props) {
       <div className={props.className}>
         {props.currentPicture ? (
           <img
-            src={props.currentPicture || DefaultProfilePicture}
+            src={props.currentPicture}
             alt="Profile Picture"
             className={[styles.image, props.pictureStyle].join(' ')}
             ref={picture}
@@ -215,9 +214,11 @@ function ProfileBanner(props: Props) {
           />
         ) : (
           <div
-            className={[styles.image, styles.placeholder, props.pictureStyle].join(
-              ' '
-            )}
+            className={[
+              props.editable ? styles.image : undefined,
+              styles.placeholder,
+              props.pictureStyle,
+            ].join(' ')}
             style={{
               height: props.height,
               width: '100%',
