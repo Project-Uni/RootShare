@@ -256,6 +256,8 @@ function CreateCommunityModal(props: Props) {
         className={styles.wrapper}
         helperText={helperText}
         helperIcon={<FaHome color="black" size={64} />}
+        loadingIndicator
+        loading={loading}
       >
         <div style={{ marginLeft: 20, marginRight: 20 }}>
           <RSText type="body" bold size={12} className={styles.fieldLabel}>

@@ -1,13 +1,14 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
-import { IconButton, Modal } from '@material-ui/core';
+import { IconButton, Modal, LinearProgress } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
     borderRadius: 5,
+    outline: 'none',
   },
 
   top: {
@@ -23,6 +24,15 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 15,
     marginRight: 15,
   },
+  linearProgress: {
+    backgroundColor: colors.second,
+  },
+  linearProgressBg: {
+    backgroundColor: 'lightgrey',
+  },
+  linearProgressRoot: {
+    height: 5,
+  },
 }));
 
 type Props = {
@@ -31,6 +41,8 @@ type Props = {
   title: string;
   helperText?: string;
   helperIcon?: JSX.Element;
+  loadingIndicator?: boolean;
+  loading?: boolean;
   children?: React.ReactNode;
   onClose: () => any;
 };
@@ -53,6 +65,17 @@ function RSModal(props: Props) {
           transform: `translate(-${50}%, -${50}%)`,
         }}
       >
+        {props.loadingIndicator && (
+          <LinearProgress
+            classes={{
+              root: styles.linearProgressRoot,
+              barColorPrimary: styles.linearProgress,
+              colorPrimary: styles.linearProgressBg,
+            }}
+            variant={props.loading ? 'indeterminate' : 'determinate'}
+            value={100}
+          />
+        )}
         <div className={styles.top}>
           <RSText type="head" size={15} bold>
             {props.title}
