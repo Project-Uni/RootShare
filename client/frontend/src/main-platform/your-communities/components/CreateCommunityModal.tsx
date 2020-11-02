@@ -18,7 +18,7 @@ import { makeRequest, slideLeft } from '../../../helpers/functions';
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 import { colors } from '../../../theme/Colors';
-import { Community } from '../../../helpers/types';
+import { Community, CommunityType } from '../../../helpers/types';
 
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
@@ -69,14 +69,6 @@ const useStyles = makeStyles((_: any) => ({
     width: 300,
   },
 }));
-
-type CommunityType =
-  | 'Social'
-  | 'Business'
-  | 'Just for Fun'
-  | 'Athletics'
-  | 'Student Organization'
-  | 'Academic';
 
 const COMMUNITY_TYPES = [
   'Social',
