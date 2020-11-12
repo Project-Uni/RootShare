@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
+import RootShareLogoMidnight from '../images/RootShareLogoMidnight.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -10,6 +11,7 @@ import { FaRegCalendarAlt } from 'react-icons/fa';
 import EventDrawer from './EventDrawer';
 
 import { colors } from '../theme/Colors';
+import theme from '../theme/Theme';
 
 import {
   CalendarDrawer,
@@ -23,7 +25,7 @@ import { checkDesktop } from '../helpers/functions';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   header: {
-    background: colors.second,
+    background: theme.white,
   },
   headerLogo: {},
   icons: {},
@@ -113,16 +115,16 @@ function EventClientHeader(props: Props) {
     return (
       <>
         <IconButton className={styles.iconStyle} onClick={handleConnectionsClick}>
-          <MdGroupAdd size={iconSize} color={colors.primaryText} />
+          <MdGroupAdd size={iconSize} color={theme.primary} />
         </IconButton>
         <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
-          <IoMdText size={iconSize} color={colors.primaryText} />
+          <IoMdText size={iconSize} color={theme.primary} />
         </IconButton>
         {/* <IconButton className={styles.iconStyle} onClick={handleCalendarClick}>
           <FaRegCalendarAlt size={isDesktop ? 27 : 20} color={colors.primaryText} />
         </IconButton> */}
         <IconButton className={styles.iconStyle} onClick={handleProfileClick}>
-          <MdAccountCircle color={colors.primaryText} size={iconSize} />
+          <MdAccountCircle color={theme.primary} size={iconSize} />
         </IconButton>
       </>
     );
@@ -137,28 +139,21 @@ function EventClientHeader(props: Props) {
               (props.showNavigationWidth &&
                 window.innerWidth < props.showNavigationWidth)) && (
               <IconButton onClick={handleNavigationClick}>
-                <MdMenu color={colors.primaryText} size={28} />
+                <MdMenu color={theme.primary} size={28} />
               </IconButton>
             )}
 
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
               <a href="/home">
                 <img
-                  src={RootShareLogoWhite}
+                  src={RootShareLogoMidnight}
                   alt="RootShare"
                   className={styles.headerLogo}
                   style={{
-                    height: isDesktop ? 38 : 25,
                     width: isDesktop ? 190 : 130,
                   }}
                 />
               </a>
-              {/* <img
-                src={AlphaLogo}
-                alt="Alpha"
-                className={styles.alpha}
-                style={{ height: isDesktop ? 24 : 16 }}
-              /> */}
             </div>
           </div>
 
