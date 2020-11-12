@@ -1,6 +1,9 @@
+const currentTheme = 'default'; //TODO - In the future, we can get the theme from redux and export the correct one from here using store.getState
+
 const theme = {
   default: {
     white: '#F8F8FF',
+    dark: 'black',
     primary: '#1D2445',
     secondary: '',
     background: 'rgb(227, 227, 227)',
@@ -8,8 +11,8 @@ const theme = {
     secondaryText: '#6D738E',
     error: '#440C16',
     success: '#4BB543',
-    highlight: '#6699FF',
-    highlightText: '#F8F8FF',
+    bright: '#6699FF',
+    altText: '#F8F8FF',
   },
   dark: {
     white: '',
@@ -25,4 +28,4 @@ const theme = {
   },
 };
 
-export default theme;
+export default theme[currentTheme];
