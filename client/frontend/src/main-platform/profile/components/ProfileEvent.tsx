@@ -61,6 +61,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   navigationText: {
     textDecoration: 'none',
+    color: 'inherit',
     '&:hover': {
       textDecoration: 'underline',
     },
