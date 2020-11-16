@@ -49,8 +49,7 @@ export async function createEvent(
       addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
       sendEventEmailConfirmation(
         webinar,
-        eventBody['speakerEmails'],
-        eventBody['host']['email']
+        formatSpeakers(eventBody['speakerEmails'], eventBody['host']['email'])
       );
 
       callback(sendPacket(1, 'Successfully created webinar', { webinar }));
@@ -58,12 +57,30 @@ export async function createEvent(
   });
 }
 
-function updateEvent(eventBody, callback) {
-  Webinar.findById(eventBody['editEvent'], (err, webinar) => {
-    if (err || !webinar)
-      return callback(sendPacket(-1, "Couldn't find event to update"));
+async function updateEvent(eventBody, callback) {
+  try {
+    const webinar = await Webinar.findById(eventBody['editEvent'])
+      .populate('speakers', 'email')
+      .populate('host', 'email');
+    if (!webinar) return callback(sendPacket(-1, "Couldn't find event to update"));
 
-    removeRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
+    const oldSpeakers = formatSpeakers(
+      webinar.speakers.map((speaker) => speaker._id),
+      webinar.host._id
+    );
+    const oldSpeakerEmails = formatSpeakers(
+      webinar.speakers.map((speaker) => speaker.email),
+      webinar.host.email
+    );
+    const newSpeakers = formatSpeakers(
+      eventBody['speakers'],
+      eventBody['host']['_id']
+    );
+    const newSpeakerEmails = formatSpeakers(
+      eventBody['speakerEmails'],
+      eventBody['host']['email']
+    );
+    removeRSVPs(webinar._id, oldSpeakers);
     webinar.title = eventBody['title'];
     webinar.brief_description = eventBody['brief_description'];
     webinar.full_description = eventBody['full_description'];
@@ -82,16 +99,17 @@ function updateEvent(eventBody, callback) {
     webinar.save((err, webinar) => {
       if (err) return callback(sendPacket(-1, "Couldn't update event"));
 
-      addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
-      sendEventEmailConfirmation(
-        webinar,
-        eventBody['speakerEmails'],
-        eventBody['host']['email']
+      addRSVPs(webinar._id, newSpeakers);
+      const confirmationSpeakerEmails = newSpeakerEmails.filter(
+        (speaker) => !oldSpeakerEmails.includes(speaker)
       );
+      sendEventEmailConfirmation(webinar, confirmationSpeakerEmails);
 
       return callback(sendPacket(1, 'Successfully updated webinar', { webinar }));
     });
-  });
+  } catch (err) {
+    callback(sendPacket(-1, err));
+  }
 }
 
 function addRSVPs(webinarID, speakers) {
@@ -160,14 +178,14 @@ export async function getAllRecentEvents(userID: string, callback) {
       'dateTime',
       'hostCommunity',
       'muxAssetPlaybackID',
-      'eventImage',
+      'eventBanner',
     ]
   )
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
 
-  events = await addEventImagesAll(events, 'eventImage');
+  events = await addEventImagesAll(events, 'eventBanner');
   if (!events) return callback(sendPacket(-1, `Couldn't get recent events`));
 
   const { connections } = await User.findOne({ _id: userID }, [
@@ -193,7 +211,7 @@ export async function getAllRecentEvents(userID: string, callback) {
 export async function getAllEventsAdmin(callback) {
   Webinar.aggregate([
     // { $match: { dateTime: { $gt: new Date() } } },
-    { $sort: { createdAt: 1 } },
+    { $sort: { createdAt: -1 } },
     {
       $lookup: {
         from: 'users',
@@ -531,12 +549,15 @@ function formatSpeakers(speakers, host) {
   else return speakers.concat(host);
 }
 
-function sendEventEmailConfirmation(
+export function sendEventEmailConfirmation(
   webinarData: { [key: string]: any },
   speakerEmails: string[],
-  hostEmail: string
+  callback?: any
 ) {
-  const eventDateTime = webinarData['dateTime'];
+  if (!webinarData || speakerEmails.length === 0)
+    return callback && callback(sendPacket(0, 'Invalid inputs'));
+
+  const eventDateTime = new Date(webinarData['dateTime']);
   const body = `
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>Hello! You have been invited to speak at an event on RootShare.</p>
 
@@ -552,7 +573,7 @@ function sendEventEmailConfirmation(
 
   <p style={{fontSize: 14, fontFamily: 'Arial'}}><b>On ${formatDate(
     eventDateTime
-  )} at ${formatTime(eventDateTime)}<b></p>
+  )} at ${formatTime(eventDateTime)} PT<b></p>
   <p style={{fontSize: 14, fontFamily: 'Arial'}}>You can visit the page at https://www.rootshare.io/event/${
     webinarData['_id']
   }</p>
@@ -564,7 +585,7 @@ function sendEventEmailConfirmation(
 
   var params = {
     Destination: {
-      ToAddresses: [...speakerEmails, hostEmail],
+      ToAddresses: speakerEmails,
     },
     Source: `RootShare Team <dev@rootshare.io>`,
     ReplyToAddresses: [],
@@ -586,8 +607,11 @@ function sendEventEmailConfirmation(
     .promise()
     .then((data) => {
       // log('info', data)
+      if (callback) callback(sendPacket(1, 'Successfully sent all emails'));
     })
     .catch((err) => {
-      log('error', err);
+      log('email error', err);
+      if (callback)
+        callback(sendPacket(-1, 'There was an error sending the emails'));
     });
 }

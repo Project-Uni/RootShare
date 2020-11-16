@@ -87,7 +87,7 @@ type Props = {
   summary: string;
   description: string;
   timestamp: string;
-  eventImage: string;
+  eventBanner: string;
   mutualSignups: number;
   rsvpYes: boolean;
   style?: any;
@@ -150,7 +150,7 @@ function Event(props: Props) {
         </a>
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
           <img
-            src={props.eventImage || RootSharePreviewBanner}
+            src={props.eventBanner || RootSharePreviewBanner}
             className={styles.banner}
           />
         </a>
