@@ -3,6 +3,7 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
   createEvent,
+  deleteEvent,
   getAllRecentEvents,
   getAllEventsAdmin,
   getAllEventsUser,
@@ -24,6 +25,15 @@ module.exports = (app) => {
         sendPacket(0, 'User is not authorized to perform this action')
       );
     await createEvent(req.body, req.user, (packet) => res.json(packet));
+  });
+
+  app.delete('/api/webinar/event', isAuthenticatedWithJWT, async (req, res) => {
+    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      return res.json(
+        sendPacket(0, 'User is not authorized to perform this action')
+      );
+
+    deleteEvent(req.user._id, req.body.webinarID, (packet) => res.json(packet));
   });
 
   app.post(

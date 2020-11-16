@@ -75,6 +75,15 @@ const useStyles = makeStyles((_: any) => ({
     fontSize: 16,
     color: 'white',
   },
+  deleteButton: {
+    width: '60%',
+    background: colors.error,
+    '&:hover': {
+      background: '#ff4444',
+    },
+    fontSize: 16,
+    color: 'white',
+  },
   loadingGray: {
     width: '60%',
     background: '#555555',
@@ -305,7 +314,7 @@ function AdminEventCreator(props: Props) {
   function handleEventImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
       if (event.target.files[0].size > 1440000) {
-        setTopMessage('The image file is too big.');
+        setTopMessage('f: The image file is too big.');
         event.target.value = '';
         return;
       }
@@ -324,7 +333,7 @@ function AdminEventCreator(props: Props) {
   function handleEventBannerUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
       if (event.target.files[0].size > 1440000) {
-        setTopMessage('The image file is too big.');
+        setTopMessage('f: The image file is too big.');
         event.target.value = '';
         return;
       }
@@ -431,6 +440,29 @@ function AdminEventCreator(props: Props) {
       resetData();
     } else setTopMessage('f: There was an error adding images to the webinar.');
     setLoadingSubmit(false);
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete this event? This action is irreversible.'
+      )
+    )
+      return;
+
+    const { data } = await makeRequest('DELETE', '/api/webinar/event', {
+      webinarID: editEvent,
+    });
+
+    if (data['success'] === 1) {
+      resetData();
+      setEvents((prevEvents) => {
+        le
+        for (let i = 0; i < prevEvents.length; i++)
+      })
+    } else 
+      setTopMessage('f: There was an error deleting the webinar.');
+    
   }
 
   function editClientEvents() {
@@ -777,6 +809,16 @@ function AdminEventCreator(props: Props) {
         >
           {editEvent === '' ? 'CREATE' : 'UPDATE'}
         </Button>
+        {editEvent && (
+          <Button
+            variant="contained"
+            className={loadingSubmit ? styles.loadingGray : styles.deleteButton}
+            onClick={handleDelete}
+            disabled={loadingSubmit}
+          >
+            DELETE
+          </Button>
+        )}
       </div>
     );
   }

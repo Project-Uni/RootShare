@@ -328,6 +328,35 @@ function addUserDidRSVP(userID, webinars, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
+export async function deleteEvent(userID, webinarID, callback) {
+  mongoose.connection
+    .transaction(async function executor() {
+      const deletePromise = Webinar.deleteOne({ _id: webinarID, host: userID });
+      const attendedPromise = User.updateMany(
+        { attendedWebinars: webinarID },
+        { $pullAll: { attendedWebinars: [webinarID] } }
+      ).exec();
+      const RSVPPromise = User.updateMany(
+        { RSVPWebinars: webinarID },
+        { $pullAll: { RSVPWebinars: [webinarID] } }
+      ).exe();
+
+      Promise.all([deletePromise, attendedPromise, RSVPPromise]).then(
+        ([deleteWebinar, attended, rsvp]) => {
+          if (deleteWebinar.deletedCount === 0)
+            throw new Error(`Webinar doesn't exist or user isn't the host`);
+
+          console.log(attended);
+          console.log(rsvp);
+          throw new Error('test');
+        }
+      );
+    })
+    .catch((err) => {
+      callback(sendPacket(-1, err));
+    });
+}
+
 export async function getWebinarDetails(userID, webinarID, callback) {
   Webinar.findById(
     webinarID,
