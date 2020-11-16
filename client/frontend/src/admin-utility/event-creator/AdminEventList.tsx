@@ -13,6 +13,7 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
+    margin: 10,
     height: '90vh',
   },
 

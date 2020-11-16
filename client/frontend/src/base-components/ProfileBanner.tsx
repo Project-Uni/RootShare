@@ -12,21 +12,18 @@ import {
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 
-import Draggable from 'react-draggable';
-
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
-import DefaultProfilePicture from '../images/defaultProfilePicture.png';
 import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
 } from './profileHelpers/profilePictureHelpers';
-import { log, makeRequest } from '../helpers/functions';
+import { checkDesktop, log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
 
 const useStyles = makeStyles((_: any) => ({
@@ -47,34 +44,36 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   paper: {
-    background: colors.secondary,
+    background: colors.primaryText,
+    borderRadius: 10,
+    padding: 0,
   },
   dialogText: {
-    color: colors.primaryText,
+    color: 'black',
   },
   cancelButton: {
     color: colors.secondaryText,
   },
   saveButton: {
-    background: colors.bright,
+    background: colors.primary,
     color: colors.primaryText,
   },
   loadingIndicator: {
     color: colors.primaryText,
+  },
+  placeholder: {
+    background: colors.bright,
   },
 }));
 
 type Props = {
   type: 'profile' | 'community';
   _id?: string; //Required for community
-  accessToken: string;
-  refreshToken: string;
   className?: string; //Use this for margin and positioning
   pictureStyle?: string; //The only thing this should be used for is adding border
   currentPicture?: any;
   editable?: boolean;
   height: number;
-  width: number;
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
@@ -84,7 +83,7 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
-function ProfilePicture(props: Props) {
+function ProfileBanner(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
@@ -96,13 +95,14 @@ function ProfilePicture(props: Props) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
-    aspect: 1,
-    // height: 300,
-    // top: 100,
-    // left: 100,
+    aspect: 16 / 6,
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
+  const placeholder = useRef<HTMLDivElement>(null);
+  const picture = useRef<HTMLImageElement>(null);
+
+  const isDesktop = checkDesktop();
 
   function handleMouseOver() {
     setHovering(true);
@@ -122,6 +122,7 @@ function ProfilePicture(props: Props) {
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
+      setCrop({ aspect: 16 / 6 });
       const imageReader = new FileReader();
 
       imageReader.onloadend = (event: ProgressEvent) => {
@@ -168,19 +169,12 @@ function ProfilePicture(props: Props) {
     setLoading(true);
     const path =
       props.type === 'profile'
-        ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${props._id}/updateProfilePicture`;
+        ? '/api/images/profile/banner'
+        : `/api/images/community/${props._id}/banner`;
 
-    const { data } = await makeRequest(
-      'POST',
-      path,
-      {
-        image: imageData,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', path, {
+      image: imageData,
+    });
     setLoading(false);
     if (data['success'] !== 1) {
       setUploadErr(data.message);
@@ -188,56 +182,71 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile') {
-      let currUser = { ...props.user };
-      currUser.profilePicture = imageData as string;
-      props.updateUser(currUser);
-    }
+
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
   function renderImage() {
-    let currentPicture: string = props.currentPicture;
-    if (
-      !currentPicture ||
-      currentPicture.length < 4 ||
-      currentPicture.substring(0, 4) !== 'http'
-    )
-      currentPicture = DefaultProfilePicture;
-
     return (
       <div className={props.className}>
-        <img
-          src={currentPicture}
-          alt="Profile Picture"
-          className={[
-            props.editable || props.currentPicture ? styles.image : undefined,
-            props.pictureStyle,
-          ].join(' ')}
-          style={{
-            height: props.height,
-            width: props.width,
-            borderRadius: props.borderRadius || 0,
-          }}
-          onMouseEnter={props.editable ? handleMouseOver : undefined}
-          onMouseLeave={props.editable ? handleMouseLeave : undefined}
-          onClick={
-            props.editable
-              ? handleSelfImageClick
-              : props.zoomOnClick
-              ? handleOtherImageClick
-              : undefined
-          }
-        />
+        {props.currentPicture ? (
+          <img
+            src={props.currentPicture}
+            alt="Profile Picture"
+            className={[styles.image, props.pictureStyle].join(' ')}
+            ref={picture}
+            style={{
+              height: props.height,
+              width: '100%',
+              objectFit: 'cover',
+              borderTopRightRadius: props.borderRadius || 0,
+              borderTopLeftRadius: props.borderRadius || 0,
+            }}
+            onMouseEnter={props.editable ? handleMouseOver : undefined}
+            onMouseLeave={props.editable ? handleMouseLeave : undefined}
+            onClick={
+              props.editable
+                ? handleSelfImageClick
+                : props.zoomOnClick
+                ? handleOtherImageClick
+                : undefined
+            }
+          />
+        ) : (
+          <div
+            className={[
+              props.editable ? styles.image : undefined,
+              styles.placeholder,
+              props.pictureStyle,
+            ].join(' ')}
+            style={{
+              height: props.height,
+              width: '100%',
+              borderTopRightRadius: props.borderRadius || 0,
+              borderTopLeftRadius: props.borderRadius || 0,
+            }}
+            ref={placeholder}
+            onMouseEnter={props.editable ? handleMouseOver : undefined}
+            onMouseLeave={props.editable ? handleMouseLeave : undefined}
+            onClick={props.editable ? handleSelfImageClick : undefined}
+          ></div>
+        )}
         <div className={styles.cameraContainer}>
           {hovering && (
             <FaCamera
-              color={colors.secondaryText}
+              color={`rgba(220,220,220,0.8)`}
               size={32}
               style={{
                 position: 'absolute',
                 bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
-                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
+                left:
+                  Math.floor(
+                    ((props.currentPicture
+                      ? picture.current?.width
+                      : placeholder.current?.clientWidth) || window.innerWidth) / 2
+                  ) -
+                  16 +
+                  (props.borderWidth || 0),
               }}
               className={styles.cameraIcon}
               onMouseEnter={props.editable ? handleMouseOver : undefined}
@@ -279,15 +288,18 @@ function ProfilePicture(props: Props) {
           </RSText>
         </DialogTitle>
         <DialogContent>
-          <div style={{ maxHeight: 500, maxWidth: 500 }}>
+          <div
+            style={{
+              maxHeight: isDesktop ? 600 : window.innerWidth - 25,
+              maxWidth: isDesktop ? 900 : window.innerWidth - 25,
+            }}
+          >
             <ReactCrop
               src={imageSrc!}
               crop={crop}
               onImageLoaded={handleImageLoaded}
               onChange={handleCropChange}
               onComplete={handleCropComplete}
-              circularCrop
-              // ruleOfThirds
             />
             {loading && (
               <div style={{ position: 'relative', height: 0, width: 0 }}>
@@ -342,8 +354,6 @@ function ProfilePicture(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 
@@ -355,7 +365,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileBanner);
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();

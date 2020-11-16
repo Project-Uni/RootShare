@@ -31,6 +31,7 @@ const CommunitySchema = new mongoose.Schema(
       default: '5eb89c308cc6636630c1311f',
     },
     profilePicture: { type: String },
+    bannerPicture: { type: String },
     //TODO - Add fields for background Image
     followedByCommunities: [
       { type: mongoose.Types.ObjectId, ref: 'community_edges' },

@@ -4,7 +4,15 @@ import { Webinar, Connection, Conversation, User } from '../../models';
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
 
-import { log, sendPacket, formatTime, formatDate } from '../../helpers/functions';
+import {
+  log,
+  sendPacket,
+  formatTime,
+  formatDate,
+  uploadFile,
+  decodeBase64Image,
+  retrieveSignedUrl,
+} from '../../helpers/functions';
 
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
@@ -39,12 +47,13 @@ export async function createEvent(
         return callback(sendPacket(-1, 'Failed to create webinar'));
 
       addRSVPs(webinar._id, formatSpeakers(webinar.speakers, webinar.host));
-      callback(sendPacket(1, 'Successfully created webinar', webinar));
       sendEventEmailConfirmation(
         webinar,
         eventBody['speakerEmails'],
         eventBody['host']['email']
       );
+
+      callback(sendPacket(1, 'Successfully created webinar', { webinar }));
     });
   });
 }
@@ -79,7 +88,8 @@ function updateEvent(eventBody, callback) {
         eventBody['speakerEmails'],
         eventBody['host']['email']
       );
-      return callback(sendPacket(1, 'Successfully updated webinar'));
+
+      return callback(sendPacket(1, 'Successfully updated webinar', { webinar }));
     });
   });
 }
@@ -130,7 +140,7 @@ export function timeStampCompare(ObjectA, ObjectB) {
 }
 
 export async function getAllRecentEvents(userID: string, callback) {
-  const events = await Webinar.find(
+  let events = await Webinar.find(
     {
       $and: [
         { isDev: false },
@@ -150,11 +160,15 @@ export async function getAllRecentEvents(userID: string, callback) {
       'dateTime',
       'hostCommunity',
       'muxAssetPlaybackID',
+      'eventImage',
     ]
   )
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
+
+  events = await addEventImagesAll(events, 'eventImage');
+  if (!events) return callback(sendPacket(-1, `Couldn't get recent events`));
 
   const { connections } = await User.findOne({ _id: userID }, [
     'connections',
@@ -172,16 +186,13 @@ export async function getAllRecentEvents(userID: string, callback) {
   }, []);
 
   return callback(
-    sendPacket(1, 'successfully retrieved all connections', {
-      events: events,
-      connectionIDs: connectionIDs,
-    })
+    sendPacket(1, 'Successfully retrieved recent events', { events, connectionIDs })
   );
 }
 
 export async function getAllEventsAdmin(callback) {
   Webinar.aggregate([
-    { $match: { dateTime: { $gt: new Date() } } },
+    // { $match: { dateTime: { $gt: new Date() } } },
     { $sort: { createdAt: 1 } },
     {
       $lookup: {
@@ -230,12 +241,22 @@ export async function getAllEventsAdmin(callback) {
         dateTime: '$dateTime',
         isDev: '$isDev',
         isPrivate: '$isPrivate',
+        eventImage: '$eventImage',
+        eventBanner: '$eventBanner',
       },
     },
   ])
     .exec()
-    .then((webinars) => {
+    .then(async (webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
+
+      webinars = await addEventImagesAll(webinars, 'eventImage');
+      if (!webinars)
+        return callback(sendPacket(-1, `Couldn't add images to events`));
+      webinars = await addEventImagesAll(webinars, 'eventBanner');
+      if (!webinars)
+        return callback(sendPacket(-1, `Couldn't add banner images to events`));
+
       callback(
         sendPacket(1, 'Sending Events', {
           webinars,
@@ -320,8 +341,10 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       'conversation',
       'muxPlaybackID',
       'muxAssetPlaybackID',
+      'eventImage',
+      'eventBanner',
     ],
-    (err, webinar) => {
+    async (err, webinar) => {
       if (err) {
         log('error', err);
         return callback(sendPacket(-1, 'There was an error finding webinar'));
@@ -329,8 +352,21 @@ export async function getWebinarDetails(userID, webinarID, callback) {
         return callback(sendPacket(0, 'No webinar exists with this ID'));
       }
 
-      return callback(
-        sendPacket(1, 'Succesfully found webinar details', { webinar: webinar })
+      webinar = webinar.toObject();
+      const eventImagePromise = retrieveSignedUrl('eventImage', webinar.eventImage);
+      const eventBannerPromise = retrieveSignedUrl(
+        'eventBanner',
+        webinar.eventBanner
+      );
+      Promise.all([eventImagePromise, eventBannerPromise]).then(
+        ([eventImage, eventBanner]) => {
+          webinar.eventImage = eventImage || undefined;
+          webinar.eventBanner = eventBanner || undefined;
+
+          return callback(
+            sendPacket(1, 'Succesfully found webinar details', { webinar })
+          );
+        }
       );
     }
   );
@@ -382,6 +418,117 @@ function canUpdateRSVP(userID, webinarID, callback) {
 
     return callback(sendPacket(1, 'User can update RSVP'));
   });
+}
+
+export async function addEventImage(eventID, image) {
+  if (image === undefined) return sendPacket(1, 'No image was provided');
+
+  if (image === '') {
+    const remove = await Webinar.updateOne(
+      { _id: eventID },
+      { eventImage: undefined }
+    );
+    if (remove.nModified !== 1)
+      return sendPacket(-1, 'Failed to remove image from event');
+    return sendPacket(1, 'Successfully removed event image');
+  }
+
+  const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+  if (!imageBuffer.data) return sendPacket(-1, 'Could not decode event image');
+
+  const imageName = `${eventID}_eventImage.jpeg`;
+  const success = await uploadFile('eventImage', imageName, imageBuffer.data);
+  if (!success) return sendPacket(-1, 'Could not upload event image');
+
+  const upload = await Webinar.updateOne(
+    { _id: eventID },
+    { eventImage: imageName }
+  );
+  if (upload.nModified !== 1) return sendPacket(-1, 'Failed to add image to event');
+  return sendPacket(1, 'Successfully uploaded event image');
+}
+
+export async function addEventBanner(eventID, image) {
+  if (image === undefined) return sendPacket(1, 'No image was provided');
+
+  if (image === '') {
+    const remove = await Webinar.updateOne(
+      { _id: eventID },
+      { eventBanner: undefined }
+    );
+    if (remove.nModified !== 1)
+      return sendPacket(-1, 'Failed to remove banner from event');
+    return sendPacket(1, 'Successfully removed event banner');
+  }
+
+  const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
+  if (!imageBuffer.data) return sendPacket(-1, 'Could not decode event banner');
+
+  const imageName = `${eventID}_eventBanner.jpeg`;
+  const success = await uploadFile('eventBanner', imageName, imageBuffer.data);
+  if (!success) return sendPacket(-1, 'Could not upload event banner');
+
+  const upload = await Webinar.updateOne(
+    { _id: eventID },
+    { eventBanner: imageName }
+  );
+  if (upload.nModified !== 1) return sendPacket(-1, 'Failed to add banner to event');
+  return sendPacket(1, 'Successfully uploaded event banner');
+}
+
+function addEventImagesAll(events, imageReason: 'eventImage' | 'eventBanner') {
+  const imagePromises = [];
+
+  for (let i = 0; i < events.length; i++) {
+    if (events[i][imageReason]) {
+      try {
+        const signedImageURLPromise = retrieveSignedUrl(
+          imageReason,
+          events[i][imageReason]
+        );
+        imagePromises.push(signedImageURLPromise);
+      } catch (err) {
+        imagePromises.push(null);
+        log('error', 'There was an error retrieving a signed url from S3');
+      }
+    } else {
+      imagePromises.push(null);
+    }
+  }
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++)
+        if (signedImageURLs[i]) events[i][imageReason] = signedImageURLs[i];
+
+      return events;
+    })
+    .catch((err) => {
+      log('error', err);
+      return false;
+    });
+}
+
+function formatElementsToStrings(array) {
+  let newArray = [];
+  array.forEach((element) => {
+    newArray.push(element.toString());
+  });
+
+  return newArray;
+}
+
+function formatElementsToObjectIds(array) {
+  let newArray = [];
+  array.forEach((element) => {
+    newArray.push(mongoose.Types.ObjectId(element));
+  });
+
+  return newArray;
+}
+function formatSpeakers(speakers, host) {
+  if (speakers.includes(host)) return speakers;
+  else return speakers.concat(host);
 }
 
 function sendEventEmailConfirmation(
@@ -443,26 +590,4 @@ function sendEventEmailConfirmation(
     .catch((err) => {
       log('error', err);
     });
-}
-
-function formatElementsToStrings(array) {
-  let newArray = [];
-  array.forEach((element) => {
-    newArray.push(element.toString());
-  });
-
-  return newArray;
-}
-
-function formatElementsToObjectIds(array) {
-  let newArray = [];
-  array.forEach((element) => {
-    newArray.push(mongoose.Types.ObjectId(element));
-  });
-
-  return newArray;
-}
-function formatSpeakers(speakers, host) {
-  if (speakers.includes(host)) return speakers;
-  else return speakers.concat(host);
 }
