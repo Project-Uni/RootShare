@@ -8,6 +8,7 @@ import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
+import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
@@ -29,6 +30,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginLeft: 20,
     marginRight: 20,
+  },
+  noCommunities: {
+    marginTop: 30,
   },
   singleCommunity: {
     margin: 8,
@@ -152,6 +156,18 @@ function YourCommunitiesBody(props: Props) {
           status={currCommunity.status}
           admin={currCommunity.admin as string}
         />
+      );
+    }
+    if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
+      const noCommunitiesMessage =
+        props.requestUserID === 'user'
+          ? `You aren't a part of any communities yet. Get involved!`
+          : `${username} isn't a part of any communities yet.`;
+
+      return (
+        <RSText size={20} type="head" className={styles.noCommunities}>
+          {noCommunitiesMessage}
+        </RSText>
       );
     }
     return output;
