@@ -6,7 +6,7 @@ const useStyles = makeStyles((_: any) => ({
     margin: 0,
   },
   title: {
-    fontFamily: 'Raleway',
+    fontFamily: 'Lora, serif',
   },
   normal: {
     fontFamily: 'Lato',
