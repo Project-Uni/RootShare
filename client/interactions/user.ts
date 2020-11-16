@@ -1288,12 +1288,12 @@ export async function getBasicUserInfo(userID: string) {
 
 export async function getUnjoinedUniversityCommunities(userID: string) {
   const user = await User.findById(userID)
-    .select(['university', 'joinedCommunities', 'pendingCommunities'])
+    .select(['university', 'joinedCommunities', 'pendingCommunities', 'connections'])
     .exec();
 
   if (!user) return sendPacket(-1, 'Could not find user');
 
-  const communities = Community.aggregate([
+  var communities = await Community.aggregate([
     {
       $match: {
         $and: [
@@ -1312,20 +1312,23 @@ export async function getUnjoinedUniversityCommunities(userID: string) {
         type: '$type',
         profilePicture: '$profilePicture',
         admin: '$admin',
-        // message: '$message',
-        // likes: { $size: '$likes' },
-        // createdAt: '$createdAt',
-        // updatedAt: '$updatedAt',
-        // user: {
-        //   _id: '$user._id',
-        //   firstName: '$user.firstName',
-        //   lastName: '$user.lastName',
-        //   profilePicture: '$user.profilePicture',
-        // },
       },
     },
   ]).exec();
-  // Community.find({ university: user.university });
 
-  return sendPacket(1, 'Test worked');
+  const connections = connectionsToUserIDStrings(userID, user['connections']);
+
+  //Cleaning up
+  for (let i = 0; i < communities.length; i++) {
+    communities[i] = await addCalculatedCommunityFields(connections, communities[i]);
+
+    communities[i].status = 'OPEN';
+  }
+
+  communities = await addProfilePicturesAll(communities, 'communityProfile');
+
+  return sendPacket(1, 'Test worked', {
+    joinedCommunities: communities,
+    pendingCommunities: [],
+  });
 }
