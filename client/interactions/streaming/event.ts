@@ -107,7 +107,9 @@ async function updateEvent(eventBody, callback) {
 
       return callback(sendPacket(1, 'Successfully updated webinar', { webinar }));
     });
-  } catch (err) {}
+  } catch (err) {
+    callback(sendPacket(-1, err));
+  }
 }
 
 function addRSVPs(webinarID, speakers) {
