@@ -110,13 +110,13 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 43,
   },
   commentCount: {
+    marginLeft: 20,
+  },
+  commentCountLink: {
     '&:hover': {
       textDecoration: 'underline',
       cursor: 'pointer',
     },
-  },
-  commentCountLink: {
-    marginLeft: 20,
   },
   commentProfile: {
     border: `1px solid ${colors.fourth}`,
@@ -537,20 +537,15 @@ function UserPost(props: Props) {
           >
             {likeCount} Likes
           </RSText>
-          <a
-            href={undefined}
-            className={styles.commentCountLink}
-            onClick={handleShowComments}
+          <RSText
+            type="body"
+            color={colors.secondaryText}
+            size={12}
+            className={[styles.commentCount, styles.commentCountLink].join(' ')}
+            onClick={commentCount > 0 ? handleShowComments : undefined}
           >
-            <RSText
-              type="body"
-              color={colors.secondaryText}
-              size={12}
-              className={styles.commentCount}
-            >
-              {commentCount} Comments
-            </RSText>
-          </a>
+            {`${commentCount} ${commentCount === 1 ? 'Comment' : 'Comments'}`}
+          </RSText>
         </div>
 
         {props.message.length !== shortenedMessage.length && (
@@ -660,7 +655,7 @@ function UserPost(props: Props) {
             {renderLikesAndCommentCount()}
             {showComments && (
               <div className={styles.commentsContainer}>
-                {comments.length < props.commentCount && (
+                {comments.length < props.commentCount && !loadingMoreComments && (
                   <Button
                     className={styles.seeMoreButton}
                     onClick={handleMoreCommentsClick}

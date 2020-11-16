@@ -24,7 +24,8 @@ export async function createNewCommunity(
   type: COMMUNITY_TYPE,
   isPrivate: boolean
 ) {
-  //TODO - Add check to see if community with same name already exists
+  const userExists = await User.exists({ _id: adminID });
+  if (!userExists) return sendPacket(0, 'Admin does not exist');
 
   const newCommunity = new Community({
     name,
