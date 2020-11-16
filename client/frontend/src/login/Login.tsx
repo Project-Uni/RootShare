@@ -106,7 +106,6 @@ function Login(props: Props) {
       props.updateUser({});
       props.updateAccessToken('');
       props.updateRefreshToken('');
-      // TODO: show login error message
     }
   }
 

@@ -84,10 +84,10 @@ function Homepage(props: Props) {
       props.updateAccessToken('');
       props.updateRefreshToken('');
       return false;
-    } else {
-      props.updateUser({ ...data['content'] });
-      return true;
     }
+
+    props.updateUser({ ...data['content'] });
+    return true;
   }
 
   return (
