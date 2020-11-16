@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { User, Connection, Webinar } from '../models';
+import { User, Connection, Webinar, Community } from '../models';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
@@ -1284,4 +1284,48 @@ export async function getBasicUserInfo(userID: string) {
   if (!user) return sendPacket(-1, 'Could not find user');
   log('info', `Retrieved basic info for user ${userID}`);
   return sendPacket(1, 'Found user info', { user });
+}
+
+export async function getUnjoinedUniversityCommunities(userID: string) {
+  const user = await User.findById(userID)
+    .select(['university', 'joinedCommunities', 'pendingCommunities'])
+    .exec();
+
+  if (!user) return sendPacket(-1, 'Could not find user');
+
+  const communities = Community.aggregate([
+    {
+      $match: {
+        $and: [
+          { university: user.university },
+          { _id: { $nin: user.joinedCommunities } },
+          { _id: { $nin: user.pendingCommunities } },
+        ],
+      },
+    },
+    {
+      $project: {
+        name: '$name',
+        description: '$description',
+        private: '$private',
+        members: '$members',
+        type: '$type',
+        profilePicture: '$profilePicture',
+        admin: '$admin',
+        // message: '$message',
+        // likes: { $size: '$likes' },
+        // createdAt: '$createdAt',
+        // updatedAt: '$updatedAt',
+        // user: {
+        //   _id: '$user._id',
+        //   firstName: '$user.firstName',
+        //   lastName: '$user.lastName',
+        //   profilePicture: '$user.profilePicture',
+        // },
+      },
+    },
+  ]).exec();
+  // Community.find({ university: user.university });
+
+  return sendPacket(1, 'Test worked');
 }

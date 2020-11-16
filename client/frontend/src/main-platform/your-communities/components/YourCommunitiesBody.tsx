@@ -5,7 +5,7 @@ import { CircularProgress, Box } from '@material-ui/core';
 import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
-import { WelcomeMessage } from '../../reusable-components';
+import { WelcomeMessage, RSTabs } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
 
@@ -43,6 +43,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+const tabs = [
+  { label: 'Following', value: 'following' },
+  { label: 'All', value: 'all' },
+];
+
 type Props = {
   requestUserID: string;
   user: { [key: string]: any };
@@ -64,20 +69,27 @@ function YourCommunitiesBody(props: Props) {
     false
   );
 
+  const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     if (props.requestUserID !== 'user') fetchUserBasicInfo();
-    fetchData().then(() => {
-      setLoading(false);
-    });
+    // fetchData().then(() => {
+    //   setLoading(false);
+    // });
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [selectedTab]);
+
   async function fetchData() {
+    setLoading(true);
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
         props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/communities/all`,
+      }/communities/${selectedTab}`,
       {},
       true,
       props.accessToken,
@@ -87,6 +99,7 @@ function YourCommunitiesBody(props: Props) {
       setJoinedCommunities(data.content['joinedCommunities']);
       setPendingCommunities(data.content['pendingCommunities']);
     }
+    setLoading(false);
   }
 
   async function fetchUserBasicInfo() {
@@ -177,6 +190,13 @@ function YourCommunitiesBody(props: Props) {
         />
       </Box>
       <div className={styles.body}>
+        {props.requestUserID === 'user' && (
+          <RSTabs
+            tabs={tabs}
+            selected={selectedTab}
+            onChange={(newTab: string) => setSelectedTab(newTab)}
+          />
+        )}
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />
         ) : (

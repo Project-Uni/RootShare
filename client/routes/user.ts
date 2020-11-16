@@ -22,6 +22,7 @@ import {
   getOtherConnectionsFullData,
   getUserAdminCommunities,
   getBasicUserInfo,
+  getUnjoinedUniversityCommunities,
 } from '../interactions/user';
 
 module.exports = (app) => {
@@ -142,7 +143,7 @@ module.exports = (app) => {
   });
 
   app.get(
-    '/api/user/:userID/communities/all',
+    '/api/user/:userID/communities/following',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
@@ -150,6 +151,16 @@ module.exports = (app) => {
       if (req.user._id.toString() === userID.toString())
         packet = await getSelfUserCommunities(userID);
       else packet = await getOtherUserCommunities(req.user._id, userID);
+      return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/user/:userID/communities/all',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const userID = req.user._id;
+      const packet = await getUnjoinedUniversityCommunities(userID);
       return res.json(packet);
     }
   );
