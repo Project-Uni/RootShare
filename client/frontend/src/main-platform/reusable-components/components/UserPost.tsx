@@ -540,10 +540,7 @@ function UserPost(props: Props) {
             type="body"
             color={colors.secondaryText}
             size={12}
-            className={[
-              styles.commentCount,
-              commentCount > 0 ? styles.commentCountLink : null,
-            ].join(' ')}
+            className={[styles.commentCount, styles.commentCountLink].join(' ')}
             onClick={commentCount > 0 ? handleShowComments : undefined}
           >
             {`${commentCount} ${commentCount === 1 ? 'Comment' : 'Comments'}`}
