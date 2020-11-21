@@ -206,10 +206,7 @@ function ConnectionsBody(props: Props) {
       className={styles.wrapper}
       style={{
         height: height,
-        background:
-          loading || connections.length === 0
-            ? colors.primaryText
-            : colors.background,
+        background: colors.background,
       }}
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>

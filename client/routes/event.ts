@@ -11,6 +11,7 @@ import {
   updateRSVP,
   addEventImage,
   addEventBanner,
+  sendEventEmailConfirmation,
 } from '../interactions/streaming/event';
 
 import { updateAttendingList } from '../interactions/user';
@@ -67,6 +68,23 @@ module.exports = (app) => {
   app.get('/api/webinar/getAllEventsUser', isAuthenticatedWithJWT, (req, res) => {
     getAllEventsUser(req.user._id, (packet) => res.json(packet));
   });
+
+  app.post(
+    '/api/webinar/resendSpeakerInvites',
+    isAuthenticatedWithJWT,
+    (req, res) => {
+      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+        return res.json(
+          sendPacket(0, 'User is not authorized to perform this action')
+        );
+
+      sendEventEmailConfirmation(
+        req.body.webinarData,
+        req.body.speakerEmails,
+        (packet) => res.json(packet)
+      );
+    }
+  );
 
   app.get(
     '/api/webinar/getDetails/:eventID',

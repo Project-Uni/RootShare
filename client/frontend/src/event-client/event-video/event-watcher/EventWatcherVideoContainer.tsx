@@ -25,7 +25,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
-  replay?: boolean;
   eventImage: string;
 
   accessToken: string;

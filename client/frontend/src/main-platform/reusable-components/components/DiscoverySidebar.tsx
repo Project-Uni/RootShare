@@ -7,6 +7,7 @@ import { TransitionProps } from '@material-ui/core/transitions';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import theme from '../../../theme/Theme';
 import DiscoverySinglePerson from './DiscoverySinglePerson';
 import DiscoveryCommunity from './DiscoveryCommunity';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
@@ -20,7 +21,7 @@ const VERTICAL_PADDING_TOTAL = 40;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 270,
-    background: colors.second,
+    background: theme.background,
     textAlign: 'left',
     padding: 20,
     overflow: 'scroll',
@@ -127,7 +128,7 @@ function DiscoverySidebar(props: Props) {
           size={18}
           type="head"
           bold
-          color={colors.primaryText}
+          color={theme.primaryText}
           className={styles.communityText}
         >
           Communities for you
@@ -194,7 +195,7 @@ function DiscoverySidebar(props: Props) {
           size={18}
           type="head"
           bold
-          color={colors.primaryText}
+          color={theme.primaryText}
           className={styles.peopleText}
         >
           People for you

@@ -242,20 +242,12 @@ function EventClientBase(props: Props) {
   function renderVideoArea() {
     const currWebinarData = webinarData as EventType;
 
-    if (currWebinarData.muxAssetPlaybackID)
-      return (
-        <EventWatcherVideoContainer
-          muxPlaybackID={currWebinarData.muxAssetPlaybackID}
-          replay
-          muxMetaData={muxMetaData as MuxMetaDataType}
-          eventImage={currWebinarData.eventImage}
-        />
-      );
-
     if (eventMode === 'viewer')
       return (
         <EventWatcherVideoContainer
-          muxPlaybackID={currWebinarData.muxPlaybackID}
+          muxPlaybackID={
+            currWebinarData.muxAssetPlaybackID || currWebinarData.muxPlaybackID
+          }
           muxMetaData={muxMetaData as MuxMetaDataType}
           eventImage={currWebinarData.eventImage}
         />
@@ -299,11 +291,15 @@ function EventClientBase(props: Props) {
       return (
         <div className={styles.wrapper}>
           {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+
           <EventWatcherMobile
-            muxPlaybackID={webinarEvent.muxPlaybackID}
+            muxPlaybackID={
+              webinarEvent.muxAssetPlaybackID || webinarEvent.muxPlaybackID
+            }
             muxMetaData={muxMetaData as MuxMetaDataType}
             eventImage={webinarEvent.eventImage}
           />
+
           <div className={styles.adContainer}>
             {adLoaded && (
               <EventClientAdvertisement
