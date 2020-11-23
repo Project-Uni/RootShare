@@ -176,8 +176,10 @@ export async function deleteCommunity(communityID) {
       ).exec()
     );
     //6 - Delete images
-    promises.push(deleteFile('communityProfile', community.profilePicture));
-    promises.push(deleteFile('communityBanner', community.bannerPicture));
+    if (community.profilePicture)
+      promises.push(deleteFile('communityProfile', community.profilePicture));
+    if (community.bannerPicture)
+      promises.push(deleteFile('communityBanner', community.bannerPicture));
     //7 - Delete community
     promises.push(Community.deleteOne({ _id: communityID }).exec());
 
