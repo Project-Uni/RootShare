@@ -16,6 +16,7 @@ import {
   addProfilePicturesAll,
 } from '../interactions/utilities';
 import { deletePost } from './posts';
+import { exec } from 'child_process';
 
 export async function createNewCommunity(
   name: string,
@@ -112,7 +113,7 @@ export async function deleteCommunity(communityID) {
     community.broadcastedPosts.forEach((currPost) => {
       promises.push(deletePost(currPost._id, currPost.user));
     });
-    //2 - Remove self from other communities' pending lists
+    //2 - Remove community from other communities' pending lists
     community.outgoingPendingCommunityFollowRequests.forEach(async (currRequest) => {
       promises.push(
         Community.updateOne(
@@ -131,7 +132,7 @@ export async function deleteCommunity(communityID) {
       );
       promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
-    //3 - Remove self from other communities' follow lists
+    //3 - Remove community from other communities' follow lists
     community.followingCommunities.forEach((currRequest) => {
       promises.push(
         Community.updateOne(
@@ -150,13 +151,13 @@ export async function deleteCommunity(communityID) {
       );
       promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
     });
-    //4 - Remove self from pending and existing members' community lists
+    //4 - Remove community from members' pending and existing community lists
     community.pendingMembers.forEach((currPending) => {
       promises.push(
         User.updateOne(
           { _id: currPending },
           { $pull: { pendingCommunities: community._id } }
-        )
+        ).exec()
       );
     });
     community.members.forEach((currMember) => {
@@ -164,10 +165,10 @@ export async function deleteCommunity(communityID) {
         User.updateOne(
           { _id: currMember },
           { $pull: { joinedCommunities: community._id } }
-        )
+        ).exec()
       );
     });
-    //5 - Remove self from University's communities list
+    //5 - Remove community from University's communities list
     promises.push(
       University.updateOne(
         { _id: community.university },
