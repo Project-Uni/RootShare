@@ -460,18 +460,15 @@ function AdminEventCreator(props: Props) {
       )
     )
       return;
-    const { data } = await makeRequest('DELETE', '/api/webinar/event', {
-      webinarID: editEvent,
-    });
+    const { data } = await makeRequest('DELETE', `/api/webinar/event/${editEvent}`);
 
     if (data['success'] === 1) {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== editEvent)
+      );
       resetData();
-      setEvents((prevEvents) => {
-        // for (let i = 0; i < prevEvents.length; i++)
-        //TODO complete this
-        return prevEvents;
-      });
-    } else setTopMessage('f: There was an error deleting the webinar.');
+      setTopMessage('s: The event was deleted.');
+    } else setTopMessage('f: There was an error deleting the event.');
   }
 
   async function handleResendEmails() {
