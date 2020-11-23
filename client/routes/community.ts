@@ -128,6 +128,35 @@ export default function communityRoutes(app) {
     }
   );
 
+  app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
+    const { name, description, type, isPrivate } = req.body;
+
+    if (
+      !name ||
+      !description ||
+      !type ||
+      isPrivate === null ||
+      isPrivate === undefined
+    )
+      return res.json(
+        sendPacket(
+          -1,
+          'name, description, type, or isPrivate missing from request body.'
+        )
+      );
+
+    const userID = req.user._id;
+    const packet = await createNewCommunity(
+      name,
+      description,
+      userID,
+      type,
+      isPrivate
+    );
+
+    return res.json(packet);
+  });
+
   app.get(
     '/api/community/:communityID/info',
     isAuthenticatedWithJWT,
