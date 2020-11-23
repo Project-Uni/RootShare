@@ -9,6 +9,7 @@ import {
   MenuItem,
   Button,
   CircularProgress,
+  Zoom,
 } from '@material-ui/core';
 
 import { FaHome } from 'react-icons/fa';
@@ -241,6 +242,7 @@ function CreateCommunityModal(props: Props) {
         transition={transition}
         handleClose={() => setSnackbarMode(null)}
       />
+
       <RSModal
         open={props.open}
         title="Create Community"

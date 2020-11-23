@@ -89,11 +89,7 @@ function YourCommunitiesBody(props: Props) {
       'GET',
       `/api/user/${
         props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/communities/${selectedTab}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      }/communities/${selectedTab}`
     );
     if (data.success === 1) {
       setJoinedCommunities(data.content['joinedCommunities']);
