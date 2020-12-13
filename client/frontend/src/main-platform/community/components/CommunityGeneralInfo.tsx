@@ -13,7 +13,10 @@ import FollowButton from './FollowButton';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 
-import { CommunityStatus } from '../../../helpers/types/communityTypes';
+import {
+  CommunityStatus,
+  CommunityType,
+} from '../../../helpers/types/communityTypes';
 
 const MAX_DESC_LEN = 275;
 
@@ -104,13 +107,7 @@ type Props = {
   numPending: number;
   numMutual: number;
   numFollowRequests: number;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   private?: boolean;
   isAdmin?: boolean;
   accessToken: string;

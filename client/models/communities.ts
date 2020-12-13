@@ -78,6 +78,8 @@ export function getCommunityTypeFromValue(value: number) {
       return 'Student Organization';
     case 5:
       return 'Academic';
+    case 6:
+      return 'Greek';
     default:
       return '';
   }

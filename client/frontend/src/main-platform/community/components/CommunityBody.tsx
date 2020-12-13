@@ -11,7 +11,7 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
@@ -75,13 +75,7 @@ type Props = {
   numMutual: number;
   numPending: number;
   numFollowRequests: number;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   private?: boolean;
   loading?: boolean;
   accessToken: string;

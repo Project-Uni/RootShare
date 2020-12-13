@@ -19,6 +19,7 @@ import UserAutocomplete from '../event-creator/UserAutocomplete';
 
 import { colors } from '../../theme/Colors';
 import { makeRequest } from '../../helpers/functions';
+import { CommunityType, COMMUNITY_TYPES } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: { marginTop: 20 },
@@ -64,23 +65,6 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
 }));
-
-type CommunityType =
-  | 'Social'
-  | 'Business'
-  | 'Just for Fun'
-  | 'Athletics'
-  | 'Student Organization'
-  | 'Academic';
-
-const COMMUNITY_TYPES = [
-  'Social',
-  'Business',
-  'Just for Fun',
-  'Athletics',
-  'Student Organization',
-  'Academic',
-];
 
 type Props = {
   editing?: boolean;
