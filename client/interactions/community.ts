@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { COMMUNITY_TYPE } from '../helpers/types';
+import { CommunityType } from '../helpers/types';
 import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
@@ -15,7 +15,7 @@ export async function createNewCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean
 ) {
   const userExists = await User.exists({ _id: adminID });
@@ -33,9 +33,9 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = await User.updateOne(
+    await User.updateOne(
       { _id: adminID },
-      { $push: { joinedCommunities: savedCommunity._id } }
+      { $addToSet: { joinedCommunities: savedCommunity._id } }
     ).exec();
 
     log('info', `Successfully created community ${name}`);
@@ -79,7 +79,7 @@ export async function editCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean
 ) {
   try {
@@ -212,7 +212,7 @@ export async function joinCommunity(
         if (community.private === false) {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { members: userID } }
+            { $addToSet: { members: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -234,7 +234,7 @@ export async function joinCommunity(
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { pendingMembers: userID } }
+            { $addToSet: { pendingMembers: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -265,7 +265,7 @@ export async function joinCommunity(
         if (community.private === false) {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { joinedCommunities: communityID } }
+            { $addToSet: { joinedCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -287,7 +287,7 @@ export async function joinCommunity(
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { pendingCommunities: communityID } }
+            { $addToSet: { pendingCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -419,14 +419,14 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   try {
     const communityPromise = Community.updateOne(
       { _id: communityID },
-      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+      { $pull: { pendingMembers: userID }, $addToSet: { members: userID } }
     ).exec();
 
     const userPromise = User.updateOne(
       { _id: userID },
       {
         $pull: { pendingCommunities: communityID },
-        $push: { joinedCommunities: communityID },
+        $addToSet: { joinedCommunities: communityID },
       }
     ).exec();
 
@@ -1034,4 +1034,30 @@ export async function getCommunityMembers(userID: string, communityID: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+export function greekInterestedToggle(communityID, userID, interested, callback) {
+  Community.exists({ _id: communityID, type: 'Greek' }, (err, exists) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!exists) return callback(sendPacket(0, 'Community does not exist'));
+
+    User.exists({ _id: userID }, (err, exists) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!exists) return callback(sendPacket(0, 'User does not exist'));
+
+      if (interested) {
+        Community.updateOne(
+          { _id: communityID },
+          { $addToSet: { interestedUsers: userID } }
+        ).exec();
+        callback(sendPacket(1, 'Added Interest', { interested: true }));
+      } else {
+        Community.updateOne(
+          { _id: communityID },
+          { $pull: { interestedUsers: userID } }
+        ).exec();
+        callback(sendPacket(1, 'Removed Interest', { interested: false }));
+      }
+    });
+  });
 }

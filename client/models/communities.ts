@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { COMMUNITY_TYPE, CommunityMap } from '../helpers/types';
+import { CommunityType, CommunityMap } from '../helpers/types';
 
 const CommunitySchema = new mongoose.Schema(
   {
@@ -50,6 +50,7 @@ const CommunitySchema = new mongoose.Schema(
     externalPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     postsToOtherCommunities: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     broadcastedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    interestedUsers: [{ type: mongoose.Types.ObjectId, ref: 'users' }],
     // subcommunities: [{ type: mongoose.Types.ObjectId, ref: 'communities' }],
   },
   { timestamps: true }
@@ -60,7 +61,7 @@ const Community = mongoose.model('communities');
 
 export default Community;
 
-export function getCommunityValueFromType(type: COMMUNITY_TYPE) {
+export function getCommunityValueFromType(type: CommunityType) {
   return CommunityMap[type];
 }
 

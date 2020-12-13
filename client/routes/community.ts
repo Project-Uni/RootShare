@@ -5,11 +5,11 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
-  //Admin Routes
+  // Admin Routes
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
-  //General Community Actions
+  // General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -18,7 +18,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
-  //Follow Related Actions
+  // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
   rejectFollowRequest,
@@ -27,6 +27,8 @@ import {
   getAllFollowingCommunities,
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
+  // Meet the Greeks
+  greekInterestedToggle,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -343,6 +345,20 @@ export default function communityRoutes(app) {
       const { _id: userID } = req.user;
       const packet = await getCommunityMembers(userID, communityID);
       return res.json(packet);
+    }
+  );
+
+  app.post(
+    '/api/community/:communityID/greek/interested',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { interested } = req.body;
+
+      greekInterestedToggle(communityID, userID, interested, (packet) =>
+        res.json(packet)
+      );
     }
   );
 }
