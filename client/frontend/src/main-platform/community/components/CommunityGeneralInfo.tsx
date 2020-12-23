@@ -200,6 +200,12 @@ function CommunityGeneralInfo(props: Props) {
     }
   }
 
+  function handleShowInterest() {
+    'FETCH FIELD DATA (check for all user data fields regardless of whether greek wants them or not)';
+    if ('HAS ALL FIELDS SET') 'SHOW SUCCESS SNACKBAR NOTIFICATION';
+    else setShowInterestModal(true);
+  }
+
   function handlePendingClicked() {
     setShowPendingModal(true);
   }
@@ -311,7 +317,7 @@ function CommunityGeneralInfo(props: Props) {
               <Button
                 className={styles.interestedButton}
                 size="large"
-                // onClick={handleJoinClick}
+                onClick={handleShowInterest}
               >
                 I'm Interested!
               </Button>
