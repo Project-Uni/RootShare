@@ -171,6 +171,12 @@ function LikesModal(props: Props) {
       setSpeakers([...speakers, user]);
   };
 
+  const resetData = () => {
+    setDefinedDate(defaultDate);
+    setSpeakers([]);
+    setServerErr('');
+  };
+
   const onSubmit = async (formData: IFormData) => {
     const { data } = await makeRequest(
       'POST',
@@ -184,6 +190,7 @@ function LikesModal(props: Props) {
     );
     console.log('Data:', data);
     if (data.success === 1) {
+      resetData();
       setRenderStage(1);
     } else {
       setServerErr(data.message);
