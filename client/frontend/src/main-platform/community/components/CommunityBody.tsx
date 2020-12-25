@@ -64,6 +64,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type CommunityFlags = {
+  isMTGFlag: boolean;
+};
+
 type Props = {
   communityID: string;
   userID: string;
@@ -89,6 +93,7 @@ type Props = {
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
+  flags: CommunityFlags;
 };
 
 function CommunityBody(props: Props) {
@@ -196,6 +201,7 @@ function CommunityBody(props: Props) {
               refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
+              flags={props.flags}
             />
           )}
         </Box>

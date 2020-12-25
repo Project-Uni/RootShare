@@ -139,6 +139,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'profilePicture',
       'followedByCommunities',
       'incomingPendingCommunityFollowRequests',
+      'isMTGFlag',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({

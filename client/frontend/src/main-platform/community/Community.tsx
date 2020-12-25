@@ -163,6 +163,7 @@ function CommunityDetails(props: Props) {
             isAdmin={isAdmin}
             userID={props.user._id}
             hasFollowingAccess={hasFollowingAccess}
+            flags={{ isMTGFlag: communityInfoComplete.isMTGFlag || false }}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (
