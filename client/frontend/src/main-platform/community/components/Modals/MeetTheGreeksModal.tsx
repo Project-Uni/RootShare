@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -136,6 +136,9 @@ function MeetTheGreeksModal(props: Props) {
 
   const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
 
+  const [imageSrc, setImageSrc] = useState<string>();
+  const fileUploader = useRef<HTMLInputElement>(null);
+
   const { register, handleSubmit, control } = useForm<IFormData>({
     defaultValues: {
       description: '',
@@ -203,6 +206,25 @@ function MeetTheGreeksModal(props: Props) {
       setServerErr(data.message);
     }
   };
+
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files && event.target.files.length > 0) {
+      if (event.target.files[0].size > 1440000) {
+        setServerErr('The image file is too big.');
+        event.target.value = '';
+        return;
+      }
+      const imageReader = new FileReader();
+
+      imageReader.onloadend = (event: ProgressEvent) => {
+        const resultBuffer = imageReader.result;
+        setImageSrc(resultBuffer as string);
+      };
+
+      imageReader.readAsDataURL(event.target.files[0]);
+      event.target.value = '';
+    }
+  }
 
   const removeSpeaker = useCallback(
     (idx: number) => {
@@ -353,7 +375,15 @@ function MeetTheGreeksModal(props: Props) {
             alignItems: 'center',
             justifyContent: 'center',
           }}
+          onClick={() => fileUploader.current?.click()}
         >
+          <input
+            type="file"
+            ref={fileUploader}
+            style={{ display: 'none' }}
+            accept="image/x-png, image/jpeg"
+            onChange={handleImageUpload}
+          />
           <BsPlusCircle size={40} color="lightgrey" />
         </div>
       </div>
