@@ -42,20 +42,22 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     marginBottom: 8,
   },
-  createButton: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    width: 300,
+  primaryButton: {
     background: theme.bright,
     color: theme.altText,
     '&:hover': {
       background: colors.ternary,
     },
   },
-  disabledButton: {
+  disabledButton: { background: theme.disabledButton },
+  secondaryButton: {
     background: theme.disabledButton,
+    color: theme.altText,
+    '&:hover': {
+      background: colors.ternary,
+    },
+  },
+  middleButton: {
     marginTop: 20,
     marginBottom: 20,
     paddingTop: 8,
@@ -71,6 +73,13 @@ const useStyles = makeStyles((_: any) => ({
   },
   hostLabel: {
     marginLeft: 10,
+  },
+  sideButtons: {
+    width: 150,
+    paddingTop: 8,
+    paddingBottom: 8,
+    marginLeft: 10,
+    marginRight: 10,
   },
 }));
 
@@ -111,6 +120,8 @@ function LikesModal(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState(false);
+
+  const [renderStage, setRenderStage] = useState<0 | 1>(0);
 
   const defaultDate = new Date('01/17/2021 @ 4:00 PM');
   const [definedDate, setDefinedDate] = useState<any>(defaultDate);
@@ -161,9 +172,15 @@ function LikesModal(props: Props) {
       setSpeakers([...speakers, user]);
   };
 
-  const onSubmit = (data: IFormData) => {
-    console.log('Data:', data);
-    console.log('Date:', definedDate);
+  const onSubmit = async (formData: IFormData) => {
+    // const { data } = await makeRequest('POST', '/api/fake', {
+    //   description: formData.description,
+    //   introVideoURL: formData.introVideoURL,
+    //   eventTime: definedDate,
+    //   speakers: speakers.map((speaker) => speaker._id),
+    // });
+    // console.log('Data:', data);
+    setRenderStage(1);
   };
 
   const removeSpeaker = useCallback(
@@ -284,7 +301,10 @@ function LikesModal(props: Props) {
         <EventSpeakers />
         <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
           <Button
-            className={loading ? styles.disabledButton : styles.createButton}
+            className={[
+              styles.middleButton,
+              loading ? styles.disabledButton : styles.primaryButton,
+            ].join(' ')}
             disabled={loading}
             type="submit"
           >
@@ -294,6 +314,39 @@ function LikesModal(props: Props) {
       </form>
     );
   };
+
+  const EventBannerStage = () => (
+    <div>
+      <p>Add the banner here</p>
+      <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
+        <Button
+          className={[
+            styles.middleButton,
+            loading ? styles.disabledButton : styles.primaryButton,
+          ].join(' ')}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={30} /> : 'Finish'}
+        </Button>
+        {/* <Button
+          className={[
+            styles.sideButtons,
+            loading ? styles.disabledButton : styles.secondaryButton,
+          ].join('')}
+        >
+          Back
+        </Button>
+        <Button
+          className={[
+            styles.sideButtons,
+            loading ? styles.disabledButton : styles.primaryButton,
+          ].join(' ')}
+        >
+          Finish
+        </Button> */}
+      </div>
+    </div>
+  );
 
   return (
     <RSModal
@@ -318,10 +371,10 @@ function LikesModal(props: Props) {
           >
             <CircularProgress size={60} className={styles.loadingIndicator} />
           </div>
-        ) : serverErr ? (
-          <RSText>There was an error loading the likes</RSText>
-        ) : (
+        ) : renderStage === 0 ? (
           <EventInformation />
+        ) : (
+          <EventBannerStage />
         )}
       </div>
     </RSModal>
