@@ -22,8 +22,6 @@ const useStyles = makeStyles((_: any) => ({
     // background: colors.primaryText,
     background: colors.background,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
   coverPhoto: {

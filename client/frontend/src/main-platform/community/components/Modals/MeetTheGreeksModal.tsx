@@ -252,6 +252,7 @@ function LikesModal(props: Props) {
           className={styles.textField}
           multiline
           rows={3}
+          autoComplete="off"
         />
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
           Introduction Video YouTube URL
@@ -263,14 +264,12 @@ function LikesModal(props: Props) {
           label="YouTube URL"
           key="introURL"
           className={styles.textField}
+          autoComplete="off"
         />
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
           Event Date & Time
         </RSText>
-        <FormHelperText
-          //  error={dateTimeErr !== ''}
-          className={styles.dateBox}
-        >
+        <FormHelperText className={styles.dateBox}>
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DateTimePicker
               name="eventTime"
