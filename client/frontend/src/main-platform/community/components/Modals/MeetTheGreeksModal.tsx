@@ -81,6 +81,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
     marginRight: 10,
   },
+  serverError: {
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 10,
+    marginBottom: 10,
+  },
 }));
 
 type Props = {
@@ -107,19 +113,13 @@ type ServiceResponse = {
   }[];
 };
 
-// type Speaker = {
-// lab
-//   _id: string;
-//   profilePicture?: string;
-// };
-
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
 
 function LikesModal(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
-  const [serverErr, setServerErr] = useState(false);
+  const [serverErr, setServerErr] = useState('');
 
   const [renderStage, setRenderStage] = useState<0 | 1>(0);
 
@@ -133,7 +133,6 @@ function LikesModal(props: Props) {
     defaultValues: {
       description: '',
       introVideoURL: '', //Need to handle date separately
-      // eventTime: defaultDate,
     },
   });
 
@@ -173,14 +172,22 @@ function LikesModal(props: Props) {
   };
 
   const onSubmit = async (formData: IFormData) => {
-    // const { data } = await makeRequest('POST', '/api/fake', {
-    //   description: formData.description,
-    //   introVideoURL: formData.introVideoURL,
-    //   eventTime: definedDate,
-    //   speakers: speakers.map((speaker) => speaker._id),
-    // });
-    // console.log('Data:', data);
-    setRenderStage(1);
+    const { data } = await makeRequest(
+      'POST',
+      `/api/mtg/create/${props.communityID}`,
+      {
+        description: formData.description,
+        introVideoURL: formData.introVideoURL,
+        eventTime: definedDate,
+        speakers: speakers.map((speaker) => speaker._id),
+      }
+    );
+    console.log('Data:', data);
+    if (data.success === 1) {
+      setRenderStage(1);
+    } else {
+      setServerErr(data.message);
+    }
   };
 
   const removeSpeaker = useCallback(
@@ -359,6 +366,11 @@ function LikesModal(props: Props) {
       helperIcon={<BsPeopleFill size={90} />}
     >
       <div>
+        {serverErr && (
+          <RSText italic color={theme.error} className={styles.serverError}>
+            {serverErr}
+          </RSText>
+        )}
         {loading ? (
           <div
             style={{

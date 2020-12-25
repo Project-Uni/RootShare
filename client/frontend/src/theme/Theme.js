@@ -9,7 +9,7 @@ const theme = {
     background: 'rgb(227, 227, 227)',
     primaryText: 'black',
     secondaryText: '#6D738E',
-    error: '#440C16',
+    error: '#900C1C',
     success: '#4BB543',
     bright: '#6699FF',
     altText: '#F8F8FF',

@@ -14,6 +14,7 @@ import feedbackRoutes from './routes/feedback';
 import discoverRoutes from './routes/discover';
 import postRoutes from './routes/posts';
 import imageRoutes from './routes/images';
+import mtgRoutes from './routes/meet-the-greeks';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -73,6 +74,7 @@ feedbackRoutes(app);
 discoverRoutes(app);
 postRoutes(app);
 imageRoutes(app);
+mtgRoutes(app);
 
 require('./config/setup')(passport);
 
