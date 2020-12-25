@@ -14,6 +14,8 @@ import RSTabs from './components/RSTabs';
 
 import RSModal from './components/RSModal';
 
+import UserSearch from './components/UserSearch';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -24,5 +26,6 @@ export {
   UserHighlight,
   CommunityHighlight,
   RSTabs,
-  RSModal
+  RSModal,
+  UserSearch,
 };

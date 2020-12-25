@@ -178,6 +178,7 @@ function LikesModal(props: Props) {
           </MuiPickersUtilsProvider>
         </FormHelperText>
         {/* Add Image Upload Button and Image Preview */}
+        {/* Add Speakers */}
         <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
           <Button
             className={loading ? styles.disabledButton : styles.createButton}
