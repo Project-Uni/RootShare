@@ -16,7 +16,9 @@ export async function createNewCommunity(
   description: string,
   adminID: string,
   type: COMMUNITY_TYPE,
-  isPrivate: boolean
+  isPrivate: boolean,
+  additionalFlags: { isMTG?: boolean } = {},
+  options: {} = {}
 ) {
   const userExists = await User.exists({ _id: adminID });
   if (!userExists) return sendPacket(0, 'Admin does not exist');
@@ -28,6 +30,7 @@ export async function createNewCommunity(
     private: isPrivate,
     admin: adminID,
     members: [adminID],
+    isMTGFlag: additionalFlags.isMTG || false,
   });
 
   try {
@@ -55,6 +58,7 @@ export async function retrieveAllCommunities() {
       'description',
       'admin',
       'private',
+      'isMTGFlag',
       'type',
       'university',
       'members',
@@ -80,31 +84,40 @@ export async function editCommunity(
   description: string,
   adminID: string,
   type: COMMUNITY_TYPE,
-  isPrivate: boolean
+  isPrivate: boolean,
+  additionalFlags: { isMTG?: boolean } = {},
+  options: { returnCommunity?: boolean } = {}
 ) {
   try {
-    const community = await Community.findById({ _id });
-    community.name = name;
-    community.description = description;
-    community.admin = adminID;
-    community.type = type;
-    community.private = isPrivate;
-
-    const savedCommunity = await community.save();
-
     const communityPromise = Community.updateOne(
       { _id },
-      { $addToSet: { members: adminID } }
+      {
+        $set: {
+          name,
+          description,
+          admin: adminID,
+          type,
+          private: isPrivate,
+          isMTGFlag: additionalFlags.isMTG || false,
+        },
+        $addToSet: { members: adminID },
+      }
     ).exec();
+
     const userPromise = User.updateOne(
       { _id: adminID },
       { $addToSet: { joinedCommunities: _id } }
     ).exec();
     await Promise.all([communityPromise, userPromise]);
 
+    let community;
+    if (options.returnCommunity) {
+      community = await Community.findById(_id).exec();
+    }
+
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
-      community: savedCommunity,
+      community,
     });
   } catch (err) {
     log('error', err);
