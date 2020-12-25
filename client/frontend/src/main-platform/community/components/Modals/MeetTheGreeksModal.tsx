@@ -28,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 500,
   },
   loadingIndicator: {
-    // color: colors.primary,
+    color: theme.primary,
   },
   textField: {
     width: 460,

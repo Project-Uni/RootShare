@@ -41,6 +41,11 @@ function UserSearch(props: Props) {
   const [options, setOptions] = useState(props.options || []);
   const [searchValue, setSearchValue] = useState('');
 
+  const onAutocomplete = (_: any, newValue: any) => {
+    console.log('new value:', newValue);
+    setSearchValue('');
+  };
+
   const fetchData = async () => {
     if (props.fetchDataURL) {
       const { data } = await makeRequest<ServiceResponse>('GET', props.fetchDataURL);
@@ -64,14 +69,15 @@ function UserSearch(props: Props) {
     <Autocomplete
       className={props.className}
       options={options}
+      inputValue={searchValue}
       getOptionLabel={(option) => option.value}
-      onChange={() => {}}
+      onChange={onAutocomplete}
+      key={`autocompleted_${props.label}`}
       renderInput={(params) => (
         <TextField
           {...params}
           label={props.label}
           variant="outlined"
-          value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
         />
