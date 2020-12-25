@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -166,6 +166,17 @@ function LikesModal(props: Props) {
     console.log('Date:', definedDate);
   };
 
+  const removeSpeaker = useCallback(
+    (idx: number) => {
+      if (window.confirm('Are you sure you want to remove the speaker?')) {
+        const arr = [...speakers];
+        arr.splice(idx, 1);
+        setSpeakers(arr);
+      }
+    },
+    [speakers]
+  );
+
   const EventSpeakers = () => (
     <>
       {speakers.map((speaker, idx) => (
@@ -199,7 +210,7 @@ function LikesModal(props: Props) {
               </RSText>
             )}
           </div>
-          <IconButton>
+          <IconButton onClick={() => removeSpeaker(idx)}>
             <RSText>X</RSText>
           </IconButton>
         </div>
@@ -259,7 +270,6 @@ function LikesModal(props: Props) {
           </MuiPickersUtilsProvider>
         </FormHelperText>
         {/* Add Image Upload Button and Image Preview */}
-        {/* Add Speakers */}
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
           Meet The Greeks Speakers
         </RSText>
