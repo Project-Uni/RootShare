@@ -8,6 +8,7 @@ import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
 import PendingFollowRequestsModal from './PendingFollowRequestsModal';
+import MeetTheGreeksModal from './Modals/MeetTheGreeksModal';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -131,6 +132,7 @@ function CommunityGeneralInfo(props: Props) {
     showPendingFollowRequestsModal,
     setShowPendingFollowRequestsModal,
   ] = useState(false);
+  const [showMTGModal, setShowMTGModal] = useState(false);
   const [numPending, setNumPending] = useState(props.numPending);
   const [numFollowRequests, setNumFollowRequests] = useState(
     props.numFollowRequests
@@ -265,7 +267,9 @@ function CommunityGeneralInfo(props: Props) {
                 anchorEl={menuAnchorEl}
                 onClose={() => setMenuAnchorEl(null)}
               >
-                <MenuItem onClick={() => {}}>Meet The Greeks</MenuItem>
+                <MenuItem onClick={() => setShowMTGModal(true)}>
+                  Meet The Greeks
+                </MenuItem>
               </Menu>
             )
           ) : (
@@ -283,21 +287,32 @@ function CommunityGeneralInfo(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <PendingMembersModal
-        open={showPendingModal}
-        communityID={props.communityID}
-        handleClose={handlePendingModalClose}
-        updatePendingCount={updatePendingCount}
-        updateMemberCount={updateMemberCount}
-      />
-      <PendingFollowRequestsModal
-        open={showPendingFollowRequestsModal}
-        communityID={props.communityID}
-        handleClose={() => {
-          setShowPendingFollowRequestsModal(false);
-        }}
-        updatePendingCount={updateFollowRequestCount}
-      />
+      {props.isAdmin && (
+        <>
+          <PendingMembersModal
+            open={showPendingModal}
+            communityID={props.communityID}
+            handleClose={handlePendingModalClose}
+            updatePendingCount={updatePendingCount}
+            updateMemberCount={updateMemberCount}
+          />
+          <PendingFollowRequestsModal
+            open={showPendingFollowRequestsModal}
+            communityID={props.communityID}
+            handleClose={() => {
+              setShowPendingFollowRequestsModal(false);
+            }}
+            updatePendingCount={updateFollowRequestCount}
+          />
+          {props.flags.isMTGFlag && (
+            <MeetTheGreeksModal
+              open={showMTGModal}
+              onClose={() => setShowMTGModal(false)}
+            />
+          )}
+        </>
+      )}
+
       <div className={styles.top}>
         <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
