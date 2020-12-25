@@ -10,12 +10,11 @@ import {
 } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import { BsPeopleFill } from 'react-icons/bs';
+import { BsPeopleFill, BsPlusCircle } from 'react-icons/bs';
 
 import theme from '../../../../theme/Theme';
 import { colors } from '../../../../theme/Colors';
 
-import { connect } from 'react-redux';
 import { RSModal, UserSearch } from '../../../reusable-components';
 import { SearchOption } from '../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../base-components';
@@ -87,6 +86,14 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     marginBottom: 10,
   },
+  imageUploadBox: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
+  stageTwoHead: {
+    marginTop: 10,
+  },
 }));
 
 type Props = {
@@ -115,13 +122,13 @@ type ServiceResponse = {
 
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
 
-function LikesModal(props: Props) {
+function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState('');
 
-  const [renderStage, setRenderStage] = useState<0 | 1>(0);
+  const [renderStage, setRenderStage] = useState<0 | 1>(1);
 
   const defaultDate = new Date('01/17/2021 @ 4:00 PM');
   const [definedDate, setDefinedDate] = useState<any>(defaultDate);
@@ -330,7 +337,26 @@ function LikesModal(props: Props) {
 
   const EventBannerStage = () => (
     <div>
-      <p>Add the banner here</p>
+      <div style={{ marginLeft: 15, marginRight: 15 }}>
+        <RSText type="head" bold size={14} className={styles.stageTwoHead}>
+          Upload Event Banner
+        </RSText>
+        <div
+          className={styles.imageUploadBox}
+          style={{
+            height: 300, //Define based on ratio
+            width: '100%',
+            border: `1px dashed ${theme.secondaryText}`,
+            marginTop: 10,
+            marginBottom: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <BsPlusCircle size={40} color="lightgrey" />
+        </div>
+      </div>
       <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
         <Button
           className={[
@@ -399,15 +425,4 @@ function LikesModal(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(LikesModal);
+export default MeetTheGreeksModal;
