@@ -214,6 +214,7 @@ function MeetTheGreeksModal(props: Props) {
         event.target.value = '';
         return;
       }
+      setServerErr('');
       const imageReader = new FileReader();
 
       imageReader.onloadend = (event: ProgressEvent) => {
@@ -363,29 +364,41 @@ function MeetTheGreeksModal(props: Props) {
         <RSText type="head" bold size={14} className={styles.stageTwoHead}>
           Upload Event Banner
         </RSText>
-        <div
-          className={styles.imageUploadBox}
-          style={{
-            height: 300, //Define based on ratio
-            width: '100%',
-            border: `1px dashed ${theme.secondaryText}`,
-            marginTop: 10,
-            marginBottom: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onClick={() => fileUploader.current?.click()}
-        >
-          <input
-            type="file"
-            ref={fileUploader}
-            style={{ display: 'none' }}
-            accept="image/x-png, image/jpeg"
-            onChange={handleImageUpload}
-          />
-          <BsPlusCircle size={40} color="lightgrey" />
-        </div>
+        {imageSrc ? (
+          <div
+            className={styles.imageUploadBox}
+            onClick={() => fileUploader.current?.click()}
+          >
+            <img
+              src={imageSrc}
+              style={{ width: '100%', marginTop: 10, marginBottom: 10 }}
+            />
+          </div>
+        ) : (
+          <div
+            className={styles.imageUploadBox}
+            style={{
+              height: 300, //Define based on ratio
+              width: '100%',
+              border: `1px dashed ${theme.secondaryText}`,
+              marginTop: 10,
+              marginBottom: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onClick={() => fileUploader.current?.click()}
+          >
+            <input
+              type="file"
+              ref={fileUploader}
+              style={{ display: 'none' }}
+              accept="image/x-png, image/jpeg"
+              onChange={handleImageUpload}
+            />
+            <BsPlusCircle size={40} color="lightgrey" />
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
         <Button
