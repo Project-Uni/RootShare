@@ -308,6 +308,7 @@ function CommunityGeneralInfo(props: Props) {
             <MeetTheGreeksModal
               open={showMTGModal}
               onClose={() => setShowMTGModal(false)}
+              communityName={props.name}
             />
           )}
         </>

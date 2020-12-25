@@ -13,6 +13,7 @@ const theme = {
     success: '#4BB543',
     bright: '#6699FF',
     altText: '#F8F8FF',
+    disabledButton: 'lightgray',
   },
   dark: {
     white: '',
