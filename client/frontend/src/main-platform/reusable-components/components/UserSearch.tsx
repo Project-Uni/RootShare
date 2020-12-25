@@ -12,7 +12,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type SearchOption = {
+export type SearchOption = {
+  _id: string;
   label: string;
   value: string;
   profilePicture?: string;
@@ -33,6 +34,7 @@ type Props = {
   name: string;
   label: string;
   helperText?: string;
+  onAutocomplete?: (user: SearchOption) => void;
 };
 
 function UserSearch(props: Props) {
@@ -41,8 +43,8 @@ function UserSearch(props: Props) {
   const [options, setOptions] = useState(props.options || []);
   const [searchValue, setSearchValue] = useState('');
 
-  const onAutocomplete = (_: any, newValue: any) => {
-    console.log('new value:', newValue);
+  const onAutocomplete = (_: any, newValue: SearchOption | null) => {
+    if (newValue) props.onAutocomplete?.(newValue);
     setSearchValue('');
   };
 
@@ -52,6 +54,7 @@ function UserSearch(props: Props) {
       if (data.success === 1) {
         setOptions(
           data.content.map((user) => ({
+            _id: user._id,
             label: `${user.firstName} ${user.lastName}`,
             value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
             profilePicture: user.profilePicture,
@@ -80,6 +83,7 @@ function UserSearch(props: Props) {
           variant="outlined"
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
+          helperText={props.helperText}
         />
       )}
       renderOption={(option) => (

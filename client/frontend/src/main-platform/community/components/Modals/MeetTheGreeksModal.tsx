@@ -5,6 +5,8 @@ import {
   TextField,
   Button,
   FormHelperText,
+  Avatar,
+  IconButton,
 } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
@@ -15,6 +17,7 @@ import { colors } from '../../../../theme/Colors';
 
 import { connect } from 'react-redux';
 import { RSModal, UserSearch } from '../../../reusable-components';
+import { SearchOption } from '../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../base-components';
 import { makeRequest } from '../../../../helpers/functions';
 
@@ -63,6 +66,12 @@ const useStyles = makeStyles((_: any) => ({
     width: 250,
     marginLeft: 2,
   },
+  speakerLabel: {
+    marginLeft: 15,
+  },
+  hostLabel: {
+    marginLeft: 10,
+  },
 }));
 
 type Props = {
@@ -89,6 +98,12 @@ type ServiceResponse = {
   }[];
 };
 
+// type Speaker = {
+// lab
+//   _id: string;
+//   profilePicture?: string;
+// };
+
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
 
 function LikesModal(props: Props) {
@@ -99,9 +114,9 @@ function LikesModal(props: Props) {
 
   const defaultDate = new Date('01/17/2021 @ 4:00 PM');
   const [definedDate, setDefinedDate] = useState<any>(defaultDate);
-  const [communityMembers, setCommunityMembers] = useState<
-    { label: string; value: string; profilePicture?: string }[]
-  >([]);
+  const [speakers, setSpeakers] = useState<SearchOption[]>([]);
+
+  const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
 
   const { register, handleSubmit, control } = useForm<IFormData>({
     defaultValues: {
@@ -132,6 +147,7 @@ function LikesModal(props: Props) {
     if (data.success === 1) {
       setCommunityMembers(
         data.content.members.map((member) => ({
+          _id: member._id,
           label: `${member.firstName} ${member.lastName}`,
           value: `${member.firstName} ${member.lastName} ${member._id} ${member.email}`,
           profilePicture: member.profilePicture,
@@ -140,11 +156,56 @@ function LikesModal(props: Props) {
     }
   }
 
+  const onAutocomplete = (user: SearchOption) => {
+    if (!speakers.find((member) => member._id === user._id) && speakers.length < 4)
+      setSpeakers([...speakers, user]);
+  };
+
   const onSubmit = (data: IFormData) => {
     console.log('Data:', data);
     console.log('Date:', definedDate);
   };
 
+  const EventSpeakers = () => (
+    <>
+      {speakers.map((speaker, idx) => (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: 5,
+            marginBottom: 5,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar src={speaker.profilePicture} alt={speaker.label} sizes="50px" />
+            <RSText size={13} bold className={styles.speakerLabel}>
+              {speaker.label}
+            </RSText>
+            {idx === 0 && (
+              <RSText
+                size={12}
+                italic
+                color={theme.secondaryText}
+                className={styles.hostLabel}
+              >
+                (Host)
+              </RSText>
+            )}
+          </div>
+          <IconButton>
+            <RSText>X</RSText>
+          </IconButton>
+        </div>
+      ))}
+    </>
+  );
   const EventInformation = () => {
     return (
       <form
@@ -207,7 +268,10 @@ function LikesModal(props: Props) {
           className={styles.textField}
           name="speakers"
           options={communityMembers}
+          onAutocomplete={onAutocomplete}
+          helperText="Add up to 4 speakers for the event"
         />
+        <EventSpeakers />
         <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
           <Button
             className={loading ? styles.disabledButton : styles.createButton}
