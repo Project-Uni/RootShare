@@ -8,16 +8,17 @@ import {
 } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+import { BsPeopleFill } from 'react-icons/bs';
 
 import theme from '../../../../theme/Theme';
 import { colors } from '../../../../theme/Colors';
 
 import { connect } from 'react-redux';
-import { RSModal } from '../../../reusable-components';
+import { RSModal, UserSearch } from '../../../reusable-components';
 import { RSText } from '../../../../base-components';
+import { makeRequest } from '../../../../helpers/functions';
 
 import { useForm } from 'react-hook-form';
-import { BsPeopleFill } from 'react-icons/bs';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -68,12 +69,24 @@ type Props = {
   open: boolean;
   onClose: () => any;
   communityName: string;
+  communityID: string;
 };
 
 type IFormData = {
   description: string;
   introVideoURL: string;
   eventTime: any;
+};
+
+type ServiceResponse = {
+  members: {
+    [key: string]: any;
+    firstName: string;
+    lastName: string;
+    email: string;
+    _id: string;
+    profilePicture?: string;
+  }[];
 };
 
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
@@ -86,6 +99,9 @@ function LikesModal(props: Props) {
 
   const defaultDate = new Date('01/17/2021 @ 4:00 PM');
   const [definedDate, setDefinedDate] = useState<any>(defaultDate);
+  const [communityMembers, setCommunityMembers] = useState<
+    { label: string; value: string; profilePicture?: string }[]
+  >([]);
 
   const { register, handleSubmit, control } = useForm<IFormData>({
     defaultValues: {
@@ -98,26 +114,30 @@ function LikesModal(props: Props) {
   useEffect(() => {
     if (props.open) {
       setLoading(true);
-      fetchData();
+      fetchCurrentEventInformation().then(() =>
+        fetchCommunityMembers().then(() => setLoading(false))
+      );
     }
   }, [props.open]);
 
-  async function fetchData() {
-    // const { data } = await makeRequest(
-    //   'GET',
-    //   `/api/posts/likes/${props.postID}`,
-    //   {},
-    //   true,
-    //   props.accessToken,
-    //   props.refreshToken
-    // );
-    // if (data.success === 1) {
-    //   setUsers(data.content.likes);
-    //   setServerErr(false);
-    // } else {
-    //   setServerErr(true);
-    // }
-    setLoading(false);
+  async function fetchCurrentEventInformation() {
+    return true;
+  }
+
+  async function fetchCommunityMembers() {
+    const { data } = await makeRequest<ServiceResponse>(
+      'GET',
+      `/api/community/${props.communityID}/members?skipCalculation=true`
+    );
+    if (data.success === 1) {
+      setCommunityMembers(
+        data.content.members.map((member) => ({
+          label: `${member.firstName} ${member.lastName}`,
+          value: `${member.firstName} ${member.lastName} ${member._id} ${member.email}`,
+          profilePicture: member.profilePicture,
+        }))
+      );
+    }
   }
 
   const onSubmit = (data: IFormData) => {
@@ -179,6 +199,15 @@ function LikesModal(props: Props) {
         </FormHelperText>
         {/* Add Image Upload Button and Image Preview */}
         {/* Add Speakers */}
+        <RSText type="body" bold size={12} className={styles.fieldLabel}>
+          Meet The Greeks Speakers
+        </RSText>
+        <UserSearch
+          label="Speakers"
+          className={styles.textField}
+          name="speakers"
+          options={communityMembers}
+        />
         <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
           <Button
             className={loading ? styles.disabledButton : styles.createButton}

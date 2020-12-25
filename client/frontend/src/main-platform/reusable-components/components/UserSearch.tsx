@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { TextField } from '@material-ui/core';
+import { Avatar, TextField } from '@material-ui/core';
 
 import { makeRequest } from '../../../helpers/functions';
+import { RSText } from '../../../base-components';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  text: {
+    marginLeft: 15,
+  },
 }));
 
 type SearchOption = {
@@ -61,7 +64,7 @@ function UserSearch(props: Props) {
     <Autocomplete
       className={props.className}
       options={options}
-      getOptionLabel={(option) => option.label}
+      getOptionLabel={(option) => option.value}
       onChange={() => {}}
       renderInput={(params) => (
         <TextField
@@ -73,7 +76,14 @@ function UserSearch(props: Props) {
           fullWidth
         />
       )}
-      renderOption={(option) => <div>{option.label}</div>}
+      renderOption={(option) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar src={option.profilePicture} alt={option.label} />
+          <RSText size={13} bold className={styles.text}>
+            {option.label}
+          </RSText>
+        </div>
+      )}
     />
   );
 }

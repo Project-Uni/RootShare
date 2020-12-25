@@ -986,14 +986,18 @@ export async function getAllPendingFollowRequests(communityID: string) {
   }
 }
 
-export async function getCommunityMembers(userID: string, communityID: string) {
+export async function getCommunityMembers(
+  userID: string,
+  communityID: string,
+  options: { skipCalculation?: boolean } = {}
+) {
   try {
     const communityPromise = Community.findById(communityID)
       .select(['members', 'name'])
       .populate({
         path: 'members',
         select:
-          'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections',
+          'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections email',
         populate: [
           { path: 'university', select: 'universityName' },
           { path: 'connections', select: 'from to accepted' },
@@ -1016,28 +1020,33 @@ export async function getCommunityMembers(userID: string, communityID: string) {
 
         let { members } = community;
 
-        const userConnections = connectionsToUserIDStrings(userID, user.connections);
-
-        for (let i = 0; i < members.length; i++) {
-          let cleanedMember = members[i].toObject();
-          cleanedMember.connections = connectionsToUserIDStrings(
-            cleanedMember._id,
-            cleanedMember.connections
+        if (!options.skipCalculation) {
+          const userConnections = connectionsToUserIDStrings(
+            userID,
+            user.connections
           );
 
-          cleanedMember = await addCalculatedUserFields(
-            userConnections,
-            user.joinedCommunities,
-            cleanedMember
-          );
+          for (let i = 0; i < members.length; i++) {
+            let cleanedMember = members[i].toObject();
+            cleanedMember.connections = connectionsToUserIDStrings(
+              cleanedMember._id,
+              cleanedMember.connections
+            );
 
-          getUserToUserRelationship(
-            user.connections,
-            user.pendingConnections,
-            members[i],
-            cleanedMember
-          );
-          members[i] = cleanedMember;
+            cleanedMember = await addCalculatedUserFields(
+              userConnections,
+              user.joinedCommunities,
+              cleanedMember
+            );
+
+            getUserToUserRelationship(
+              user.connections,
+              user.pendingConnections,
+              members[i],
+              cleanedMember
+            );
+            members[i] = cleanedMember;
+          }
         }
 
         members = await addProfilePicturesAll(members, 'profile');

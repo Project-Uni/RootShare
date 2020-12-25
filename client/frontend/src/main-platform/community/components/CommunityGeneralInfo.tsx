@@ -309,6 +309,7 @@ function CommunityGeneralInfo(props: Props) {
               open={showMTGModal}
               onClose={() => setShowMTGModal(false)}
               communityName={props.name}
+              communityID={props.communityID}
             />
           )}
         </>

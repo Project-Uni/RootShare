@@ -343,7 +343,10 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID } = req.user;
-      const packet = await getCommunityMembers(userID, communityID);
+      const { skipCalculation } = req.query;
+      const packet = await getCommunityMembers(userID, communityID, {
+        skipCalculation,
+      });
       return res.json(packet);
     }
   );
