@@ -9,13 +9,15 @@ import {
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
+import theme from '../../../../theme/Theme';
+import { colors } from '../../../../theme/Colors';
+
 import { connect } from 'react-redux';
 import { RSModal } from '../../../reusable-components';
 import { RSText } from '../../../../base-components';
-import theme from '../../../../theme/Theme';
-import useForm from '../../../../hooks/useForm';
 
-import { colors } from '../../../../theme/Colors';
+import { useForm } from 'react-hook-form';
+import { BsPeopleFill } from 'react-icons/bs';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -57,9 +59,8 @@ const useStyles = makeStyles((_: any) => ({
     width: 300,
   },
   dateBox: {
-    width: 200,
+    width: 250,
     marginLeft: 2,
-    // marginRight: 20,
   },
 }));
 
@@ -67,6 +68,12 @@ type Props = {
   open: boolean;
   onClose: () => any;
   communityName: string;
+};
+
+type IFormData = {
+  description: string;
+  introVideoURL: string;
+  eventTime: any;
 };
 
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
@@ -77,10 +84,15 @@ function LikesModal(props: Props) {
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState(false);
 
-  const { formFields, handleChange } = useForm({
-    description: '',
-    introVideoURL: '',
-    eventTime: '', //Needs custom handler
+  const defaultDate = new Date('01/17/2021 @ 4:00 PM');
+  const [definedDate, setDefinedDate] = useState<any>(defaultDate);
+
+  const { register, handleSubmit, control } = useForm<IFormData>({
+    defaultValues: {
+      description: '',
+      introVideoURL: '', //Need to handle date separately
+      // eventTime: defaultDate,
+    },
   });
 
   useEffect(() => {
@@ -108,20 +120,24 @@ function LikesModal(props: Props) {
     setLoading(false);
   }
 
-  const handleSubmit = () => {
-    console.log('FormFields:', formFields);
+  const onSubmit = (data: IFormData) => {
+    console.log('Data:', data);
+    console.log('Date:', definedDate);
   };
 
   const EventInformation = () => {
     return (
-      <form style={{ marginLeft: 20, marginRight: 20 }}>
+      <form
+        style={{ marginLeft: 20, marginRight: 20 }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
           Event Description
         </RSText>
         <TextField
           variant="outlined"
-          value={formFields.description}
-          onChange={handleChange('description')}
+          inputRef={register}
+          name="description"
           label="Description"
           key="desc"
           className={styles.textField}
@@ -133,8 +149,8 @@ function LikesModal(props: Props) {
         </RSText>
         <TextField
           variant="outlined"
-          value={formFields.introVideoURL}
-          onChange={handleChange('introVideoURL')}
+          name="introVideoURL"
+          inputRef={register}
           label="YouTube URL"
           key="introURL"
           className={styles.textField}
@@ -146,15 +162,17 @@ function LikesModal(props: Props) {
           //  error={dateTimeErr !== ''}
           className={styles.dateBox}
         >
-          {/* <p className={styles.dateErr}>{dateTimeErr}</p> */}
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DateTimePicker
+              name="eventTime"
               margin="normal"
               format="MM/dd/yyyy @ h:mm a"
-              value={Date.now()}
-              onChange={() => {}}
-              minDate={new Date()}
+              value={definedDate}
+              onChange={(value) => setDefinedDate(value)}
+              minDate={new Date('January 17, 2021')}
               minDateMessage={'Event Must Be on January 17th'}
+              maxDate={new Date('January 19, 2021')}
+              maxDateMessage={'Event Must be before January 19th'}
               className={styles.dateBox}
             />
           </MuiPickersUtilsProvider>
@@ -164,9 +182,9 @@ function LikesModal(props: Props) {
           <Button
             className={loading ? styles.disabledButton : styles.createButton}
             disabled={loading}
-            onClick={handleSubmit}
+            type="submit"
           >
-            {loading ? <CircularProgress size={30} /> : 'Create'}
+            {loading ? <CircularProgress size={30} /> : 'Next'}
           </Button>
         </div>
       </form>
@@ -179,6 +197,10 @@ function LikesModal(props: Props) {
       title={`Meet The Greeks - ${props.communityName}`}
       onClose={props.onClose}
       className={styles.modal}
+      helperText={
+        "Create or Edit your Fraternity's event time and information for Meet the Greeks"
+      }
+      helperIcon={<BsPeopleFill size={90} />}
     >
       <div>
         {loading ? (
