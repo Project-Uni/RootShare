@@ -79,27 +79,21 @@ function MeetTheGreekForm(props: Props) {
     onSubmit,
   } = props;
 
-  const onAutocomplete = useCallback(
-    (user: SearchOption) => {
-      if (
-        !formFields.speakers.find((member) => member._id === user._id) &&
-        formFields.speakers.length < 4
-      )
-        updateFields([{ key: 'speakers', value: [...formFields.speakers, user] }]);
-    },
-    [formFields.speakers]
-  );
+  const onAutocomplete = (user: SearchOption) => {
+    if (
+      !formFields.speakers.find((member) => member._id === user._id) &&
+      formFields.speakers.length < 4
+    )
+      updateFields([{ key: 'speakers', value: [...formFields.speakers, user] }]);
+  };
 
-  const removeSpeaker = useCallback(
-    (idx: number) => {
-      if (window.confirm('Are you sure you want to remove the speaker?')) {
-        const arr = [...formFields.speakers];
-        arr.splice(idx, 1);
-        updateFields([{ key: 'speakers', value: arr }]);
-      }
-    },
-    [formFields.speakers]
-  );
+  const removeSpeaker = (idx: number) => {
+    if (window.confirm('Are you sure you want to remove the speaker?')) {
+      const arr = [...formFields.speakers];
+      arr.splice(idx, 1);
+      updateFields([{ key: 'speakers', value: arr }]);
+    }
+  };
 
   return (
     <form style={{ marginLeft: 20, marginRight: 20 }}>
