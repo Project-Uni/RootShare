@@ -14,6 +14,7 @@ import { makeRequest, slideLeft } from '../../../../helpers/functions';
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
 import useForm from '../../../../hooks/useForm';
+import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -51,14 +52,6 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 15,
     marginTop: 10,
     marginBottom: 10,
-  },
-  imageUploadBox: {
-    '&:hover': {
-      cursor: 'pointer',
-    },
-  },
-  stageTwoHead: {
-    marginTop: 10,
   },
 }));
 
@@ -142,7 +135,6 @@ function MeetTheGreeksModal(props: Props) {
   const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
 
   const [imageSrc, setImageSrc] = useState<string>();
-  const fileUploader = useRef<HTMLInputElement>(null);
 
   const [snackbarMode, setSnackbarMode] = useState<
     'success' | 'error' | 'notify' | null
@@ -316,83 +308,6 @@ function MeetTheGreeksModal(props: Props) {
     setApiLoading(false);
   }, [imageSrc]);
 
-  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.files && event.target.files.length > 0) {
-      if (event.target.files[0].size > 1440000) {
-        setServerErr('The image file is too big.');
-        event.target.value = '';
-        return;
-      }
-      setServerErr('');
-      const imageReader = new FileReader();
-
-      imageReader.onloadend = (event: ProgressEvent) => {
-        const resultBuffer = imageReader.result;
-        setImageSrc(resultBuffer as string);
-      };
-
-      imageReader.readAsDataURL(event.target.files[0]);
-      event.target.value = '';
-    }
-  }
-
-  const EventBannerStage = () => (
-    <div>
-      <div style={{ marginLeft: 15, marginRight: 15 }}>
-        <RSText type="head" bold size={14} className={styles.stageTwoHead}>
-          Upload Event Banner
-        </RSText>
-        {imageSrc ? (
-          <div
-            className={styles.imageUploadBox}
-            onClick={() => fileUploader.current?.click()}
-          >
-            <img
-              src={imageSrc}
-              style={{ width: '100%', marginTop: 10, marginBottom: 10 }}
-            />
-          </div>
-        ) : (
-          <div
-            className={styles.imageUploadBox}
-            style={{
-              height: 300, //Define based on ratio
-              width: '100%',
-              border: `1px dashed ${theme.secondaryText}`,
-              marginTop: 10,
-              marginBottom: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onClick={() => fileUploader.current?.click()}
-          >
-            <input
-              type="file"
-              ref={fileUploader}
-              style={{ display: 'none' }}
-              accept="image/x-png, image/jpeg"
-              onChange={handleImageUpload}
-            />
-            <BsPlusCircle size={40} color="lightgrey" />
-          </div>
-        )}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
-        <Button
-          className={[
-            styles.middleButton,
-            apiLoading ? styles.disabledButton : styles.primaryButton,
-          ].join(' ')}
-          disabled={apiLoading}
-          onClick={onUploadBanner}
-        >
-          {apiLoading ? <CircularProgress size={30} /> : 'Finish'}
-        </Button>
-      </div>
-    </div>
-  );
-
   return (
     <>
       <ManageSpeakersSnackbar
@@ -440,7 +355,13 @@ function MeetTheGreeksModal(props: Props) {
               communityMembers={communityMembers}
             />
           ) : (
-            <EventBannerStage />
+            <MeetTheGreeksBannerUpload
+              setServerErr={setServerErr}
+              onUpload={onUploadBanner}
+              loading={apiLoading}
+              imageSrc={imageSrc}
+              updateImageSrc={setImageSrc}
+            />
           )}
         </div>
       </RSModal>
