@@ -5,13 +5,13 @@ function createErrors<T, K>(values: T) {
   Object.keys(values).forEach((key) => {
     errors[key] = '';
   });
-  return errors;
+  return errors as K;
 }
 
 export default function useForm<T, K>(initialValues: T) {
   const [formFields, setFormFields] = useState(initialValues);
 
-  const initialErrors = useRef(createErrors(initialValues) as K);
+  const initialErrors = useRef(createErrors<T, K>(initialValues));
   const [formErrors, setFormErrors] = useState(initialErrors.current);
 
   const handleChange = (key: keyof T) => (e: ChangeEvent<HTMLInputElement>) => {
