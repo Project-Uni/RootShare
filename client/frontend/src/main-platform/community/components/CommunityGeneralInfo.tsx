@@ -267,7 +267,12 @@ function CommunityGeneralInfo(props: Props) {
                 anchorEl={menuAnchorEl}
                 onClose={() => setMenuAnchorEl(null)}
               >
-                <MenuItem onClick={() => setShowMTGModal(true)}>
+                <MenuItem
+                  onClick={() => {
+                    setShowMTGModal(true);
+                    setMenuAnchorEl(null);
+                  }}
+                >
                   Meet The Greeks
                 </MenuItem>
               </Menu>
