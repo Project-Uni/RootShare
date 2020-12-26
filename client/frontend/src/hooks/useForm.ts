@@ -18,7 +18,6 @@ export default function useForm<T>(initialValues: T) {
       dup[field.key] = field.value;
     });
     setFormFields(dup);
-    // setFormFields((prev: T) => ({ ...prev, [key]: value }));
   };
 
   const resetForm = () => {

@@ -1,26 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  CircularProgress,
-  TextField,
-  Button,
-  FormHelperText,
-  Avatar,
-  IconButton,
-} from '@material-ui/core';
-import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+import { CircularProgress, Button } from '@material-ui/core';
 import { BsPeopleFill, BsPlusCircle } from 'react-icons/bs';
 
 import theme from '../../../../theme/Theme';
 import { colors } from '../../../../theme/Colors';
 
-import { RSModal, UserSearch } from '../../../reusable-components';
+import { RSModal } from '../../../reusable-components';
 import { SearchOption } from '../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../base-components';
 import { makeRequest, slideLeft } from '../../../../helpers/functions';
-
-// import { useForm, Controller } from 'react-hook-form';
 
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
@@ -142,8 +131,6 @@ function MeetTheGreeksModal(props: Props) {
   const [serverErr, setServerErr] = useState('');
 
   const [renderStage, setRenderStage] = useState<0 | 1>(0);
-
-  const [speakers, setSpeakers] = useState<SearchOption[]>([]);
 
   const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
 
@@ -286,18 +273,6 @@ function MeetTheGreeksModal(props: Props) {
     }
   }
 
-  //Need to update this
-  const removeSpeaker = useCallback(
-    (idx: number) => {
-      if (window.confirm('Are you sure you want to remove the speaker?')) {
-        const arr = [...speakers];
-        arr.splice(idx, 1);
-        setSpeakers(arr);
-      }
-    },
-    [speakers]
-  );
-
   const EventBannerStage = () => (
     <div>
       <div style={{ marginLeft: 15, marginRight: 15 }}>
@@ -399,7 +374,6 @@ function MeetTheGreeksModal(props: Props) {
               onSubmit={onSubmit}
               loading={apiLoading}
               communityMembers={communityMembers}
-              removeSpeaker={removeSpeaker}
             />
           ) : (
             <EventBannerStage />

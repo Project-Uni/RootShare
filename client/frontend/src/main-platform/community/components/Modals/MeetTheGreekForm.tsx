@@ -1,21 +1,18 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import {
   CircularProgress,
   TextField,
   Button,
   FormHelperText,
-  Avatar,
-  IconButton,
   makeStyles,
 } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import { BsPeopleFill, BsPlusCircle } from 'react-icons/bs';
 
 import theme from '../../../../theme/Theme';
 import { colors } from '../../../../theme/Colors';
 
-import { RSModal, UserSearch } from '../../../reusable-components';
+import { UserSearch } from '../../../reusable-components';
 import { SearchOption } from '../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
@@ -71,7 +68,6 @@ type Props = {
   ) => void;
   communityMembers: SearchOption[];
   onSubmit: () => any;
-  removeSpeaker: (idx: number) => void;
 };
 
 function MeetTheGreekForm(props: Props) {
@@ -84,7 +80,6 @@ function MeetTheGreekForm(props: Props) {
     loading,
     communityMembers,
     onSubmit,
-    removeSpeaker,
   } = props;
 
   const onAutocomplete = (user: SearchOption) => {
@@ -94,6 +89,17 @@ function MeetTheGreekForm(props: Props) {
     )
       updateFields([{ key: 'speakers', value: [...formFields.speakers, user] }]);
   };
+
+  const removeSpeaker = useCallback(
+    (idx: number) => {
+      if (window.confirm('Are you sure you want to remove the speaker?')) {
+        const arr = [...formFields.speakers];
+        arr.splice(idx, 1);
+        updateFields([{ key: 'speakers', value: arr }]);
+      }
+    },
+    [formFields.speakers]
+  );
 
   return (
     <form style={{ marginLeft: 20, marginRight: 20 }}>
