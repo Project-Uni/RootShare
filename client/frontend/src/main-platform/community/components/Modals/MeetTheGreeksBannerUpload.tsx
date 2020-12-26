@@ -100,16 +100,16 @@ function MeetTheGreeksBannerUpload(props: Props) {
             }}
             onClick={() => fileUploader.current?.click()}
           >
-            <input
-              type="file"
-              ref={fileUploader}
-              style={{ display: 'none' }}
-              accept="image/x-png, image/jpeg"
-              onChange={handleImageUpload}
-            />
             <BsPlusCircle size={40} color="lightgrey" />
           </div>
         )}
+        <input
+          type="file"
+          ref={fileUploader}
+          style={{ display: 'none' }}
+          accept="image/x-png, image/jpeg"
+          onChange={handleImageUpload}
+        />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
         <Button
