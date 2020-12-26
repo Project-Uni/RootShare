@@ -159,9 +159,11 @@ function MeetTheGreeksModal(props: Props) {
     }
   }, [props.open]);
 
-  useEffect(() => {
-    console.log('FormFields:', formFields);
-  }, [formFields]);
+  const onClose = () => {
+    props.onClose();
+    setRenderStage(0);
+    resetData();
+  };
 
   async function fetchCurrentEventInformation() {
     const { data } = await makeRequest<EventInformationServiceResponse>(
@@ -222,35 +224,32 @@ function MeetTheGreeksModal(props: Props) {
       setTransition(() => slideLeft);
       setSnackbarMode('notify');
       setImageSrc('');
-      props.onClose();
-      setApiLoading(false);
+      onClose();
     } else {
       setServerErr(data.message);
     }
+    setApiLoading(false);
   };
 
   const onSubmit = async () => {
-    console.log('Form:', formFields);
-    // console.log('Data:', formData);
-    // setApiLoading(true);
-    // const { data } = await makeRequest(
-    //   'POST',
-    //   `/api/mtg/create/${props.communityID}`,
-    //   {
-    //     description: formData.description,
-    //     introVideoURL: formData.introVideoURL,
-    //     eventTime: definedDate,
-    //     speakers: speakers.map((speaker) => speaker._id),
-    //   }
-    // );
-    // console.log('Data:', data);
-    // if (data.success === 1) {
-    //   resetData();
-    //   setRenderStage(1);
-    // } else {
-    //   setServerErr(data.message);
-    // }
-    // setApiLoading(false);
+    setApiLoading(true);
+    const { data } = await makeRequest(
+      'POST',
+      `/api/mtg/update/${props.communityID}`,
+      {
+        description: formFields.description,
+        introVideoURL: formFields.introVideoURL,
+        eventTime: formFields.eventTime,
+        speakers: formFields.speakers.map((speaker) => speaker._id),
+      }
+    );
+    if (data.success === 1) {
+      resetData();
+      setRenderStage(1);
+    } else {
+      setServerErr(data.message);
+    }
+    setApiLoading(false);
   };
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -341,7 +340,7 @@ function MeetTheGreeksModal(props: Props) {
       <RSModal
         open={props.open}
         title={`Meet The Greeks - ${props.communityName}`}
-        onClose={props.onClose}
+        onClose={onClose}
         className={styles.modal}
         helperText={
           "Create or Edit your Fraternity's event time and information for Meet the Greeks"

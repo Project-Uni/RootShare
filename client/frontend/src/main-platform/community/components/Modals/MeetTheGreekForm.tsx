@@ -118,6 +118,7 @@ function MeetTheGreekForm(props: Props) {
         multiline
         rows={3}
         autoComplete="off"
+        required
       />
 
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
@@ -132,6 +133,7 @@ function MeetTheGreekForm(props: Props) {
         key="introURL"
         className={styles.textField}
         autoComplete="off"
+        required
       />
 
       <RSText type="body" bold size={12} className={styles.fieldLabel}>

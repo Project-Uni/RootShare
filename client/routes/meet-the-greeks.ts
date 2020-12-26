@@ -34,7 +34,7 @@ export default function meetTheGreekRoutes(app) {
     }
   );
   app.post(
-    '/api/mtg/create/:communityID',
+    '/api/mtg/update/:communityID',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req: Request, res: Response) => {
