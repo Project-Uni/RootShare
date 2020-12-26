@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Button } from '@material-ui/core';
 import { BsPeopleFill, BsPlusCircle } from 'react-icons/bs';
@@ -157,7 +157,6 @@ function MeetTheGreeksModal(props: Props) {
     updateFields,
     updateErrors,
     resetForm,
-    resetError,
   } = useForm<IFormData, IFormErrors>(defaultFormData);
 
   useEffect(() => {
@@ -169,11 +168,15 @@ function MeetTheGreeksModal(props: Props) {
     }
   }, [props.open]);
 
-  const onClose = () => {
+  useEffect(() => {
+    console.log('Errors:', formErrors);
+  }, [formErrors]);
+
+  const onClose = useCallback(() => {
     props.onClose();
     setRenderStage(0);
     resetData();
-  };
+  }, []);
 
   async function fetchCurrentEventInformation() {
     const { data } = await makeRequest<EventInformationServiceResponse>(
@@ -218,10 +221,10 @@ function MeetTheGreeksModal(props: Props) {
     }
   }
 
-  const resetData = () => {
+  const resetData = useCallback(() => {
     resetForm();
     setServerErr('');
-  };
+  }, []);
 
   const validateInputs = () => {
     let hasErr = false;
@@ -232,7 +235,12 @@ function MeetTheGreeksModal(props: Props) {
         key: 'description',
         value: 'Please enter a longer description',
       });
-    } else resetError('description');
+    } else {
+      errUpdates.push({
+        key: 'description',
+        value: '',
+      });
+    }
 
     if (
       formFields.introVideoURL.length === 0 ||
@@ -243,7 +251,12 @@ function MeetTheGreeksModal(props: Props) {
         key: 'introVideoURL',
         value: 'Please enter a valid YouTube URL',
       });
-    } else resetError('introVideoURL');
+    } else {
+      errUpdates.push({
+        key: 'introVideoURL',
+        value: '',
+      });
+    }
 
     if (formFields.speakers.length === 0 || formFields.speakers.length > 4) {
       hasErr = true;
@@ -251,7 +264,12 @@ function MeetTheGreeksModal(props: Props) {
         key: 'speakers',
         value: '1-4 Speakers are required for the event',
       });
-    } else resetError('speakers');
+    } else {
+      errUpdates.push({
+        key: 'speakers',
+        value: '',
+      });
+    }
 
     //TODO - Date Validation. Not sure if we'll need this though b/c the component looks like its handling it
 
