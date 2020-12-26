@@ -22,7 +22,6 @@ import { makeRequest, slideLeft } from '../../../../helpers/functions';
 
 import { useForm } from 'react-hook-form';
 
-import { TransitionProps } from '@material-ui/core/transitions';
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
@@ -112,7 +111,15 @@ type IFormData = {
   eventTime: any;
 };
 
-type ServiceResponse = {
+type Member = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  _id: string;
+  profilePicture?: string;
+};
+
+type MembersServiceResponse = {
   members: {
     [key: string]: any;
     firstName: string;
@@ -121,6 +128,18 @@ type ServiceResponse = {
     _id: string;
     profilePicture?: string;
   }[];
+};
+
+type EventInformationServiceResponse = {
+  mtgEvent: {
+    title?: string;
+    description: string;
+    introVideoURL: string;
+    speakers: Member[];
+    host: string;
+    dateTime: any;
+    eventBanner: string;
+  };
 };
 
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
@@ -165,11 +184,17 @@ function MeetTheGreeksModal(props: Props) {
   }, [props.open]);
 
   async function fetchCurrentEventInformation() {
-    return true;
+    const { data } = await makeRequest<EventInformationServiceResponse>(
+      'GET',
+      `/api/mtg/event/${props.communityID}`
+    );
+    if (data.success === 1) {
+      console.log('Data:', data);
+    }
   }
 
   async function fetchCommunityMembers() {
-    const { data } = await makeRequest<ServiceResponse>(
+    const { data } = await makeRequest<MembersServiceResponse>(
       'GET',
       `/api/community/${props.communityID}/members?skipCalculation=true`
     );

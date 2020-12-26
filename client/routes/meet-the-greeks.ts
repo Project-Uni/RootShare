@@ -4,7 +4,11 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { sendPacket } from '../helpers/functions';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 import invalidInputsMessage from '../helpers/functions/invalidInputsMessage';
-import { createMTGEvent, uploadMTGBanner } from '../interactions/meet-the-greeks';
+import {
+  createMTGEvent,
+  uploadMTGBanner,
+  retrieveMTGEventInfo,
+} from '../interactions/meet-the-greeks';
 
 type Question = {
   question: string;
@@ -17,6 +21,16 @@ export default function meetTheGreekRoutes(app) {
     isAuthenticatedWithJWT,
     async (req: Request, res: Response) => {
       return res.json({ test: 1, world: 'hello' });
+    }
+  );
+
+  app.get(
+    '/api/mtg/event/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await retrieveMTGEventInfo(communityID);
+      return res.json(packet);
     }
   );
   app.post(

@@ -7,6 +7,7 @@ import {
 import { MeetTheGreekEvent, Conversation, User } from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
+import { addProfilePicturesAll } from './utilities';
 
 export async function createMTGEvent(
   communityID: string,
@@ -24,6 +25,7 @@ export async function createMTGEvent(
 
     try {
       const event = await new MeetTheGreekEvent({
+        // title: 'TBD',
         community: communityID,
         description,
         introVideoURL,
@@ -59,14 +61,47 @@ export async function uploadMTGBanner(communityID: string, image: string) {
     const success = await uploadFile('mtgBanner', fileName, imageBuffer.data);
     if (!success) return sendPacket(-1, 'There was an error uploading the image');
 
-    MeetTheGreekEvent.updateOne(
+    await MeetTheGreekEvent.updateOne(
       { community: communityID },
       { eventBanner: fileName }
-    );
+    ).exec();
 
     return sendPacket(1, 'Successfully uploaded image', { fileName });
   } catch (err) {
     log('error', err);
     return -1;
+  }
+}
+
+export async function retrieveMTGEventInfo(communityID: string) {
+  try {
+    const mtgEvent = await MeetTheGreekEvent.findOne({ community: communityID }, [
+      'title description introVideoURL speakers host dateTime eventBanner',
+    ])
+      .populate({
+        path: 'speakers',
+        select: 'firstName lastName email _id profilePicture',
+      })
+      .lean()
+      .exec();
+    if (!mtgEvent)
+      return sendPacket(
+        0,
+        'Could not find corresponding mtg event. Most likely doesnt exist'
+      );
+
+    //Add profile pictures
+
+    const { speakers } = mtgEvent;
+    mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
+
+    return sendPacket(1, 'Successfully retrieved MTG event information', {
+      mtgEvent,
+    });
+    // const users = await addProfilePicturesAll(members, 'profile');
+    // addProfilePicturesAll()
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
   }
 }
