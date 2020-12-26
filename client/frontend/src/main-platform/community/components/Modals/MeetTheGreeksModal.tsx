@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Button } from '@material-ui/core';
-import { BsPeopleFill, BsPlusCircle } from 'react-icons/bs';
+import { CircularProgress } from '@material-ui/core';
+import { BsPeopleFill } from 'react-icons/bs';
 
 import theme from '../../../../theme/Theme';
 import { colors } from '../../../../theme/Colors';
@@ -24,28 +24,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     color: theme.primary,
-  },
-  primaryButton: {
-    background: theme.bright,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  disabledButton: { background: theme.disabledButton },
-  secondaryButton: {
-    background: theme.disabledButton,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  middleButton: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    width: 300,
   },
   serverError: {
     marginLeft: 15,
@@ -106,8 +84,6 @@ type EventInformationServiceResponse = {
     eventBanner: string;
   };
 };
-
-// https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
 
 const defaultDate = new Date('01/17/2021 @ 4:00 PM');
 
