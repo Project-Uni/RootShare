@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -20,12 +20,13 @@ import { SearchOption } from '../../../reusable-components/components/UserSearch
 import { RSText } from '../../../../base-components';
 import { makeRequest, slideLeft } from '../../../../helpers/functions';
 
-import { useForm } from 'react-hook-form';
+// import { useForm, Controller } from 'react-hook-form';
 
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import MeetTheGreekForm from './MeetTheGreekForm';
+import useForm from '../../../../hooks/useForm';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
   modal: {
     maxHeight: 700,
     overflow: 'scroll',
@@ -33,15 +34,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     color: theme.primary,
-  },
-  textField: {
-    width: 460,
-  },
-  fieldLabel: {
-    textAlign: 'left',
-    marginLeft: 5,
-    marginTop: 10,
-    marginBottom: 8,
   },
   primaryButton: {
     background: theme.bright,
@@ -64,23 +56,6 @@ const useStyles = makeStyles((_: any) => ({
     paddingTop: 8,
     paddingBottom: 8,
     width: 300,
-  },
-  dateBox: {
-    width: 250,
-    marginLeft: 2,
-  },
-  speakerLabel: {
-    marginLeft: 15,
-  },
-  hostLabel: {
-    marginLeft: 10,
-  },
-  sideButtons: {
-    width: 150,
-    paddingTop: 8,
-    paddingBottom: 8,
-    marginLeft: 10,
-    marginRight: 10,
   },
   serverError: {
     marginLeft: 15,
@@ -109,6 +84,7 @@ type IFormData = {
   description: string;
   introVideoURL: string;
   eventTime: any;
+  speakers: SearchOption[];
 };
 
 type Member = {
@@ -144,6 +120,20 @@ type EventInformationServiceResponse = {
 
 // https://dev.to/finallynero/react-form-using-formik-material-ui-and-yup-2e8h
 
+const defaultDate = new Date('01/17/2021 @ 4:00 PM');
+
+const defaultFormData: {
+  description: string;
+  introVideoURL: string;
+  eventTime: Date;
+  speakers: SearchOption[];
+} = {
+  description: '',
+  introVideoURL: '',
+  eventTime: defaultDate,
+  speakers: [],
+};
+
 function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
 
@@ -151,10 +141,8 @@ function MeetTheGreeksModal(props: Props) {
   const [apiLoading, setApiLoading] = useState(false);
   const [serverErr, setServerErr] = useState('');
 
-  const [renderStage, setRenderStage] = useState<0 | 1>(1);
+  const [renderStage, setRenderStage] = useState<0 | 1>(0);
 
-  const defaultDate = new Date('01/17/2021 @ 4:00 PM');
-  const [definedDate, setDefinedDate] = useState<any>(defaultDate);
   const [speakers, setSpeakers] = useState<SearchOption[]>([]);
 
   const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
@@ -167,12 +155,13 @@ function MeetTheGreeksModal(props: Props) {
   >(null);
   const [transition, setTransition] = useState<any>();
 
-  const { register, handleSubmit, control } = useForm<IFormData>({
-    defaultValues: {
-      description: '',
-      introVideoURL: '', //Need to handle date separately
-    },
-  });
+  const {
+    formFields,
+    handleChange,
+    handleDateChange,
+    updateFields,
+    resetForm,
+  } = useForm<IFormData>(defaultFormData);
 
   useEffect(() => {
     if (props.open) {
@@ -183,13 +172,33 @@ function MeetTheGreeksModal(props: Props) {
     }
   }, [props.open]);
 
+  useEffect(() => {
+    console.log('FormFields:', formFields);
+  }, [formFields]);
+
   async function fetchCurrentEventInformation() {
     const { data } = await makeRequest<EventInformationServiceResponse>(
       'GET',
       `/api/mtg/event/${props.communityID}`
     );
     if (data.success === 1) {
-      console.log('Data:', data);
+      const { mtgEvent } = data.content;
+      const fieldUpdateArgs: { key: keyof IFormData; value: any }[] = [
+        { key: 'description', value: mtgEvent.description },
+        { key: 'introVideoURL', value: mtgEvent.introVideoURL },
+        {
+          key: 'speakers',
+          value: mtgEvent.speakers.map((speaker) => ({
+            label: `${speaker.firstName} ${speaker.lastName}`,
+            _id: speaker._id,
+            value: `${speaker.firstName} ${speaker.lastName} ${speaker._id} ${speaker.email}`,
+            profilePicture: speaker.profilePicture,
+          })),
+        },
+        { key: 'eventTime', value: mtgEvent.dateTime },
+      ];
+      updateFields(fieldUpdateArgs);
+      setImageSrc(mtgEvent.eventBanner);
     }
   }
 
@@ -210,14 +219,8 @@ function MeetTheGreeksModal(props: Props) {
     }
   }
 
-  const onAutocomplete = (user: SearchOption) => {
-    if (!speakers.find((member) => member._id === user._id) && speakers.length < 4)
-      setSpeakers([...speakers, user]);
-  };
-
   const resetData = () => {
-    setDefinedDate(defaultDate);
-    setSpeakers([]);
+    resetForm();
     setServerErr('');
   };
 
@@ -239,26 +242,28 @@ function MeetTheGreeksModal(props: Props) {
     }
   };
 
-  const onSubmit = async (formData: IFormData) => {
-    setApiLoading(true);
-    const { data } = await makeRequest(
-      'POST',
-      `/api/mtg/create/${props.communityID}`,
-      {
-        description: formData.description,
-        introVideoURL: formData.introVideoURL,
-        eventTime: definedDate,
-        speakers: speakers.map((speaker) => speaker._id),
-      }
-    );
-    console.log('Data:', data);
-    if (data.success === 1) {
-      resetData();
-      setRenderStage(1);
-    } else {
-      setServerErr(data.message);
-    }
-    setApiLoading(false);
+  const onSubmit = async () => {
+    console.log('Form:', formFields);
+    // console.log('Data:', formData);
+    // setApiLoading(true);
+    // const { data } = await makeRequest(
+    //   'POST',
+    //   `/api/mtg/create/${props.communityID}`,
+    //   {
+    //     description: formData.description,
+    //     introVideoURL: formData.introVideoURL,
+    //     eventTime: definedDate,
+    //     speakers: speakers.map((speaker) => speaker._id),
+    //   }
+    // );
+    // console.log('Data:', data);
+    // if (data.success === 1) {
+    //   resetData();
+    //   setRenderStage(1);
+    // } else {
+    //   setServerErr(data.message);
+    // }
+    // setApiLoading(false);
   };
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -281,6 +286,7 @@ function MeetTheGreeksModal(props: Props) {
     }
   }
 
+  //Need to update this
   const removeSpeaker = useCallback(
     (idx: number) => {
       if (window.confirm('Are you sure you want to remove the speaker?')) {
@@ -291,126 +297,6 @@ function MeetTheGreeksModal(props: Props) {
     },
     [speakers]
   );
-
-  const EventSpeakers = () => (
-    <>
-      {speakers.map((speaker, idx) => (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 5,
-            marginBottom: 5,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar src={speaker.profilePicture} alt={speaker.label} sizes="50px" />
-            <RSText size={13} bold className={styles.speakerLabel}>
-              {speaker.label}
-            </RSText>
-            {idx === 0 && (
-              <RSText
-                size={12}
-                italic
-                color={theme.secondaryText}
-                className={styles.hostLabel}
-              >
-                (Host)
-              </RSText>
-            )}
-          </div>
-          <IconButton onClick={() => removeSpeaker(idx)}>
-            <RSText>X</RSText>
-          </IconButton>
-        </div>
-      ))}
-    </>
-  );
-  const EventInformation = () => {
-    return (
-      <form
-        style={{ marginLeft: 20, marginRight: 20 }}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Event Description
-        </RSText>
-        <TextField
-          variant="outlined"
-          inputRef={register}
-          name="description"
-          label="Description"
-          key="desc"
-          className={styles.textField}
-          multiline
-          rows={3}
-          autoComplete="off"
-        />
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Introduction Video YouTube URL
-        </RSText>
-        <TextField
-          variant="outlined"
-          name="introVideoURL"
-          inputRef={register}
-          label="YouTube URL"
-          key="introURL"
-          className={styles.textField}
-          autoComplete="off"
-        />
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Event Date & Time
-        </RSText>
-        <FormHelperText className={styles.dateBox}>
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DateTimePicker
-              name="eventTime"
-              margin="normal"
-              format="MM/dd/yyyy @ h:mm a"
-              value={definedDate}
-              onChange={(value) => setDefinedDate(value)}
-              minDate={new Date('January 17, 2021')}
-              minDateMessage={'Event Must Be on January 17th'}
-              maxDate={new Date('January 19, 2021')}
-              maxDateMessage={'Event Must be before January 19th'}
-              className={styles.dateBox}
-            />
-          </MuiPickersUtilsProvider>
-        </FormHelperText>
-        {/* Add Image Upload Button and Image Preview */}
-        <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Meet The Greeks Speakers
-        </RSText>
-        <UserSearch
-          label="Speakers"
-          className={styles.textField}
-          name="speakers"
-          options={communityMembers}
-          onAutocomplete={onAutocomplete}
-          helperText="Add up to 4 speakers for the event"
-        />
-        <EventSpeakers />
-        <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-          <Button
-            className={[
-              styles.middleButton,
-              apiLoading ? styles.disabledButton : styles.primaryButton,
-            ].join(' ')}
-            disabled={apiLoading}
-            type="submit"
-          >
-            {apiLoading ? <CircularProgress size={30} /> : 'Next'}
-          </Button>
-        </div>
-      </form>
-    );
-  };
 
   const EventBannerStage = () => (
     <div>
@@ -505,7 +391,16 @@ function MeetTheGreeksModal(props: Props) {
               <CircularProgress size={60} className={styles.loadingIndicator} />
             </div>
           ) : renderStage === 0 ? (
-            <EventInformation />
+            <MeetTheGreekForm
+              formFields={formFields}
+              handleChange={handleChange}
+              handleDateChange={handleDateChange}
+              updateFields={updateFields}
+              onSubmit={onSubmit}
+              loading={apiLoading}
+              communityMembers={communityMembers}
+              removeSpeaker={removeSpeaker}
+            />
           ) : (
             <EventBannerStage />
           )}
