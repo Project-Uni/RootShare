@@ -1,6 +1,7 @@
 import {
   decodeBase64Image,
   log,
+  retrieveSignedUrl,
   sendPacket,
   uploadFile,
 } from '../helpers/functions';
@@ -90,16 +91,16 @@ export async function retrieveMTGEventInfo(communityID: string) {
         'Could not find corresponding mtg event. Most likely doesnt exist'
       );
 
-    //Add profile pictures
-
     const { speakers } = mtgEvent;
     mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
+    mtgEvent.eventBanner = await retrieveSignedUrl(
+      'mtgBanner',
+      mtgEvent.eventBanner
+    );
 
     return sendPacket(1, 'Successfully retrieved MTG event information', {
       mtgEvent,
     });
-    // const users = await addProfilePicturesAll(members, 'profile');
-    // addProfilePicturesAll()
   } catch (err) {
     log('error', err.message);
     return sendPacket(-1, err.message);
