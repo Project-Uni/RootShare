@@ -35,6 +35,7 @@ type Props = {
   label: string;
   helperText?: string;
   onAutocomplete?: (user: SearchOption) => void;
+  error?: string;
 };
 
 function UserSearch(props: Props) {
@@ -83,7 +84,12 @@ function UserSearch(props: Props) {
           variant="outlined"
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
-          helperText={props.helperText}
+          helperText={
+            Boolean(props.error) && props.error !== ''
+              ? props.error
+              : props.helperText
+          }
+          error={Boolean(props.error) && props.error !== ''}
         />
       )}
       renderOption={(option) => (

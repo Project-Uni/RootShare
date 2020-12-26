@@ -39,6 +39,10 @@ export default function useForm<T, K>(initialValues: T) {
     setFormErrors(dup);
   };
 
+  const resetError = (key: keyof K) => {
+    setFormErrors((prev: K) => ({ ...prev, [key]: initialErrors.current[key] }));
+  };
+
   const resetForm = () => {
     setFormFields(initialValues);
     setFormErrors(initialErrors.current);
@@ -52,5 +56,6 @@ export default function useForm<T, K>(initialValues: T) {
     updateFields,
     updateErrors,
     resetForm,
+    resetError,
   };
 }

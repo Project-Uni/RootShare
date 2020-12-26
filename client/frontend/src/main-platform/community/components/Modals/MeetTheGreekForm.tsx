@@ -17,6 +17,8 @@ import { SearchOption } from '../../../reusable-components/components/UserSearch
 import { RSText } from '../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 
+import { IFormData, IFormErrors } from './MeetTheGreeksModal';
+
 const useStyles = makeStyles((_: any) => ({
   textField: {
     width: 460,
@@ -48,16 +50,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type IFormData = {
-  description: string;
-  introVideoURL: string;
-  eventTime: any;
-  speakers: SearchOption[];
-};
-
 type Props = {
   loading?: boolean;
   formFields: IFormData;
+  formErrors: IFormErrors;
   handleChange: (key: keyof IFormData) => (e: ChangeEvent<HTMLInputElement>) => void;
   handleDateChange: (key: keyof IFormData) => (date: Date) => void;
   updateFields: (
@@ -74,6 +70,7 @@ function MeetTheGreekForm(props: Props) {
   const styles = useStyles();
   const {
     formFields,
+    formErrors,
     handleChange,
     handleDateChange,
     updateFields,
@@ -119,6 +116,8 @@ function MeetTheGreekForm(props: Props) {
         rows={3}
         autoComplete="off"
         required
+        helperText={formErrors.description}
+        error={formErrors.description !== ''}
       />
 
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
@@ -134,6 +133,8 @@ function MeetTheGreekForm(props: Props) {
         className={styles.textField}
         autoComplete="off"
         required
+        helperText={formErrors.introVideoURL}
+        error={formErrors.introVideoURL !== ''}
       />
 
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
@@ -169,6 +170,7 @@ function MeetTheGreekForm(props: Props) {
         onAutocomplete={onAutocomplete}
         helperText="Add up to 4 speakers for the event"
         key="userSearch"
+        error={formErrors.speakers}
       />
       <MeetTheGreeksSpeakers
         speakers={formFields.speakers}

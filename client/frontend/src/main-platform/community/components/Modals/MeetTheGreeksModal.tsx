@@ -69,11 +69,18 @@ type Props = {
   communityID: string;
 };
 
-type IFormData = {
+export type IFormData = {
   description: string;
   introVideoURL: string;
   eventTime: any;
   speakers: SearchOption[];
+};
+
+export type IFormErrors = {
+  description: string;
+  introVideoURL: string;
+  eventTime: string;
+  speakers: string;
 };
 
 type Member = {
@@ -144,11 +151,14 @@ function MeetTheGreeksModal(props: Props) {
 
   const {
     formFields,
+    formErrors,
     handleChange,
     handleDateChange,
     updateFields,
+    updateErrors,
     resetForm,
-  } = useForm<IFormData>(defaultFormData);
+    resetError,
+  } = useForm<IFormData, IFormErrors>(defaultFormData);
 
   useEffect(() => {
     if (props.open) {
@@ -213,26 +223,48 @@ function MeetTheGreeksModal(props: Props) {
     setServerErr('');
   };
 
-  const onUploadBanner = async () => {
-    setApiLoading(true);
-    const { data } = await makeRequest(
-      'PUT',
-      `/api/mtg/banner/${props.communityID}`,
-      { image: imageSrc }
-    );
-    if (data.success === 1) {
-      setTransition(() => slideLeft);
-      setSnackbarMode('notify');
-      setImageSrc('');
-      onClose();
-    } else {
-      setServerErr(data.message);
-    }
-    setApiLoading(false);
+  const validateInputs = () => {
+    let hasErr = false;
+    const errUpdates: { key: keyof IFormErrors; value: string }[] = [];
+    if (formFields.description.length < 5) {
+      hasErr = true;
+      errUpdates.push({
+        key: 'description',
+        value: 'Please enter a longer description',
+      });
+    } else resetError('description');
+
+    if (
+      formFields.introVideoURL.length === 0 ||
+      !formFields.introVideoURL.startsWith('https://')
+    ) {
+      hasErr = true;
+      errUpdates.push({
+        key: 'introVideoURL',
+        value: 'Please enter a valid YouTube URL',
+      });
+    } else resetError('introVideoURL');
+
+    if (formFields.speakers.length === 0 || formFields.speakers.length > 4) {
+      hasErr = true;
+      errUpdates.push({
+        key: 'speakers',
+        value: '1-4 Speakers are required for the event',
+      });
+    } else resetError('speakers');
+
+    //TODO - Date Validation. Not sure if we'll need this though b/c the component looks like its handling it
+
+    updateErrors(errUpdates);
+    return hasErr;
   };
 
   const onSubmit = async () => {
     setApiLoading(true);
+    if (validateInputs()) {
+      setApiLoading(false);
+      return;
+    }
     const { data } = await makeRequest(
       'POST',
       `/api/mtg/update/${props.communityID}`,
@@ -246,6 +278,24 @@ function MeetTheGreeksModal(props: Props) {
     if (data.success === 1) {
       resetData();
       setRenderStage(1);
+    } else {
+      setServerErr(data.message);
+    }
+    setApiLoading(false);
+  };
+
+  const onUploadBanner = async () => {
+    setApiLoading(true);
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/mtg/banner/${props.communityID}`,
+      { image: imageSrc }
+    );
+    if (data.success === 1) {
+      setTransition(() => slideLeft);
+      setSnackbarMode('notify');
+      setImageSrc('');
+      onClose();
     } else {
       setServerErr(data.message);
     }
@@ -367,6 +417,7 @@ function MeetTheGreeksModal(props: Props) {
           ) : renderStage === 0 ? (
             <MeetTheGreekForm
               formFields={formFields}
+              formErrors={formErrors}
               handleChange={handleChange}
               handleDateChange={handleDateChange}
               updateFields={updateFields}
