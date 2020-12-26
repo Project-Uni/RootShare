@@ -1,7 +1,18 @@
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useRef } from 'react';
 
-export default function useForm<T>(initialValues: T) {
+function createErrors<T, K>(values: T) {
+  const errors: { [key: string]: any } = {};
+  Object.keys(values).forEach((key) => {
+    errors[key] = '';
+  });
+  return errors;
+}
+
+export default function useForm<T, K>(initialValues: T) {
   const [formFields, setFormFields] = useState(initialValues);
+
+  const initialErrors = useRef(createErrors(initialValues) as K);
+  const [formErrors, setFormErrors] = useState(initialErrors.current);
 
   const handleChange = (key: keyof T) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -20,9 +31,26 @@ export default function useForm<T>(initialValues: T) {
     setFormFields(dup);
   };
 
-  const resetForm = () => {
-    setFormFields(initialValues);
+  const updateErrors = (fields: { key: keyof K; value: any }[]) => {
+    const dup = Object.assign({}, formErrors);
+    fields.forEach((field) => {
+      dup[field.key] = field.value;
+    });
+    setFormErrors(dup);
   };
 
-  return { formFields, handleChange, handleDateChange, updateFields, resetForm };
+  const resetForm = () => {
+    setFormFields(initialValues);
+    setFormErrors(initialErrors.current);
+  };
+
+  return {
+    formFields,
+    formErrors,
+    handleChange,
+    handleDateChange,
+    updateFields,
+    updateErrors,
+    resetForm,
+  };
 }
