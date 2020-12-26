@@ -18,9 +18,12 @@ import { colors } from '../../../../theme/Colors';
 import { RSModal, UserSearch } from '../../../reusable-components';
 import { SearchOption } from '../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../base-components';
-import { makeRequest } from '../../../../helpers/functions';
+import { makeRequest, slideLeft } from '../../../../helpers/functions';
 
 import { useForm } from 'react-hook-form';
+
+import { TransitionProps } from '@material-ui/core/transitions';
+import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -126,6 +129,7 @@ function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
+  const [apiLoading, setApiLoading] = useState(false);
   const [serverErr, setServerErr] = useState('');
 
   const [renderStage, setRenderStage] = useState<0 | 1>(1);
@@ -138,6 +142,11 @@ function MeetTheGreeksModal(props: Props) {
 
   const [imageSrc, setImageSrc] = useState<string>();
   const fileUploader = useRef<HTMLInputElement>(null);
+
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
 
   const { register, handleSubmit, control } = useForm<IFormData>({
     defaultValues: {
@@ -187,7 +196,19 @@ function MeetTheGreeksModal(props: Props) {
     setServerErr('');
   };
 
+  const onUploadBanner = async () => {
+    setApiLoading(true);
+    // const { data } = await makeRequest('PUT', '/api/mtg/fake', { image: imageSrc });
+    // if (data.success === 1) {
+    setTransition(() => slideLeft);
+    setSnackbarMode('notify');
+    setImageSrc('');
+    props.onClose();
+    // }
+  };
+
   const onSubmit = async (formData: IFormData) => {
+    setApiLoading(true);
     const { data } = await makeRequest(
       'POST',
       `/api/mtg/create/${props.communityID}`,
@@ -205,6 +226,7 @@ function MeetTheGreeksModal(props: Props) {
     } else {
       setServerErr(data.message);
     }
+    setApiLoading(false);
   };
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -346,9 +368,9 @@ function MeetTheGreeksModal(props: Props) {
           <Button
             className={[
               styles.middleButton,
-              loading ? styles.disabledButton : styles.primaryButton,
+              apiLoading ? styles.disabledButton : styles.primaryButton,
             ].join(' ')}
-            disabled={loading}
+            disabled={apiLoading}
             type="submit"
           >
             {loading ? <CircularProgress size={30} /> : 'Next'}
@@ -404,67 +426,60 @@ function MeetTheGreeksModal(props: Props) {
         <Button
           className={[
             styles.middleButton,
-            loading ? styles.disabledButton : styles.primaryButton,
+            apiLoading ? styles.disabledButton : styles.primaryButton,
           ].join(' ')}
-          disabled={loading}
+          disabled={apiLoading}
+          onClick={onUploadBanner}
         >
-          {loading ? <CircularProgress size={30} /> : 'Finish'}
+          {apiLoading ? <CircularProgress size={30} /> : 'Finish'}
         </Button>
-        {/* <Button
-          className={[
-            styles.sideButtons,
-            loading ? styles.disabledButton : styles.secondaryButton,
-          ].join('')}
-        >
-          Back
-        </Button>
-        <Button
-          className={[
-            styles.sideButtons,
-            loading ? styles.disabledButton : styles.primaryButton,
-          ].join(' ')}
-        >
-          Finish
-        </Button> */}
       </div>
     </div>
   );
 
   return (
-    <RSModal
-      open={props.open}
-      title={`Meet The Greeks - ${props.communityName}`}
-      onClose={props.onClose}
-      className={styles.modal}
-      helperText={
-        "Create or Edit your Fraternity's event time and information for Meet the Greeks"
-      }
-      helperIcon={<BsPeopleFill size={90} />}
-    >
-      <div>
-        {serverErr && (
-          <RSText italic color={theme.error} className={styles.serverError}>
-            {serverErr}
-          </RSText>
-        )}
-        {loading ? (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              paddingTop: 15,
-              paddingBottom: 15,
-            }}
-          >
-            <CircularProgress size={60} className={styles.loadingIndicator} />
-          </div>
-        ) : renderStage === 0 ? (
-          <EventInformation />
-        ) : (
-          <EventBannerStage />
-        )}
-      </div>
-    </RSModal>
+    <>
+      <ManageSpeakersSnackbar
+        message={'Successfully updated Meet The Greeks event'}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
+      <RSModal
+        open={props.open}
+        title={`Meet The Greeks - ${props.communityName}`}
+        onClose={props.onClose}
+        className={styles.modal}
+        helperText={
+          "Create or Edit your Fraternity's event time and information for Meet the Greeks"
+        }
+        helperIcon={<BsPeopleFill size={90} />}
+      >
+        <div>
+          {serverErr && (
+            <RSText italic color={theme.error} className={styles.serverError}>
+              {serverErr}
+            </RSText>
+          )}
+          {loading ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                paddingTop: 15,
+                paddingBottom: 15,
+              }}
+            >
+              <CircularProgress size={60} className={styles.loadingIndicator} />
+            </div>
+          ) : renderStage === 0 ? (
+            <EventInformation />
+          ) : (
+            <EventBannerStage />
+          )}
+        </div>
+      </RSModal>
+    </>
   );
 }
 
