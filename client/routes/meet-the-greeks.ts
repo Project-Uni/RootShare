@@ -4,7 +4,7 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { sendPacket } from '../helpers/functions';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 import invalidInputsMessage from '../helpers/functions/invalidInputsMessage';
-import { createMTGEvent } from '../interactions/meet-the-greeks';
+import { createMTGEvent, uploadMTGBanner } from '../interactions/meet-the-greeks';
 
 type Question = {
   question: string;
@@ -54,6 +54,20 @@ export default function meetTheGreekRoutes(app) {
       );
       return res.json(packet);
       //Banner Image with crop
+    }
+  );
+
+  app.put(
+    '/api/mtg/banner/:communityID',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(0, invalidInputsMessage(['image'])));
+
+      const packet = await uploadMTGBanner(communityID, image);
+      return res.json(packet);
     }
   );
   app.put(

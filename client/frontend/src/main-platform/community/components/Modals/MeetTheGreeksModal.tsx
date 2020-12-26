@@ -198,13 +198,20 @@ function MeetTheGreeksModal(props: Props) {
 
   const onUploadBanner = async () => {
     setApiLoading(true);
-    // const { data } = await makeRequest('PUT', '/api/mtg/fake', { image: imageSrc });
-    // if (data.success === 1) {
-    setTransition(() => slideLeft);
-    setSnackbarMode('notify');
-    setImageSrc('');
-    props.onClose();
-    // }
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/mtg/banner/${props.communityID}`,
+      { image: imageSrc }
+    );
+    if (data.success === 1) {
+      setTransition(() => slideLeft);
+      setSnackbarMode('notify');
+      setImageSrc('');
+      props.onClose();
+      setApiLoading(false);
+    } else {
+      setServerErr(data.message);
+    }
   };
 
   const onSubmit = async (formData: IFormData) => {
@@ -373,7 +380,7 @@ function MeetTheGreeksModal(props: Props) {
             disabled={apiLoading}
             type="submit"
           >
-            {loading ? <CircularProgress size={30} /> : 'Next'}
+            {apiLoading ? <CircularProgress size={30} /> : 'Next'}
           </Button>
         </div>
       </form>
