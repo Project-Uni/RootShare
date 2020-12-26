@@ -79,13 +79,16 @@ function MeetTheGreekForm(props: Props) {
     onSubmit,
   } = props;
 
-  const onAutocomplete = (user: SearchOption) => {
-    if (
-      !formFields.speakers.find((member) => member._id === user._id) &&
-      formFields.speakers.length < 4
-    )
-      updateFields([{ key: 'speakers', value: [...formFields.speakers, user] }]);
-  };
+  const onAutocomplete = useCallback(
+    (user: SearchOption) => {
+      if (
+        !formFields.speakers.find((member) => member._id === user._id) &&
+        formFields.speakers.length < 4
+      )
+        updateFields([{ key: 'speakers', value: [...formFields.speakers, user] }]);
+    },
+    [formFields.speakers]
+  );
 
   const removeSpeaker = useCallback(
     (idx: number) => {

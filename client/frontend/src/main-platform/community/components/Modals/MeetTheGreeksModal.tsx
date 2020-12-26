@@ -168,17 +168,13 @@ function MeetTheGreeksModal(props: Props) {
     }
   }, [props.open]);
 
-  useEffect(() => {
-    console.log('Errors:', formErrors);
-  }, [formErrors]);
-
   const onClose = useCallback(() => {
     props.onClose();
     setRenderStage(0);
     resetData();
   }, []);
 
-  async function fetchCurrentEventInformation() {
+  const fetchCurrentEventInformation = useCallback(async () => {
     const { data } = await makeRequest<EventInformationServiceResponse>(
       'GET',
       `/api/mtg/event/${props.communityID}`
@@ -202,9 +198,9 @@ function MeetTheGreeksModal(props: Props) {
       updateFields(fieldUpdateArgs);
       setImageSrc(mtgEvent.eventBanner);
     }
-  }
+  }, []);
 
-  async function fetchCommunityMembers() {
+  const fetchCommunityMembers = useCallback(async () => {
     const { data } = await makeRequest<MembersServiceResponse>(
       'GET',
       `/api/community/${props.communityID}/members?skipCalculation=true`
@@ -219,14 +215,14 @@ function MeetTheGreeksModal(props: Props) {
         }))
       );
     }
-  }
+  }, [props.communityID]);
 
   const resetData = useCallback(() => {
     resetForm();
     setServerErr('');
   }, []);
 
-  const validateInputs = () => {
+  const validateInputs = useCallback(() => {
     let hasErr = false;
     const errUpdates: { key: keyof IFormErrors; value: string }[] = [];
     if (formFields.description.length < 5) {
@@ -275,9 +271,9 @@ function MeetTheGreeksModal(props: Props) {
 
     updateErrors(errUpdates);
     return hasErr;
-  };
+  }, [formFields]);
 
-  const onSubmit = async () => {
+  const onSubmit = useCallback(async () => {
     setApiLoading(true);
     if (validateInputs()) {
       setApiLoading(false);
@@ -300,9 +296,9 @@ function MeetTheGreeksModal(props: Props) {
       setServerErr(data.message);
     }
     setApiLoading(false);
-  };
+  }, [formFields]);
 
-  const onUploadBanner = async () => {
+  const onUploadBanner = useCallback(async () => {
     setApiLoading(true);
     const { data } = await makeRequest(
       'PUT',
@@ -318,7 +314,7 @@ function MeetTheGreeksModal(props: Props) {
       setServerErr(data.message);
     }
     setApiLoading(false);
-  };
+  }, [imageSrc]);
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
