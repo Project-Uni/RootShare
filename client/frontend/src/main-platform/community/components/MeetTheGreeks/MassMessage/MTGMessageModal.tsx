@@ -8,9 +8,12 @@ import { FiMessageSquare } from 'react-icons/fi';
 
 import RichTextEditor from 'react-rte';
 import { usePrevious } from '../../../../../hooks';
-import { makeRequest } from '../../../../../helpers/functions';
+import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { AiOutlineMail } from 'react-icons/ai';
 import { RiMessage2Line } from 'react-icons/ri';
+import { TextField } from '@material-ui/core';
+
+import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -25,6 +28,9 @@ const useStyles = makeStyles((_: any) => ({
   emailHeader: {
     marginLeft: 15,
     marginRight: 15,
+  },
+  confirmedMessage: {
+    marginTop: 15,
   },
 }));
 
@@ -47,7 +53,15 @@ function MTGMessageModal(props: Props) {
 
   const [stage, setStage] = useState<Stage>('selection');
   const previousStage = usePrevious(stage);
+
   const [emailValue, setEmailValue] = useState(RichTextEditor.createEmptyValue());
+  const [textValue, setTextValue] = useState('');
+  const [textErr, setTextErr] = useState<string>();
+
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
 
   const selectionStage = () => (
     <>
@@ -96,16 +110,51 @@ function MTGMessageModal(props: Props) {
     </div>
   );
 
+  const textStage = () => (
+    <div style={{ marginTop: 10, marginLeft: 15, marginRight: 15 }}>
+      <RSText type="head" size={12} bold>
+        Enter Text Message:
+      </RSText>
+      <TextField
+        multiline
+        rows={4}
+        value={textValue}
+        onChange={(e) => setTextValue(e.target.value)}
+        fullWidth
+        variant="outlined"
+        style={{ marginTop: 10 }}
+        label="Message"
+        error={Boolean(textErr)}
+        helperText={textErr}
+      />
+      <BigButton
+        label="next"
+        onClick={() => {
+          if (textValue.length <= 5) {
+            setTextErr('Please enter a longer message');
+          } else {
+            setTextErr(undefined);
+            setStage('confirmation');
+          }
+        }}
+      />
+    </div>
+  );
+
   const confirmationStage = () => (
     <div style={{ marginTop: 10, marginLeft: 15, marginRight: 15 }}>
       <RSText type="head" size={12} bold>
         Confirm the message that you are sending
       </RSText>
-      <div
-        dangerouslySetInnerHTML={{ __html: emailValue.toString('html') }}
-        style={{ borderTop: `1px solid lightgrey`, marginTop: 15 }}
-      />
-      <BigButton label="next" onClick={sendMessage} loading={loading} />
+      {previousStage === 'email' ? (
+        <div
+          dangerouslySetInnerHTML={{ __html: emailValue.toString('html') }}
+          style={{ borderTop: `1px solid lightgrey`, marginTop: 15 }}
+        />
+      ) : (
+        <RSText className={styles.confirmedMessage}>{textValue}</RSText>
+      )}
+      <BigButton label="Send Message" onClick={sendMessage} loading={loading} />
     </div>
   );
 
@@ -115,11 +164,15 @@ function MTGMessageModal(props: Props) {
     const { data } = await makeRequest(
       'PUT',
       `/api/mtg/communications/${communityID}?mode=${previousStage}`,
-      { message: previousStage === 'email' ? emailValue.toString('html') : '' }
+      {
+        message: previousStage === 'email' ? emailValue.toString('html') : textValue,
+      }
     );
     if (data.success === 1) {
       setEmailValue(RichTextEditor.createEmptyValue());
       onClose();
+      setTransition(() => slideLeft);
+      setSnackbarMode('notify');
       setStage('selection');
     } else {
       setServerErr(data.message);
@@ -132,7 +185,7 @@ function MTGMessageModal(props: Props) {
       case 'email':
         return emailStage();
       case 'text':
-        return <p>Text</p>;
+        return textStage();
       case 'confirmation':
         return confirmationStage();
       case 'selection':
@@ -156,6 +209,12 @@ function MTGMessageModal(props: Props) {
 
   return (
     <>
+      <ManageSpeakersSnackbar
+        message={'Successfully sent message!'}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <RSModal
         open={open}
         title={`Messaging - ${communityName}`}
