@@ -3,17 +3,17 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import theme from '../../../../theme/Theme';
-import { colors } from '../../../../theme/Colors';
+import { useForm } from '../../../../hooks';
 
-import { RSModal } from '../../../reusable-components';
-import { SearchOption } from '../../../reusable-components/components/UserSearch';
-import { RSText } from '../../../../base-components';
+import theme from '../../../../theme/Theme';
+
 import { makeRequest, slideLeft } from '../../../../helpers/functions';
+import { RSModal } from '../../../reusable-components';
+import { RSText } from '../../../../base-components';
+import { SearchOption } from '../../../reusable-components/components/UserSearch';
 
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
-import { useForm } from '../../../../hooks';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 
 const useStyles = makeStyles((_: any) => ({
