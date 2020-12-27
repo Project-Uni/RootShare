@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../../base-components/RSText';
 import { IconButton, Modal, LinearProgress } from '@material-ui/core';
 import { colors } from '../../../../theme/Colors';
+import { FiArrowLeft } from 'react-icons/fi';
+import Theme from '../../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -11,14 +13,16 @@ const useStyles = makeStyles((_: any) => ({
     outline: 'none',
   },
 
+  pageTitle: {
+    marginLeft: 15,
+    marginRight: 15,
+  },
   top: {
     textAlign: 'left',
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
     display: 'flex',
-    marginLeft: 15,
-    marginRight: 15,
   },
   helperText: {
     marginLeft: 15,
@@ -45,6 +49,7 @@ type Props = {
   loading?: boolean;
   children?: React.ReactNode;
   onClose: () => any;
+  onBackArrow?: () => void;
 };
 
 function RSModal(props: Props) {
@@ -77,9 +82,21 @@ function RSModal(props: Props) {
           />
         )}
         <div className={styles.top}>
-          <RSText type="head" size={15} bold>
-            {props.title}
-          </RSText>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {props.onBackArrow && (
+              <IconButton onClick={props.onBackArrow} size="medium">
+                <FiArrowLeft color={Theme.secondaryText} />
+              </IconButton>
+            )}
+            <RSText
+              type="head"
+              size={15}
+              bold
+              className={props.onBackArrow ? undefined : styles.pageTitle}
+            >
+              {props.title}
+            </RSText>
+          </div>
           <IconButton onClick={props.onClose} size="medium">
             X
           </IconButton>

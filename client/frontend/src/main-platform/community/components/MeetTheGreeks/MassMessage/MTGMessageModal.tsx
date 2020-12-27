@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSModal } from '../../../../reusable-components';
+import { BigButton, RSModal } from '../../../../reusable-components';
 import { RSText } from '../../../../../base-components';
 import theme from '../../../../../theme/Theme';
 
@@ -8,11 +8,22 @@ import { FiMessageSquare } from 'react-icons/fi';
 import { Button, CircularProgress } from '@material-ui/core';
 import { colors } from '../../../../../theme/Colors';
 
+import RichTextEditor from 'react-rte';
+import { usePrevious } from '../../../../../hooks';
+
 const useStyles = makeStyles((_: any) => ({
   modal: {
     maxHeight: 700,
     overflow: 'scroll',
     width: 500,
+  },
+  richEditor: {
+    height: 300,
+    marginTop: 10,
+  },
+  emailHeader: {
+    marginLeft: 15,
+    marginRight: 15,
   },
 }));
 
@@ -23,10 +34,72 @@ type Props = {
   onClose: () => any;
 };
 
+type Stage = 'selection' | 'email' | 'text' | 'confirmation';
+
 function MTGMessageModal(props: Props) {
   const styles = useStyles();
 
   const { open, communityName, communityID, onClose } = props;
+
+  const [stage, setStage] = useState<Stage>('selection');
+  const previousStage = usePrevious(stage);
+  const [emailValue, setEmailValue] = useState(RichTextEditor.createEmptyValue());
+
+  const selectionStage = () => (
+    <>
+      <BigButton label="Email" onClick={() => setStage('email')} />
+      <BigButton label="Text" onClick={() => setStage('text')} />
+    </>
+  );
+
+  const emailStage = () => (
+    <div style={{ marginTop: 10 }}>
+      <RSText type="head" size={12} bold className={styles.emailHeader}>
+        Enter Email Message:
+      </RSText>
+      <RichTextEditor
+        className={styles.richEditor}
+        value={emailValue}
+        onChange={(value) => setEmailValue(value)}
+      />
+      <BigButton
+        label="next"
+        onClick={() => {
+          console.log('Email Message:', emailValue.toString('html'));
+          setStage('confirmation');
+        }}
+      />
+    </div>
+  );
+
+  const chooseStage = useCallback(() => {
+    switch (stage) {
+      case 'email':
+        return emailStage();
+      case 'text':
+        return <p>Text</p>;
+      case 'confirmation':
+        return <p>Confirmation</p>;
+      case 'selection':
+      default:
+        return selectionStage();
+    }
+  }, [stage]);
+
+  const getBackArrowFunction = useCallback(() => {
+    switch (stage) {
+      case 'email':
+        return () => setStage('selection');
+      case 'text':
+        return () => setStage('selection');
+      case 'confirmation':
+        return () => setStage(previousStage as Stage);
+      case 'selection':
+      default:
+        return undefined;
+    }
+  }, [stage]);
+
   return (
     <>
       <RSModal
@@ -37,56 +110,13 @@ function MTGMessageModal(props: Props) {
         helperText={
           'Send a message to everyone who is interested in your fraternity'
         }
-        helperIcon={<FiMessageSquare size={90} />}
-      ></RSModal>
+        helperIcon={<FiMessageSquare size={60} />}
+        onBackArrow={getBackArrowFunction()}
+      >
+        {chooseStage()}
+      </RSModal>
     </>
   );
 }
 
 export default MTGMessageModal;
-
-const useBigButtonStyles = makeStyles((_: any) => ({
-  primaryButton: {
-    background: theme.bright,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  disabledButton: { background: theme.disabledButton },
-  middleButton: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    width: 300,
-  },
-}));
-
-type BigButtonProps = {
-  label: string;
-  onClick: () => void;
-  loading?: boolean;
-  variant: 'primary' | 'secondary';
-};
-
-const BigButton = (props: BigButtonProps) => {
-  const styles = useBigButtonStyles();
-
-  const { loading, onClick, label, variant } = props;
-
-  return (
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-      <Button
-        className={[
-          styles.middleButton,
-          loading ? styles.disabledButton : styles.primaryButton,
-        ].join(' ')}
-        disabled={loading}
-        onClick={onClick}
-      >
-        {loading ? <CircularProgress size={30} /> : label}
-      </Button>
-    </div>
-  );
-};
