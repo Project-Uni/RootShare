@@ -40,6 +40,7 @@ type Props = {
   updateImageSrc: (data: string) => any;
 };
 
+//TODO - Add image cropping
 function MeetTheGreeksBannerUpload(props: Props) {
   const styles = useStyles();
   const fileUploader = useRef<HTMLInputElement>(null);

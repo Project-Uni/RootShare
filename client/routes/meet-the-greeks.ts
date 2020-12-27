@@ -10,11 +10,6 @@ import {
   retrieveMTGEventInfo,
 } from '../interactions/meet-the-greeks';
 
-type Question = {
-  question: string;
-  required: boolean;
-};
-
 export default function meetTheGreekRoutes(app) {
   app.get(
     '/api/mtg/events',
@@ -67,7 +62,6 @@ export default function meetTheGreekRoutes(app) {
         speakers
       );
       return res.json(packet);
-      //Banner Image with crop
     }
   );
 
@@ -88,9 +82,9 @@ export default function meetTheGreekRoutes(app) {
     '/api/mtg/interested/:communityID',
     isAuthenticatedWithJWT,
     async (req, res: Response) => {
-      const userID = req.user!._id;
+      const userID = req.user._id;
       const { questions } = req.body;
-      return res.json('');
+      return res.json(sendPacket(1, 'test worked'));
     }
   );
   app.put(
