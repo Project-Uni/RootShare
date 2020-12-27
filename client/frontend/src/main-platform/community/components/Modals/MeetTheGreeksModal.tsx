@@ -13,7 +13,7 @@ import { makeRequest, slideLeft } from '../../../../helpers/functions';
 
 import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
-import useForm from '../../../../hooks/useForm';
+import { useForm } from '../../../../hooks';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 
 const useStyles = makeStyles((_: any) => ({
