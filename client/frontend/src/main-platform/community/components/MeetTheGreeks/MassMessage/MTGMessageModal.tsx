@@ -5,11 +5,10 @@ import { RSText } from '../../../../../base-components';
 import theme from '../../../../../theme/Theme';
 
 import { FiMessageSquare } from 'react-icons/fi';
-import { Button, CircularProgress } from '@material-ui/core';
-import { colors } from '../../../../../theme/Colors';
 
 import RichTextEditor from 'react-rte';
 import { usePrevious } from '../../../../../hooks';
+import { makeRequest } from '../../../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -40,6 +39,9 @@ function MTGMessageModal(props: Props) {
   const styles = useStyles();
 
   const { open, communityName, communityID, onClose } = props;
+
+  const [serverErr, setServerErr] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const [stage, setStage] = useState<Stage>('selection');
   const previousStage = usePrevious(stage);
@@ -72,24 +74,54 @@ function MTGMessageModal(props: Props) {
     </div>
   );
 
-  const chooseStage = useCallback(() => {
+  const confirmationStage = () => (
+    <div style={{ marginTop: 10, marginLeft: 15, marginRight: 15 }}>
+      <RSText type="head" size={12} bold>
+        Confirm the message that you are sending
+      </RSText>
+      <div
+        dangerouslySetInnerHTML={{ __html: emailValue.toString('html') }}
+        style={{ borderTop: `1px solid lightgrey`, marginTop: 15 }}
+      />
+      <BigButton label="next" onClick={sendMessage} loading={loading} />
+    </div>
+  );
+
+  const sendMessage = async () => {
+    setLoading(true);
+    setServerErr('');
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/mtg/communications/${props.communityID}?mode=${previousStage}`,
+      { message: previousStage === 'email' ? emailValue.toString('html') : '' }
+    );
+    if (data.success === 1) {
+      setEmailValue(RichTextEditor.createEmptyValue());
+      onClose();
+      setStage('selection');
+    } else {
+      setServerErr(data.message);
+    }
+    setLoading(false);
+  };
+
+  const chooseStage = () => {
     switch (stage) {
       case 'email':
         return emailStage();
       case 'text':
         return <p>Text</p>;
       case 'confirmation':
-        return <p>Confirmation</p>;
+        return confirmationStage();
       case 'selection':
       default:
         return selectionStage();
     }
-  }, [stage]);
+  };
 
   const getBackArrowFunction = useCallback(() => {
     switch (stage) {
       case 'email':
-        return () => setStage('selection');
       case 'text':
         return () => setStage('selection');
       case 'confirmation':

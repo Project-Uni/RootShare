@@ -132,3 +132,11 @@ export async function retrieveMTGEventInfo(communityID: string) {
     return sendPacket(-1, err.message);
   }
 }
+
+export async function sendMTGCommunications(
+  communityID: string,
+  mode: 'text' | 'email',
+  message: string
+) {
+  return sendPacket(1, 'Test was successfull');
+}
