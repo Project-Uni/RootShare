@@ -8,7 +8,7 @@ import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
 import PendingFollowRequestsModal from './PendingFollowRequestsModal';
-import MeetTheGreeksModal from './Modals/MeetTheGreeksModal';
+import { MeetTheGreeksModal, MTGMessageModal } from './MeetTheGreeks';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -132,7 +132,10 @@ function CommunityGeneralInfo(props: Props) {
     showPendingFollowRequestsModal,
     setShowPendingFollowRequestsModal,
   ] = useState(false);
+
   const [showMTGModal, setShowMTGModal] = useState(false);
+  const [showMTGMessageModal, setShowMTGMessageModal] = useState(false);
+
   const [numPending, setNumPending] = useState(props.numPending);
   const [numFollowRequests, setNumFollowRequests] = useState(
     props.numFollowRequests
@@ -275,6 +278,14 @@ function CommunityGeneralInfo(props: Props) {
                 >
                   Meet The Greeks
                 </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setShowMTGMessageModal(true);
+                    setMenuAnchorEl(null);
+                  }}
+                >
+                  Messaging
+                </MenuItem>
               </Menu>
             )
           ) : (
@@ -310,12 +321,20 @@ function CommunityGeneralInfo(props: Props) {
             updatePendingCount={updateFollowRequestCount}
           />
           {props.flags.isMTGFlag && (
-            <MeetTheGreeksModal
-              open={showMTGModal}
-              onClose={() => setShowMTGModal(false)}
-              communityName={props.name}
-              communityID={props.communityID}
-            />
+            <>
+              <MeetTheGreeksModal
+                open={showMTGModal}
+                onClose={() => setShowMTGModal(false)}
+                communityName={props.name}
+                communityID={props.communityID}
+              />
+              <MTGMessageModal
+                open={showMTGMessageModal}
+                communityName={props.name}
+                communityID={props.communityID}
+                onClose={() => setShowMTGMessageModal(false)}
+              />
+            </>
           )}
         </>
       )}

@@ -9,12 +9,12 @@ import {
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import theme from '../../../../theme/Theme';
-import { colors } from '../../../../theme/Colors';
+import theme from '../../../../../theme/Theme';
+import { colors } from '../../../../../theme/Colors';
 
-import { UserSearch } from '../../../reusable-components';
-import { SearchOption } from '../../../reusable-components/components/UserSearch';
-import { RSText } from '../../../../base-components';
+import { UserSearch } from '../../../../reusable-components';
+import { SearchOption } from '../../../../reusable-components/components/UserSearch';
+import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 
 import { IFormData, IFormErrors } from './MeetTheGreeksModal';

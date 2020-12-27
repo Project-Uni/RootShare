@@ -3,16 +3,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import { useForm } from '../../../../hooks';
+import { useForm } from '../../../../../hooks';
 
-import theme from '../../../../theme/Theme';
+import theme from '../../../../../theme/Theme';
 
-import { makeRequest, slideLeft } from '../../../../helpers/functions';
-import { RSModal } from '../../../reusable-components';
-import { RSText } from '../../../../base-components';
-import { SearchOption } from '../../../reusable-components/components/UserSearch';
+import { makeRequest, slideLeft } from '../../../../../helpers/functions';
+import { RSModal } from '../../../../reusable-components';
+import { RSText } from '../../../../../base-components';
+import { SearchOption } from '../../../../reusable-components/components/UserSearch';
 
-import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 

@@ -1,10 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSText } from '../../../../base-components';
-import theme from '../../../../theme/Theme';
+import { RSText } from '../../../../../base-components';
+import theme from '../../../../../theme/Theme';
 import { BsPlusCircle } from 'react-icons/bs';
 import { Button, CircularProgress } from '@material-ui/core';
-import { colors } from '../../../../theme/Colors';
+import { colors } from '../../../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   imageUploadBox: {
