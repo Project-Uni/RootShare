@@ -1,17 +1,20 @@
 import React, { useCallback, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { BigButton, RSModal } from '../../../../reusable-components';
-import { RSText } from '../../../../../base-components';
-import theme from '../../../../../theme/Theme';
+import { TextField } from '@material-ui/core';
 
 import { FiMessageSquare } from 'react-icons/fi';
-
-import RichTextEditor from 'react-rte';
-import { usePrevious } from '../../../../../hooks';
-import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { AiOutlineMail } from 'react-icons/ai';
 import { RiMessage2Line } from 'react-icons/ri';
-import { TextField } from '@material-ui/core';
+
+import RichTextEditor from 'react-rte';
+
+import theme from '../../../../../theme/Theme';
+
+import { usePrevious } from '../../../../../hooks';
+import { makeRequest, slideLeft } from '../../../../../helpers/functions';
+
+import { BigButton, RSModal } from '../../../../reusable-components';
+import { RSText } from '../../../../../base-components';
 
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
