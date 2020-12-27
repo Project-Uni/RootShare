@@ -20,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   onUpload: () => any;
-  setServerErr: (message: string) => void;
+  setServerErr: (message?: string) => void;
   loading?: boolean;
   imageSrc?: string;
   updateImageSrc: (data: string) => any;
@@ -41,7 +41,7 @@ function MeetTheGreeksBannerUpload(props: Props) {
           event.target.value = '';
           return;
         }
-        setServerErr('');
+        setServerErr(undefined);
         const imageReader = new FileReader();
 
         imageReader.onloadend = (event: ProgressEvent) => {

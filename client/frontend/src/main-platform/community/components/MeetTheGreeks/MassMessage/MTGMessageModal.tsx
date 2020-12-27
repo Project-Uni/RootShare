@@ -40,7 +40,7 @@ function MTGMessageModal(props: Props) {
 
   const { open, communityName, communityID, onClose } = props;
 
-  const [serverErr, setServerErr] = useState('');
+  const [serverErr, setServerErr] = useState<string>();
   const [loading, setLoading] = useState(false);
 
   const [stage, setStage] = useState<Stage>('selection');
@@ -89,10 +89,10 @@ function MTGMessageModal(props: Props) {
 
   const sendMessage = async () => {
     setLoading(true);
-    setServerErr('');
+    setServerErr(undefined);
     const { data } = await makeRequest(
       'PUT',
-      `/api/mtg/communications/${props.communityID}?mode=${previousStage}`,
+      `/api/mtg/communications/${communityID}?mode=${previousStage}`,
       { message: previousStage === 'email' ? emailValue.toString('html') : '' }
     );
     if (data.success === 1) {
@@ -144,6 +144,7 @@ function MTGMessageModal(props: Props) {
         }
         helperIcon={<FiMessageSquare size={60} />}
         onBackArrow={getBackArrowFunction()}
+        serverErr={serverErr}
       >
         {chooseStage()}
       </RSModal>

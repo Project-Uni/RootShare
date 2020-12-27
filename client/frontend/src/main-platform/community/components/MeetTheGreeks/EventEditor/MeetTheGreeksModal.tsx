@@ -25,12 +25,6 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: theme.primary,
   },
-  serverError: {
-    marginLeft: 15,
-    marginRight: 15,
-    marginTop: 10,
-    marginBottom: 10,
-  },
 }));
 
 type Props = {
@@ -104,7 +98,7 @@ function MeetTheGreeksModal(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [apiLoading, setApiLoading] = useState(false);
-  const [serverErr, setServerErr] = useState('');
+  const [serverErr, setServerErr] = useState<string>();
 
   const [renderStage, setRenderStage] = useState<0 | 1>(0);
 
@@ -187,7 +181,6 @@ function MeetTheGreeksModal(props: Props) {
 
   const resetData = useCallback(() => {
     resetForm();
-    setServerErr('');
   }, []);
 
   const validateInputs = useCallback(() => {
@@ -301,13 +294,9 @@ function MeetTheGreeksModal(props: Props) {
           "Create or Edit your Fraternity's event time and information for Meet the Greeks"
         }
         helperIcon={<BsPeopleFill size={90} />}
+        serverErr={serverErr}
       >
         <div>
-          {serverErr && (
-            <RSText italic color={theme.error} className={styles.serverError}>
-              {serverErr}
-            </RSText>
-          )}
           {loading ? (
             <div
               style={{

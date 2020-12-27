@@ -37,6 +37,12 @@ const useStyles = makeStyles((_: any) => ({
   linearProgressRoot: {
     height: 5,
   },
+  serverError: {
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: 10,
+    marginBottom: 10,
+  },
 }));
 
 type Props = {
@@ -50,6 +56,7 @@ type Props = {
   children?: React.ReactNode;
   onClose: () => any;
   onBackArrow?: () => void;
+  serverErr?: string;
 };
 
 function RSModal(props: Props) {
@@ -122,6 +129,11 @@ function RSModal(props: Props) {
             color={colors.secondaryText}
           >
             {props.helperText}
+          </RSText>
+        )}
+        {props.serverErr && (
+          <RSText italic color={Theme.error} className={styles.serverError}>
+            {props.serverErr}
           </RSText>
         )}
         {props.children}
