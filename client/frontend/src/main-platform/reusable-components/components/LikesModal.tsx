@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Button, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import RSModal from './RSModal';
+import RSModal from './RSModal/RSModal';
 
 import { LeanUser } from '../../../helpers/types';
 import ProfilePicture from '../../../base-components/ProfilePicture';

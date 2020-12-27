@@ -5,6 +5,7 @@ import theme from '../../../../../theme/Theme';
 import { BsPlusCircle } from 'react-icons/bs';
 import { Button, CircularProgress } from '@material-ui/core';
 import { colors } from '../../../../../theme/Colors';
+import { BigButton } from '../../../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   imageUploadBox: {
@@ -14,21 +15,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   stageTwoHead: {
     marginTop: 10,
-  },
-  primaryButton: {
-    background: theme.bright,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  disabledButton: { background: theme.disabledButton },
-  middleButton: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    width: 300,
   },
 }));
 
@@ -112,18 +98,7 @@ function MeetTheGreeksBannerUpload(props: Props) {
           onChange={handleImageUpload}
         />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
-        <Button
-          className={[
-            styles.middleButton,
-            loading ? styles.disabledButton : styles.primaryButton,
-          ].join(' ')}
-          disabled={loading || !imageSrc}
-          onClick={onUpload}
-        >
-          {loading ? <CircularProgress size={30} /> : 'Finish'}
-        </Button>
-      </div>
+      <BigButton label="Finish" onClick={onUpload} loading={loading} />
     </div>
   );
 }

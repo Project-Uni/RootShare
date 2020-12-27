@@ -12,7 +12,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import theme from '../../../../../theme/Theme';
 import { colors } from '../../../../../theme/Colors';
 
-import { UserSearch } from '../../../../reusable-components';
+import { BigButton, UserSearch } from '../../../../reusable-components';
 import { SearchOption } from '../../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
@@ -28,21 +28,6 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 5,
     marginTop: 10,
     marginBottom: 8,
-  },
-  primaryButton: {
-    background: theme.bright,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  disabledButton: { background: theme.disabledButton },
-  middleButton: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    width: 300,
   },
   dateBox: {
     width: 250,
@@ -173,18 +158,7 @@ function MeetTheGreekForm(props: Props) {
         speakers={formFields.speakers}
         removeSpeaker={removeSpeaker}
       />
-      <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-        <Button
-          className={[
-            styles.middleButton,
-            loading ? styles.disabledButton : styles.primaryButton,
-          ].join(' ')}
-          disabled={loading}
-          onClick={onSubmit}
-        >
-          {loading ? <CircularProgress size={30} /> : 'Next'}
-        </Button>
-      </div>
+      <BigButton label="Next" loading={loading} onClick={onSubmit} />
     </form>
   );
 }
