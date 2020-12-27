@@ -23,6 +23,7 @@ const useBigButtonStyles = makeStyles((_: any) => ({
 }));
 
 type BigButtonProps = {
+  icon?: JSX.Element;
   label: string;
   onClick: () => void;
   loading?: boolean;
@@ -32,7 +33,7 @@ type BigButtonProps = {
 export const BigButton = (props: BigButtonProps) => {
   const styles = useBigButtonStyles();
 
-  const { loading, onClick, label, variant } = props;
+  const { loading, onClick, label, icon, variant } = props;
 
   return (
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
@@ -44,7 +45,14 @@ export const BigButton = (props: BigButtonProps) => {
         disabled={loading}
         onClick={onClick}
       >
-        {loading ? <CircularProgress size={30} /> : label}
+        {loading ? (
+          <CircularProgress size={30} />
+        ) : (
+          <>
+            {icon}
+            {label}
+          </>
+        )}
       </Button>
     </div>
   );

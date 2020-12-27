@@ -9,6 +9,8 @@ import { FiMessageSquare } from 'react-icons/fi';
 import RichTextEditor from 'react-rte';
 import { usePrevious } from '../../../../../hooks';
 import { makeRequest } from '../../../../../helpers/functions';
+import { AiOutlineMail } from 'react-icons/ai';
+import { RiMessage2Line } from 'react-icons/ri';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -49,8 +51,28 @@ function MTGMessageModal(props: Props) {
 
   const selectionStage = () => (
     <>
-      <BigButton label="Email" onClick={() => setStage('email')} />
-      <BigButton label="Text" onClick={() => setStage('text')} />
+      <BigButton
+        label="Email"
+        onClick={() => setStage('email')}
+        icon={
+          <AiOutlineMail
+            color={theme.altText}
+            size={24}
+            style={{ marginRight: 10 }}
+          />
+        }
+      />
+      <BigButton
+        label="Text"
+        onClick={() => setStage('text')}
+        icon={
+          <FiMessageSquare
+            color={theme.altText}
+            size={24}
+            style={{ marginRight: 10 }}
+          />
+        }
+      />
     </>
   );
 
@@ -142,7 +164,7 @@ function MTGMessageModal(props: Props) {
         helperText={
           'Send a message to everyone who is interested in your fraternity'
         }
-        helperIcon={<FiMessageSquare size={60} />}
+        helperIcon={<RiMessage2Line size={60} />}
         onBackArrow={getBackArrowFunction()}
         serverErr={serverErr}
       >
