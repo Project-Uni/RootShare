@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 
@@ -65,6 +65,14 @@ function MTGMessageModal(props: Props) {
     'success' | 'error' | 'notify' | null
   >(null);
   const [transition, setTransition] = useState<any>();
+
+  useEffect(() => {
+    if (open) {
+      setEmailValue(RichTextEditor.createEmptyValue());
+      setTextValue('');
+      setTextErr(undefined);
+    }
+  }, [open]);
 
   const selectionStage = () => (
     <>
@@ -221,7 +229,10 @@ function MTGMessageModal(props: Props) {
       <RSModal
         open={open}
         title={`Messaging - ${communityName}`}
-        onClose={onClose}
+        onClose={() => {
+          setStage('selection');
+          onClose();
+        }}
         className={styles.modal}
         helperText={
           'Send a message to everyone who is interested in your fraternity'
