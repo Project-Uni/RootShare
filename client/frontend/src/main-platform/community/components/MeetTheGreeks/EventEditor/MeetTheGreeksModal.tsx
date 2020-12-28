@@ -181,6 +181,7 @@ function MeetTheGreeksModal(props: Props) {
 
   const resetData = useCallback(() => {
     resetForm();
+    setServerErr(undefined);
   }, []);
 
   const validateInputs = useCallback(() => {

@@ -131,7 +131,7 @@ function RSModal(props: Props) {
             {props.helperText}
           </RSText>
         )}
-        {props.serverErr && (
+        {props.serverErr && props.serverErr.length !== 0 && (
           <RSText italic color={Theme.error} className={styles.serverError}>
             {props.serverErr}
           </RSText>
