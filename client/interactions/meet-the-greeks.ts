@@ -90,7 +90,7 @@ export async function uploadMTGBanner(communityID: string, image: string) {
     return sendPacket(1, 'Successfully uploaded image', { fileName });
   } catch (err) {
     log('error', err);
-    return -1;
+    return sendPacket(-1, err.message);
   }
 }
 
