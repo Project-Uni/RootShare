@@ -17,7 +17,7 @@ export async function createMTGEvent(
   eventTime: string,
   speakers: string[]
 ) {
-  if (speakers.length < 1) return sendPacket(-1, 'Atleast one speaker is required');
+  if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 
   try {
     let event = await MeetTheGreekEvent.findOne({
