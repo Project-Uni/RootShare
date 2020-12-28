@@ -39,7 +39,7 @@ export default function communityRoutes(app) {
           sendPacket(-1, 'User is not authorized to perform this action')
         );
 
-      const { name, description, adminID, type, isPrivate } = req.body;
+      const { name, description, adminID, type, isPrivate, isMTG } = req.body;
       if (
         !name ||
         !description ||
@@ -60,7 +60,8 @@ export default function communityRoutes(app) {
         description,
         adminID,
         type,
-        isPrivate
+        isPrivate,
+        { isMTG }
       );
 
       return res.json(packet);
@@ -83,7 +84,7 @@ export default function communityRoutes(app) {
         sendPacket(-1, 'User is not authorized to perform this action')
       );
 
-    const { _id, name, description, adminID, type, isPrivate } = req.body;
+    const { _id, name, description, adminID, type, isPrivate, isMTG } = req.body;
     if (
       !_id ||
       !name ||
@@ -106,7 +107,8 @@ export default function communityRoutes(app) {
       description,
       adminID,
       type,
-      isPrivate
+      isPrivate,
+      { isMTG }
     );
 
     return res.json(packet);
@@ -341,7 +343,10 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID } = req.user;
-      const packet = await getCommunityMembers(userID, communityID);
+      const { skipCalculation } = req.query;
+      const packet = await getCommunityMembers(userID, communityID, {
+        skipCalculation,
+      });
       return res.json(packet);
     }
   );
