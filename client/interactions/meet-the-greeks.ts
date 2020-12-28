@@ -5,6 +5,7 @@ import {
   sendPacket,
   uploadFile,
 } from '../helpers/functions';
+import { sendSMS } from '../helpers/functions/twilio';
 import { MeetTheGreekEvent, Conversation, User } from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
@@ -138,5 +139,12 @@ export async function sendMTGCommunications(
   mode: 'text' | 'email',
   message: string
 ) {
+  if (mode === 'email') {
+    //Get list of all users who were interested,
+    //Send email using phased send
+  } else {
+    //Get phone numbers of all interested, this is required
+    // sendSMS(phoneNumbers, message);
+  }
   return sendPacket(1, 'Test was successfull');
 }
