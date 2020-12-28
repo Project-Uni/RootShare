@@ -18,7 +18,7 @@ export async function createMTGEvent(
   eventTime: string,
   speakers: string[]
 ) {
-  if (speakers.length < 1) return sendPacket(-1, 'Atleast one speaker is required');
+  if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 
   try {
     let event = await MeetTheGreekEvent.findOne({
@@ -91,7 +91,7 @@ export async function uploadMTGBanner(communityID: string, image: string) {
     return sendPacket(1, 'Successfully uploaded image', { fileName });
   } catch (err) {
     log('error', err);
-    return -1;
+    return sendPacket(-1, err.message);
   }
 }
 
