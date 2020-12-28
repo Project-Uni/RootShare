@@ -262,6 +262,15 @@ function MeetTheGreeksModal(props: Props) {
 
   const onUploadBanner = useCallback(async () => {
     setApiLoading(true);
+    //Handling case where user is sticking with the existing image
+    if (imageSrc?.startsWith('https://')) {
+      setTransition(() => slideLeft);
+      setSnackbarMode('notify');
+      setImageSrc('');
+      onClose();
+      return;
+    }
+
     const { data } = await makeRequest(
       'PUT',
       `/api/mtg/banner/${props.communityID}`,
