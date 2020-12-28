@@ -1,25 +1,27 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Button } from '@material-ui/core';
-import { colors } from '../../../../theme/Colors';
 import theme from '../../../../theme/Theme';
 
 const useBigButtonStyles = makeStyles((_: any) => ({
-  primaryButton: {
-    background: theme.bright,
-    color: theme.altText,
-    '&:hover': {
-      background: colors.ternary,
-    },
-  },
-  disabledButton: { background: theme.disabledButton },
-  middleButton: {
+  button: {
     marginTop: 20,
     marginBottom: 20,
     paddingTop: 8,
     paddingBottom: 8,
     width: 300,
+    color: theme.altText,
+    '&:hover': {
+      background: theme.buttonHighlight,
+    },
   },
+  primaryButton: {
+    background: theme.bright,
+  },
+  secondaryButton: {
+    background: theme.primary,
+  },
+  disabledButton: { background: theme.disabledButton },
 }));
 
 type BigButtonProps = {
@@ -35,12 +37,16 @@ export const BigButton = (props: BigButtonProps) => {
 
   const { loading, onClick, label, icon, variant } = props;
 
+  const coreStyle = useRef(
+    variant === 'primary' ? styles.primaryButton : styles.secondaryButton
+  );
+
   return (
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
       <Button
         className={[
-          styles.middleButton,
-          loading ? styles.disabledButton : styles.primaryButton,
+          styles.button,
+          loading ? styles.disabledButton : coreStyle.current,
         ].join(' ')}
         disabled={loading}
         onClick={onClick}
@@ -56,6 +62,10 @@ export const BigButton = (props: BigButtonProps) => {
       </Button>
     </div>
   );
+};
+
+BigButton.defaultProps = {
+  variant: 'primary',
 };
 
 export default BigButton;
