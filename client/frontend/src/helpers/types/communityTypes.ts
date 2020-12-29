@@ -18,6 +18,7 @@ export type Community = {
   numMutual?: number;
   profilePicture?: string;
   status: CommunityStatus;
+  isMTGFlag?: boolean; //For Meet the Greeks
 };
 
 export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';

@@ -85,6 +85,7 @@ function AdminCreateCommunity(props: Props) {
   const [admin, setAdmin] = useState<HostType | {}>({});
   const [type, setType] = useState<CommunityType>();
   const [isPrivate, setIsPrivate] = useState('no');
+  const [isMTG, setIsMTG] = useState('no');
 
   const [serverMessage, setServerMessage] = useState<{
     success: boolean;
@@ -103,6 +104,7 @@ function AdminCreateCommunity(props: Props) {
       setDesc(editingCommunity.description);
       setAdmin(editingCommunity.admin);
       setType(editingCommunity.type);
+      setIsMTG(editingCommunity.isMTGFlag ? 'yes' : 'no');
       setIsPrivate(editingCommunity.private ? 'yes' : 'no');
 
       setNameErr('');
@@ -118,6 +120,7 @@ function AdminCreateCommunity(props: Props) {
     setAdmin({});
     setType(undefined);
     setIsPrivate('no');
+    setIsMTG('no');
 
     setNameErr('');
     setDescErr('');
@@ -185,6 +188,7 @@ function AdminCreateCommunity(props: Props) {
     }
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
+    const isMTGBool = isMTG === 'yes' ? true : false;
 
     const { data } = await makeRequest(
       'POST',
@@ -195,6 +199,7 @@ function AdminCreateCommunity(props: Props) {
         adminID: (admin as HostType)._id,
         type,
         isPrivate: isPrivateBool,
+        isMTG: isMTGBool,
       },
       true,
       props.accessToken,
@@ -207,6 +212,7 @@ function AdminCreateCommunity(props: Props) {
       setAdmin({});
       setType(undefined);
       setIsPrivate('no');
+      setIsMTG('yes');
       setServerMessage({
         success: true,
         message: `Successfully created community ${name}`,
@@ -227,6 +233,7 @@ function AdminCreateCommunity(props: Props) {
     }
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
+    const isMTGBool = isMTG === 'yes' ? true : false;
 
     const { data } = await makeRequest(
       'POST',
@@ -238,6 +245,7 @@ function AdminCreateCommunity(props: Props) {
         adminID: (admin as HostType)._id,
         type,
         isPrivate: isPrivateBool,
+        isMTG: isMTGBool,
       },
       true,
       props.accessToken,
@@ -250,6 +258,7 @@ function AdminCreateCommunity(props: Props) {
       setAdmin({});
       setType(undefined);
       setIsPrivate('no');
+      setIsMTG('no');
       setServerMessage({
         success: true,
         message: `Successfully created community ${name}`,
@@ -318,6 +327,20 @@ function AdminCreateCommunity(props: Props) {
       </div>
     );
   }
+
+  const MeetTheGreeksSelect = () => {
+    return (
+      <div className={styles.communitySelectDiv}>
+        <FormControl className={styles.privateSelect} variant="outlined">
+          <InputLabel>Meet The Greeks</InputLabel>
+          <Select value={isMTG} onChange={(e: any) => setIsMTG(e.target.value)}>
+            <MenuItem value={'yes'}>Yes</MenuItem>
+            <MenuItem value={'no'}>No</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+    );
+  };
 
   function renderServerMessage() {
     if (!serverMessage) return null;
@@ -388,6 +411,10 @@ function AdminCreateCommunity(props: Props) {
           Private
         </RSText>
         {renderPrivateSelect()}
+        <RSText type="body" bold size={12} className={styles.fieldLabel}>
+          Meet The Greeks?
+        </RSText>
+        <MeetTheGreeksSelect />
       </div>
     );
   }

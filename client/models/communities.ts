@@ -51,6 +51,8 @@ const CommunitySchema = new mongoose.Schema(
     postsToOtherCommunities: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     broadcastedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     interestedUsers: [{ type: mongoose.Types.ObjectId, ref: 'users' }],
+    pinnedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    isMTGFlag: { type: Boolean, default: false },
     // subcommunities: [{ type: mongoose.Types.ObjectId, ref: 'communities' }],
   },
   { timestamps: true }

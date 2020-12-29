@@ -35,4 +35,5 @@ export type ImageReason =
   | 'communityBanner'
   | 'eventImage'
   | 'eventBanner'
-  | 'postImage';
+  | 'postImage'
+  | 'mtgBanner';

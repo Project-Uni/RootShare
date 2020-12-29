@@ -103,6 +103,8 @@ function getPathPrefix(imageType: ImageReason) {
       return base + 'event/banner/';
     case 'postImage':
       return base + 'post/';
+    case 'mtgBanner':
+      return base + 'mtg/banner/';
     default:
       return null;
   }

@@ -8,6 +8,7 @@ import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
 import PendingFollowRequestsModal from './PendingFollowRequestsModal';
+import { MeetTheGreeksModal, MTGMessageModal } from './MeetTheGreeks';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -112,6 +113,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type CommunityFlags = {
+  isMTGFlag: boolean;
+};
+
 type Props = {
   communityID: string;
   status: CommunityStatus;
@@ -127,6 +132,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  flags: CommunityFlags;
 };
 
 function CommunityGeneralInfo(props: Props) {
@@ -137,6 +143,10 @@ function CommunityGeneralInfo(props: Props) {
     showPendingFollowRequestsModal,
     setShowPendingFollowRequestsModal,
   ] = useState(false);
+
+  const [showMTGModal, setShowMTGModal] = useState(false);
+  const [showMTGMessageModal, setShowMTGMessageModal] = useState(false);
+
   const [numPending, setNumPending] = useState(props.numPending);
   const [numFollowRequests, setNumFollowRequests] = useState(
     props.numFollowRequests
@@ -203,7 +213,7 @@ function CommunityGeneralInfo(props: Props) {
   function handleShowInterest() {
     'FETCH FIELD DATA (check for all user data fields regardless of whether greek wants them or not)';
     if ('HAS ALL FIELDS SET') 'SHOW SUCCESS SNACKBAR NOTIFICATION';
-    else setShowInterestModal(true);
+    // else setShowInterestModal(true);
   }
 
   function handlePendingClicked() {
@@ -266,11 +276,36 @@ function CommunityGeneralInfo(props: Props) {
           <Button
             size="large"
             className={[styles.button, styles.joinedButton].join(' ')}
-            onClick={!props.isAdmin ? handleMemberClick : undefined}
+            onClick={handleMemberClick}
           >
             {props.isAdmin ? 'Admin' : 'Member'}
           </Button>
-          {!props.isAdmin && (
+          {props.isAdmin ? (
+            props.flags.isMTGFlag && (
+              <Menu
+                open={Boolean(menuAnchorEl)}
+                anchorEl={menuAnchorEl}
+                onClose={() => setMenuAnchorEl(null)}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setShowMTGModal(true);
+                    setMenuAnchorEl(null);
+                  }}
+                >
+                  Meet The Greeks
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setShowMTGMessageModal(true);
+                    setMenuAnchorEl(null);
+                  }}
+                >
+                  Messaging
+                </MenuItem>
+              </Menu>
+            )
+          ) : (
             <Menu
               open={Boolean(menuAnchorEl)}
               anchorEl={menuAnchorEl}
@@ -285,23 +320,44 @@ function CommunityGeneralInfo(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <PendingMembersModal
-        open={showPendingModal}
-        communityID={props.communityID}
-        handleClose={handlePendingModalClose}
-        updatePendingCount={updatePendingCount}
-        updateMemberCount={updateMemberCount}
-      />
-      <PendingFollowRequestsModal
-        open={showPendingFollowRequestsModal}
-        communityID={props.communityID}
-        handleClose={() => {
-          setShowPendingFollowRequestsModal(false);
-        }}
-        updatePendingCount={updateFollowRequestCount}
-      />
-      <div className={styles.left}>
-        <div className={styles.top}>
+      {props.isAdmin && (
+        <>
+          <PendingMembersModal
+            open={showPendingModal}
+            communityID={props.communityID}
+            handleClose={handlePendingModalClose}
+            updatePendingCount={updatePendingCount}
+            updateMemberCount={updateMemberCount}
+          />
+          <PendingFollowRequestsModal
+            open={showPendingFollowRequestsModal}
+            communityID={props.communityID}
+            handleClose={() => {
+              setShowPendingFollowRequestsModal(false);
+            }}
+            updatePendingCount={updateFollowRequestCount}
+          />
+          {props.flags.isMTGFlag && (
+            <>
+              <MeetTheGreeksModal
+                open={showMTGModal}
+                onClose={() => setShowMTGModal(false)}
+                communityName={props.name}
+                communityID={props.communityID}
+              />
+              <MTGMessageModal
+                open={showMTGMessageModal}
+                communityName={props.name}
+                communityID={props.communityID}
+                onClose={() => setShowMTGMessageModal(false)}
+              />
+            </>
+          )}
+        </>
+      )}
+
+      <div className={styles.top}>
+        <div className={styles.left}>
           <RSText type="head" size={22} color={colors.second}>
             {props.name}
             {props.private && (

@@ -9,6 +9,7 @@ import User from './users';
 import Webinar from './webinars';
 import CommunityEdge from './community_edges';
 import Image from './images';
+import MeetTheGreekEvent from './meet_the_greek_event';
 
 export {
   Comment,
@@ -17,6 +18,7 @@ export {
   Connection,
   Conversation,
   Image,
+  MeetTheGreekEvent,
   Message,
   Post,
   University,

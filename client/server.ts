@@ -14,6 +14,8 @@ import feedbackRoutes from './routes/feedback';
 import discoverRoutes from './routes/discover';
 import postRoutes from './routes/posts';
 import imageRoutes from './routes/images';
+import mtgRoutes from './routes/meet-the-greeks';
+import webhooks from './routes/webhooks';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -36,7 +38,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 app.use(pino());
-app.use(bodyParser.json({ limit: '1mb', type: 'application/json' }));
+app.use(bodyParser.json({ limit: '1.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   expressSession({
@@ -73,6 +75,8 @@ feedbackRoutes(app);
 discoverRoutes(app);
 postRoutes(app);
 imageRoutes(app);
+mtgRoutes(app);
+webhooks(app);
 
 require('./config/setup')(passport);
 
