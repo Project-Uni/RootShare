@@ -8,6 +8,7 @@ import {
   createMTGEvent,
   uploadMTGBanner,
   retrieveMTGEventInfo,
+  sendMTGCommunications,
 } from '../interactions/meet-the-greeks';
 
 export default function meetTheGreekRoutes(app) {
@@ -88,11 +89,25 @@ export default function meetTheGreekRoutes(app) {
     }
   );
   app.put(
-    '/api/mtg/communications/:communityID/:communicationForm',
+    '/api/mtg/communications/:communityID',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
-    async (req, res) => {}
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { mode }: { mode: 'text' | 'email' } = req.query;
+      const { message } = req.body;
+      if (!mode || !message || (mode !== 'text' && mode !== 'email'))
+        return res.json(
+          sendPacket(
+            0,
+            '[Required Query Params] - mode, [Required Body Params] - message'
+          )
+        );
+      const packet = await sendMTGCommunications(communityID, mode, message);
+      return res.json(packet);
+    }
   );
+
   app.all('/api/mtg/', async (req: Request, res: Response) => {
     return res.json(sendPacket(-1, 'Path not found'));
   });

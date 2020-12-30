@@ -7,9 +7,11 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-import { log } from '../helpers/functions';
+import { log, sendPacket } from '../helpers/functions';
 
 import { getUserData } from '../interactions/utilities';
+import { Request, Response } from 'express';
+import { sendSMS } from '../helpers/functions/twilio';
 
 module.exports = (app) => {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
@@ -17,6 +19,11 @@ module.exports = (app) => {
       res.json(packet);
     });
   });
+
+  // app.get('/api/twilio', async (req: Request, res: Response) => {
+  //   const data = await sendSMS(['(408) 644-9017'], 'RootShare SMS!');
+  //   return res.json({ message: data });
+  // });
 
   //NOTE - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
   // app.get('/api/emergency/dontUse/phasedEmail', async (req, res) => {

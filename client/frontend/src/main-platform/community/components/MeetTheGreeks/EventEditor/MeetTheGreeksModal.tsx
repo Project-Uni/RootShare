@@ -3,16 +3,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import { useForm } from '../../../../hooks';
+import { useForm } from '../../../../../hooks';
 
-import theme from '../../../../theme/Theme';
+import theme from '../../../../../theme/Theme';
 
-import { makeRequest, slideLeft } from '../../../../helpers/functions';
-import { RSModal } from '../../../reusable-components';
-import { RSText } from '../../../../base-components';
-import { SearchOption } from '../../../reusable-components/components/UserSearch';
+import { makeRequest, slideLeft } from '../../../../../helpers/functions';
+import { RSModal } from '../../../../reusable-components';
+import { RSText } from '../../../../../base-components';
+import { SearchOption } from '../../../../reusable-components/components/UserSearch';
 
-import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 
@@ -24,12 +24,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     color: theme.primary,
-  },
-  serverError: {
-    marginLeft: 15,
-    marginRight: 15,
-    marginTop: 10,
-    marginBottom: 10,
   },
 }));
 
@@ -104,7 +98,7 @@ function MeetTheGreeksModal(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [apiLoading, setApiLoading] = useState(false);
-  const [serverErr, setServerErr] = useState('');
+  const [serverErr, setServerErr] = useState<string>();
 
   const [renderStage, setRenderStage] = useState<0 | 1>(0);
 
@@ -187,7 +181,7 @@ function MeetTheGreeksModal(props: Props) {
 
   const resetData = useCallback(() => {
     resetForm();
-    setServerErr('');
+    setServerErr(undefined);
   }, []);
 
   const validateInputs = useCallback(() => {
@@ -268,6 +262,15 @@ function MeetTheGreeksModal(props: Props) {
 
   const onUploadBanner = useCallback(async () => {
     setApiLoading(true);
+    //Handling case where user is sticking with the existing image
+    if (imageSrc?.startsWith('https://')) {
+      setTransition(() => slideLeft);
+      setSnackbarMode('notify');
+      setImageSrc('');
+      onClose();
+      return;
+    }
+
     const { data } = await makeRequest(
       'PUT',
       `/api/mtg/banner/${props.communityID}`,
@@ -301,13 +304,9 @@ function MeetTheGreeksModal(props: Props) {
           "Create or Edit your Fraternity's event time and information for Meet the Greeks"
         }
         helperIcon={<BsPeopleFill size={90} />}
+        serverErr={serverErr}
       >
         <div>
-          {serverErr && (
-            <RSText italic color={theme.error} className={styles.serverError}>
-              {serverErr}
-            </RSText>
-          )}
           {loading ? (
             <div
               style={{
