@@ -276,7 +276,8 @@ function PersonalInfoModal(props: Props) {
           onKeyDown={handleNewInterest}
           fullWidth
           variant="outlined"
-          label="Type New Interest and Press Enter"
+          label="Hobbies/Interests"
+          placeholder="Type New Interest and Press Enter"
           error={Boolean(inputErr)}
           helperText={inputErr}
         />
