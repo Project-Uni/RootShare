@@ -29,6 +29,8 @@ import {
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
+import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
+import HomepageBody from './main-platform/homepage/components/HomepageBody';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -74,7 +76,17 @@ function App(props: Props) {
 
             <Route path="/admin" component={AdminRoutes} />
 
-            <Route exact path="/home" component={Homepage} />
+            <Route
+              exact
+              path="/home"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<HomepageBody />}
+                  selectedTab="home"
+                />
+              )}
+            />
             <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
             <Route exact path="/profile/:profileID" component={Profile} />

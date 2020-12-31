@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
 
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/functions';
@@ -32,7 +32,7 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-  content: JSX.Element;
+  component: JSX.Element;
   leftElement?: JSX.Element;
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
@@ -44,7 +44,7 @@ function AuthenticatedPage(props: Props) {
   const styles = useStyles();
 
   const {
-    content,
+    component,
     leftElement,
     showLeftElementWidth,
     rightElement,
@@ -54,7 +54,6 @@ function AuthenticatedPage(props: Props) {
     updateAccessToken,
     updateRefreshToken,
   } = props;
-  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
@@ -84,12 +83,12 @@ function AuthenticatedPage(props: Props) {
   async function checkAuth() {
     const { data } = await makeRequest('GET', '/user/getCurrent');
     if (data['success'] !== 1) {
-      dispatch(updateUser({}));
-      dispatch(updateAccessToken(''));
-      dispatch(updateRefreshToken(''));
+      updateUser({});
+      updateAccessToken('');
+      updateRefreshToken('');
       return false;
     }
-    dispatch(updateUser({ ...data['content'] }));
+    updateUser({ ...data['content'] });
     return true;
   }
 
@@ -98,20 +97,22 @@ function AuthenticatedPage(props: Props) {
       {loginRedirect && (
         <Redirect to={`/login?redirect=${window.location.pathname}`} />
       )}
-      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body} style={{ height: height }}>
-        {width > showLeftEl.current && leftElement ? (
-          leftElement
-        ) : (
-          <MainNavigator currentTab={selectedTab || 'none'} />
-        )}
-        {!loading && content}
-        {width > showRightEl.current && rightElement ? (
-          rightElement
-        ) : (
-          <DiscoverySidebar />
-        )}
-      </div>
+      {!loading && (
+        <>
+          <EventClientHeader showNavigationWidth={showLeftEl.current} />
+          <div className={styles.body} style={{ height: height }}>
+            {width > showLeftEl.current &&
+              (leftElement ? (
+                leftElement
+              ) : (
+                <MainNavigator currentTab={selectedTab || 'none'} />
+              ))}
+            {component}
+            {width > showRightEl.current &&
+              (rightElement ? rightElement : <DiscoverySidebar />)}
+          </div>
+        </>
+      )}
     </div>
   );
 }
