@@ -27,8 +27,6 @@ import {
   getAllFollowingCommunities,
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
-  // Meet the Greeks
-  greekInterestedToggle,
 } from '../interactions/community';
 
 export default function communityRoutes(app) {
@@ -350,20 +348,6 @@ export default function communityRoutes(app) {
         skipCalculation,
       });
       return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/community/:communityID/greek/interested',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const userID = req.user._id;
-      const { interested } = req.body;
-
-      greekInterestedToggle(communityID, userID, interested, (packet) =>
-        res.json(packet)
-      );
     }
   );
 }

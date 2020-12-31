@@ -9,6 +9,8 @@ import {
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
+  updateUserInfo,
+  interestedToggle,
 } from '../interactions/meet-the-greeks';
 
 export default function meetTheGreekRoutes(app) {
@@ -63,6 +65,26 @@ export default function meetTheGreekRoutes(app) {
         speakers
       );
       return res.json(packet);
+    }
+  );
+
+  app.post('/api/mtg/updateUserInfo', isAuthenticatedWithJWT, (req, res) => {
+    updateUserInfo(req.user, req.user.university, req.body, (packet) =>
+      res.json(packet)
+    );
+  });
+
+  app.post(
+    '/api/mtg/updateInterest/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { interested } = req.body;
+
+      interestedToggle(communityID, userID, interested, (packet) =>
+        res.json(packet)
+      );
     }
   );
 

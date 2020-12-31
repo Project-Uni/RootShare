@@ -6,7 +6,13 @@ import {
   uploadFile,
 } from '../helpers/functions';
 import { sendSMS } from '../helpers/functions/twilio';
-import { MeetTheGreekEvent, Conversation, User } from '../models';
+import {
+  MeetTheGreekEvent,
+  Conversation,
+  User,
+  University,
+  Community,
+} from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
@@ -147,4 +153,62 @@ export async function sendMTGCommunications(
     // sendSMS(phoneNumbers, message);
   }
   return sendPacket(1, 'Test was successfull');
+}
+
+export async function updateUserInfo(userID, universityID, userInfo, callback) {
+  try {
+    const departmentExists = await University.exists({
+      _id: universityID,
+      department: userInfo.department,
+    });
+
+    let updateObj = {};
+    if (userInfo.firstName) updateObj['firstName'] = userInfo.firstName;
+    if (userInfo.lastName) updateObj['lastName'] = userInfo.lastName;
+    if (userInfo.major) updateObj['major'] = userInfo.major;
+    if (userInfo.department && departmentExists)
+      updateObj['department'] = userInfo.department;
+    if (userInfo.graduationYear)
+      updateObj['graduationYear'] = userInfo.graduationYear;
+    if (userInfo.interests) updateObj['interests'] = userInfo.interests;
+
+    const userUpdate = await User.updateOne(
+      { _id: userID },
+      { $set: updateObj }
+    ).exec();
+
+    if (userUpdate.nModified !== 1)
+      return callback(sendPacket(-1, 'Failed to update user information'));
+
+    return callback(sendPacket(1, 'Successfully updated User information.'));
+  } catch (err) {
+    log('error', err.message);
+    return callback(sendPacket(-1, err.message));
+  }
+}
+
+export function interestedToggle(communityID, userID, interested, callback) {
+  Community.exists({ _id: communityID, type: 'Greek' }, (err, exists) => {
+    if (err) return callback(sendPacket(-1, err));
+    if (!exists) return callback(sendPacket(0, 'Community does not exist'));
+
+    User.exists({ _id: userID }, (err, exists) => {
+      if (err) return callback(sendPacket(-1, err));
+      if (!exists) return callback(sendPacket(0, 'User does not exist'));
+
+      if (interested) {
+        Community.updateOne(
+          { _id: communityID },
+          { $addToSet: { interestedUsers: userID } }
+        ).exec();
+        callback(sendPacket(1, 'Added Interest', { interested: true }));
+      } else {
+        Community.updateOne(
+          { _id: communityID },
+          { $pull: { interestedUsers: userID } }
+        ).exec();
+        callback(sendPacket(1, 'Removed Interest', { interested: false }));
+      }
+    });
+  });
 }

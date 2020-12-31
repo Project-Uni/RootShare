@@ -8,7 +8,11 @@ import { makeRequest } from '../../../helpers/functions';
 
 import PendingMembersModal from './PendingMembersModal';
 import PendingFollowRequestsModal from './PendingFollowRequestsModal';
-import { MeetTheGreeksModal, MTGMessageModal } from './MeetTheGreeks';
+import {
+  MeetTheGreeksModal,
+  MTGMessageModal,
+  InterestedButton,
+} from './MeetTheGreeks';
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
@@ -72,15 +76,6 @@ const useStyles = makeStyles((_: any) => ({
     paddingLeft: 30,
     paddingRight: 30,
     background: colors.primary,
-    color: colors.primaryText,
-    '&:hover': {
-      background: colors.secondaryText,
-    },
-  },
-  interestedButton: {
-    paddingLeft: 30,
-    paddingRight: 30,
-    background: colors.accentColors[0],
     color: colors.primaryText,
     '&:hover': {
       background: colors.secondaryText,
@@ -162,11 +157,11 @@ function CommunityGeneralInfo(props: Props) {
       'POST',
       `/api/community/${props.communityID}/join`
     );
-    if (data.success === -1) {
+    if (data.success === -1)
       return alert(
         'There was an error while trying to join this community. Please try again later.'
       );
-    }
+
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);
       if (data.content['newStatus'] === 'JOINED') {
@@ -208,12 +203,6 @@ function CommunityGeneralInfo(props: Props) {
         'There was an error trying to cancel the pending request. Please try again later'
       );
     }
-  }
-
-  function handleShowInterest() {
-    'FETCH FIELD DATA (check for all user data fields regardless of whether greek wants them or not)';
-    if ('HAS ALL FIELDS SET') 'SHOW SUCCESS SNACKBAR NOTIFICATION';
-    // else setShowInterestModal(true);
   }
 
   function handlePendingClicked() {
@@ -356,30 +345,18 @@ function CommunityGeneralInfo(props: Props) {
         </>
       )}
 
-      <div className={styles.top}>
-        <div className={styles.left}>
-          <RSText type="head" size={22} color={colors.second}>
-            {props.name}
-            {props.private && (
-              <FaLock
-                color={colors.secondaryText}
-                size={20}
-                className={styles.lockIcon}
-              />
-            )}
-          </RSText>
-          {props.status !== 'JOINED' && props.type === 'Greek' && (
-            <div style={{ marginTop: '-80px' }}>
-              <Button
-                className={styles.interestedButton}
-                size="large"
-                onClick={handleShowInterest}
-              >
-                I'm Interested!
-              </Button>
-            </div>
+      <div className={styles.left}>
+        <RSText type="head" size={22} color={colors.second}>
+          {props.name}
+          {props.private && (
+            <FaLock
+              color={colors.secondaryText}
+              size={20}
+              className={styles.lockIcon}
+            />
           )}
-        </div>
+        </RSText>
+
         <RSText size={16} color={colors.secondaryText} type="body">
           {props.type}
         </RSText>
@@ -403,10 +380,14 @@ function CommunityGeneralInfo(props: Props) {
           )}
         </div>
       </div>
+
       <div className={styles.right}>
         <div className={styles.buttonContainer}>
           {renderStatusButton()}
           <FollowButton communityID={props.communityID} name={props.name} />
+          {props.type === 'Greek' && (
+            <InterestedButton communityID={props.communityID} />
+          )}
         </div>
         <div style={{ marginTop: 15 }}>
           <RSText type="body" size={12} color={colors.second}>

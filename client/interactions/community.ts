@@ -1058,29 +1058,3 @@ export async function getCommunityMembers(
     return sendPacket(-1, err);
   }
 }
-
-export function greekInterestedToggle(communityID, userID, interested, callback) {
-  Community.exists({ _id: communityID, type: 'Greek' }, (err, exists) => {
-    if (err) return callback(sendPacket(-1, err));
-    if (!exists) return callback(sendPacket(0, 'Community does not exist'));
-
-    User.exists({ _id: userID }, (err, exists) => {
-      if (err) return callback(sendPacket(-1, err));
-      if (!exists) return callback(sendPacket(0, 'User does not exist'));
-
-      if (interested) {
-        Community.updateOne(
-          { _id: communityID },
-          { $addToSet: { interestedUsers: userID } }
-        ).exec();
-        callback(sendPacket(1, 'Added Interest', { interested: true }));
-      } else {
-        Community.updateOne(
-          { _id: communityID },
-          { $pull: { interestedUsers: userID } }
-        ).exec();
-        callback(sendPacket(1, 'Removed Interest', { interested: false }));
-      }
-    });
-  });
-}
