@@ -16,7 +16,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 15,
-    background: colors.accentColors[0],
+    background: colors.boilerGold,
     color: colors.primaryText,
     '&:hover': {
       background: colors.secondaryText,

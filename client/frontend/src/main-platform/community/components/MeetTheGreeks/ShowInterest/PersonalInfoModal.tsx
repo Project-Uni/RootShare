@@ -166,7 +166,7 @@ function PersonalInfoModal(props: Props) {
 
     Promise.all([userInfoPromise, interestPromise]).then(
       ([userInfoData, interestData]) => {
-        if (userInfoData.data.success === -1 || interestData.data.success === -1)
+        if (userInfoData.data.success !== 1 || interestData.data.success !== 1)
           handleSnackbar('There was an error updating interest', 'error');
         else {
           handleSnackbar('Successfully submitted interest!', 'success');

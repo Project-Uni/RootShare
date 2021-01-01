@@ -188,7 +188,7 @@ export async function updateUserInfo(userID, universityID, userInfo, callback) {
 }
 
 export function interestedToggle(communityID, userID, interested, callback) {
-  Community.exists({ _id: communityID, type: 'Greek' }, (err, exists) => {
+  Community.exists({ _id: communityID, isMTGFlag: true }, (err, exists) => {
     if (err) return callback(sendPacket(-1, err));
     if (!exists) return callback(sendPacket(0, 'Community does not exist'));
 

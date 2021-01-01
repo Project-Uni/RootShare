@@ -124,8 +124,8 @@ type Props = {
   type: CommunityType;
   private?: boolean;
   isAdmin?: boolean;
-  accessToken: string;
-  refreshToken: string;
+  isMTG?: boolean;
+
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   flags: CommunityFlags;
 };
@@ -157,7 +157,7 @@ function CommunityGeneralInfo(props: Props) {
       'POST',
       `/api/community/${props.communityID}/join`
     );
-    if (data.success === -1)
+    if (data.success !== 1)
       return alert(
         'There was an error while trying to join this community. Please try again later.'
       );
@@ -385,7 +385,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.buttonContainer}>
           {renderStatusButton()}
           <FollowButton communityID={props.communityID} name={props.name} />
-          {props.type === 'Greek' && (
+          {props.flags.isMTGFlag && props.status !== 'JOINED' && (
             <InterestedButton communityID={props.communityID} />
           )}
         </div>

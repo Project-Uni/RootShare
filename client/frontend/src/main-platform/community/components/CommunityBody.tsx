@@ -80,8 +80,7 @@ type Props = {
   type: CommunityType;
   private?: boolean;
   loading?: boolean;
-  accessToken: string;
-  refreshToken: string;
+
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
@@ -189,8 +188,6 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
               flags={props.flags}
