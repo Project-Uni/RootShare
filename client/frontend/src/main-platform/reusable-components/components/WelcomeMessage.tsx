@@ -42,6 +42,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   message: string;
+  counter?: number;
   buttonText?: string;
   buttonAction?: () => any;
 };
@@ -51,7 +52,19 @@ function WelcomeMessage(props: Props) {
   return (
     <div className={styles.welcomeMessage}>
       <div className={styles.welcomeTextContainer}>
-        <RSText type="head" size={24} color={colors.secondary} bold>
+        <RSText 
+          type="other"
+          size={10}
+          
+          color={colors.secondaryText}
+          >
+          {props.counter}
+        </RSText>
+        <RSText
+          type="head"
+          size={24}
+          color={colors.secondary}
+          bold>
           {props.title}
         </RSText>
         <RSText

@@ -211,6 +211,7 @@ function ConnectionsBody(props: Props) {
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
+          counter={connections.length}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
