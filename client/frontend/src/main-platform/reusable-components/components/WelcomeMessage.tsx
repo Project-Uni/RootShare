@@ -1,10 +1,11 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button } from '@material-ui/core';
+import { Button, Icon } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
@@ -52,14 +53,6 @@ function WelcomeMessage(props: Props) {
   return (
     <div className={styles.welcomeMessage}>
       <div className={styles.welcomeTextContainer}>
-        <RSText 
-          type="other"
-          size={10}
-          
-          color={colors.secondaryText}
-          >
-          {props.counter}
-        </RSText>
         <RSText
           type="head"
           size={24}
@@ -74,6 +67,13 @@ function WelcomeMessage(props: Props) {
           className={styles.welcomeBrief}
         >
           {props.message}
+        </RSText>
+        <RSText 
+          type="other"
+          size={10}
+          color={colors.secondaryText}
+          >
+          {props.counter}
         </RSText>
         {props.buttonText && (
           <Button className={styles.discoverButton} onClick={props.buttonAction}>
