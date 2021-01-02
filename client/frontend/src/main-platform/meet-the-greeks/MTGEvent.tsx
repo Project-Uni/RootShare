@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
 import { CircularProgress, Box } from '@material-ui/core';
+
+import ReactPlayer from 'react-player';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
@@ -33,7 +35,9 @@ const useStyles = makeStyles((_: any) => ({
   description: {
     marginLeft: 30,
   },
-  button: {},
+  loadingIndicator: {
+    color: Theme.secondaryText,
+  },
 }));
 
 type Props = {
@@ -55,6 +59,18 @@ function MTGEvent(props: Props) {
       community: { _id: communityID, name: communityName },
     },
   } = props;
+
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+
+  const onWatchVideoClick = () => {
+    setShowVideo((prev) => {
+      if (prev && videoLoading) setVideoLoading(false);
+      else setVideoLoading(true);
+      return !prev;
+    });
+    // setVideoLoading(true);
+  };
 
   return (
     <Box
@@ -83,16 +99,30 @@ function MTGEvent(props: Props) {
       <div
         style={{
           background: Theme.dark,
-          flex: 1,
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
+          height: videoLoading ? 400 : 'inherit',
         }}
       >
-        <img
-          src={eventBanner}
-          alt={`${communityName} Event Banner`}
-          className={styles.banner}
-        />
+        {videoLoading && (
+          <CircularProgress size={60} className={styles.loadingIndicator} />
+        )}
+        {showVideo ? (
+          <ReactPlayer
+            url={introVideoURL}
+            controls={true}
+            height={400}
+            onReady={() => setVideoLoading(false)}
+            style={{ display: videoLoading ? 'none' : 'block' }}
+          />
+        ) : (
+          <img
+            src={eventBanner}
+            alt={`${communityName} Event Banner`}
+            className={styles.banner}
+          />
+        )}
       </div>
       <div
         style={{
@@ -126,7 +156,9 @@ function MTGEvent(props: Props) {
           <div style={{ display: 'flex', marginTop: 15 }}>
             <RSButton>Enter Event</RSButton>
             <span style={{ width: 15 }}></span>
-            <RSButton>Watch Video</RSButton>
+            <RSButton onClick={onWatchVideoClick}>
+              {showVideo ? 'Hide' : 'Watch'} Video
+            </RSButton>
           </div>
         </div>
       </div>
