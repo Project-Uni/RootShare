@@ -114,7 +114,7 @@ function MTGEvent(props: Props) {
         </a>
         <a href={`/community/${communityID}`} className={styles.linkText}>
           <RSText
-            size={16}
+            size={14}
             type="head"
             bold
           >{`Meet The Greeks - ${communityName}`}</RSText>

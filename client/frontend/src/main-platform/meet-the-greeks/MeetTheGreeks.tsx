@@ -6,6 +6,7 @@ import { CircularProgress } from '@material-ui/core';
 import MTGEvent from './MTGEvent';
 
 import ManageSpeakersSnackbar from '../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import MeetTheGreeksInfoCard from './MeetTheGreeksInfoCard';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -19,6 +20,13 @@ const useStyles = makeStyles((_: any) => ({
   },
   mtgEvent: {
     marginTop: 15,
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  header: {
+    marginLeft: 8,
+    marginRight: 8,
+    marginTop: 8,
   },
 }));
 
@@ -77,7 +85,7 @@ function MeetTheGreeks(props: Props) {
         mode={snackbarMode}
         handleClose={() => setSnackbarMode(null)}
       />
-      <div>Header component</div>
+      <MeetTheGreeksInfoCard className={styles.header} />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (
