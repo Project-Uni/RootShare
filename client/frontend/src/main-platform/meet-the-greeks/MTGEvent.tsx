@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import { CircularProgress, Box } from '@material-ui/core';
+import { CircularProgress, Box, Slide } from '@material-ui/core';
 
 import ReactPlayer from 'react-player';
 
@@ -103,13 +103,14 @@ function MTGEvent(props: Props) {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: videoLoading ? 400 : 'inherit',
+          height: showVideo || videoLoading ? 400 : 'inherit',
+          maxHeight: showVideo || videoLoading ? 400 : 300,
         }}
       >
-        {videoLoading && (
+        {/* {videoLoading && (
           <CircularProgress size={60} className={styles.loadingIndicator} />
-        )}
-        {showVideo ? (
+        )} */}
+        {/* {showVideo ? (
           <ReactPlayer
             url={introVideoURL}
             controls={true}
@@ -128,6 +129,44 @@ function MTGEvent(props: Props) {
             alt={`${communityName} Event Banner`}
             className={styles.banner}
           />
+        )} */}
+        {showVideo ? (
+          <Slide direction="left" in={showVideo}>
+            <div
+              style={{
+                height: 'inherit',
+                width: '100%',
+                // border: '1px solid red',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {videoLoading && (
+                <CircularProgress size={60} className={styles.loadingIndicator} />
+              )}
+              <ReactPlayer
+                url={introVideoURL}
+                controls={true}
+                height={400}
+                onReady={() => setVideoLoading(false)}
+                style={{ display: videoLoading ? 'none' : 'block' }}
+                onError={() => {
+                  setVideoLoading(false);
+                  setShowVideo(false);
+                  dispatchSnackbar('error', 'There was an error loading the video');
+                }}
+              />
+            </div>
+          </Slide>
+        ) : (
+          <Slide direction="right" in={!showVideo}>
+            <img
+              src={eventBanner}
+              alt={`${communityName} Event Banner`}
+              className={styles.banner}
+            />
+          </Slide>
         )}
       </div>
       <div
