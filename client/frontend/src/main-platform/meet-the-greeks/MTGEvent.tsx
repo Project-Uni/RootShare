@@ -199,7 +199,7 @@ function MTGEvent(props: Props) {
           </RSText>
           <RSText>
             <b>Time: </b>
-            {formatTime(new Date(dateTime))}
+            {formatTime(new Date(dateTime))} EST
           </RSText>
           <div style={{ display: 'flex', marginTop: 15 }}>
             <RSButton onClick={enterEvent}>Enter Event</RSButton>

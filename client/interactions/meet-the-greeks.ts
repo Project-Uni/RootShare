@@ -150,8 +150,9 @@ export async function sendMTGCommunications(
 }
 
 export async function getMTGEvents() {
+  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
   try {
-    const events = await MeetTheGreekEvent.find({}, [
+    const events = await MeetTheGreekEvent.find(condition, [
       'description',
       'introVideoURL',
       'dateTime',
