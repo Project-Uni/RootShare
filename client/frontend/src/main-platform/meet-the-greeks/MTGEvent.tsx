@@ -130,7 +130,7 @@ function MTGEvent(props: Props) {
             className={styles.banner}
           />
         )} */}
-        {showVideo ? (
+        {showVideo && (
           <Slide direction="left" in={showVideo}>
             <div
               style={{
@@ -159,7 +159,8 @@ function MTGEvent(props: Props) {
               />
             </div>
           </Slide>
-        ) : (
+        )}
+        {!showVideo && (
           <Slide direction="right" in={!showVideo}>
             <img
               src={eventBanner}
