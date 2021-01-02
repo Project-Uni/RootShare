@@ -83,6 +83,7 @@ function MeetTheGreeks(props: Props) {
         <>
           {events.map((event) => (
             <MTGEvent
+              key={`mtgEvent_${event._id}`}
               event={event}
               className={styles.mtgEvent}
               dispatchSnackbar={dispatchSnackbar}

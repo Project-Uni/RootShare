@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
 import { CircularProgress, Box, Slide } from '@material-ui/core';
@@ -65,12 +65,19 @@ function MTGEvent(props: Props) {
   const [showVideo, setShowVideo] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
 
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [imageDivHeight, setImageDivHeight] = useState(300);
+
   const onWatchVideoClick = () => {
     setShowVideo((prev) => {
-      if (prev && videoLoading) setVideoLoading(false);
+      if (prev) setVideoLoading(false);
       else setVideoLoading(true);
       return !prev;
     });
+  };
+
+  const onImageLoaded = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    if (imageRef.current) setImageDivHeight(imageRef.current.clientHeight);
   };
 
   return (
@@ -103,40 +110,16 @@ function MTGEvent(props: Props) {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: showVideo || videoLoading ? 400 : 'inherit',
-          maxHeight: showVideo || videoLoading ? 400 : 300,
+          height: showVideo ? 400 : imageDivHeight,
+          // maxHeight: showVideo || videoLoading ? 400 : 300,
         }}
       >
-        {/* {videoLoading && (
-          <CircularProgress size={60} className={styles.loadingIndicator} />
-        )} */}
-        {/* {showVideo ? (
-          <ReactPlayer
-            url={introVideoURL}
-            controls={true}
-            height={400}
-            onReady={() => setVideoLoading(false)}
-            style={{ display: videoLoading ? 'none' : 'block' }}
-            onError={() => {
-              setVideoLoading(false);
-              setShowVideo(false);
-              dispatchSnackbar('error', 'There was an error loading the video');
-            }}
-          />
-        ) : (
-          <img
-            src={eventBanner}
-            alt={`${communityName} Event Banner`}
-            className={styles.banner}
-          />
-        )} */}
         {showVideo && (
           <Slide direction="left" in={showVideo}>
             <div
               style={{
                 height: 'inherit',
                 width: '100%',
-                // border: '1px solid red',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -166,6 +149,8 @@ function MTGEvent(props: Props) {
               src={eventBanner}
               alt={`${communityName} Event Banner`}
               className={styles.banner}
+              ref={imageRef}
+              onLoad={onImageLoaded}
             />
           </Slide>
         )}
