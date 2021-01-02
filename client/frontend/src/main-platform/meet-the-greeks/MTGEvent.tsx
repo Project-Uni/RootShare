@@ -43,6 +43,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   className?: string;
   event: Event;
+  dispatchSnackbar: (mode: 'success' | 'notify' | 'error', message: string) => void;
 };
 
 function MTGEvent(props: Props) {
@@ -58,6 +59,7 @@ function MTGEvent(props: Props) {
       eventBanner,
       community: { _id: communityID, name: communityName },
     },
+    dispatchSnackbar,
   } = props;
 
   const [showVideo, setShowVideo] = useState(false);
@@ -69,7 +71,6 @@ function MTGEvent(props: Props) {
       else setVideoLoading(true);
       return !prev;
     });
-    // setVideoLoading(true);
   };
 
   return (
@@ -115,6 +116,11 @@ function MTGEvent(props: Props) {
             height={400}
             onReady={() => setVideoLoading(false)}
             style={{ display: videoLoading ? 'none' : 'block' }}
+            onError={() => {
+              setVideoLoading(false);
+              setShowVideo(false);
+              dispatchSnackbar('error', 'There was an error loading the video');
+            }}
           />
         ) : (
           <img

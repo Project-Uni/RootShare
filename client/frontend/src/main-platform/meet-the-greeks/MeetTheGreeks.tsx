@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { makeRequest } from '../../helpers/functions';
+import { makeRequest, slideLeft } from '../../helpers/functions';
 import Theme from '../../theme/Theme';
 import { CircularProgress } from '@material-ui/core';
 import MTGEvent from './MTGEvent';
+
+import ManageSpeakersSnackbar from '../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,6 +45,11 @@ function MeetTheGreeks(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
+  const [transition, setTransition] = useState<any>(() => slideLeft);
+  const [snackbarMode, setSnackbarMode] = useState<
+    'notify' | 'success' | 'error' | null
+  >(null);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     fetchEvents().then(() => setLoading(false));
@@ -55,15 +62,31 @@ function MeetTheGreeks(props: Props) {
     } else {
     }
   };
+
+  const dispatchSnackbar = (mode: typeof snackbarMode, message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+  };
+
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <div>Header component</div>
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : (
         <>
           {events.map((event) => (
-            <MTGEvent event={event} className={styles.mtgEvent} />
+            <MTGEvent
+              event={event}
+              className={styles.mtgEvent}
+              dispatchSnackbar={dispatchSnackbar}
+            />
           ))}
         </>
       )}
