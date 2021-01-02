@@ -9,6 +9,7 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: Theme.background,
     flex: 1,
+    overflow: 'scroll',
   },
   loadingIndicator: {
     color: Theme.primary,

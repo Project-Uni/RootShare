@@ -1,23 +1,19 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import {
-  Button,
-  TextField,
-  IconButton,
-  CircularProgress,
-  Box,
-  Menu,
-  MenuItem,
-} from '@material-ui/core';
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
+import { formatDatePretty, formatTime } from '../../helpers/functions';
+import { RSButton } from '../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: Theme.white,
-    padding: 1,
+    paddingTop: 1,
+    paddingBottom: 1,
+    textAlign: 'left',
   },
   linkText: {
     color: 'inherit',
@@ -30,6 +26,14 @@ const useStyles = makeStyles((_: any) => ({
     },
     display: 'inline-block',
   },
+  banner: {
+    maxHeight: 300,
+    objectFit: 'contain',
+  },
+  description: {
+    marginLeft: 30,
+  },
+  button: {},
 }));
 
 type Props = {
@@ -62,6 +66,10 @@ function MTGEvent(props: Props) {
         style={{
           display: 'flex',
           justifyContent: 'flex-start',
+          marginTop: 10,
+          marginBottom: 10,
+          marginLeft: 15,
+          marginRight: 15,
         }}
       >
         <a href={`/community/${communityID}`} className={styles.linkText}>
@@ -71,6 +79,56 @@ function MTGEvent(props: Props) {
             bold
           >{`Meet The Greeks - ${communityName}`}</RSText>
         </a>
+      </div>
+      <div
+        style={{
+          background: Theme.dark,
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <img
+          src={eventBanner}
+          alt={`${communityName} Event Banner`}
+          className={styles.banner}
+        />
+      </div>
+      <div
+        style={{
+          margin: '10px 15px',
+          display: 'flex',
+          justifyContent: 'flex-start',
+        }}
+      >
+        <a href={`/community/${communityID}`} className={styles.linkText}>
+          <RSText bold>Hosted by {communityName}</RSText>
+        </a>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginBottom: 20,
+        }}
+      >
+        <RSText className={styles.description}>{description}</RSText>
+        <div style={{ width: 275 }}>
+          <RSText>
+            <b>Date: </b>
+            {formatDatePretty(new Date(dateTime))}
+          </RSText>
+          <RSText>
+            <b>Time: </b>
+            {formatTime(new Date(dateTime))}
+          </RSText>
+          <div style={{ display: 'flex', marginTop: 15 }}>
+            <RSButton>Enter Event</RSButton>
+            <span style={{ width: 15 }}></span>
+            <RSButton>Watch Video</RSButton>
+          </div>
+        </div>
       </div>
     </Box>
   );

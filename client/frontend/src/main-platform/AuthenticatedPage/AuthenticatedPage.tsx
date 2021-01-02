@@ -97,21 +97,19 @@ function AuthenticatedPage(props: Props) {
       {loginRedirect && (
         <Redirect to={`/login?redirect=${window.location.pathname}`} />
       )}
+      <EventClientHeader showNavigationWidth={showLeftEl.current} />
       {!loading && (
-        <>
-          <EventClientHeader showNavigationWidth={showLeftEl.current} />
-          <div className={styles.body} style={{ height: height }}>
-            {width > showLeftEl.current &&
-              (leftElement ? (
-                leftElement
-              ) : (
-                <MainNavigator currentTab={selectedTab || 'none'} />
-              ))}
-            {component}
-            {width > showRightEl.current &&
-              (rightElement ? rightElement : <DiscoverySidebar />)}
-          </div>
-        </>
+        <div className={styles.body} style={{ height: height }}>
+          {width > showLeftEl.current &&
+            (leftElement ? (
+              leftElement
+            ) : (
+              <MainNavigator currentTab={selectedTab || 'none'} />
+            ))}
+          {component}
+          {width > showRightEl.current &&
+            (rightElement ? rightElement : <DiscoverySidebar />)}
+        </div>
       )}
     </div>
   );
