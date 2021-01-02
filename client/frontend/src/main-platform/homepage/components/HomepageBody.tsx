@@ -46,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   box: {
-    background: colors.primaryText,
+    // background: colors.primaryText,
     margin: 8,
   },
 }));
