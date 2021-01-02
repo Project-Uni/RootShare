@@ -10,7 +10,8 @@ import {
   retrieveMTGEventInfo,
   sendMTGCommunications,
   updateUserInfo,
-  interestedToggle,
+  getInterestAnswers,
+  updateInterestAnswers,
 } from '../interactions/meet-the-greeks';
 
 export default function meetTheGreekRoutes(app) {
@@ -31,6 +32,18 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.get(
+    '/api/mtg/interestAnswers/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      return res.json(await getInterestAnswers(userID, communityID));
+    }
+  );
+
   app.post(
     '/api/mtg/update/:communityID',
     isAuthenticatedWithJWT,
@@ -68,23 +81,15 @@ export default function meetTheGreekRoutes(app) {
     }
   );
 
-  app.post('/api/mtg/updateUserInfo', isAuthenticatedWithJWT, (req, res) => {
-    updateUserInfo(req.user, req.user.university, req.body, (packet) =>
-      res.json(packet)
-    );
-  });
-
-  app.post(
-    '/api/mtg/updateInterest/:communityID',
+  app.put(
+    '/api/mtg/updateInterestAnswers/:communityID',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
-      const { interested } = req.body;
+      const { answers } = req.body;
 
-      interestedToggle(communityID, userID, interested, (packet) =>
-        res.json(packet)
-      );
+      res.json(await updateInterestAnswers(userID, communityID, answers));
     }
   );
 
@@ -101,15 +106,7 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
-  app.put(
-    '/api/mtg/interested/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res: Response) => {
-      const userID = req.user._id;
-      const { questions } = req.body;
-      return res.json(sendPacket(1, 'test worked'));
-    }
-  );
+
   app.put(
     '/api/mtg/communications/:communityID',
     isAuthenticatedWithJWT,
@@ -129,6 +126,10 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.put('/api/mtg/updateUserInfo', isAuthenticatedWithJWT, (req, res) => {
+    updateUserInfo(req.user._id, req.body, (packet) => res.json(packet));
+  });
 
   app.all('/api/mtg/', async (req: Request, res: Response) => {
     return res.json(sendPacket(-1, 'Path not found'));

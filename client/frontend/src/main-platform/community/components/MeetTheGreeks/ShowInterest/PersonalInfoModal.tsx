@@ -19,6 +19,7 @@ import RSText from '../../../../../base-components/RSText';
 import { colors } from '../../../../../theme/Colors';
 import { makeRequest } from '../../../../../helpers/functions';
 import { SnackbarMode } from '../../../../../helpers/types';
+import { useForm } from '../../../../../helpers/hooks';
 import { ENTER_KEYCODE } from '../../../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -49,8 +50,11 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 5,
     marginBottom: 5,
   },
-  selectDepartment: {},
-  interestContainer: {},
+  interestContainer: {
+    paddingBottom: 10,
+    marginBottom: 15,
+    borderBottom: '2px solid rgba(180, 180, 180, .4)',
+  },
   interestItem: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -59,15 +63,51 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type UserInfoType = {
+type UserInfoServiceResponse = {
   user: {
     firstName: string;
     lastName: string;
     major: string;
-    department: string;
     graduationYear: number;
     interests: string[];
   };
+};
+
+type AnswersServiceResponse = {
+  answers: string[];
+};
+
+type IFormData = {
+  firstName: string;
+  lastName: string;
+  major: string;
+  graduationYear: number;
+  currInterest: string;
+  answer1: string;
+  answer2: string;
+  answer3: string;
+};
+
+type IFormErrors = {
+  firstName: string;
+  lastName: string;
+  major: string;
+  graduationYear: string;
+  currInterest: string;
+  answer1: string;
+  answer2: string;
+  answer3: string;
+};
+
+const defaultFormData: IFormData = {
+  firstName: 'Smitty',
+  lastName: '',
+  major: '',
+  graduationYear: 2021,
+  currInterest: '',
+  answer1: '',
+  answer2: '',
+  answer3: '',
 };
 
 type Props = {
@@ -85,20 +125,22 @@ function PersonalInfoModal(props: Props) {
 
   const { open, communityID, handleSnackbar, onClose } = props;
 
-  const [firstName, setFirstName] = useState<string>();
-  const [lastName, setLastName] = useState<string>();
-  const [major, setMajor] = useState<string>();
-  const [department, setDepartment] = useState<string>();
-  const [graduationYear, setGraduationYear] = useState<number>();
   const [interests, setInterests] = useState<string[]>([]);
-
-  const [currInterest, setCurrInterest] = useState<string>('');
-  const [universityDepartments, setUniversityDepartments] = useState<string[]>([]);
 
   const [inputErr, setInputErr] = useState<string>();
 
   const [serverErr, setServerErr] = useState<string>();
   const [loading, setLoading] = useState(true);
+
+  const {
+    formFields,
+    formErrors,
+    handleChange,
+    handleDateChange,
+    updateFields,
+    updateErrors,
+    resetForm,
+  } = useForm<IFormData, IFormErrors>(defaultFormData);
 
   useEffect(() => {
     if (open) {
@@ -110,58 +152,55 @@ function PersonalInfoModal(props: Props) {
   async function fetchUserInfo() {
     setLoading(true);
 
-    const userPromise = makeRequest<UserInfoType>(
+    const userPromise = makeRequest<UserInfoServiceResponse>(
       'GET',
-      '/api/user/profile/user',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      '/api/user/profile/user'
     );
 
-    const departmentPromise = makeRequest<{ departments: string[] }>(
+    const answersPromise = makeRequest<AnswersServiceResponse>(
       'GET',
-      '/api/university/departments'
+      `/api/mtg/interestAnswers/${communityID}`
     );
 
-    Promise.all([userPromise, departmentPromise]).then(
-      ([userData, departmentData]) => {
-        if (userData.data.success === -1 || departmentData.data.success === -1) {
-          alert('There was an error fetching User data');
-          return onClose();
-        }
-
-        const userInfo = userData.data.content.user;
-        setFirstName(userInfo.firstName);
-        setLastName(userInfo.lastName);
-        setMajor(userInfo.major);
-        setDepartment(userInfo.department);
-        setGraduationYear(userInfo.graduationYear);
-        setInterests(userInfo.interests);
-
-        setUniversityDepartments(departmentData.data.content.departments);
-
-        setLoading(false);
+    Promise.all([userPromise, answersPromise]).then(([userData, answersData]) => {
+      if (userData.data.success !== 1 || answersData.data.success !== 1) {
+        alert('There was an error fetching User data');
+        return onClose();
       }
-    );
+
+      const userInfo = userData.data.content.user;
+      const answers = answersData.data.content.answers;
+
+      updateFields([
+        { key: 'firstName', value: userInfo.firstName },
+        { key: 'lastName', value: userInfo.lastName },
+        { key: 'major', value: userInfo.major },
+        { key: 'graduationYear', value: userInfo.graduationYear },
+        { key: 'answer1', value: answers[0] },
+        { key: 'answer2', value: answers[1] },
+        { key: 'answer3', value: answers[2] },
+      ]);
+
+      setInterests(userInfo.interests);
+      setLoading(false);
+    });
   }
 
   const submitInfoAndInterest = async () => {
     setLoading(true);
     setServerErr(undefined);
-    const userInfoPromise = makeRequest('POST', `/api/mtg/updateUserInfo`, {
-      firstName,
-      lastName,
-      major,
-      department,
-      graduationYear,
+    const userInfoPromise = makeRequest('PUT', `/api/mtg/updateUserInfo`, {
+      firstName: formFields.firstName,
+      lastName: formFields.lastName,
+      major: formFields.major,
+      graduationYear: formFields.graduationYear,
       interests,
     });
 
     const interestPromise = makeRequest(
-      'POST',
-      `/api/mtg/updateInterest/${communityID}`,
-      { interested: true }
+      'PUT',
+      `/api/mtg/updateInterestAnswers/${communityID}`,
+      { answers: [formFields.answer1, formFields.answer2, formFields.answer3] }
     );
 
     Promise.all([userInfoPromise, interestPromise]).then(
@@ -179,10 +218,12 @@ function PersonalInfoModal(props: Props) {
   };
 
   const handleNewInterest = (e: any) => {
-    if (e.keyCode === ENTER_KEYCODE && currInterest.length > 0) {
+    if (e.keyCode === ENTER_KEYCODE && formFields.currInterest.length > 0) {
       e.preventDefault();
-      setInterests((prevInterests) => prevInterests?.concat(currInterest));
-      setCurrInterest('');
+      setInterests((prevInterests) =>
+        prevInterests?.concat(formFields.currInterest)
+      );
+      updateFields([{ key: 'currInterest', value: '' }]);
     }
   };
 
@@ -218,8 +259,8 @@ function PersonalInfoModal(props: Props) {
       <div className={styles.inputsWrapper}>
         <TextField
           className={styles.inputs}
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          value={formFields.firstName}
+          onChange={handleChange('firstName')}
           fullWidth
           variant="outlined"
           label="First Name"
@@ -228,8 +269,8 @@ function PersonalInfoModal(props: Props) {
         />
         <TextField
           className={styles.inputs}
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          value={formFields.lastName}
+          onChange={handleChange('lastName')}
           fullWidth
           variant="outlined"
           label="Last Name"
@@ -238,31 +279,18 @@ function PersonalInfoModal(props: Props) {
         />
         <TextField
           className={styles.inputs}
-          value={major}
-          onChange={(e) => setMajor(e.target.value)}
+          value={formFields.major}
+          onChange={handleChange('major')}
           fullWidth
           variant="outlined"
           label="Major"
           error={Boolean(inputErr)}
           helperText={inputErr}
         />
-        <FormControl className={styles.inputs} variant="outlined" fullWidth>
-          <InputLabel id="departmentLabel">Department</InputLabel>
-          <Select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value as string)}
-            labelId="departmentLabel"
-            label="Department"
-          >
-            {universityDepartments.map((singleDepartment) => (
-              <MenuItem value={singleDepartment}>{singleDepartment}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <TextField
           className={styles.inputs}
-          value={graduationYear}
-          onChange={(e) => setGraduationYear(Number.parseInt(e.target.value))}
+          value={formFields.graduationYear}
+          onChange={handleChange('graduationYear')}
           fullWidth
           variant="outlined"
           label="Graduation Year"
@@ -271,8 +299,8 @@ function PersonalInfoModal(props: Props) {
         />
         <TextField
           className={styles.inputs}
-          value={currInterest}
-          onChange={(e) => setCurrInterest(e.target.value)}
+          value={formFields.currInterest}
+          onChange={handleChange('currInterest')}
           onKeyDown={handleNewInterest}
           fullWidth
           variant="outlined"
@@ -282,6 +310,37 @@ function PersonalInfoModal(props: Props) {
           helperText={inputErr}
         />
         {renderInterests()}
+
+        <TextField
+          className={styles.inputs}
+          value={formFields.answer1}
+          onChange={handleChange('answer1')}
+          fullWidth
+          variant="outlined"
+          label="[Question 1]"
+          error={Boolean(inputErr)}
+          helperText={inputErr}
+        />
+        <TextField
+          className={styles.inputs}
+          value={formFields.answer2}
+          onChange={handleChange('answer2')}
+          fullWidth
+          variant="outlined"
+          label="[Question 2]"
+          error={Boolean(inputErr)}
+          helperText={inputErr}
+        />
+        <TextField
+          className={styles.inputs}
+          value={formFields.answer3}
+          onChange={handleChange('answer3')}
+          fullWidth
+          variant="outlined"
+          label="[Question 3]"
+          error={Boolean(inputErr)}
+          helperText={inputErr}
+        />
         <BigButton
           label="Submit Info and Interest"
           onClick={submitInfoAndInterest}
@@ -298,7 +357,7 @@ function PersonalInfoModal(props: Props) {
         onClose={onClose}
         className={styles.modal}
         helperText={
-          'Update your personal information to help the organization get to know you better'
+          'Update your personal information and answer some quick questions to help the organization get to know you better'
         }
         helperIcon={<RiMessage2Line size={60} />}
         serverErr={serverErr}

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import { useForm } from '../../../../../hooks';
+import { useForm } from '../../../../../helpers/hooks';
 
 import theme from '../../../../../theme/Theme';
 
