@@ -148,3 +148,33 @@ export async function sendMTGCommunications(
   }
   return sendPacket(1, 'Test was successfull');
 }
+
+export async function getMTGEvents() {
+  try {
+    const events = await MeetTheGreekEvent.find({}, [
+      'description',
+      'introVideoURL',
+      'dateTime',
+      'community',
+      'eventBanner',
+    ])
+      .populate({ path: 'community', select: 'name' })
+      .exec();
+
+    const bannerPromises = events.map((event) =>
+      retrieveSignedUrl('mtgBanner', event.eventBanner)
+    );
+
+    return Promise.all(bannerPromises).then((images) => {
+      for (let i = 0; i < events.length; i++) {
+        events[i].eventBanner = images[i];
+      }
+      return sendPacket(1, 'Successfully retrieved all meet the greeks events', {
+        events,
+      });
+    });
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+}

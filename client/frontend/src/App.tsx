@@ -26,6 +26,7 @@ import {
   YourCommunities,
   // StreamLibrary,
   Connections,
+  MeetTheGreeks,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
@@ -94,6 +95,13 @@ function App(props: Props) {
             <Route exact path="/community/:orgID" component={CommunityDetails} />
             {/* <Route exact path="/library" component={StreamLibrary} /> */}
             <Route exact path="/connections/:userID" component={Connections} />
+            <Route
+              exact
+              path="/mtg"
+              render={(props) => (
+                <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
+              )}
+            />
 
             <Route component={PageNotFound} />
           </Switch>
