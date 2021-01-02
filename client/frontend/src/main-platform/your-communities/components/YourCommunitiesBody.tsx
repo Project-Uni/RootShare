@@ -13,6 +13,7 @@ import { RSText } from '../../../base-components';
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { join } from 'path';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -67,6 +68,8 @@ function YourCommunitiesBody(props: Props) {
   const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
     false
   );
+
+  let numCommunities: number = null;
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -136,6 +139,10 @@ function YourCommunitiesBody(props: Props) {
           admin={currCommunity.admin as string}
         />
       );
+      
+      if (joinedCommunities.length > 0) {
+        numCommunities = joinedCommunities.length;
+      }
     }
 
     //Pending Communities
@@ -182,6 +189,7 @@ function YourCommunitiesBody(props: Props) {
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
+          counter={joinedCommunities.length}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}
