@@ -18,7 +18,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 50,
   },
   mtgEvent: {
-    marginTop: 10,
+    marginTop: 15,
   },
 }));
 

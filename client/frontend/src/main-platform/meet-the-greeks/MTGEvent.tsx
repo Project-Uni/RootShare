@@ -38,6 +38,10 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: Theme.secondaryText,
   },
+  interestedButton: {
+    marginTop: 10,
+    width: 235,
+  },
 }));
 
 type Props = {
@@ -80,6 +84,10 @@ function MTGEvent(props: Props) {
     if (imageRef.current) setImageDivHeight(imageRef.current.clientHeight);
   };
 
+  const enterEvent = () => {
+    window.open(`/event/${eventID}`);
+  };
+
   return (
     <Box
       borderRadius={10}
@@ -90,15 +98,15 @@ function MTGEvent(props: Props) {
         style={{
           display: 'flex',
           justifyContent: 'flex-start',
-          marginTop: 10,
-          marginBottom: 10,
+          marginTop: 15,
+          marginBottom: 15,
           marginLeft: 15,
           marginRight: 15,
         }}
       >
         <a href={`/community/${communityID}`} className={styles.linkText}>
           <RSText
-            size={16}
+            size={14}
             type="head"
             bold
           >{`Meet The Greeks - ${communityName}`}</RSText>
@@ -111,7 +119,6 @@ function MTGEvent(props: Props) {
           justifyContent: 'center',
           alignItems: 'center',
           height: showVideo ? 400 : imageDivHeight,
-          // maxHeight: showVideo || videoLoading ? 400 : 300,
         }}
       >
         {showVideo && (
@@ -185,12 +192,15 @@ function MTGEvent(props: Props) {
             {formatTime(new Date(dateTime))}
           </RSText>
           <div style={{ display: 'flex', marginTop: 15 }}>
-            <RSButton>Enter Event</RSButton>
+            <RSButton onClick={enterEvent}>Enter Event</RSButton>
             <span style={{ width: 15 }}></span>
             <RSButton onClick={onWatchVideoClick}>
               {showVideo ? 'Hide' : 'Watch'} Video
             </RSButton>
           </div>
+          <RSButton variant="secondary" className={styles.interestedButton}>
+            I'm Interested
+          </RSButton>
         </div>
       </div>
     </Box>
