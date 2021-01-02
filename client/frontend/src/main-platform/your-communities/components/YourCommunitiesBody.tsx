@@ -71,6 +71,10 @@ function YourCommunitiesBody(props: Props) {
 
   let numCommunities: number = null;
 
+  if (joinedCommunities.length > 0) {
+    numCommunities = joinedCommunities.length;
+  }
+  
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     if (props.requestUserID !== 'user') fetchUserBasicInfo();
@@ -140,9 +144,6 @@ function YourCommunitiesBody(props: Props) {
         />
       );
       
-      if (joinedCommunities.length > 0) {
-        numCommunities = joinedCommunities.length;
-      }
     }
 
     //Pending Communities
@@ -189,7 +190,7 @@ function YourCommunitiesBody(props: Props) {
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
-          counter={joinedCommunities.length}
+          counter={numCommunities}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}

@@ -71,6 +71,12 @@ function ConnectionsBody(props: Props) {
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
+  let numConnections: number = null;
+
+  if (connections.length > 0) {
+    numConnections = connections.length;
+  }
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     if (props.requestUserID !== 'user') fetchUserBasicInfo();
@@ -197,6 +203,7 @@ function ConnectionsBody(props: Props) {
           connectionRequestID={currConnection.connectionRequestID}
         />
       );
+
     }
     return output;
   }
@@ -211,7 +218,7 @@ function ConnectionsBody(props: Props) {
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
-          counter={connections.length}
+          counter={numConnections}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
