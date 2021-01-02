@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import { CircularProgress, Box, Slide } from '@material-ui/core';
+import { CircularProgress, Box, Slide, Avatar } from '@material-ui/core';
 
 import ReactPlayer from 'react-player';
 
@@ -61,7 +61,7 @@ function MTGEvent(props: Props) {
       introVideoURL,
       dateTime,
       eventBanner,
-      community: { _id: communityID, name: communityName },
+      community: { _id: communityID, name: communityName, profilePicture },
     },
     dispatchSnackbar,
   } = props;
@@ -98,15 +98,23 @@ function MTGEvent(props: Props) {
         style={{
           display: 'flex',
           justifyContent: 'flex-start',
-          marginTop: 15,
-          marginBottom: 15,
+          alignItems: 'center',
+          marginTop: 10,
+          marginBottom: 10,
           marginLeft: 15,
           marginRight: 15,
         }}
       >
+        <a href={`/community/${communityID}`} style={{ textDecoration: 'none' }}>
+          <Avatar
+            src={profilePicture}
+            alt={communityName}
+            style={{ marginRight: 15, height: 50, width: 50 }}
+          />
+        </a>
         <a href={`/community/${communityID}`} className={styles.linkText}>
           <RSText
-            size={14}
+            size={16}
             type="head"
             bold
           >{`Meet The Greeks - ${communityName}`}</RSText>
@@ -181,7 +189,9 @@ function MTGEvent(props: Props) {
           marginBottom: 20,
         }}
       >
-        <RSText className={styles.description}>{description}</RSText>
+        <div style={{ flex: 1 }}>
+          <RSText className={styles.description}>{description}</RSText>
+        </div>
         <div style={{ width: 275 }}>
           <RSText>
             <b>Date: </b>

@@ -158,16 +158,21 @@ export async function getMTGEvents() {
       'community',
       'eventBanner',
     ])
-      .populate({ path: 'community', select: 'name' })
+      .populate({ path: 'community', select: 'name profilePicture' })
       .exec();
 
-    const bannerPromises = events.map((event) =>
-      retrieveSignedUrl('mtgBanner', event.eventBanner)
-    );
+    const imagePromises = [];
+    for (let i = 0; i < events.length; i++) {
+      imagePromises.push(retrieveSignedUrl('mtgBanner', events[i].eventBanner));
+      imagePromises.push(
+        retrieveSignedUrl('communityProfile', events[i].community.profilePicture)
+      );
+    }
 
-    return Promise.all(bannerPromises).then((images) => {
-      for (let i = 0; i < events.length; i++) {
-        events[i].eventBanner = images[i];
+    return Promise.all(imagePromises).then((images) => {
+      for (let i = 0; i < images.length; i += 2) {
+        events[Math.floor(i / 2)].eventBanner = images[i];
+        events[Math.floor(i / 2)].community.profilePicture = images[i + 1];
       }
       return sendPacket(1, 'Successfully retrieved all meet the greeks events', {
         events,

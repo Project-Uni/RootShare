@@ -30,6 +30,7 @@ export type Event = {
   community: {
     _id: string;
     name: string;
+    profilePicture?: string;
   };
   eventBanner: string;
 };
