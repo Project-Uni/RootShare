@@ -1,23 +1,14 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import {
-  CircularProgress,
-  TextField,
-  Button,
-  FormHelperText,
-  makeStyles,
-} from '@material-ui/core';
+import React, { ChangeEvent } from 'react';
+import { TextField, FormHelperText, makeStyles } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-
-import theme from '../../../../../theme/Theme';
-import { colors } from '../../../../../theme/Colors';
 
 import { BigButton, UserSearch } from '../../../../reusable-components';
 import { SearchOption } from '../../../../reusable-components/components/UserSearch';
 import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 
-import { IFormData, IFormErrors } from './MeetTheGreeksModal';
+import { IFormData } from './MeetTheGreeksModal';
 
 const useStyles = makeStyles((_: any) => ({
   textField: {
@@ -38,13 +29,13 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   loading?: boolean;
   formFields: IFormData;
-  formErrors: IFormErrors;
+  formErrors: { [key in keyof IFormData]: string };
   handleChange: (key: keyof IFormData) => (e: ChangeEvent<HTMLInputElement>) => void;
   handleDateChange: (key: keyof IFormData) => (date: Date) => void;
-  updateFields: (
+  updateFields: <K extends keyof IFormData>(
     fields: {
-      key: keyof IFormData;
-      value: any;
+      key: K;
+      value: IFormData[K];
     }[]
   ) => void;
   communityMembers: SearchOption[];

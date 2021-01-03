@@ -9,7 +9,6 @@ import theme from '../../../../../theme/Theme';
 
 import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { RSModal } from '../../../../reusable-components';
-import { RSText } from '../../../../../base-components';
 import { SearchOption } from '../../../../reusable-components/components/UserSearch';
 
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
@@ -39,13 +38,6 @@ export type IFormData = {
   introVideoURL: string;
   eventTime: any;
   speakers: SearchOption[];
-};
-
-export type IFormErrors = {
-  description: string;
-  introVideoURL: string;
-  eventTime: string;
-  speakers: string;
 };
 
 type Member = {
@@ -81,17 +73,20 @@ type EventInformationServiceResponse = {
 
 const defaultDate = new Date('01/17/2021 @ 4:00 PM');
 
-const defaultFormData: {
-  description: string;
-  introVideoURL: string;
-  eventTime: Date;
-  speakers: SearchOption[];
-} = {
+const defaultFormData: IFormData = {
   description: '',
   introVideoURL: '',
   eventTime: defaultDate,
   speakers: [],
 };
+
+/* Keeping this here for now, this is how to generate a type based on existing variable - I've been looking for this solution for a long time
+ *
+ * type IFormData = {
+ *  [key in keyof typeof defaultFormData]: typeof defaultFormData[key];
+ * };
+ *
+ */
 
 function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
@@ -119,7 +114,7 @@ function MeetTheGreeksModal(props: Props) {
     updateFields,
     updateErrors,
     resetForm,
-  } = useForm<IFormData, IFormErrors>(defaultFormData);
+  } = useForm(defaultFormData);
 
   useEffect(() => {
     if (props.open) {
@@ -186,7 +181,7 @@ function MeetTheGreeksModal(props: Props) {
 
   const validateInputs = useCallback(() => {
     let hasErr = false;
-    const errUpdates: { key: keyof IFormErrors; value: string }[] = [];
+    const errUpdates: { key: keyof IFormData; value: string }[] = [];
     if (formFields.description.length < 5) {
       hasErr = true;
       errUpdates.push({
