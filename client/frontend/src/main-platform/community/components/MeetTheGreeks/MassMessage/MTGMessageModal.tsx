@@ -10,7 +10,7 @@ import RichTextEditor from 'react-rte';
 
 import theme from '../../../../../theme/Theme';
 
-import { usePrevious } from '../../../../../hooks';
+import { usePrevious } from '../../../../../helpers/hooks';
 import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 
 import { BigButton, RSModal } from '../../../../reusable-components';

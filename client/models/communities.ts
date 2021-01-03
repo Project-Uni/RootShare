@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { COMMUNITY_TYPE, CommunityMap } from '../helpers/types';
+import { CommunityType, CommunityMap } from '../helpers/types';
 
 const CommunitySchema = new mongoose.Schema(
   {
@@ -62,7 +62,7 @@ const Community = mongoose.model('communities');
 
 export default Community;
 
-export function getCommunityValueFromType(type: COMMUNITY_TYPE) {
+export function getCommunityValueFromType(type: CommunityType) {
   return CommunityMap[type];
 }
 
@@ -80,6 +80,8 @@ export function getCommunityTypeFromValue(value: number) {
       return 'Student Organization';
     case 5:
       return 'Academic';
+    case 6:
+      return 'Greek';
     default:
       return '';
   }

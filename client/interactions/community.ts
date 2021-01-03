@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { COMMUNITY_TYPE } from '../helpers/types';
+import { CommunityType } from '../helpers/types';
 import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
@@ -15,7 +15,7 @@ export async function createNewCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: {} = {}
@@ -36,9 +36,9 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = await User.updateOne(
+    await User.updateOne(
       { _id: adminID },
-      { $push: { joinedCommunities: savedCommunity._id } }
+      { $addToSet: { joinedCommunities: savedCommunity._id } }
     ).exec();
 
     log('info', `Successfully created community ${name}`);
@@ -83,7 +83,7 @@ export async function editCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: { returnCommunity?: boolean } = {}
@@ -226,7 +226,7 @@ export async function joinCommunity(
         if (community.private === false) {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { members: userID } }
+            { $addToSet: { members: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -248,7 +248,7 @@ export async function joinCommunity(
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { pendingMembers: userID } }
+            { $addToSet: { pendingMembers: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -279,7 +279,7 @@ export async function joinCommunity(
         if (community.private === false) {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { joinedCommunities: communityID } }
+            { $addToSet: { joinedCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -301,7 +301,7 @@ export async function joinCommunity(
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { pendingCommunities: communityID } }
+            { $addToSet: { pendingCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -433,14 +433,14 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   try {
     const communityPromise = Community.updateOne(
       { _id: communityID },
-      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+      { $pull: { pendingMembers: userID }, $addToSet: { members: userID } }
     ).exec();
 
     const userPromise = User.updateOne(
       { _id: userID },
       {
         $pull: { pendingCommunities: communityID },
-        $push: { joinedCommunities: communityID },
+        $addToSet: { joinedCommunities: communityID },
       }
     ).exec();
 

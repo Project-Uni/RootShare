@@ -16,6 +16,7 @@ import postRoutes from './routes/posts';
 import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
+import university from './routes/university';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -77,6 +78,7 @@ postRoutes(app);
 imageRoutes(app);
 mtgRoutes(app);
 webhooks(app);
+university(app);
 
 require('./config/setup')(passport);
 

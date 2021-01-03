@@ -5,11 +5,11 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
-  //Admin Routes
+  // Admin Routes
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
-  //General Community Actions
+  // General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -18,7 +18,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
-  //Follow Related Actions
+  // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
   rejectFollowRequest,

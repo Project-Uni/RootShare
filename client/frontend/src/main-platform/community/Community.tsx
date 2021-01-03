@@ -156,8 +156,6 @@ function CommunityDetails(props: Props) {
             private={communityInfoComplete.private}
             description={communityInfoComplete.description}
             loading={loading}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
             communityID={communityInfoComplete._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}

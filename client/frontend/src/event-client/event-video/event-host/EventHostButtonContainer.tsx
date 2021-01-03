@@ -9,8 +9,11 @@ import {
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
 
-import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
+
+import { colors } from '../../../theme/Colors';
+import { slideLeft } from '../../../helpers/functions';
+import { SnackbarMode } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -57,6 +60,12 @@ function EventHostButtonContainer(props: Props) {
   const [showManageDialog, setShowManageDialog] = useState(false);
   const [manageSpeakersDisabled, setManageSpeakersDisabled] = useState(false);
 
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
+
   function handleManageSpeakersClick() {
     setShowManageDialog(true);
   }
@@ -73,6 +82,12 @@ function EventHostButtonContainer(props: Props) {
 
   function handleManageSpeakersCancel() {
     setShowManageDialog(false);
+  }
+
+  function handleSnackbar(message: string, mode: SnackbarMode) {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+    setTransition(() => slideLeft);
   }
 
   return (
