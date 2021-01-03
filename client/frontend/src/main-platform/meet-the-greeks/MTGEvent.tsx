@@ -8,7 +8,7 @@ import ReactPlayer from 'react-player';
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
 import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
-import { RSButton } from '../reusable-components';
+import { BigButton, RSButton } from '../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -30,6 +30,13 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     color: Theme.secondaryText,
+  },
+  description: {
+    marginLeft: 30,
+  },
+  interestedButton: {
+    marginTop: 10,
+    width: 235,
   },
 }));
 
@@ -193,29 +200,8 @@ type ContentProps = {
   showVideo: boolean;
 };
 
-const useDesktopStyles = makeStyles((_: any) => ({
-  linkText: {
-    color: 'inherit',
-    textDecoration: 'none',
-    '&:visited': {
-      color: 'inherit',
-    },
-    '&:hover': {
-      textDecoration: 'underline',
-    },
-    display: 'inline-block',
-  },
-  description: {
-    marginLeft: 30,
-  },
-  interestedButton: {
-    marginTop: 10,
-    width: 235,
-  },
-}));
-
 const DesktopMTGEventContent = (props: ContentProps) => {
-  const styles = useDesktopStyles();
+  const styles = useStyles();
 
   const {
     event: {
@@ -277,10 +263,8 @@ const DesktopMTGEventContent = (props: ContentProps) => {
   );
 };
 
-const useMobileStyles = makeStyles((_: any) => ({}));
-
 const MobileMTGEventContent = (props: ContentProps) => {
-  const styles = useMobileStyles();
+  const styles = useStyles();
 
   const {
     event: {
@@ -293,5 +277,40 @@ const MobileMTGEventContent = (props: ContentProps) => {
     showVideo,
   } = props;
 
-  return <></>;
+  const [showDescription, setShowDescription] = useState(false);
+
+  return (
+    <>
+      <div
+        style={{ display: 'flex', justifyContent: 'space-between' }}
+        onClick={() => setShowDescription((prev) => !prev)}
+      >
+        <div>
+          <a href={`/community/${communityID}`} className={styles.linkText}>
+            <RSText bold>Hosted by {communityName}</RSText>
+          </a>
+          <div style={{ marginTop: 15 }}>
+            <RSText>
+              <b>Date: </b>
+              {formatDatePretty(new Date(dateTime))}
+            </RSText>
+            <RSText>
+              <b>Time: </b>
+              {formatTime(new Date(dateTime))} EST
+            </RSText>
+          </div>
+        </div>
+        <div>
+          <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
+          <RSButton onClick={onWatchVideoClick}>
+            {showVideo ? 'Hide' : 'Watch'} Video
+          </RSButton>
+        </div>
+      </div>
+      {showDescription && <RSText>{description}</RSText>}
+      <RSButton variant="secondary" className={styles.interestedButton}>
+        I'm Interested
+      </RSButton>
+    </>
+  );
 };
