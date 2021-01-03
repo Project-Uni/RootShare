@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { connect } from 'react-redux';
@@ -21,6 +21,11 @@ import {
   formatDatePretty,
   formatTime,
 } from '../../../helpers/functions';
+import { CommunityFlags } from './CommunityBody';
+
+import { EventInformationServiceResponse } from './MeetTheGreeks/EventEditor/MeetTheGreeksModal';
+import { Event } from '../../meet-the-greeks/MeetTheGreeks';
+import MTGEvent from '../../meet-the-greeks/MTGEvent';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -55,6 +60,7 @@ type Props = {
   accessToken: string;
   refreshToken: string;
   private?: boolean;
+  flags: CommunityFlags;
 };
 
 type CommunityTab =
@@ -78,6 +84,7 @@ function CommunityBodyContent(props: Props) {
   const [postingOptions, setPostingOptions] = useState<CommunityPostingOption[]>([]);
   const [posts, setPosts] = useState<JSX.Element[]>([]);
   const [members, setMembers] = useState<SearchUserType[]>([]);
+  const [mtgEvent, setMtgEvent] = useState<Event>();
 
   const [fetchErr, setFetchErr] = useState(false);
 
@@ -101,6 +108,7 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
+    if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -109,6 +117,30 @@ function CommunityBodyContent(props: Props) {
   useEffect(() => {
     updatePostingOptions();
   }, [selectedTab, props.communityProfilePicture]);
+
+  const fetchCurrentEventInformation = useCallback(async () => {
+    const { data } = await makeRequest<EventInformationServiceResponse>(
+      'GET',
+      `/api/mtg/event/${props.communityID}`
+    );
+    if (data.success === 1) {
+      const { mtgEvent: mtgEvent_raw } = data.content;
+
+      setMtgEvent({
+        _id: mtgEvent_raw._id,
+        description: mtgEvent_raw.description,
+        introVideoURL: mtgEvent_raw.introVideoURL,
+        dateTime: mtgEvent_raw.dateTime,
+        eventBanner: mtgEvent_raw.eventBanner,
+        community: {
+          _id: props.communityID,
+          profilePicture: props.communityProfilePicture,
+          name: '',
+        },
+      });
+      // setMtgEvent(data.content.mtgEvent);
+    }
+  }, []);
 
   async function fetchData() {
     if (selectedTab !== 'members') {
@@ -351,6 +383,9 @@ function CommunityBodyContent(props: Props) {
             isAdmin={props.isAdmin}
             communityProfilePicture={props.communityProfilePicture}
           />
+        )}
+        {props.flags.isMTGFlag && mtgEvent && (
+          <MTGEvent event={mtgEvent} dispatchSnackbar={() => {}} hideFullTitle />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>

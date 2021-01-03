@@ -62,7 +62,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type CommunityFlags = {
+export type CommunityFlags = {
   isMTGFlag: boolean;
 };
 
@@ -220,6 +220,7 @@ function CommunityBody(props: Props) {
             status={props.status}
             isAdmin={props.isAdmin}
             private={props.private}
+            flags={props.flags}
           />
         )}
       </div>

@@ -67,8 +67,9 @@ type MembersServiceResponse = {
   }[];
 };
 
-type EventInformationServiceResponse = {
+export type EventInformationServiceResponse = {
   mtgEvent: {
+    _id: string;
     title?: string;
     description: string;
     introVideoURL: string;
