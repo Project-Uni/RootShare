@@ -88,17 +88,6 @@ type IFormData = {
   answer3: string;
 };
 
-type IFormErrors = {
-  firstName: string;
-  lastName: string;
-  major: string;
-  graduationYear: string;
-  currInterest: string;
-  answer1: string;
-  answer2: string;
-  answer3: string;
-};
-
 const defaultFormData: IFormData = {
   firstName: 'Smitty',
   lastName: '',
@@ -140,7 +129,7 @@ function PersonalInfoModal(props: Props) {
     updateFields,
     updateErrors,
     resetForm,
-  } = useForm<IFormData, IFormErrors>(defaultFormData);
+  } = useForm<IFormData>(defaultFormData);
 
   useEffect(() => {
     if (open) {
