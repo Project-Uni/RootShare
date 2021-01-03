@@ -17,6 +17,8 @@ import BigButton from './components/RSModal/BigButton';
 
 import UserSearch from './components/UserSearch';
 
+import RSButton from './components/RSButton';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -30,4 +32,5 @@ export {
   RSModal,
   BigButton,
   UserSearch,
+  RSButton,
 };

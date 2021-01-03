@@ -9,6 +9,7 @@ import {
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
+  getMTGEvents,
 } from '../interactions/meet-the-greeks';
 
 export default function meetTheGreekRoutes(app) {
@@ -16,7 +17,8 @@ export default function meetTheGreekRoutes(app) {
     '/api/mtg/events',
     isAuthenticatedWithJWT,
     async (req: Request, res: Response) => {
-      return res.json({ test: 1, world: 'hello' });
+      const packet = await getMTGEvents();
+      return res.json(packet);
     }
   );
 
