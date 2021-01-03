@@ -1,14 +1,14 @@
 import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import { CircularProgress, Box, Slide, Avatar } from '@material-ui/core';
+import { CircularProgress, Box, Slide, Avatar, Collapse } from '@material-ui/core';
 
 import ReactPlayer from 'react-player';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
 import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
-import { BigButton, RSButton } from '../reusable-components';
+import { RSButton } from '../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -60,9 +60,7 @@ const MTGEvent = (props: Props) => {
     className,
     event: {
       _id: eventID,
-      description,
       introVideoURL,
-      dateTime,
       eventBanner,
       community: { _id: communityID, name: communityName, profilePicture },
     },
@@ -73,6 +71,7 @@ const MTGEvent = (props: Props) => {
   const [videoLoading, setVideoLoading] = useState(false);
 
   const isDesktop = useRef(checkDesktop());
+  const maxVideoHeight = useRef(isDesktop.current ? 400 : 300);
 
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageDivHeight, setImageDivHeight] = useState(300);
@@ -131,7 +130,7 @@ const MTGEvent = (props: Props) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: showVideo ? 400 : imageDivHeight,
+          height: showVideo ? maxVideoHeight.current : imageDivHeight,
         }}
       >
         {showVideo && (
@@ -151,7 +150,7 @@ const MTGEvent = (props: Props) => {
               <ReactPlayer
                 url={introVideoURL}
                 controls={true}
-                height={400}
+                height={maxVideoHeight.current}
                 onReady={() => setVideoLoading(false)}
                 style={{ display: videoLoading ? 'none' : 'block' }}
                 onError={() => {
@@ -331,9 +330,9 @@ const MobileMTGEventContent = (props: ContentProps) => {
           </RSButton>
         </div>
       </div>
-      {showDescription && (
+      <Collapse in={showDescription}>
         <RSText className={styles.mobileDesc}>{description}</RSText>
-      )}
+      </Collapse>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
         <RSButton variant="secondary" className={styles.interestedButton}>
           I'm Interested
