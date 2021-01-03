@@ -20,12 +20,14 @@ import {
   makeRequest,
   formatDatePretty,
   formatTime,
+  slideLeft,
 } from '../../../helpers/functions';
 import { CommunityFlags } from './CommunityBody';
 
 import { EventInformationServiceResponse } from './MeetTheGreeks/EventEditor/MeetTheGreeksModal';
 import { Event } from '../../meet-the-greeks/MeetTheGreeks';
 import MTGEvent from '../../meet-the-greeks/MTGEvent';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -46,6 +48,10 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 5,
     marginRight: 5,
   },
+  mtgEvent: {
+    marginLeft: 8,
+    marginRight: 8,
+  },
 }));
 
 type Props = {
@@ -61,6 +67,7 @@ type Props = {
   refreshToken: string;
   private?: boolean;
   flags: CommunityFlags;
+  communityName: string;
 };
 
 type CommunityTab =
@@ -106,11 +113,39 @@ function CommunityBodyContent(props: Props) {
     }
   }
 
+  //Snackbar
+  const [transition, setTransition] = useState<any>(() => slideLeft);
+  const [snackbarMode, setSnackbarMode] = useState<
+    'notify' | 'success' | 'error' | null
+  >(null);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const dispatchSnackbar = (mode: typeof snackbarMode, message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+  };
+
+  useEffect(() => {
+    if (props.communityProfilePicture && !loading && mtgEvent) {
+      setMtgEvent((prev) => {
+        return Object.assign({}, prev, {
+          community: {
+            _id: prev!.community._id,
+            name: prev!.community.name,
+            profilePicture: props.communityProfilePicture,
+          },
+        });
+      });
+    }
+  }, [props.communityProfilePicture, loading]);
+
   useEffect(() => {
     setLoading(true);
     if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
-      setLoading(false);
+      if (selectedTab === 'external')
+        fetchCurrentEventInformation().then(() => setLoading(false));
+      else setLoading(false);
     });
   }, [selectedTab]);
 
@@ -135,10 +170,9 @@ function CommunityBodyContent(props: Props) {
         community: {
           _id: props.communityID,
           profilePicture: props.communityProfilePicture,
-          name: '',
+          name: props.communityName,
         },
       });
-      // setMtgEvent(data.content.mtgEvent);
     }
   }, []);
 
@@ -385,7 +419,11 @@ function CommunityBodyContent(props: Props) {
           />
         )}
         {props.flags.isMTGFlag && mtgEvent && (
-          <MTGEvent event={mtgEvent} dispatchSnackbar={() => {}} hideFullTitle />
+          <MTGEvent
+            event={mtgEvent}
+            dispatchSnackbar={dispatchSnackbar}
+            className={styles.mtgEvent}
+          />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>
@@ -417,6 +455,12 @@ function CommunityBodyContent(props: Props) {
         background: loading || posts.length === 0 ? 'inherit' : colors.background,
       }}
     >
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <RSTabs
         tabs={tabs}
         selected={selectedTab}

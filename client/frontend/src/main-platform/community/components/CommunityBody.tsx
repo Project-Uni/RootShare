@@ -221,6 +221,7 @@ function CommunityBody(props: Props) {
             isAdmin={props.isAdmin}
             private={props.private}
             flags={props.flags}
+            communityName={props.name}
           />
         )}
       </div>

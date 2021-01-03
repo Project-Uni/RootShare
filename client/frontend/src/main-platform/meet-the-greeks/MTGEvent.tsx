@@ -51,7 +51,6 @@ type Props = {
   className?: string;
   event: Event;
   dispatchSnackbar: (mode: 'success' | 'notify' | 'error', message: string) => void;
-  hideFullTitle?: boolean;
 };
 
 const MTGEvent = (props: Props) => {
@@ -65,7 +64,6 @@ const MTGEvent = (props: Props) => {
       eventBanner,
       community: { _id: communityID, name: communityName, profilePicture },
     },
-    hideFullTitle,
     dispatchSnackbar,
   } = props;
 
@@ -123,7 +121,7 @@ const MTGEvent = (props: Props) => {
             size={isDesktop.current ? 14 : 12}
             type="head"
             bold
-          >{`Meet The Greeks${!hideFullTitle ? ` - ${communityName}` : ''}`}</RSText>
+          >{`Meet The Greeks - ${communityName}`}</RSText>
         </a>
       </div>
       <div
