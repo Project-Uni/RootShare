@@ -7,7 +7,7 @@ import ReactPlayer from 'react-player';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
-import { formatDatePretty, formatTime } from '../../helpers/functions';
+import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
 import { RSButton } from '../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
@@ -28,19 +28,8 @@ const useStyles = makeStyles((_: any) => ({
     },
     display: 'inline-block',
   },
-  banner: {
-    maxHeight: 300,
-    objectFit: 'contain',
-  },
-  description: {
-    marginLeft: 30,
-  },
   loadingIndicator: {
     color: Theme.secondaryText,
-  },
-  interestedButton: {
-    marginTop: 10,
-    width: 235,
   },
 }));
 
@@ -50,7 +39,7 @@ type Props = {
   dispatchSnackbar: (mode: 'success' | 'notify' | 'error', message: string) => void;
 };
 
-function MTGEvent(props: Props) {
+const MTGEvent = (props: Props) => {
   const styles = useStyles();
 
   const {
@@ -69,6 +58,8 @@ function MTGEvent(props: Props) {
   const [showVideo, setShowVideo] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
 
+  const isDesktop = useRef(checkDesktop());
+
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageDivHeight, setImageDivHeight] = useState(300);
 
@@ -84,7 +75,7 @@ function MTGEvent(props: Props) {
     if (imageRef.current) setImageDivHeight(imageRef.current.clientHeight);
   };
 
-  const enterEvent = () => {
+  const onEnterEvent = () => {
     window.open(`/event/${eventID}`);
   };
 
@@ -114,7 +105,7 @@ function MTGEvent(props: Props) {
         </a>
         <a href={`/community/${communityID}`} className={styles.linkText}>
           <RSText
-            size={14}
+            size={isDesktop.current ? 14 : 12}
             type="head"
             bold
           >{`Meet The Greeks - ${communityName}`}</RSText>
@@ -163,13 +154,82 @@ function MTGEvent(props: Props) {
             <img
               src={eventBanner}
               alt={`${communityName} Event Banner`}
-              className={styles.banner}
+              style={{
+                maxHeight: isDesktop.current ? 300 : undefined,
+                maxWidth: !isDesktop.current ? '100%' : undefined,
+                objectFit: 'contain',
+              }}
               ref={imageRef}
               onLoad={onImageLoaded}
             />
           </Slide>
         )}
       </div>
+      {isDesktop.current ? (
+        <DesktopMTGEventContent
+          event={props.event}
+          onEnterEvent={onEnterEvent}
+          onWatchVideoClick={onWatchVideoClick}
+          showVideo={showVideo}
+        />
+      ) : (
+        <MobileMTGEventContent
+          event={props.event}
+          onEnterEvent={onEnterEvent}
+          onWatchVideoClick={onWatchVideoClick}
+          showVideo={showVideo}
+        />
+      )}
+    </Box>
+  );
+};
+
+export default MTGEvent;
+
+type ContentProps = {
+  event: Event;
+  onEnterEvent: () => void;
+  onWatchVideoClick: () => void;
+  showVideo: boolean;
+};
+
+const useDesktopStyles = makeStyles((_: any) => ({
+  linkText: {
+    color: 'inherit',
+    textDecoration: 'none',
+    '&:visited': {
+      color: 'inherit',
+    },
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+    display: 'inline-block',
+  },
+  description: {
+    marginLeft: 30,
+  },
+  interestedButton: {
+    marginTop: 10,
+    width: 235,
+  },
+}));
+
+const DesktopMTGEventContent = (props: ContentProps) => {
+  const styles = useDesktopStyles();
+
+  const {
+    event: {
+      description,
+      dateTime,
+      community: { _id: communityID, name: communityName },
+    },
+    onEnterEvent,
+    onWatchVideoClick,
+    showVideo,
+  } = props;
+
+  return (
+    <>
       <div
         style={{
           margin: '10px 15px',
@@ -202,7 +262,7 @@ function MTGEvent(props: Props) {
             {formatTime(new Date(dateTime))} EST
           </RSText>
           <div style={{ display: 'flex', marginTop: 15 }}>
-            <RSButton onClick={enterEvent}>Enter Event</RSButton>
+            <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
             <span style={{ width: 15 }}></span>
             <RSButton onClick={onWatchVideoClick}>
               {showVideo ? 'Hide' : 'Watch'} Video
@@ -213,8 +273,25 @@ function MTGEvent(props: Props) {
           </RSButton>
         </div>
       </div>
-    </Box>
+    </>
   );
-}
+};
 
-export default MTGEvent;
+const useMobileStyles = makeStyles((_: any) => ({}));
+
+const MobileMTGEventContent = (props: ContentProps) => {
+  const styles = useMobileStyles();
+
+  const {
+    event: {
+      description,
+      dateTime,
+      community: { _id: communityID, name: communityName },
+    },
+    onEnterEvent,
+    onWatchVideoClick,
+    showVideo,
+  } = props;
+
+  return <></>;
+};
