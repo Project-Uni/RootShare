@@ -36,7 +36,7 @@ type Props = {
   leftElement?: JSX.Element;
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
-  showRightElementWidth?: JSX.Element;
+  showRightElementWidth?: Number;
   selectedTab?: AVAILABLE_TABS;
 };
 
