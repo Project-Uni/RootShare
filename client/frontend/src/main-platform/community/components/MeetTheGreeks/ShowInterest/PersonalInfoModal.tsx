@@ -11,14 +11,14 @@ import {
   FormControl,
   IconButton,
 } from '@material-ui/core';
-import { RiMessage2Line } from 'react-icons/ri';
 
 import { BigButton, RSModal } from '../../../../reusable-components';
 import RSText from '../../../../../base-components/RSText';
+import ProfilePicture from '../../../../../base-components/ProfilePicture';
 
 import { colors } from '../../../../../theme/Colors';
 import { makeRequest } from '../../../../../helpers/functions';
-import { SnackbarMode } from '../../../../../helpers/types';
+import { SnackbarMode, UserType } from '../../../../../helpers/types';
 import { useForm } from '../../../../../helpers/hooks';
 import { ENTER_KEYCODE } from '../../../../../helpers/constants';
 
@@ -105,8 +105,7 @@ type Props = {
   handleSnackbar: (message: string, mode: SnackbarMode) => void;
   onClose: () => any;
 
-  accessToken: string;
-  refreshToken: string;
+  user: UserType;
 };
 
 function PersonalInfoModal(props: Props) {
@@ -348,7 +347,16 @@ function PersonalInfoModal(props: Props) {
         helperText={
           'Update your personal information and answer some quick questions to help the organization get to know you better'
         }
-        helperIcon={<RiMessage2Line size={60} />}
+        helperIcon={
+          <ProfilePicture
+            type="profile"
+            height={140}
+            width={140}
+            borderRadius={140}
+            currentPicture={props.user.profilePicture}
+            editable
+          />
+        }
         serverErr={serverErr}
       >
         <div className={styles.contentWrapper}>
@@ -361,8 +369,7 @@ function PersonalInfoModal(props: Props) {
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
+    user: state.user,
   };
 };
 
