@@ -26,7 +26,7 @@ type Props = {
   disabled?: boolean;
   variant?: 'primary' | 'secondary';
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
 const RSButton = (props: Props) => {

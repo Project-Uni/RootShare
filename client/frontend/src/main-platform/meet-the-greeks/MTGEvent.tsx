@@ -38,6 +38,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     width: 235,
   },
+  mobileButton: {
+    marginBottom: 10,
+  },
+  mobileDesc: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
 }));
 
 type Props = {
@@ -280,12 +287,9 @@ const MobileMTGEventContent = (props: ContentProps) => {
   const [showDescription, setShowDescription] = useState(false);
 
   return (
-    <>
-      <div
-        style={{ display: 'flex', justifyContent: 'space-between' }}
-        onClick={() => setShowDescription((prev) => !prev)}
-      >
-        <div>
+    <div onClick={() => setShowDescription((prev) => !prev)} style={{ margin: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ flexGrow: 1 }}>
           <a href={`/community/${communityID}`} className={styles.linkText}>
             <RSText bold>Hosted by {communityName}</RSText>
           </a>
@@ -300,17 +304,41 @@ const MobileMTGEventContent = (props: ContentProps) => {
             </RSText>
           </div>
         </div>
-        <div>
-          <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
-          <RSButton onClick={onWatchVideoClick}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            flexDirection: 'column',
+            width: 150,
+          }}
+        >
+          <RSButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onEnterEvent();
+            }}
+            className={styles.mobileButton}
+          >
+            Enter Event
+          </RSButton>
+          <RSButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onWatchVideoClick();
+            }}
+          >
             {showVideo ? 'Hide' : 'Watch'} Video
           </RSButton>
         </div>
       </div>
-      {showDescription && <RSText>{description}</RSText>}
-      <RSButton variant="secondary" className={styles.interestedButton}>
-        I'm Interested
-      </RSButton>
-    </>
+      {showDescription && (
+        <RSText className={styles.mobileDesc}>{description}</RSText>
+      )}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+        <RSButton variant="secondary" className={styles.interestedButton}>
+          I'm Interested
+        </RSButton>
+      </div>
+    </div>
   );
 };
