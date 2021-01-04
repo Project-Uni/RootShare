@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Avatar, CircularProgress } from '@material-ui/core';
+import { Avatar, CircularProgress, Slide, Grow, Fade } from '@material-ui/core';
 import { FaNetworkWired } from 'react-icons/fa';
 
 import { CSVDownload } from 'react-csv';
@@ -44,7 +44,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   linkText: {
     '&:hover': {
-      // textDecoration: 'underline',
       cursor: 'pointer',
     },
   },
@@ -222,53 +221,57 @@ function MTGInterestedUsersModal(props: Props) {
           <CircularProgress size={60} className={styles.loadingIndicator} />
         </div>
       ) : (
-        <div style={{ marginLeft: 15, marginRight: 15, marginTop: 25 }}>
-          {interestedUsers.map((user) => (
-            <SingleUser user={user} />
-          ))}
-          <BigButton label="Download CSV" onClick={onDownloadCSVClicked} />
-        </div>
+        <Slide in={stage === 'all'} direction="up">
+          <div style={{ marginLeft: 15, marginRight: 15, marginTop: 25 }}>
+            {interestedUsers.map((user) => (
+              <SingleUser user={user} />
+            ))}
+            <BigButton label="Download CSV" onClick={onDownloadCSVClicked} />
+          </div>
+        </Slide>
       )}
     </>
   );
 
   const specificUserStage = () => (
-    <div
-      style={{ marginLeft: 15, marginRight: 15, marginTop: 15, marginBottom: 15 }}
-    >
-      {selectedUser && (
-        <>
-          <RSText bold size={13}>
-            {selectedUser.firstName} {selectedUser.lastName}
-          </RSText>
-          <RSText color={theme.secondaryText}>
-            {selectedUser.major} | {selectedUser.graduationYear}
-          </RSText>
-          <RSText bold className={styles.communication}>
-            Communication:
-          </RSText>
-          <RSText>{selectedUser.email}</RSText>
-          <RSText>{formatPhoneNumber(selectedUser.phoneNumber)}</RSText>
+    <Slide in={stage === 'specific'} mountOnEnter unmountOnExit direction="left">
+      <div
+        style={{ marginLeft: 15, marginRight: 15, marginTop: 15, marginBottom: 15 }}
+      >
+        {selectedUser && (
+          <>
+            <RSText bold size={13}>
+              {selectedUser.firstName} {selectedUser.lastName}
+            </RSText>
+            <RSText color={theme.secondaryText}>
+              {selectedUser.major} | {selectedUser.graduationYear}
+            </RSText>
+            <RSText bold className={styles.communication}>
+              Communication:
+            </RSText>
+            <RSText>{selectedUser.email}</RSText>
+            <RSText>{formatPhoneNumber(selectedUser.phoneNumber)}</RSText>
 
-          <div
-            style={{
-              borderTop: `2px solid ${theme.disabledButton}`,
-              marginTop: 15,
-              marginBottom: 15,
-            }}
-          />
+            <div
+              style={{
+                borderTop: `2px solid ${theme.disabledButton}`,
+                marginTop: 15,
+                marginBottom: 15,
+              }}
+            />
 
-          {Object.keys(selectedUser.answers).map((prompt) => (
-            <div style={{ marginBottom: 10 }}>
-              <RSText bold className={styles.prompt}>
-                {prompt}
-              </RSText>
-              <RSText>{selectedUser.answers[prompt]}</RSText>
-            </div>
-          ))}
-        </>
-      )}
-    </div>
+            {Object.keys(selectedUser.answers).map((prompt) => (
+              <div style={{ marginBottom: 10 }}>
+                <RSText bold className={styles.prompt}>
+                  {prompt}
+                </RSText>
+                <RSText>{selectedUser.answers[prompt]}</RSText>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </Slide>
   );
 
   const chooseStage = () => {
@@ -314,18 +317,22 @@ function MTGInterestedUsersModal(props: Props) {
         }
         helperIcon={
           selectedUser ? (
-            <a href={`/profile/${selectedUser._id}`}>
-              <Avatar
-                src={selectedUser.profilePicture}
-                style={{
-                  height: 125,
-                  width: 125,
-                  border: `1px solid ${theme.primary}`,
-                }}
-              />
-            </a>
+            <Fade in={stage === 'specific'} mountOnEnter unmountOnExit>
+              <a href={`/profile/${selectedUser._id}`}>
+                <Avatar
+                  src={selectedUser.profilePicture}
+                  style={{
+                    height: 125,
+                    width: 125,
+                    border: `1px solid ${theme.primary}`,
+                  }}
+                />
+              </a>
+            </Fade>
           ) : (
-            <FaNetworkWired size={80} />
+            <Grow in={stage === 'all'}>
+              <FaNetworkWired size={80} />
+            </Grow>
           )
         }
         onBackArrow={getBackArrowFunction()}
