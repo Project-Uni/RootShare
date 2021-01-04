@@ -5,7 +5,7 @@ var MeetTheGreekInterestchema = new Schema(
   {
     user: { type: Schema.ObjectId, ref: 'users' },
     community: { type: Schema.ObjectId, ref: 'communities' },
-    answers: [{ type: String }],
+    answers: { type: String },
   },
   { timestamps: true }
 );

@@ -84,12 +84,15 @@ export default function meetTheGreekRoutes(app) {
   );
 
   app.put(
-    '/api/mtg/updateInterestAnswers/:communityID',
+    '/api/mtg/interested/:communityID',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
       const { answers } = req.body;
+
+      if (!answers)
+        return res.json(sendPacket(-1, 'answers missing from request body'));
 
       res.json(await updateInterestAnswers(userID, communityID, answers));
     }

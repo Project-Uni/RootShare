@@ -74,7 +74,11 @@ type UserInfoServiceResponse = {
 };
 
 type AnswersServiceResponse = {
-  answers: string[];
+  answers: {
+    q1?: string;
+    q2?: string;
+    q3?: string;
+  };
 };
 
 type IFormData = {
@@ -83,9 +87,9 @@ type IFormData = {
   major: string;
   graduationYear: number;
   currInterest: string;
-  answer1: string;
-  answer2: string;
-  answer3: string;
+  q1: string;
+  q2: string;
+  q3: string;
 };
 
 const defaultFormData: IFormData = {
@@ -94,9 +98,9 @@ const defaultFormData: IFormData = {
   major: '',
   graduationYear: 2024,
   currInterest: '',
-  answer1: '',
-  answer2: '',
-  answer3: '',
+  q1: '',
+  q2: '',
+  q3: '',
 };
 
 type Props = {
@@ -124,7 +128,6 @@ function PersonalInfoModal(props: Props) {
     formFields,
     formErrors,
     handleChange,
-    handleDateChange,
     updateFields,
     updateErrors,
     resetForm,
@@ -164,9 +167,9 @@ function PersonalInfoModal(props: Props) {
         { key: 'lastName', value: userInfo.lastName },
         { key: 'major', value: userInfo.major },
         { key: 'graduationYear', value: userInfo.graduationYear },
-        { key: 'answer1', value: answers[0] },
-        { key: 'answer2', value: answers[1] },
-        { key: 'answer3', value: answers[2] },
+        { key: 'q1', value: answers.q1 || '' },
+        { key: 'q2', value: answers.q2 || '' },
+        { key: 'q3', value: answers.q3 || '' },
       ]);
 
       setInterests(userInfo.interests);
@@ -185,10 +188,18 @@ function PersonalInfoModal(props: Props) {
       interests,
     });
 
+    const questionRegex = new RegExp(/^q[0-9]/);
+    const questionResponses = Object.keys(formFields)
+      .filter((k) => questionRegex.test(k))
+      .reduce((filteredData: { [key: string]: string }, k: string) => {
+        filteredData[k] = formFields[k as keyof IFormData] as string;
+        return filteredData;
+      }, {});
+
     const interestPromise = makeRequest(
       'PUT',
-      `/api/mtg/updateInterestAnswers/${communityID}`,
-      { answers: [formFields.answer1, formFields.answer2, formFields.answer3] }
+      `/api/mtg/interested/${communityID}`,
+      { answers: JSON.stringify(questionResponses) }
     );
 
     Promise.all([userInfoPromise, interestPromise]).then(
@@ -301,8 +312,8 @@ function PersonalInfoModal(props: Props) {
 
         <TextField
           className={styles.inputs}
-          value={formFields.answer1}
-          onChange={handleChange('answer1')}
+          value={formFields.q1}
+          onChange={handleChange('q1')}
           fullWidth
           variant="outlined"
           label="[Question 1]"
@@ -311,8 +322,8 @@ function PersonalInfoModal(props: Props) {
         />
         <TextField
           className={styles.inputs}
-          value={formFields.answer2}
-          onChange={handleChange('answer2')}
+          value={formFields.q2}
+          onChange={handleChange('q2')}
           fullWidth
           variant="outlined"
           label="[Question 2]"
@@ -321,8 +332,8 @@ function PersonalInfoModal(props: Props) {
         />
         <TextField
           className={styles.inputs}
-          value={formFields.answer3}
-          onChange={handleChange('answer3')}
+          value={formFields.q3}
+          onChange={handleChange('q3')}
           fullWidth
           variant="outlined"
           label="[Question 3]"

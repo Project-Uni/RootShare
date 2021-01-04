@@ -193,7 +193,12 @@ export async function getInterestAnswers(userID: string, communityID: string) {
         updatedAt: -1,
       }));
 
-    const answers = interest ? interest.answers : ['', '', ''];
+    let answers;
+    try {
+      answers = interest ? JSON.parse(interest.answers) : {};
+    } catch (err) {
+      answers = {};
+    }
     return sendPacket(1, 'Sending Interest', { answers });
   } catch (err) {
     log('error', err.message);
@@ -204,18 +209,18 @@ export async function getInterestAnswers(userID: string, communityID: string) {
 export async function updateInterestAnswers(
   userID: string,
   communityID: string,
-  answers: string[]
+  answers: string
 ) {
   try {
     const userPromise = User.exists({ _id: userID });
     const communityPromise = Community.exists({ _id: communityID });
 
     return Promise.all([userPromise, communityPromise]).then(
-      ([userExists, communityExists]) => {
+      async ([userExists, communityExists]) => {
         if (!userExists) return sendPacket(0, `User doesn't exist`);
         if (!communityExists) return sendPacket(0, `Community doesn't exist`);
 
-        MeetTheGreekInterest.updateOne(
+        await MeetTheGreekInterest.updateOne(
           { user: userID, community: communityID },
           { $set: { answers } },
           { upsert: true }
