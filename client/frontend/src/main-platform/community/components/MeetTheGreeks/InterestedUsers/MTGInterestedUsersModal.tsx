@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, CircularProgress } from '@material-ui/core';
-
 import { FaNetworkWired } from 'react-icons/fa';
+
+import { CSVDownload } from 'react-csv';
 
 import theme from '../../../../../theme/Theme';
 
@@ -56,11 +57,11 @@ type InterestedUser = {
   firstName: string;
   lastName: string;
   email: string;
-  profilePicture: string;
+  profilePicture?: string;
   phoneNumber: string;
   graduationYear: number;
   major: string;
-  answers: string;
+  [key: string]: any; //This is for questions
 };
 
 type Stage = 'all' | 'specific';
@@ -84,6 +85,8 @@ function MTGInterestedUsersModal(props: Props) {
   const [interestedUsers, setInterestedUsers] = useState<InterestedUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<InterestedUser>();
 
+  const [performCSVDownload, setPerformCSVDownload] = useState(false);
+
   useEffect(() => {
     if (selectedUser) setStage('specific');
     else setStage('all');
@@ -102,7 +105,14 @@ function MTGInterestedUsersModal(props: Props) {
       `/api/mtg/interested/${communityID}`
     );
     if (data.success === 1) {
-      setInterestedUsers(data.content.users);
+      setInterestedUsers(
+        data.content.users.map((user) => {
+          let answers = JSON.parse(user.answers);
+          let formattedData = Object.assign({}, user, answers);
+          delete formattedData.answers;
+          return formattedData;
+        })
+      );
     } else {
       setSnackbarMessage('There was an error getting the list of interested users');
       setSnackbarMode('error');
@@ -112,6 +122,33 @@ function MTGInterestedUsersModal(props: Props) {
   const onUserClick = (user: InterestedUser) => {
     setSelectedUser(user);
   };
+
+  const onDownloadCSVClicked = () => {
+    setPerformCSVDownload(true);
+    setTimeout(() => {
+      setPerformCSVDownload(false);
+    }, 300);
+  };
+
+  const CSVHandler = useCallback(() => {
+    const csvData = interestedUsers.map((user) => {
+      const formattedData = Object.assign({}, user);
+      delete formattedData.profilePicture;
+      return formattedData;
+    });
+
+    return (
+      <>
+        {performCSVDownload && (
+          <CSVDownload
+            data={csvData}
+            target="_blank"
+            filename={`${communityName}-interested-users.csv`}
+          />
+        )}
+      </>
+    );
+  }, [interestedUsers, performCSVDownload]);
 
   const SingleUser = ({ user }: { user: InterestedUser }) => {
     return (
@@ -181,7 +218,7 @@ function MTGInterestedUsersModal(props: Props) {
           {interestedUsers.map((user) => (
             <SingleUser user={user} />
           ))}
-          <BigButton label="Download CSV" onClick={() => {}} />
+          <BigButton label="Download CSV" onClick={onDownloadCSVClicked} />
         </div>
       )}
     </>
@@ -232,6 +269,7 @@ function MTGInterestedUsersModal(props: Props) {
       >
         {chooseStage()}
       </RSModal>
+      <CSVHandler />
     </>
   );
 }
