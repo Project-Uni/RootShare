@@ -20,12 +20,6 @@ import { addProfilePicturesAll } from './utilities';
 
 import sendEmail from '../helpers/functions/sendEmail';
 
-const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
-let ses = new aws.SES({
-  apiVersion: '2010-12-01',
-});
-
 export async function createMTGEvent(
   communityID: string,
   description: string,
