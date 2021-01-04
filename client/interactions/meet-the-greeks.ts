@@ -48,6 +48,7 @@ export async function createMTGEvent(
         event.dateTime = eventTime;
         event.speakers = speakers;
         event.host = speakers[0];
+        event.isDev = process.env.NODE_ENV === 'dev';
         await event.save();
       }
       //Creating new event
@@ -270,10 +271,8 @@ export async function updateInterestAnswers(
   }
 }
 export async function getMTGEvents() {
-  const condition =
-    process.env.NODE_ENV === 'dev'
-      ? { isDev: { $eq: true } }
-      : { isDev: { $exists: false } };
+  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
+
   try {
     const events = await MeetTheGreekEvent.find(condition, [
       'description',
