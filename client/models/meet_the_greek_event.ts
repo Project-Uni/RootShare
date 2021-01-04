@@ -26,7 +26,7 @@ var MeetTheGreekEventSchema = new Schema(
   { timestamps: true }
 );
 
-mongoose.model('meet_the_greek_event', MeetTheGreekEventSchema);
-const MeetTheGreekEvent = mongoose.model('meet_the_greek_event');
+mongoose.model('meet_the_greek_events', MeetTheGreekEventSchema);
+const MeetTheGreekEvent = mongoose.model('meet_the_greek_events');
 
 export default MeetTheGreekEvent;

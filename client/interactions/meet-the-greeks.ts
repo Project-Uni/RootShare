@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 import {
   decodeBase64Image,
   log,
@@ -6,7 +8,13 @@ import {
   uploadFile,
 } from '../helpers/functions';
 import { sendSMS } from '../helpers/functions/twilio';
-import { MeetTheGreekEvent, Conversation, User } from '../models';
+import {
+  MeetTheGreekEvent,
+  Conversation,
+  User,
+  Community,
+  MeetTheGreekInterest,
+} from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
@@ -149,6 +157,84 @@ export async function sendMTGCommunications(
   return sendPacket(1, 'Test was successfull');
 }
 
+export async function updateUserInfo(userID, userInfo, callback) {
+  try {
+    let updateObj = {};
+    if (userInfo.firstName) updateObj['firstName'] = userInfo.firstName;
+    if (userInfo.lastName) updateObj['lastName'] = userInfo.lastName;
+    if (userInfo.major) updateObj['major'] = userInfo.major;
+    if (userInfo.graduationYear)
+      updateObj['graduationYear'] = userInfo.graduationYear;
+    if (userInfo.phoneNumber) updateObj['phoneNumber'] = userInfo.phoneNumber;
+    if (userInfo.interests) updateObj['interests'] = userInfo.interests;
+
+    const userUpdate = await User.updateOne(
+      { _id: userID },
+      { $set: updateObj }
+    ).exec();
+
+    if (userUpdate.nModified !== 1)
+      return callback(sendPacket(-1, 'Failed to update user information'));
+
+    return callback(sendPacket(1, 'Successfully updated User information.'));
+  } catch (err) {
+    log('error', err.message);
+    return callback(sendPacket(-1, err.message));
+  }
+}
+
+export async function getInterestAnswers(userID: string, communityID: string) {
+  try {
+    // Checks first for matching interest to update or get latest interest submitted by User
+    let interest =
+      (await MeetTheGreekInterest.findOne({ user: userID, community: communityID }, [
+        'answers',
+      ])) ||
+      (await MeetTheGreekInterest.findOne({ user: userID }, ['answers']).sort({
+        updatedAt: -1,
+      }));
+
+    let answers;
+    try {
+      answers = interest ? JSON.parse(interest.answers) : {};
+    } catch (err) {
+      answers = {};
+    }
+    return sendPacket(1, 'Sending Interest', { answers });
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+}
+
+export async function updateInterestAnswers(
+  userID: string,
+  communityID: string,
+  answers: string
+) {
+  try {
+    const userPromise = User.exists({ _id: userID });
+    const communityPromise = Community.exists({ _id: communityID });
+
+    return Promise.all([userPromise, communityPromise]).then(
+      async ([userExists, communityExists]) => {
+        if (!userExists) return sendPacket(0, `User doesn't exist`);
+        if (!communityExists) return sendPacket(0, `Community doesn't exist`);
+
+        await MeetTheGreekInterest.updateOne(
+          { user: userID, community: communityID },
+          { $set: { answers } },
+          { upsert: true }
+        ).exec();
+
+        return sendPacket(1, 'Updated Interest for Community');
+      }
+    );
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+}
 export async function getMTGEvents() {
   const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
   try {
@@ -184,3 +270,29 @@ export async function getMTGEvents() {
     return sendPacket(-1, err.message);
   }
 }
+
+// export function interestedToggle(communityID, userID, interested, callback) {
+//   Community.exists({ _id: communityID, isMTGFlag: true }, (err, exists) => {
+//     if (err) return callback(sendPacket(-1, err));
+//     if (!exists) return callback(sendPacket(0, 'Community does not exist'));
+
+//     User.exists({ _id: userID }, (err, exists) => {
+//       if (err) return callback(sendPacket(-1, err));
+//       if (!exists) return callback(sendPacket(0, 'User does not exist'));
+
+//       if (interested) {
+//         Community.updateOne(
+//           { _id: communityID },
+//           { $addToSet: { interestedUsers: userID } }
+//         ).exec();
+//         callback(sendPacket(1, 'Added Interest', { interested: true }));
+//       } else {
+//         Community.updateOne(
+//           { _id: communityID },
+//           { $pull: { interestedUsers: userID } }
+//         ).exec();
+//         callback(sendPacket(1, 'Removed Interest', { interested: false }));
+//       }
+//     });
+//   });
+// }

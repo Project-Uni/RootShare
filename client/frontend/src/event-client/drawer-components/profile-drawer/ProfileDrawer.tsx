@@ -109,22 +109,6 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-const PurdueColleges = [
-  'College of Agriculture',
-  'College of Education',
-  'College of Engineering',
-  'Exploratory Studies',
-  'College of Health and Human Sciences',
-  'College of Liberal Arts',
-  'Krannert School of Management',
-  'College of Pharmacy',
-  'Purdue Polytechnic Institute',
-  'College of Science',
-  'College of Veterinary Medicine',
-  'Honors College',
-  'The Graduate School',
-];
-
 type Props = {
   user: { [key: string]: any };
   accessToken: string;
@@ -173,6 +157,8 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  const [universityDepartments, setUniversityDepartments] = useState<string[]>([]);
+
   //TODO: Keep as is for now. Will update to show error in the future
   const [fetchingErr, setFetchingErr] = useState(false);
   const [updateErr, setUpdateErr] = useState(false);
@@ -186,19 +172,22 @@ function ProfileDrawer(props: Props) {
 
   useEffect(() => {
     getProfile();
+    getDepartments();
   }, []);
 
   async function getProfile() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/user/profile/user',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/user/profile/user');
 
+    console.log(data);
     if (data['success'] === 1) setOriginalUserInfo(data['content']['user']);
+    else setFetchingErr(true);
+  }
+
+  async function getDepartments() {
+    const { data } = await makeRequest('GET', '/api/university/departments');
+
+    if (data['success'] === 1)
+      setUniversityDepartments(data['content']['departments']);
     else setFetchingErr(true);
   }
 
@@ -211,8 +200,8 @@ function ProfileDrawer(props: Props) {
     setOriginalCurrentRole(user.position);
     setOriginalCollege(user.university as UniversityType);
     setOriginalCollegeOf(user.department);
-    setOriginalInterests(user.interests.join(','));
-    setOriginalOrganizations(user.organizations.join(','));
+    setOriginalInterests(user.interests.join(', '));
+    setOriginalOrganizations(user.organizations.join(', '));
     setOriginalGraduateDegree(user.graduateSchool);
     setOriginalPhoneNumber(user.phoneNumber);
     setOriginalDiscoveryMethod(user.discoveryMethod);
@@ -245,8 +234,8 @@ function ProfileDrawer(props: Props) {
         position: updatedCurrentRole,
         university: updatedCollege?._id,
         department: updatedCollegeOf,
-        interests: updatedInterests.split(','),
-        organizations: updatedOrganizations.split(','),
+        interests: updatedInterests.split(', '),
+        organizations: updatedOrganizations.split(', '),
         graduateSchool: updatedGraduateDegree,
         phoneNumber: updatedPhoneNumber,
         discoveryMethod: updatedDiscoveryMethod,
@@ -527,7 +516,7 @@ function ProfileDrawer(props: Props) {
           onChange={handleCollegeOfChange}
           label="College"
         >
-          {PurdueColleges.map((singleCollege) => (
+          {universityDepartments.map((singleCollege) => (
             <MenuItem value={singleCollege}>{singleCollege}</MenuItem>
           ))}
         </Select>

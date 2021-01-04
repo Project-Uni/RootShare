@@ -11,7 +11,7 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
@@ -77,17 +77,10 @@ type Props = {
   numMutual: number;
   numPending: number;
   numFollowRequests: number;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   private?: boolean;
   loading?: boolean;
-  accessToken: string;
-  refreshToken: string;
+
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
@@ -195,8 +188,6 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
               flags={props.flags}

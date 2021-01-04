@@ -9,6 +9,9 @@ import {
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
+  updateUserInfo,
+  getInterestAnswers,
+  updateInterestAnswers,
   getMTGEvents,
 } from '../interactions/meet-the-greeks';
 
@@ -31,6 +34,18 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.get(
+    '/api/mtg/interestAnswers/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+
+      return res.json(await getInterestAnswers(userID, communityID));
+    }
+  );
+
   app.post(
     '/api/mtg/update/:communityID',
     isAuthenticatedWithJWT,
@@ -69,6 +84,21 @@ export default function meetTheGreekRoutes(app) {
   );
 
   app.put(
+    '/api/mtg/interested/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const userID = req.user._id;
+      const { answers } = req.body;
+
+      if (!answers)
+        return res.json(sendPacket(-1, 'answers missing from request body'));
+
+      res.json(await updateInterestAnswers(userID, communityID, answers));
+    }
+  );
+
+  app.put(
     '/api/mtg/banner/:communityID',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
@@ -81,15 +111,7 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
-  app.put(
-    '/api/mtg/interested/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res: Response) => {
-      const userID = req.user._id;
-      const { questions } = req.body;
-      return res.json(sendPacket(1, 'test worked'));
-    }
-  );
+
   app.put(
     '/api/mtg/communications/:communityID',
     isAuthenticatedWithJWT,
@@ -109,6 +131,10 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.put('/api/mtg/updateUserInfo', isAuthenticatedWithJWT, (req, res) => {
+    updateUserInfo(req.user._id, req.body, (packet) => res.json(packet));
+  });
 
   app.all('/api/mtg/', async (req: Request, res: Response) => {
     return res.json(sendPacket(-1, 'Path not found'));
