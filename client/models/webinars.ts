@@ -27,6 +27,9 @@ var webinarSchema = new Schema(
     eventBanner: { type: String },
     blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
     isDev: { type: Boolean },
+    //MTG Fields
+    isMTG: { type: Boolean },
+    introVideoURL: { type: String },
   },
   { timestamps: true }
 );
