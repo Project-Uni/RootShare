@@ -9,6 +9,7 @@ import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
 import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
 import { RSButton } from '../reusable-components';
+import { InterestedButton } from '../community/components/MeetTheGreeks';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -260,9 +261,13 @@ const DesktopMTGEventContent = (props: ContentProps) => {
               {showVideo ? 'Hide' : 'Watch'} Video
             </RSButton>
           </div>
-          <RSButton variant="secondary" className={styles.interestedButton}>
+          <InterestedButton
+            className={styles.interestedButton}
+            communityID={communityID}
+          />
+          {/* <RSButton variant="secondary" className={styles.interestedButton}>
             I'm Interested
-          </RSButton>
+          </RSButton> */}
         </div>
       </div>
     </>
@@ -334,9 +339,13 @@ const MobileMTGEventContent = (props: ContentProps) => {
         <RSText className={styles.mobileDesc}>{description}</RSText>
       </Collapse>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-        <RSButton variant="secondary" className={styles.interestedButton}>
+        <InterestedButton
+          className={styles.interestedButton}
+          communityID={communityID}
+        />
+        {/* <RSButton variant="secondary" className={styles.interestedButton}>
           I'm Interested
-        </RSButton>
+        </RSButton> */}
       </div>
     </div>
   );

@@ -385,7 +385,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.buttonContainer}>
           {renderStatusButton()}
           <FollowButton communityID={props.communityID} name={props.name} />
-          {props.flags.isMTGFlag && !props.isAdmin && (
+          {props.flags.isMTGFlag && (
             <InterestedButton communityID={props.communityID} />
           )}
         </div>
