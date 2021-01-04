@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
 import { Avatar, TextField } from '@material-ui/core';
@@ -19,47 +19,58 @@ export type SearchOption = {
   profilePicture?: string;
 };
 
-type ServiceResponse = {
+type User = {
   firstName: string;
   lastName: string;
   email: string;
   _id: string;
   profilePicture?: string;
-}[];
+};
 
-type Props = {
+type Props<T extends SearchOption, K extends User> = {
   className: string;
-  options?: SearchOption[];
+  options?: T[];
   fetchDataURL?: string; // URL for fetching data
   name: string;
   label: string;
   helperText?: string;
-  onAutocomplete?: (user: SearchOption) => void;
+  onAutocomplete?: (user: T) => void;
   error?: string;
+  mapData?: (users: K[]) => T[];
 };
 
-function UserSearch(props: Props) {
+function UserSearch<T extends SearchOption = SearchOption, K extends User = User>(
+  props: Props<T, K>
+) {
   const styles = useStyles();
 
   const [options, setOptions] = useState(props.options || []);
   const [searchValue, setSearchValue] = useState('');
 
-  const onAutocomplete = (_: any, newValue: SearchOption | null) => {
+  const onAutocomplete = (_: any, newValue: T | null) => {
     if (newValue) props.onAutocomplete?.(newValue);
     setSearchValue('');
   };
 
+  const defaultMap = useCallback(
+    (users: K[]): T[] =>
+      users.map((user) => ({
+        _id: user._id,
+        label: `${user.firstName} ${user.lastName}`,
+        value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
+        profilePicture: user.profilePicture,
+      })) as T[],
+    []
+  );
+
   const fetchData = async () => {
     if (props.fetchDataURL) {
-      const { data } = await makeRequest<ServiceResponse>('GET', props.fetchDataURL);
+      const { data } = await makeRequest<{ users: K[] }>('GET', props.fetchDataURL);
       if (data.success === 1) {
         setOptions(
-          data.content.map((user) => ({
-            _id: user._id,
-            label: `${user.firstName} ${user.lastName}`,
-            value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
-            profilePicture: user.profilePicture,
-          }))
+          props.mapData
+            ? props.mapData(data.content.users)
+            : defaultMap(data.content.users)
         );
       }
     }

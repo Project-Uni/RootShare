@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+
+import { CircularProgress, IconButton } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
+import { IoMdClose } from 'react-icons/io';
 
-import { RSModal } from '../../../main-platform/reusable-components';
-import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
+import { RSModal, RSButton } from '../../../main-platform/reusable-components';
+import RSText from '../../../base-components/RSText';
+import { UserSearch } from '../../../main-platform/reusable-components';
 
-import { makeRequest, slideLeft } from '../../../helpers/functions';
+import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
+import { SnackbarMode } from '../../../helpers/types';
 import theme from '../../../theme/Theme';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -19,55 +24,52 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: theme.primary,
   },
+  text: {
+    color: colors.primaryText,
+  },
+  bright: {
+    color: colors.bright,
+    marginBottom: 6,
+  },
+  selectedName: {
+    marginBottom: 3,
+  },
+  textField: {
+    width: 460,
+  },
 }));
 
-// export type IFormData = {
-//   description: string;
-//   introVideoURL: string;
-//   eventTime: any;
-//   speakers: SearchOption[];
-// };
+export type IFormData = {
+  searchedUser: UserOption | undefined;
+};
 
-type Member = {
+type UserInfo = {
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
+  connection?: OT.Connection;
+};
+
+type UserOption = {
   _id: string;
-  profilePicture?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  connection?: OT.Connection;
+
+  label: string;
+  value: string;
 };
 
-type MembersServiceResponse = {
-  members: {
-    [key: string]: any;
-    firstName: string;
-    lastName: string;
-    email: string;
-    _id: string;
-    profilePicture?: string;
-  }[];
+type ViewersServiceResponse = {
+  users: UserInfo[];
+  currentSpeaker: UserInfo;
 };
 
-export type EventInformationServiceResponse = {
-  mtgEvent: {
-    _id: string;
-    title?: string;
-    description: string;
-    introVideoURL: string;
-    speakers: Member[];
-    host: string;
-    dateTime: any;
-    eventBanner: string;
-  };
+const defaultFormData: IFormData = {
+  searchedUser: undefined,
 };
-
-const defaultDate = new Date('01/17/2021 @ 4:00 PM');
-
-// const defaultFormData: IFormData = {
-//   description: '',
-//   introVideoURL: '',
-//   eventTime: defaultDate,
-//   speakers: [],
-// };
 
 /* Keeping this here for now, this is how to generate a type based on existing variable - I've been looking for this solution for a long time
  *
@@ -79,20 +81,34 @@ const defaultDate = new Date('01/17/2021 @ 4:00 PM');
 
 type Props = {
   open: boolean;
+  webinarID: string;
+  sessionID: string;
+
   onClose: () => any;
   handleSnackbar: (message: string, mode: SnackbarMode) => void;
+  onAdd: (user: { [key: string]: any }) => void;
+  removeGuestSpeaker: (connection: OT.Connection) => void;
 };
 
 function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
 
+  const {
+    open,
+    webinarID,
+    sessionID,
+    handleSnackbar,
+    onClose,
+    onAdd,
+    removeGuestSpeaker,
+  } = props;
+
+  const [numViewers, setNumViewers] = useState(0);
+  const [currentSpeaker, setCurrentSpeaker] = useState<UserInfo>();
+
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState<string>();
-
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-  const [transition, setTransition] = useState<any>();
+  const [searchErr, setSearchedErr] = useState('');
 
   const {
     formFields,
@@ -102,190 +118,179 @@ function MeetTheGreeksModal(props: Props) {
     updateFields,
     updateErrors,
     resetForm,
-  } = useForm(defaultFormData);
+  } = useForm<IFormData>(defaultFormData);
+
+  const { searchedUser } = formFields;
 
   useEffect(() => {
-    if (props.open) {
-      setLoading(true);
-      fetchCurrentEventInformation().then(() =>
-        fetchCommunityMembers().then(() => setLoading(false))
-      );
+    if (open) {
+      fetchData();
+      setServerErr('');
     }
-  }, [props.open]);
+  }, [open]);
 
-  const onClose = useCallback(() => {
-    props.onClose();
-    setRenderStage(0);
-    resetData();
-  }, []);
-
-  const fetchCurrentEventInformation = useCallback(async () => {
-    const { data } = await makeRequest<EventInformationServiceResponse>(
+  const fetchData = useCallback(async () => {
+    const { data } = await makeRequest<ViewersServiceResponse>(
       'GET',
-      `/api/mtg/event/${props.communityID}`
+      `/api/webinar/${webinarID}/getActiveViewers`
     );
-    if (data.success === 1) {
-      const { mtgEvent } = data.content;
-      const fieldUpdateArgs: { key: keyof IFormData; value: any }[] = [
-        { key: 'description', value: mtgEvent.description },
-        { key: 'introVideoURL', value: mtgEvent.introVideoURL },
-        {
-          key: 'speakers',
-          value: mtgEvent.speakers.map((speaker) => ({
-            label: `${speaker.firstName} ${speaker.lastName}`,
-            _id: speaker._id,
-            value: `${speaker.firstName} ${speaker.lastName} ${speaker._id} ${speaker.email}`,
-            profilePicture: speaker.profilePicture,
-          })),
-        },
-        { key: 'eventTime', value: mtgEvent.dateTime },
-      ];
-      updateFields(fieldUpdateArgs);
-      setImageSrc(mtgEvent.eventBanner);
-    }
+
+    if (data['success'] === 1) {
+      setNumViewers(data.content.users.length);
+      if (data.content.currentSpeaker)
+        setCurrentSpeaker(data.content.currentSpeaker);
+    } else setCurrentSpeaker(undefined);
+
+    setLoading(false);
   }, []);
 
-  const fetchCommunityMembers = useCallback(async () => {
-    const { data } = await makeRequest<MembersServiceResponse>(
-      'GET',
-      `/api/community/${props.communityID}/members?skipCalculation=true`
-    );
-    if (data.success === 1) {
-      setCommunityMembers(
-        data.content.members.map((member) => ({
-          _id: member._id,
-          label: `${member.firstName} ${member.lastName}`,
-          value: `${member.firstName} ${member.lastName} ${member._id} ${member.email}`,
-          profilePicture: member.profilePicture,
-        }))
-      );
-    }
-  }, [props.communityID]);
+  const onAddClick = useCallback(async () => {
+    if (!searchedUser) return setSearchedErr('Please enter a valid user');
 
-  const resetData = useCallback(() => {
-    resetForm();
-    setServerErr(undefined);
-  }, []);
+    const { data } = await makeRequest('POST', '/proxy/webinar/inviteUserToSpeak', {
+      userID: searchedUser._id,
+      webinarID,
+      sessionID,
+    });
 
-  const validateInputs = useCallback(() => {
-    let hasErr = false;
-    const errUpdates: { key: keyof IFormData; value: string }[] = [];
-    if (formFields.description.length < 5) {
-      hasErr = true;
-      errUpdates.push({
-        key: 'description',
-        value: 'Please enter a longer description',
-      });
-    } else {
-      errUpdates.push({
-        key: 'description',
-        value: '',
-      });
-    }
+    if (data.success !== 1)
+      return setServerErr('There was an error inviting this user');
 
+    const guestSpeaker = { ...searchedUser };
+    onAdd(guestSpeaker);
+
+    handleSnackbar('Successfully invited user to speak.', 'success');
+
+    updateFields([{ key: 'searchedUser', value: undefined }]);
+    setServerErr('');
+  }, [searchedUser, webinarID, sessionID]);
+
+  const handleRemoveSpeaker = useCallback(async () => {
     if (
-      formFields.introVideoURL.length === 0 ||
-      !formFields.introVideoURL.startsWith('https://')
-    ) {
-      hasErr = true;
-      errUpdates.push({
-        key: 'introVideoURL',
-        value: 'Please enter a valid YouTube URL',
-      });
-    } else {
-      errUpdates.push({
-        key: 'introVideoURL',
-        value: '',
-      });
-    }
-
-    if (formFields.speakers.length === 0 || formFields.speakers.length > 4) {
-      hasErr = true;
-      errUpdates.push({
-        key: 'speakers',
-        value: '1-4 Speakers are required for the event',
-      });
-    } else {
-      errUpdates.push({
-        key: 'speakers',
-        value: '',
-      });
-    }
-
-    //TODO - Date Validation. Not sure if we'll need this though b/c the component looks like its handling it
-
-    updateErrors(errUpdates);
-    return hasErr;
-  }, [formFields]);
-
-  const onSubmit = useCallback(async () => {
-    setApiLoading(true);
-    if (validateInputs()) {
-      setApiLoading(false);
+      !window.confirm(
+        `Are you sure you want to remove ${currentSpeaker!.firstName} ${
+          currentSpeaker!.lastName
+        } from the stream?`
+      )
+    )
       return;
-    }
-    const { data } = await makeRequest(
-      'POST',
-      `/api/mtg/update/${props.communityID}`,
-      {
-        description: formFields.description,
-        introVideoURL: formFields.introVideoURL,
-        eventTime: formFields.eventTime,
-        speakers: formFields.speakers.map((speaker) => speaker._id),
-      }
-    );
-    if (data.success === 1) {
-      resetData();
-      setRenderStage(1);
-    } else {
-      setServerErr(data.message);
-    }
-    setApiLoading(false);
-  }, [formFields]);
 
-  const onUploadBanner = useCallback(async () => {
-    setApiLoading(true);
-    //Handling case where user is sticking with the existing image
-    if (imageSrc?.startsWith('https://')) {
-      setTransition(() => slideLeft);
-      setSnackbarMode('notify');
-      setImageSrc('');
-      onClose();
-      return;
-    }
+    const { data } = await makeRequest('POST', '/proxy/webinar/removeGuestSpeaker', {
+      webinarID: webinarID,
+    });
 
-    const { data } = await makeRequest(
-      'PUT',
-      `/api/mtg/banner/${props.communityID}`,
-      { image: imageSrc }
+    if (data.success !== 1 || !currentSpeaker?.connection?.connectionId)
+      return setServerErr('There was an error trying to remove the speaker');
+
+    removeGuestSpeaker(currentSpeaker.connection!);
+
+    handleSnackbar('Successfully removed speaker.', 'notify');
+
+    setCurrentSpeaker(undefined);
+    setServerErr('');
+  }, [currentSpeaker, webinarID]);
+
+  const onAutocomplete = (user: UserOption) => {
+    updateFields([{ key: 'searchedUser', value: user }]);
+  };
+
+  const renderCurrentSpeaker = () => {
+    return (
+      <>
+        <RSText className={styles.bright}>
+          <b>Current Speaker</b>
+        </RSText>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <RSText className={[styles.text, styles.selectedName].join(' ')}>
+            {currentSpeaker?.firstName} {currentSpeaker?.lastName}
+          </RSText>
+          <IconButton onClick={handleRemoveSpeaker}>
+            <IoMdClose color={colors.secondaryText} />
+          </IconButton>
+        </div>
+
+        <RSText className={styles.text}>{currentSpeaker?.email}</RSText>
+      </>
     );
-    if (data.success === 1) {
-      setTransition(() => slideLeft);
-      setSnackbarMode('notify');
-      setImageSrc('');
-      onClose();
-    } else {
-      setServerErr(data.message);
-    }
-    setApiLoading(false);
-  }, [imageSrc]);
+  };
+
+  const renderSelectedUserInfo = () => {
+    return (
+      <div style={{ marginBottom: 15 }}>
+        <RSText className={styles.bright}>
+          <b>Selected User</b>
+        </RSText>
+        <RSText className={[styles.text, styles.selectedName].join(' ')}>
+          {searchedUser?.firstName} {searchedUser?.lastName}
+        </RSText>
+        <RSText className={styles.text}>{searchedUser?.email}</RSText>
+      </div>
+    );
+  };
+
+  const renderAutoComplete = () => {
+    return (
+      <>
+        <UserSearch<UserOption, UserInfo>
+          label="Viewers"
+          className={styles.textField}
+          name="viewers"
+          onAutocomplete={onAutocomplete}
+          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`}
+          helperText="Search current viewers"
+          key="userSearch"
+          error={formErrors.searchedUser}
+        />
+        {!currentSpeaker && (
+          <RSButton onClick={onAddClick} className={styles.text} disabled={loading}>
+            Add User
+          </RSButton>
+        )}
+      </>
+    );
+  };
+
+  const renderRequests = () => {
+    return <div />;
+  };
+
+  // function renderAutoComplete() {
+  //   return (
+  //     <Autocomplete
+  //       style={{ width: 400, marginBottom: '20px' }}
+  //       options={options}
+  //       getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+  //       onChange={handleAutocompleteChange}
+  //       renderInput={(params) => (
+  //         <TextField
+  //           {...params}
+  //           label="Find a user"
+  //           variant="outlined"
+  //           fullWidth
+  //           value={searchedUser}
+  //           error={searchErr !== ''}
+  //           helperText={searchErr}
+  //           className={styles.textField}
+  //         />
+  //       )}
+  //     />
+  //   );
+  // }
 
   return (
     <>
-      <ManageSpeakersSnackbar
-        message={'Successfully updated Meet The Greeks event'}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={() => setSnackbarMode(null)}
-      />
       <RSModal
         open={props.open}
-        title={`Meet The Greeks - ${props.communityName}`}
+        title={`Manage Event Speakers`}
         onClose={onClose}
         className={styles.modal}
-        helperText={
-          "Create or Edit your Fraternity's event time and information for Meet the Greeks"
-        }
+        helperText={'Select viewers to bring on as guest speakers'}
         helperIcon={<BsPeopleFill size={90} />}
         serverErr={serverErr}
       >
@@ -301,25 +306,19 @@ function MeetTheGreeksModal(props: Props) {
             >
               <CircularProgress size={60} className={styles.loadingIndicator} />
             </div>
-          ) : renderStage === 0 ? (
-            <MeetTheGreekForm
-              formFields={formFields}
-              formErrors={formErrors}
-              handleChange={handleChange}
-              handleDateChange={handleDateChange}
-              updateFields={updateFields}
-              onSubmit={onSubmit}
-              loading={apiLoading}
-              communityMembers={communityMembers}
-            />
           ) : (
-            <MeetTheGreeksBannerUpload
-              setServerErr={setServerErr}
-              onUpload={onUploadBanner}
-              loading={apiLoading}
-              imageSrc={imageSrc}
-              updateImageSrc={setImageSrc}
-            />
+            <>
+              {searchedUser && renderSelectedUserInfo()}
+              {currentSpeaker ? renderCurrentSpeaker() : renderAutoComplete()}
+              {serverErr && (
+                <RSText type="body" color={'red'} size={11} italic>
+                  {serverErr}
+                </RSText>
+              )}
+              <RSText type="body" color={colors.secondaryText}>
+                {numViewers} Active Viewer{numViewers !== 1 && 's'}
+              </RSText>
+            </>
           )}
         </div>
       </RSModal>

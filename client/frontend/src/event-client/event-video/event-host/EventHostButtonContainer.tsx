@@ -10,6 +10,7 @@ import {
 } from '@styled-icons/boxicons-solid';
 
 import ManageSpeakersDialog from './ManageSpeakersDialog';
+import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 
 import { colors } from '../../../theme/Colors';
 import { slideLeft } from '../../../helpers/functions';
@@ -66,10 +67,6 @@ function EventHostButtonContainer(props: Props) {
   >(null);
   const [transition, setTransition] = useState<any>();
 
-  function handleManageSpeakersClick() {
-    setShowManageDialog(true);
-  }
-
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
     setManageSpeakersDisabled(true);
     //Waiting 3 seconds b/c it takes ~2 seconds to get the connection from the new user if they accept immediately
@@ -77,10 +74,6 @@ function EventHostButtonContainer(props: Props) {
     setTimeout(() => {
       setManageSpeakersDisabled(false);
     }, 3000);
-    setShowManageDialog(false);
-  }
-
-  function handleManageSpeakersCancel() {
     setShowManageDialog(false);
   }
 
@@ -92,9 +85,16 @@ function EventHostButtonContainer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <ManageSpeakersDialog
         open={showManageDialog}
-        onCancel={handleManageSpeakersCancel}
+        onClose={() => setShowManageDialog(false)}
+        handleSnackbar={handleSnackbar}
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
@@ -155,7 +155,7 @@ function EventHostButtonContainer(props: Props) {
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           disabled={props.loading || manageSpeakersDisabled}
-          onClick={handleManageSpeakersClick}
+          onClick={() => setShowManageDialog(true)}
         >
           Manage Speakers
         </Button>
