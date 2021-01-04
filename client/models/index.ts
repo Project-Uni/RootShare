@@ -13,6 +13,8 @@ import Image from './images';
 import MeetTheGreekEvent from './meet_the_greek_event';
 import MeetTheGreekInterest from './meet_the_greek_interest';
 
+import ExternalCommunication from './external_communication';
+
 export {
   Comment,
   Community,
@@ -27,4 +29,5 @@ export {
   Webinar,
   MeetTheGreekEvent,
   MeetTheGreekInterest,
+  ExternalCommunication,
 };

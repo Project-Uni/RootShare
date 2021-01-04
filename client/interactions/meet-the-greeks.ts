@@ -1,5 +1,3 @@
-const mongoose = require('mongoose');
-
 import {
   decodeBase64Image,
   log,
@@ -14,10 +12,19 @@ import {
   User,
   Community,
   MeetTheGreekInterest,
+  ExternalCommunication,
 } from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
+
+import sendEmail from '../helpers/functions/sendEmail';
+
+const aws = require('aws-sdk');
+aws.config.loadFromPath('../keys/aws_key.json');
+let ses = new aws.SES({
+  apiVersion: '2010-12-01',
+});
 
 export async function createMTGEvent(
   communityID: string,
@@ -143,18 +150,45 @@ export async function retrieveMTGEventInfo(communityID: string) {
 }
 
 export async function sendMTGCommunications(
+  userID: string,
   communityID: string,
   mode: 'text' | 'email',
   message: string
 ) {
-  if (mode === 'email') {
-    //Get list of all users who were interested,
-    //Send email using phased send
-  } else {
-    //Get phone numbers of all interested, this is required
-    // sendSMS(phoneNumbers, message);
+  try {
+    const community = await Community.findOne({ _id: communityID }, ['name']).exec();
+    if (!community) return sendPacket(0, 'Could not find community');
+
+    await new ExternalCommunication({
+      mode,
+      message,
+      community: communityID,
+      user: userID,
+    }).save();
+
+    const selection = mode === 'text' ? 'phoneNumber' : 'email';
+
+    const interestedUsers = (
+      await MeetTheGreekInterest.find({
+        community: communityID,
+      })
+        .populate({ path: 'user', select: [selection] })
+        .exec()
+    ).map((interestedResponse) => interestedResponse.user[selection]);
+
+    if (mode === 'email') {
+      interestedUsers.forEach((email) =>
+        sendEmail(email, `A Message From ${community.name}`, message)
+      );
+    } else {
+      sendSMS(interestedUsers, `Message from ${community.name}`);
+      sendSMS(interestedUsers, message);
+    }
+    return sendPacket(1, `Successfully sent ${mode}`);
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
   }
-  return sendPacket(1, 'Test was successfull');
 }
 
 export async function updateUserInfo(userID, userInfo, callback) {
@@ -295,4 +329,5 @@ export async function getMTGEvents() {
 //       }
 //     });
 //   });
+
 // }
