@@ -35,7 +35,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type AVAILABLE_TABS =
+export type AVAILABLE_TABS =
   | 'home'
   | 'discover'
   | 'communities'

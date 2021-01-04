@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Button } from '@material-ui/core';
-import theme from '../../../../theme/Theme';
+import { CircularProgress } from '@material-ui/core';
+import { RSButton } from '../../';
 
 const useBigButtonStyles = makeStyles((_: any) => ({
   button: {
@@ -10,18 +10,7 @@ const useBigButtonStyles = makeStyles((_: any) => ({
     paddingTop: 8,
     paddingBottom: 8,
     width: 300,
-    color: theme.altText,
-    '&:hover': {
-      background: theme.buttonHighlight,
-    },
   },
-  primaryButton: {
-    background: theme.bright,
-  },
-  secondaryButton: {
-    background: theme.primary,
-  },
-  disabledButton: { background: theme.disabledButton },
 }));
 
 type BigButtonProps = {
@@ -37,19 +26,13 @@ export const BigButton = (props: BigButtonProps) => {
 
   const { loading, onClick, label, icon, variant } = props;
 
-  const coreStyle = useRef(
-    variant === 'primary' ? styles.primaryButton : styles.secondaryButton
-  );
-
   return (
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-      <Button
-        className={[
-          styles.button,
-          loading ? styles.disabledButton : coreStyle.current,
-        ].join(' ')}
-        disabled={loading}
+      <RSButton
+        variant={variant}
         onClick={onClick}
+        disabled={loading}
+        className={styles.button}
       >
         {loading ? (
           <CircularProgress size={30} />
@@ -59,7 +42,7 @@ export const BigButton = (props: BigButtonProps) => {
             {label}
           </>
         )}
-      </Button>
+      </RSButton>
     </div>
   );
 };

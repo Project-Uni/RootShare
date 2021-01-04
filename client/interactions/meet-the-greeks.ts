@@ -229,6 +229,41 @@ export async function updateInterestAnswers(
     return sendPacket(-1, err.message);
   }
 }
+export async function getMTGEvents() {
+  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
+  try {
+    const events = await MeetTheGreekEvent.find(condition, [
+      'description',
+      'introVideoURL',
+      'dateTime',
+      'community',
+      'eventBanner',
+    ])
+      .populate({ path: 'community', select: 'name profilePicture' })
+      .exec();
+
+    const imagePromises = [];
+    for (let i = 0; i < events.length; i++) {
+      imagePromises.push(retrieveSignedUrl('mtgBanner', events[i].eventBanner));
+      imagePromises.push(
+        retrieveSignedUrl('communityProfile', events[i].community.profilePicture)
+      );
+    }
+
+    return Promise.all(imagePromises).then((images) => {
+      for (let i = 0; i < images.length; i += 2) {
+        events[Math.floor(i / 2)].eventBanner = images[i];
+        events[Math.floor(i / 2)].community.profilePicture = images[i + 1];
+      }
+      return sendPacket(1, 'Successfully retrieved all meet the greeks events', {
+        events,
+      });
+    });
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+}
 
 // export function interestedToggle(communityID, userID, interested, callback) {
 //   Community.exists({ _id: communityID, isMTGFlag: true }, (err, exists) => {
