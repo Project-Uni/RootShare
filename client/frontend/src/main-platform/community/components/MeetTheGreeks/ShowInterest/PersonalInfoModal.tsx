@@ -114,8 +114,6 @@ function PersonalInfoModal(props: Props) {
 
   const [interests, setInterests] = useState<string[]>([]);
 
-  const [inputErr, setInputErr] = useState<string>();
-
   const [serverErr, setServerErr] = useState<string>();
   const [loading, setLoading] = useState(true);
 
@@ -131,7 +129,6 @@ function PersonalInfoModal(props: Props) {
   useEffect(() => {
     if (open) {
       fetchUserInfo();
-      setInputErr(undefined);
     }
   }, [open]);
 
@@ -173,7 +170,30 @@ function PersonalInfoModal(props: Props) {
     });
   }
 
+  const validateInputs = () => {
+    var hasErr = false;
+    const errUpdates: { key: keyof IFormData; value: string }[] = ((Object.keys(
+      formFields
+    ) as unknown) as (keyof IFormData)[]).map((field) => {
+      if (field === 'currInterest') return { key: field, value: '' };
+      if (String(formFields[field]).length === 0) {
+        hasErr = true;
+        return { key: field, value: `This field is required` };
+      } else {
+        return { key: field, value: '' };
+      }
+    });
+
+    if (!props.user.profilePicture) {
+      setServerErr('Please set a profile picture');
+      hasErr = true;
+    }
+    updateErrors(errUpdates);
+    return hasErr;
+  };
+
   const submitInfoAndInterest = async () => {
+    if (validateInputs()) return;
     setLoading(true);
     setServerErr(undefined);
     const userInfoPromise = makeRequest('PUT', `/api/mtg/updateUserInfo`, {
@@ -260,8 +280,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="First Name"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.firstName !== ''}
+          helperText={formErrors.firstName}
         />
         <TextField
           className={styles.inputs}
@@ -270,8 +290,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Last Name"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.lastName !== ''}
+          helperText={formErrors.lastName}
         />
         <TextField
           className={styles.inputs}
@@ -280,8 +300,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Major"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.major !== ''}
+          helperText={formErrors.major}
         />
         <TextField
           className={styles.inputs}
@@ -290,8 +310,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Graduation Year"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.graduationYear !== ''}
+          helperText={formErrors.graduationYear}
         />
         <TextField
           className={styles.inputs}
@@ -300,8 +320,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Phone Number"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.phoneNumber !== ''}
+          helperText={formErrors.phoneNumber}
         />
         <TextField
           className={styles.inputs}
@@ -312,8 +332,8 @@ function PersonalInfoModal(props: Props) {
           variant="outlined"
           label="Hobbies/Interests"
           placeholder="Type New Interest and Press Enter"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.currInterest !== ''}
+          helperText={formErrors.currInterest}
         />
         {renderInterests()}
 
@@ -323,9 +343,9 @@ function PersonalInfoModal(props: Props) {
           onChange={handleChange('q1')}
           fullWidth
           variant="outlined"
-          label="[Question 1]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="Hometown"
+          error={formErrors.q1 !== ''}
+          helperText={formErrors.q1}
         />
         <TextField
           className={styles.inputs}
@@ -333,9 +353,9 @@ function PersonalInfoModal(props: Props) {
           onChange={handleChange('q2')}
           fullWidth
           variant="outlined"
-          label="[Question 2]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="Favorite Movie"
+          error={formErrors.q2 !== ''}
+          helperText={formErrors.q2}
         />
         <TextField
           className={styles.inputs}
@@ -343,9 +363,11 @@ function PersonalInfoModal(props: Props) {
           onChange={handleChange('q3')}
           fullWidth
           variant="outlined"
-          label="[Question 3]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="What are you looking for in a fraternity?"
+          multiline
+          rows={2}
+          error={formErrors.q3 !== ''}
+          helperText={formErrors.q3}
         />
         <BigButton
           label="Submit Info and Interest"

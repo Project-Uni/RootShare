@@ -12,6 +12,7 @@ import {
   MeetTheGreeksModal,
   MTGMessageModal,
   InterestedButton,
+  MTGInterestedUsersModal,
 } from './MeetTheGreeks';
 import FollowButton from './FollowButton';
 
@@ -141,6 +142,7 @@ function CommunityGeneralInfo(props: Props) {
 
   const [showMTGModal, setShowMTGModal] = useState(false);
   const [showMTGMessageModal, setShowMTGMessageModal] = useState(false);
+  const [showInterestedUsersModal, setShowInterestedUsersModal] = useState(false);
 
   const [numPending, setNumPending] = useState(props.numPending);
   const [numFollowRequests, setNumFollowRequests] = useState(
@@ -292,6 +294,14 @@ function CommunityGeneralInfo(props: Props) {
                 >
                   Messaging
                 </MenuItem>
+                <MenuItem
+                  onClick={async () => {
+                    setShowInterestedUsersModal(true);
+                    setMenuAnchorEl(null);
+                  }}
+                >
+                  Interested Users
+                </MenuItem>
               </Menu>
             )
           ) : (
@@ -340,6 +350,12 @@ function CommunityGeneralInfo(props: Props) {
                 communityID={props.communityID}
                 onClose={() => setShowMTGMessageModal(false)}
               />
+              <MTGInterestedUsersModal
+                open={showInterestedUsersModal}
+                onClose={() => setShowInterestedUsersModal(false)}
+                communityName={props.name}
+                communityID={props.communityID}
+              />
             </>
           )}
         </>
@@ -385,7 +401,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.buttonContainer}>
           {renderStatusButton()}
           <FollowButton communityID={props.communityID} name={props.name} />
-          {props.flags.isMTGFlag && (
+          {props.flags.isMTGFlag && !props.isAdmin && (
             <InterestedButton communityID={props.communityID} />
           )}
         </div>
