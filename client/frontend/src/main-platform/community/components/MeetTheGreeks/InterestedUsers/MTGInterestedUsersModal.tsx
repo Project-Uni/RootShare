@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { Avatar, CircularProgress } from '@material-ui/core';
 
 import { FaNetworkWired } from 'react-icons/fa';
 
@@ -28,6 +29,19 @@ const useStyles = makeStyles((_: any) => ({
   },
   confirmedMessage: {
     marginTop: 15,
+  },
+  speakerLabel: {
+    marginLeft: 15,
+    maxWidth: 200,
+  },
+  loadingIndicator: {
+    color: theme.primary,
+  },
+  linkText: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
   },
 }));
 
@@ -68,6 +82,12 @@ function MTGInterestedUsersModal(props: Props) {
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const [interestedUsers, setInterestedUsers] = useState<InterestedUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<InterestedUser>();
+
+  useEffect(() => {
+    if (selectedUser) setStage('specific');
+    else setStage('all');
+  }, [selectedUser]);
 
   useEffect(() => {
     if (open) {
@@ -89,9 +109,81 @@ function MTGInterestedUsersModal(props: Props) {
     }
   }, []);
 
+  const onUserClick = (user: InterestedUser) => {
+    setSelectedUser(user);
+  };
+
+  const SingleUser = ({ user }: { user: InterestedUser }) => {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <a
+            href={undefined}
+            onClick={() => onUserClick(user)}
+            className={styles.linkText}
+          >
+            <Avatar
+              src={user.profilePicture}
+              alt={`${user.firstName} ${user.lastName}`}
+              style={{ height: 50, width: 50 }}
+            />
+          </a>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <RSText
+                size={12}
+                className={[styles.speakerLabel, styles.linkText].join(' ')}
+                bold
+                onClick={() => onUserClick(user)}
+              >
+                {user.firstName} {user.lastName}
+              </RSText>
+
+              <RSText size={12}>{user.email}</RSText>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <RSText
+                size={12}
+                className={styles.speakerLabel}
+                color={theme.secondaryText}
+              >
+                {user.major} | {user.graduationYear}
+              </RSText>
+              <RSText size={12}>{user.phoneNumber}</RSText>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const allInterestedStage = () => (
     <>
-      <BigButton label="Download CSV" onClick={() => {}} />
+      {loading ? (
+        <div
+          style={{
+            height: 200,
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <CircularProgress size={60} className={styles.loadingIndicator} />
+        </div>
+      ) : (
+        <div style={{ marginLeft: 15, marginRight: 15, marginTop: 25 }}>
+          {interestedUsers.map((user) => (
+            <SingleUser user={user} />
+          ))}
+          <BigButton label="Download CSV" onClick={() => {}} />
+        </div>
+      )}
     </>
   );
 
@@ -110,7 +202,7 @@ function MTGInterestedUsersModal(props: Props) {
   const getBackArrowFunction = useCallback(() => {
     switch (stage) {
       case 'specific':
-        return () => setStage('all');
+        return () => setSelectedUser(undefined);
       case 'all':
       default:
         return undefined;
@@ -129,13 +221,11 @@ function MTGInterestedUsersModal(props: Props) {
         open={open}
         title={`Interested Users - ${communityName}`}
         onClose={() => {
-          setStage('all');
+          setSelectedUser(undefined);
           onClose();
         }}
         className={styles.modal}
-        helperText={
-          'See all of the rushees that have given interest in your fraternity. Great job with rush!'
-        }
+        helperText={`See all of the rushees that have expressed interest in ${communityName}.`}
         helperIcon={<FaNetworkWired size={80} />}
         onBackArrow={getBackArrowFunction()}
         serverErr={serverErr}

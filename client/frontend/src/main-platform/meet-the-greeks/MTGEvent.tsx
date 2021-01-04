@@ -340,9 +340,6 @@ const MobileMTGEventContent = (props: ContentProps) => {
           className={styles.interestedButton}
           communityID={communityID}
         />
-        {/* <RSButton variant="secondary" className={styles.interestedButton}>
-          I'm Interested
-        </RSButton> */}
       </div>
     </div>
   );
