@@ -20,6 +20,7 @@ export type SearchOption = {
 };
 
 type User = {
+  [key: string]: any;
   firstName: string;
   lastName: string;
   email: string;
@@ -27,7 +28,11 @@ type User = {
   profilePicture?: string;
 };
 
-type Props<T extends SearchOption, K extends User> = {
+type ServiceResponse = {
+  users: User[];
+};
+
+type Props<T extends SearchOption> = {
   className: string;
   options?: T[];
   fetchDataURL?: string; // URL for fetching data
@@ -36,12 +41,10 @@ type Props<T extends SearchOption, K extends User> = {
   helperText?: string;
   onAutocomplete?: (user: T) => void;
   error?: string;
-  mapData?: (users: K[]) => T[];
+  mapData?: (users: User[]) => T[];
 };
 
-function UserSearch<T extends SearchOption = SearchOption, K extends User = User>(
-  props: Props<T, K>
-) {
+function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
 
   const [options, setOptions] = useState(props.options || []);
@@ -53,7 +56,7 @@ function UserSearch<T extends SearchOption = SearchOption, K extends User = User
   };
 
   const defaultMap = useCallback(
-    (users: K[]): T[] =>
+    (users: User[]): T[] =>
       users.map((user) => ({
         _id: user._id,
         label: `${user.firstName} ${user.lastName}`,
@@ -65,7 +68,7 @@ function UserSearch<T extends SearchOption = SearchOption, K extends User = User
 
   const fetchData = async () => {
     if (props.fetchDataURL) {
-      const { data } = await makeRequest<{ users: K[] }>('GET', props.fetchDataURL);
+      const { data } = await makeRequest<ServiceResponse>('GET', props.fetchDataURL);
       if (data.success === 1) {
         setOptions(
           props.mapData
