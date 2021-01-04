@@ -262,8 +262,25 @@ function MTGInterestedUsersModal(props: Props) {
           onClose();
         }}
         className={styles.modal}
-        helperText={`See all of the rushees that have expressed interest in ${communityName}.`}
-        helperIcon={<FaNetworkWired size={80} />}
+        helperText={
+          selectedUser
+            ? undefined
+            : `See all of the rushees that have expressed interest in ${communityName}.`
+        }
+        helperIcon={
+          selectedUser ? (
+            <Avatar
+              src={selectedUser.profilePicture}
+              style={{
+                height: 125,
+                width: 125,
+                border: `1px solid ${theme.primary}`,
+              }}
+            />
+          ) : (
+            <FaNetworkWired size={80} />
+          )
+        }
         onBackArrow={getBackArrowFunction()}
         serverErr={serverErr}
       >
