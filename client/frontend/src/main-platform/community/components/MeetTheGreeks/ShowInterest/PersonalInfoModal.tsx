@@ -89,10 +89,10 @@ type IFormData = {
 };
 
 const defaultFormData: IFormData = {
-  firstName: 'Smitty',
+  firstName: '',
   lastName: '',
   major: '',
-  graduationYear: 2021,
+  graduationYear: 2024,
   currInterest: '',
   answer1: '',
   answer2: '',
