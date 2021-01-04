@@ -270,7 +270,7 @@ export async function updateInterestAnswers(
   }
 }
 export async function getMTGEvents() {
-  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
+  const condition = process.env.NODE_ENV === 'dev' ? { isDev: { $eq: true } } : {};
   try {
     const events = await MeetTheGreekEvent.find(condition, [
       'description',
