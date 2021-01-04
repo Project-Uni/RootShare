@@ -68,7 +68,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
   };
 
   const defaultMapData = useCallback(
-    (users: User[]): T[] =>
+    (users: User[]) =>
       users.map((user) => ({
         _id: user._id,
         label: `${user.firstName} ${user.lastName}`,
@@ -83,7 +83,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       const { data } = await makeRequest<ServiceResponse>('GET', fetchDataURL);
       if (data.success === 1) {
         setOptions(
-          mapData ? mapData(data.content.users) : defaultMapData(data.content.users)
+          mapData?.(data.content.users) || defaultMapData(data.content.users)
         );
       }
     }
