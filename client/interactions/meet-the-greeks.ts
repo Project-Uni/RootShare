@@ -165,6 +165,7 @@ export async function updateUserInfo(userID, userInfo, callback) {
     if (userInfo.major) updateObj['major'] = userInfo.major;
     if (userInfo.graduationYear)
       updateObj['graduationYear'] = userInfo.graduationYear;
+    if (userInfo.phoneNumber) updateObj['phoneNumber'] = userInfo.phoneNumber;
     if (userInfo.interests) updateObj['interests'] = userInfo.interests;
 
     const userUpdate = await User.updateOne(

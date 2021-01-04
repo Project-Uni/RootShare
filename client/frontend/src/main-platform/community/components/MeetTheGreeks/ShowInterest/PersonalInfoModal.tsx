@@ -69,6 +69,7 @@ type UserInfoServiceResponse = {
     lastName: string;
     major: string;
     graduationYear: number;
+    phoneNumber: string;
     interests: string[];
   };
 };
@@ -86,6 +87,7 @@ type IFormData = {
   lastName: string;
   major: string;
   graduationYear: number;
+  phoneNumber: string;
   currInterest: string;
   q1: string;
   q2: string;
@@ -97,6 +99,7 @@ const defaultFormData: IFormData = {
   lastName: '',
   major: '',
   graduationYear: 2024,
+  phoneNumber: '',
   currInterest: '',
   q1: '',
   q2: '',
@@ -167,6 +170,7 @@ function PersonalInfoModal(props: Props) {
         { key: 'lastName', value: userInfo.lastName },
         { key: 'major', value: userInfo.major },
         { key: 'graduationYear', value: userInfo.graduationYear },
+        { key: 'phoneNumber', value: userInfo.phoneNumber },
         { key: 'q1', value: answers.q1 || '' },
         { key: 'q2', value: answers.q2 || '' },
         { key: 'q3', value: answers.q3 || '' },
@@ -185,6 +189,7 @@ function PersonalInfoModal(props: Props) {
       lastName: formFields.lastName,
       major: formFields.major,
       graduationYear: formFields.graduationYear,
+      phoneNumber: formFields.phoneNumber,
       interests,
     });
 
@@ -290,6 +295,16 @@ function PersonalInfoModal(props: Props) {
           className={styles.inputs}
           value={formFields.graduationYear}
           onChange={handleChange('graduationYear')}
+          fullWidth
+          variant="outlined"
+          label="Graduation Year"
+          error={Boolean(inputErr)}
+          helperText={inputErr}
+        />
+        <TextField
+          className={styles.inputs}
+          value={formFields.phoneNumber}
+          onChange={handleChange('phoneNumber')}
           fullWidth
           variant="outlined"
           label="Graduation Year"
