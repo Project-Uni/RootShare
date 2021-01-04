@@ -127,7 +127,12 @@ export default function meetTheGreekRoutes(app) {
             '[Required Query Params] - mode, [Required Body Params] - message'
           )
         );
-      const packet = await sendMTGCommunications(communityID, mode, message);
+      const packet = await sendMTGCommunications(
+        req.user._id,
+        communityID,
+        mode,
+        message
+      );
       return res.json(packet);
     }
   );

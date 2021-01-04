@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import theme from '../../../theme/Theme';
@@ -16,6 +16,9 @@ const useStyles = makeStyles((_: any) => ({
   secondary: {
     background: theme.primary,
   },
+  university: {
+    background: theme.universityAccent,
+  },
   disabled: {
     background: theme.disabledButton,
   },
@@ -24,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   children?: React.ReactNode;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'university';
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
@@ -34,9 +37,19 @@ const RSButton = (props: Props) => {
 
   const { children, disabled, variant, className, onClick } = props;
 
-  const coreStyle = useRef(
-    variant === 'primary' ? styles.primary : styles.secondary
-  );
+  const getCoreStyle = useCallback(() => {
+    switch (variant) {
+      case 'secondary':
+        return styles.secondary;
+      case 'university':
+        return styles.university;
+      case 'primary':
+      default:
+        return styles.primary;
+    }
+  }, [variant]);
+
+  const coreStyle = useRef(getCoreStyle());
 
   return (
     <Button
