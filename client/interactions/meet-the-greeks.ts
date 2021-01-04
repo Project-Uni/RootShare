@@ -305,29 +305,32 @@ export async function getMTGEvents() {
   }
 }
 
-// export function interestedToggle(communityID, userID, interested, callback) {
-//   Community.exists({ _id: communityID, isMTGFlag: true }, (err, exists) => {
-//     if (err) return callback(sendPacket(-1, err));
-//     if (!exists) return callback(sendPacket(0, 'Community does not exist'));
+export async function getInterestedUsers(communityID: string) {
+  try {
+    const interestedUsers = await MeetTheGreekInterest.find(
+      { community: communityID },
+      ['answers', 'user']
+    )
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName email phoneNumber profilePicture major graduationYear interests',
+      })
+      .lean()
+      .exec();
 
-//     User.exists({ _id: userID }, (err, exists) => {
-//       if (err) return callback(sendPacket(-1, err));
-//       if (!exists) return callback(sendPacket(0, 'User does not exist'));
+    const reshapedData = interestedUsers.map((interestResponse) => ({
+      ...interestResponse.user,
+      answers: interestResponse.answers,
+    }));
 
-//       if (interested) {
-//         Community.updateOne(
-//           { _id: communityID },
-//           { $addToSet: { interestedUsers: userID } }
-//         ).exec();
-//         callback(sendPacket(1, 'Added Interest', { interested: true }));
-//       } else {
-//         Community.updateOne(
-//           { _id: communityID },
-//           { $pull: { interestedUsers: userID } }
-//         ).exec();
-//         callback(sendPacket(1, 'Removed Interest', { interested: false }));
-//       }
-//     });
-//   });
+    await addProfilePicturesAll(reshapedData, 'profile');
 
-// }
+    return sendPacket(1, 'Successfully retrieved all interested users', {
+      users: reshapedData,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err.message);
+  }
+}
