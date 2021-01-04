@@ -279,23 +279,17 @@ export async function updateInterestAnswers(
   }
 }
 export async function getMTGEvents() {
-  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
+  const condition = Object.assign(
+    { isMTG: true },
+    process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } }
+  );
 
   try {
-    // const events = await Webinar.find(Object.assign({ isMTG: true }, condition), [
-    //   'full_description',
-    //   'introVideoURL',
-    //   'dateTime',
-    //   'community',
-    //   'eventBanner',
-    // ])
-    //   .populate({ path: 'community', select: 'name profilePicture' })
-    //   .exec();
     const events = await Webinar.aggregate([
-      { $match: Object.assign({ isMTG: true }, condition) },
+      { $match: condition },
       {
         $lookup: {
-          from: 'community',
+          from: 'communities',
           localField: 'hostCommunity',
           foreignField: '_id',
           as: 'community',
