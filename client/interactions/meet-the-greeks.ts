@@ -7,24 +7,18 @@ import {
 } from '../helpers/functions';
 import { sendSMS } from '../helpers/functions/twilio';
 import {
-  MeetTheGreekEvent,
   Conversation,
   User,
   Community,
   MeetTheGreekInterest,
   ExternalCommunication,
+  Webinar,
 } from '../models';
 
 import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
 
 import sendEmail from '../helpers/functions/sendEmail';
-
-const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
-let ses = new aws.SES({
-  apiVersion: '2010-12-01',
-});
 
 export async function createMTGEvent(
   communityID: string,
@@ -36,14 +30,15 @@ export async function createMTGEvent(
   if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 
   try {
-    let event = await MeetTheGreekEvent.findOne({
+    let event = await Webinar.findOne({
       community: communityID,
+      isMTG: true,
     }).exec();
 
     try {
       if (event) {
         //Edit Mode
-        event.description = description;
+        event.full_description = description;
         event.introVideoURL = introVideoURL;
         event.dateTime = eventTime;
         event.speakers = speakers;
@@ -57,15 +52,16 @@ export async function createMTGEvent(
           participants: [],
         }).save();
 
-        event = await new MeetTheGreekEvent({
+        event = await new Webinar({
           // title: 'TBD',
-          community: communityID,
-          description,
+          hostCommunity: communityID,
+          full_description: description,
           introVideoURL,
           dateTime: eventTime,
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
+          isMTG: true,
           isDev: process.env.NODE_ENV === 'dev',
         }).save();
       }
@@ -99,10 +95,14 @@ export async function uploadMTGBanner(communityID: string, image: string) {
     const success = await uploadFile('mtgBanner', fileName, imageBuffer.data);
     if (!success) return sendPacket(-1, 'There was an error uploading the image');
 
-    await MeetTheGreekEvent.updateOne(
-      { community: communityID },
+    await Webinar.updateOne(
+      { hostCommunity: communityID, isMTG: true },
       { eventBanner: fileName }
-    ).exec();
+    )
+      .sort({
+        updatedAt: -1,
+      })
+      .exec();
 
     return sendPacket(1, 'Successfully uploaded image', { fileName });
   } catch (err) {
@@ -113,15 +113,18 @@ export async function uploadMTGBanner(communityID: string, image: string) {
 
 export async function retrieveMTGEventInfo(communityID: string) {
   try {
-    const mtgEvent = await MeetTheGreekEvent.findOne({ community: communityID }, [
-      'title',
-      'description',
-      'introVideoURL',
-      'speakers',
-      'host',
-      'dateTime',
-      'eventBanner',
-    ])
+    const mtgEvent = await Webinar.findOne(
+      { hostCommunity: communityID, isMTG: true },
+      [
+        'title',
+        'full_description',
+        'introVideoURL',
+        'speakers',
+        'host',
+        'dateTime',
+        'eventBanner',
+      ]
+    )
       .populate({
         path: 'speakers',
         select: 'firstName lastName email _id profilePicture',
@@ -141,8 +144,13 @@ export async function retrieveMTGEventInfo(communityID: string) {
       mtgEvent.eventBanner
     );
 
+    let cleanedData = Object.assign({}, mtgEvent, {
+      description: mtgEvent.full_description,
+    });
+    delete cleanedData.full_description;
+
     return sendPacket(1, 'Successfully retrieved MTG event information', {
-      mtgEvent,
+      mtgEvent: cleanedData,
     });
   } catch (err) {
     log('error', err.message);
@@ -271,18 +279,38 @@ export async function updateInterestAnswers(
   }
 }
 export async function getMTGEvents() {
-  const condition = process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } };
+  const condition = Object.assign(
+    { isMTG: true },
+    process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } }
+  );
 
   try {
-    const events = await MeetTheGreekEvent.find(condition, [
-      'description',
-      'introVideoURL',
-      'dateTime',
-      'community',
-      'eventBanner',
-    ])
-      .populate({ path: 'community', select: 'name profilePicture' })
-      .exec();
+    const events = await Webinar.aggregate([
+      { $match: condition },
+      {
+        $lookup: {
+          from: 'communities',
+          localField: 'hostCommunity',
+          foreignField: '_id',
+          as: 'community',
+        },
+      },
+      { $unwind: '$community' },
+      {
+        $project: {
+          _id: '$_id',
+          description: '$full_description',
+          dateTime: '$dateTime',
+          community: {
+            _id: '$community._id',
+            name: '$community.name',
+            profilePicture: '$community.profilePicture',
+          },
+          introVideoURL: '$introVideoURL',
+          eventBanner: '$eventBanner',
+        },
+      },
+    ]).exec();
 
     const imagePromises = [];
     for (let i = 0; i < events.length; i++) {
