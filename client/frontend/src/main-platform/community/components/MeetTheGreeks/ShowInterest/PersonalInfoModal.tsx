@@ -2,15 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
-import {
-  TextField,
-  Select,
-  MenuItem,
-  CircularProgress,
-  InputLabel,
-  FormControl,
-  IconButton,
-} from '@material-ui/core';
+import { TextField, CircularProgress, IconButton } from '@material-ui/core';
 
 import { BigButton, RSModal } from '../../../../reusable-components';
 import RSText from '../../../../../base-components/RSText';
@@ -307,7 +299,7 @@ function PersonalInfoModal(props: Props) {
           onChange={handleChange('phoneNumber')}
           fullWidth
           variant="outlined"
-          label="Graduation Year"
+          label="Phone Number"
           error={Boolean(inputErr)}
           helperText={inputErr}
         />
