@@ -7,7 +7,11 @@ import { CSVDownload } from 'react-csv';
 
 import theme from '../../../../../theme/Theme';
 
-import { makeRequest, slideLeft } from '../../../../../helpers/functions';
+import {
+  formatPhoneNumber,
+  makeRequest,
+  slideLeft,
+} from '../../../../../helpers/functions';
 
 import { BigButton, RSModal } from '../../../../reusable-components';
 import { RSText } from '../../../../../base-components';
@@ -40,9 +44,16 @@ const useStyles = makeStyles((_: any) => ({
   },
   linkText: {
     '&:hover': {
-      textDecoration: 'underline',
+      // textDecoration: 'underline',
       cursor: 'pointer',
     },
+  },
+  communication: {
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  prompt: {
+    marginBottom: 5,
   },
 }));
 
@@ -54,14 +65,18 @@ type Props = {
 };
 
 type InterestedUser = {
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  profilePicture?: string;
+  profilePicture: string;
   phoneNumber: string;
   graduationYear: number;
   major: string;
-  [key: string]: any; //This is for questions
+};
+
+type StateUser = InterestedUser & {
+  answers: { [key: string]: string };
 };
 
 type Stage = 'all' | 'specific';
@@ -82,8 +97,8 @@ function MTGInterestedUsersModal(props: Props) {
   const [transition, setTransition] = useState<any>(() => slideLeft);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const [interestedUsers, setInterestedUsers] = useState<InterestedUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<InterestedUser>();
+  const [interestedUsers, setInterestedUsers] = useState<StateUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<StateUser>();
 
   const [performCSVDownload, setPerformCSVDownload] = useState(false);
 
@@ -100,16 +115,14 @@ function MTGInterestedUsersModal(props: Props) {
   }, [open]);
 
   const getInterestedUsers = useCallback(async () => {
-    const { data } = await makeRequest<{ users: InterestedUser[] }>(
-      'GET',
-      `/api/mtg/interested/${communityID}`
-    );
+    const { data } = await makeRequest<{
+      users: (InterestedUser & { answers: string })[];
+    }>('GET', `/api/mtg/interested/${communityID}`);
     if (data.success === 1) {
       setInterestedUsers(
         data.content.users.map((user) => {
           let answers = JSON.parse(user.answers);
-          let formattedData = Object.assign({}, user, answers);
-          delete formattedData.answers;
+          let formattedData = Object.assign({}, user, { answers });
           return formattedData;
         })
       );
@@ -119,7 +132,7 @@ function MTGInterestedUsersModal(props: Props) {
     }
   }, []);
 
-  const onUserClick = (user: InterestedUser) => {
+  const onUserClick = (user: StateUser) => {
     setSelectedUser(user);
   };
 
@@ -132,8 +145,10 @@ function MTGInterestedUsersModal(props: Props) {
 
   const CSVHandler = useCallback(() => {
     const csvData = interestedUsers.map((user) => {
-      const formattedData = Object.assign({}, user);
+      const answers = user.answers;
+      const formattedData: { [key: string]: any } = Object.assign({}, user, answers);
       delete formattedData.profilePicture;
+      delete formattedData.answers;
       return formattedData;
     });
 
@@ -142,7 +157,7 @@ function MTGInterestedUsersModal(props: Props) {
         {performCSVDownload && (
           <CSVDownload
             data={csvData}
-            target="_blank"
+            target="_self"
             filename={`${communityName}-interested-users.csv`}
           />
         )}
@@ -150,34 +165,27 @@ function MTGInterestedUsersModal(props: Props) {
     );
   }, [interestedUsers, performCSVDownload]);
 
-  const SingleUser = ({ user }: { user: InterestedUser }) => {
+  const SingleUser = ({ user }: { user: StateUser }) => {
     return (
-      <div style={{ marginTop: 10 }}>
+      <div
+        style={{ marginTop: 10 }}
+        className={styles.linkText}
+        onClick={() => onUserClick(user)}
+      >
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
           }}
         >
-          <a
-            href={undefined}
-            onClick={() => onUserClick(user)}
-            className={styles.linkText}
-          >
-            <Avatar
-              src={user.profilePicture}
-              alt={`${user.firstName} ${user.lastName}`}
-              style={{ height: 50, width: 50 }}
-            />
-          </a>
+          <Avatar
+            src={user.profilePicture}
+            alt={`${user.firstName} ${user.lastName}`}
+            style={{ height: 50, width: 50 }}
+          />
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <RSText
-                size={12}
-                className={[styles.speakerLabel, styles.linkText].join(' ')}
-                bold
-                onClick={() => onUserClick(user)}
-              >
+              <RSText size={12} className={styles.speakerLabel} bold>
                 {user.firstName} {user.lastName}
               </RSText>
 
@@ -191,7 +199,7 @@ function MTGInterestedUsersModal(props: Props) {
               >
                 {user.major} | {user.graduationYear}
               </RSText>
-              <RSText size={12}>{user.phoneNumber}</RSText>
+              <RSText size={12}>{formatPhoneNumber(user.phoneNumber)}</RSText>
             </div>
           </div>
         </div>
@@ -224,7 +232,44 @@ function MTGInterestedUsersModal(props: Props) {
     </>
   );
 
-  const specificUserStage = () => <></>;
+  const specificUserStage = () => (
+    <div
+      style={{ marginLeft: 15, marginRight: 15, marginTop: 15, marginBottom: 15 }}
+    >
+      {selectedUser && (
+        <>
+          <RSText bold size={13}>
+            {selectedUser.firstName} {selectedUser.lastName}
+          </RSText>
+          <RSText color={theme.secondaryText}>
+            {selectedUser.major} | {selectedUser.graduationYear}
+          </RSText>
+          <RSText bold className={styles.communication}>
+            Communication:
+          </RSText>
+          <RSText>{selectedUser.email}</RSText>
+          <RSText>{formatPhoneNumber(selectedUser.phoneNumber)}</RSText>
+
+          <div
+            style={{
+              borderTop: `2px solid ${theme.disabledButton}`,
+              marginTop: 15,
+              marginBottom: 15,
+            }}
+          />
+
+          {Object.keys(selectedUser.answers).map((prompt) => (
+            <div style={{ marginBottom: 10 }}>
+              <RSText bold className={styles.prompt}>
+                {prompt}
+              </RSText>
+              <RSText>{selectedUser.answers[prompt]}</RSText>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
 
   const chooseStage = () => {
     switch (stage) {
@@ -269,14 +314,16 @@ function MTGInterestedUsersModal(props: Props) {
         }
         helperIcon={
           selectedUser ? (
-            <Avatar
-              src={selectedUser.profilePicture}
-              style={{
-                height: 125,
-                width: 125,
-                border: `1px solid ${theme.primary}`,
-              }}
-            />
+            <a href={`/profile/${selectedUser._id}`}>
+              <Avatar
+                src={selectedUser.profilePicture}
+                style={{
+                  height: 125,
+                  width: 125,
+                  border: `1px solid ${theme.primary}`,
+                }}
+              />
+            </a>
           ) : (
             <FaNetworkWired size={80} />
           )
