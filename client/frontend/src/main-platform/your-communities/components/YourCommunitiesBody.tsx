@@ -195,7 +195,8 @@ function YourCommunitiesBody(props: Props) {
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
-          counter={`${numCommunities === null ? ' ' : `${numCommunities}`}`}
+          counter={`${numCommunities === null ? ' ' : 
+          numCommunities === 1 ? `${numCommunities} Community` : `${numCommunities} Communities`}`}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}

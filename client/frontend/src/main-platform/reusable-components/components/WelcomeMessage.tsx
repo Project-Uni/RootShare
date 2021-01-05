@@ -6,6 +6,9 @@ import { Button, Icon } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
+import { MdGroup } from 'react-icons/md';
+import theme from '../../../theme/Theme';
+
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
@@ -68,12 +71,19 @@ function WelcomeMessage(props: Props) {
         >
           {props.message}
         </RSText>
+        <table>
+        <RSText
+          size={14}
+          color={colors.secondaryText}
+        >
+        {props.counter}
+        </RSText>
+        </table>
         <RSText 
           type="other"
           size={10}
           color={colors.secondaryText}
           >
-          {props.counter}
         </RSText>
         {props.buttonText && (
           <Button className={styles.discoverButton} onClick={props.buttonAction}>

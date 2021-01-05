@@ -16,6 +16,9 @@ import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 
+import { MdGroup } from 'react-icons/md';
+import theme from '../../../theme/Theme';
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
@@ -226,7 +229,8 @@ function ConnectionsBody(props: Props) {
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
-          counter={`${numConnections === null ? ' ' : `${numConnections}`}`}
+          counter={`${numConnections === null ? ' ' : 
+            numConnections === 1 ? `${numConnections} Connection` : `${numConnections} Connections`}`}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
