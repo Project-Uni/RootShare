@@ -43,7 +43,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   message: string;
-  counter?: number;
+  counter?: string;
   buttonText?: string;
   buttonAction?: () => any;
 };

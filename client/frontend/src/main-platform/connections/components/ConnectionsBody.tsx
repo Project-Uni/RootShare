@@ -70,13 +70,8 @@ function ConnectionsBody(props: Props) {
   const [connections, setConnections] = useState<DiscoverUser[]>([]);
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
-
-  let numConnections: number = null;
-
-  if (connections.length > 0) {
-    numConnections = connections.length;
-  }
-
+  const [numConnections, setNumConnections] = useState(null);
+  
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     if (props.requestUserID !== 'user') fetchUserBasicInfo();
@@ -100,6 +95,7 @@ function ConnectionsBody(props: Props) {
     if (data.success === 1) {
       setConnections(data.content['connections']);
       setPendingConnections(data.content['pendingConnections']);
+      
     }
   }
 
@@ -120,7 +116,7 @@ function ConnectionsBody(props: Props) {
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
-
+ 
   function renderSearchArea() {
     return (
       <div className={styles.searchBarContainer}>
@@ -167,6 +163,8 @@ function ConnectionsBody(props: Props) {
           style={styles.connectionStyle}
           status={currPending.status}
           connectionRequestID={currPending.connectionRequestID}
+          numConnections={numConnections}
+          setNumConnections={setNumConnections}
         />
       );
     }
@@ -175,7 +173,7 @@ function ConnectionsBody(props: Props) {
 
   function renderConnections() {
     const output = [];
-
+    
     if (connections.length === 0)
       return (
         <RSText size={20} type="head" className={styles.noConnections}>
@@ -185,7 +183,8 @@ function ConnectionsBody(props: Props) {
       );
 
     //TODO: Add logic in case an optional field does not exist
-    for (let i = 0; i < connections.length; i++) {
+    let i = 0;
+    for (; i < connections.length; i++) {
       const currConnection: DiscoverUser = connections[i];
       output.push(
         <UserHighlight
@@ -203,8 +202,17 @@ function ConnectionsBody(props: Props) {
           connectionRequestID={currConnection.connectionRequestID}
         />
       );
-
     }
+
+    if (connections.length > numConnections) {
+      if (connections.length > 0) {
+        setNumConnections(connections.length);
+      }
+      else {
+        setNumConnections(null);
+      }
+    }
+
     return output;
   }
 
@@ -218,7 +226,7 @@ function ConnectionsBody(props: Props) {
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
-          counter={numConnections}
+          counter={`${numConnections === null ? ' ' : `${numConnections}`}`}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}

@@ -65,15 +65,11 @@ function YourCommunitiesBody(props: Props) {
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
   const [pendingCommunities, setPendingCommunities] = useState<Community[]>([]);
 
+  const [numCommunities, setNumCommunities] = useState(null);
+
   const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
     false
   );
-
-  let numCommunities: number = null;
-
-  if (joinedCommunities.length > 0) {
-    numCommunities = joinedCommunities.length;
-  }
   
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -143,7 +139,16 @@ function YourCommunitiesBody(props: Props) {
           admin={currCommunity.admin as string}
         />
       );
-      
+
+    }
+
+    if (joinedCommunities.length > numCommunities) {
+      if (joinedCommunities.length > 0) {
+      setNumCommunities(joinedCommunities.length);
+      }
+      else {
+        setNumCommunities(null);
+      }
     }
 
     //Pending Communities
@@ -190,7 +195,7 @@ function YourCommunitiesBody(props: Props) {
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
-          counter={numCommunities}
+          counter={`${numCommunities === null ? ' ' : `${numCommunities}`}`}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}

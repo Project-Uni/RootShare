@@ -92,6 +92,8 @@ type Props = {
   mutualCommunities?: number;
   status: ProfileState;
   connectionRequestID?: string;
+  numConnections?: number;
+  setNumConnections?: (numConnections: number) => void;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
     message: string
@@ -124,6 +126,10 @@ function UserHighlight(props: Props) {
         props.setNotification('error', 'Failed to send connection request');
   }
 
+  async function setNumConnections(){
+    props.setNumConnections(props.numConnections + 1);
+  }
+
   async function respondRequest(accepted: boolean) {
     setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
     const { data } = await makeRequest(
@@ -135,7 +141,7 @@ function UserHighlight(props: Props) {
       },
       true,
       props.accessToken,
-      props.refreshToken
+      props.refreshToken,
     );
 
     if (data['success'] !== 1) {
@@ -145,6 +151,8 @@ function UserHighlight(props: Props) {
           'error',
           `Failed to ${accepted ? 'accept' : 'remove'} connection request`
         );
+    } else if (accepted) {
+      setNumConnections();
     }
   }
 
