@@ -28,6 +28,10 @@ import { EventType, MuxMetaDataType } from '../helpers/types';
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
 
+import ManageSpeakersSnackbar from './event-video/event-host/ManageSpeakersSnackbar';
+import { slideLeft } from '../helpers/functions';
+import { SnackbarMode } from '../helpers/types';
+
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:8003'
@@ -86,6 +90,16 @@ function EventClientBase(props: Props) {
   const [muxMetaData, setMuxMetaData] = useState<MuxMetaDataType>();
 
   const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
+  const [showRequestSpeakButton, setShowRequestSpeakButton] = useState(false);
+
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
+
+  const webinarEvent = webinarData as EventType;
+  const currConversationID = webinarEvent.conversation as string;
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -235,28 +249,40 @@ function EventClientBase(props: Props) {
     setShowSpeakingInvite(false);
   }
 
+  function requestToSpeak() {
+    socket.emit('request-to-speak');
+    handleSnackbar('Requested Host to join as a speaker', 'notify');
+  }
+
   function handleWelcomeModalAck() {
     setShowWelcomeModal(false);
   }
 
-  function renderVideoArea() {
-    const currWebinarData = webinarData as EventType;
+  function handleSnackbar(message: string, mode: SnackbarMode) {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+    setTransition(() => slideLeft);
+  }
 
+  function renderVideoArea() {
     if (eventMode === 'viewer')
       return (
         <EventWatcherVideoContainer
           muxPlaybackID={
-            currWebinarData.muxAssetPlaybackID || currWebinarData.muxPlaybackID
+            webinarEvent.muxAssetPlaybackID || webinarEvent.muxPlaybackID
           }
           muxMetaData={muxMetaData as MuxMetaDataType}
-          eventImage={currWebinarData.eventImage}
+          eventImage={webinarEvent.eventImage}
+          onEventStart={() => setShowRequestSpeakButton(true)}
+          // TODO: Add event flag for this later to allow host to specify if they want this
+          // button/function available for the event or not */
         />
       );
     else
       return (
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
-          webinar={webinarData as EventType}
+          webinar={webinarEvent}
           speaking_token={speaking_token}
           sessionID={sessionID}
         />
@@ -283,8 +309,6 @@ function EventClientBase(props: Props) {
     })(navigator.userAgent || navigator.vendor);
     return check;
   }
-
-  const webinarEvent = webinarData as EventType;
 
   if (checkMobile()) {
     if (eventMode === 'viewer')
@@ -324,16 +348,25 @@ function EventClientBase(props: Props) {
       );
   }
 
-  const currConversationID = webinarEvent.conversation as string;
   return (
     <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <SpeakingInviteDialog
         open={showSpeakingInvite}
         onReject={onRejectSpeakingInvite}
         onAccept={onAcceptSpeakingInvite}
       />
-      <EventClientHeader minWidth={minHeaderWidth} showNavigationMenuDefault />
+      <EventClientHeader
+        minWidth={minHeaderWidth}
+        showNavigationMenuDefault
+        requestToSpeak={showRequestSpeakButton ? requestToSpeak : undefined}
+      />
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}
@@ -358,7 +391,7 @@ function EventClientBase(props: Props) {
           <EventMessageContainer
             conversationID={currConversationID}
             isHost={eventMode === 'admin'}
-            webinarID={(webinarData as EventType)._id}
+            webinarID={webinarEvent._id}
           />
         </div>
       </div>
