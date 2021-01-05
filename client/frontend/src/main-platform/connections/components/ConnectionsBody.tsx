@@ -168,6 +168,7 @@ function ConnectionsBody(props: Props) {
           connectionRequestID={currPending.connectionRequestID}
           numConnections={numConnections}
           setNumConnections={setNumConnections}
+          isConnection={true}
         />
       );
     }

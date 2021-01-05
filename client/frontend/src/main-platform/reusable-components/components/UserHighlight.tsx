@@ -93,6 +93,7 @@ type Props = {
   status: ProfileState;
   connectionRequestID?: string;
   numConnections?: number;
+  isConnection?: boolean;
   setNumConnections?: (numConnections: number) => void;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
@@ -151,7 +152,7 @@ function UserHighlight(props: Props) {
           'error',
           `Failed to ${accepted ? 'accept' : 'remove'} connection request`
         );
-    } else if (accepted) {
+    } else if (accepted && props.isConnection) {
       setNumConnections();
     }
   }
