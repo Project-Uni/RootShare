@@ -37,6 +37,9 @@ const DefaultIndexBody = {
   },
 };
 
+const LogBuffer = [];
+const MaxBufferLen = 5;
+
 //We can generalize body for specific indexes
 const createIndex = async (
   index: string,
