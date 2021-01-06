@@ -124,5 +124,10 @@ module.exports = (
       //TODO - Notify the host that user has rejected speaking invite
       log('socket', 'Speaking invite rejected');
     });
+
+    // Get request from a viewer's Socket and send to host's Socket
+    socket.on('request-to-speak', (webinarID: string) => {
+      webinarCache[webinarID].host.emit('request-to-speak');
+    });
   });
 };

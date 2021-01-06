@@ -162,6 +162,7 @@ function EventClientBase(props: Props) {
 
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
+      initializeHostSocket(webinar['_id']);
       setEventMode('admin');
       return;
     } else {
@@ -177,7 +178,7 @@ function EventClientBase(props: Props) {
   }
 
   function updateAttendeeList(webinarID: string) {
-    initializeSocket(webinarID);
+    initializeViewerSocket(webinarID);
 
     makeRequest(
       'POST',
@@ -191,7 +192,11 @@ function EventClientBase(props: Props) {
     );
   }
 
-  function initializeSocket(webinarID: string) {
+  function initializeHostSocket(webinarID: string) {
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+  }
+
+  function initializeViewerSocket(webinarID: string) {
     socket = socketIOClient(WEBINAR_CACHE_IP);
     socket.emit('new-user', {
       webinarID: webinarID,
@@ -249,7 +254,7 @@ function EventClientBase(props: Props) {
     setShowSpeakingInvite(false);
   }
 
-  function requestToSpeak() {
+  function onRequestToSpeak() {
     socket.emit('request-to-speak');
     handleSnackbar('Requested Host to join as a speaker', 'notify');
   }
@@ -365,7 +370,7 @@ function EventClientBase(props: Props) {
       <EventClientHeader
         minWidth={minHeaderWidth}
         showNavigationMenuDefault
-        requestToSpeak={showRequestSpeakButton ? requestToSpeak : undefined}
+        onRequestToSpeak={showRequestSpeakButton ? onRequestToSpeak : undefined}
       />
       <div className={styles.body}>
         <div className={styles.left}>

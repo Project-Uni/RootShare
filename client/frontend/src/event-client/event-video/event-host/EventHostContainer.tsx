@@ -127,7 +127,7 @@ function EventHostContainer(props: Props) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
-        removeFromCache(props.webinar['_id'], props.accessToken, props.refreshToken);
+        removeFromCache(props.webinar['_id']);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
@@ -147,7 +147,7 @@ function EventHostContainer(props: Props) {
             screenPublisher.stream?.streamId
           );
         }
-        addToCache(props.webinar['_id'], props.accessToken, props.refreshToken);
+        addToCache(props.webinar._id, props.user._id);
       }
     }
   }

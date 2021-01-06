@@ -21,6 +21,7 @@ export type Webinar = {
   users: {
     [key: string]: Socket;
   };
+  host: Socket;
   speakingToken?: string;
   guestSpeaker?: {
     _id: string;

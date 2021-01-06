@@ -15,8 +15,9 @@ module.exports = (
   waitingRooms: WaitingRooms
 ) => {
   app.post('/api/addWebinarToCache', isAuthenticatedWithJWT, (req, res) => {
-    const { webinarID } = req.body;
-    if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request'));
+    const { webinarID, hostID } = req.body;
+    if (!webinarID || !hostID)
+      return res.json(sendPacket(-1, 'webinarID or hostID not in request'));
 
     if (webinarID in webinarCache) {
       log('info', `Webinar ${webinarID} already initialized in cache`);
@@ -24,7 +25,7 @@ module.exports = (
     }
 
     const startTime = Date.now();
-    webinarCache[webinarID] = { users: {}, startTime };
+    webinarCache[webinarID] = { users: {}, startTime, host: hostID };
 
     log('info', `Added webinar ${webinarID} to cache`);
     log('info', `Active Webinars: ${Object.keys(webinarCache)}`);

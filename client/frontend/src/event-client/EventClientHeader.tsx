@@ -47,7 +47,7 @@ type Props = {
   minWidth?: number;
   showNavigationWidth?: number;
   showNavigationMenuDefault?: boolean;
-  requestToSpeak?: () => void;
+  onRequestToSpeak?: () => void;
 };
 
 function EventClientHeader(props: Props) {
@@ -161,9 +161,9 @@ function EventClientHeader(props: Props) {
               </a>
             </div>
 
-            {props.requestToSpeak && (
+            {props.onRequestToSpeak && (
               <RSButton
-                onClick={props.requestToSpeak}
+                onClick={props.onRequestToSpeak}
                 className={styles.requestToSpeakButton}
               >
                 Request to Speak
