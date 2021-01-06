@@ -1,13 +1,21 @@
 const colors = {
-  primary: '#242D56', // Dark-Blue
-  secondary: '#1D2445', // Light-Dark
+  //primary: '#242D56', // Dark-Blue
+  //secondary: '#1D2445', // Light-Dark
   ternary: '#3C4469', // Light-Blue
   background: 'rgb(227, 227, 227)', // Light-Gray
-  primaryText: '#F8F8FF', // Ghost-White
+  //primaryText: '#F8F8FF', // Ghost-White
   secondaryText: '#6D738E', // Light-Grey
   error: '#440C16', // Dark Red
   brightError: '#900C1C', // Red
   success: '#4BB543', // Green
+
+  // UPDATED COLORS
+  primary: '#545454', // Dark-Grey
+  primaryText: '#FFFFFF', // White
+  secondary: '#545454',
+  accent: '#FFF9E1', // Pastel Yellow
+  bright: '#61C87F', // RootShare Green
+  brightHover: '#B5E5C3', // Opaque Green
 
   // DARK TO LIGHT COLOR PALETTE BELOW
 
@@ -28,8 +36,8 @@ const colors = {
   'tint-three': '#737993', // Lightest
 
   // HIGHLIGHTS OF BLUE
-  bright: '#6699FF', // Bright
-  brightHover: '#9cbdff',
+  //bright: '#6699FF', // Bright
+  //brightHover: '#9cbdff',
 
   accentColors: ['#988ADE', '#DE8AA0', '#8AAEDE', '#8ADEAD', '#DEC58A', '#8AD1DE'],
   //We can break this out into its own color names later, but just wanted to save these for now

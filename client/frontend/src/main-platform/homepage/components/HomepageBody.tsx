@@ -18,6 +18,7 @@ import {
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import MeetTheGreeksInfoCard from '../../meet-the-greeks/MeetTheGreeksInfoCard';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -26,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.primary,
     marginTop: 80,
   },
   posts: {
@@ -46,7 +47,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   box: {
-    // background: colors.primaryText,
+    // background: Theme.white,
     margin: 8,
   },
 }));
@@ -203,7 +204,7 @@ function HomepageBody(props: Props) {
         <div className={styles.posts}>{feed}</div>
       ) : (
         <div style={{ marginTop: 10 }}>
-          <RSText size={18} bold type="head" color={colors.primary}>
+          <RSText size={18} bold type="head" color={Theme.primary}>
             There was an error retrieving your posts.
           </RSText>
         </div>
