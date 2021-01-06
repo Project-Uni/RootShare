@@ -1,4 +1,4 @@
-import { Client, RequestParams, ApiResponse, errors } from '@elastic/elasticsearch';
+import { Client } from '@elastic/elasticsearch';
 const {
   ELASTIC_CLIENT_ID,
   ELASTIC_USERNAME,
@@ -19,33 +19,73 @@ const client = new Client({
   },
 });
 
-const initializeIndex = (index: string, callback: () => void) => {
-  client.indices.create(
-    {
-      index,
+const Indexes = {
+  ServiceLogIndex: 'general-v2',
+};
+
+const DefaultIndexBody = {
+  mappings: {
+    properties: {
+      path: { type: 'text' },
+      method: { type: 'text' },
+      timestamp: { type: 'date' },
+      reqBody: { type: 'text' },
+      success: { type: 'long' },
+      message: { type: 'text' },
+      content: { type: 'text' },
     },
-    (err) => {
-      if (err) log('info', `Found log index: ${index}`);
-      else log('info', `Creating log index: ${index}`);
-      callback();
-    }
-  );
+  },
+};
+
+//We can generalize body for specific indexes
+const createIndex = async (
+  index: string,
+  body: { mappings: { properties: { [key: string]: any } } } = DefaultIndexBody
+) => {
+  try {
+    await client.indices.create({
+      index,
+      body,
+    });
+    log('info', `Creating log index: ${index}`);
+  } catch (err) {
+    if (err.message.includes('resource_already_exists_exception'))
+      log('info', `Found log index: ${index}`);
+    else log('error', err.message);
+  }
+};
+
+//Dont use this unless you have to, this will delete all logs with a certain index
+const deleteIndex = async (index: string) => {
+  try {
+    await client.indices.delete({ index });
+    log('info', `Successfully deleted index: ${index}`);
+  } catch (err) {
+    log('error', err.message);
+  }
 };
 
 export const initialize = async () => {
-  initializeIndex('v0_service_logs', () =>
-    createElasticLog(
-      '/',
-      'GET',
-      sendPacket(0, 'Testing!'),
-      sendPacket(-1, 'Other testing')
-    )
+  const res = await Promise.all(
+    Object.keys(Indexes).map((indexKey) => {
+      createIndex(Indexes[indexKey]);
+    })
   );
+  // await createIndex(Indexes.ServiceLogIndex);
+
+  //Additional
+  await createElasticLog(
+    '/',
+    'GET',
+    sendPacket(0, 'Testing!'),
+    sendPacket(-1, 'Other testing')
+  );
+  client.close();
 };
 
-export const createElasticLog = (
+export const createElasticLog = async (
   path: string,
-  method: string,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   response: {
     success: number;
     content?: { [key: string]: any };
@@ -53,30 +93,27 @@ export const createElasticLog = (
   },
   requestBody?: { [key: string]: any }
 ) => {
-  const requestBodyFormatted = requestBody ? JSON.stringify(requestBody) : undefined;
-  const responseFormatted = {
-    success: response.success,
-    message: response.success,
-    content: response.content ? JSON.stringify(response.content) : undefined,
-  };
-
-  client.index(
-    {
-      index: 'v1_service_logs',
+  try {
+    await client.index({
+      index: Indexes.ServiceLogIndex,
       type: 'service_log',
       body: {
         path,
         method,
         timestamp: new Date(),
-        reqBody: requestBodyFormatted,
-        response: responseFormatted,
+        reqBody: requestBody ? JSON.stringify(requestBody) : undefined,
+        success: Math.floor(response.success),
+        message: response.message,
+        content: response.content ? JSON.stringify(response.content) : undefined,
+        env: process.env.NODE_ENV,
       },
-    },
-    (err, resp) => {
-      console.log('Error:', err);
-      console.log('Data:', resp);
-    }
-  );
+    });
+    log('info', 'Sent log');
+  } catch (err) {
+    console.log(err.meta.body.error.root_cause);
+  }
 };
 
-initialize();
+initialize().then(() => {
+  console.log('Done');
+});
