@@ -121,6 +121,11 @@ function EventHostContainer(props: Props) {
     initializeSession();
   }, []);
 
+  useEffect(() => {
+    if (!props.webinar) return;
+    setIsStreaming(!!props.webinar.muxPlaybackID);
+  }, [props.webinar.muxPlaybackID]);
+
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH)
       setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);

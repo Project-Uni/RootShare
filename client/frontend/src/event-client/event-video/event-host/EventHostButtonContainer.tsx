@@ -11,6 +11,7 @@ import {
 
 import ManageSpeakersDialog from './ManageSpeakersDialog';
 import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
+import { RSText } from '../../../base-components';
 
 import { colors } from '../../../theme/Colors';
 import { slideLeft } from '../../../helpers/functions';
@@ -159,7 +160,7 @@ function EventHostButtonContainer(props: Props) {
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          disabled={props.loading || !props.isStreaming || manageSpeakersDisabled}
+          disabled={props.loading || manageSpeakersDisabled}
           onClick={() => setShowManageDialog(true)}
         >
           Manage Speakers
