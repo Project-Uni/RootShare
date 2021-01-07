@@ -23,7 +23,7 @@ import EventWelcomeModal from './EventWelcomeModal';
 import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
 
 import { colors } from '../theme/Colors';
-import { EventType, MuxMetaDataType } from '../helpers/types';
+import { EventType, MuxMetaDataType, SpeakRequestType } from '../helpers/types';
 
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
@@ -91,6 +91,7 @@ function EventClientBase(props: Props) {
 
   const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
   const [showRequestSpeakButton, setShowRequestSpeakButton] = useState(false);
+  const [speakRequests, setSpeakRequests] = useState<SpeakRequestType[]>([]);
 
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarMode, setSnackbarMode] = useState<
@@ -162,7 +163,6 @@ function EventClientBase(props: Props) {
 
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
-      initializeHostSocket(webinar['_id']);
       setEventMode('admin');
       return;
     } else {
@@ -192,8 +192,28 @@ function EventClientBase(props: Props) {
     );
   }
 
-  function initializeHostSocket(webinarID: string) {
+  function initializeHostSocket() {
     socket = socketIOClient(WEBINAR_CACHE_IP);
+    setSpeakRequests([]);
+    socket.emit('new-host', webinarEvent._id);
+
+    socket.on('request-to-speak', (viewer: SpeakRequestType) => {
+      setSpeakRequests((prevRequests) => prevRequests.concat(viewer));
+      alert(`${viewer.firstName} ${viewer.lastName}: ${viewer._id}`);
+    });
+  }
+
+  function removeSpeakRequest(viewerID: string) {
+    setSpeakRequests((prevSpeakRequests) => {
+      let newSpeakRequests = prevSpeakRequests.slice();
+      for (let i = 0; i < newSpeakRequests.length; i++)
+        if (newSpeakRequests[i]._id === viewerID) {
+          newSpeakRequests.splice(i, 1);
+          return newSpeakRequests;
+        }
+
+      return newSpeakRequests;
+    });
   }
 
   function initializeViewerSocket(webinarID: string) {
@@ -255,7 +275,7 @@ function EventClientBase(props: Props) {
   }
 
   function onRequestToSpeak() {
-    socket.emit('request-to-speak');
+    socket.emit('request-to-speak', webinarEvent._id);
     handleSnackbar('Requested Host to join as a speaker', 'notify');
   }
 
@@ -290,6 +310,9 @@ function EventClientBase(props: Props) {
           webinar={webinarEvent}
           speaking_token={speaking_token}
           sessionID={sessionID}
+          speakRequests={speakRequests}
+          removeSpeakRequest={removeSpeakRequest}
+          initializeHostSocket={initializeHostSocket}
         />
       );
   }
@@ -370,7 +393,11 @@ function EventClientBase(props: Props) {
       <EventClientHeader
         minWidth={minHeaderWidth}
         showNavigationMenuDefault
-        onRequestToSpeak={showRequestSpeakButton ? onRequestToSpeak : undefined}
+        onRequestToSpeak={
+          showRequestSpeakButton && eventMode === 'viewer'
+            ? onRequestToSpeak
+            : undefined
+        }
       />
       <div className={styles.body}>
         <div className={styles.left}>

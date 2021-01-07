@@ -9,8 +9,8 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     isEventHost,
     async (req, res) => {
-      const { webinarID, hostID } = req.body;
-      if (!webinarID || !hostID)
+      const { webinarID } = req.body;
+      if (!webinarID)
         return res.json(sendPacket(-1, 'No webinarID in request body'));
 
       const authHeader = req.headers['authorization'];
@@ -22,7 +22,6 @@ module.exports = (app) => {
         'POST',
         {
           webinarID,
-          hostID,
         },
         true,
         accessToken,

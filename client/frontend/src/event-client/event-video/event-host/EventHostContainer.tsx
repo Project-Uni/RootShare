@@ -8,8 +8,8 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 
 import EventHostButtonContainer from './EventHostButtonContainer';
 
-import { log } from '../../../helpers/functions';
-import { makeRequest } from '../../../helpers/functions';
+import { log, makeRequest } from '../../../helpers/functions';
+import { SpeakRequestType } from '../../../helpers/types';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -62,15 +62,20 @@ const useStyles = makeStyles((_: any) => ({
 type EventMode = 'viewer' | 'speaker' | 'admin';
 
 type Props = {
+  mode: 'speaker' | 'admin';
+  webinar: EventType;
+  speaking_token?: string;
+  sessionID?: string;
+
+  speakRequests: SpeakRequestType[];
+  removeSpeakRequest: (viewerID: string) => void;
+  initializeHostSocket: () => void;
+
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-  mode: 'speaker' | 'admin';
-  webinar: EventType;
-  speaking_token?: string;
-  sessionID?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -132,6 +137,7 @@ function EventHostContainer(props: Props) {
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
+        props.initializeHostSocket();
         const streamStarted = await startLiveStream(
           props.webinar['_id'],
           props.accessToken,
@@ -147,7 +153,7 @@ function EventHostContainer(props: Props) {
             screenPublisher.stream?.streamId
           );
         }
-        addToCache(props.webinar._id, props.user._id);
+        addToCache(props.webinar._id);
       }
     }
   }
@@ -467,6 +473,8 @@ function EventHostContainer(props: Props) {
         loading={publisherLoading}
         removeGuestSpeaker={removeGuestSpeaker}
         sessionID={eventSessionID}
+        speakRequests={props.speakRequests}
+        removeSpeakRequest={props.removeSpeakRequest}
       />
     </div>
   );

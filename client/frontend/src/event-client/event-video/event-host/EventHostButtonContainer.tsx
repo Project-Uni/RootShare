@@ -14,7 +14,7 @@ import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
 
 import { colors } from '../../../theme/Colors';
 import { slideLeft } from '../../../helpers/functions';
-import { SnackbarMode } from '../../../helpers/types';
+import { SnackbarMode, SpeakRequestType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,6 +53,9 @@ type Props = {
   mode: 'admin' | 'speaker';
   removeGuestSpeaker: (connection: OT.Connection) => void;
   sessionID: string;
+
+  speakRequests: SpeakRequestType[];
+  removeSpeakRequest: (viewerID: string) => void;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -99,6 +102,8 @@ function EventHostButtonContainer(props: Props) {
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
         sessionID={props.sessionID}
+        speakRequests={props.speakRequests}
+        removeSpeakRequest={props.removeSpeakRequest}
       />
 
       {props.mode === 'admin' && (
@@ -154,7 +159,7 @@ function EventHostButtonContainer(props: Props) {
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
-          disabled={props.loading || manageSpeakersDisabled}
+          disabled={props.loading || !props.isStreaming || manageSpeakersDisabled}
           onClick={() => setShowManageDialog(true)}
         >
           Manage Speakers

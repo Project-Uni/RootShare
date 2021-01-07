@@ -15,8 +15,8 @@ module.exports = (
   waitingRooms: WaitingRooms
 ) => {
   app.post('/api/addWebinarToCache', isAuthenticatedWithJWT, (req, res) => {
-    const { webinarID, hostID } = req.body;
-    if (!webinarID || !hostID)
+    const { webinarID } = req.body;
+    if (!webinarID)
       return res.json(sendPacket(-1, 'webinarID or hostID not in request'));
 
     if (webinarID in webinarCache) {
@@ -25,7 +25,11 @@ module.exports = (
     }
 
     const startTime = Date.now();
-    webinarCache[webinarID] = { users: {}, startTime, host: hostID };
+    webinarCache[webinarID] = {
+      users: {},
+      host: waitingRooms[webinarID].host,
+      startTime,
+    };
 
     log('info', `Added webinar ${webinarID} to cache`);
     log('info', `Active Webinars: ${Object.keys(webinarCache)}`);

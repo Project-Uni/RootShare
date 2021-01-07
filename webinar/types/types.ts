@@ -9,6 +9,7 @@ export type WaitingRooms = {
 };
 
 export type WaitingRoom = {
+  host: Socket;
   users: {
     [key: string]: {
       socket: Socket;
@@ -18,10 +19,10 @@ export type WaitingRoom = {
 };
 
 export type Webinar = {
+  host: Socket;
   users: {
     [key: string]: Socket;
   };
-  host: Socket;
   speakingToken?: string;
   guestSpeaker?: {
     _id: string;

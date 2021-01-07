@@ -41,52 +41,48 @@ module.exports = (
 
         socketWebinarId = webinarID;
 
-        if (!(webinarID in webinarCache)) {
-          try {
-            const webinars = await Webinar.find(
-              { _id: webinarID },
-              { _id: 1 }
-            ).limit(1);
-            if (webinars.length === 0) {
-              //Webinar does not exist
-              socket.emit('webinar-error', 'WebinarID not valid');
-              return log('error', 'Invalid webinarID received');
-            }
-
-            //Webinar exists
-            if (!(webinarID in waitingRooms)) {
-              waitingRooms[webinarID] = { users: {} };
-            }
-            waitingRooms[webinarID].users[userID] = {
-              socket: socket,
-              joinedAt: Date.now(),
-            };
-
-            socket.join(`webinar_${webinarID}`);
-
-            socket.emit(
-              'waiting-room-add',
-              `You have been added to the waiting room for ${webinarID}`
-            );
-            return log(
-              'info',
-              `Added user ${firstName} ${lastName} to waiting room for webinar ${webinarID}`
-            );
-          } catch (err) {
-            socket.emit(
-              'webinar-error',
-              'There was an error connecting to the database'
-            );
-            return log('error', err);
-          }
+        if (webinarID in webinarCache) {
+          socket.join(`webinar_${webinarID}`);
+          webinarCache[webinarID].users[userID] = socket;
+          return log(
+            'info',
+            `Successfully added user ${socketUserFirstName} ${socketUserLastName} to cache for webinar ${webinarID}`
+          );
         }
-        socket.join(`webinar_${webinarID}`);
 
-        webinarCache[webinarID].users[userID] = socket;
-        log(
-          'info',
-          `Successfully added user ${socketUserFirstName} ${socketUserLastName} to cache for webinar ${webinarID}`
-        );
+        try {
+          const webinarExists = await Webinar.exists({ _id: webinarID });
+          if (!webinarExists) {
+            socket.emit('webinar-error', 'WebinarID not valid');
+            return log('error', 'Invalid webinarID received');
+          }
+
+          //Webinar exists
+          if (!(webinarID in waitingRooms)) {
+            waitingRooms[webinarID] = { users: {}, host: undefined };
+          }
+          waitingRooms[webinarID].users[userID] = {
+            socket: socket,
+            joinedAt: Date.now(),
+          };
+
+          socket.join(`webinar_${webinarID}`);
+
+          socket.emit(
+            'waiting-room-add',
+            `You have been added to the waiting room for ${webinarID}`
+          );
+          return log(
+            'info',
+            `Added user ${firstName} ${lastName} to waiting room for webinar ${webinarID}`
+          );
+        } catch (err) {
+          socket.emit(
+            'webinar-error',
+            'There was an error connecting to the database'
+          );
+          return log('error', err);
+        }
       }
     );
 
@@ -126,8 +122,41 @@ module.exports = (
     });
 
     // Get request from a viewer's Socket and send to host's Socket
-    socket.on('request-to-speak', (webinarID: string) => {
-      webinarCache[webinarID].host.emit('request-to-speak');
+    socket.on('request-to-speak', () => {
+      if (socketWebinarId in webinarCache && webinarCache[socketWebinarId].host)
+        webinarCache[socketWebinarId].host.emit('request-to-speak', {
+          _id: socketUserId,
+          firstName: socketUserFirstName,
+          lastName: socketUserLastName,
+        });
+    });
+
+    // HOST SOCKET SETUP
+    socket.on('new-host', async (webinarID: string) => {
+      if (!webinarID) return log('alert', 'Invalid socket connection received');
+
+      log('new-host', 'The host socket is being added');
+
+      if (webinarID in webinarCache) {
+        webinarCache[webinarID].host = socket;
+        return log(
+          'info',
+          `Successfully added host to cache for webinar ${webinarID}`
+        );
+      }
+
+      try {
+        const webinarExists = await Webinar.exists({ _id: webinarID });
+        if (!webinarExists) return log('error', 'Invalid webinarID received');
+
+        //Webinar exists
+        if (webinarID in waitingRooms) waitingRooms[webinarID].host = socket;
+        else waitingRooms[webinarID] = { users: {}, host: socket };
+
+        return log('info', `Added host to waiting room for webinar ${webinarID}`);
+      } catch (err) {
+        return log('error', err);
+      }
     });
   });
 };

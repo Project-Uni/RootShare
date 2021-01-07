@@ -59,3 +59,9 @@ export type MuxMetaDataType = {
   webinarID: string;
   eventTitle: string;
 };
+
+export type SpeakRequestType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+};

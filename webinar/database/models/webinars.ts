@@ -8,7 +8,8 @@ var webinarSchema = new Schema(
     full_description: { type: String },
     host: { type: Schema.ObjectId, ref: 'users' },
     speakers: [{ type: Schema.ObjectId, ref: 'users' }],
-    // attendees: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
+    conversation: { type: Schema.ObjectId, ref: 'conversations' },
+    RSVPs: { type: [{ type: Schema.ObjectId, ref: 'users' }], default: [] },
     attendees: { type: {}, default: {} },
     dateTime: { type: Date },
     opentokSessionID: String,
@@ -16,12 +17,16 @@ var webinarSchema = new Schema(
     muxStreamKey: String,
     muxLiveStreamID: String,
     muxPlaybackID: String,
+    muxAssetPlaybackID: String,
     availableCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
     hostCommunity: { type: Schema.ObjectId, ref: 'communities' },
     private: { type: Boolean },
-    //TODO - Add field for image
+    eventImage: { type: String },
+    eventBanner: { type: String },
+    blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
+    isDev: { type: Boolean },
   },
   { timestamps: true }
 );

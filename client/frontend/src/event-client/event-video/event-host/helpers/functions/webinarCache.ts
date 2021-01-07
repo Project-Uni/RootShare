@@ -1,9 +1,8 @@
 import { makeRequest, log } from '../../../../../helpers/functions';
 
-export async function addToCache(webinarID: string, hostID: string) {
+export async function addToCache(webinarID: string) {
   const { data } = await makeRequest('POST', '/proxy/addWebinarToCache', {
     webinarID,
-    hostID,
   });
   log('info', `Server Response: ${data['message']}`);
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { CircularProgress, IconButton } from '@material-ui/core';
+import { CircularProgress, IconButton, Button } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 import { IoMdClose } from 'react-icons/io';
 
@@ -11,7 +11,7 @@ import { UserSearch } from '../../../main-platform/reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
-import { SnackbarMode } from '../../../helpers/types';
+import { SnackbarMode, SpeakRequestType } from '../../../helpers/types';
 import theme from '../../../theme/Theme';
 import { colors } from '../../../theme/Colors';
 
@@ -36,6 +36,32 @@ const useStyles = makeStyles((_: any) => ({
   },
   textField: {
     width: 460,
+  },
+  speakRequestsContainer: {
+    marginTop: 10,
+    borderTopStyle: 'solid',
+  },
+  speakRequestWrapper: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  requestButtonContainer: {
+    display: 'flex',
+  },
+  removeButton: {
+    color: colors.primaryText,
+    background: 'gray',
+    height: 27,
+    marginTop: 7,
+  },
+  acceptButton: {
+    color: colors.primaryText,
+    background: colors.bright,
+    height: 27,
+    marginTop: 7,
+    marginLeft: 7,
   },
 }));
 
@@ -84,6 +110,9 @@ type Props = {
   webinarID: string;
   sessionID: string;
 
+  speakRequests: SpeakRequestType[];
+  removeSpeakRequest: (viewerID: string) => void;
+
   onClose: () => any;
   handleSnackbar: (message: string, mode: SnackbarMode) => void;
   onAdd: (user: { [key: string]: any }) => void;
@@ -97,6 +126,8 @@ function MeetTheGreeksModal(props: Props) {
     open,
     webinarID,
     sessionID,
+    speakRequests,
+    removeSpeakRequest,
     handleSnackbar,
     onClose,
     onAdd,
@@ -164,6 +195,33 @@ function MeetTheGreeksModal(props: Props) {
     updateFields([{ key: 'searchedUser', value: undefined }]);
     setServerErr('');
   }, [searchedUser, webinarID, sessionID]);
+
+  const onAcceptRequest = useCallback(
+    async (newSpeaker: SpeakRequestType) => {
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/inviteUserToSpeak',
+        {
+          userID: newSpeaker._id,
+          webinarID,
+          sessionID,
+        }
+      );
+
+      if (data.success !== 1)
+        return setServerErr('There was an error inviting this user');
+
+      const guestSpeaker = { ...newSpeaker };
+      onAdd(guestSpeaker);
+
+      handleSnackbar('Successfully invited user to speak.', 'success');
+
+      updateFields([{ key: 'searchedUser', value: undefined }]);
+      removeSpeakRequest(newSpeaker._id);
+      setServerErr('');
+    },
+    [webinarID, sessionID]
+  );
 
   const handleRemoveSpeaker = useCallback(async () => {
     if (
@@ -283,6 +341,37 @@ function MeetTheGreeksModal(props: Props) {
   //   );
   // }
 
+  const renderSpeakRequests = () => {
+    const requests: any[] = [];
+    if (speakRequests.length === 0) return;
+
+    speakRequests.forEach((speakRequest) => {
+      requests.push(
+        <div className={styles.speakRequestWrapper} key={speakRequest._id}>
+          <RSText>{`${speakRequest.firstName} ${speakRequest.lastName}`}</RSText>
+          <div className={styles.requestButtonContainer}>
+            <Button
+              className={styles.removeButton}
+              size="small"
+              onClick={() => removeSpeakRequest(speakRequest._id)}
+            >
+              Remove
+            </Button>
+            <Button
+              className={styles.acceptButton}
+              size="small"
+              onClick={() => onAcceptRequest(speakRequest)}
+            >
+              Invite
+            </Button>
+          </div>
+        </div>
+      );
+    });
+
+    return <div className={styles.speakRequestsContainer}>{requests}</div>;
+  };
+
   return (
     <>
       <RSModal
@@ -318,6 +407,7 @@ function MeetTheGreeksModal(props: Props) {
               <RSText type="body" color={colors.secondaryText}>
                 {numViewers} Active Viewer{numViewers !== 1 && 's'}
               </RSText>
+              {renderSpeakRequests()}
             </>
           )}
         </div>
