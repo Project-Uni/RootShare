@@ -33,12 +33,10 @@ const DefaultIndexBody = {
       success: { type: 'long' },
       message: { type: 'text' },
       content: { type: 'text' },
+      duration: { type: 'float' },
     },
   },
 };
-
-const LogBuffer = [];
-const MaxBufferLen = 5;
 
 //We can generalize body for specific indexes
 const createIndex = async (
@@ -69,21 +67,23 @@ const deleteIndex = async (index: string) => {
 };
 
 export const initialize = async () => {
+  log('info', 'Initializing Elastic Search');
   const res = await Promise.all(
     Object.keys(Indexes).map((indexKey) => {
       createIndex(Indexes[indexKey]);
     })
   );
-  // await createIndex(Indexes.ServiceLogIndex);
+  log('info', 'Finished initializing elastic search');
+  // // await createIndex(Indexes.ServiceLogIndex);
 
-  //Additional
-  await createElasticLog(
-    '/',
-    'GET',
-    sendPacket(0, 'Testing!'),
-    sendPacket(-1, 'Other testing')
-  );
-  client.close();
+  // //Additional
+  // await createElasticLog(
+  //   '/',
+  //   'GET',
+  //   sendPacket(0, 'Testing!'),
+  //   sendPacket(-1, 'Other testing')
+  // );
+  // client.close();
 };
 
 export const createElasticLog = async (
@@ -91,7 +91,7 @@ export const createElasticLog = async (
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   response: {
     success: number;
-    content?: { [key: string]: any };
+    // content?: { [key: string]: any };
     message: string;
   },
   requestBody?: { [key: string]: any }
@@ -107,7 +107,7 @@ export const createElasticLog = async (
         reqBody: requestBody ? JSON.stringify(requestBody) : undefined,
         success: Math.floor(response.success),
         message: response.message,
-        content: response.content ? JSON.stringify(response.content) : undefined,
+        // content: response.content ? JSON.stringify(response.content) : undefined,
         env: process.env.NODE_ENV,
       },
     });
@@ -117,6 +117,51 @@ export const createElasticLog = async (
   }
 };
 
-initialize().then(() => {
-  console.log('Done');
-});
+// initialize().then(() => {
+//   console.log('Done');
+// });
+
+//TODO - delete all passwords
+
+export const elasticMiddleware = (req, res, next) => {
+  const oldWrite = res.write;
+  const oldEnd = res.end;
+
+  const chunks = [];
+
+  res.write = (...restArgs) => {
+    chunks.push(Buffer.from(restArgs[0]));
+    oldWrite.apply(res, restArgs);
+  };
+
+  res.end = (...restArgs) => {
+    if (restArgs[0]) {
+      chunks.push(Buffer.from(restArgs[0]));
+    }
+    const body = Buffer.concat(chunks).toString('utf8');
+
+    const parsedBody = JSON.parse(JSON.stringify(body));
+    console.log(parsedBody);
+
+    if (parsedBody)
+      createElasticLog(
+        req.url,
+        req.method,
+        { success: parsedBody.success, message: parsedBody.message },
+        removeSensitiveData(req.body)
+      );
+
+    oldEnd.apply(res, restArgs);
+  };
+
+  next();
+};
+
+const removeSensitiveData = (requestBody: { [key: string]: any }) => {
+  const keys = Object.keys(requestBody).filter(
+    (key) => !SensitiveKeys.some((sensitiveKey) => key.includes(sensitiveKey))
+  );
+  return Object.assign({}, ...keys.map((key) => ({ [key]: requestBody[key] })));
+};
+
+const SensitiveKeys = ['password'];

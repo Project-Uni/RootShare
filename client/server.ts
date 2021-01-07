@@ -17,6 +17,10 @@ import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
 import university from './routes/university';
+import {
+  elasticMiddleware,
+  initialize as initializeElasticSearch,
+} from './helpers/functions/elasticSearch';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -53,7 +57,14 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
 // app.use(rateLimiter);
+
+initializeElasticSearch();
+
+//TIMING -https://ipirozhenko.com/blog/measuring-requests-duration-nodejs-express/
+
+app.use(elasticMiddleware);
 
 const server = http.createServer(app);
 const io = socketIO(server);
