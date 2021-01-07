@@ -91,7 +91,6 @@ export const createElasticLog = async (
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   response: {
     success: number;
-    // content?: { [key: string]: any };
     message: string;
   },
   requestBody?: { [key: string]: any }
@@ -107,7 +106,6 @@ export const createElasticLog = async (
         reqBody: requestBody ? JSON.stringify(requestBody) : undefined,
         success: Math.floor(response.success),
         message: response.message,
-        // content: response.content ? JSON.stringify(response.content) : undefined,
         env: process.env.NODE_ENV,
       },
     });
@@ -140,15 +138,19 @@ export const elasticMiddleware = (req, res, next) => {
     }
     const body = Buffer.concat(chunks).toString('utf8');
 
-    const parsedBody = JSON.parse(JSON.stringify(body));
-    console.log(parsedBody);
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(JSON.parse(JSON.stringify(body.toString())));
+    } catch (err) {
+      //Handling cases where request is a page render
+    }
 
     if (parsedBody)
       createElasticLog(
         req.url,
         req.method,
         { success: parsedBody.success, message: parsedBody.message },
-        removeSensitiveData(req.body)
+        req.method !== 'GET' ? removeSensitiveData(req.body) : undefined
       );
 
     oldEnd.apply(res, restArgs);
