@@ -62,8 +62,6 @@ app.use(passport.session());
 
 initializeElasticSearch();
 
-//TIMING -https://ipirozhenko.com/blog/measuring-requests-duration-nodejs-express/
-
 app.use(elasticMiddleware);
 
 const server = http.createServer(app);

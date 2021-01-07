@@ -6,7 +6,6 @@ const {
 } = require('../../../keys/keys.json');
 
 import { log } from './';
-import { sendPacket } from './sendPacket';
 
 const client = new Client({
   cloud: {
