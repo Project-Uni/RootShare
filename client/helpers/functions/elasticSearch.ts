@@ -91,7 +91,6 @@ const createElasticLog = async (
         env: process.env.NODE_ENV,
       },
     });
-    log('info', 'Sent log');
   } catch (err) {
     logElasticError(err);
   }
