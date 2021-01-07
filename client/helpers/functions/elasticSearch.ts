@@ -38,6 +38,16 @@ const DefaultIndexBody = {
   },
 };
 
+export const initialize = async () => {
+  log('info', 'Initializing Elastic Search');
+  const res = await Promise.all(
+    Object.keys(Indexes).map((indexKey) => {
+      createIndex(Indexes[indexKey]);
+    })
+  );
+  log('info', 'Finished initializing elastic search');
+};
+
 //We can specify body for specific indexes
 const createIndex = async (
   index: string,
@@ -52,41 +62,11 @@ const createIndex = async (
   } catch (err) {
     if (err.message.includes('resource_already_exists_exception'))
       log('info', `Found log index: ${index}`);
-    else log('error', err.message);
+    else logElasticError(err);
   }
 };
 
-//Dont use this unless you have to, this will delete all logs with a certain index
-const deleteIndex = async (index: string) => {
-  try {
-    await client.indices.delete({ index });
-    log('info', `Successfully deleted index: ${index}`);
-  } catch (err) {
-    log('error', err.message);
-  }
-};
-
-export const initialize = async () => {
-  log('info', 'Initializing Elastic Search');
-  const res = await Promise.all(
-    Object.keys(Indexes).map((indexKey) => {
-      createIndex(Indexes[indexKey]);
-    })
-  );
-  log('info', 'Finished initializing elastic search');
-  // // await createIndex(Indexes.ServiceLogIndex);
-
-  // //Additional
-  // await createElasticLog(
-  //   '/',
-  //   'GET',
-  //   sendPacket(0, 'Testing!'),
-  //   sendPacket(-1, 'Other testing')
-  // );
-  // client.close();
-};
-
-export const createElasticLog = async (
+const createElasticLog = async (
   path: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   response: {
@@ -113,15 +93,9 @@ export const createElasticLog = async (
     });
     log('info', 'Sent log');
   } catch (err) {
-    console.log(err.meta.body.error.root_cause);
+    logElasticError(err);
   }
 };
-
-// initialize().then(() => {
-//   console.log('Done');
-// });
-
-//TODO - delete all passwords
 
 export const elasticMiddleware = (req, res, next) => {
   const oldWrite = res.write;
@@ -141,31 +115,90 @@ export const elasticMiddleware = (req, res, next) => {
       chunks.push(Buffer.from(restArgs[0]));
     }
     const body = Buffer.concat(chunks).toString('utf8');
-
-    let parsedBody;
     try {
-      parsedBody = JSON.parse(JSON.parse(JSON.stringify(body.toString()))); //This would not work unless I had this level of depth lol
+      const parsedBody = JSON.parse(JSON.parse(JSON.stringify(body.toString()))); //This would not work unless I had this level of depth lol
+
+      if (parsedBody)
+        createElasticLog(
+          req.url,
+          req.method,
+          {
+            success: parsedBody.success,
+            message: parsedBody.message,
+            duration: accurateTimeDifferenceMS(startTime) / 1000,
+          },
+          req.method !== 'GET' ? removeSensitiveData(req.body) : undefined
+        );
     } catch (err) {
       //Handling cases where request is a page render
     }
-
-    if (parsedBody)
-      createElasticLog(
-        req.url,
-        req.method,
-        {
-          success: parsedBody.success,
-          message: parsedBody.message,
-          duration: accurateTimeDifferenceMS(startTime) / 1000,
-        },
-        req.method !== 'GET' ? removeSensitiveData(req.body) : undefined
-      );
 
     oldEnd.apply(res, restArgs);
   };
 
   next();
 };
+
+//ELASTIC DELETE WRAPPERS
+
+//Dont use this unless you have to, this will delete all logs with a certain index
+const deleteIndex = async (index: string) => {
+  try {
+    await client.indices.delete({ index });
+    log('info', `Successfully deleted index: ${index}`);
+  } catch (err) {
+    log('error', err.message);
+  }
+};
+
+//Used to delete a specific log using query
+export const deleteLogById = async (id: string, index: string) => {
+  try {
+    const res = await client.delete({ id, index });
+    return res;
+  } catch (err) {
+    logElasticError(err);
+    return false;
+  }
+};
+
+//You can use this to cleanup if you add a sensitive field by mistake
+export const deleteLogsWithField = async (index: string, field: string) => {
+  try {
+    const res = await client.deleteByQuery({
+      index,
+      body: {
+        query: {
+          query_string: {
+            query: `*${field}*`,
+            default_field: 'reqBody',
+          },
+        },
+      },
+    });
+    return res;
+  } catch (err) {
+    logElasticError(err);
+    return false;
+  }
+};
+
+// DOCS - https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+export const deleteLogByQuery = async (
+  index: string,
+  query: { [key: string]: any }
+) => {
+  try {
+    const res = await client.deleteByQuery({ index, body: query });
+    return res;
+  } catch (err) {
+    logElasticError(err);
+    return false;
+  }
+};
+
+//ELASTIC HELPERS
 
 const removeSensitiveData = (requestBody: { [key: string]: any }) => {
   const keys = Object.keys(requestBody).filter(
@@ -182,4 +215,8 @@ const accurateTimeDifferenceMS = (startTime: [number, number]) => {
   const diff = process.hrtime(startTime);
 
   return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS;
+};
+
+const logElasticError = (err) => {
+  console.log(err.meta.body.error.root_cause);
 };
