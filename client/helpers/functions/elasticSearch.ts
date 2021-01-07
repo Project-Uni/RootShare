@@ -33,12 +33,12 @@ const DefaultIndexBody = {
       success: { type: 'long' },
       message: { type: 'text' },
       content: { type: 'text' },
-      duration: { type: 'float' },
+      'duration-seconds': { type: 'float' },
     },
   },
 };
 
-//We can generalize body for specific indexes
+//We can specify body for specific indexes
 const createIndex = async (
   index: string,
   body: { mappings: { properties: { [key: string]: any } } } = DefaultIndexBody
@@ -92,6 +92,7 @@ export const createElasticLog = async (
   response: {
     success: number;
     message: string;
+    duration: number;
   },
   requestBody?: { [key: string]: any }
 ) => {
@@ -105,6 +106,7 @@ export const createElasticLog = async (
         timestamp: new Date(),
         reqBody: requestBody ? JSON.stringify(requestBody) : undefined,
         success: Math.floor(response.success),
+        'duration-seconds': response.duration,
         message: response.message,
         env: process.env.NODE_ENV,
       },
@@ -127,6 +129,8 @@ export const elasticMiddleware = (req, res, next) => {
 
   const chunks = [];
 
+  const startTime = process.hrtime();
+
   res.write = (...restArgs) => {
     chunks.push(Buffer.from(restArgs[0]));
     oldWrite.apply(res, restArgs);
@@ -140,7 +144,7 @@ export const elasticMiddleware = (req, res, next) => {
 
     let parsedBody;
     try {
-      parsedBody = JSON.parse(JSON.parse(JSON.stringify(body.toString())));
+      parsedBody = JSON.parse(JSON.parse(JSON.stringify(body.toString()))); //This would not work unless I had this level of depth lol
     } catch (err) {
       //Handling cases where request is a page render
     }
@@ -149,7 +153,11 @@ export const elasticMiddleware = (req, res, next) => {
       createElasticLog(
         req.url,
         req.method,
-        { success: parsedBody.success, message: parsedBody.message },
+        {
+          success: parsedBody.success,
+          message: parsedBody.message,
+          duration: accurateTimeDifferenceMS(startTime) / 1000,
+        },
         req.method !== 'GET' ? removeSensitiveData(req.body) : undefined
       );
 
@@ -167,3 +175,11 @@ const removeSensitiveData = (requestBody: { [key: string]: any }) => {
 };
 
 const SensitiveKeys = ['password'];
+
+const accurateTimeDifferenceMS = (startTime: [number, number]) => {
+  const NS_PER_SEC = 1e9;
+  const NS_TO_MS = 1e6;
+  const diff = process.hrtime(startTime);
+
+  return (diff[0] * NS_PER_SEC + diff[1]) / NS_TO_MS;
+};
