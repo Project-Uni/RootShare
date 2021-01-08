@@ -25,6 +25,7 @@ import {
 } from './profileHelpers/profilePictureHelpers';
 import { checkDesktop, log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -44,25 +45,34 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   paper: {
-    background: colors.primaryText,
+    background: Theme.white,
     borderRadius: 10,
     padding: 0,
   },
   dialogText: {
-    color: 'black',
+    color: Theme.dark,
   },
   cancelButton: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
   },
   saveButton: {
-    background: colors.primary,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.white,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   loadingIndicator: {
-    color: colors.primaryText,
+    color: Theme.bright,
   },
   placeholder: {
-    background: colors.bright,
+    background: Theme.accent,
+  },
+  disabledButton: {
+    background: Theme.disabledButton,
+    color: Theme.white,
+    marginLeft: 10,
+    marginRight: 1,
   },
 }));
 
@@ -234,7 +244,7 @@ function ProfileBanner(props: Props) {
         <div className={styles.cameraContainer}>
           {hovering && (
             <FaCamera
-              color={`rgba(220,220,220,0.8)`}
+              color={Theme.primaryText}
               size={32}
               style={{
                 position: 'absolute',
@@ -332,7 +342,7 @@ function ProfileBanner(props: Props) {
             Cancel
           </Button>
           <Button
-            className={styles.saveButton}
+            className={Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton}
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >

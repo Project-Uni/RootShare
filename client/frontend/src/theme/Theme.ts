@@ -28,7 +28,7 @@ const theme: { default: Theme; dark: Theme } = {
     secondary: '',
     //background: 'rgb(227, 227, 227)',
     primaryText: 'black',
-    secondaryText: '#6D738E',
+    secondaryText: '#545454',
     error: '#900C1C',
     success: '#4BB543',
     //bright: '#6699FF',
