@@ -165,6 +165,50 @@ export default function meetTheGreekRoutes(app) {
     }
   );
 
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/mtg/communications/{communityID}:
+   *      put:
+   *        summary: Create a new communication from a community to all interested users
+   *        tags:
+   *          - MeetTheGreeks
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community sending the message
+   *
+   *          - in: body
+   *            name: requested_message
+   *            schema:
+   *              type: object
+   *              required: message
+   *              properties:
+   *                message:
+   *                  type: string
+   *            required: true
+   *            description: The message the user is sending
+   *
+   *          - in: query
+   *            name: mode
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: text or email
+   *        responses:
+   *          "1":
+   *            description: Successfully sent message
+   *          "0":
+   *            description: Failed to send message
+   *          "-1":
+   *            description: Internal error occured
+   *
+   */
+
   app.put(
     '/api/mtg/communications/:communityID',
     isAuthenticatedWithJWT,
