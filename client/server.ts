@@ -4,6 +4,10 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+
+const swaggerUI = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
@@ -54,6 +58,38 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 // app.use(rateLimiter);
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'RootShare Swagger Specs',
+      version: '0.1.0',
+      description: 'Documentation for RootShare API Calls',
+      license: {
+        name: 'MIT',
+        url: 'https://spdx.org/licenses/MIT.html',
+      },
+      contact: {
+        name: 'RootShare',
+        url: 'https://rootshare.io',
+        email: 'dev@rootshare.io',
+      },
+    },
+    servers: [
+      {
+        url: 'http://rootshare.io/api',
+      },
+      {
+        url: 'http://cache.rootshare.io/api',
+      },
+    ],
+  },
+  apis: ['./routes/*.ts', './models/*.ts'],
+};
+
+const specs = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 const server = http.createServer(app);
 const io = socketIO(server);
