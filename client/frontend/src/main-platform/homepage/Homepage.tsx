@@ -24,7 +24,7 @@ const useStyles = makeStyles((_: any) => ({
     width: '100%',
   },
   body: {
-    //display: 'flex',
+    display: 'flex',
     justifyContent: 'space-between',
   },
 }));

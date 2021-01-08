@@ -6,15 +6,18 @@ import theme from '../../../theme/Theme';
 const useStyles = makeStyles((_: any) => ({
   base: {
     color: theme.altText,
-    '&:hover': {
-      background: theme.buttonHighlight,
-    },
   },
   primary: {
     background: theme.bright,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   secondary: {
     background: theme.primary,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   university: {
     background: theme.universityAccent,

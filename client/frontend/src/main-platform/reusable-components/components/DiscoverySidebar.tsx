@@ -195,7 +195,7 @@ function DiscoverySidebar(props: Props) {
           size={18}
           type="head"
           bold
-          color={theme.primaryText}
+          color={theme.dark}
           className={styles.peopleText}
         >
           People for you

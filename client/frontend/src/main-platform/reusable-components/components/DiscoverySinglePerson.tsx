@@ -31,18 +31,24 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primaryText,
+      color: theme.primary,
     },
   },
   removeButton: {
     color: theme.altText,
-    background: colors.secondary,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   connectButton: {
     color: theme.altText,
     background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
