@@ -13,19 +13,20 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   selectedTab: {
-    background: Theme.primary,
-    color: Theme.white,
+    background: Theme.white,
+    color: Theme.primary,
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },
   notSelectedTab: {
-    background: Theme.background,
-    color: Theme.primary,
+    background: Theme.primaryHover,
+    color: Theme.white,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
     '&:hover': {
       background: Theme.primary,
       color: Theme.white,
-      borderTopRightRadius: 8,
-      borderTopLeftRadius: 8,
+
     },
   },
   tab: {

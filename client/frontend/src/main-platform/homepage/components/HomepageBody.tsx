@@ -23,7 +23,7 @@ import Theme from '../../../theme/Theme';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: 'rgb(227, 227, 227)',
+    background: Theme.background,
     overflow: 'scroll',
   },
   loadingIndicator: {

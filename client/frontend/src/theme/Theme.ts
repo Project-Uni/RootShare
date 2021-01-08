@@ -7,6 +7,7 @@ type Theme = {
   secondary: string;
   accent: string;
   background: string;
+  primaryHover: string,
   primaryText: string;
   secondaryText: string;
   error: string;
@@ -39,6 +40,7 @@ const theme: { default: Theme; dark: Theme } = {
     // UPDATED COLORS
     white: '#FFFFFF',
     primary: '#545454',
+    primaryHover: '#C4C4C4',
     accent: '#FFF9E1',
     background: '#E3E3E3',
     bright: '#61C87F',
@@ -50,6 +52,7 @@ const theme: { default: Theme; dark: Theme } = {
     white: '',
     dark: '',
     primary: '',
+    primaryHover: '',
     secondary: '',
     accent: '',
     background: '',

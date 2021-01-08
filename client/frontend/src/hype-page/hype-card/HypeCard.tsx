@@ -6,13 +6,14 @@ import { FaArrowLeft } from 'react-icons/fa';
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
 
 import { colors } from '../../theme/Colors';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   linearProgress: {
-    backgroundColor: colors.second,
+    backgroundColor: Theme.bright,
   },
   linearProgressBg: {
-    backgroundColor: 'lightgrey',
+    backgroundColor: Theme.background,
   },
   linearProgressRoot: {
     height: 5,
@@ -27,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   rootshareLogo: {
-    height: '80px',
+    height: '72px',
   },
   header: {
     fontSize: '14pt',
@@ -55,7 +56,7 @@ function HypeCard(props: Props) {
     else if (props.backArrow === 'link')
       return (
         <a href={props.backArrowLink} className={styles.backArrow}>
-          <FaArrowLeft color={colors.second} size={24} />
+          <FaArrowLeft color={Theme.primary} size={24} />
         </a>
       );
     else
@@ -65,7 +66,7 @@ function HypeCard(props: Props) {
           className={styles.backArrow}
           onClick={props.backArrowAction}
         >
-          <FaArrowLeft color={colors.second} size={24} />
+          <FaArrowLeft color={Theme.primary} size={24} />
         </a>
       );
   }
