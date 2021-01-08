@@ -16,6 +16,15 @@ import {
   getInterestedUsers,
 } from '../interactions/meet-the-greeks';
 
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: MeetTheGreeks
+ *    description: API to manage MeetTheGreek Interactions
+ *
+ */
+
 export default function meetTheGreekRoutes(app) {
   app.get(
     '/api/mtg/events',
@@ -46,6 +55,38 @@ export default function meetTheGreekRoutes(app) {
       return res.json(await getInterestAnswers(userID, communityID));
     }
   );
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/mtg/interested/{communityID}:
+   *      get:
+   *        summary: Gets information of all users interersted in a community, if user is community admin
+   *        tags:
+   *          - MeetTheGreeks
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community
+   *        responses:
+   *          "1":
+   *            description: The list of all interested users for community
+   *            content:
+   *              application/json:
+   *                schema:
+   *                   type: array
+   *                   items:
+   *                    $ref: '#/components/schemas/MeetTheGreekInterest'
+   *          "0":
+   *            description: Could not find community or failed to find responses
+   *          "-1":
+   *            description: Internal error occured
+   *
+   */
 
   app.get(
     '/api/mtg/interested/:communityID',

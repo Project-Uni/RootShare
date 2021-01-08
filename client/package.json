@@ -37,6 +37,8 @@
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "socket.io": "^2.3.0",
+    "swagger-jsdoc": "^6.0.1",
+    "swagger-ui-express": "^4.1.6",
     "twilio": "^3.54.1"
   },
   "devDependencies": {
