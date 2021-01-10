@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, LinearProgress } from '@material-ui/core';
 
 import { FaArrowLeft } from 'react-icons/fa';
-import RootShareLogoFull from '../../images/RootShareLogoFull.png';
+import RootShareLogoFull from '../../images/RootShareLogoFullbeta.png';
 
 import { colors } from '../../theme/Colors';
 import Theme from '../../theme/Theme';
