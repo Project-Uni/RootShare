@@ -15,17 +15,18 @@ import { CommunityStatus, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
     // background: colors.primaryText,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
   },
   body: {},
   coverPhoto: {
-    background: colors.bright,
+    background: Theme.bright,
     height: 200,
     objectFit: 'cover',
     borderTopLeftRadius: 10,
@@ -37,26 +38,26 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
   },
   profilePicture: {
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 50,
   },
   loadingProfilePicture: {
-    background: colors['tint-three'],
+    background: Theme.background,
     height: 175,
     width: 175,
     borderRadius: 100,
     marginTop: -88,
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
     marginLeft: 50,
   },
   bodyContent: {
     marginTop: 10,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
     paddingBottom: 20,
   },
@@ -163,8 +164,8 @@ function CommunityBody(props: Props) {
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
-        <FaLock size={90} color={colors.second} />
-        <RSText type="subhead" size={20} color={colors.second}>
+        <FaLock size={90} color={Theme.primary} />
+        <RSText type="subhead" size={20} color={Theme.primary}>
           You must be a member to view this content.
         </RSText>
       </div>

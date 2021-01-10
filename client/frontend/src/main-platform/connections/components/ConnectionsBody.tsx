@@ -15,6 +15,7 @@ import { makeRequest } from '../../../helpers/functions';
 import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -44,12 +45,12 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 60,
   },
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.altText,
   },
 }));
 
@@ -135,7 +136,7 @@ function ConnectionsBody(props: Props) {
           )}
         />
         <IconButton>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+          <FaSearch size={22} color={Theme.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );
@@ -206,7 +207,7 @@ function ConnectionsBody(props: Props) {
       className={styles.wrapper}
       style={{
         height: height,
-        background: colors.background,
+        background: Theme.background,
       }}
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>

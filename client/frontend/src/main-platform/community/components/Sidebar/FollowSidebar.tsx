@@ -179,7 +179,7 @@ function FollowedByCommunities(props: Props) {
           size={14}
           type="body"
           bold
-          color={colors.secondaryText}
+          color={theme.secondaryText}
           className={styles.communityText}
         >
           Not followed by any communities yet

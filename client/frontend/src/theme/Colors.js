@@ -2,9 +2,9 @@ const colors = {
   //primary: '#242D56', // Dark-Blue
   //secondary: '#1D2445', // Light-Dark
   ternary: '#3C4469', // Light-Blue
-  background: 'rgb(227, 227, 227)', // Light-Gray
+  //background: 'rgb(227, 227, 227)', // Light-Gray
   //primaryText: '#F8F8FF', // Ghost-White
-  secondaryText: '#6D738E', // Light-Grey
+  //secondaryText: '#6D738E', // Light-Grey
   error: '#440C16', // Dark Red
   brightError: '#900C1C', // Red
   success: '#4BB543', // Green
@@ -12,8 +12,10 @@ const colors = {
   // UPDATED COLORS
   primary: '#545454', // Dark-Grey
   primaryText: '#FFFFFF', // White
+  secondaryText: '#FFFFFF', // Light-Grey
   secondary: '#545454',
   accent: '#FFF9E1', // Pastel Yellow
+  background: '#E3E3E3', //Light Grey
   bright: '#61C87F', // RootShare Green
   brightHover: '#B5E5C3', // Opaque Green
 

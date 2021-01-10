@@ -38,7 +38,7 @@ function MeetTheGreeksInfoCard(props: Props) {
         <img
           src={mtgBanner}
           style={{
-            height: '100%',
+            height: '10%',
             width: '100%',
             objectFit: 'contain',
             borderRadius: 10,

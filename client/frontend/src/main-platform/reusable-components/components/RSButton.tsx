@@ -21,6 +21,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   university: {
     background: theme.universityAccent,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   disabled: {
     background: theme.disabledButton,

@@ -17,7 +17,7 @@ import { FaCamera } from 'react-icons/fa';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
+import colors from '../../../theme/Theme';
 
 import { makeRequest } from '../../../helpers/functions';
 import ProfilePicture from '../../../base-components/ProfilePicture';
@@ -27,13 +27,13 @@ import { PostType, CommunityPostingOption } from '../../../helpers/types';
 const useStyles = makeStyles((_: any) => ({
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: colors.white,
   },
   profilePictureContainer: {
     marginTop: 1,
   },
   profilePicture: {
-    border: `1px solid ${colors.primary}`,
+    border: `1px solid ${colors.dark}`,
   },
   messageAreaWrapper: {
     borderRadius: 8,
@@ -44,7 +44,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   newPostTextField: {
     width: '100%',
-    background: colors.primaryText,
+    background: colors.white,
     borderRadius: 10,
     [`& fieldset`]: {
       borderRadius: 10,
@@ -56,7 +56,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   button: {
     background: colors.bright,
-    color: colors.primaryText,
+    color: colors.altText,
     marginLeft: 10,
     marginRight: 1,
     '&:hover': {
@@ -71,7 +71,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   disabledButton: {
     background: 'lightgrey',
-    color: colors.primaryText,
+    color: colors.altText,
     marginLeft: 10,
     marginRight: 1,
   },
@@ -79,7 +79,7 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 60,
   },
   broadcastIcon: {
-    color: colors.primaryText,
+    color: colors.altText,
     height: 20,
     width: 20,
     marginRight: 8,
@@ -244,7 +244,7 @@ function CommunityMakePostContainer(props: Props) {
           onClick={handleImageClicked}
           disabled={loading}
         >
-          <FaCamera size={12} color={colors.primaryText} />
+          <FaCamera size={12} color={colors.altText} />
           <span style={{ marginLeft: 10 }} />
           Image
         </Button>
@@ -285,7 +285,7 @@ function CommunityMakePostContainer(props: Props) {
             <>
               <span style={{ marginLeft: 8, marginRight: 8 }}>|</span>
               <span>
-                <BsFillCaretDownFill size={12} color={colors.primaryText} />
+                <BsFillCaretDownFill size={12} color={colors.altText} />
               </span>
             </>
           )}
@@ -333,7 +333,7 @@ function CommunityMakePostContainer(props: Props) {
                   setImageSrc(undefined);
               }}
             >
-              <RSText color={colors.primaryText} size={16} bold>
+              <RSText color={colors.altText} size={16} bold>
                 X
               </RSText>
             </IconButton>
@@ -367,7 +367,7 @@ function CommunityMakePostContainer(props: Props) {
               <RSText
                 className={styles.serverMessage}
                 color={
-                  serverMessage.status === 1 ? colors.success : colors.brightError
+                  serverMessage.status === 1 ? colors.success : colors.error
                 }
                 italic
               >

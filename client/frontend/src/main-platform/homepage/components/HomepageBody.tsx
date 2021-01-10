@@ -27,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
   },
   loadingIndicator: {
-    color: Theme.primary,
+    color: Theme.bright,
     marginTop: 80,
   },
   posts: {

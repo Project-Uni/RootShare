@@ -27,13 +27,12 @@ const theme: { default: Theme; dark: Theme } = {
     //primary: '#1D2445',
     secondary: '',
     //background: 'rgb(227, 227, 227)',
-    primaryText: 'black',
-    secondaryText: '#545454',
+    //primaryText: 'black',
+    //secondaryText: '#545454',
     error: '#900C1C',
     success: '#4BB543',
     //bright: '#6699FF',
     //altText: '#F8F8FF',
-    disabledButton: 'lightgray',
     buttonHighlight: '#3C4469',
     universityAccent: '#CEB888',
 
@@ -46,6 +45,9 @@ const theme: { default: Theme; dark: Theme } = {
     bright: '#61C87F',
     brightHover: '#7BD294',
     altText: '#FFFFFF',
+    primaryText: 'black',
+    secondaryText: '#545454',
+    disabledButton: 'lightgray',
 
   },
   dark: {

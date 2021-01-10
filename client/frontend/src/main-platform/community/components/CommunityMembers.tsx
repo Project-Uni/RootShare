@@ -10,6 +10,7 @@ import { ENTER_KEYCODE } from '../../../helpers/constants';
 
 import { UserHighlight } from '../../reusable-components';
 import { colors } from '../../../theme/Colors';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -39,11 +40,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.altText,
   },
   loadingIndicator: {
     marginTop: 75,
-    color: colors.primary,
+    color: Theme.bright,
   },
 }));
 
@@ -101,7 +102,7 @@ function CommunityMembers(props: Props) {
           onKeyDown={handleKeyDown}
         />
         <IconButton className={styles.searchButton} onClick={makeSearch}>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+          <FaSearch size={22} color={Theme.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );
