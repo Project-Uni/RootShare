@@ -33,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     marginTop: 80,
-    color: Theme.primary,
+    color: Theme.bright,
   },
   errorText: {
     marginLeft: 20,

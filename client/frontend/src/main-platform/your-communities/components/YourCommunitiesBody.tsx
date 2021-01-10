@@ -13,11 +13,12 @@ import { RSText } from '../../../base-components';
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
   },
   body: {},
@@ -39,10 +40,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     marginTop: 80,
-    color: colors.primary,
+    color: Theme.bright,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
   },
 }));

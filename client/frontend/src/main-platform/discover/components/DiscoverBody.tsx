@@ -21,11 +21,12 @@ import {
 import { makeRequest } from '../../../helpers/functions';
 import { DiscoverCommunity, DiscoverUser } from '../../../helpers/types';
 import { ENTER_KEYCODE, HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
   },
   body: {},
@@ -33,7 +34,7 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     marginRight: 10,
     marginLeft: 15,
-    background: colors.primaryText,
+    background: Theme.white,
   },
   searchBarContainer: {
     display: 'flex',
@@ -57,7 +58,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     marginTop: 80,
-    color: colors.primary,
+    color: Theme.bright,
   },
   noResultsText: {
     marginTop: 25,
@@ -66,7 +67,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 7,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
   },
 }));
@@ -248,7 +249,7 @@ function DiscoverBody(props: Props) {
           onKeyDown={handleKeyDown}
         />
         <IconButton onClick={makeSearch} className={styles.searchButton}>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+          <FaSearch size={22} color={Theme.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );
@@ -259,7 +260,7 @@ function DiscoverBody(props: Props) {
       <RSText
         type="head"
         size={18}
-        color={colors.primary}
+        color={Theme.primary}
         className={styles.noResultsText}
       >
         No results found.
