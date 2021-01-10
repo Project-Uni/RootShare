@@ -23,13 +23,16 @@ export type Webinar = {
   users: {
     [key: string]: Socket;
   };
-  speakingToken?: string;
-  guestSpeaker?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    connection?: { [key: string]: any };
-  };
+  speakingTokens: string[];
+  guestSpeakers: GuestSpeaker[];
   startTime: number;
+};
+
+type GuestSpeaker = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  speakingToken: string;
+  connection?: { [key: string]: any };
 };

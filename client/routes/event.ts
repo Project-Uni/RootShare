@@ -105,49 +105,4 @@ module.exports = (app) => {
       );
     }
   );
-
-  app.get(
-    '/api/webinar/:webinarID/getActiveViewers',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { webinarID } = req.params;
-      const authHeader = req.headers['authorization'];
-      const accessToken = authHeader && authHeader.split(' ')[1];
-
-      const data = await makeRequest(
-        'webinarCache',
-        `api/webinar/${webinarID}/getActiveViewers`,
-        'GET',
-        {},
-        true,
-        accessToken,
-        '',
-        req.user
-      );
-
-      if (data['success'] !== 1) {
-        return res.json(data);
-      }
-
-      console.log(data);
-      User.find(
-        { _id: { $in: data['content']['activeUserIDs'] } },
-        ['_id', 'firstName', 'lastName', 'email'],
-        (err, users) => {
-          if (err) {
-            log('error', err);
-            return res.json(
-              sendPacket(-1, 'There was an error retrieving active users')
-            );
-          }
-          return res.json(
-            sendPacket(1, 'Successfully retrieved all active users', {
-              users: users,
-              currentSpeaker: data['content']['currentSpeaker'],
-            })
-          );
-        }
-      );
-    }
-  );
 };

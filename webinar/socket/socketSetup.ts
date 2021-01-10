@@ -1,5 +1,6 @@
 import * as socketio from 'socket.io';
 import log from '../helpers/logger';
+import checkSpeakingTokenMatches from '../helpers/speakingToken';
 
 import { Webinar } from '../database/models';
 
@@ -95,24 +96,27 @@ module.exports = (
       }
     });
 
-    socket.on('speaking-invite-accepted', (data: { speaking_token: string }) => {
+    socket.on('speaking-invite-accepted', (data: { speakingToken: string }) => {
       //TODO - Notify the host that user has accepted speaking invite
-      const { speaking_token } = data;
-      log('info', `Speaking invite accepted with token: ${speaking_token}`);
+      const { speakingToken } = data;
+      log('info', `Speaking invite accepted with token: ${speakingToken}`);
       if (
-        !webinarCache[socketWebinarId].speakingToken ||
-        webinarCache[socketWebinarId].speakingToken !== speaking_token
+        !checkSpeakingTokenMatches(
+          webinarCache[socketWebinarId].speakingTokens,
+          speakingToken
+        )
       ) {
         log('socket', 'Speaking token was rejected');
         return socket.emit('speaking-token-rejected');
       }
       log('socket', 'Speaking token was accepted');
-      webinarCache[socketWebinarId].guestSpeaker = {
+      webinarCache[socketWebinarId].guestSpeakers.push({
         _id: socketUserId,
         firstName: socketUserFirstName,
         lastName: socketUserLastName,
         email: socketUserEmail,
-      };
+        speakingToken,
+      });
       socket.emit('speaking-token-accepted');
     });
 

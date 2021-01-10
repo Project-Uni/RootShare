@@ -29,6 +29,8 @@ module.exports = (
       users: {},
       host: waitingRooms[webinarID].host,
       startTime,
+      speakingTokens: [],
+      guestSpeakers: [],
     };
 
     log('info', `Added webinar ${webinarID} to cache`);
@@ -36,7 +38,7 @@ module.exports = (
 
     setTimeout(() => {
       broadcastEventStart(io, webinarID, waitingRooms, webinarCache);
-    }, 1000 * 45);
+    }, 1000 * 25);
 
     return res.json(sendPacket(1, 'Successfully initialized webinar in cache'));
   });
@@ -65,20 +67,19 @@ module.exports = (
       if (!(webinarID in webinarCache))
         return res.json(sendPacket(0, 'Webinar not found in cache'));
 
-      const activeUserIDs = Object.keys(webinarCache[webinarID].users);
+      const currWebinar = webinarCache[webinarID];
+      const activeUserIDs = Object.keys(currWebinar.users);
 
-      let currentSpeaker: { [key: string]: any };
-      if (webinarCache[webinarID].guestSpeaker) {
-        const currentSpeakerID = webinarCache[webinarID].guestSpeaker._id;
-        if (webinarCache[webinarID].users[currentSpeakerID]) {
-          currentSpeaker = webinarCache[webinarID].guestSpeaker;
-        }
-      }
+      // const currentSpeakers = [];
+      // currWebinar.guestSpeakers.forEach((guestSpeaker) => {
+      //   if (currWebinar.users[guestSpeaker._id]) currentSpeakers.push(guestSpeaker);
+      // });
 
+      console.log(currWebinar.guestSpeakers);
       return res.json(
         sendPacket(1, 'Successfully fetched active users', {
           activeUserIDs,
-          currentSpeaker: currentSpeaker || null,
+          currentSpeakers: currWebinar.guestSpeakers,
         })
       );
     }

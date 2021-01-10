@@ -74,7 +74,7 @@ type Props = {
 type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
 
 var socket: SocketIOClient.Socket;
-var speaking_token: string;
+var speakingToken: string;
 var sessionID: string;
 
 function EventClientBase(props: Props) {
@@ -163,6 +163,7 @@ function EventClientBase(props: Props) {
 
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
+      initializeHostSocket();
       setEventMode('admin');
       return;
     } else {
@@ -199,7 +200,6 @@ function EventClientBase(props: Props) {
 
     socket.on('request-to-speak', (viewer: SpeakRequestType) => {
       setSpeakRequests((prevRequests) => prevRequests.concat(viewer));
-      alert(`${viewer.firstName} ${viewer.lastName}: ${viewer._id}`);
     });
   }
 
@@ -228,11 +228,11 @@ function EventClientBase(props: Props) {
 
     socket.on(
       'speaking-invite',
-      (data: { speaking_token: string; sessionID: string }) => {
-        speaking_token = data.speaking_token;
+      (data: { speakingToken: string; sessionID: string }) => {
+        speakingToken = data.speakingToken;
         console.log(
-          'Received invitation to speak with speaking_token:',
-          speaking_token
+          'Received invitation to speak with speakingToken:',
+          speakingToken
         );
         sessionID = data.sessionID;
         setShowSpeakingInvite(true);
@@ -240,10 +240,10 @@ function EventClientBase(props: Props) {
     );
 
     socket.on('speaking-revoke', () => {
-      speaking_token = '';
+      speakingToken = '';
       sessionID = '';
+      if (eventMode !== 'viewer') alert('You have been removed as a speaker');
       setEventMode('viewer');
-      alert('You have been removed as a speaker');
     });
 
     socket.on('speaking-token-rejected', () => {
@@ -255,8 +255,8 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('event-started', () => {
-      alert('The event has started');
-      fetchEventInfo();
+      if (window.confirm('The event has started. Refresh the page?'))
+        window.location.reload(true);
     });
 
     socket.on('removed-from-event', () => {
@@ -265,7 +265,7 @@ function EventClientBase(props: Props) {
   }
 
   function onAcceptSpeakingInvite() {
-    socket.emit('speaking-invite-accepted', { speaking_token });
+    socket.emit('speaking-invite-accepted', { speakingToken });
     setShowSpeakingInvite(false);
   }
 
@@ -308,7 +308,7 @@ function EventClientBase(props: Props) {
         <EventHostContainer
           mode={eventMode as 'admin' | 'speaker'}
           webinar={webinarEvent}
-          speaking_token={speaking_token}
+          speakingToken={speakingToken}
           sessionID={sessionID}
           speakRequests={speakRequests}
           removeSpeakRequest={removeSpeakRequest}

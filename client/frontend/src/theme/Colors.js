@@ -37,4 +37,13 @@ const colors = {
   boilerGold: '#CEB888',
 };
 
-export { colors };
+function addAlpha(hex, alpha) {
+  if (alpha < 0 || alpha > 1) return hex;
+
+  let alphaHex = (alpha * 255).toString(16).split('.')[0];
+  if (alphaHex.length === 1) alphaHex = '0'.concat(alphaHex);
+
+  return hex.concat(alphaHex);
+}
+
+export { colors, addAlpha };

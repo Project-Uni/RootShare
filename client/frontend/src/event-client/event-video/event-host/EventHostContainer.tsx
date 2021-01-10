@@ -64,7 +64,7 @@ type EventMode = 'viewer' | 'speaker' | 'admin';
 type Props = {
   mode: 'speaker' | 'admin';
   webinar: EventType;
-  speaking_token?: string;
+  speakingToken?: string;
   sessionID?: string;
 
   speakRequests: SpeakRequestType[];
@@ -361,7 +361,7 @@ function EventHostContainer(props: Props) {
         '/proxy/webinar/setConnectionID',
         {
           webinarID: props.webinar._id,
-          speaking_token: props.speaking_token,
+          speakingToken: props.speakingToken,
           connection: eventSession.connection,
         },
         true,
@@ -398,7 +398,7 @@ function EventHostContainer(props: Props) {
       setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
 
-      if (props.speaking_token) {
+      if (props.speakingToken) {
         const eventSession_casted = (eventSession as unknown) as Session;
         setCacheConnection(eventSession_casted);
       }

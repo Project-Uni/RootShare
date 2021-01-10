@@ -13,7 +13,7 @@ import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
 import { SnackbarMode, SpeakRequestType } from '../../../helpers/types';
 import theme from '../../../theme/Theme';
-import { colors } from '../../../theme/Colors';
+import { colors, addAlpha } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -21,47 +21,97 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
     width: 500,
   },
+  modalWrapper: {
+    padding: 10,
+    paddingTop: 20,
+  },
   loadingIndicator: {
     color: theme.primary,
-  },
-  text: {
-    color: colors.primaryText,
   },
   bright: {
     color: colors.bright,
     marginBottom: 6,
   },
-  selectedName: {
-    marginBottom: 3,
-  },
   textField: {
     width: 460,
   },
+  bottomBorder: {
+    marginBottom: 12,
+    borderBottomStyle: 'solid',
+    borderBottomWidth: 2,
+    borderBottomColor: addAlpha(colors.secondaryText, 0.3),
+  },
+
+  guestSpeakerContainer: {
+    marginBottom: 12,
+  },
+  guestSpeaker: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 5,
+    marginBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    '&:hover': {
+      background: colors.background,
+    },
+  },
+  guestSpeakerText: {
+    color: 'black',
+  },
+  guestSpeakerEmail: {
+    color: colors.secondaryText,
+  },
+
+  autoCompleteContainer: {
+    paddingBottom: 10,
+    marginBottom: 5,
+  },
+  inviteButtonsContainer: {
+    display: 'flex',
+    marginRight: 17,
+  },
+  selectedName: {
+    marginBottom: 3,
+  },
+  selectedUserAdd: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+
   speakRequestsContainer: {
-    marginTop: 10,
-    borderTopStyle: 'solid',
+    marginTop: 5,
+    marginBottom: 10,
+    paddingBottom: 5,
   },
   speakRequestWrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  requestButtonContainer: {
-    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: 8,
+    paddingTop: 7,
+    paddingBottom: 7,
+    '&:hover': {
+      background: colors.background,
+    },
   },
   removeButton: {
     color: colors.primaryText,
     background: 'gray',
     height: 27,
-    marginTop: 7,
   },
   acceptButton: {
     color: colors.primaryText,
     background: colors.bright,
     height: 27,
-    marginTop: 7,
     marginLeft: 7,
+  },
+
+  activeViewerCount: {
+    marginLeft: 10,
   },
 }));
 
@@ -74,6 +124,15 @@ type UserInfo = {
   firstName: string;
   lastName: string;
   email: string;
+  connection?: OT.Connection;
+};
+
+type GuestSpeaker = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  speakingToken: string;
   connection?: OT.Connection;
 };
 
@@ -90,7 +149,7 @@ type UserOption = {
 
 type ViewersServiceResponse = {
   users: UserInfo[];
-  currentSpeaker: UserInfo;
+  currentSpeakers: GuestSpeaker[];
 };
 
 const defaultFormData: IFormData = {
@@ -135,7 +194,9 @@ function MeetTheGreeksModal(props: Props) {
   } = props;
 
   const [numViewers, setNumViewers] = useState(0);
-  const [currentSpeaker, setCurrentSpeaker] = useState<UserInfo>();
+  const [currentGuestSpeakers, setCurrentGuestSpeakers] = useState<GuestSpeaker[]>(
+    []
+  );
 
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState<string>();
@@ -168,9 +229,12 @@ function MeetTheGreeksModal(props: Props) {
 
     if (data['success'] === 1) {
       setNumViewers(data.content.users.length);
-      if (data.content.currentSpeaker)
-        setCurrentSpeaker(data.content.currentSpeaker);
-    } else setCurrentSpeaker(undefined);
+      if (data.content.currentSpeakers)
+        setCurrentGuestSpeakers(data.content.currentSpeakers);
+    } else {
+      setCurrentGuestSpeakers([]);
+      setNumViewers(0);
+    }
 
     setLoading(false);
   }, []);
@@ -223,58 +287,97 @@ function MeetTheGreeksModal(props: Props) {
     [webinarID, sessionID]
   );
 
-  const handleRemoveSpeaker = useCallback(async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to remove ${currentSpeaker!.firstName} ${
-          currentSpeaker!.lastName
-        } from the stream?`
+  const handleRemoveSpeaker = useCallback(
+    async (speaker: GuestSpeaker) => {
+      if (
+        !window.confirm(
+          `Are you sure you want to remove ${speaker!.firstName} ${
+            speaker!.lastName
+          } from the stream?`
+        )
       )
-    )
-      return;
+        return;
 
-    const { data } = await makeRequest('POST', '/proxy/webinar/removeGuestSpeaker', {
-      webinarID: webinarID,
-    });
+      const { data } = await makeRequest(
+        'POST',
+        '/proxy/webinar/removeGuestSpeaker',
+        {
+          webinarID: webinarID,
+          speakingToken: speaker.speakingToken,
+        }
+      );
 
-    if (data.success !== 1 || !currentSpeaker?.connection?.connectionId)
-      return setServerErr('There was an error trying to remove the speaker');
+      if (data.success !== 1 || !speaker?.connection?.connectionId)
+        return setServerErr('There was an error trying to remove the speaker');
 
-    removeGuestSpeaker(currentSpeaker.connection!);
+      removeGuestSpeaker(speaker.connection!);
 
-    handleSnackbar('Successfully removed speaker.', 'notify');
+      handleSnackbar('Successfully removed speaker.', 'notify');
 
-    setCurrentSpeaker(undefined);
-    setServerErr('');
-  }, [currentSpeaker, webinarID]);
+      setCurrentGuestSpeakers((prevGuestSpeakers) => {
+        let newGuestSpeakers = prevGuestSpeakers.slice();
+        for (let i = 0; i < newGuestSpeakers.length; i++) {
+          if (newGuestSpeakers[i]._id === speaker._id) {
+            newGuestSpeakers.splice(i, 1);
+            return newGuestSpeakers;
+          }
+        }
+        return newGuestSpeakers;
+      });
+      setServerErr('');
+    },
+    [webinarID]
+  );
 
   const onAutocomplete = (user: UserOption) => {
     updateFields([{ key: 'searchedUser', value: user }]);
   };
 
-  const renderCurrentSpeaker = () => {
-    return (
-      <>
-        <RSText className={styles.bright}>
-          <b>Current Speaker</b>
-        </RSText>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <RSText className={[styles.text, styles.selectedName].join(' ')}>
-            {currentSpeaker?.firstName} {currentSpeaker?.lastName}
-          </RSText>
-          <IconButton onClick={handleRemoveSpeaker}>
+  const searchOptionMap = useCallback(
+    (users: UserInfo[]): UserOption[] =>
+      users.map((user) => ({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        connection: user?.connection,
+
+        label: `${user.firstName} ${user.lastName}`,
+        value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
+      })) as UserOption[],
+    []
+  );
+
+  const renderGuestSpeakers = () => {
+    const speakers: any[] = [];
+
+    currentGuestSpeakers.forEach((guestSpeaker) => {
+      speakers.push(
+        <div key={guestSpeaker._id} className={styles.guestSpeaker}>
+          <div>
+            <RSText
+              className={[styles.guestSpeakerText, styles.selectedName].join(' ')}
+            >
+              {guestSpeaker?.firstName} {guestSpeaker?.lastName}
+            </RSText>
+            <RSText italic className={styles.guestSpeakerEmail}>
+              {guestSpeaker?.email}
+            </RSText>
+          </div>
+          <IconButton onClick={() => handleRemoveSpeaker(guestSpeaker)}>
             <IoMdClose color={colors.secondaryText} />
           </IconButton>
         </div>
+      );
+    });
 
-        <RSText className={styles.text}>{currentSpeaker?.email}</RSText>
-      </>
+    return (
+      <div className={[styles.guestSpeakerContainer, styles.bottomBorder].join(' ')}>
+        <RSText className={styles.bright}>
+          <b>Current Guest Speakers</b>
+        </RSText>
+        {speakers}
+      </div>
     );
   };
 
@@ -284,62 +387,59 @@ function MeetTheGreeksModal(props: Props) {
         <RSText className={styles.bright}>
           <b>Selected User</b>
         </RSText>
-        <RSText className={[styles.text, styles.selectedName].join(' ')}>
-          {searchedUser?.firstName} {searchedUser?.lastName}
-        </RSText>
-        <RSText className={styles.text}>{searchedUser?.email}</RSText>
+
+        <div className={styles.selectedUserAdd}>
+          <div>
+            <RSText
+              className={[styles.guestSpeakerText, styles.selectedName].join(' ')}
+            >
+              {searchedUser?.firstName} {searchedUser?.lastName}
+            </RSText>
+            <RSText italic className={styles.guestSpeakerEmail}>
+              {searchedUser?.email}
+            </RSText>
+          </div>
+          <div className={styles.inviteButtonsContainer}>
+            <Button
+              className={styles.removeButton}
+              size="small"
+              onClick={() =>
+                updateFields([{ key: 'searchedUser', value: undefined }])
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              className={styles.acceptButton}
+              size="small"
+              onClick={onAddClick}
+            >
+              Invite
+            </Button>
+          </div>
+        </div>
       </div>
     );
   };
 
   const renderAutoComplete = () => {
     return (
-      <>
+      <div className={[styles.autoCompleteContainer, styles.bottomBorder].join(' ')}>
+        {searchedUser && renderSelectedUserInfo()}
         <UserSearch<UserOption, UserInfo>
           label="Viewers"
           className={styles.textField}
           name="viewers"
           onAutocomplete={onAutocomplete}
           fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`}
+          mapData={searchOptionMap}
           helperText="Search current viewers"
           key="userSearch"
           error={formErrors.searchedUser}
         />
-        {!currentSpeaker && (
-          <RSButton onClick={onAddClick} className={styles.text} disabled={loading}>
-            Add User
-          </RSButton>
-        )}
-      </>
+      </div>
     );
   };
-
-  const renderRequests = () => {
-    return <div />;
-  };
-
-  // function renderAutoComplete() {
-  //   return (
-  //     <Autocomplete
-  //       style={{ width: 400, marginBottom: '20px' }}
-  //       options={options}
-  //       getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
-  //       onChange={handleAutocompleteChange}
-  //       renderInput={(params) => (
-  //         <TextField
-  //           {...params}
-  //           label="Find a user"
-  //           variant="outlined"
-  //           fullWidth
-  //           value={searchedUser}
-  //           error={searchErr !== ''}
-  //           helperText={searchErr}
-  //           className={styles.textField}
-  //         />
-  //       )}
-  //     />
-  //   );
-  // }
 
   const renderSpeakRequests = () => {
     const requests: any[] = [];
@@ -349,7 +449,7 @@ function MeetTheGreeksModal(props: Props) {
       requests.push(
         <div className={styles.speakRequestWrapper} key={speakRequest._id}>
           <RSText>{`${speakRequest.firstName} ${speakRequest.lastName}`}</RSText>
-          <div className={styles.requestButtonContainer}>
+          <div className={styles.inviteButtonsContainer}>
             <Button
               className={styles.removeButton}
               size="small"
@@ -369,7 +469,16 @@ function MeetTheGreeksModal(props: Props) {
       );
     });
 
-    return <div className={styles.speakRequestsContainer}>{requests}</div>;
+    return (
+      <div
+        className={[styles.speakRequestsContainer, styles.bottomBorder].join(' ')}
+      >
+        <RSText className={styles.bright}>
+          <b>Speaker Requests</b>
+        </RSText>
+        {requests}
+      </div>
+    );
   };
 
   return (
@@ -383,7 +492,7 @@ function MeetTheGreeksModal(props: Props) {
         helperIcon={<BsPeopleFill size={90} />}
         serverErr={serverErr}
       >
-        <div>
+        <div className={styles.modalWrapper}>
           {loading ? (
             <div
               style={{
@@ -397,17 +506,17 @@ function MeetTheGreeksModal(props: Props) {
             </div>
           ) : (
             <>
-              {searchedUser && renderSelectedUserInfo()}
-              {currentSpeaker ? renderCurrentSpeaker() : renderAutoComplete()}
-              {serverErr && (
-                <RSText type="body" color={'red'} size={11} italic>
-                  {serverErr}
-                </RSText>
-              )}
-              <RSText type="body" color={colors.secondaryText}>
+              {currentGuestSpeakers.length > 0 && renderGuestSpeakers()}
+              {currentGuestSpeakers.length < 2 && renderAutoComplete()}
+              {speakRequests.length > 0 && renderSpeakRequests()}
+
+              <RSText
+                type="body"
+                color={colors.secondaryText}
+                className={styles.activeViewerCount}
+              >
                 {numViewers} Active Viewer{numViewers !== 1 && 's'}
               </RSText>
-              {renderSpeakRequests()}
             </>
           )}
         </div>
