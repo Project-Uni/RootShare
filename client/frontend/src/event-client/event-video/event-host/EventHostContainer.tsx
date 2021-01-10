@@ -139,8 +139,8 @@ function EventHostContainer(props: Props) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
+        await clearGuests();
         removeFromCache(props.webinar['_id']);
-        clearGuests();
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
@@ -358,13 +358,11 @@ function EventHostContainer(props: Props) {
     );
 
     if (data.success === 1)
-      data.content.currentSpeakers.forEach((guestSpeaker) =>
-        removeGuestSpeaker(guestSpeaker)
-      );
+      for (let i = 0; i < data.content.currentSpeakers.length; i++)
+        await removeGuestSpeaker(data.content.currentSpeakers[i]);
     else
-      currentGuestSpeakers.forEach((guestSpeaker) =>
-        removeGuestSpeaker(guestSpeaker)
-      );
+      for (let i = 0; i < currentGuestSpeakers.length; i++)
+        await removeGuestSpeaker(currentGuestSpeakers[i]);
   }
 
   async function removeGuestSpeaker(
@@ -376,22 +374,28 @@ function EventHostContainer(props: Props) {
       speakingToken: speaker.speakingToken,
     });
 
-    if (data.success === -1 || !speaker?.connection?.connectionId)
-      return callback && callback(false);
     if (data.success === 0) {
       spliceGuestSpeakers(speaker._id);
       return callback && callback(true);
     }
+    console.log(data);
 
     session.forceDisconnect(speaker.connection!, (error) => {
       if (error) {
         log('OT Error', error.message);
-        return callback && callback(false);
+        // return callback && callback(false);
       }
 
       spliceGuestSpeakers(speaker._id);
-      return callback && callback(true);
     });
+
+    // The logical flow here seems messy, but it's very deliberate due to the
+    // peculiarities of working with OpenTok.
+    // Please do not change unless absolutely necessary.
+    if (data.success === -1 || !speaker?.connection?.connectionId)
+      return callback && callback(false);
+
+    return callback && callback(true);
   }
 
   function spliceGuestSpeakers(speakerID: string) {

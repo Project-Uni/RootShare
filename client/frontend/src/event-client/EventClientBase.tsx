@@ -238,10 +238,11 @@ function EventClientBase(props: Props) {
     );
 
     socket.on('speaking-revoke', () => {
+      alert('REVOKE');
       speakingToken = '';
       sessionID = '';
-      if (eventMode !== 'viewer') alert('You have been removed as a speaker');
       setEventMode('viewer');
+      alert('You have been removed as a speaker');
     });
 
     socket.on('speaking-token-rejected', () => {

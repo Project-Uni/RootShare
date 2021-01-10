@@ -442,6 +442,7 @@ function MeetTheGreeksModal(props: Props) {
               className={styles.acceptButton}
               size="small"
               onClick={() => onAcceptRequest(speakRequest)}
+              disabled={currentGuestSpeakers.length === 2}
             >
               Invite
             </Button>

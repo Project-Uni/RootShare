@@ -20,6 +20,10 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
     if (!(userID in webinarCache[webinarID].users))
       return res.json(sendPacket(0, 'User not found in webinar cache'));
 
+    for (let i = 0; i < webinarCache[webinarID].guestSpeakers.length; i++)
+      if (webinarCache[webinarID].guestSpeakers[i]._id === userID)
+        return res.json(sendPacket(0, 'User is already a guest speaker'));
+
     const socket = webinarCache[webinarID].users[userID];
 
     const speakingToken = crypto.randomBytes(64).toString();
@@ -67,6 +71,7 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
       return res.json(sendPacket(0, 'User already left the stream'));
 
     const socket = webinarCache[webinarID].users[speakerID];
+    console.log(socket === undefined);
     socket.emit('speaking-revoke');
 
     return res.json(sendPacket(1, 'Successfully removed user speaking privilege'));
