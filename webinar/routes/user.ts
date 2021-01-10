@@ -90,7 +90,6 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
       return res.json(sendPacket(0, 'Speaking token does not match webinar'));
 
     for (let i = 0; i < currWebinar.guestSpeakers.length; i++) {
-      console.log(currWebinar.guestSpeakers[i]);
       if (currWebinar.guestSpeakers[i].speakingToken === speakingToken) {
         currWebinar.guestSpeakers[i].connection = connection;
         break;

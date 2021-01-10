@@ -70,12 +70,6 @@ module.exports = (
       const currWebinar = webinarCache[webinarID];
       const activeUserIDs = Object.keys(currWebinar.users);
 
-      // const currentSpeakers = [];
-      // currWebinar.guestSpeakers.forEach((guestSpeaker) => {
-      //   if (currWebinar.users[guestSpeaker._id]) currentSpeakers.push(guestSpeaker);
-      // });
-
-      console.log(currWebinar.guestSpeakers);
       return res.json(
         sendPacket(1, 'Successfully fetched active users', {
           activeUserIDs,

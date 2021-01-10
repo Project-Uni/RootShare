@@ -30,7 +30,7 @@ import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitation
 
 import ManageSpeakersSnackbar from './event-video/event-host/ManageSpeakersSnackbar';
 import { slideLeft } from '../helpers/functions';
-import { SnackbarMode } from '../helpers/types';
+import { SnackbarMode, EventUserMode } from '../helpers/types';
 
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
@@ -71,8 +71,6 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
-type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
-
 var socket: SocketIOClient.Socket;
 var speakingToken: string;
 var sessionID: string;
@@ -82,7 +80,7 @@ function EventClientBase(props: Props) {
 
   const [advertisements, setAdvertisements] = useState(['black']);
   const [adLoaded, setAdLoaded] = useState(false);
-  const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
+  const [eventMode, setEventMode] = useState<EventUserMode>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
@@ -164,7 +162,7 @@ function EventClientBase(props: Props) {
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
       initializeHostSocket();
-      setEventMode('admin');
+      setEventMode('host');
       return;
     } else {
       for (let i = 0; i < webinar.speakers.length; i++) {
@@ -306,7 +304,7 @@ function EventClientBase(props: Props) {
     else
       return (
         <EventHostContainer
-          mode={eventMode as 'admin' | 'speaker'}
+          mode={eventMode as 'host' | 'speaker'}
           webinar={webinarEvent}
           speakingToken={speakingToken}
           sessionID={sessionID}
@@ -422,7 +420,7 @@ function EventClientBase(props: Props) {
         <div className={styles.right}>
           <EventMessageContainer
             conversationID={currConversationID}
-            isHost={eventMode === 'admin'}
+            isHost={eventMode === 'host'}
             webinarID={webinarEvent._id}
           />
         </div>

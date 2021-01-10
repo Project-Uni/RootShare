@@ -35,6 +35,9 @@ export type LeanEventType = {
   eventBanner: string;
 };
 
+export type EventUserMode = 'viewer' | 'speaker' | 'host';
+export type SpeakerMode = 'speaker' | 'host';
+
 export type HostType = {
   _id: string;
   firstName: string;

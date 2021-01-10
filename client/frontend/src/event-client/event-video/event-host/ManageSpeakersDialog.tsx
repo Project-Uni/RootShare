@@ -326,7 +326,7 @@ function MeetTheGreeksModal(props: Props) {
       });
       setServerErr('');
     },
-    [webinarID]
+    [webinarID, removeGuestSpeaker]
   );
 
   const onAutocomplete = (user: UserOption) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Button } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
@@ -9,7 +9,7 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 import EventHostButtonContainer from './EventHostButtonContainer';
 
 import { log, makeRequest } from '../../../helpers/functions';
-import { SpeakRequestType } from '../../../helpers/types';
+import { SpeakRequestType, SpeakerMode } from '../../../helpers/types';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -59,10 +59,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type EventMode = 'viewer' | 'speaker' | 'admin';
-
 type Props = {
-  mode: 'speaker' | 'admin';
+  mode: SpeakerMode;
   webinar: EventType;
   speakingToken?: string;
   sessionID?: string;

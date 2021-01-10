@@ -15,7 +15,7 @@ import { RSText } from '../../../base-components';
 
 import { colors } from '../../../theme/Colors';
 import { slideLeft } from '../../../helpers/functions';
-import { SnackbarMode, SpeakRequestType } from '../../../helpers/types';
+import { SnackbarMode, SpeakRequestType, SpeakerMode } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,7 +51,7 @@ type Props = {
   toggleMute: () => void;
   toggleScreenshare: () => void;
   loading: boolean;
-  mode: 'admin' | 'speaker';
+  mode: SpeakerMode;
   removeGuestSpeaker: (connection: OT.Connection) => void;
   sessionID: string;
 
@@ -107,7 +107,7 @@ function EventHostButtonContainer(props: Props) {
         removeSpeakRequest={props.removeSpeakRequest}
       />
 
-      {props.mode === 'admin' && (
+      {props.mode === 'host' && (
         <Button
           variant="contained"
           onClick={props.handleStreamStatusChange}
@@ -156,7 +156,7 @@ function EventHostButtonContainer(props: Props) {
       >
         {!props.sharingScreen ? 'Share Screen' : 'Stop Sharing Screen'}
       </Button>
-      {props.mode === 'admin' && (
+      {props.mode === 'host' && (
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
