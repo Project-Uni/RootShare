@@ -1,3 +1,11 @@
+const { ELASTIC_APM_SECRET_TOKEN } = require('../keys/keys.json');
+const apm = require('elastic-apm-node').start({
+  serviceName: 'rootshare-client',
+  secretToken: ELASTIC_APM_SECRET_TOKEN,
+  serverUrl:
+    'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
+});
+
 require('dotenv').config();
 
 import express = require('express');
@@ -18,6 +26,10 @@ import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
 import university from './routes/university';
+import {
+  elasticMiddleware,
+  initialize as initializeElasticSearch,
+} from './helpers/functions/elasticSearch';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -54,6 +66,10 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
+initializeElasticSearch();
+app.use(elasticMiddleware);
+
 // app.use(rateLimiter);
 
 //Swagger config
