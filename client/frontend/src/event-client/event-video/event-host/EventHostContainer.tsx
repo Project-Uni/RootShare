@@ -124,6 +124,9 @@ function EventHostContainer(props: Props) {
   }, []);
 
   useEffect(() => {
+    // Checking if stream is still going if host refreshes webpage
+    // Will need to update eventually since there are some cases where we may get
+    // false positives with this method
     if (!props.webinar) return;
     setIsStreaming(!!props.webinar.muxPlaybackID);
   }, [props.webinar.muxPlaybackID]);
