@@ -2,15 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 
-import {
-  TextField,
-  Select,
-  MenuItem,
-  CircularProgress,
-  InputLabel,
-  FormControl,
-  IconButton,
-} from '@material-ui/core';
+import { TextField, CircularProgress, IconButton } from '@material-ui/core';
 
 import { BigButton, RSModal } from '../../../../reusable-components';
 import RSText from '../../../../../base-components/RSText';
@@ -69,12 +61,17 @@ type UserInfoServiceResponse = {
     lastName: string;
     major: string;
     graduationYear: number;
+    phoneNumber: string;
     interests: string[];
   };
 };
 
 type AnswersServiceResponse = {
-  answers: string[];
+  answers: {
+    q1?: string;
+    q2?: string;
+    q3?: string;
+  };
 };
 
 type IFormData = {
@@ -82,21 +79,23 @@ type IFormData = {
   lastName: string;
   major: string;
   graduationYear: number;
+  phoneNumber: string;
   currInterest: string;
-  answer1: string;
-  answer2: string;
-  answer3: string;
+  q1: string;
+  q2: string;
+  q3: string;
 };
 
 const defaultFormData: IFormData = {
-  firstName: 'Smitty',
+  firstName: '',
   lastName: '',
   major: '',
-  graduationYear: 2021,
+  graduationYear: 2024,
+  phoneNumber: '',
   currInterest: '',
-  answer1: '',
-  answer2: '',
-  answer3: '',
+  q1: '',
+  q2: '',
+  q3: '',
 };
 
 type Props = {
@@ -115,8 +114,6 @@ function PersonalInfoModal(props: Props) {
 
   const [interests, setInterests] = useState<string[]>([]);
 
-  const [inputErr, setInputErr] = useState<string>();
-
   const [serverErr, setServerErr] = useState<string>();
   const [loading, setLoading] = useState(true);
 
@@ -124,7 +121,6 @@ function PersonalInfoModal(props: Props) {
     formFields,
     formErrors,
     handleChange,
-    handleDateChange,
     updateFields,
     updateErrors,
     resetForm,
@@ -133,7 +129,6 @@ function PersonalInfoModal(props: Props) {
   useEffect(() => {
     if (open) {
       fetchUserInfo();
-      setInputErr(undefined);
     }
   }, [open]);
 
@@ -164,9 +159,10 @@ function PersonalInfoModal(props: Props) {
         { key: 'lastName', value: userInfo.lastName },
         { key: 'major', value: userInfo.major },
         { key: 'graduationYear', value: userInfo.graduationYear },
-        { key: 'answer1', value: answers[0] },
-        { key: 'answer2', value: answers[1] },
-        { key: 'answer3', value: answers[2] },
+        { key: 'phoneNumber', value: userInfo.phoneNumber },
+        { key: 'q1', value: answers.q1 || '' },
+        { key: 'q2', value: answers.q2 || '' },
+        { key: 'q3', value: answers.q3 || '' },
       ]);
 
       setInterests(userInfo.interests);
@@ -174,7 +170,30 @@ function PersonalInfoModal(props: Props) {
     });
   }
 
+  const validateInputs = () => {
+    var hasErr = false;
+    const errUpdates: { key: keyof IFormData; value: string }[] = ((Object.keys(
+      formFields
+    ) as unknown) as (keyof IFormData)[]).map((field) => {
+      if (field === 'currInterest') return { key: field, value: '' };
+      if (String(formFields[field]).length === 0) {
+        hasErr = true;
+        return { key: field, value: `This field is required` };
+      } else {
+        return { key: field, value: '' };
+      }
+    });
+
+    if (!props.user.profilePicture) {
+      setServerErr('Please set a profile picture');
+      hasErr = true;
+    }
+    updateErrors(errUpdates);
+    return hasErr;
+  };
+
   const submitInfoAndInterest = async () => {
+    if (validateInputs()) return;
     setLoading(true);
     setServerErr(undefined);
     const userInfoPromise = makeRequest('PUT', `/api/mtg/updateUserInfo`, {
@@ -182,13 +201,22 @@ function PersonalInfoModal(props: Props) {
       lastName: formFields.lastName,
       major: formFields.major,
       graduationYear: formFields.graduationYear,
+      phoneNumber: formFields.phoneNumber,
       interests,
     });
 
+    const questionRegex = new RegExp(/^q[0-9]/);
+    const questionResponses = Object.keys(formFields)
+      .filter((k) => questionRegex.test(k))
+      .reduce((filteredData: { [key: string]: string }, k: string) => {
+        filteredData[k] = formFields[k as keyof IFormData] as string;
+        return filteredData;
+      }, {});
+
     const interestPromise = makeRequest(
       'PUT',
-      `/api/mtg/updateInterestAnswers/${communityID}`,
-      { answers: [formFields.answer1, formFields.answer2, formFields.answer3] }
+      `/api/mtg/interested/${communityID}`,
+      { answers: JSON.stringify(questionResponses) }
     );
 
     Promise.all([userInfoPromise, interestPromise]).then(
@@ -252,8 +280,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="First Name"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.firstName !== ''}
+          helperText={formErrors.firstName}
         />
         <TextField
           className={styles.inputs}
@@ -262,8 +290,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Last Name"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.lastName !== ''}
+          helperText={formErrors.lastName}
         />
         <TextField
           className={styles.inputs}
@@ -272,8 +300,8 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Major"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.major !== ''}
+          helperText={formErrors.major}
         />
         <TextField
           className={styles.inputs}
@@ -282,8 +310,18 @@ function PersonalInfoModal(props: Props) {
           fullWidth
           variant="outlined"
           label="Graduation Year"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.graduationYear !== ''}
+          helperText={formErrors.graduationYear}
+        />
+        <TextField
+          className={styles.inputs}
+          value={formFields.phoneNumber}
+          onChange={handleChange('phoneNumber')}
+          fullWidth
+          variant="outlined"
+          label="Phone Number"
+          error={formErrors.phoneNumber !== ''}
+          helperText={formErrors.phoneNumber}
         />
         <TextField
           className={styles.inputs}
@@ -294,40 +332,42 @@ function PersonalInfoModal(props: Props) {
           variant="outlined"
           label="Hobbies/Interests"
           placeholder="Type New Interest and Press Enter"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          error={formErrors.currInterest !== ''}
+          helperText={formErrors.currInterest}
         />
         {renderInterests()}
 
         <TextField
           className={styles.inputs}
-          value={formFields.answer1}
-          onChange={handleChange('answer1')}
+          value={formFields.q1}
+          onChange={handleChange('q1')}
           fullWidth
           variant="outlined"
-          label="[Question 1]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="Hometown"
+          error={formErrors.q1 !== ''}
+          helperText={formErrors.q1}
         />
         <TextField
           className={styles.inputs}
-          value={formFields.answer2}
-          onChange={handleChange('answer2')}
+          value={formFields.q2}
+          onChange={handleChange('q2')}
           fullWidth
           variant="outlined"
-          label="[Question 2]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="Favorite Movie"
+          error={formErrors.q2 !== ''}
+          helperText={formErrors.q2}
         />
         <TextField
           className={styles.inputs}
-          value={formFields.answer3}
-          onChange={handleChange('answer3')}
+          value={formFields.q3}
+          onChange={handleChange('q3')}
           fullWidth
           variant="outlined"
-          label="[Question 3]"
-          error={Boolean(inputErr)}
-          helperText={inputErr}
+          label="What are you looking for in a fraternity?"
+          multiline
+          rows={2}
+          error={formErrors.q3 !== ''}
+          helperText={formErrors.q3}
         />
         <BigButton
           label="Submit Info and Interest"

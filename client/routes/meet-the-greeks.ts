@@ -9,10 +9,11 @@ import {
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
-  getMTGEvents,
   updateUserInfo,
   getInterestAnswers,
   updateInterestAnswers,
+  getMTGEvents,
+  getInterestedUsers,
 } from '../interactions/meet-the-greeks';
 
 export default function meetTheGreekRoutes(app) {
@@ -43,6 +44,17 @@ export default function meetTheGreekRoutes(app) {
       const userID = req.user._id;
 
       return res.json(await getInterestAnswers(userID, communityID));
+    }
+  );
+
+  app.get(
+    '/api/mtg/interested/:communityID',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await getInterestedUsers(communityID);
+      return res.json(packet);
     }
   );
 
@@ -84,12 +96,15 @@ export default function meetTheGreekRoutes(app) {
   );
 
   app.put(
-    '/api/mtg/updateInterestAnswers/:communityID',
+    '/api/mtg/interested/:communityID',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
       const userID = req.user._id;
       const { answers } = req.body;
+
+      if (!answers)
+        return res.json(sendPacket(-1, 'answers missing from request body'));
 
       res.json(await updateInterestAnswers(userID, communityID, answers));
     }
@@ -124,7 +139,12 @@ export default function meetTheGreekRoutes(app) {
             '[Required Query Params] - mode, [Required Body Params] - message'
           )
         );
-      const packet = await sendMTGCommunications(communityID, mode, message);
+      const packet = await sendMTGCommunications(
+        req.user._id,
+        communityID,
+        mode,
+        message
+      );
       return res.json(packet);
     }
   );
@@ -133,7 +153,7 @@ export default function meetTheGreekRoutes(app) {
     updateUserInfo(req.user._id, req.body, (packet) => res.json(packet));
   });
 
-  app.all('/api/mtg/', async (req: Request, res: Response) => {
+  app.all('/api/mtg/*', async (req: Request, res: Response) => {
     return res.json(sendPacket(-1, 'Path not found'));
   });
 }

@@ -235,7 +235,7 @@ function MTGMessageModal(props: Props) {
         }}
         className={styles.modal}
         helperText={
-          'Send a message to everyone who is interested in your fraternity'
+          'Send a message to everyone who is interested in your fraternity. Please keep in mind that all communications will have your organization name attached to it.'
         }
         helperIcon={<RiMessage2Line size={60} />}
         onBackArrow={getBackArrowFunction()}

@@ -1,31 +1,24 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button } from '@material-ui/core';
-
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import PersonalInfoModal from './PersonalInfoModal';
 
-import { colors } from '../../../../../theme/Colors';
 import { slideLeft } from '../../../../../helpers/functions';
 import { SnackbarMode } from '../../../../../helpers/types';
+import { RSButton } from '../../../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
   interestedButton: {
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 15,
-    background: colors.boilerGold,
-    color: colors.primaryText,
-    '&:hover': {
-      background: colors.secondaryText,
-    },
   },
 }));
 
 type Props = {
   communityID: string;
+  className?: string;
 };
 
 function InterestedButton(props: Props) {
@@ -46,7 +39,7 @@ function InterestedButton(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <>
       <ManageSpeakersSnackbar
         message={snackbarMessage}
         transition={transition}
@@ -59,14 +52,14 @@ function InterestedButton(props: Props) {
         handleSnackbar={handleSnackbar}
         onClose={() => setShowPersonalInfoModal(false)}
       />
-      <Button
-        className={styles.interestedButton}
-        size="large"
+      <RSButton
+        variant="university"
+        className={props.className || styles.interestedButton}
         onClick={() => setShowPersonalInfoModal(true)}
       >
-        I'm Interested!
-      </Button>
-    </div>
+        I'm Interested
+      </RSButton>
+    </>
   );
 }
 

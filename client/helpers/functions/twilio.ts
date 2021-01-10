@@ -24,6 +24,7 @@ export async function sendSMS(recipients: string[], message: string) {
 }
 
 function formatSMSRecipients(phoneNumber: string) {
+  if (!phoneNumber) return null;
   let output = phoneNumber.slice().replace(/\D/g, '');
   //Remove all spaces and non numbers
   if (output.length === 10) {

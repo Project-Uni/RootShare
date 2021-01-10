@@ -14,6 +14,7 @@ type Theme = {
   altText: string;
   disabledButton: string;
   buttonHighlight: string;
+  universityAccent: string;
 };
 
 const theme: { default: Theme; dark: Theme } = {
@@ -31,6 +32,7 @@ const theme: { default: Theme; dark: Theme } = {
     altText: '#F8F8FF',
     disabledButton: 'lightgray',
     buttonHighlight: '#3C4469',
+    universityAccent: '#CEB888',
   },
   dark: {
     white: '',
@@ -46,6 +48,7 @@ const theme: { default: Theme; dark: Theme } = {
     altText: '',
     disabledButton: '',
     buttonHighlight: '',
+    universityAccent: '',
   },
 };
 
