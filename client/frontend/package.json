@@ -27,7 +27,7 @@
     "@types/socket.io-client": "^1.4.33",
     "@types/video.js": "^7.3.9",
     "@videojs/themes": "^1.0.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chart.js": "^2.9.3",
     "date-fns": "^2.14.0",
     "emoji-mart": "^3.0.0",
