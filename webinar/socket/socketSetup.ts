@@ -142,7 +142,22 @@ module.exports = (
       log('new-host', 'The host socket is being added');
 
       if (webinarID in webinarCache) {
-        webinarCache[webinarID].host = socket;
+        const currWebinar = webinarCache[webinarID];
+        currWebinar.host = socket;
+        const userIDs = Object.keys(currWebinar.users);
+        userIDs.forEach((userID) => {
+          currWebinar.users[userID].on('request-to-speak', () => {
+            if (
+              socketWebinarId in webinarCache &&
+              webinarCache[socketWebinarId].host
+            )
+              socket.emit('request-to-speak', {
+                _id: socketUserId,
+                firstName: socketUserFirstName,
+                lastName: socketUserLastName,
+              });
+          });
+        });
         return log(
           'info',
           `Successfully added host to cache for webinar ${webinarID}`

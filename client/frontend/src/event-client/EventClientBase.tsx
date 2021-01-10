@@ -161,7 +161,7 @@ function EventClientBase(props: Props) {
 
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
-      initializeHostSocket();
+      initializeHostSocket(webinar._id);
       setEventMode('host');
       return;
     } else {
@@ -191,10 +191,10 @@ function EventClientBase(props: Props) {
     );
   }
 
-  function initializeHostSocket() {
-    socket = socketIOClient(WEBINAR_CACHE_IP);
+  async function initializeHostSocket(webinarID: string) {
     setSpeakRequests([]);
-    socket.emit('new-host', webinarEvent._id);
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+    socket.emit('new-host', webinarID);
 
     socket.on('request-to-speak', (viewer: SpeakRequestType) => {
       setSpeakRequests((prevRequests) => prevRequests.concat(viewer));
@@ -238,7 +238,6 @@ function EventClientBase(props: Props) {
     );
 
     socket.on('speaking-revoke', () => {
-      alert('REVOKE');
       speakingToken = '';
       sessionID = '';
       setEventMode('viewer');

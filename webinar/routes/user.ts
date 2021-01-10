@@ -71,7 +71,6 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
       return res.json(sendPacket(0, 'User already left the stream'));
 
     const socket = webinarCache[webinarID].users[speakerID];
-    console.log(socket === undefined);
     socket.emit('speaking-revoke');
 
     return res.json(sendPacket(1, 'Successfully removed user speaking privilege'));

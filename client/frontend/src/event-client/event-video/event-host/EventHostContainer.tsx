@@ -68,7 +68,7 @@ type Props = {
 
   speakRequests: SpeakRequestType[];
   removeSpeakRequest: (viewerID: string) => void;
-  initializeHostSocket: () => void;
+  initializeHostSocket: (webinarID: string) => void;
 
   user: { [key: string]: any };
   accessToken: string;
@@ -145,7 +145,7 @@ function EventHostContainer(props: Props) {
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
-        props.initializeHostSocket();
+        props.initializeHostSocket(props.webinar['_id']);
         const streamStarted = await startLiveStream(
           props.webinar['_id'],
           props.accessToken,
@@ -378,7 +378,6 @@ function EventHostContainer(props: Props) {
       spliceGuestSpeakers(speaker._id);
       return callback && callback(true);
     }
-    console.log(data);
 
     session.forceDisconnect(speaker.connection!, (error) => {
       if (error) {

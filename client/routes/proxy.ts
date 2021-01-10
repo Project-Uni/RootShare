@@ -168,7 +168,6 @@ module.exports = (app) => {
       if (data['success'] !== 1) log('error', 'Failed to remove user from stream');
       else log('info', 'Successfully removed user from stream');
 
-      console.log(data);
       return res.json(data);
     }
   );
