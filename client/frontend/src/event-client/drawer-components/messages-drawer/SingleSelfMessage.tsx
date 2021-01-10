@@ -5,7 +5,7 @@ import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
+import colors from '../../../theme/Theme';
 import { MessageType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
@@ -14,7 +14,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     alignSelf: 'flex-end',
     width: '80%',
-    background: colors.secondary,
+    background: colors.white,
   },
   message: {
     color: colors.primaryText,
@@ -22,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
     padding: 5,
     float: 'right',
-    background: colors.primary,
+    background: colors.white,
     marginRight: 5,
     borderStyle: 'solid',
     borderColor: 'gray',
@@ -38,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
     color: 'gray',
   },
   errorIcon: {
-    color: colors.brightError,
+    color: colors.error,
     marginTop: 'auto',
     marginBottom: 'auto',
   },
@@ -47,7 +47,7 @@ const useStyles = makeStyles((_: any) => ({
 const CustomTooltip = withStyles((theme: Theme) => ({
   tooltip: {
     backgroundColor: theme.palette.common.white,
-    color: colors.brightError,
+    color: colors.error,
     boxShadow: theme.shadows[1],
     fontSize: 12,
   },

@@ -163,7 +163,7 @@ function EventClientHeader(props: Props) {
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
           backgroundColor={
-            drawerContent === 'calendar' ? theme.primary : theme.primary
+            drawerContent === 'calendar' ? theme.primary : theme.white
           }
           anchor={drawerAnchor}
         >

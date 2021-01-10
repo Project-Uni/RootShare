@@ -13,11 +13,12 @@ import {
   UniversityType,
 } from '../../../helpers/types';
 import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
-    background: colors.secondary,
+    background: Theme.white,
     paddingTop: 5,
     paddingBottom: 5,
   },
@@ -39,19 +40,19 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 2,
   },
   organization: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
   },
   name: {
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: Theme.primaryText,
     },
   },
   removeSuggestionButton: {
@@ -60,18 +61,18 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
   },
   removeSuggestionIcon: {
-    color: 'gray',
+    color: Theme.primary,
     fontSize: 14,
   },
   removeButton: {
-    color: colors.primaryText,
-    background: 'gray',
+    color: Theme.altText,
+    background: Theme.primary,
     height: 27,
     marginTop: 7,
   },
   acceptButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.altText,
+    background: Theme.bright,
     height: 27,
     marginTop: 7,
     marginLeft: 7,
@@ -81,7 +82,7 @@ const useStyles = makeStyles((_: any) => ({
     transition: 'opacity 0.5s',
   },
   confirmation: {
-    color: colors.success,
+    color: Theme.success,
     height: 31, //TODO: Set this to dynamically mimic height of wrapper?
     marginTop: 10,
     marginLeft: 38,

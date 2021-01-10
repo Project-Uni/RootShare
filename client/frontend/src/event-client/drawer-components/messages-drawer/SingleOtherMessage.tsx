@@ -5,20 +5,21 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { MessageType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     alignSelf: 'flex-start',
     width: '80%',
-    background: colors.secondary,
+    background: Theme.white,
   },
   message: {
-    color: colors.primaryText,
+    color: Theme.altText,
     marginTop: 2,
     marginBottom: 5,
     padding: 5,
     float: 'left',
-    background: colors.ternary,
+    background: Theme.primary,
     marginLeft: 5,
     borderStyle: 'solid',
     borderColor: 'gray',

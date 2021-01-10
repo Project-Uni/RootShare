@@ -11,17 +11,18 @@ import { getConversationTime } from '../../../helpers/functions';
 import { UserType, ConversationType, MessageType } from '../../../helpers/types';
 
 import GroupIcon from '../../../images/group_icon_transparent.png';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     width: '100%',
     height: '70px',
-    background: colors.secondary,
+    background: Theme.white,
     paddingBottom: 4,
     borderBottomStyle: 'solid',
     borderBottomWidth: '1px',
-    borderColor: colors.primaryText,
+    borderColor: Theme.primary,
     '&:hover': {
       cursor: 'pointer',
     },
@@ -48,7 +49,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -145,7 +146,7 @@ function SingleConversation(props: Props) {
         </RSText>
         <IoIosArrowForward
           size={18}
-          color={colors.secondaryText}
+          color={Theme.secondaryText}
           className={styles.arrow}
         />
       </div>
