@@ -15,7 +15,12 @@ import { RSText } from '../../../base-components';
 
 import { colors } from '../../../theme/Colors';
 import { slideLeft } from '../../../helpers/functions';
-import { SnackbarMode, SpeakRequestType, SpeakerMode } from '../../../helpers/types';
+import {
+  SnackbarMode,
+  SpeakRequestType,
+  SpeakerMode,
+  GuestSpeaker,
+} from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -52,11 +57,16 @@ type Props = {
   toggleScreenshare: () => void;
   loading: boolean;
   mode: SpeakerMode;
-  removeGuestSpeaker: (connection: OT.Connection) => void;
+  removeGuestSpeaker: (
+    speaker: GuestSpeaker,
+    callback?: (success: boolean) => void
+  ) => void;
   sessionID: string;
 
   speakRequests: SpeakRequestType[];
   removeSpeakRequest: (viewerID: string) => void;
+  currentGuestSpeakers: GuestSpeaker[];
+  setCurrentGuestSpeakers: (guestSpeakers: GuestSpeaker[]) => void;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -105,6 +115,8 @@ function EventHostButtonContainer(props: Props) {
         sessionID={props.sessionID}
         speakRequests={props.speakRequests}
         removeSpeakRequest={props.removeSpeakRequest}
+        currentGuestSpeakers={props.currentGuestSpeakers}
+        setCurrentGuestSpeakers={props.setCurrentGuestSpeakers}
       />
 
       {props.mode === 'host' && (

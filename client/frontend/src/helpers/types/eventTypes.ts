@@ -68,3 +68,12 @@ export type SpeakRequestType = {
   firstName: string;
   lastName: string;
 };
+
+export type GuestSpeaker = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  speakingToken: string;
+  connection?: OT.Connection;
+};

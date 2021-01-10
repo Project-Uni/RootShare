@@ -28,7 +28,6 @@ module.exports = (app) => {
         return res.json(data);
       }
 
-      console.log(data);
       User.find(
         { _id: { $in: data['content']['activeUserIDs'] } },
         ['_id', 'firstName', 'lastName', 'email'],
@@ -169,6 +168,7 @@ module.exports = (app) => {
       if (data['success'] !== 1) log('error', 'Failed to remove user from stream');
       else log('info', 'Successfully removed user from stream');
 
+      console.log(data);
       return res.json(data);
     }
   );

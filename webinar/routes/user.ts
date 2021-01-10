@@ -37,7 +37,7 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
       return res.json(sendPacket(-1, 'webinarID missing from request body'));
 
     if (!(webinarID in webinarCache))
-      return res.json(sendPacket(0, 'Webinar not in cache'));
+      return res.json(sendPacket(-1, 'Webinar not in cache'));
 
     let speakerID;
     webinarCache[webinarID].guestSpeakers.forEach((guestSpeaker) => {});
@@ -64,7 +64,7 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
     // }
 
     if (!(speakerID in webinarCache[webinarID].users))
-      return res.json(sendPacket(1, 'User already left the stream'));
+      return res.json(sendPacket(0, 'User already left the stream'));
 
     const socket = webinarCache[webinarID].users[speakerID];
     socket.emit('speaking-revoke');

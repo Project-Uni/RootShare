@@ -11,7 +11,11 @@ import { UserSearch } from '../../../main-platform/reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
-import { SnackbarMode, SpeakRequestType } from '../../../helpers/types';
+import {
+  SnackbarMode,
+  SpeakRequestType,
+  GuestSpeaker,
+} from '../../../helpers/types';
 import theme from '../../../theme/Theme';
 import { colors, addAlpha } from '../../../theme/Colors';
 
@@ -127,15 +131,6 @@ type UserInfo = {
   connection?: OT.Connection;
 };
 
-type GuestSpeaker = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  speakingToken: string;
-  connection?: OT.Connection;
-};
-
 type UserOption = {
   _id: string;
   firstName: string;
@@ -147,7 +142,7 @@ type UserOption = {
   value: string;
 };
 
-type ViewersServiceResponse = {
+export type ViewersServiceResponse = {
   users: UserInfo[];
   currentSpeakers: GuestSpeaker[];
 };
@@ -172,10 +167,16 @@ type Props = {
   speakRequests: SpeakRequestType[];
   removeSpeakRequest: (viewerID: string) => void;
 
+  currentGuestSpeakers: GuestSpeaker[];
+  setCurrentGuestSpeakers: (guestSpeakers: GuestSpeaker[]) => void;
+
   onClose: () => any;
   handleSnackbar: (message: string, mode: SnackbarMode) => void;
   onAdd: (user: { [key: string]: any }) => void;
-  removeGuestSpeaker: (connection: OT.Connection) => void;
+  removeGuestSpeaker: (
+    speaker: GuestSpeaker,
+    callback?: (success: boolean) => void
+  ) => void;
 };
 
 function MeetTheGreeksModal(props: Props) {
@@ -186,7 +187,9 @@ function MeetTheGreeksModal(props: Props) {
     webinarID,
     sessionID,
     speakRequests,
+    currentGuestSpeakers,
     removeSpeakRequest,
+    setCurrentGuestSpeakers,
     handleSnackbar,
     onClose,
     onAdd,
@@ -194,9 +197,6 @@ function MeetTheGreeksModal(props: Props) {
   } = props;
 
   const [numViewers, setNumViewers] = useState(0);
-  const [currentGuestSpeakers, setCurrentGuestSpeakers] = useState<GuestSpeaker[]>(
-    []
-  );
 
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState<string>();
@@ -298,33 +298,14 @@ function MeetTheGreeksModal(props: Props) {
       )
         return;
 
-      const { data } = await makeRequest(
-        'POST',
-        '/proxy/webinar/removeGuestSpeaker',
-        {
-          webinarID: webinarID,
-          speakingToken: speaker.speakingToken,
+      removeGuestSpeaker(speaker, (success: boolean) => {
+        if (!success)
+          setServerErr('There was an error trying to remove the speaker');
+        else {
+          handleSnackbar('Successfully removed speaker.', 'notify');
+          setServerErr('');
         }
-      );
-
-      if (data.success !== 1 || !speaker?.connection?.connectionId)
-        return setServerErr('There was an error trying to remove the speaker');
-
-      removeGuestSpeaker(speaker.connection!);
-
-      handleSnackbar('Successfully removed speaker.', 'notify');
-
-      setCurrentGuestSpeakers((prevGuestSpeakers) => {
-        let newGuestSpeakers = prevGuestSpeakers.slice();
-        for (let i = 0; i < newGuestSpeakers.length; i++) {
-          if (newGuestSpeakers[i]._id === speaker._id) {
-            newGuestSpeakers.splice(i, 1);
-            return newGuestSpeakers;
-          }
-        }
-        return newGuestSpeakers;
       });
-      setServerErr('');
     },
     [webinarID, removeGuestSpeaker]
   );

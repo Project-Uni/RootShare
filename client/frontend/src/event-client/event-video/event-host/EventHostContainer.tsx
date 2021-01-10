@@ -10,6 +10,7 @@ import EventHostButtonContainer from './EventHostButtonContainer';
 
 import { log, makeRequest } from '../../../helpers/functions';
 import { SpeakRequestType, SpeakerMode } from '../../../helpers/types';
+import { ViewersServiceResponse } from './ManageSpeakersDialog';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -27,7 +28,7 @@ import {
   removeFromCache,
 } from './helpers';
 
-import { SINGLE_DIGIT, EventType } from '../../../helpers/types';
+import { SINGLE_DIGIT, EventType, GuestSpeaker } from '../../../helpers/types';
 
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
@@ -95,6 +96,9 @@ function EventHostContainer(props: Props) {
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
   const [eventStarted, setEventStarted] = useState(true);
+  const [currentGuestSpeakers, setCurrentGuestSpeakers] = useState<GuestSpeaker[]>(
+    []
+  );
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
 
@@ -136,6 +140,7 @@ function EventHostContainer(props: Props) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
         removeFromCache(props.webinar['_id']);
+        clearGuests();
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
@@ -346,9 +351,59 @@ function EventHostContainer(props: Props) {
     return new Publisher();
   }
 
-  function removeGuestSpeaker(connection: OT.Connection) {
-    session.forceDisconnect(connection, (error) => {
-      if (error) log('OT Error', error.message);
+  async function clearGuests() {
+    const { data } = await makeRequest<ViewersServiceResponse>(
+      'GET',
+      `/api/webinar/${webinarID}/getActiveViewers`
+    );
+
+    if (data.success === 1)
+      data.content.currentSpeakers.forEach((guestSpeaker) =>
+        removeGuestSpeaker(guestSpeaker)
+      );
+    else
+      currentGuestSpeakers.forEach((guestSpeaker) =>
+        removeGuestSpeaker(guestSpeaker)
+      );
+  }
+
+  async function removeGuestSpeaker(
+    speaker: GuestSpeaker,
+    callback?: (success: boolean) => void
+  ) {
+    const { data } = await makeRequest('POST', '/proxy/webinar/removeGuestSpeaker', {
+      webinarID: webinarID,
+      speakingToken: speaker.speakingToken,
+    });
+
+    if (data.success === -1 || !speaker?.connection?.connectionId)
+      return callback && callback(false);
+    if (data.success === 0) {
+      spliceGuestSpeakers(speaker._id);
+      return callback && callback(true);
+    }
+
+    session.forceDisconnect(speaker.connection!, (error) => {
+      if (error) {
+        log('OT Error', error.message);
+        return callback && callback(false);
+      }
+
+      spliceGuestSpeakers(speaker._id);
+      return callback && callback(true);
+    });
+  }
+
+  function spliceGuestSpeakers(speakerID: string) {
+    setCurrentGuestSpeakers((prevGuestSpeakers) => {
+      let newGuestSpeakers = prevGuestSpeakers.slice();
+      for (let i = 0; i < newGuestSpeakers.length; i++) {
+        if (newGuestSpeakers[i]._id === speakerID) {
+          newGuestSpeakers.splice(i, 1);
+          return newGuestSpeakers;
+        }
+      }
+      return newGuestSpeakers;
     });
   }
 
@@ -478,6 +533,8 @@ function EventHostContainer(props: Props) {
         sessionID={eventSessionID}
         speakRequests={props.speakRequests}
         removeSpeakRequest={props.removeSpeakRequest}
+        currentGuestSpeakers={currentGuestSpeakers}
+        setCurrentGuestSpeakers={setCurrentGuestSpeakers}
       />
     </div>
   );
