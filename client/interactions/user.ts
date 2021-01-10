@@ -587,7 +587,7 @@ export function getPendingRequests(userID, callback) {
       }
 
       pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
-      if (pendingRequests === -1)
+      if (pendingRequests !== -1)
         return callback(
           sendPacket(1, 'Sending pending requests', { pendingRequests })
         );
