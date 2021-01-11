@@ -56,7 +56,7 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: '280px',
   },
   message: {
-    color: 'gray',
+    color: Theme.secondaryText,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -68,7 +68,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   timeStamp: {
     textAlign: 'right',
-    color: 'gray',
+    color: Theme.secondaryText,
     marginTop: 16,
     marginRight: 5,
   },
