@@ -10,10 +10,11 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
   },
   wrapper: {
     display: 'flex',
@@ -27,26 +28,32 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    border: `1px solid ${colors.primaryText}`,
+    border: `1px solid ${Theme.white}`,
   },
   connectButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
     '&:hover': {
-      background: colors.primary,
+      background: Theme.brightHover,
     },
   },
   pendingButtonContainer: {
     display: 'flex',
   },
   removeButton: {
-    color: colors.primaryText,
-    background: 'gray',
+    color: Theme.altText,
+    background: Theme.primary,
+    '&:hover': {
+      background: Theme.primaryHover,
+    },
   },
   acceptButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.altText,
+    background: Theme.bright,
     marginLeft: 8,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   textContainer: {
     marginLeft: 20,
@@ -71,7 +78,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   pendingStatus: {
-    background: colors.secondaryText,
+    background: Theme.primary,
     padding: 3,
     paddingLeft: 5,
     paddingRight: 5,
@@ -152,14 +159,14 @@ function UserHighlight(props: Props) {
     if (props.userID === props.user._id) return;
     else if (userStatus === 'CONNECTION')
       return (
-        <RSText color={colors.primary} size={11}>
+        <RSText color={Theme.secondaryText} size={11}>
           CONNECTED
         </RSText>
       );
     else if (userStatus === 'TO')
       return (
         <RSText
-          color={colors.primaryText}
+          color={Theme.altText}
           size={12}
           className={styles.pendingStatus}
         >
@@ -215,21 +222,21 @@ function UserHighlight(props: Props) {
                 <RSText
                   type="head"
                   size={13}
-                  color={colors.second}
+                  color={Theme.primaryText}
                   className={styles.name}
                 >
                   {props.name}
                 </RSText>
               </a>
             </div>
-            <RSText type="subhead" size={12} color={colors.secondaryText}>
+            <RSText type="subhead" size={12} color={Theme.secondaryText}>
               {props.university}
               {props.graduationYear ? ' ' + props.graduationYear : null}
             </RSText>
             <RSText
               type="subhead"
               size={12}
-              color={colors.secondaryText}
+              color={Theme.secondaryText}
               className={styles.work}
             >
               {props.position ? props.position : null}
@@ -237,7 +244,7 @@ function UserHighlight(props: Props) {
               {props.company ? props.company : null}
             </RSText>
             {props.userID === props.user._id || (
-              <RSText type="subhead" size={12} color={colors.second}>
+              <RSText type="subhead" size={12} color={Theme.primaryText}>
                 {props.mutualConnections || 0} Mutual Connections |{' '}
                 {props.mutualCommunities || 0} Mutual Communities
               </RSText>

@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectButton: {
     color: theme.altText,
-    background: colors.bright,
+    background: theme.bright,
     marginLeft: 7,
   },
   joinedText: {

@@ -24,16 +24,18 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     paddingBottom: 20,
+    justifyContent: 'center',
   },
   left: {
     textAlign: 'left',
-    marginRight: 15,
+    justifyContent: 'left',
+    marginRight: 30,
   },
   right: {
-    flexGrow: 1,
+    justifyContent: 'right',
     marginRight: 200,
     marginTop: 25,
-    marginLeft: 15,
+    marginLeft: 30,
   },
   center: {
     marginTop: 25,

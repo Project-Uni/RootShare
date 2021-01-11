@@ -10,6 +10,7 @@ import MessageThreadContainer from './MessageThreadContainer';
 
 import { colors } from '../../../theme/Colors';
 import { MessageType, ConversationType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -23,14 +24,14 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     // background: "white",
     overflow: 'scroll',
-    label: '#f2f2f2',
+    label: Theme.dark,
   },
   textFieldContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.primary,
-    borderTop: '2px solid ' + colors.primaryText,
-    color: colors.primaryText,
+    background: Theme.white,
+    borderTop: '2px solid ' + Theme.primaryText,
+    color: Theme.primaryText,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
@@ -38,9 +39,9 @@ const useStyles = makeStyles((_: any) => ({
   connectionContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    background: colors.secondary,
+    background: Theme.white,
     overflow: 'scroll',
-    label: colors.primaryText,
+    label: Theme.primaryText,
   },
 }));
 

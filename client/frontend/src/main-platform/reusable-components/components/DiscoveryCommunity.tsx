@@ -37,8 +37,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   removeButton: {
     color: theme.altText,
-    background: colors.secondary,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -52,6 +55,9 @@ const useStyles = makeStyles((_: any) => ({
     color: theme.altText,
     background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   fadeOut: {
     opacity: 0,
@@ -71,7 +77,7 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primaryText,
+      color: theme.dark,
     },
   },
 }));

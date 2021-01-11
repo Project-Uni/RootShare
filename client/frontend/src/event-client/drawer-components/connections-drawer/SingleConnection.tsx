@@ -8,11 +8,12 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { UserType, UniversityType } from '../../../helpers/types';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
-    background: colors.secondary,
+    background: Theme.white,
     paddingTop: 5,
     paddingBottom: 5,
   },
@@ -30,19 +31,19 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 2,
   },
   organization: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 320,
   },
   name: {
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
     wordWrap: 'break-word',
     maxWidth: 320,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: Theme.primaryText,
     },
   },
   ellipsis: {

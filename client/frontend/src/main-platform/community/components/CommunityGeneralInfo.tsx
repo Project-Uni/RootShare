@@ -21,6 +21,7 @@ import { colors } from '../../../theme/Colors';
 
 import { cropText } from '../../../helpers/functions';
 import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
 
@@ -58,28 +59,28 @@ const useStyles = makeStyles((_: any) => ({
   joinButton: {
     paddingLeft: 45,
     paddingRight: 45,
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
     '&:hover': {
-      background: colors.primary,
+      background: Theme.brightHover,
     },
   },
   pendingButton: {
     paddingLeft: 30,
     paddingRight: 30,
-    background: colors.secondaryText,
-    color: colors.primaryText,
+    background: Theme.primary,
+    color: Theme.altText,
     '&:hover': {
-      background: colors.primary,
+      background: Theme.primaryHover,
     },
   },
   joinedButton: {
     paddingLeft: 30,
     paddingRight: 30,
-    background: colors.primary,
-    color: colors.primaryText,
+    background: Theme.primary,
+    color: Theme.altText,
     '&:hover': {
-      background: colors.secondaryText,
+      background: Theme.primaryHover
     },
   },
   description: {
@@ -88,7 +89,7 @@ const useStyles = makeStyles((_: any) => ({
   seeMore: {
     textDecoration: 'none',
     fontSize: '11pt',
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     '&:hover': {
       textDecoration: 'underline',
       cursor: 'pointer',
@@ -362,23 +363,23 @@ function CommunityGeneralInfo(props: Props) {
       )}
 
       <div className={styles.left}>
-        <RSText type="head" size={22} color={colors.second}>
+        <RSText type="head" size={22} color={Theme.primaryText}>
           {props.name}
           {props.private && (
             <FaLock
-              color={colors.secondaryText}
+              color={Theme.primaryHover}
               size={20}
               className={styles.lockIcon}
             />
           )}
         </RSText>
 
-        <RSText size={16} color={colors.secondaryText} type="body">
+        <RSText size={16} color={Theme.secondaryText} type="body">
           {props.type}
         </RSText>
         <RSText
           type="body"
-          color={colors.second}
+          color={Theme.secondaryText}
           size={13}
           className={styles.description}
         >
@@ -406,10 +407,10 @@ function CommunityGeneralInfo(props: Props) {
           )}
         </div>
         <div style={{ marginTop: 15 }}>
-          <RSText type="body" size={12} color={colors.second}>
+          <RSText type="body" size={12} color={Theme.secondaryText}>
             {numMembers} Members
           </RSText>
-          <RSText type="body" size={12} color={colors.second}>
+          <RSText type="body" size={12} color={Theme.secondaryText}>
             {props.numMutual} Connections
           </RSText>
           {props.isAdmin && (
@@ -418,7 +419,7 @@ function CommunityGeneralInfo(props: Props) {
               onClick={handlePendingClicked}
               className={styles.memberCountLink}
             >
-              <RSText type="body" size={12} color={colors.second}>
+              <RSText type="body" size={12} color={Theme.secondaryText}>
                 {numPending} Pending Members
               </RSText>
             </a>
@@ -429,7 +430,7 @@ function CommunityGeneralInfo(props: Props) {
               onClick={() => setShowPendingFollowRequestsModal(true)}
               className={styles.memberCountLink}
             >
-              <RSText type="body" size={12} color={colors.second}>
+              <RSText type="body" size={12} color={Theme.secondaryText}>
                 {numFollowRequests} Pending Followers
               </RSText>
             </a>

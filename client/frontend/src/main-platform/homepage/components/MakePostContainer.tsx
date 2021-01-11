@@ -12,17 +12,18 @@ import { makeRequest } from '../../../helpers/functions';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { PostType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.white,
   },
   profilePictureContainer: {
     marginTop: 1,
   },
   profilePicture: {
-    border: `1px solid ${colors.primary}`,
+    border: `1px solid ${Theme.primary}`,
   },
   messageAreaWrapper: {
     borderRadius: 8,
@@ -41,7 +42,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   newPostTextField: {
     width: '100%',
-    background: colors.primaryText,
+    background: Theme.white,
     borderRadius: 10,
     [`& fieldset`]: {
       borderRadius: 10,
@@ -52,10 +53,13 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
   },
   button: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.white,
     marginLeft: 10,
     marginRight: 1,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -64,8 +68,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
   },
   disabledButton: {
-    background: 'lightgrey',
-    color: colors.primaryText,
+    background: Theme.disabledButton,
+    color: Theme.white,
     marginLeft: 10,
     marginRight: 1,
   },
@@ -173,7 +177,7 @@ function MakePostContainer(props: Props) {
                 setImageSrc(undefined);
             }}
           >
-            <RSText color={colors.primaryText} size={16} bold>
+            <RSText color={Theme.white} size={16} bold>
               X
             </RSText>
           </IconButton>
@@ -207,7 +211,7 @@ function MakePostContainer(props: Props) {
             <RSText
               className={styles.serverMessage}
               color={
-                serverMessage.status === 1 ? colors.success : colors.brightError
+                serverMessage.status === 1 ? Theme.success : Theme.error
               }
               italic
             >
@@ -222,7 +226,7 @@ function MakePostContainer(props: Props) {
               onClick={handleImageClicked}
               disabled={loading}
             >
-              <FaCamera size={12} color={colors.primaryText} />
+              <FaCamera size={12} color={Theme.white} />
               <span style={{ marginLeft: 10 }} />
               Image
             </Button>
