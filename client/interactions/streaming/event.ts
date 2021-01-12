@@ -163,6 +163,9 @@ export async function getAllRecentEvents(userID: string, callback) {
       $and: [
         { isDev: false },
         {
+          $or: [{ isMTG: false }, { isMTG: undefined }],
+        },
+        {
           $or: [
             { muxAssetPlaybackID: { $ne: undefined } },
             { dateTime: { $gte: new Date().getTime() - 240 * 60 * 1000 } },
