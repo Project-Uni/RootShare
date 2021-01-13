@@ -10,15 +10,14 @@ import { makeRequest, checkDesktop } from '../../helpers/functions';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
 import HomepageBody from './components/HomepageBody';
+
 // import BetaModal from './components/BetaModal';
-import { colors } from '../../theme/Colors';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
   HEADER_HEIGHT,
 } from '../../helpers/constants';
-import { CircularProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -27,10 +26,6 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     justifyContent: 'space-between',
-  },
-  loadingIndicator: {
-    color: colors.primary,
-    marginTop: 80,
   },
 }));
 
@@ -85,7 +80,6 @@ function Homepage(props: Props) {
       props.updateRefreshToken('');
       return false;
     }
-
     props.updateUser({ ...data['content'] });
     return true;
   }
@@ -93,27 +87,19 @@ function Homepage(props: Props) {
   return (
     <div className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/home`} />}
-      {loading ? (
-        <CircularProgress size={100} className={styles.loadingIndicator} />
-      ) : (
-        <div>
-          <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-          {/* TODO IMPORTANT- Figure out why Material UI Dialog can't be closed on mobile devices  */}
-          {/* <BetaModal
-            open={showBetaModal}
-            onAck={() => {
-              setShowBetaModal(false);
-            }}
-          /> */}
-          <div className={styles.body} style={{ height: height }}>
-            {width > SHOW_HEADER_NAVIGATION_WIDTH && (
-              <MainNavigator currentTab="home" />
-            )}
-            <HomepageBody />
-            {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
-          </div>
-        </div>
-      )}
+      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
+      {/* TODO IMPORTANT- Figure out why Material UI Dialog can't be closed on mobile devices  */}
+      {/* <BetaModal
+        open={showBetaModal}
+        onAck={() => {
+          setShowBetaModal(false);
+        }}
+      /> */}
+      <div className={styles.body} style={{ height: height }}>
+        {width > SHOW_HEADER_NAVIGATION_WIDTH && <MainNavigator currentTab="home" />}
+        <HomepageBody />
+        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
+      </div>
     </div>
   );
 }
