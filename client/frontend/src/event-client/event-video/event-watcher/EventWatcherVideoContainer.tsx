@@ -25,7 +25,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
-  replay?: boolean;
+  eventImage: string;
 
   accessToken: string;
   refreshToken: string;
@@ -86,6 +86,7 @@ function EventWatcherVideoContainer(props: Props) {
           height={playerHeight}
           width={playerWidth}
           muxMetaData={props.muxMetaData}
+          eventImage={props.eventImage}
         />
       ) : (
         <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />

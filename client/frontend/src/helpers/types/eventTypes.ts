@@ -19,6 +19,8 @@ export type EventType = {
   muxAssetPlaybackID: string;
   isDev?: boolean;
   isPrivate?: boolean;
+  eventImage: string;
+  eventBanner: string;
 };
 
 export type LeanEventType = {
@@ -30,6 +32,7 @@ export type LeanEventType = {
   brief_description: string;
   full_description: string;
   muxAssetPlaybackID: string;
+  eventBanner: string;
 };
 
 export type HostType = {

@@ -24,6 +24,7 @@ import {
   formatTime,
 } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import ProfileBanner from '../../../base-components/ProfileBanner';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -44,13 +45,10 @@ const useStyles = makeStyles((_: any) => ({
   eventBox: {
     marginBottom: 4,
   },
-  coverPhoto: {
-    background: colors.bright,
-    height: 200,
-  },
   profilePictureContainer: {
     marginTop: -88,
     marginLeft: 50,
+    display: 'inline-block',
   },
   profilePicture: {
     border: `8px solid ${colors.primaryText}`,
@@ -95,6 +93,7 @@ function ProfileBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [currentPicture, setCurrentPicture] = useState<string>();
+  const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
   const [events, setEvents] = useState<EventType[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -156,7 +155,10 @@ function ProfileBody(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
+    if (data['success'] === 1) {
+      setCurrentPicture(data['content']['profile']);
+      setCurrentBanner(data.content.banner);
+    }
   }
 
   async function fetchEvents() {
@@ -204,10 +206,15 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div
-          className={styles.coverPhoto}
-          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
-        ></div>
+        <ProfileBanner
+          type="profile"
+          height={200}
+          editable={props.currentProfileState === 'SELF'}
+          zoomOnClick={props.currentProfileState !== 'SELF'}
+          borderRadius={10}
+          currentPicture={currentBanner}
+          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
+        />
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}

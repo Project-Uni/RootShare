@@ -10,7 +10,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { cropText, makeRequest } from '../../../helpers/functions';
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
 
 const MAX_DESC_LEN = 200;
 
@@ -75,13 +75,7 @@ type Props = {
   communityID: string;
   private?: boolean;
   name: string;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   description: string;
   memberCount: number;
   mutualMemberCount: number;

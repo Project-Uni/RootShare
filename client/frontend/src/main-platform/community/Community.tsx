@@ -59,6 +59,8 @@ function CommunityDetails(props: Props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
+  const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
+
   const orgID = props.match.params['orgID'];
 
   useEffect(() => {
@@ -98,6 +100,7 @@ function CommunityDetails(props: Props) {
       setCommunityInfo(data.content['community']);
       initializeCommunityStatus(data.content['community']);
       setMutualConnections(data.content['mutualConnections']);
+      setHasFollowingAccess(data.content['hasFollowingAccess']);
     } else {
       setShowInvalid(true);
     }
@@ -153,12 +156,12 @@ function CommunityDetails(props: Props) {
             private={communityInfoComplete.private}
             description={communityInfoComplete.description}
             loading={loading}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
             communityID={communityInfoComplete._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
             userID={props.user._id}
+            hasFollowingAccess={hasFollowingAccess}
+            flags={{ isMTGFlag: communityInfoComplete.isMTGFlag || false }}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (

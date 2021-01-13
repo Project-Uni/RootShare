@@ -210,7 +210,10 @@ function ProfilePicture(props: Props) {
         <img
           src={currentPicture}
           alt="Profile Picture"
-          className={[styles.image, props.pictureStyle].join(' ')}
+          className={[
+            props.editable || props.currentPicture ? styles.image : undefined,
+            props.pictureStyle,
+          ].join(' ')}
           style={{
             height: props.height,
             width: props.width,
@@ -356,9 +359,5 @@ export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();
-  return (
-    <Draggable cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} className={styles.paper} square={false} />
-    </Draggable>
-  );
+  return <Paper {...props} className={styles.paper} square={false} />;
 }

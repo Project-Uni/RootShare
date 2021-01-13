@@ -23,9 +23,13 @@ var webinarSchema = new Schema(
     },
     hostCommunity: { type: Schema.ObjectId, ref: 'communities' },
     private: { type: Boolean },
-    //TODO - Add field for image
+    eventImage: { type: String },
+    eventBanner: { type: String },
     blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
     isDev: { type: Boolean },
+    //MTG Fields
+    isMTG: { type: Boolean },
+    introVideoURL: { type: String },
   },
   { timestamps: true }
 );

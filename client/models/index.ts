@@ -10,6 +10,10 @@ import Webinar from './webinars';
 import CommunityEdge from './community_edges';
 import Image from './images';
 
+import MeetTheGreekInterest from './meet_the_greek_interest';
+
+import ExternalCommunication from './external_communication';
+
 export {
   Comment,
   Community,
@@ -22,4 +26,6 @@ export {
   University,
   User,
   Webinar,
+  MeetTheGreekInterest,
+  ExternalCommunication,
 };

@@ -105,6 +105,7 @@ function EventsBody(props: Props) {
           summary={currEvent.brief_description}
           description={currEvent.full_description}
           timestamp={eventDate + ' at ' + eventTime}
+          eventBanner={currEvent.eventBanner}
           mutualSignups={varMutualSignups.length}
           rsvpYes={currEvent.RSVPs.includes(props.user._id)}
           style={styles.eventStyle}

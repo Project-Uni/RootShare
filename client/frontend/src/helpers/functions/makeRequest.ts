@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { getStore } from '../../redux/store/persistedStore';
 
 type Config = {
@@ -9,12 +9,12 @@ type Config = {
 
 const store = getStore();
 
-export function makeRequest(
+export function makeRequest<T = { [key: string]: any }>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   data: { [key: string]: any } = {},
   ...rest: any
-) {
+): Promise<AxiosResponse<{ success: -1 | 0 | 1; message: string; content: T }>> {
   const state = store.getState();
   const { accessToken, refreshToken } = state;
 

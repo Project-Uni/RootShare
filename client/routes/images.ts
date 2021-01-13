@@ -1,18 +1,18 @@
-import {
-  log,
-  sendPacket,
-  uploadFile,
-  retrieveFile,
-  retrieveSignedUrl,
-  decodeBase64Image,
-} from '../helpers/functions';
+import { sendPacket } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
-import { User, Community } from '../models';
+import {
+  updateUserProfilePicture,
+  updateUserBanner,
+  updateCommunityProfilePicture,
+  updateCommunityBanner,
+  getUserProfileAndBanner,
+  getCommunityProfileAndBanner,
+} from '../interactions/images';
 
-module.exports = (app) => {
+export default function imageRoutes(app) {
   app.post(
     '/api/images/profile/updateProfilePicture',
     isAuthenticatedWithJWT,
@@ -20,58 +20,20 @@ module.exports = (app) => {
       const { image } = req.body;
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
-      if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
-
-      const success = await uploadFile(
-        'profile',
-        `${req.user._id}_profile.jpeg`,
-        imageBuffer.data
-      );
-      if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
-
-      try {
-        const user = await User.findById(req.user._id);
-        user.profilePicture = `${req.user._id}_profile.jpeg`;
-        user.save();
-        log('info', 'Successfully updated user entry for profile picture');
-      } catch (err) {
-        log('error', err);
-      }
-
-      log(
-        'info',
-        `Updated profile picture for ${req.user.firstName} ${req.user.lastName}`
-      );
-      return res.json(sendPacket(1, 'Successfully uploaded image'));
+      const packet = await updateUserProfilePicture(image, req.user._id);
+      return res.json(packet);
     }
   );
 
-  app.get(
-    '/api/images/profile/:userID',
+  app.post(
+    '/api/images/profile/banner',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { userID } = req.params;
-      let pictureFileName = ``;
-      if (userID === 'user') pictureFileName = `${req.user._id}_profile.jpeg`;
-      else pictureFileName = `${userID}_profile.jpeg`;
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      try {
-        const user = await User.findById(userID);
-        if (user.profilePicture) pictureFileName = user.profilePicture;
-      } catch (err) {
-        log('err', err);
-      }
-
-      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
-
-      if (!imageURL) {
-        return res.json(sendPacket(0, 'No profile image found for user'));
-      }
-
-      return res.json(
-        sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
-      );
+      const packet = await updateUserBanner(image, req.user._id);
+      return res.json(packet);
     }
   );
 
@@ -85,34 +47,38 @@ module.exports = (app) => {
       const { image } = req.body;
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
-      if (!imageBuffer.data) return res.json(sendPacket(0, 'Invalid base64 image'));
+      const packet = await updateCommunityProfilePicture(image, communityID);
+      return res.json(packet);
+    }
+  );
 
-      const success = await uploadFile(
-        'communityProfile',
-        `${communityID}_profile.jpeg`,
-        imageBuffer.data
-      );
-      if (!success) return res.json(sendPacket(0, 'Failed to upload image'));
+  app.post(
+    '/api/images/community/:communityID/banner',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { image } = req.body;
+      if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      Community.updateOne(
-        { _id: communityID },
-        { profilePicture: `${communityID}_profile.jpeg` }
-      )
-        .exec()
-        .then(() => {
-          log(
-            'info',
-            `Sucessfully community profile picture DB entry for ${communityID}`
-          );
-        })
-        .catch((err) => {
-          log('error', err);
-        });
+      const packet = await updateCommunityBanner(image, communityID);
+      return res.json(packet);
+    }
+  );
 
-      return res.json(
-        sendPacket(1, 'Successfully updated profile picture for community.')
-      );
+  app.get(
+    '/api/images/profile/:userID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      let { userID } = req.params;
+
+      let isCurrentUser = false;
+      if (userID === 'user') {
+        userID = req.user._id;
+        isCurrentUser = true;
+      }
+      const packet = await getUserProfileAndBanner(userID, isCurrentUser);
+      return res.json(packet);
     }
   );
 
@@ -121,24 +87,9 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      let pictureFileName = `${communityID}_profile.jpeg`;
 
-      try {
-        const community = await Community.findById(communityID, ['profilePicture']);
-        if (community.profilePicture) pictureFileName = community.profilePicture;
-      } catch (err) {
-        log('err', err);
-      }
-
-      const imageURL = await retrieveSignedUrl('communityProfile', pictureFileName);
-
-      if (!imageURL) {
-        return res.json(sendPacket(0, 'No profile image found for user'));
-      }
-
-      return res.json(
-        sendPacket(1, 'Successfully retrieved profile image url', { imageURL })
-      );
+      const packet = await getCommunityProfileAndBanner(communityID);
+      return res.json(packet);
     }
   );
-};
+}
