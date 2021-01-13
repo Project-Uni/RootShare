@@ -11,9 +11,10 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import ProfileBanner from '../../../base-components/ProfileBanner';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -21,8 +22,6 @@ const useStyles = makeStyles((_: any) => ({
     // background: colors.primaryText,
     background: colors.background,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
   coverPhoto: {
@@ -32,10 +31,10 @@ const useStyles = makeStyles((_: any) => ({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
-
   profilePictureWrapper: {
     marginTop: -88,
     marginLeft: 50,
+    display: 'inline-block',
   },
   profilePicture: {
     border: `8px solid ${colors.primaryText}`,
@@ -63,6 +62,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+export type CommunityFlags = {
+  isMTGFlag: boolean;
+};
+
 type Props = {
   communityID: string;
   userID: string;
@@ -74,28 +77,25 @@ type Props = {
   numMutual: number;
   numPending: number;
   numFollowRequests: number;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   private?: boolean;
   loading?: boolean;
-  accessToken: string;
-  refreshToken: string;
+
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
+  hasFollowingAccess?: boolean;
+  flags: CommunityFlags;
 };
 
 function CommunityBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [currentProfile, setCurrentProfile] = useState<string>();
+  const [currentBanner, setCurrentBanner] = useState<string>();
 
   const locked =
-    props.status === 'PENDING' || (props.status === 'OPEN' && props.private);
+    props.status === 'PENDING' ||
+    (props.status === 'OPEN' && props.private && !props.hasFollowingAccess);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -116,7 +116,8 @@ function CommunityBody(props: Props) {
     );
 
     if (data['success'] === 1) {
-      setCurrentProfile(data['content']['imageURL']);
+      setCurrentProfile(data.content.profile);
+      setCurrentBanner(data.content.banner);
     }
   }
 
@@ -127,7 +128,16 @@ function CommunityBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div className={styles.coverPhoto}></div>
+        <ProfileBanner
+          type="community"
+          height={200}
+          editable={props.isAdmin}
+          zoomOnClick={!props.isAdmin}
+          borderRadius={10}
+          currentPicture={currentBanner}
+          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
+          _id={props.communityID}
+        />
         {props.loading ? (
           <div className={[styles.loadingProfilePicture].join(' ')}></div>
         ) : (
@@ -178,10 +188,9 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
+              flags={props.flags}
             />
           )}
         </Box>
@@ -201,6 +210,9 @@ function CommunityBody(props: Props) {
             name={props.name}
             status={props.status}
             isAdmin={props.isAdmin}
+            private={props.private}
+            flags={props.flags}
+            communityName={props.name}
           />
         )}
       </div>

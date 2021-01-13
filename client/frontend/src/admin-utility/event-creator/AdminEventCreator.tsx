@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -26,6 +26,7 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import RSText from '../../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
+import { colors } from '../../theme/Colors';
 
 import { EventType, HostType, SpeakerType } from '../../helpers/types';
 import { makeRequest, log } from '../../helpers/functions';
@@ -45,12 +46,15 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'flex-start',
   },
   formBody: {
-    width: 400,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     border: '1px solid black',
     borderRadius: 10,
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 10,
+    margin: 10,
   },
   rootshareLogo: {
     height: '90px',
@@ -62,12 +66,30 @@ const useStyles = makeStyles((_: any) => ({
     padding: 0,
     margin: 0,
   },
+  buttonWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+  },
   submitButton: {
-    width: 250,
+    width: '40%',
     background: '#3D66DE',
     '&:hover': {
       background: '#7c97e9',
     },
+    fontSize: 16,
+    color: 'white',
+    marginRight: 20,
+  },
+  emailButton: {
+    width: '40%',
+    background: colors.secondaryText,
+    fontSize: 16,
+    color: colors.primaryText,
+  },
+  loadingGray: {
+    width: '60%',
+    background: '#555555',
     fontSize: 16,
     color: 'white',
   },
@@ -108,6 +130,29 @@ const useStyles = makeStyles((_: any) => ({
     width: 150,
     textAlign: 'left',
   },
+  imageWrapper: {
+    width: 400,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  uploadedImage: {
+    alignSelf: 'center',
+    maxHeight: 250,
+    maxWidth: '100%',
+    objectFit: 'contain',
+  },
+  imageSection: {
+    height: 400,
+  },
+  imagePreviewWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    width: '90%',
+    borderRadius: 8,
+  },
 }));
 
 type Props = {
@@ -123,6 +168,7 @@ function AdminEventCreator(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
@@ -135,6 +181,10 @@ function AdminEventCreator(props: Props) {
   const [host, setHost] = useState<HostType | {}>({});
   const [speakers, setSpeakers] = useState<SpeakerType[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState('');
+  const [eventImage, setEventImage] = useState<string>('');
+  const [editImage, setEditImage] = useState<string>('');
+  const [eventBanner, setEventBanner] = useState<string>('');
+  const [editBanner, setEditBanner] = useState<string>('');
 
   const [events, setEvents] = useState<EventType[]>([]);
   const [editEvent, setEditEvent] = useState('');
@@ -149,6 +199,9 @@ function AdminEventCreator(props: Props) {
 
   const [isDev, setIsDev] = useState<'yes' | 'no'>('no');
   const [isPrivate, setIsPrivate] = useState<'yes' | 'no'>('no');
+
+  const eventImageUploader = useRef<HTMLInputElement>(null);
+  const eventBannerUploader = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -180,10 +233,10 @@ function AdminEventCreator(props: Props) {
   }
 
   useEffect(() => {
-    updateEvents();
+    fetchEvents();
   }, []);
 
-  async function updateEvents() {
+  async function fetchEvents() {
     const { data } = await makeRequest(
       'GET',
       '/api/webinar/getAllEventsAdmin',
@@ -198,6 +251,14 @@ function AdminEventCreator(props: Props) {
 
   function handleTitleChange(event: any) {
     setTitle(event.target.value);
+  }
+
+  function handleEventImageClicked() {
+    eventImageUploader.current?.click();
+  }
+
+  function handleEventBannerClicked() {
+    eventBannerUploader.current?.click();
   }
 
   function handleBriefDescChange(event: any) {
@@ -253,6 +314,44 @@ function AdminEventCreator(props: Props) {
     setIsDev(event.target.value);
   }
 
+  function handleEventImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files && event.target.files.length > 0) {
+      if (event.target.files[0].size > 1050000) {
+        setTopMessage('f: Image file must be smaller than 1MB');
+        event.target.value = '';
+        return;
+      }
+      const imageReader = new FileReader();
+
+      imageReader.onloadend = (event: ProgressEvent) => {
+        const resultBuffer = imageReader.result;
+        setEventImage(resultBuffer as string);
+      };
+
+      imageReader.readAsDataURL(event.target.files[0]);
+      event.target.value = '';
+    }
+  }
+
+  function handleEventBannerUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files && event.target.files.length > 0) {
+      if (event.target.files[0].size > 1050000) {
+        setTopMessage('f: Image file must be smaller than 1MB');
+        event.target.value = '';
+        return;
+      }
+      const imageReader = new FileReader();
+
+      imageReader.onloadend = (event: ProgressEvent) => {
+        const resultBuffer = imageReader.result;
+        setEventBanner(resultBuffer as string);
+      };
+
+      imageReader.readAsDataURL(event.target.files[0]);
+      event.target.value = '';
+    }
+  }
+
   function startEditing(event: EventType) {
     setEditEvent(event._id);
     setTitle(event.title);
@@ -262,10 +361,16 @@ function AdminEventCreator(props: Props) {
     setHost(event.host);
     setSpeakers(event.speakers as SpeakerType[]);
     setIsPrivate(event.isPrivate ? 'yes' : 'no');
+    setEventImage(event.eventImage);
+    setEditImage(event.eventImage);
+    setEventBanner(event.eventBanner);
+    setEditBanner(event.eventBanner);
     setIsDev(event.isDev ? 'yes' : 'no');
   }
 
   async function handleSubmit() {
+    setLoadingSubmit(true);
+
     let hasErr = false;
     if (title.length === 0) {
       hasErr = true;
@@ -292,7 +397,7 @@ function AdminEventCreator(props: Props) {
       setDateTimeErr('Event cannot be in the past');
     } else setDateTimeErr('');
 
-    if (hasErr) return;
+    if (hasErr) return setLoadingSubmit(false);
 
     const speakerIDs: string[] = speakers.map((speaker) => speaker['_id']);
     const speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
@@ -308,23 +413,69 @@ function AdminEventCreator(props: Props) {
       speakerEmails,
       isDev: isDev === 'yes' ? true : false,
     };
-    const { data } = await makeRequest(
+    const { data: infoData } = await makeRequest(
       'POST',
       '/api/webinar/createEvent',
-      API_DATA,
-      true,
-      props.accessToken,
-      props.refreshToken
+      API_DATA
     );
-    if (data['success'] === 1) {
-      setTopMessage(`s: ${data['message']}`);
+
+    if (infoData['success'] !== 1) {
+      setLoadingSubmit(false);
+      setTopMessage('f: There was an error creating the webinar.');
+      return;
+    }
+
+    const eventID = infoData['content']['webinar']['_id'];
+    const { data: eventImageData } = await makeRequest(
+      'POST',
+      '/api/webinar/uploadEventImage',
+      { eventID, eventImage: eventImage === editImage ? undefined : eventImage }
+    );
+    const { data: eventBannerData } = await makeRequest(
+      'POST',
+      '/api/webinar/uploadEventBanner',
+      { eventID, eventBanner: eventBanner === editBanner ? undefined : eventBanner }
+    );
+
+    if (eventImageData['success'] === 1 && eventBannerData['success'] === 1) {
+      setTopMessage(`s: ${infoData['message']}`);
       editClientEvents();
       resetData();
-    } else setTopMessage('f: There was an error creating the webinar.');
+    } else setTopMessage('f: There was an error adding images to the webinar.');
+    setLoadingSubmit(false);
+  }
+
+  async function handleResendEmails() {
+    if (
+      !window.confirm(
+        'Are you sure you want to resend an email invite to all speakers and host?\n\nREMINDER: They would have received an email at least once when they were first added as a speaker'
+      )
+    )
+      return;
+
+    const webinarData = {
+      _id: editEvent,
+      title,
+      brief_description: briefDesc,
+      full_description: fullDesc,
+      dateTime: eventDateTime,
+    };
+    let speakerEmails: string[] = speakers.map((speaker) => speaker['email']);
+    speakerEmails = speakerEmails.includes((host as HostType).email)
+      ? speakerEmails
+      : speakerEmails.concat((host as HostType).email);
+
+    const { data } = await makeRequest('POST', '/api/webinar/resendSpeakerInvites', {
+      webinarData,
+      speakerEmails,
+    });
+
+    if (data.success === 1) setTopMessage(`s: ${data['message']}`);
+    else setTopMessage(`f: ${data['message']}`);
   }
 
   function editClientEvents() {
-    if (editEvent === '') updateEvents();
+    if (editEvent === '') fetchEvents();
     else
       setEvents((prevEvents) => {
         let newEvents = prevEvents.slice();
@@ -336,6 +487,8 @@ function AdminEventCreator(props: Props) {
             event.host = host as HostType;
             event.speakers = speakers;
             event.dateTime = eventDateTime;
+            event.eventImage = eventImage || '';
+            event.eventBanner = eventBanner || '';
           }
         });
 
@@ -359,6 +512,8 @@ function AdminEventCreator(props: Props) {
     setEditEvent('');
     setIsDev('no');
     setIsPrivate('no');
+    setEventImage('');
+    setEventBanner('');
   }
 
   function removeSpeaker(index: number) {
@@ -448,10 +603,10 @@ function AdminEventCreator(props: Props) {
     );
   }
 
-  function renderFields() {
+  function renderTextInputs() {
     const currHost = host as HostType;
     return (
-      <>
+      <div style={{ width: 400 }}>
         <RSText type="subhead" bold className={styles.textFieldTitle}>
           Event Title
         </RSText>
@@ -559,7 +714,67 @@ function AdminEventCreator(props: Props) {
             {renderPrivateSelect()}
           </div>
         </div>
-      </>
+      </div>
+    );
+  }
+
+  function renderImageInputs() {
+    return (
+      <div className={styles.imageWrapper}>
+        <div className={styles.imageSection}>
+          <Button onClick={handleEventImageClicked}>Update Event Image</Button>
+          <input
+            type="file"
+            ref={eventImageUploader}
+            style={{ display: 'none' }}
+            accept="image/x-png, image/jpeg"
+            onChange={handleEventImageUpload}
+          />
+          {eventImage && (
+            <div className={styles.imagePreviewWrapper}>
+              <IconButton
+                style={{ display: 'float', float: 'right' }}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to remove this image?'))
+                    setEventImage('');
+                }}
+              >
+                <RSText color={colors.secondaryText} size={16} bold>
+                  X
+                </RSText>
+              </IconButton>
+              <img src={eventImage} className={styles.uploadedImage} />
+            </div>
+          )}
+        </div>
+
+        <div className={styles.imageSection}>
+          <Button onClick={handleEventBannerClicked}>Update Event Banner</Button>
+          <input
+            type="file"
+            ref={eventBannerUploader}
+            style={{ display: 'none' }}
+            accept="image/x-png, image/jpeg"
+            onChange={handleEventBannerUpload}
+          />
+          {eventBanner && (
+            <div className={styles.imagePreviewWrapper}>
+              <IconButton
+                style={{ display: 'float', float: 'right' }}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to remove this image?'))
+                    setEventBanner('');
+                }}
+              >
+                <RSText color={colors.secondaryText} size={16} bold>
+                  X
+                </RSText>
+              </IconButton>
+              <img src={eventBanner} className={styles.uploadedImage} />
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -591,21 +806,37 @@ function AdminEventCreator(props: Props) {
         >
           {topMessage.substr(3, topMessage.length - 3)}
         </RSText>
-        {renderFields()}
-        <Button
-          variant="contained"
-          className={styles.submitButton}
-          onClick={handleSubmit}
-        >
-          {editEvent === '' ? 'CREATE' : 'UPDATE'}
-        </Button>
+        <div style={{ display: 'flex' }}>
+          {renderTextInputs()}
+          {renderImageInputs()}
+        </div>
+        <div className={styles.buttonWrapper}>
+          <Button
+            variant="contained"
+            className={loadingSubmit ? styles.loadingGray : styles.submitButton}
+            onClick={handleSubmit}
+            disabled={loadingSubmit}
+          >
+            {editEvent === '' ? 'CREATE' : 'UPDATE'}
+          </Button>
+          {editEvent && (
+            <Button
+              variant="contained"
+              className={loadingSubmit ? styles.loadingGray : styles.emailButton}
+              onClick={handleResendEmails}
+              disabled={loadingSubmit}
+            >
+              Resend Event Invites
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin/createEvent" />}
+      {loginRedirect && <Redirect to="/login?redirect=/admin/event" />}
       <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
@@ -617,7 +848,7 @@ function AdminEventCreator(props: Props) {
         renderInvalid()
       ) : (
         <div className={styles.holder}>
-          {renderContent()}{' '}
+          {renderContent()}
           <AdminEventList events={events} handleEdit={startEditing} />
         </div>
       )}

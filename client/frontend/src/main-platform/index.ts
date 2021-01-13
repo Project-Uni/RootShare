@@ -6,6 +6,7 @@ import Profile from './profile/Profile';
 import YourCommunities from './your-communities/YourCommunities';
 import StreamLibrary from './stream-library/StreamLibrary';
 import Connections from './connections/Connections';
+import MeetTheGreeks from './meet-the-greeks/MeetTheGreeks';
 
 export {
   Homepage,
@@ -16,4 +17,5 @@ export {
   YourCommunities,
   StreamLibrary,
   Connections,
+  MeetTheGreeks,
 };

@@ -9,6 +9,7 @@ import { FaSearch } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
+import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { DiscoverUser, UniversityType } from '../../../helpers/types';
@@ -33,6 +34,9 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 1,
     paddingBottom: 10,
   },
+  noConnections: {
+    marginTop: 30,
+  },
   connectionStyle: {
     margin: 8,
   },
@@ -51,6 +55,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   requestUserID: string;
+
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -165,6 +170,14 @@ function ConnectionsBody(props: Props) {
   function renderConnections() {
     const output = [];
 
+    if (connections.length === 0)
+      return (
+        <RSText size={20} type="head" className={styles.noConnections}>
+          {props.requestUserID === 'user' ? `You don't` : `${username} doesn't`} have
+          any connections yet. Send a request!
+        </RSText>
+      );
+
     //TODO: Add logic in case an optional field does not exist
     for (let i = 0; i < connections.length; i++) {
       const currConnection: DiscoverUser = connections[i];
@@ -193,10 +206,7 @@ function ConnectionsBody(props: Props) {
       className={styles.wrapper}
       style={{
         height: height,
-        background:
-          loading || connections.length === 0
-            ? colors.primaryText
-            : colors.background,
+        background: colors.background,
       }}
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>

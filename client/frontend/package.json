@@ -39,11 +39,13 @@
     "react-dom": "^16.13.1",
     "react-draggable": "^4.4.3",
     "react-ga": "^3.0.0",
-    "react-icons": "^3.10.0",
+    "react-icons": "^4.1.0",
     "react-image-crop": "^8.6.5",
     "react-images": "^1.1.7",
+    "react-player": "^2.7.2",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
+    "react-rte": "^0.16.3",
     "react-scripts": "^3.4.3",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
@@ -56,6 +58,7 @@
     "videojs-mux": "^3.1.1"
   },
   "devDependencies": {
+    "@types/react-rte": "^0.16.1",
     "babel-eslint": "^10.0.3",
     "dotenv": "^8.2.0",
     "eslint": "^6.8.0",

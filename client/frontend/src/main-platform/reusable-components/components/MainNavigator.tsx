@@ -7,7 +7,7 @@ import { MdGroup, MdOndemandVideo } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
+import theme from '../../../theme/Theme';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 
@@ -16,7 +16,7 @@ const ICON_SIZE = 32;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.second,
+    background: theme.background,
     width: 310,
   },
   linkContainer: {
@@ -35,7 +35,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type AVAILABLE_TABS =
+export type AVAILABLE_TABS =
   | 'home'
   | 'discover'
   | 'communities'
@@ -68,7 +68,7 @@ function MainNavigator(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'home' ? theme.bright : theme.primaryText}
         />
       ),
     },
@@ -77,9 +77,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaSearch
           size={ICON_SIZE}
-          color={
-            props.currentTab === 'discover' ? colors.bright : colors.primaryText
-          }
+          color={props.currentTab === 'discover' ? theme.bright : theme.primaryText}
         />
       ),
     },
@@ -89,7 +87,7 @@ function MainNavigator(props: Props) {
         <FaHome
           size={ICON_SIZE}
           color={
-            props.currentTab === 'communities' ? colors.bright : colors.primaryText
+            props.currentTab === 'communities' ? theme.bright : theme.primaryText
           }
         />
       ),
@@ -100,7 +98,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'events' ? theme.bright : theme.primaryText}
         />
       ),
     },
@@ -109,7 +107,7 @@ function MainNavigator(props: Props) {
     //   icon: (
     //     <MdOndemandVideo
     //       size={ICON_SIZE}
-    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
+    //       color={props.currentTab === 'library' ? theme.bright : theme.primaryText}
     //     />
     //   ),
     // },
@@ -119,7 +117,7 @@ function MainNavigator(props: Props) {
         <MdGroup
           size={ICON_SIZE}
           color={
-            props.currentTab === 'connections' ? colors.bright : colors.primaryText
+            props.currentTab === 'connections' ? theme.bright : theme.primaryText
           }
         />
       ),
@@ -130,7 +128,7 @@ function MainNavigator(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'profile' ? theme.bright : theme.primaryText}
         />
       ),
       link: '/profile/user',
@@ -150,13 +148,13 @@ function MainNavigator(props: Props) {
             type="head"
             color={
               props.currentTab === tabs[i].name.toLowerCase()
-                ? colors.bright
-                : colors.primaryText
+                ? theme.bright
+                : theme.primaryText
             }
             size={TEXT_SIZE}
             bold
             className={styles.textStyle}
-            hoverColor={colors.bright}
+            hoverColor={theme.bright}
           >
             {tabs[i].name}
           </RSText>

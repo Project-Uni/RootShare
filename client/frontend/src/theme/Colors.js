@@ -33,6 +33,8 @@ const colors = {
 
   accentColors: ['#988ADE', '#DE8AA0', '#8AAEDE', '#8ADEAD', '#DEC58A', '#8AD1DE'],
   //We can break this out into its own color names later, but just wanted to save these for now
+
+  boilerGold: '#CEB888',
 };
 
 export { colors };

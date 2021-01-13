@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Link, CircularProgress } from '@material-ui/core';
+import { TextField, Button, Link } from '@material-ui/core';
 import { useLocation, Redirect } from 'react-router-dom';
 import queryString from 'query-string';
 
@@ -47,9 +47,6 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  loadingIndicator: {
-    color: colors.primary,
-  },
 }));
 
 type Props = {
@@ -84,17 +81,7 @@ function Login(props: Props) {
 
   async function checkAuth() {
     setLoading(true);
-    if (accessToken) props.updateAccessToken(accessToken);
-    if (refreshToken) props.updateRefreshToken(refreshToken);
-
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getCurrent');
 
     setLoading(false);
     if (data['success'] === 1) {
@@ -102,11 +89,8 @@ function Login(props: Props) {
       if (accessToken) props.updateAccessToken(accessToken);
       if (refreshToken) props.updateRefreshToken(refreshToken);
       setRedirectHome(true);
-    } else {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
     }
+    setLoading(false);
   }
 
   function handleEmailChange(event: any) {
@@ -159,9 +143,7 @@ function Login(props: Props) {
   return (
     <div className={styles.wrapper}>
       {redirectHome && <Redirect to={redirectUrl} />}
-      {loading ? (
-        <CircularProgress size={100} className={styles.loadingIndicator} />
-      ) : forgotPassword ? (
+      {forgotPassword ? (
         <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
       ) : (
         <HypeCard width={375} loading={loading} headerText="Login">

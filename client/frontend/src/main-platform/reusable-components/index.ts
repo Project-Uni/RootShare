@@ -12,7 +12,12 @@ import CommunityHighlight from './components/CommunityHighlight';
 
 import RSTabs from './components/RSTabs';
 
-import RSModal from './components/RSModal';
+import RSModal from './components/RSModal/RSModal';
+import BigButton from './components/RSModal/BigButton';
+
+import UserSearch from './components/UserSearch';
+
+import RSButton from './components/RSButton';
 
 export {
   MainNavigator,
@@ -24,5 +29,8 @@ export {
   UserHighlight,
   CommunityHighlight,
   RSTabs,
-  RSModal
+  RSModal,
+  BigButton,
+  UserSearch,
+  RSButton,
 };

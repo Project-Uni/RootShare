@@ -5,11 +5,11 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
-  //Admin Routes
+  // Admin Routes
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
-  //General Community Actions
+  // General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -18,7 +18,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
-  //Follow Related Actions
+  // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
   rejectFollowRequest,
@@ -39,7 +39,7 @@ export default function communityRoutes(app) {
           sendPacket(-1, 'User is not authorized to perform this action')
         );
 
-      const { name, description, adminID, type, isPrivate } = req.body;
+      const { name, description, adminID, type, isPrivate, isMTG } = req.body;
       if (
         !name ||
         !description ||
@@ -60,7 +60,8 @@ export default function communityRoutes(app) {
         description,
         adminID,
         type,
-        isPrivate
+        isPrivate,
+        { isMTG }
       );
 
       return res.json(packet);
@@ -83,7 +84,7 @@ export default function communityRoutes(app) {
         sendPacket(-1, 'User is not authorized to perform this action')
       );
 
-    const { _id, name, description, adminID, type, isPrivate } = req.body;
+    const { _id, name, description, adminID, type, isPrivate, isMTG } = req.body;
     if (
       !_id ||
       !name ||
@@ -105,6 +106,36 @@ export default function communityRoutes(app) {
       name,
       description,
       adminID,
+      type,
+      isPrivate,
+      { isMTG }
+    );
+
+    return res.json(packet);
+  });
+
+  app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
+    const { name, description, type, isPrivate } = req.body;
+
+    if (
+      !name ||
+      !description ||
+      !type ||
+      isPrivate === null ||
+      isPrivate === undefined
+    )
+      return res.json(
+        sendPacket(
+          -1,
+          'name, description, type, or isPrivate missing from request body.'
+        )
+      );
+
+    const userID = req.user._id;
+    const packet = await createNewCommunity(
+      name,
+      description,
+      userID,
       type,
       isPrivate
     );
@@ -312,7 +343,10 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID } = req.user;
-      const packet = await getCommunityMembers(userID, communityID);
+      const { skipCalculation } = req.query;
+      const packet = await getCommunityMembers(userID, communityID, {
+        skipCalculation,
+      });
       return res.json(packet);
     }
   );

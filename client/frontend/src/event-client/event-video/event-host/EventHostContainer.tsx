@@ -27,7 +27,7 @@ import {
   removeFromCache,
 } from './helpers';
 
-import { SINGLE_DIGIT } from '../../../helpers/types';
+import { SINGLE_DIGIT, EventType } from '../../../helpers/types';
 
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
@@ -68,7 +68,7 @@ type Props = {
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
   mode: 'speaker' | 'admin';
-  webinar: { [key: string]: any };
+  webinar: EventType;
   speaking_token?: string;
   sessionID?: string;
 };
@@ -80,7 +80,7 @@ function EventHostContainer(props: Props) {
   const [cameraPublisher, setCameraPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
-  const [webinarID, setWebinarID] = useState(-1);
+  const [webinarID, setWebinarID] = useState('');
   const [eventSessionID, setEventSessionID] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -349,7 +349,7 @@ function EventHostContainer(props: Props) {
         'POST',
         '/proxy/webinar/setConnectionID',
         {
-          webinarID: props.webinar['_id'],
+          webinarID: props.webinar._id,
           speaking_token: props.speaking_token,
           connection: eventSession.connection,
         },
@@ -364,9 +364,9 @@ function EventHostContainer(props: Props) {
 
   async function initializeSession() {
     if (props.webinar) {
-      setWebinarID(props.webinar['_id']);
+      setWebinarID(props.webinar._id);
       const { screenshare, eventSession, message, sessionID } = await connectStream(
-        props.webinar['_id'],
+        props.webinar._id,
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
@@ -454,7 +454,7 @@ function EventHostContainer(props: Props) {
         {renderVideoSections()}
       </div>
       <EventHostButtonContainer
-        webinarID={props.webinar['_id']}
+        webinarID={props.webinar._id}
         mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}

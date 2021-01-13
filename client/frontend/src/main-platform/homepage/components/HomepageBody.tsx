@@ -17,6 +17,7 @@ import {
 } from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import MeetTheGreeksInfoCard from '../../meet-the-greeks/MeetTheGreeksInfoCard';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -45,7 +46,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   box: {
-    background: colors.primaryText,
+    // background: colors.primaryText,
     margin: 8,
   },
 }));
@@ -172,7 +173,8 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+      <MeetTheGreeksInfoCard showNavigation className={styles.box} />
+      {/* <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
           message="Every success story is rooted in the support from a community. Join your
@@ -180,7 +182,7 @@ function HomepageBody(props: Props) {
           buttonText="Discover"
           buttonAction={handleDiscoverClick}
         />
-      </Box>
+      </Box> */}
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={props.user.profilePicture}

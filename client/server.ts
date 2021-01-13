@@ -13,6 +13,10 @@ import communityRoutes from './routes/community';
 import feedbackRoutes from './routes/feedback';
 import discoverRoutes from './routes/discover';
 import postRoutes from './routes/posts';
+import imageRoutes from './routes/images';
+import mtgRoutes from './routes/meet-the-greeks';
+import webhooks from './routes/webhooks';
+import university from './routes/university';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -35,7 +39,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 app.use(pino());
-app.use(bodyParser.json({ limit: '1mb', type: 'application/json' }));
+app.use(bodyParser.json({ limit: '1.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   expressSession({
@@ -66,13 +70,15 @@ require('./routes/mocks')(app);
 
 require('./routes/proxy')(app);
 
-require('./routes/images')(app);
-
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
 communityRoutes(app);
 feedbackRoutes(app);
 discoverRoutes(app);
 postRoutes(app);
+imageRoutes(app);
+mtgRoutes(app);
+webhooks(app);
+university(app);
 
 require('./config/setup')(passport);
 

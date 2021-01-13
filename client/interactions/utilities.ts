@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { ImageReason } from '../helpers/types';
 
 import { User } from '../models';
 
