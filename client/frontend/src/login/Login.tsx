@@ -159,9 +159,7 @@ function Login(props: Props) {
   return (
     <div className={styles.wrapper}>
       {redirectHome && <Redirect to={redirectUrl} />}
-      {loading ? (
-        <CircularProgress size={100} className={styles.loadingIndicator} />
-      ) : forgotPassword ? (
+      {forgotPassword ? (
         <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
       ) : (
         <HypeCard width={375} loading={loading} headerText="Login">
