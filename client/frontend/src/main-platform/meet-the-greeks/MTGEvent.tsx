@@ -11,6 +11,12 @@ import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functi
 import { RSButton } from '../reusable-components';
 import { InterestedButton } from '../community/components/MeetTheGreeks';
 
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: Theme.white,
@@ -221,6 +227,8 @@ const DesktopMTGEventContent = (props: ContentProps) => {
     showVideo,
   } = props;
 
+  const formattedDateTime = useRef(convertEST(dateTime));
+
   return (
     <>
       <div
@@ -248,11 +256,13 @@ const DesktopMTGEventContent = (props: ContentProps) => {
         <div style={{ width: 275 }}>
           <RSText>
             <b>Date: </b>
-            {formatDatePretty(new Date(dateTime))}
+            {formattedDateTime.current.date}
           </RSText>
           <RSText>
             <b>Time: </b>
-            {formatTime(new Date(dateTime))} EST
+            1:00 PM EST
+            {/* TODO - This is stored correctly, but need to figure out why its rendering incorrectly */}
+            {/* {formattedDateTime.current.time} */}
           </RSText>
           <div style={{ display: 'flex', marginTop: 15 }}>
             <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
@@ -287,6 +297,8 @@ const MobileMTGEventContent = (props: ContentProps) => {
 
   const [showDescription, setShowDescription] = useState(false);
 
+  const formattedDateTime = useRef(convertEST(dateTime));
+
   return (
     <div onClick={() => setShowDescription((prev) => !prev)} style={{ margin: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -297,11 +309,13 @@ const MobileMTGEventContent = (props: ContentProps) => {
           <div style={{ marginTop: 15 }}>
             <RSText>
               <b>Date: </b>
-              {formatDatePretty(new Date(dateTime))}
+              {formattedDateTime.current.date}
             </RSText>
             <RSText>
               <b>Time: </b>
-              {formatTime(new Date(dateTime))} EST
+              1:00 PM EST
+              {/* TODO - This is stored correctly, but need to figure out why its rendering incorrectly */}
+              {/* {formattedDateTime.current.time} EST */}
             </RSText>
           </div>
         </div>
@@ -343,4 +357,11 @@ const MobileMTGEventContent = (props: ContentProps) => {
       </div>
     </div>
   );
+};
+
+const convertEST = (timestamp: Date | string) => {
+  const date = dayjs.tz(timestamp, 'America/New_York').format('dddd MMMM D');
+  const time = dayjs.tz(timestamp, 'America/New_York').format('h:mm A');
+  return { date, time };
+  // return dayjs.tz(timestamp, 'America/New_York').format('dddd MMMM D @ h:mm A');
 };

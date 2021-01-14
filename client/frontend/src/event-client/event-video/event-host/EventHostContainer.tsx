@@ -316,7 +316,7 @@ function EventHostContainer(props: Props) {
               return new Publisher();
             }
 
-            session.publish(publisher, (err) => {
+            session.publish(publisher, (err: any) => {
               if (err) return log('error', err.message);
 
               changeBroadcastLayout(

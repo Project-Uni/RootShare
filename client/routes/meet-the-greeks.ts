@@ -16,6 +16,15 @@ import {
   getInterestedUsers,
 } from '../interactions/meet-the-greeks';
 
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: MeetTheGreeks
+ *    description: API to manage MeetTheGreek Interactions
+ *
+ */
+
 export default function meetTheGreekRoutes(app) {
   app.get(
     '/api/mtg/events',
@@ -47,6 +56,38 @@ export default function meetTheGreekRoutes(app) {
     }
   );
 
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/mtg/interested/{communityID}:
+   *      get:
+   *        summary: Gets information of all users interersted in a community, if user is community admin
+   *        tags:
+   *          - MeetTheGreeks
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community
+   *        responses:
+   *          "1":
+   *            description: The list of all interested users for community
+   *            content:
+   *              application/json:
+   *                schema:
+   *                   type: array
+   *                   items:
+   *                    $ref: '#/components/schemas/MeetTheGreekInterest'
+   *          "0":
+   *            description: Could not find community or failed to find responses
+   *          "-1":
+   *            description: Internal error occured
+   *
+   */
+
   app.get(
     '/api/mtg/interested/:communityID',
     isAuthenticatedWithJWT,
@@ -67,7 +108,7 @@ export default function meetTheGreekRoutes(app) {
       const { introVideoURL, eventTime, description, speakers } = req.body;
       if (
         !introVideoURL ||
-        !eventTime ||
+        // !eventTime ||
         !description ||
         !speakers ||
         !Array.isArray(speakers)
@@ -77,7 +118,7 @@ export default function meetTheGreekRoutes(app) {
             -1,
             invalidInputsMessage([
               'introVideoURL',
-              'eventTime',
+              // 'eventTime',
               'description',
               'speakers',
             ])
@@ -88,7 +129,7 @@ export default function meetTheGreekRoutes(app) {
         communityID,
         description,
         introVideoURL,
-        eventTime,
+        // eventTime,
         speakers
       );
       return res.json(packet);
@@ -123,6 +164,50 @@ export default function meetTheGreekRoutes(app) {
       return res.json(packet);
     }
   );
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/mtg/communications/{communityID}:
+   *      put:
+   *        summary: Create a new communication from a community to all interested users
+   *        tags:
+   *          - MeetTheGreeks
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community sending the message
+   *
+   *          - in: body
+   *            name: requested_message
+   *            schema:
+   *              type: object
+   *              required: message
+   *              properties:
+   *                message:
+   *                  type: string
+   *            required: true
+   *            description: The message the user is sending
+   *
+   *          - in: query
+   *            name: mode
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: text or email
+   *        responses:
+   *          "1":
+   *            description: Successfully sent message
+   *          "0":
+   *            description: Failed to send message
+   *          "-1":
+   *            description: Internal error occured
+   *
+   */
 
   app.put(
     '/api/mtg/communications/:communityID',
