@@ -240,8 +240,8 @@ function EventClientBase(props: Props) {
     socket.on('speaking-revoke', () => {
       speakingToken = '';
       sessionID = '';
-      setEventMode('viewer');
-      alert('You have been removed as a speaker');
+      // alert('You have been removed as a speaker');
+      window.location.reload(true);
     });
 
     socket.on('speaking-token-rejected', () => {
