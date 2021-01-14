@@ -10,6 +10,8 @@ import MyEventMessage from './MyEventMessage';
 import { colors } from '../../theme/Colors';
 import EventMessageTextField from './EventMessageTextField';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
+import { RSButton } from '../..//main-platform/reusable-components';
+import { InterestedButton } from '../../main-platform/community/components/MeetTheGreeks';
 
 import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { makeRequest, cropText } from '../../helpers/functions';
@@ -31,6 +33,17 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
     label: colors.primaryText,
   },
+  viewerButtonContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-center',
+    padding: 10,
+    backgroundColor: colors.primary,
+  },
+  viewerButtons: {
+    marginLeft: 10,
+    marginRight: 10,
+  },
 }));
 
 type Props = {
@@ -42,6 +55,9 @@ type Props = {
   messageSocket: SocketIOClient.Socket;
   isHost?: boolean;
   webinarID: string;
+
+  onRequestToSpeak?: () => void;
+  communityID?: string;
 };
 
 function EventMessageContainer(props: Props) {
@@ -267,6 +283,22 @@ function EventMessageContainer(props: Props) {
     return output;
   }
 
+  function renderViewerButtons() {
+    if (!props.onRequestToSpeak && !props.communityID) return;
+
+    return (
+      <div className={styles.viewerButtonContainer}>
+        <RSButton onClick={props.onRequestToSpeak} className={styles.viewerButtons}>
+          Request to Speak
+        </RSButton>
+        <InterestedButton
+          className={styles.viewerButtons}
+          communityID={props.communityID!}
+        />
+      </div>
+    );
+  }
+
   function scrollToBottom() {
     const eventMessageContainer = document.getElementById('eventMessageContainer');
     eventMessageContainer?.scrollTo(0, eventMessageContainer?.scrollHeight);
@@ -289,6 +321,7 @@ function EventMessageContainer(props: Props) {
       </div>
 
       <EventMessageTextField handleSendMessage={handleSendMessage} />
+      {renderViewerButtons()}
     </div>
   );
 }

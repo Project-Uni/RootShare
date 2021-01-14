@@ -26,6 +26,7 @@ type Props = {
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
   eventImage: string;
+  onEventStart: () => void;
 
   accessToken: string;
   refreshToken: string;
@@ -49,6 +50,10 @@ function EventWatcherVideoContainer(props: Props) {
     updateVideoData(props.muxPlaybackID);
     window.addEventListener('resize', handleResize);
   }, [props.muxPlaybackID]);
+
+  useEffect(() => {
+    if (videoData !== '') props.onEventStart();
+  }, [videoData]);
 
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH) {

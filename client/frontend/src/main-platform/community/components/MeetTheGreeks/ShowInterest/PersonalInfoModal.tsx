@@ -265,6 +265,7 @@ function PersonalInfoModal(props: Props) {
     const interestItems: any[] = [];
 
     for (let i = 0; i < interests.length; i++) {
+      if (interests[i] === '') continue;
       interestItems.push(
         <div className={styles.interestItem} key={i}>
           <RSText size={12} color={colors.secondaryText} italic>

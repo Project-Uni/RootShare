@@ -357,6 +357,7 @@ export async function getWebinarDetails(userID, webinarID, callback) {
       'brief_description',
       'full_description',
       'host',
+      'hostCommunity',
       'speakers',
       'dateTime',
       'conversation',
