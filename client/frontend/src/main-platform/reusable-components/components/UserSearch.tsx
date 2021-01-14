@@ -20,6 +20,7 @@ export type SearchOption = {
 };
 
 type User = {
+  [key: string]: any;
   firstName: string;
   lastName: string;
   email: string;
@@ -27,33 +28,47 @@ type User = {
   profilePicture?: string;
 };
 
-type Props<T extends SearchOption, K extends User> = {
+type ServiceResponse = {
+  users: User[];
+};
+
+type Props<T extends SearchOption> = {
   className: string;
   options?: T[];
-  fetchDataURL?: string; // URL for fetching data
+  fetchDataURL?: string;
   name: string;
   label: string;
   helperText?: string;
   onAutocomplete?: (user: T) => void;
   error?: string;
-  mapData?: (users: K[]) => T[];
+  mapData?: (users: User[]) => T[];
 };
 
-function UserSearch<T extends SearchOption = SearchOption, K extends User = User>(
-  props: Props<T, K>
-) {
+function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
 
-  const [options, setOptions] = useState(props.options || []);
+  const {
+    className,
+    options: optionsProps,
+    fetchDataURL,
+    name,
+    label,
+    helperText,
+    onAutocomplete: onAutocompleteProps,
+    error,
+    mapData,
+  } = props;
+
+  const [options, setOptions] = useState(optionsProps || []);
   const [searchValue, setSearchValue] = useState('');
 
   const onAutocomplete = (_: any, newValue: T | null) => {
-    if (newValue) props.onAutocomplete?.(newValue);
+    if (newValue) onAutocompleteProps?.(newValue);
     setSearchValue('');
   };
 
-  const defaultMap = useCallback(
-    (users: K[]): T[] =>
+  const defaultMapData = useCallback(
+    (users: User[]) =>
       users.map((user) => ({
         _id: user._id,
         label: `${user.firstName} ${user.lastName}`,
@@ -64,43 +79,37 @@ function UserSearch<T extends SearchOption = SearchOption, K extends User = User
   );
 
   const fetchData = async () => {
-    if (props.fetchDataURL) {
-      const { data } = await makeRequest<{ users: K[] }>('GET', props.fetchDataURL);
+    if (fetchDataURL) {
+      const { data } = await makeRequest<ServiceResponse>('GET', fetchDataURL);
       if (data.success === 1) {
         setOptions(
-          props.mapData
-            ? props.mapData(data.content.users)
-            : defaultMap(data.content.users)
+          mapData?.(data.content.users) || defaultMapData(data.content.users)
         );
       }
     }
   };
 
   useEffect(() => {
-    if (props.fetchDataURL) fetchData();
-  }, [searchValue, props.fetchDataURL]);
+    if (fetchDataURL) fetchData();
+  }, [searchValue, fetchDataURL]);
 
   return (
     <Autocomplete
-      className={props.className}
+      className={className}
       options={options}
       inputValue={searchValue}
       getOptionLabel={(option) => option.value}
       onChange={onAutocomplete}
-      key={`autocompleted_${props.label}`}
+      key={`autocompleted_${label}`}
       renderInput={(params) => (
         <TextField
           {...params}
-          label={props.label}
+          label={label}
           variant="outlined"
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
-          helperText={
-            Boolean(props.error) && props.error !== ''
-              ? props.error
-              : props.helperText
-          }
-          error={Boolean(props.error) && props.error !== ''}
+          helperText={Boolean(error) && error !== '' ? error : helperText}
+          error={Boolean(error) && error !== ''}
         />
       )}
       renderOption={(option) => (
