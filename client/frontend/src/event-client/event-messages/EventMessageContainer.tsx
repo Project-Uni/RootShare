@@ -288,20 +288,13 @@ function EventMessageContainer(props: Props) {
 
     return (
       <div className={styles.viewerButtonContainer}>
-        {props.onRequestToSpeak && (
-          <RSButton
-            onClick={props.onRequestToSpeak}
-            className={styles.viewerButtons}
-          >
-            Request to Speak
-          </RSButton>
-        )}
-        {props.communityID && (
-          <InterestedButton
-            className={styles.viewerButtons}
-            communityID={props.communityID!}
-          />
-        )}
+        <RSButton onClick={props.onRequestToSpeak} className={styles.viewerButtons}>
+          Request to Speak
+        </RSButton>
+        <InterestedButton
+          className={styles.viewerButtons}
+          communityID={props.communityID!}
+        />
       </div>
     );
   }
