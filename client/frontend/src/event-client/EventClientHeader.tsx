@@ -9,7 +9,6 @@ import { IoMdText } from 'react-icons/io';
 import { FaRegCalendarAlt } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
-import { RSButton } from '../main-platform/reusable-components';
 
 import { colors } from '../theme/Colors';
 import theme from '../theme/Theme';
@@ -38,16 +37,12 @@ const useStyles = makeStyles((_: any) => ({
   alpha: {
     marginLeft: 5,
   },
-  requestToSpeakButton: {
-    marginLeft: 20,
-  },
 }));
 
 type Props = {
   minWidth?: number;
   showNavigationWidth?: number;
   showNavigationMenuDefault?: boolean;
-  onRequestToSpeak?: () => void;
 };
 
 function EventClientHeader(props: Props) {
@@ -160,15 +155,6 @@ function EventClientHeader(props: Props) {
                 />
               </a>
             </div>
-
-            {props.onRequestToSpeak && (
-              <RSButton
-                onClick={props.onRequestToSpeak}
-                className={styles.requestToSpeakButton}
-              >
-                Request to Speak
-              </RSButton>
-            )}
           </div>
 
           <div className={styles.icons}>{isDesktop && renderIcons()}</div>

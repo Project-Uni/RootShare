@@ -140,6 +140,7 @@ function EventClientBase(props: Props) {
     );
     if (data['success'] === 1) {
       const { webinar } = data['content'];
+      console.log(webinar);
       setWebinarData(webinar);
       fetchAds(webinar.eventBanner);
       setMuxMetaData({
@@ -388,15 +389,7 @@ function EventClientBase(props: Props) {
         onReject={onRejectSpeakingInvite}
         onAccept={onAcceptSpeakingInvite}
       />
-      <EventClientHeader
-        minWidth={minHeaderWidth}
-        showNavigationMenuDefault
-        onRequestToSpeak={
-          showRequestSpeakButton && eventMode === 'viewer'
-            ? onRequestToSpeak
-            : undefined
-        }
-      />
+      <EventClientHeader minWidth={minHeaderWidth} showNavigationMenuDefault />
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}
@@ -422,6 +415,14 @@ function EventClientBase(props: Props) {
             conversationID={currConversationID}
             isHost={eventMode === 'host'}
             webinarID={webinarEvent._id}
+            onRequestToSpeak={
+              showRequestSpeakButton && eventMode === 'viewer'
+                ? onRequestToSpeak
+                : undefined
+            }
+            communityID={
+              webinarEvent.hostCommunity ? webinarEvent.hostCommunity : undefined
+            }
           />
         </div>
       </div>
