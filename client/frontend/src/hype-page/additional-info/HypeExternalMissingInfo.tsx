@@ -127,10 +127,7 @@ function HypeExternalMissingInfo(props: Props) {
     );
     if (data['success'] === 1) {
       if (data['content']['externalComplete']) setAdditionalRedirect(true);
-    } else {
-      alert('Not Authed 2');
-      setLandingRedirect(true);
-    }
+    } else setLandingRedirect(true);
   }
 
   async function checkAuth() {
@@ -147,11 +144,7 @@ function HypeExternalMissingInfo(props: Props) {
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
       checkCompletedRegistration();
-    } else {
-      console.log(data);
-      alert('Not Authed 1');
-      setLandingRedirect(true);
-    }
+    } else setLandingRedirect(true);
   }
 
   useEffect(() => {
