@@ -36,7 +36,7 @@ function MeetTheGreeksBannerUpload(props: Props) {
   const handleImageUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files && event.target.files.length > 0) {
-        if (event.target.files[0].size > 1440000) {
+        if (event.target.files[0].size > 3000000) {
           setServerErr('The image file is too big.');
           event.target.value = '';
           return;

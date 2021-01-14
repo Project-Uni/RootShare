@@ -52,7 +52,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 app.use(pino());
-app.use(bodyParser.json({ limit: '1.5mb', type: 'application/json' }));
+app.use(bodyParser.json({ limit: '3mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   expressSession({
