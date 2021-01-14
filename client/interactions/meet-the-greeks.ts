@@ -36,7 +36,7 @@ export async function createMTGEvent(
 
   try {
     let event = await Webinar.findOne({
-      community: communityID,
+      hostCommunity: communityID,
       isMTG: true,
     }).exec();
 
@@ -49,7 +49,7 @@ export async function createMTGEvent(
         event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
         event.speakers = speakers;
         event.host = speakers[0];
-        event.isDev = process.env.NODE_ENV === 'dev';
+        // event.isDev = process.env.NODE_ENV === 'dev';
         await event.save();
       }
       //Creating new event
@@ -141,6 +141,7 @@ export async function retrieveMTGEventInfo(communityID: string) {
       })
       .lean()
       .exec();
+
     if (!mtgEvent)
       return sendPacket(
         0,
@@ -392,7 +393,7 @@ async function sendMTGEventEmails(
         recipient.email,
         `Meet The Greek Event Invite From ${community.name}`,
         `
-        <p>Hi Ashwin,</p>
+        <p>Hi ${recipient.firstName},</p>
         <p></p>
         <p>You have been invited by <strong>${community.name}</strong> to speak at their Meet The Greek event on <strong>${timestamp} EST</strong>.</p>
         <p></p>
