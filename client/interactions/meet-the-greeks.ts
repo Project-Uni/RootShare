@@ -15,16 +15,21 @@ import {
   Webinar,
 } from '../models';
 
-import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
 
 import sendEmail from '../helpers/functions/sendEmail';
+
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export async function createMTGEvent(
   communityID: string,
   description: string,
   introVideoURL: string,
-  eventTime: string,
+  // eventTime: string,
   speakers: string[]
 ) {
   if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
@@ -40,7 +45,8 @@ export async function createMTGEvent(
         //Edit Mode
         event.full_description = description;
         event.introVideoURL = introVideoURL;
-        event.dateTime = eventTime;
+        // event.dateTime = eventTime;
+        event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
         event.speakers = speakers;
         event.host = speakers[0];
         event.isDev = process.env.NODE_ENV === 'dev';
@@ -57,7 +63,8 @@ export async function createMTGEvent(
           hostCommunity: communityID,
           full_description: description,
           introVideoURL,
-          dateTime: eventTime,
+          // dateTime: eventTime,
+          dateTime: new Date('Jan 17 2021 1:00 PM EST'),
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
@@ -379,18 +386,19 @@ async function sendMTGEventEmails(
 ) {
   try {
     const community = await Community.findById(event.hostCommunity, 'name').exec();
+    const timestamp = convertEST(event.dateTime);
     recipients.forEach((recipient) => {
       sendEmail(
         recipient.email,
         `Meet The Greek Event Invite From ${community.name}`,
         `
         <p>Hi Ashwin,</p>
-        <p><br></p>
-        <p>You have been invited by <strong>Community</strong> to speak at their Meet The Greek event on <strong>DateTime</strong>.</p>
-        <p><br></p>
+        <p></p>
+        <p>You have been invited by <strong>${community.name}</strong> to speak at their Meet The Greek event on <strong>${timestamp} EST</strong>.</p>
+        <p></p>
         <p>You can access the event by visiting:</p>
-        <p><a href="https://rootshare.io/event/id" target="_blank">https://rootshare.io/event/id</a></p>
-        <p><br></p>
+        <p><a href="https://rootshare.io/event/${event._id}" target="_blank">https://rootshare.io/event/${event._id}</a></p>
+        <p></p>
         <p>Thanks for using RootShare, and good luck with recruitment!</p>
         <p>- The RootShare team.</p>
         `
@@ -403,3 +411,7 @@ async function sendMTGEventEmails(
     return false;
   }
 }
+
+const convertEST = (timestamp: Date | string) => {
+  return dayjs.tz(timestamp, 'America/New_York').format('dddd MMMM D @ h:mm A');
+};

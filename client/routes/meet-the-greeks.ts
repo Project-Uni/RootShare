@@ -108,7 +108,7 @@ export default function meetTheGreekRoutes(app) {
       const { introVideoURL, eventTime, description, speakers } = req.body;
       if (
         !introVideoURL ||
-        !eventTime ||
+        // !eventTime ||
         !description ||
         !speakers ||
         !Array.isArray(speakers)
@@ -118,7 +118,7 @@ export default function meetTheGreekRoutes(app) {
             -1,
             invalidInputsMessage([
               'introVideoURL',
-              'eventTime',
+              // 'eventTime',
               'description',
               'speakers',
             ])
@@ -129,7 +129,7 @@ export default function meetTheGreekRoutes(app) {
         communityID,
         description,
         introVideoURL,
-        eventTime,
+        // eventTime,
         speakers
       );
       return res.json(packet);
