@@ -321,7 +321,7 @@ function MeetTheGreeksModal(props: Props) {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        connection: user?.connection,
+        connection: user.connection,
 
         label: `${user.firstName} ${user.lastName}`,
         value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
