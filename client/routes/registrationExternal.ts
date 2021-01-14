@@ -19,13 +19,18 @@ module.exports = (app) => {
 
       if (user) {
         req.login(user, (err) => {
-          if (err) log('error', `Failed serializing ${user.email}`);
-          else log('info', `Successfully serialized ${user.email}`);
+          if (err) return log('error', `Failed serializing ${user.email}`);
+          log('info', `Successfully serialized ${user.email}`);
 
-          const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-          if (user.work === undefined || user.work === null)
-            return res.redirect(`/register/external?${tokenString}`);
-          else return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          // https://github.com/jaredhanson/passport/issues/306
+          // Sometimes user still gets redirected to landing page on external signup
+          // Cause: Redirect sometimes happens before session gets saved
+          req.session.save(() => {
+            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+            if (user.work === undefined || user.work === null)
+              return res.redirect(`/register/external?${tokenString}`);
+            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          });
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -56,13 +61,15 @@ module.exports = (app) => {
 
       if (user) {
         req.login(user, (err) => {
-          if (err) log('error', `Failed serializing ${user.email}`);
-          else log('info', `Successfully serialized ${user.email}`);
+          if (err) return log('error', `Failed serializing ${user.email}`);
+          log('info', `Successfully serialized ${user.email}`);
 
-          const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-          if (user.work === undefined || user.work === null)
-            return res.redirect(`/register/external?${tokenString}`);
-          else return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          req.session.save(() => {
+            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+            if (user.work === undefined || user.work === null)
+              return res.redirect(`/register/external?${tokenString}`);
+            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          });
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
