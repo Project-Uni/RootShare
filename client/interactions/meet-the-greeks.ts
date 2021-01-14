@@ -66,10 +66,13 @@ export async function createMTGEvent(
         }).save();
       }
 
-      const users = await User.find({ _id: { $in: speakers } }, ['email']).exec();
-      const emails = users.map((user) => user.email);
+      const users = await User.find({ _id: { $in: speakers } }, [
+        'email',
+        'firstName',
+        'lastName',
+      ]).exec();
 
-      sendEventEmailConfirmation(event, emails);
+      sendMTGEventEmails(users, event);
       return sendPacket(1, 'Successfully updated MTG event', { event });
     } catch (err) {
       log('error', err.message);
@@ -362,5 +365,41 @@ export async function getInterestedUsers(communityID: string) {
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err.message);
+  }
+}
+
+async function sendMTGEventEmails(
+  recipients: [{ firstName: string; lastName: string; email: string; _id: string }],
+  event: {
+    _id: string;
+    hostCommunity: string;
+    dateTime: Date;
+    full_description: string;
+  }
+) {
+  try {
+    const community = await Community.findById(event.hostCommunity, 'name').exec();
+    recipients.forEach((recipient) => {
+      sendEmail(
+        recipient.email,
+        `Meet The Greek Event Invite From ${community.name}`,
+        `
+        <p>Hi Ashwin,</p>
+        <p><br></p>
+        <p>You have been invited by <strong>Community</strong> to speak at their Meet The Greek event on <strong>DateTime</strong>.</p>
+        <p><br></p>
+        <p>You can access the event by visiting:</p>
+        <p><a href="https://rootshare.io/event/id" target="_blank">https://rootshare.io/event/id</a></p>
+        <p><br></p>
+        <p>Thanks for using RootShare, and good luck with recruitment!</p>
+        <p>- The RootShare team.</p>
+        `
+      );
+    });
+
+    return true;
+  } catch (err) {
+    log('error', err);
+    return false;
   }
 }
