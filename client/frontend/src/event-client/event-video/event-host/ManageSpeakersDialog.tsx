@@ -17,7 +17,8 @@ import {
   GuestSpeaker,
 } from '../../../helpers/types';
 import theme from '../../../theme/Theme';
-import { colors, addAlpha } from '../../../theme/Colors';
+import { addAlpha } from '../../../theme/Theme';
+import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
