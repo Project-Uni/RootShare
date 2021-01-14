@@ -297,7 +297,7 @@ function MeetTheGreeksModal(props: Props) {
         onClose={onClose}
         className={styles.modal}
         helperText={
-          "Create or Edit your Fraternity's/Sorority's information for Meet the Greeks"
+          "Create or Edit your Fraternity's information for Meet the Greeks"
         }
         helperIcon={<BsPeopleFill size={90} />}
         serverErr={serverErr}
