@@ -407,7 +407,7 @@ function MeetTheGreeksModal(props: Props) {
     return (
       <div className={[styles.autoCompleteContainer, styles.bottomBorder].join(' ')}>
         {searchedUser && renderSelectedUserInfo()}
-        <UserSearch<UserOption, UserInfo>
+        <UserSearch<UserOption>
           label="Viewers"
           className={styles.textField}
           name="viewers"
