@@ -317,6 +317,36 @@ function CommunityGeneralInfo(props: Props) {
       );
   }
 
+  function renderAdminBio() {
+    return <div>TEST</div>;
+  }
+
+  function renderOtherBio() {
+    return (
+      <>
+        <RSText
+          type="body"
+          color={colors.second}
+          size={13}
+          className={styles.description}
+        >
+          {showFullDesc ? props.description : descSubstr}
+        </RSText>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {props.description !== descSubstr && (
+            <a
+              href={undefined}
+              className={styles.seeMore}
+              onClick={handleSeeClicked}
+            >
+              SEE {showFullDesc ? 'LESS' : 'MORE'}
+            </a>
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       {props.isAdmin && (
@@ -376,25 +406,7 @@ function CommunityGeneralInfo(props: Props) {
         <RSText size={16} color={colors.secondaryText} type="body">
           {props.type}
         </RSText>
-        <RSText
-          type="body"
-          color={colors.second}
-          size={13}
-          className={styles.description}
-        >
-          {showFullDesc ? props.description : descSubstr}
-        </RSText>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          {props.description !== descSubstr && (
-            <a
-              href={undefined}
-              className={styles.seeMore}
-              onClick={handleSeeClicked}
-            >
-              SEE {showFullDesc ? 'LESS' : 'MORE'}
-            </a>
-          )}
-        </div>
+        {props.isAdmin ? renderAdminBio() : renderOtherBio()}
       </div>
 
       <div className={styles.right}>

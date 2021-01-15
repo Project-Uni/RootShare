@@ -88,7 +88,7 @@ const defaultFormData = {
   graduationYear: 2024,
   phoneNumber: '',
   currInterest: '',
-  'Hobbies & Involvement': '',
+  'Campus/Community Involvement': '',
   'High School Name': '',
   'Hometown and State': '',
   'Social Media Handle (Twitter or Instagram, please note which)': '',
