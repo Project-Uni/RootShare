@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Menu, MenuItem } from '@material-ui/core';
+import { Button, Menu, MenuItem, TextField } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -21,6 +21,7 @@ import { colors } from '../../../theme/Colors';
 
 import { cropText } from '../../../helpers/functions';
 import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
 
@@ -107,6 +108,13 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
+  editDescText: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
+    marginLeft: 15,
+  },
 }));
 
 type CommunityFlags = {
@@ -152,6 +160,9 @@ function CommunityGeneralInfo(props: Props) {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   const descSubstr = cropText(props.description, MAX_DESC_LEN);
+
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
 
   async function handleJoinClick() {
     setMenuAnchorEl(null);
@@ -205,6 +216,12 @@ function CommunityGeneralInfo(props: Props) {
         'There was an error trying to cancel the pending request. Please try again later'
       );
     }
+  }
+
+  async function handleUpdateDescription() {
+    setEditLoading(true);
+    setEditingDesc(false);
+    setEditLoading(false);
   }
 
   function handlePendingClicked() {
@@ -376,14 +393,40 @@ function CommunityGeneralInfo(props: Props) {
         <RSText size={16} color={colors.secondaryText} type="body">
           {props.type}
         </RSText>
-        <RSText
-          type="body"
-          color={colors.second}
-          size={13}
+        <div
+          style={{ display: 'flex', alignItems: 'center' }}
           className={styles.description}
         >
-          {showFullDesc ? props.description : descSubstr}
-        </RSText>
+          {editingDesc ? (
+            <TextField
+              rows={3}
+              multiline
+              autoFocus
+              onBlur={() => {
+                if (!editLoading) setEditingDesc(false);
+              }}
+              variant="outlined"
+              fullWidth
+              label="New Description"
+            />
+          ) : (
+            <RSText type="body" color={colors.second} size={13}>
+              {showFullDesc ? props.description : descSubstr}
+            </RSText>
+          )}
+          {props.isAdmin && (
+            <RSText
+              color={Theme.secondaryText}
+              className={styles.editDescText}
+              onClick={() => {
+                if (editingDesc && !editLoading) handleUpdateDescription();
+                else setEditingDesc(true);
+              }}
+            >
+              {editingDesc ? 'Save' : 'Edit'}
+            </RSText>
+          )}
+        </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           {props.description !== descSubstr && (
             <a
