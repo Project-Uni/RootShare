@@ -1073,8 +1073,9 @@ export async function updateFields(
     {},
     ...Object.keys(fields)
       .filter((k) => acceptedFields.includes(k))
-      .map((key) => ({ key, value: fields[key] }))
+      .map((key) => ({ [key]: fields[key] }))
   );
+
   try {
     await Community.updateOne({ _id: communityID }, updates).exec();
     return sendPacket(1, 'Successfully updated community');

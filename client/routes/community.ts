@@ -362,9 +362,9 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       try {
-        const queryFields = JSON.parse(req.query.fields);
-        const packet = await updateFields(communityID, queryFields);
-        return packet;
+        const { query } = req;
+        const packet = await updateFields(communityID, query);
+        return res.json(packet);
       } catch (err) {
         return res.json(sendPacket(-1, 'Invalid format for query param fields'));
       }

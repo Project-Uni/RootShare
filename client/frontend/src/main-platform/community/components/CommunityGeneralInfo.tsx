@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Menu, MenuItem, TextField } from '@material-ui/core';
+import {
+  Button,
+  CircularProgress,
+  Menu,
+  MenuItem,
+  TextField,
+} from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
@@ -115,6 +121,10 @@ const useStyles = makeStyles((_: any) => ({
     },
     marginLeft: 15,
   },
+  loadingIndicator: {
+    color: Theme.primary,
+    marginLeft: 15,
+  },
 }));
 
 type CommunityFlags = {
@@ -159,10 +169,14 @@ function CommunityGeneralInfo(props: Props) {
   const [numMembers, setNumMembers] = useState(props.numMembers);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
-  const descSubstr = cropText(props.description, MAX_DESC_LEN);
+  const [fullDesc, setFullDesc] = useState(props.description);
+
+  const descSubstr = cropText(fullDesc, MAX_DESC_LEN);
 
   const [editingDesc, setEditingDesc] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [updateDescText, setUpdateDescText] = useState(props.description);
+  const [editDescErr, setEditDescErr] = useState('');
 
   async function handleJoinClick() {
     setMenuAnchorEl(null);
@@ -220,7 +234,18 @@ function CommunityGeneralInfo(props: Props) {
 
   async function handleUpdateDescription() {
     setEditLoading(true);
-    setEditingDesc(false);
+    setEditDescErr('');
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/community/${props.communityID}/update?description=${updateDescText}`
+    );
+    if (data.success === 1) {
+      setFullDesc(updateDescText);
+      setEditingDesc(false);
+    } else {
+      setEditDescErr('There was an error updating the description');
+    }
+
     setEditLoading(false);
   }
 
@@ -402,33 +427,68 @@ function CommunityGeneralInfo(props: Props) {
               rows={3}
               multiline
               autoFocus
-              onBlur={() => {
-                if (!editLoading) setEditingDesc(false);
-              }}
               variant="outlined"
               fullWidth
               label="New Description"
+              value={updateDescText}
+              onChange={(e) => setUpdateDescText(e.target.value)}
             />
           ) : (
             <RSText type="body" color={colors.second} size={13}>
-              {showFullDesc ? props.description : descSubstr}
+              {showFullDesc ? fullDesc : descSubstr}
             </RSText>
           )}
           {props.isAdmin && (
-            <RSText
-              color={Theme.secondaryText}
-              className={styles.editDescText}
-              onClick={() => {
-                if (editingDesc && !editLoading) handleUpdateDescription();
-                else setEditingDesc(true);
-              }}
-            >
-              {editingDesc ? 'Save' : 'Edit'}
-            </RSText>
+            <div>
+              {editingDesc ? (
+                <>
+                  {editLoading ? (
+                    <CircularProgress
+                      size={20}
+                      className={styles.loadingIndicator}
+                    />
+                  ) : (
+                    <>
+                      <RSText
+                        color={Theme.secondaryText}
+                        className={styles.editDescText}
+                        onClick={() => {
+                          handleUpdateDescription();
+                        }}
+                      >
+                        Save
+                      </RSText>
+                      <div style={{ marginTop: 10 }} />
+                      <RSText
+                        color={Theme.secondaryText}
+                        className={styles.editDescText}
+                        onClick={() => {
+                          setEditingDesc(false);
+                          setUpdateDescText(fullDesc);
+                        }}
+                        size={11}
+                      >
+                        Cancel
+                      </RSText>
+                    </>
+                  )}
+                </>
+              ) : (
+                <RSText
+                  color={Theme.secondaryText}
+                  className={styles.editDescText}
+                  onClick={() => {
+                    setEditingDesc(true);
+                  }}
+                >
+                  Edit
+                </RSText>
+              )}
+            </div>
           )}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          {props.description !== descSubstr && (
+          {fullDesc !== descSubstr && (
             <a
               href={undefined}
               className={styles.seeMore}
