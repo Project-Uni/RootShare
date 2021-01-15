@@ -1058,29 +1058,3 @@ export async function getCommunityMembers(
     return sendPacket(-1, err);
   }
 }
-
-export async function updateDescription(communityID, userID, description) {
-  try {
-    const isAdmin = await Community.exists({
-      _id: communityID,
-      admin: userID,
-    });
-
-    if (!isAdmin)
-      return sendPacket(
-        0,
-        `User is not admin of community or community doesn't exist`
-      );
-
-    const update = await Community.updateOne(
-      { _id: communityID },
-      { description: description }
-    ).exec();
-
-    console.log(update);
-    return sendPacket(1, `Successfully updated commmunity's description`);
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
