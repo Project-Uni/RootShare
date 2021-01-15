@@ -18,6 +18,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
+  updateDescription,
   // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
@@ -142,6 +143,16 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.post(
+    '/api/community/:communityID/updateDescription',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { description } = req.body;
+      res.json(await updateDescription(communityID, req.user._id, description));
+    }
+  );
 
   app.get(
     '/api/community/:communityID/info',
