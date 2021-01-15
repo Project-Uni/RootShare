@@ -59,7 +59,7 @@ function LandingFooter(props: Props) {
     <AppBar position="static" className={styles.footer} style={{ width }}>
       <Toolbar>
         <div className={styles.footerContainer}>
-          <ContactModal open={contact} onClick={closeContactModal}></ContactModal>
+          <ContactModal open={contact} onClose={closeContactModal}></ContactModal>
           <ButtonGroup variant="text" aria-label="text primary button group">
             {/* <Button>
               <RSText type="body" size={12} color={colors.primaryText}>

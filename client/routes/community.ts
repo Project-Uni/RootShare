@@ -27,7 +27,17 @@ import {
   getAllFollowingCommunities,
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
+  updateFields,
 } from '../interactions/community';
+
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Community
+ *    description: API to manage Community Interactions
+ *
+ */
 
 export default function communityRoutes(app) {
   app.post(
@@ -347,6 +357,67 @@ export default function communityRoutes(app) {
       const packet = await getCommunityMembers(userID, communityID, {
         skipCalculation,
       });
+      return res.json(packet);
+    }
+  );
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/community/{communityID}/update:
+   *      put:
+   *        summary: Update basic fields for a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community you are editing
+   *
+   *          - in: query
+   *            name: description
+   *            schema:
+   *              type: string
+   *            description: The new community description
+   *
+   *          - in: query
+   *            name: name
+   *            schema:
+   *              type: string
+   *            description: The new community name
+   *
+   *          - in: query
+   *            name: private
+   *            schema:
+   *              type: boolean
+   *            description: The new community privacy
+   *
+   *          - in: query
+   *            name: type
+   *            schema:
+   *              type: string
+   *            description: The new community type
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully updated community
+   *          "-1":
+   *            description: Failed to update community
+   *
+   */
+
+  app.put(
+    '/api/community/:communityID/update',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { query } = req;
+      const packet = await updateFields(communityID, query);
       return res.json(packet);
     }
   );

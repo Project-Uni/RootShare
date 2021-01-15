@@ -1058,3 +1058,31 @@ export async function getCommunityMembers(
     return sendPacket(-1, err);
   }
 }
+
+export async function updateFields(
+  communityID: string,
+  fields: { [key: string]: any }
+) {
+  const acceptedFields = ['description', 'name', 'type', 'private'];
+  const updates: {
+    description?: string;
+    private?: boolean;
+    type?: CommunityType;
+    name?: string;
+  } = Object.assign(
+    {},
+    ...Object.keys(fields)
+      .filter((k) => acceptedFields.includes(k))
+      .map((key) => ({ [key]: fields[key] }))
+  );
+
+  try {
+    await Community.updateOne({ _id: communityID }, updates).exec();
+    return sendPacket(1, 'Successfully updated community');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error trying to update the community', {
+      error: err.message,
+    });
+  }
+}
