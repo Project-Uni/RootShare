@@ -27,7 +27,11 @@ import {
   getAllFollowingCommunities,
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
+  updateFields,
 } from '../interactions/community';
+
+import { CommunityType } from '../helpers/types';
+import { query } from 'express';
 
 export default function communityRoutes(app) {
   app.post(
@@ -348,6 +352,22 @@ export default function communityRoutes(app) {
         skipCalculation,
       });
       return res.json(packet);
+    }
+  );
+
+  app.put(
+    '/api/community/:communityID/update',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      try {
+        const queryFields = JSON.parse(req.query.fields);
+        const packet = await updateFields(communityID, queryFields);
+        return packet;
+      } catch (err) {
+        return res.json(sendPacket(-1, 'Invalid format for query param fields'));
+      }
     }
   );
 }
