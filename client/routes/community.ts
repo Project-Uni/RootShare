@@ -30,8 +30,14 @@ import {
   updateFields,
 } from '../interactions/community';
 
-import { CommunityType } from '../helpers/types';
-import { query } from 'express';
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Community
+ *    description: API to manage Community Interactions
+ *
+ */
 
 export default function communityRoutes(app) {
   app.post(
@@ -355,19 +361,64 @@ export default function communityRoutes(app) {
     }
   );
 
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/community/{communityID}/update:
+   *      put:
+   *        summary: Update basic fields for a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: path
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            required: true
+   *            description: The ID of the community you are editing
+   *
+   *          - in: query
+   *            name: description
+   *            schema:
+   *              type: string
+   *            description: The new community description
+   *
+   *          - in: query
+   *            name: name
+   *            schema:
+   *              type: string
+   *            description: The new community name
+   *
+   *          - in: query
+   *            name: private
+   *            schema:
+   *              type: boolean
+   *            description: The new community privacy
+   *
+   *          - in: query
+   *            name: type
+   *            schema:
+   *              type: string
+   *            description: The new community type
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully updated community
+   *          "-1":
+   *            description: Failed to update community
+   *
+   */
+
   app.put(
     '/api/community/:communityID/update',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      try {
-        const { query } = req;
-        const packet = await updateFields(communityID, query);
-        return res.json(packet);
-      } catch (err) {
-        return res.json(sendPacket(-1, 'Invalid format for query param fields'));
-      }
+      const { query } = req;
+      const packet = await updateFields(communityID, query);
+      return res.json(packet);
     }
   );
 }
