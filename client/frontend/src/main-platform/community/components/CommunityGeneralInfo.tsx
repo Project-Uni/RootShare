@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Menu, MenuItem } from '@material-ui/core';
 
+import { Button, Menu, MenuItem, TextField } from '@material-ui/core';
+import CreateIcon from '@material-ui/icons/Create';
 import { FaLock } from 'react-icons/fa';
 
 import { makeRequest } from '../../../helpers/functions';
@@ -82,8 +83,44 @@ const useStyles = makeStyles((_: any) => ({
       background: colors.secondaryText,
     },
   },
+  adminDescWrapper: {
+    display: 'flex',
+    marginTop: 7,
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
   description: {
     marginTop: 7,
+  },
+  editIcon: {
+    marginLeft: 5,
+  },
+  descEditContainer: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    marginTop: 7,
+  },
+  cancelButton: {
+    marginLeft: 5,
+    height: 35,
+    color: colors.primaryText,
+    background: colors.second,
+  },
+  saveButton: {
+    marginLeft: 5,
+    height: 35,
+    color: colors.primaryText,
+    background: colors.second,
+  },
+  textField: {
+    [`& fieldset`]: {
+      borderRadius: 9,
+    },
+    flex: 1,
+    color: colors['shade-one'],
+    borderRadius: 9,
+    background: '#e9e9e9',
   },
   seeMore: {
     textDecoration: 'none',
@@ -106,6 +143,28 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  cssLabel: {
+    color: colors.secondaryText,
+  },
+  cssFocused: {
+    color: colors.first,
+    borderWidth: '1px',
+    borderColor: `${colors.first} !important`,
+  },
+  cssOutlinedInput: {
+    '&$cssFocused $notchedOutline': {
+      // color: '#f2f2f2 !important',
+      // label: '#f2f2f2 !important',
+      borderWidth: '2px',
+      borderColor: `${colors.second} !important`,
+    },
+  },
+  notchedOutline: {
+    borderWidth: '1px',
+    label: colors.primaryText,
+    borderColor: colors.primaryText,
+    color: colors.primaryText,
   },
 }));
 
@@ -133,6 +192,12 @@ type Props = {
 
 function CommunityGeneralInfo(props: Props) {
   const styles = useStyles();
+
+  const [hoverDesc, setHoverDesc] = useState(false);
+  const [editDesc, setEditDesc] = useState(false);
+  const [originalDesc, setOriginalDesc] = useState(props.description);
+  const [updatedDesc, setUpdatedDesc] = useState('');
+
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [
@@ -207,6 +272,20 @@ function CommunityGeneralInfo(props: Props) {
     }
   }
 
+  async function submitEditedDesc() {
+    setEditDesc(false);
+    const trimmed = updatedDesc.trim();
+    setOriginalDesc(trimmed);
+
+    await makeRequest(
+      'POST',
+      `/api/community/${props.communityID}/updateDescription`,
+      {
+        newDescription: trimmed,
+      }
+    );
+  }
+
   function handlePendingClicked() {
     setShowPendingModal(true);
   }
@@ -229,6 +308,28 @@ function CommunityGeneralInfo(props: Props) {
 
   function handleSeeClicked() {
     setShowFullDesc(!showFullDesc);
+  }
+
+  function handleMouseOver() {
+    setHoverDesc(true);
+  }
+
+  function handleMouseLeave() {
+    setHoverDesc(false);
+  }
+
+  function startEditingDesc() {
+    setUpdatedDesc(originalDesc);
+    setEditDesc(true);
+  }
+
+  function cancelEditingDesc() {
+    setEditDesc(false);
+    setUpdatedDesc(originalDesc);
+  }
+
+  function handleDescChange(event: any) {
+    setUpdatedDesc(event.target.value);
   }
 
   function renderStatusButton() {
@@ -317,6 +418,98 @@ function CommunityGeneralInfo(props: Props) {
       );
   }
 
+  function renderAdminDesc() {
+    const showIcon =
+      hoverDesc || !originalDesc || originalDesc.length === 0 ? 'visible' : 'hidden';
+    return (
+      <div
+        className={styles.adminDescWrapper}
+        onMouseEnter={handleMouseOver}
+        onMouseLeave={handleMouseLeave}
+        onClick={startEditingDesc}
+      >
+        <RSText
+          type="subhead" //todo
+          size={13}
+          color={colors.second}
+          className={styles.description}
+        >
+          {originalDesc}
+        </RSText>
+        <CreateIcon
+          fontSize="small"
+          className={styles.editIcon}
+          style={{ visibility: showIcon }}
+        />
+      </div>
+    );
+  }
+
+  function renderEditDesc() {
+    return (
+      <div className={styles.descEditContainer}>
+        <TextField
+          multiline
+          type="search"
+          label="Description"
+          variant="outlined"
+          size="small"
+          className={styles.textField}
+          onChange={handleDescChange}
+          value={updatedDesc}
+          InputLabelProps={{
+            classes: {
+              root: styles.cssLabel,
+              focused: styles.cssFocused,
+            },
+          }}
+          InputProps={{
+            classes: {
+              root: styles.cssOutlinedInput,
+              focused: styles.cssFocused,
+              notchedOutline: styles.notchedOutline,
+            },
+            inputMode: 'numeric',
+          }}
+        />
+        <div className={styles.buttonContainer}>
+          <Button className={styles.cancelButton} onClick={cancelEditingDesc}>
+            Cancel
+          </Button>
+          <Button className={styles.saveButton} onClick={submitEditedDesc}>
+            Save
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  function renderOtherDesc() {
+    return (
+      <>
+        <RSText
+          type="body"
+          color={colors.second}
+          size={13}
+          className={styles.description}
+        >
+          {showFullDesc ? props.description : descSubstr}
+        </RSText>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {props.description !== descSubstr && (
+            <a
+              href={undefined}
+              className={styles.seeMore}
+              onClick={handleSeeClicked}
+            >
+              SEE {showFullDesc ? 'LESS' : 'MORE'}
+            </a>
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={styles.wrapper}>
       {props.isAdmin && (
@@ -376,25 +569,11 @@ function CommunityGeneralInfo(props: Props) {
         <RSText size={16} color={colors.secondaryText} type="body">
           {props.type}
         </RSText>
-        <RSText
-          type="body"
-          color={colors.second}
-          size={13}
-          className={styles.description}
-        >
-          {showFullDesc ? props.description : descSubstr}
-        </RSText>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          {props.description !== descSubstr && (
-            <a
-              href={undefined}
-              className={styles.seeMore}
-              onClick={handleSeeClicked}
-            >
-              SEE {showFullDesc ? 'LESS' : 'MORE'}
-            </a>
-          )}
-        </div>
+        {editDesc
+          ? renderEditDesc()
+          : props.isAdmin
+          ? renderAdminDesc()
+          : renderOtherDesc()}
       </div>
 
       <div className={styles.right}>

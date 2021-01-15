@@ -43,14 +43,18 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   open: boolean;
-  onClick: () => any;
+  onClose: () => any;
 };
 
 function ContactModal(props: Props) {
   const styles = useStyles();
 
   return (
-    <Dialog open={props.open} PaperComponent={PaperComponent}>
+    <Dialog
+      open={props.open}
+      onClose={props.onClose}
+      PaperComponent={PaperComponent}
+    >
       <DialogTitle>
         <RSText
           type="head"
@@ -62,7 +66,7 @@ function ContactModal(props: Props) {
           dev@rootshare.io
         </RSText>
       </DialogTitle>
-      <Button className={styles.okButton} onClick={props.onClick}>
+      <Button className={styles.okButton} onClick={props.onClose}>
         <a href="mailto:dev@rootshare.io" style={{ textDecoration: 'none' }}>
           <RSText
             type="body"
