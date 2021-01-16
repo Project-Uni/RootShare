@@ -150,6 +150,8 @@ function EventClientHeader(props: Props) {
               placeholder="Search RootShare"
               className={styles.searchbar}
               adornment={<GrSearch />}
+              fetchDataURL="/api/discover/search/v1/exactMatch"
+              renderLimit={10}
             />
           </div>
 

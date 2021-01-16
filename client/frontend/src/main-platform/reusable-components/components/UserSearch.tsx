@@ -17,6 +17,7 @@ export type SearchOption = {
   label: string;
   value: string;
   profilePicture?: string;
+  type: 'user' | 'community';
 };
 
 type User = {
@@ -28,8 +29,13 @@ type User = {
   profilePicture?: string;
 };
 
+type Community = {
+  [key: string]: any;
+};
+
 type ServiceResponse = {
-  users: User[];
+  users?: User[];
+  communities?: Community[];
 };
 
 type Props<T extends SearchOption> = {
@@ -45,6 +51,7 @@ type Props<T extends SearchOption> = {
   mapData?: (users: User[]) => T[];
   mode?: 'user' | 'community' | 'both';
   adornment?: JSX.Element;
+  renderLimit?: number;
 };
 
 function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
@@ -63,6 +70,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     mapData,
     mode,
     adornment,
+    renderLimit,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
@@ -75,24 +83,57 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     setSearchValue('');
   };
 
+  useEffect(() => {
+    console.log('options:', options);
+  }, [options]);
+
   const defaultMapData = useCallback(
-    (users: User[]) =>
-      users.map((user) => ({
-        _id: user._id,
-        label: `${user.firstName} ${user.lastName}`,
-        value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
-        profilePicture: user.profilePicture,
-      })) as T[],
+    (users: User[] | undefined, communities: Community[] | undefined) => {
+      const output: T[] = [];
+      if ((mode === 'community' || mode === 'both') && communities) {
+        output.push(
+          ...(communities
+            .slice(0, renderLimit || communities.length)
+            .map((community) => ({
+              _id: community._id,
+              profilePicture: community.profilePicture,
+              label: community.name,
+              value: community.name,
+              type: 'community',
+            })) as T[])
+        );
+      }
+      if ((mode === 'user' || mode === 'both') && users) {
+        output.push(
+          ...(users
+            .slice(
+              0,
+              renderLimit ? renderLimit - (communities?.length || 0) : users.length
+            )
+            .map((user) => ({
+              _id: user._id,
+              label: `${user.firstName} ${user.lastName}`,
+              value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
+              profilePicture: user.profilePicture,
+              type: 'user',
+            })) as T[])
+        );
+      }
+      console.log('Output:', output);
+      return output;
+    },
     []
   );
 
   const fetchData = async () => {
     if (fetchDataURL) {
-      const { data } = await makeRequest<ServiceResponse>('GET', fetchDataURL);
+      const { data } = await makeRequest<ServiceResponse>(
+        'GET',
+        `${fetchDataURL}?query=${searchValue}&limit=10`
+      );
       if (data.success === 1) {
-        setOptions(
-          mapData?.(data.content.users) || defaultMapData(data.content.users)
-        );
+        const { users, communities } = data.content;
+        setOptions(mapData?.(users as User[]) || defaultMapData(users, communities));
       }
     }
   };

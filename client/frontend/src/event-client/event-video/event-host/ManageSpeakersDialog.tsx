@@ -138,7 +138,7 @@ type UserOption = {
   lastName: string;
   email: string;
   connection?: OT.Connection;
-
+  type: 'user' | 'community';
   label: string;
   value: string;
 };
@@ -323,7 +323,7 @@ function MeetTheGreeksModal(props: Props) {
         lastName: user.lastName,
         email: user.email,
         connection: user.connection,
-
+        type: 'user',
         label: `${user.firstName} ${user.lastName}`,
         value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
       })) as UserOption[],
@@ -413,7 +413,7 @@ function MeetTheGreeksModal(props: Props) {
           className={styles.textField}
           name="viewers"
           onAutocomplete={onAutocomplete}
-          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`}
+          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`} //Ashwin need to change this
           mapData={searchOptionMap}
           helperText="Search current viewers"
           key="userSearch"

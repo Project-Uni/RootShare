@@ -170,6 +170,7 @@ function MeetTheGreeksModal(props: Props) {
           label: `${member.firstName} ${member.lastName}`,
           value: `${member.firstName} ${member.lastName} ${member._id} ${member.email}`,
           profilePicture: member.profilePicture,
+          type: 'user',
         }))
       );
     }
