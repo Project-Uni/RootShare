@@ -16,6 +16,7 @@ import { InterestedButton } from '../../main-platform/community/components/MeetT
 import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { makeRequest, cropText } from '../../helpers/functions';
 import { HEADER_HEIGHT } from '../../helpers/constants';
+import Theme from '../../theme/Theme';
 
 const MAX_MESSAGES = 40;
 
@@ -29,16 +30,15 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    background: colors.secondary,
+    background: Theme.background,
     overflow: 'scroll',
-    label: colors.primaryText,
   },
   viewerButtonContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-center',
     padding: 10,
-    backgroundColor: colors.primary,
+    backgroundColor: Theme.background,
   },
   viewerButtons: {
     marginLeft: 10,
