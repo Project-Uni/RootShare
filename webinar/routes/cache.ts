@@ -16,7 +16,8 @@ module.exports = (
 ) => {
   app.post('/api/addWebinarToCache', isAuthenticatedWithJWT, (req, res) => {
     const { webinarID } = req.body;
-    if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request'));
+    if (!webinarID)
+      return res.json(sendPacket(-1, 'webinarID or hostID not in request'));
 
     if (webinarID in webinarCache) {
       log('info', `Webinar ${webinarID} already initialized in cache`);
@@ -24,14 +25,20 @@ module.exports = (
     }
 
     const startTime = Date.now();
-    webinarCache[webinarID] = { users: {}, startTime };
+    webinarCache[webinarID] = {
+      users: {},
+      host: waitingRooms[webinarID].host,
+      startTime,
+      speakingTokens: [],
+      guestSpeakers: [],
+    };
 
     log('info', `Added webinar ${webinarID} to cache`);
     log('info', `Active Webinars: ${Object.keys(webinarCache)}`);
 
     setTimeout(() => {
       broadcastEventStart(io, webinarID, waitingRooms, webinarCache);
-    }, 1000 * 45);
+    }, 1000 * 25);
 
     return res.json(sendPacket(1, 'Successfully initialized webinar in cache'));
   });
@@ -60,20 +67,13 @@ module.exports = (
       if (!(webinarID in webinarCache))
         return res.json(sendPacket(0, 'Webinar not found in cache'));
 
-      const activeUserIDs = Object.keys(webinarCache[webinarID].users);
-
-      let currentSpeaker: { [key: string]: any };
-      if (webinarCache[webinarID].guestSpeaker) {
-        const currentSpeakerID = webinarCache[webinarID].guestSpeaker._id;
-        if (webinarCache[webinarID].users[currentSpeakerID]) {
-          currentSpeaker = webinarCache[webinarID].guestSpeaker;
-        }
-      }
+      const currWebinar = webinarCache[webinarID];
+      const activeUserIDs = Object.keys(currWebinar.users);
 
       return res.json(
         sendPacket(1, 'Successfully fetched active users', {
           activeUserIDs,
-          currentSpeaker: currentSpeaker || null,
+          currentSpeakers: currWebinar.guestSpeakers,
         })
       );
     }

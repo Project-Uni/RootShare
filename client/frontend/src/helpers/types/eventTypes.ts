@@ -35,6 +35,9 @@ export type LeanEventType = {
   eventBanner: string;
 };
 
+export type EventUserMode = 'viewer' | 'speaker' | 'host';
+export type SpeakerMode = 'speaker' | 'host';
+
 export type HostType = {
   _id: string;
   firstName: string;
@@ -58,4 +61,19 @@ export type MuxMetaDataType = {
   viewerUserID: string;
   webinarID: string;
   eventTitle: string;
+};
+
+export type SpeakRequestType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+};
+
+export type GuestSpeaker = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  speakingToken: string;
+  connection?: OT.Connection;
 };

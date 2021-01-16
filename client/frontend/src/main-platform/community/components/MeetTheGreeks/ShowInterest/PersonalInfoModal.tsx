@@ -68,34 +68,38 @@ type UserInfoServiceResponse = {
 
 type AnswersServiceResponse = {
   answers: {
-    q1?: string;
-    q2?: string;
-    q3?: string;
+    [key: string]: any;
   };
 };
 
-type IFormData = {
-  firstName: string;
-  lastName: string;
-  major: string;
-  graduationYear: number;
-  phoneNumber: string;
-  currInterest: string;
-  q1: string;
-  q2: string;
-  q3: string;
-};
+const nonQuestionFields = [
+  'firstName',
+  'lastName',
+  'major',
+  'graduationYear',
+  'phoneNumber',
+  'currInterest',
+];
 
-const defaultFormData: IFormData = {
+const defaultFormData = {
   firstName: '',
   lastName: '',
   major: '',
   graduationYear: 2024,
   phoneNumber: '',
   currInterest: '',
-  q1: '',
-  q2: '',
-  q3: '',
+  'Hobbies & Involvement': '',
+  'High School Name': '',
+  'Hometown and State': '',
+  'Social Media Handle (Twitter or Instagram, please note which)': '',
+  'Are you interested in a housed fraternity experience?': '',
+  'Are you interested in an alcohol-free fraternity experience?': '',
+  'What are you looking for in a fraternity experience?': '',
+  // 'Were your relatives Greek?':'' //TODO- Update this
+};
+
+type IFormData = {
+  [key in keyof typeof defaultFormData]: typeof defaultFormData[key];
 };
 
 type Props = {
@@ -153,6 +157,15 @@ function PersonalInfoModal(props: Props) {
 
       const userInfo = userData.data.content.user;
       const answers = answersData.data.content.answers;
+      const answerKeys = Object.keys(defaultFormData).filter(
+        (key) => !nonQuestionFields.includes(key)
+      );
+      const formattedAnswers: {
+        key: keyof IFormData;
+        value: any;
+      }[] = Object.keys(answers)
+        .filter((key) => answerKeys.includes(key))
+        .map((key) => ({ key, value: answers[key] })) as any;
 
       updateFields([
         { key: 'firstName', value: userInfo.firstName },
@@ -160,9 +173,7 @@ function PersonalInfoModal(props: Props) {
         { key: 'major', value: userInfo.major },
         { key: 'graduationYear', value: userInfo.graduationYear },
         { key: 'phoneNumber', value: userInfo.phoneNumber },
-        { key: 'q1', value: answers.q1 || '' },
-        { key: 'q2', value: answers.q2 || '' },
-        { key: 'q3', value: answers.q3 || '' },
+        ...formattedAnswers,
       ]);
 
       setInterests(userInfo.interests);
@@ -205,9 +216,8 @@ function PersonalInfoModal(props: Props) {
       interests,
     });
 
-    const questionRegex = new RegExp(/^q[0-9]/);
     const questionResponses = Object.keys(formFields)
-      .filter((k) => questionRegex.test(k))
+      .filter((k) => !nonQuestionFields.includes(k))
       .reduce((filteredData: { [key: string]: string }, k: string) => {
         filteredData[k] = formFields[k as keyof IFormData] as string;
         return filteredData;
@@ -255,6 +265,7 @@ function PersonalInfoModal(props: Props) {
     const interestItems: any[] = [];
 
     for (let i = 0; i < interests.length; i++) {
+      if (interests[i] === '') continue;
       interestItems.push(
         <div className={styles.interestItem} key={i}>
           <RSText size={12} color={colors.secondaryText} italic>
@@ -337,38 +348,23 @@ function PersonalInfoModal(props: Props) {
         />
         {renderInterests()}
 
-        <TextField
-          className={styles.inputs}
-          value={formFields.q1}
-          onChange={handleChange('q1')}
-          fullWidth
-          variant="outlined"
-          label="Hometown"
-          error={formErrors.q1 !== ''}
-          helperText={formErrors.q1}
-        />
-        <TextField
-          className={styles.inputs}
-          value={formFields.q2}
-          onChange={handleChange('q2')}
-          fullWidth
-          variant="outlined"
-          label="Favorite Movie"
-          error={formErrors.q2 !== ''}
-          helperText={formErrors.q2}
-        />
-        <TextField
-          className={styles.inputs}
-          value={formFields.q3}
-          onChange={handleChange('q3')}
-          fullWidth
-          variant="outlined"
-          label="What are you looking for in a fraternity?"
-          multiline
-          rows={2}
-          error={formErrors.q3 !== ''}
-          helperText={formErrors.q3}
-        />
+        {Object.keys(defaultFormData)
+          .filter((key) => !nonQuestionFields.includes(key))
+          .map((key) => {
+            const typedKey = key as keyof IFormData;
+            return (
+              <TextField
+                className={styles.inputs}
+                value={formFields[typedKey]}
+                onChange={handleChange(typedKey)}
+                fullWidth
+                variant="outlined"
+                label={key}
+                error={formErrors[typedKey] !== ''}
+                helperText={formErrors[typedKey]}
+              />
+            );
+          })}
         <BigButton
           label="Submit Info and Interest"
           onClick={submitInfoAndInterest}

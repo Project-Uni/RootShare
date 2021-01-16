@@ -24,7 +24,7 @@ export function isEventSpeaker(req, res, next) {
   const { webinarID } = req.body;
 
   if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request body'));
-  //TODO - To bypass for guest speakers, pass in speaking_token in header for request from client, then authenticate with webinarCache server
+  //TODO - To bypass for guest speakers, pass in speakingToken in header for request from client, then authenticate with webinarCache server
   Webinar.findById(webinarID, ['host', 'speakers'], (err, webinar) => {
     if (err) return res.json(sendPacket(-1, err));
     if (!webinar) return res.json(sendPacket(-1, 'Could not find webinar'));

@@ -23,10 +23,14 @@ import EventWelcomeModal from './EventWelcomeModal';
 import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
 
 import { colors } from '../theme/Colors';
-import { EventType, MuxMetaDataType } from '../helpers/types';
+import { EventType, MuxMetaDataType, SpeakRequestType } from '../helpers/types';
 
 import socketIOClient from 'socket.io-client';
 import SpeakingInviteDialog from './event-video/event-watcher/SpeakingInvitationDialog';
+
+import ManageSpeakersSnackbar from './event-video/event-host/ManageSpeakersSnackbar';
+import { slideLeft } from '../helpers/functions';
+import { SnackbarMode, EventUserMode } from '../helpers/types';
 
 const WEBINAR_CACHE_IP =
   process.env.NODE_ENV === 'development'
@@ -67,10 +71,8 @@ type Props = {
   updateRefreshToken: (refreshToken: string) => void;
 };
 
-type EVENT_MODE = 'viewer' | 'speaker' | 'admin';
-
 var socket: SocketIOClient.Socket;
-var speaking_token: string;
+var speakingToken: string;
 var sessionID: string;
 
 function EventClientBase(props: Props) {
@@ -78,7 +80,7 @@ function EventClientBase(props: Props) {
 
   const [advertisements, setAdvertisements] = useState(['black']);
   const [adLoaded, setAdLoaded] = useState(false);
-  const [eventMode, setEventMode] = useState<EVENT_MODE>('viewer');
+  const [eventMode, setEventMode] = useState<EventUserMode>('viewer');
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
@@ -86,6 +88,17 @@ function EventClientBase(props: Props) {
   const [muxMetaData, setMuxMetaData] = useState<MuxMetaDataType>();
 
   const [showSpeakingInvite, setShowSpeakingInvite] = useState(false);
+  const [showRequestSpeakButton, setShowRequestSpeakButton] = useState(false);
+  const [speakRequests, setSpeakRequests] = useState<SpeakRequestType[]>([]);
+
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
+
+  const webinarEvent = webinarData as EventType;
+  const currConversationID = webinarEvent.conversation as string;
 
   const eventID = props.match.params['eventid'];
   const minHeaderWidth = getHeaderMinWidth();
@@ -127,6 +140,7 @@ function EventClientBase(props: Props) {
     );
     if (data['success'] === 1) {
       const { webinar } = data['content'];
+      console.log(webinar);
       setWebinarData(webinar);
       fetchAds(webinar.eventBanner);
       setMuxMetaData({
@@ -148,7 +162,8 @@ function EventClientBase(props: Props) {
 
   function setPageMode(webinar: EventType) {
     if (props.user._id === webinar.host) {
-      setEventMode('admin');
+      initializeHostSocket(webinar._id);
+      setEventMode('host');
       return;
     } else {
       for (let i = 0; i < webinar.speakers.length; i++) {
@@ -163,7 +178,7 @@ function EventClientBase(props: Props) {
   }
 
   function updateAttendeeList(webinarID: string) {
-    initializeSocket(webinarID);
+    initializeViewerSocket(webinarID);
 
     makeRequest(
       'POST',
@@ -177,7 +192,30 @@ function EventClientBase(props: Props) {
     );
   }
 
-  function initializeSocket(webinarID: string) {
+  async function initializeHostSocket(webinarID: string) {
+    setSpeakRequests([]);
+    socket = socketIOClient(WEBINAR_CACHE_IP);
+    socket.emit('new-host', webinarID);
+
+    socket.on('request-to-speak', (viewer: SpeakRequestType) => {
+      setSpeakRequests((prevRequests) => prevRequests.concat(viewer));
+    });
+  }
+
+  function removeSpeakRequest(viewerID: string) {
+    setSpeakRequests((prevSpeakRequests) => {
+      let newSpeakRequests = prevSpeakRequests.slice();
+      for (let i = 0; i < newSpeakRequests.length; i++)
+        if (newSpeakRequests[i]._id === viewerID) {
+          newSpeakRequests.splice(i, 1);
+          return newSpeakRequests;
+        }
+
+      return newSpeakRequests;
+    });
+  }
+
+  function initializeViewerSocket(webinarID: string) {
     socket = socketIOClient(WEBINAR_CACHE_IP);
     socket.emit('new-user', {
       webinarID: webinarID,
@@ -189,11 +227,11 @@ function EventClientBase(props: Props) {
 
     socket.on(
       'speaking-invite',
-      (data: { speaking_token: string; sessionID: string }) => {
-        speaking_token = data.speaking_token;
+      (data: { speakingToken: string; sessionID: string }) => {
+        speakingToken = data.speakingToken;
         console.log(
-          'Received invitation to speak with speaking_token:',
-          speaking_token
+          'Received invitation to speak with speakingToken:',
+          speakingToken
         );
         sessionID = data.sessionID;
         setShowSpeakingInvite(true);
@@ -201,10 +239,10 @@ function EventClientBase(props: Props) {
     );
 
     socket.on('speaking-revoke', () => {
-      speaking_token = '';
+      speakingToken = '';
       sessionID = '';
-      setEventMode('viewer');
-      alert('You have been removed as a speaker');
+      // alert('You have been removed as a speaker');
+      window.location.reload(true);
     });
 
     socket.on('speaking-token-rejected', () => {
@@ -216,8 +254,8 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('event-started', () => {
-      alert('The event has started');
-      fetchEventInfo();
+      if (window.confirm('The event has started. Refresh the page?'))
+        window.location.reload(true);
     });
 
     socket.on('removed-from-event', () => {
@@ -226,7 +264,7 @@ function EventClientBase(props: Props) {
   }
 
   function onAcceptSpeakingInvite() {
-    socket.emit('speaking-invite-accepted', { speaking_token });
+    socket.emit('speaking-invite-accepted', { speakingToken });
     setShowSpeakingInvite(false);
   }
 
@@ -235,30 +273,45 @@ function EventClientBase(props: Props) {
     setShowSpeakingInvite(false);
   }
 
+  function onRequestToSpeak() {
+    socket.emit('request-to-speak', webinarEvent._id);
+    handleSnackbar('Requested Host to join as a speaker', 'notify');
+  }
+
   function handleWelcomeModalAck() {
     setShowWelcomeModal(false);
   }
 
-  function renderVideoArea() {
-    const currWebinarData = webinarData as EventType;
+  function handleSnackbar(message: string, mode: SnackbarMode) {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+    setTransition(() => slideLeft);
+  }
 
+  function renderVideoArea() {
     if (eventMode === 'viewer')
       return (
         <EventWatcherVideoContainer
           muxPlaybackID={
-            currWebinarData.muxAssetPlaybackID || currWebinarData.muxPlaybackID
+            webinarEvent.muxAssetPlaybackID || webinarEvent.muxPlaybackID
           }
           muxMetaData={muxMetaData as MuxMetaDataType}
-          eventImage={currWebinarData.eventImage}
+          eventImage={webinarEvent.eventImage}
+          onEventStart={() => setShowRequestSpeakButton(true)}
+          // TODO: Add event flag for this later to allow host to specify if they want this
+          // button/function available for the event or not */
         />
       );
     else
       return (
         <EventHostContainer
-          mode={eventMode as 'admin' | 'speaker'}
-          webinar={webinarData as EventType}
-          speaking_token={speaking_token}
+          mode={eventMode as 'host' | 'speaker'}
+          webinar={webinarEvent}
+          speakingToken={speakingToken}
           sessionID={sessionID}
+          speakRequests={speakRequests}
+          removeSpeakRequest={removeSpeakRequest}
+          initializeHostSocket={initializeHostSocket}
         />
       );
   }
@@ -283,8 +336,6 @@ function EventClientBase(props: Props) {
     })(navigator.userAgent || navigator.vendor);
     return check;
   }
-
-  const webinarEvent = webinarData as EventType;
 
   if (checkMobile()) {
     if (eventMode === 'viewer')
@@ -324,10 +375,15 @@ function EventClientBase(props: Props) {
       );
   }
 
-  const currConversationID = webinarEvent.conversation as string;
   return (
     <div id="wrapper" className={styles.wrapper}>
       {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <SpeakingInviteDialog
         open={showSpeakingInvite}
         onReject={onRejectSpeakingInvite}
@@ -357,8 +413,16 @@ function EventClientBase(props: Props) {
         <div className={styles.right}>
           <EventMessageContainer
             conversationID={currConversationID}
-            isHost={eventMode === 'admin'}
-            webinarID={(webinarData as EventType)._id}
+            isHost={eventMode === 'host'}
+            webinarID={webinarEvent._id}
+            onRequestToSpeak={
+              showRequestSpeakButton && eventMode === 'viewer'
+                ? onRequestToSpeak
+                : undefined
+            }
+            communityID={
+              webinarEvent.hostCommunity ? webinarEvent.hostCommunity : undefined
+            }
           />
         </div>
       </div>
