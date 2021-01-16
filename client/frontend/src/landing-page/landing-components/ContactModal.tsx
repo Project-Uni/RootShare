@@ -12,7 +12,6 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 import RSText from '../../base-components/RSText';
 import { IoIosClose } from 'react-icons/io';
 
-import { colors } from '../../theme/Colors';
 import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({

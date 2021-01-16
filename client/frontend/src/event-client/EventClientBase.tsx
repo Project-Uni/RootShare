@@ -18,7 +18,6 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
-import EventWelcomeModal from './EventWelcomeModal';
 
 import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
 
@@ -395,11 +394,6 @@ function EventClientBase(props: Props) {
           {renderVideoArea()}
           {eventMode === 'viewer' && (
             <div className={styles.adContainer}>
-              <EventWelcomeModal
-                open={showWelcomeModal}
-                onAck={handleWelcomeModalAck}
-              />
-
               {adLoaded && (
                 <EventClientAdvertisement
                   height={125}
