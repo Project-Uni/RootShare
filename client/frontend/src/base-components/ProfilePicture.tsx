@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
@@ -11,8 +11,6 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
-
-import Draggable from 'react-draggable';
 
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -201,7 +199,8 @@ function ProfilePicture(props: Props) {
     if (
       !currentPicture ||
       currentPicture.length < 4 ||
-      currentPicture.substring(0, 4) !== 'http'
+      (currentPicture.substring(0, 4) !== 'http' &&
+        currentPicture.substring(0, 4) !== 'data')
     )
       currentPicture = DefaultProfilePicture;
 
