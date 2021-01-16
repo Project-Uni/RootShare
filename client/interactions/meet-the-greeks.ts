@@ -28,9 +28,9 @@ dayjs.extend(timezone);
 export async function createMTGEvent(
   communityID: string,
   description: string,
-  introVideoURL: string,
+  speakers: string[],
+  introVideoURL?: string
   // eventTime: string,
-  speakers: string[]
 ) {
   if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 

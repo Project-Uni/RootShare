@@ -189,14 +189,14 @@ const MTGEvent = (props: Props) => {
         <DesktopMTGEventContent
           event={props.event}
           onEnterEvent={onEnterEvent}
-          onWatchVideoClick={onWatchVideoClick}
+          onWatchVideoClick={introVideoURL ? onWatchVideoClick : undefined}
           showVideo={showVideo}
         />
       ) : (
         <MobileMTGEventContent
           event={props.event}
           onEnterEvent={onEnterEvent}
-          onWatchVideoClick={onWatchVideoClick}
+          onWatchVideoClick={introVideoURL ? onWatchVideoClick : undefined}
           showVideo={showVideo}
         />
       )}
@@ -209,7 +209,7 @@ export default MTGEvent;
 type ContentProps = {
   event: Event;
   onEnterEvent: () => void;
-  onWatchVideoClick: () => void;
+  onWatchVideoClick?: () => void;
   showVideo: boolean;
 };
 
@@ -267,9 +267,11 @@ const DesktopMTGEventContent = (props: ContentProps) => {
           <div style={{ display: 'flex', marginTop: 15 }}>
             <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
             <span style={{ width: 15 }}></span>
-            <RSButton onClick={onWatchVideoClick}>
-              {showVideo ? 'Hide' : 'Watch'} Video
-            </RSButton>
+            {onWatchVideoClick && (
+              <RSButton onClick={onWatchVideoClick}>
+                {showVideo ? 'Hide' : 'Watch'} Video
+              </RSButton>
+            )}
           </div>
           <InterestedButton
             className={styles.interestedButton}
@@ -336,14 +338,16 @@ const MobileMTGEventContent = (props: ContentProps) => {
           >
             Enter Event
           </RSButton>
-          <RSButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onWatchVideoClick();
-            }}
-          >
-            {showVideo ? 'Hide' : 'Watch'} Video
-          </RSButton>
+          {onWatchVideoClick && (
+            <RSButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onWatchVideoClick?.();
+              }}
+            >
+              {showVideo ? 'Hide' : 'Watch'} Video
+            </RSButton>
+          )}
         </div>
       </div>
       <Collapse in={showDescription}>
