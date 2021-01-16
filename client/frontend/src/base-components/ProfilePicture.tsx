@@ -12,8 +12,6 @@ import {
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 
-import Draggable from 'react-draggable';
-
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -208,7 +206,8 @@ function ProfilePicture(props: Props) {
     if (
       !currentPicture ||
       currentPicture.length < 4 ||
-      currentPicture.substring(0, 4) !== 'http'
+      (currentPicture.substring(0, 4) !== 'http' &&
+        currentPicture.substring(0, 4) !== 'data')
     )
       currentPicture = DefaultProfilePicture;
 
