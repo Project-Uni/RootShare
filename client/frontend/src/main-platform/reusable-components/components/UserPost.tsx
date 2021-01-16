@@ -33,12 +33,13 @@ import {
 
 import LikesModal from './LikesModal';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import Theme from '../../../theme/Theme';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.primaryText,
+    background: Theme.white,
     borderRadius: 10,
     padding: 1,
   },
@@ -95,7 +96,7 @@ const useStyles = makeStyles((_: any) => ({
     lineHeight: 1.3,
   },
   seeMoreButton: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     marginRight: 38,
   },
   seeMoreButtonDiv: {
@@ -119,7 +120,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   commentProfile: {
-    border: `1px solid ${colors.fourth}`,
+    border: `1px solid ${Theme.primaryText}`,
   },
   leaveCommentContainer: {
     display: 'flex',
@@ -131,7 +132,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   loadingIndicator: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     marginTop: 8,
     marginBottom: 8,
   },
@@ -431,7 +432,7 @@ function UserPost(props: Props) {
                 }`}
                 className={styles.noUnderline}
               >
-                <RSText type="subhead" color={colors.secondary} bold size={14}>
+                <RSText type="subhead" color={Theme.secondaryText} bold size={14}>
                   {props.name}
                 </RSText>
               </a>
@@ -439,7 +440,7 @@ function UserPost(props: Props) {
               {props.toCommunity && (
                 <>
                   <GiTreeBranch
-                    color={colors.secondary}
+                    color={Theme.secondaryText}
                     size={16}
                     className={styles.plantIcon}
                   />
@@ -447,7 +448,7 @@ function UserPost(props: Props) {
                     href={`/community/${props.toCommunityID}`}
                     className={styles.noUnderline}
                   >
-                    <RSText type="subhead" color={colors.secondary} bold size={14}>
+                    <RSText type="subhead" color={Theme.secondaryText} bold size={14}>
                       {props.toCommunity}
                     </RSText>
                   </a>
@@ -460,7 +461,7 @@ function UserPost(props: Props) {
                 />
               )}
             </div>
-            <RSText type="subhead" color={colors.secondaryText} size={12}>
+            <RSText type="subhead" color={Theme.secondaryText} size={12}>
               {props.timestamp}
             </RSText>
           </div>
@@ -471,7 +472,7 @@ function UserPost(props: Props) {
               style={{ height: 30 }}
               onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
             >
-              <FaEllipsisH color={colors.secondaryText} size={16} />
+              <FaEllipsisH color={Theme.secondaryText} size={16} />
             </IconButton>
             <Menu
               open={Boolean(menuAnchorEl)}
@@ -479,7 +480,7 @@ function UserPost(props: Props) {
               onClose={() => setMenuAnchorEl(null)}
             >
               <MenuItem onClick={handleDeleteClicked}>
-                <RSText color={colors.brightError}>Delete</RSText>
+                <RSText color={Theme.error}>Delete</RSText>
               </MenuItem>
             </Menu>
           </div>
@@ -493,7 +494,7 @@ function UserPost(props: Props) {
       <div className={styles.message}>
         <RSText
           type="body"
-          color={colors.secondary}
+          color={Theme.primaryText}
           size={12}
           className={styles.messageBody}
         >
@@ -520,15 +521,15 @@ function UserPost(props: Props) {
             disabled={likeDisabled}
           >
             {liked ? (
-              <BsStarFill color={colors.bright} size={24} />
+              <BsStarFill color={Theme.bright} size={24} />
             ) : (
-              <BsStar color={colors.bright} size={24} />
+              <BsStar color={Theme.bright} size={24} />
             )}
           </DynamicIconButton>
 
           <RSText
             type="body"
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
             size={12}
             className={styles.likes}
             onClick={() => {
@@ -539,7 +540,7 @@ function UserPost(props: Props) {
           </RSText>
           <RSText
             type="body"
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
             size={12}
             className={[styles.commentCount, styles.commentCountLink].join(' ')}
             onClick={commentCount > 0 ? handleShowComments : undefined}
@@ -578,7 +579,7 @@ function UserPost(props: Props) {
           error={commentErr !== ''}
         />
         <DynamicIconButton onClick={handleSendComment}>
-          <MdSend size={22} color={colors.bright} />
+          <MdSend size={22} color={Theme.bright} />
         </DynamicIconButton>
       </div>
     );
@@ -587,7 +588,7 @@ function UserPost(props: Props) {
   function renderDeletedMessage() {
     return showDeletedMessage ? (
       <div>
-        <RSText color={colors.success} italic>
+        <RSText color={Theme.success} italic>
           Successfully deleted post!
         </RSText>
       </div>

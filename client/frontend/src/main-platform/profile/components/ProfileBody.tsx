@@ -25,11 +25,12 @@ import {
 } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
   },
   profileWrapper: {
     overflow: 'scroll',
@@ -37,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
   body: {},
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.white,
   },
   headBox: {
     paddingBottom: 20,
@@ -51,7 +52,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
   },
   profilePicture: {
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
   },
   event: {
     marginTop: 0,
@@ -59,7 +60,7 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
   },
   eventWithBorder: {
-    borderTop: `1px solid #c5c5c5`,
+    borderTop: `1px solid ${Theme.dark}`,
   },
   post: {
     margin: 8,
@@ -69,13 +70,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     paddingTop: 15,
     paddingBottom: 15,
-    background: colors.secondary,
-    borderBottom: `1px solid ${colors.fourth}`,
-    borderTop: `1px solid ${colors.fourth}`,
+    background: Theme.primary,
+    borderBottom: `1px solid ${Theme.primary}`,
+    borderTop: `1px solid ${Theme.primary}`,
   },
   postsLoadingIndicator: {
     marginTop: 60,
-    color: colors.primary,
+    color: Theme.bright,
   },
 }));
 
@@ -306,7 +307,7 @@ function ProfileBody(props: Props) {
       );
     }
     return (
-      <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
+      <div style={{ background: Theme.background, paddingTop: 1 }}>{output}</div>
     );
   }
 
@@ -358,7 +359,7 @@ function ProfileBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.postsLoadingIndicator} />
       ) : fetchingErr ? (
-        <RSText size={32} type="head" color={colors.error}>
+        <RSText size={32} type="head" color={Theme.error}>
           THERE WAS AN ERROR GETTING THE USER'S PROFILE
         </RSText>
       ) : (

@@ -6,11 +6,13 @@ import { colors } from '../../theme/Colors';
 import { FaInstagram } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import ContactModal from './ContactModal';
+import Theme from '../../theme/Theme';
+import { AiOutlineBgColors } from 'react-icons/ai';
 
 const useStyles = makeStyles((_: any) => ({
   footer: {
     marginTop: '5px',
-    background: colors.second,
+    background: Theme.primary,
   },
   footerContainer: {
     flex: 1,
@@ -62,39 +64,39 @@ function LandingFooter(props: Props) {
           <ContactModal open={contact} onClose={closeContactModal}></ContactModal>
           <ButtonGroup variant="text" aria-label="text primary button group">
             {/* <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 ABOUT
               </RSText>
             </Button>
             <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 HELP
               </RSText>
             </Button>
             <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 PRIVACY
               </RSText>
             </Button>
             <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 TERMS
               </RSText>
             </Button>
             <Button>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 LANGUAGE
               </RSText>
             </Button> */}
             <a href="https://www.instagram.com/rootshare/">
               <FaInstagram
-                color={colors.primaryText}
+                color={Theme.white}
                 size={30}
                 className={styles.instagramIcon}
               />
             </a>
             <Button onClick={openContactModal}>
-              <RSText type="body" size={12} color={colors.primaryText}>
+              <RSText type="body" size={12} color={Theme.white}>
                 CONTACT
               </RSText>
             </Button>

@@ -22,6 +22,7 @@ import BugModal from './BugModal';
 
 import { makeRequest } from '../../../helpers/functions';
 import { UserType, UniversityType, ConversationType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -31,7 +32,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
   },
   profilePicture: {
-    border: `3px solid ${colors.primaryText}`,
+    border: `3px solid ${Theme.white}`,
   },
   names: {
     display: 'flex',
@@ -60,23 +61,26 @@ const useStyles = makeStyles((_: any) => ({
   },
   updateIndividual: {
     marginTop: 17,
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   button: {
     width: '361px',
     marginTop: 20,
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.altText,
+    background: Theme.bright,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   logoutButton: {
     width: '361px',
     marginTop: 10,
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   logoutErr: {
     width: '361px',
     marginTop: 10,
-    color: colors.brightError,
+    color: Theme.error,
   },
   buttonWrapper: {
     marginLeft: -20,
@@ -91,7 +95,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 360,
     height: 57,
     marginTop: 17,
-    background: colors.fourth,
+    background: Theme.primary,
   },
   collegeOfItem: {
     // Dropdown Menu Items
@@ -443,7 +447,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.name}
           bold
         >
@@ -452,7 +456,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.name}
         >
           {props.user.email}
@@ -557,7 +561,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Major: {originalMajor}
@@ -565,7 +569,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Graduation Year: {originalGraduationYear}
@@ -573,7 +577,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Current Employer: {originalCurrentEmployer}
@@ -581,7 +585,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Current Role: {originalCurrentRole}
@@ -589,7 +593,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           University: {originalCollege?.universityName}
@@ -597,7 +601,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           College: {originalCollegeOf}
@@ -605,7 +609,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Interests: {originalInterests}
@@ -613,7 +617,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Organizations: {originalOrganizations}
@@ -630,7 +634,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Phone Number: {originalPhoneNumber}
@@ -638,7 +642,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Discovery Method: {originalDiscoveryMethod}

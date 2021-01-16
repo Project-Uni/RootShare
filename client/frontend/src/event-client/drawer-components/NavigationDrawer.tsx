@@ -8,6 +8,7 @@ import { BsPersonFill } from 'react-icons/bs';
 
 import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -53,7 +54,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'home' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
@@ -63,7 +64,7 @@ function NavigationDrawer(props: Props) {
         <FaSearch
           size={ICON_SIZE}
           color={
-            props.currentTab === 'discover' ? colors.bright : colors.primaryText
+            props.currentTab === 'discover' ? Theme.bright : Theme.primaryText
           }
         />
       ),
@@ -74,7 +75,7 @@ function NavigationDrawer(props: Props) {
         <FaHome
           size={ICON_SIZE}
           color={
-            props.currentTab === 'communities' ? colors.bright : colors.primaryText
+            props.currentTab === 'communities' ? Theme.bright : Theme.primaryText
           }
         />
       ),
@@ -85,7 +86,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'events' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
@@ -104,7 +105,7 @@ function NavigationDrawer(props: Props) {
         <MdGroup
           size={ICON_SIZE}
           color={
-            props.currentTab === 'connections' ? colors.bright : colors.primaryText
+            props.currentTab === 'connections' ? Theme.bright : Theme.primaryText
           }
         />
       ),
@@ -115,7 +116,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'profile' ? Theme.bright : Theme.primaryText}
         />
       ),
       link: '/profile/user',
@@ -135,13 +136,13 @@ function NavigationDrawer(props: Props) {
             type="head"
             color={
               props.currentTab === tabs[i].name.toLowerCase()
-                ? colors.bright
-                : colors.primaryText
+                ? Theme.bright
+                : Theme.primaryText
             }
             size={TEXT_SIZE}
             bold
             className={styles.textStyle}
-            hoverColor={colors.bright}
+            hoverColor={Theme.brightHover}
           >
             {tabs[i].name}
           </RSText>

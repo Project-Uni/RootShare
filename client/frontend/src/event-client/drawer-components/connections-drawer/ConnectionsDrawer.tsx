@@ -11,6 +11,7 @@ import MyConnections from '../images/MyConnections.png';
 import { colors } from '../../../theme/Colors';
 import { UserType, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -30,35 +31,35 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   connectionContainer: {
     flex: 1,
     justifyContent: 'flex-start',
-    background: colors.secondary,
+    background: Theme.white,
     overflowY: 'scroll',
     overflowX: 'hidden',
-    label: colors.primaryText,
+    label: Theme.primaryText,
   },
   sectionHeader: {
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
     borderTopStyle: 'solid',
-    borderTopColor: colors.primaryText,
+    borderTopColor: Theme.dark,
     borderTopWidth: '1px',
     paddingTop: 10,
     paddingBottom: 3,
   },
   sectionName: {
-    color: colors.primaryText,
+    color: Theme.primaryText,
     size: 20,
   },
   pendingContainer: {
     maxHeight: 194,
     overflow: 'scroll',
     borderTopStyle: 'solid',
-    borderTopColor: colors.primary,
+    borderTopColor: Theme.primary,
     borderTopWidth: '2px',
     marginTop: 5,
   },

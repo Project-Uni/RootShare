@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
-import RootShareLogoMidnight from '../images/RootShareLogoMidnight.png';
+import RootShareLogo from '../images/RootShareLogoFull.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -121,7 +121,7 @@ function EventClientHeader(props: Props) {
           <IoMdText size={iconSize} color={theme.primary} />
         </IconButton>
         {/* <IconButton className={styles.iconStyle} onClick={handleCalendarClick}>
-          <FaRegCalendarAlt size={isDesktop ? 27 : 20} color={colors.primaryText} />
+          <FaRegCalendarAlt size={isDesktop ? 27 : 20} color={theme.white} />
         </IconButton> */}
         <IconButton className={styles.iconStyle} onClick={handleProfileClick}>
           <MdAccountCircle color={theme.primary} size={iconSize} />
@@ -146,7 +146,7 @@ function EventClientHeader(props: Props) {
             <div style={{ display: 'flex', alignItems: 'flex-end' }}>
               <a href="/home">
                 <img
-                  src={RootShareLogoMidnight}
+                  src={RootShareLogo}
                   alt="RootShare"
                   className={styles.headerLogo}
                   style={{
@@ -163,7 +163,7 @@ function EventClientHeader(props: Props) {
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
           backgroundColor={
-            drawerContent === 'calendar' ? colors.secondary : colors.secondary
+            drawerContent === 'calendar' ? theme.primary : theme.white
           }
           anchor={drawerAnchor}
         >

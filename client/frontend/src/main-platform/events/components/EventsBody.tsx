@@ -15,11 +15,12 @@ import {
   formatDatePretty,
   formatTime,
 } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
   },
   body: {},
@@ -37,12 +38,12 @@ const useStyles = makeStyles((_: any) => ({
     margin: 8,
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 60,
   },
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.white,
   },
 }));
 

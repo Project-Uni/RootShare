@@ -68,7 +68,7 @@ function MainNavigator(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? theme.bright : theme.primaryText}
+          color={props.currentTab === 'home' ? theme.bright : theme.primary}
         />
       ),
     },
@@ -77,7 +77,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaSearch
           size={ICON_SIZE}
-          color={props.currentTab === 'discover' ? theme.bright : theme.primaryText}
+          color={props.currentTab === 'discover' ? theme.bright : theme.primary}
         />
       ),
     },
@@ -87,7 +87,7 @@ function MainNavigator(props: Props) {
         <FaHome
           size={ICON_SIZE}
           color={
-            props.currentTab === 'communities' ? theme.bright : theme.primaryText
+            props.currentTab === 'communities' ? theme.bright : theme.primary
           }
         />
       ),
@@ -98,7 +98,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? theme.bright : theme.primaryText}
+          color={props.currentTab === 'events' ? theme.bright : theme.primary}
         />
       ),
     },
@@ -117,7 +117,7 @@ function MainNavigator(props: Props) {
         <MdGroup
           size={ICON_SIZE}
           color={
-            props.currentTab === 'connections' ? theme.bright : theme.primaryText
+            props.currentTab === 'connections' ? theme.bright : theme.primary
           }
         />
       ),
@@ -128,7 +128,7 @@ function MainNavigator(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? theme.bright : theme.primaryText}
+          color={props.currentTab === 'profile' ? theme.bright : theme.primary}
         />
       ),
       link: '/profile/user',
@@ -149,7 +149,7 @@ function MainNavigator(props: Props) {
             color={
               props.currentTab === tabs[i].name.toLowerCase()
                 ? theme.bright
-                : theme.primaryText
+                : theme.primary
             }
             size={TEXT_SIZE}
             bold

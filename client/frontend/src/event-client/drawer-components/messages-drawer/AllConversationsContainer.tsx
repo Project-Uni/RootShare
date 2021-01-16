@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 
 import SingleConversation from './SingleConversation';
 import CreateNewConversation from './CreateNewConversation';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -19,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   header: {
     width: '100%',
@@ -28,21 +29,21 @@ const useStyles = makeStyles((_: any) => ({
   },
   createNewButton: {},
   createNewIcon: {
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   filler: {
-    color: colors.secondary,
+    color: Theme.altText,
   },
   conversationsContainer: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    background: colors.secondary,
+    background: Theme.white,
     overflow: 'scroll',
-    label: colors.primaryText,
+    label: Theme.primaryText,
     borderTopStyle: 'solid',
-    borderTopColor: colors.primaryText,
+    borderTopColor: Theme.primaryText,
     borderTopWidth: '1px',
     marginTop: '-2px',
   },

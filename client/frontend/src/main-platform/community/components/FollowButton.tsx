@@ -13,13 +13,14 @@ import { colors } from '../../../theme/Colors';
 
 import { AdminCommunityServiceResponse } from '../../../helpers/types/communityTypes';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   followButton: {
-    backgroundColor: colors.primary,
-    color: colors.primaryText,
+    backgroundColor: Theme.bright,
+    color: Theme.white,
     '&:hover': {
-      backgroundColor: colors.fourth,
+      backgroundColor: Theme.brightHover,
     },
   },
 }));
@@ -201,7 +202,7 @@ function FollowButton(props: Props) {
       />
       <Button
         size="large"
-        endIcon={<BsFillCaretDownFill color={colors.primaryText} size={14} />}
+        endIcon={<BsFillCaretDownFill color={Theme.altText} size={14} />}
         className={styles.followButton}
         onClick={(event: any) => {
           setFollowMenuAnchorEl(event.currentTarget);

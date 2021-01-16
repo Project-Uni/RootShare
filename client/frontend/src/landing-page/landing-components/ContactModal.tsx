@@ -10,13 +10,16 @@ import {
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import RSText from '../../base-components/RSText';
+import { IoIosClose } from 'react-icons/io';
+
 import { colors } from '../../theme/Colors';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
-    background: colors.second,
+    background: Theme.primary,
     width: 280,
-    height: 150,
+    height: 180,
   },
   mobileText: {
     marginTop: 20,
@@ -24,11 +27,10 @@ const useStyles = makeStyles((_: any) => ({
   thankYou: {
     flex: 1,
     top: 0,
-    marginTop: 10,
     marginLeft: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    color: colors.primaryText,
+    color: Theme.white,
   },
   okButton: {
     flex: 1,
@@ -37,7 +39,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    color: colors.primaryText,
+    color: Theme.white,
+  },
+  closeButton: {
+    flex: 1,
+    marginLeft: 180,
+    justifyContent: 'center',
   },
 }));
 
@@ -56,11 +63,14 @@ function ContactModal(props: Props) {
       PaperComponent={PaperComponent}
     >
       <DialogTitle>
+        <Button className={styles.closeButton} onClick={props.onClose}>
+          <IoIosClose color={Theme.white} size={25}></IoIosClose>
+        </Button>
         <RSText
           type="head"
           size={16}
           bold
-          color={colors.primaryText}
+          color={Theme.white}
           className={styles.thankYou}
         >
           support@rootshare.io
@@ -71,7 +81,7 @@ function ContactModal(props: Props) {
           <RSText
             type="body"
             size={12}
-            color={colors.primaryText}
+            color={Theme.white}
             className={styles.thankYou}
           >
             SEND AN EMAIL

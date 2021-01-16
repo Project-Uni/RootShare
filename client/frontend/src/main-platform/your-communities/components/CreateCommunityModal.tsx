@@ -21,6 +21,7 @@ import { colors } from '../../../theme/Colors';
 import { Community, CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -54,14 +55,14 @@ const useStyles = makeStyles((_: any) => ({
     paddingTop: 8,
     paddingBottom: 8,
     width: 300,
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.primaryText,
     '&:hover': {
-      background: colors.ternary,
+      background: Theme.brightHover,
     },
   },
   disabledButton: {
-    background: 'lightgray',
+    background: Theme.disabledButton,
     marginTop: 20,
     marginBottom: 20,
     paddingTop: 8,
@@ -290,7 +291,7 @@ function CreateCommunityModal(props: Props) {
             </Button>
           </div>
           {serverErr && (
-            <RSText color={colors.brightError} italic>
+            <RSText color={Theme.error} italic>
               There was an error creating the community.
             </RSText>
           )}

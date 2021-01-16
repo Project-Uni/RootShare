@@ -28,11 +28,12 @@ import { EventInformationServiceResponse } from './MeetTheGreeks/EventEditor/Mee
 import { Event } from '../../meet-the-greeks/MeetTheGreeks';
 import MTGEvent from '../../meet-the-greeks/MTGEvent';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 80,
   },
   errorContainer: {
@@ -452,7 +453,7 @@ function CommunityBodyContent(props: Props) {
     <div
       className={[styles.wrapper, props.className].join(' ')}
       style={{
-        background: loading || posts.length === 0 ? 'inherit' : colors.background,
+        background: loading || posts.length === 0 ? 'inherit' : Theme.background,
       }}
     >
       <ManageSpeakersSnackbar

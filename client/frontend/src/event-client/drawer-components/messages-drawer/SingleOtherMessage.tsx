@@ -5,23 +5,24 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { MessageType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     alignSelf: 'flex-start',
     width: '80%',
-    background: colors.secondary,
+    background: Theme.white,
   },
   message: {
-    color: colors.primaryText,
+    color: Theme.primaryText,
     marginTop: 2,
     marginBottom: 5,
     padding: 5,
     float: 'left',
-    background: colors.ternary,
+    background: Theme.white,
     marginLeft: 5,
     borderStyle: 'solid',
-    borderColor: 'gray',
+    borderColor: Theme.secondaryText,
     borderRadius: 7,
     borderWidth: '2px',
     wordWrap: 'break-word',
@@ -29,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   senderName: {
     display: 'inline-block',
-    color: 'gray',
+    color: Theme.secondaryText,
     marginLeft: 10,
     marginTop: -5,
     marginBottom: 2,
@@ -40,7 +41,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'right',
     marginTop: 10,
     marginRight: 25,
-    color: 'gray',
+    color: Theme.secondaryText,
   },
 }));
 

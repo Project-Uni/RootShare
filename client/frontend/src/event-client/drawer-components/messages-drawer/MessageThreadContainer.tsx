@@ -14,6 +14,7 @@ import { colors } from '../../../theme/Colors';
 import { updateCurrConversationID } from '../../../redux/actions/message';
 import { makeRequest } from '../../../helpers/functions';
 import { MessageType, ConversationType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -29,24 +30,24 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 20,
     marginTop: 20,
     margin: 'auto',
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   messagesContainer: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    background: colors.secondary,
+    background: Theme.white,
     overflow: 'scroll',
     // scrollbarWidth: 'thin', // don't work in most browsers
     // scrollbarColor: 'red',  // need to find workaround
-    label: colors.primaryText,
+    label: Theme.primaryText,
     paddingTop: '10px',
     paddingBottom: 5,
     borderTopStyle: 'solid',
-    borderTopColor: colors.primaryText,
+    borderTopColor: Theme.primaryText,
     borderTopWidth: '1px',
     borderBottomStyle: 'solid',
-    borderBottomColor: colors.primaryText,
+    borderBottomColor: Theme.primaryText,
     borderBottomWidth: '1px',
     marginTop: '-2px',
   },
@@ -59,53 +60,53 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: -10,
   },
   filler: {
-    color: colors.secondary,
+    color: Theme.altText,
   },
   textFieldContainer: {
     display: 'flex',
     width: '100%',
     justifyContent: 'space-between',
-    background: '#333333',
-    borderTop: '1px solid #333333',
-    color: '#f2f2f2',
+    background: Theme.primary,
+    borderTop: `1px solid ${Theme.primary}`,
+    color: Theme.primary,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
   },
   textField: {
     width: '100%',
-    background: '#333333',
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    background: Theme.dark,
+    color: Theme.dark,
+    label: Theme.dark,
   },
   cssLabel: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
   },
   cssFocused: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
     borderWidth: '2px',
-    borderColor: '#f2f2f2 !important',
+    borderColor: `${Theme.dark} !important`,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
-      color: '#f2f2f2 !important',
-      label: '#f2f2f2 !important',
+      color: `${Theme.dark} !important`,
+      label: `${Theme.dark} !important`,
       borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
+      borderColor: `${Theme.dark} !important`,
     },
   },
   notchedOutline: {
     borderWidth: '2px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
+    label: Theme.primaryText,
+    borderColor: Theme.primaryText,
+    color: Theme.primaryText,
   },
   loadingIndicator: {
     alignSelf: 'center',
     marginTop: 40,
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
   },
 }));
 
@@ -230,7 +231,7 @@ function MessageThreadContainer(props: Props) {
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <IconButton className={styles.arrow} onClick={props.returnToConversations}>
-          <IoIosArrowBack size={32} color={colors.secondaryText} />
+          <IoIosArrowBack size={32} color={Theme.secondaryText} />
         </IconButton>
         <RSText bold size={16} className={styles.headerParticipants}>
           {joinUserNames(props.conversation.participants, ', ')}

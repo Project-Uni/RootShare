@@ -17,6 +17,7 @@ import LinkedInButton from './LinkedInButton';
 import { colors } from '../../theme/Colors';
 
 import RSText from '../../base-components/RSText';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -45,8 +46,15 @@ const useStyles = makeStyles((_: any) => ({
   },
   loginLink: {
     textDecoration: 'none',
-    color: colors.bright,
+    color: Theme.bright,
   },
+  button: {
+    background: Theme.bright,
+    color: Theme.white,
+    '&:hover': {
+      background: Theme.brightHover,
+  },
+  }
 }));
 
 type Props = {
@@ -356,7 +364,7 @@ function HypeRegistration(props: Props) {
             variant="contained"
             onClick={handleNextButtonClicked}
             disabled={loading}
-            color="primary"
+            className={styles.button}
           >
             {currentStep !== steps.length - 1 ? 'Next' : 'Submit'}
           </Button>
@@ -373,7 +381,7 @@ function HypeRegistration(props: Props) {
             <RSText
               type="other"
               size={12}
-              color={colors.second}
+              color={Theme.primary}
               className={styles.alreadyHaveAnAccount}
               bold
             >

@@ -13,6 +13,7 @@ import ForgotPasswordCard from './ForgotPasswordCard';
 import GoogleButton from '../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../hype-page/hype-registration/LinkedInButton';
 import { colors } from '../theme/Colors';
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -30,10 +31,10 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     marginBottom: 20,
     height: 40,
-    background: colors.primary,
-    color: 'white',
+    background: Theme.bright,
+    color: Theme.white,
     '&:hover': {
-      background: 'lightblue',
+      background: Theme.brightHover,
     },
   },
   forgotPassword: {
