@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
