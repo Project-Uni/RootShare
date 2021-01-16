@@ -23,7 +23,6 @@ import Carousel, { Modal, ModalGateway } from 'react-images';
 
 import { Comment } from '../';
 import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
-import { colors } from '../../../theme/Colors';
 import {
   formatDatePretty,
   formatTime,
@@ -432,7 +431,7 @@ function UserPost(props: Props) {
                 }`}
                 className={styles.noUnderline}
               >
-                <RSText type="subhead" color={Theme.secondaryText} bold size={14}>
+                <RSText type="subhead" bold size={14}>
                   {props.name}
                 </RSText>
               </a>
@@ -448,7 +447,7 @@ function UserPost(props: Props) {
                     href={`/community/${props.toCommunityID}`}
                     className={styles.noUnderline}
                   >
-                    <RSText type="subhead" color={Theme.secondaryText} bold size={14}>
+                    <RSText type="subhead" bold size={14}>
                       {props.toCommunity}
                     </RSText>
                   </a>
