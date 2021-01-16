@@ -45,6 +45,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {
     marginRight: 20,
+    flex: 1,
   },
   right: {
     minWidth: 150,
