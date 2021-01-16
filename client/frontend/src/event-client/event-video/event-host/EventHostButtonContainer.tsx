@@ -21,6 +21,7 @@ import {
   SpeakerMode,
   GuestSpeaker,
 } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -33,15 +34,15 @@ const useStyles = makeStyles((_: any) => ({
   buttonDefault: {
     marginLeft: 8,
     marginBottom: 'auto',
-    backgroundColor: colors.secondary,
+    backgroundColor: Theme.bright,
     color: 'white',
     '&:hover': {
-      backgroundColor: colors.ternary,
+      backgroundColor: Theme.brightHover,
     },
   },
   cameraIcon: {},
   disabledButton: {
-    background: 'lightgray',
+    background: Theme.disabledButton,
   },
 }));
 
