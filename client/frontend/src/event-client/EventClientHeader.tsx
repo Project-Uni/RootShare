@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
-import RootShareLogoWhite from '../images/RootShareLogoWhite.png';
 import RootShareLogo from '../images/RootShareLogoFull.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
-import { FaRegCalendarAlt } from 'react-icons/fa';
+
+import { GrSearch } from 'react-icons/gr';
 
 import EventDrawer from './EventDrawer';
 
-import { colors } from '../theme/Colors';
 import theme from '../theme/Theme';
 
 import {
@@ -21,21 +20,19 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
+import { UserSearch } from '../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   header: {
     background: theme.white,
   },
-  headerLogo: {},
-  icons: {},
-  iconStyle: {},
   toolbar: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  alpha: {
-    marginLeft: 5,
+  searchbar: {
+    width: 400,
   },
 }));
 
@@ -79,11 +76,6 @@ function EventClientHeader(props: Props) {
     setDrawerContent('messages');
   }
 
-  function handleCalendarClick() {
-    setDrawerAnchor('right');
-    setDrawerContent('calendar');
-  }
-
   function handleProfileClick() {
     setDrawerAnchor('right');
     setDrawerContent('profile');
@@ -114,16 +106,13 @@ function EventClientHeader(props: Props) {
   function renderIcons() {
     return (
       <>
-        <IconButton className={styles.iconStyle} onClick={handleConnectionsClick}>
+        <IconButton onClick={handleConnectionsClick}>
           <MdGroupAdd size={iconSize} color={theme.primary} />
         </IconButton>
-        <IconButton className={styles.iconStyle} onClick={handleMessagesClick}>
+        <IconButton onClick={handleMessagesClick}>
           <IoMdText size={iconSize} color={theme.primary} />
         </IconButton>
-        {/* <IconButton className={styles.iconStyle} onClick={handleCalendarClick}>
-          <FaRegCalendarAlt size={isDesktop ? 27 : 20} color={theme.white} />
-        </IconButton> */}
-        <IconButton className={styles.iconStyle} onClick={handleProfileClick}>
+        <IconButton onClick={handleProfileClick}>
           <MdAccountCircle color={theme.primary} size={iconSize} />
         </IconButton>
       </>
@@ -148,16 +137,23 @@ function EventClientHeader(props: Props) {
                 <img
                   src={RootShareLogo}
                   alt="RootShare"
-                  className={styles.headerLogo}
                   style={{
                     width: isDesktop ? 190 : 130,
                   }}
                 />
               </a>
             </div>
+
+            <UserSearch
+              mode="both"
+              name="header-search"
+              placeholder="Search RootShare"
+              className={styles.searchbar}
+              adornment={<GrSearch />}
+            />
           </div>
 
-          <div className={styles.icons}>{isDesktop && renderIcons()}</div>
+          <div>{isDesktop && renderIcons()}</div>
         </Toolbar>
         <EventDrawer
           open={Boolean(drawerContent)}

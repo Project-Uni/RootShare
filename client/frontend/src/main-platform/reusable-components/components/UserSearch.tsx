@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { Avatar, TextField } from '@material-ui/core';
+import { Avatar, TextField, InputAdornment } from '@material-ui/core';
 
 import { makeRequest } from '../../../helpers/functions';
 import { RSText } from '../../../base-components';
@@ -33,15 +33,18 @@ type ServiceResponse = {
 };
 
 type Props<T extends SearchOption> = {
-  className: string;
+  className?: string;
   options?: T[];
   fetchDataURL?: string;
-  name: string;
-  label: string;
+  name?: string;
+  label?: string;
+  placeholder?: string;
   helperText?: string;
   onAutocomplete?: (user: T) => void;
   error?: string;
   mapData?: (users: User[]) => T[];
+  mode?: 'user' | 'community' | 'both';
+  adornment?: JSX.Element;
 };
 
 function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
@@ -54,13 +57,18 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     name,
     label,
     helperText,
+    placeholder,
     onAutocomplete: onAutocompleteProps,
     error,
     mapData,
+    mode,
+    adornment,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
   const [searchValue, setSearchValue] = useState('');
+
+  const [isFocused, setIsFocused] = useState(false);
 
   const onAutocomplete = (_: any, newValue: T | null) => {
     if (newValue) onAutocompleteProps?.(newValue);
@@ -108,8 +116,16 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
           variant="outlined"
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           helperText={Boolean(error) && error !== '' ? error : helperText}
           error={Boolean(error) && error !== ''}
+          placeholder={placeholder}
+          InputProps={{
+            startAdornment: !isFocused && adornment && (
+              <InputAdornment position="start">{adornment}</InputAdornment>
+            ),
+          }}
         />
       )}
       renderOption={(option) => (
@@ -123,5 +139,9 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     />
   );
 }
+
+UserSearch.defaultProps = {
+  mode: 'user',
+};
 
 export default UserSearch;
