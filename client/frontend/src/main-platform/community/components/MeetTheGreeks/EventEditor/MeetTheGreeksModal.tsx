@@ -197,7 +197,7 @@ function MeetTheGreeksModal(props: Props) {
     }
 
     if (
-      formFields.introVideoURL.length === 0 ||
+      formFields.introVideoURL.trim().length !== 0 &&
       !formFields.introVideoURL.startsWith('https://')
     ) {
       hasErr = true;

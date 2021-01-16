@@ -105,7 +105,6 @@ function MeetTheGreekForm(props: Props) {
         key="introURL"
         className={styles.textField}
         autoComplete="off"
-        required
         helperText={formErrors.introVideoURL}
         error={formErrors.introVideoURL !== ''}
       />

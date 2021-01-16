@@ -107,7 +107,7 @@ export default function meetTheGreekRoutes(app) {
       const { communityID } = req.params;
       const { introVideoURL, eventTime, description, speakers } = req.body;
       if (
-        !introVideoURL ||
+        // !introVideoURL ||
         // !eventTime ||
         !description ||
         !speakers ||
@@ -117,7 +117,7 @@ export default function meetTheGreekRoutes(app) {
           sendPacket(
             -1,
             invalidInputsMessage([
-              'introVideoURL',
+              // 'introVideoURL',
               // 'eventTime',
               'description',
               'speakers',
@@ -128,9 +128,9 @@ export default function meetTheGreekRoutes(app) {
       const packet = await createMTGEvent(
         communityID,
         description,
-        introVideoURL,
         // eventTime,
-        speakers
+        speakers,
+        introVideoURL
       );
       return res.json(packet);
     }
