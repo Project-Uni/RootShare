@@ -413,7 +413,7 @@ function MeetTheGreeksModal(props: Props) {
           className={styles.textField}
           name="viewers"
           onAutocomplete={onAutocomplete}
-          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`} //Ashwin need to change this
+          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`}
           mapData={searchOptionMap}
           helperText="Search current viewers"
           key="userSearch"

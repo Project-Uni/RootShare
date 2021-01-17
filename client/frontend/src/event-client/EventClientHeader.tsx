@@ -199,7 +199,7 @@ function EventClientHeader(props: Props) {
             </div>
           </div>
 
-          <div>{isDesktop.current && renderIcons()}</div>
+          <div>{renderIcons()}</div>
         </Toolbar>
         <EventDrawer
           open={Boolean(drawerContent)}
