@@ -45,6 +45,8 @@ type ServiceResponse = {
 type Props<T extends SearchOption> = {
   className?: string;
   fullWidth?: boolean;
+  groupByType?: boolean;
+  freeSolo?: boolean;
   options?: T[];
   fetchDataURL?: string;
   name?: string;
@@ -77,6 +79,8 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     adornment,
     renderLimit,
     fullWidth,
+    groupByType,
+    freeSolo,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
@@ -151,8 +155,8 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       getOptionLabel={(option) => option.value}
       onChange={onAutocomplete}
       key={`autocompleted_${label}`}
-      groupBy={(option) => option.type}
-      freeSolo
+      groupBy={groupByType ? (option) => option.type : undefined}
+      freeSolo={freeSolo}
       fullWidth={fullWidth}
       renderInput={(params) => (
         <TextField

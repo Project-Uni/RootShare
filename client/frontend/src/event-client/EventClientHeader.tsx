@@ -160,6 +160,8 @@ function EventClientHeader(props: Props) {
                 }/${selectedOption._id}`;
               }}
               fullWidth
+              freeSolo
+              groupByType
             />
           </div>
 
