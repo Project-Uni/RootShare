@@ -32,7 +32,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   searchbar: {
-    width: 400,
+    maxWidth: 500,
+    marginLeft: 25,
+    marginRight: 25,
   },
 }));
 
@@ -123,7 +125,7 @@ function EventClientHeader(props: Props) {
     <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             {(props.showNavigationMenuDefault ||
               (props.showNavigationWidth &&
                 window.innerWidth < props.showNavigationWidth)) && (
@@ -152,6 +154,12 @@ function EventClientHeader(props: Props) {
               adornment={<GrSearch />}
               fetchDataURL="/api/discover/search/v1/exactMatch"
               renderLimit={10}
+              onAutocomplete={(selectedOption) => {
+                window.location.href = `/${
+                  selectedOption.type === 'community' ? 'community' : 'profile'
+                }/${selectedOption._id}`;
+              }}
+              fullWidth
             />
           </div>
 

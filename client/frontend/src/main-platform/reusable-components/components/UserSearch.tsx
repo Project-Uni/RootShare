@@ -31,6 +31,10 @@ type User = {
 
 type Community = {
   [key: string]: any;
+  _id: string;
+  name: string;
+  type: string;
+  profilePicture?: string;
 };
 
 type ServiceResponse = {
@@ -40,13 +44,14 @@ type ServiceResponse = {
 
 type Props<T extends SearchOption> = {
   className?: string;
+  fullWidth?: boolean;
   options?: T[];
   fetchDataURL?: string;
   name?: string;
   label?: string;
   placeholder?: string;
   helperText?: string;
-  onAutocomplete?: (user: T) => void;
+  onAutocomplete?: (selectedOption: T) => void;
   error?: string;
   mapData?: (users: User[]) => T[];
   mode?: 'user' | 'community' | 'both';
@@ -71,6 +76,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     mode,
     adornment,
     renderLimit,
+    fullWidth,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
@@ -82,10 +88,6 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     if (newValue) onAutocompleteProps?.(newValue);
     setSearchValue('');
   };
-
-  useEffect(() => {
-    console.log('options:', options);
-  }, [options]);
 
   const defaultMapData = useCallback(
     (users: User[] | undefined, communities: Community[] | undefined) => {
@@ -119,7 +121,6 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
             })) as T[])
         );
       }
-      console.log('Output:', output);
       return output;
     },
     []
@@ -150,6 +151,9 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       getOptionLabel={(option) => option.value}
       onChange={onAutocomplete}
       key={`autocompleted_${label}`}
+      groupBy={(option) => option.type}
+      freeSolo
+      fullWidth={fullWidth}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -162,11 +166,12 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
           helperText={Boolean(error) && error !== '' ? error : helperText}
           error={Boolean(error) && error !== ''}
           placeholder={placeholder}
-          InputProps={{
-            startAdornment: !isFocused && adornment && (
-              <InputAdornment position="start">{adornment}</InputAdornment>
-            ),
-          }}
+          // InputProps={{
+          //   ...params.inputProps,
+          //   startAdornment: !isFocused && adornment && (
+          //     <InputAdornment position="start">{adornment}</InputAdornment>
+          //   ),
+          // }}
         />
       )}
       renderOption={(option) => (
