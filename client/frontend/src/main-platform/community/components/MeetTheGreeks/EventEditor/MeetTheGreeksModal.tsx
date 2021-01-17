@@ -197,7 +197,7 @@ function MeetTheGreeksModal(props: Props) {
     }
 
     if (
-      formFields.introVideoURL.length === 0 ||
+      formFields.introVideoURL.trim().length !== 0 &&
       !formFields.introVideoURL.startsWith('https://')
     ) {
       hasErr = true;
@@ -297,7 +297,7 @@ function MeetTheGreeksModal(props: Props) {
         onClose={onClose}
         className={styles.modal}
         helperText={
-          "Create or Edit your Fraternity's event time and information for Meet the Greeks"
+          "Create or Edit your Fraternity's information for Meet the Greeks"
         }
         helperIcon={<BsPeopleFill size={90} />}
         serverErr={serverErr}

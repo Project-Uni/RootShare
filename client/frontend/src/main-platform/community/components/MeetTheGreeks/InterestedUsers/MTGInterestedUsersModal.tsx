@@ -120,7 +120,13 @@ function MTGInterestedUsersModal(props: Props) {
     if (data.success === 1) {
       setInterestedUsers(
         data.content.users.map((user) => {
-          let answers = JSON.parse(user.answers);
+          let answers: { [key: string]: any } = {};
+          try {
+            answers = JSON.parse(user.answers);
+          } catch (err) {
+            answers = { ERROR: 'Incorrect answers format' };
+            console.log('Incorrectly formatted answers:', user.answers);
+          }
           let formattedData = Object.assign({}, user, { answers });
           return formattedData;
         })

@@ -143,12 +143,12 @@ function HypeExternalMissingInfo(props: Props) {
       props.updateUser({ ...data['content'] });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
+      checkCompletedRegistration();
     } else setLandingRedirect(true);
   }
 
   useEffect(() => {
     checkAuth();
-    checkCompletedRegistration();
   }, []);
 
   function handleUniversityChange(event: any) {
@@ -213,6 +213,8 @@ function HypeExternalMissingInfo(props: Props) {
         refreshToken
       );
       if (data.success === 1) {
+        props.updateAccessToken(accessToken);
+        props.updateRefreshToken(refreshToken);
         window.location.href = '/register/initialize';
       }
     }, 1000);
@@ -282,13 +284,7 @@ function HypeExternalMissingInfo(props: Props) {
       {additionalRedirect && <Redirect to="/register/initialize" />}
       <HypeHeader />
       <div className={styles.body}>
-        <HypeCard
-          headerText="We need some more info"
-          backArrow="link"
-          backArrowLink="/"
-          width={400}
-          loading={loading}
-        >
+        <HypeCard headerText="We need some more info" width={400} loading={loading}>
           <p className={styles.tabDesc}>University:</p>
           <div className={styles.autocompleteDiv}>
             <UniversityAutocomplete

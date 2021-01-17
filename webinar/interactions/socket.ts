@@ -13,7 +13,7 @@ export function broadcastEventStart(
     'info',
     `Broadcasted to waiting room for ${webinarID} that event has started.`
   );
-  if (waitingRooms[webinarID]) {
+  if (waitingRooms[webinarID] && webinarCache[webinarID]) {
     const userIDs = Object.keys(waitingRooms[webinarID].users);
     for (let i = 0; i < userIDs.length; i++) {
       const currID = userIDs[i];

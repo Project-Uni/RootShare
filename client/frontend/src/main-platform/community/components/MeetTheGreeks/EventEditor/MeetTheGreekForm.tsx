@@ -105,12 +105,11 @@ function MeetTheGreekForm(props: Props) {
         key="introURL"
         className={styles.textField}
         autoComplete="off"
-        required
         helperText={formErrors.introVideoURL}
         error={formErrors.introVideoURL !== ''}
       />
 
-      <RSText type="body" bold size={12} className={styles.fieldLabel}>
+      {/* <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Event Date & Time
       </RSText>
       <FormHelperText className={styles.dateBox}>
@@ -123,15 +122,15 @@ function MeetTheGreekForm(props: Props) {
             onChange={(date) =>
               handleDateChange('eventTime')(new Date(date as Date))
             }
-            minDate={new Date('January 17, 2021')}
-            minDateMessage={'Event Must Be on January 17th'}
-            maxDate={new Date('January 19, 2021')}
+            minDate={new Date('Jan 17 2021 13:00:00 EST')}
+            minDateMessage={'Event Must Be on January 17th after 1 PM'}
+            maxDate={new Date('Jan 17 2021 17:00:00 EST')}
             maxDateMessage={'Event Must be before January 19th'}
             className={styles.dateBox}
             key="datePicker"
           />
         </MuiPickersUtilsProvider>
-      </FormHelperText>
+      </FormHelperText> */}
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Meet The Greeks Speakers
       </RSText>

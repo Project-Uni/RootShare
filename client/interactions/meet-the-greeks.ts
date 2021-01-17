@@ -15,23 +15,28 @@ import {
   Webinar,
 } from '../models';
 
-import { sendEventEmailConfirmation } from './streaming/event';
 import { addProfilePicturesAll } from './utilities';
 
 import sendEmail from '../helpers/functions/sendEmail';
 
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export async function createMTGEvent(
   communityID: string,
   description: string,
-  introVideoURL: string,
-  eventTime: string,
-  speakers: string[]
+  speakers: string[],
+  introVideoURL?: string
+  // eventTime: string,
 ) {
   if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 
   try {
     let event = await Webinar.findOne({
-      community: communityID,
+      hostCommunity: communityID,
       isMTG: true,
     }).exec();
 
@@ -40,10 +45,11 @@ export async function createMTGEvent(
         //Edit Mode
         event.full_description = description;
         event.introVideoURL = introVideoURL;
-        event.dateTime = eventTime;
+        // event.dateTime = eventTime;
+        event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
         event.speakers = speakers;
         event.host = speakers[0];
-        event.isDev = process.env.NODE_ENV === 'dev';
+        // event.isDev = process.env.NODE_ENV === 'dev';
         await event.save();
       }
       //Creating new event
@@ -57,7 +63,8 @@ export async function createMTGEvent(
           hostCommunity: communityID,
           full_description: description,
           introVideoURL,
-          dateTime: eventTime,
+          // dateTime: eventTime,
+          dateTime: new Date('Jan 17 2021 1:00 PM EST'),
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
@@ -66,10 +73,13 @@ export async function createMTGEvent(
         }).save();
       }
 
-      const users = await User.find({ _id: { $in: speakers } }, ['email']).exec();
-      const emails = users.map((user) => user.email);
+      const users = await User.find({ _id: { $in: speakers } }, [
+        'email',
+        'firstName',
+        'lastName',
+      ]).exec();
 
-      sendEventEmailConfirmation(event, emails);
+      sendMTGEventEmails(users, event);
       return sendPacket(1, 'Successfully updated MTG event', { event });
     } catch (err) {
       log('error', err.message);
@@ -131,6 +141,7 @@ export async function retrieveMTGEventInfo(communityID: string) {
       })
       .lean()
       .exec();
+
     if (!mtgEvent)
       return sendPacket(
         0,
@@ -364,3 +375,44 @@ export async function getInterestedUsers(communityID: string) {
     return sendPacket(-1, err.message);
   }
 }
+
+async function sendMTGEventEmails(
+  recipients: [{ firstName: string; lastName: string; email: string; _id: string }],
+  event: {
+    _id: string;
+    hostCommunity: string;
+    dateTime: Date;
+    full_description: string;
+  }
+) {
+  try {
+    const community = await Community.findById(event.hostCommunity, 'name').exec();
+    const timestamp = convertEST(event.dateTime);
+    recipients.forEach((recipient) => {
+      sendEmail(
+        recipient.email,
+        `Meet The Greek Event Invite From ${community.name}`,
+        `
+        <p>Hi ${recipient.firstName},</p>
+        <p></p>
+        <p>You have been invited by <strong>${community.name}</strong> to speak at their Meet The Greek event on <strong>${timestamp} EST</strong>.</p>
+        <p></p>
+        <p>You can access the event by visiting:</p>
+        <p><a href="https://rootshare.io/event/${event._id}" target="_blank">https://rootshare.io/event/${event._id}</a></p>
+        <p></p>
+        <p>Thanks for using RootShare, and good luck with recruitment!</p>
+        <p>- The RootShare team.</p>
+        `
+      );
+    });
+
+    return true;
+  } catch (err) {
+    log('error', err);
+    return false;
+  }
+}
+
+const convertEST = (timestamp: Date | string) => {
+  return dayjs.tz(timestamp, 'America/New_York').format('dddd MMMM D @ h:mm A');
+};

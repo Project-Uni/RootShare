@@ -14,15 +14,15 @@ const useStyles = makeStyles((_: any) => ({
     background: Theme.white,
   },
   message: {
-    color: Theme.altText,
+    color: Theme.primaryText,
     marginTop: 2,
     marginBottom: 5,
     padding: 5,
     float: 'left',
-    background: Theme.primary,
+    background: Theme.white,
     marginLeft: 5,
     borderStyle: 'solid',
-    borderColor: 'gray',
+    borderColor: Theme.secondaryText,
     borderRadius: 7,
     borderWidth: '2px',
     wordWrap: 'break-word',
@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   senderName: {
     display: 'inline-block',
-    color: 'gray',
+    color: Theme.secondaryText,
     marginLeft: 10,
     marginTop: -5,
     marginBottom: 2,
@@ -41,7 +41,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'right',
     marginTop: 10,
     marginRight: 25,
-    color: 'gray',
+    color: Theme.secondaryText,
   },
 }));
 

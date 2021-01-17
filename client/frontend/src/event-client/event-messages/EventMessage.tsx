@@ -9,18 +9,13 @@ import { MessageType } from '../../helpers/types';
 import { makeRequest, getConversationTime } from '../../helpers/functions';
 
 import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
-
+import Theme from '../../theme/Theme';
 const ITEM_HEIGHT = 48;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: '#242d56',
     paddingBottom: 4,
-    borderTopStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: 'lightgray',
     display: 'flex',
   },
   top: {
@@ -42,13 +37,11 @@ const useStyles = makeStyles((_: any) => ({
   senderName: {
     margin: 10,
     display: 'inline-block',
-    color: '#f2f2f2',
     wordWrap: 'break-word',
     maxWidth: 240,
   },
   message: {
     textAlign: 'left',
-    color: '#f2f2f2',
     marginLeft: 10,
     marginRight: 10,
     marginTop: 7,
@@ -61,21 +54,19 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     marginTop: -10,
   },
-  likeCount: {
-    color: '#f2f2f2',
-  },
+  likeCount: {},
   star: {
     '&:hover': {
-      color: colors.primaryText,
+      color: Theme.secondaryText,
       cursor: 'pointer',
     },
     marginTop: -10,
     marginBottom: 3,
-    color: '#6699ff',
+    color: Theme.bright,
   },
   starGray: {
     '&:hover': {
-      color: colors.primaryText,
+      color: Theme.bright,
       cursor: 'pointer',
     },
     marginTop: -10,
@@ -89,7 +80,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   ellipsis: {
     '&:hover': {
-      color: colors.primaryText,
       cursor: 'pointer',
     },
     color: 'grey',
@@ -224,7 +214,7 @@ function EventMessage(props: Props) {
         <MenuItem onClick={handleConnect}>Connect</MenuItem>
         {props.isHost && (
           <MenuItem onClick={handleRemoveUser}>
-            <RSText color={colors.brightError} size={12}>
+            <RSText color={Theme.error} size={12}>
               Remove
             </RSText>
           </MenuItem>

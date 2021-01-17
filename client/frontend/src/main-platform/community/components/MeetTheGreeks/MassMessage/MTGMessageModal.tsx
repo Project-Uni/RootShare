@@ -114,7 +114,7 @@ function MTGMessageModal(props: Props) {
       <BigButton
         label="next"
         onClick={() => {
-          console.log('Email Message:', emailValue.toString('html'));
+          // console.log('Email Message:', emailValue.toString('html'));
           setStage('confirmation');
         }}
       />

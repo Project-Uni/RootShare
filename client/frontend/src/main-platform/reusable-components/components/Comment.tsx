@@ -2,17 +2,17 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    borderTop: `1px solid ${colors.background}`,
+    borderTop: `1px solid ${Theme.background}`,
     paddingTop: 10,
     paddingBottom: 10,
     '&:hover': {
-      background: colors.background
-    }
+      background: Theme.primaryHover,
+    },
   },
   commentProfile: {
     height: 40,
@@ -28,8 +28,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   noUnderline: {
     textDecoration: 'none',
+    '&:visited': {
+      color: 'inherit',
+    },
     '&:hover': {
-      textDecoration: 'none',
+      textDecoration: 'underline',
     },
   },
 }));
@@ -47,19 +50,24 @@ function Comment(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.commentMainArea}>
-        <ProfilePicture height={40} width={40} borderRadius={40} _id={props.userID} type='profile' currentPicture={props.profilePicture} />
+        <ProfilePicture
+          height={40}
+          width={40}
+          borderRadius={40}
+          _id={props.userID}
+          type="profile"
+          currentPicture={props.profilePicture}
+        />
         <div className={styles.commentBody}>
           <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
-            <RSText type="body" size={12} color={colors.secondary} bold>
+            <RSText type="body" bold color={Theme.primaryText}>
               {props.name}
             </RSText>
           </a>
-          <RSText type="body" size={10} color={colors.secondaryText}>
+          <RSText type="body" size={10} color={Theme.secondaryText}>
             {props.timestamp}
           </RSText>
-          <RSText type="body" size={12} color={colors.secondary}>
-            {props.message}
-          </RSText>
+          <RSText type="body">{props.message}</RSText>
         </div>
       </div>
     </div>
