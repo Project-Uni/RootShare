@@ -10,7 +10,7 @@ export type EventType = {
   hostCommunity: string;
   availableCommunities: string[];
   speakers: string[] | SpeakerType[];
-  attendees: {};
+  attendees_V2: { [key: string]: any }[];
   userRSVP: boolean;
   userSpeaker: boolean;
   conversation: string | ConversationType;
