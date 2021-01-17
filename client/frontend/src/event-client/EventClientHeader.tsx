@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Menu, MenuItem } from '@material-ui/core';
 import RootShareLogo from '../images/RootShareLogoFull.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
@@ -21,6 +21,7 @@ import {
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
 import { UserSearch } from '../main-platform/reusable-components';
+import { AiFillCaretDown } from 'react-icons/ai';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -56,6 +57,8 @@ function EventClientHeader(props: Props) {
   const isDesktop = useRef(checkDesktop());
   const iconSize = useRef(isDesktop.current ? 32 : 24);
 
+  const [menuAnchorEl, setMenuAnchorEl] = useState<any>();
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
@@ -71,21 +74,25 @@ function EventClientHeader(props: Props) {
   function handleConnectionsClick() {
     setDrawerAnchor('right');
     setDrawerContent('connections');
+    setMenuAnchorEl(undefined);
   }
 
   function handleMessagesClick() {
     setDrawerAnchor('right');
     setDrawerContent('messages');
+    setMenuAnchorEl(undefined);
   }
 
   function handleProfileClick() {
     setDrawerAnchor('right');
     setDrawerContent('profile');
+    setMenuAnchorEl(undefined);
   }
 
   function handleNavigationClick() {
     setDrawerAnchor('left');
     setDrawerContent('navigation');
+    setMenuAnchorEl(undefined);
   }
 
   function getDrawerContent() {
@@ -107,18 +114,36 @@ function EventClientHeader(props: Props) {
 
   function renderIcons() {
     const iconProps = { size: iconSize.current, color: theme.primary };
+    if (isDesktop.current && window.innerWidth >= 600) {
+      return (
+        <div style={{ marginLeft: 25 }}>
+          <IconButton onClick={handleConnectionsClick}>
+            <MdGroupAdd {...iconProps} />
+          </IconButton>
+          <IconButton onClick={handleMessagesClick}>
+            <IoMdText {...iconProps} />
+          </IconButton>
+          <IconButton onClick={handleProfileClick}>
+            <MdAccountCircle {...iconProps} />
+          </IconButton>
+        </div>
+      );
+    }
     return (
-      <>
-        <IconButton onClick={handleConnectionsClick}>
-          <MdGroupAdd {...iconProps} />
+      <div style={{ marginLeft: 25 }}>
+        <IconButton onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
+          <AiFillCaretDown color={theme.primary} />
         </IconButton>
-        <IconButton onClick={handleMessagesClick}>
-          <IoMdText {...iconProps} />
-        </IconButton>
-        <IconButton onClick={handleProfileClick}>
-          <MdAccountCircle {...iconProps} />
-        </IconButton>
-      </>
+        <Menu
+          open={Boolean(menuAnchorEl)}
+          anchorEl={menuAnchorEl}
+          onClose={() => setMenuAnchorEl(undefined)}
+        >
+          <MenuItem onClick={handleConnectionsClick}>Connections</MenuItem>
+          <MenuItem onClick={handleMessagesClick}>Messages</MenuItem>
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+        </Menu>
+      </div>
     );
   }
 
