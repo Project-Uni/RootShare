@@ -64,7 +64,7 @@ type Props<T extends SearchOption> = {
   helperText?: string;
   onAutocomplete?: (selectedOption: T) => void;
   error?: string;
-  mapData?: (users: User[]) => T[];
+  mapData?: (users?: User[], communities?: Community[]) => T[];
   mode?: 'user' | 'community' | 'both';
   adornment?: JSX.Element;
   renderLimit?: number;

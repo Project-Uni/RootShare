@@ -316,8 +316,8 @@ function MeetTheGreeksModal(props: Props) {
   };
 
   const searchOptionMap = useCallback(
-    (users: UserInfo[]): UserOption[] =>
-      users.map((user) => ({
+    (users?: UserInfo[], _?: any): UserOption[] =>
+      users!.map((user) => ({
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
