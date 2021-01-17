@@ -44,8 +44,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   left: {
-    marginRight: 20,
+    marginRight: 50,
     flex: 1,
+    textAlign: 'left',
   },
   right: {
     minWidth: 150,
@@ -405,7 +406,7 @@ function CommunityGeneralInfo(props: Props) {
       )}
 
       <div className={styles.left}>
-        <RSText type="head" size={22} color={Theme.primaryText}>
+        <RSText type="head" size={18} color={Theme.primaryText}>
           {props.name}
           {props.private && (
             <FaLock
@@ -416,7 +417,7 @@ function CommunityGeneralInfo(props: Props) {
           )}
         </RSText>
 
-        <RSText size={16} color={Theme.secondaryText} type="body">
+        <RSText size={14} color={Theme.secondaryText} type="body">
           {props.type}
         </RSText>
 
@@ -436,7 +437,7 @@ function CommunityGeneralInfo(props: Props) {
               onChange={(e) => setUpdateDescText(e.target.value)}
             />
           ) : (
-            <RSText type="body" color={Theme.secondaryText} size={13}>
+            <RSText type="body" color={Theme.secondaryText} size={12}>
               {showFullDesc ? fullDesc : descSubstr}
             </RSText>
           )}
