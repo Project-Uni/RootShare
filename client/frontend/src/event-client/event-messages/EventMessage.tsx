@@ -224,6 +224,7 @@ function EventMessage(props: Props) {
   }
 
   return (
+    <div>
     <div className={styles.wrapper}>
       <ManageSpeakersSnackbar
         message={snackbarMessage}
@@ -288,6 +289,7 @@ function EventMessage(props: Props) {
           {numLikes}
         </RSText>
       </div>
+    </div>
     </div>
   );
 }
