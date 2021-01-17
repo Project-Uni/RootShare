@@ -72,7 +72,7 @@ type Props<T extends SearchOption> = {
   renderLimit?: number;
 };
 
-function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
+function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
 
   const {
@@ -217,8 +217,8 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
   );
 }
 
-UserSearch.defaultProps = {
+SearchField.defaultProps = {
   mode: 'user',
 };
 
-export default UserSearch;
+export default SearchField;

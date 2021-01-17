@@ -20,7 +20,7 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
-import { UserSearch } from '../main-platform/reusable-components';
+import { SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 
 const useStyles = makeStyles((_: any) => ({
@@ -179,7 +179,7 @@ function EventClientHeader(props: Props) {
                 />
               </a>
 
-              <UserSearch
+              <SearchField
                 mode="both"
                 name="header-search"
                 placeholder="Search RootShare"

@@ -5,9 +5,9 @@ import { CircularProgress, IconButton, Button } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 import { IoMdClose } from 'react-icons/io';
 
-import { RSModal, RSButton } from '../../../main-platform/reusable-components';
+import { RSModal } from '../../../main-platform/reusable-components';
 import RSText from '../../../base-components/RSText';
-import { UserSearch } from '../../../main-platform/reusable-components';
+import { SearchField } from '../../../main-platform/reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
@@ -408,7 +408,7 @@ function MeetTheGreeksModal(props: Props) {
     return (
       <div className={[styles.autoCompleteContainer, styles.bottomBorder].join(' ')}>
         {searchedUser && renderSelectedUserInfo()}
-        <UserSearch<UserOption>
+        <SearchField<UserOption>
           label="Viewers"
           className={styles.textField}
           name="viewers"
