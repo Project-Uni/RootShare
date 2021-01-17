@@ -9,7 +9,7 @@ import theme from '../../../../../theme/Theme';
 
 import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { RSModal } from '../../../../reusable-components';
-import { SearchOption } from '../../../../reusable-components/components/UserSearch';
+import { SearchOption } from '../../../../reusable-components/components/SearchField';
 
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';

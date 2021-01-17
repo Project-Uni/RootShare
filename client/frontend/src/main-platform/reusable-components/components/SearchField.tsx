@@ -152,7 +152,10 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
       );
       if (data.success === 1) {
         const { users, communities } = data.content;
-        setOptions(mapData?.(users as User[]) || defaultMapData(users, communities));
+        setOptions(
+          mapData?.(users as User[], communities as Community[]) ||
+            defaultMapData(users, communities)
+        );
       }
       setLoading(false);
     }
@@ -164,7 +167,7 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   );
 
   useEffect(() => {
-    if (fetchDataURL) debouncedFetchData(searchValue);
+    if (fetchDataURL && Boolean(searchValue.trim())) debouncedFetchData(searchValue);
   }, [searchValue, fetchDataURL]);
 
   return (

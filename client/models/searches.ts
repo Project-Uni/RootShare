@@ -53,16 +53,16 @@ export const createSearch = async (userID: string, query: string) => {
   return search;
 };
 
-const ACCEPTED_FIELDS = ['user', 'query', 'createdAt', 'updatedAt'] as const;
+export const DefaultSearchFields = [
+  'user',
+  'query',
+  'createdAt',
+  'updatedAt',
+] as const;
 
 export const getSearchesByIds = async (
   _ids: string[],
-  fields: typeof ACCEPTED_FIELDS[number][] = [
-    'user',
-    'query',
-    'createdAt',
-    'updatedAt',
-  ],
+  fields: typeof DefaultSearchFields[number][] = [...DefaultSearchFields],
   options: {
     populateUser?: string[];
     limit?: number;
