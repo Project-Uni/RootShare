@@ -1,14 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
-import { Avatar, TextField, InputAdornment } from '@material-ui/core';
+import {
+  Avatar,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+} from '@material-ui/core';
 
 import { makeRequest } from '../../../helpers/functions';
 import { RSText } from '../../../base-components';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   text: {
     marginLeft: 15,
+  },
+  loadingIndicator: {
+    color: Theme.primary,
   },
 }));
 
@@ -87,6 +96,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
   const [searchValue, setSearchValue] = useState('');
 
   const [isFocused, setIsFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onAutocomplete = (_: any, newValue: T | null) => {
     if (newValue) onAutocompleteProps?.(newValue);
@@ -132,6 +142,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
 
   const fetchData = async () => {
     if (fetchDataURL) {
+      setLoading(true);
       const { data } = await makeRequest<ServiceResponse>(
         'GET',
         `${fetchDataURL}?query=${searchValue}&limit=10`
@@ -140,6 +151,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
         const { users, communities } = data.content;
         setOptions(mapData?.(users as User[]) || defaultMapData(users, communities));
       }
+      setLoading(false);
     }
   };
 
@@ -158,10 +170,12 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       groupBy={groupByType ? (option) => option.type : undefined}
       freeSolo={freeSolo}
       fullWidth={fullWidth}
+      loading={loading}
       renderInput={(params) => (
         <TextField
           {...params}
           label={label}
+          name={name}
           variant="outlined"
           onChange={(e) => setSearchValue(e.target.value)}
           fullWidth
@@ -170,12 +184,17 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
           helperText={Boolean(error) && error !== '' ? error : helperText}
           error={Boolean(error) && error !== ''}
           placeholder={placeholder}
-          // InputProps={{
-          //   ...params.inputProps,
-          //   startAdornment: !isFocused && adornment && (
-          //     <InputAdornment position="start">{adornment}</InputAdornment>
-          //   ),
-          // }}
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: !isFocused && adornment && (
+              <InputAdornment position="start">{adornment}</InputAdornment>
+            ),
+            endAdornment: loading && (
+              <React.Fragment>
+                <CircularProgress size={20} className={styles.loadingIndicator} />
+              </React.Fragment>
+            ),
+          }}
         />
       )}
       renderOption={(option) => (
