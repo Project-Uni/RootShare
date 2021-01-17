@@ -213,6 +213,8 @@ function HypeExternalMissingInfo(props: Props) {
         refreshToken
       );
       if (data.success === 1) {
+        props.updateAccessToken(accessToken);
+        props.updateRefreshToken(refreshToken);
         window.location.href = '/register/initialize';
       }
     }, 1000);
