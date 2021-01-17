@@ -8,6 +8,8 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 
+import { debounce } from 'lodash';
+
 import { makeRequest } from '../../../helpers/functions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
@@ -140,9 +142,9 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     []
   );
 
-  const fetchData = async () => {
+  const fetchData = async (query: string) => {
     if (fetchDataURL) {
-      const cleanedQuery = searchValue.replace(/\?/g, ' ').trim();
+      const cleanedQuery = query.replace(/\?/g, ' ').trim();
       setLoading(true);
       const { data } = await makeRequest<ServiceResponse>(
         'GET',
@@ -156,8 +158,13 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
     }
   };
 
+  const debouncedFetchData = useCallback(
+    debounce((query) => fetchData(query), 500),
+    []
+  );
+
   useEffect(() => {
-    if (fetchDataURL) fetchData();
+    if (fetchDataURL) debouncedFetchData(searchValue);
   }, [searchValue, fetchDataURL]);
 
   return (
