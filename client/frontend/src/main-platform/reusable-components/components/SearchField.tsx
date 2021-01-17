@@ -100,8 +100,8 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   const [isFocused, setIsFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const onAutocomplete = (_: any, newValue: T | null) => {
-    if (newValue) onAutocompleteProps?.(newValue);
+  const onAutocomplete = (_: any, value: string | T | null) => {
+    if (value) onAutocompleteProps?.(value as T);
     setSearchValue('');
   };
 
