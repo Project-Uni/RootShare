@@ -16,11 +16,17 @@ export default function discoverRoutes(app) {
     '/api/discover/search/v1/exactMatch',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const query: string = req.query.query;
+      const { query, limit: queryLimit } = req.query;
       if (!query) return res.json(sendPacket(0, 'No query provided'));
 
       const userID = req.user['_id'];
-      const packet = await exactMatchSearchFor(userID, query);
+
+      let limit;
+      if (queryLimit)
+        try {
+          limit = parseInt(limit);
+        } catch (err) {}
+      const packet = await exactMatchSearchFor(userID, query, limit);
       return res.json(packet);
     }
   );

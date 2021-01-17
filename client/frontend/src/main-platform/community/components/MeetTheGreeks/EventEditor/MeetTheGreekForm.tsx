@@ -3,8 +3,8 @@ import { TextField, FormHelperText, makeStyles } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { BigButton, UserSearch } from '../../../../reusable-components';
-import { SearchOption } from '../../../../reusable-components/components/UserSearch';
+import { BigButton, SearchField } from '../../../../reusable-components';
+import { SearchOption } from '../../../../reusable-components/components/SearchField';
 import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 
@@ -134,7 +134,7 @@ function MeetTheGreekForm(props: Props) {
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Meet The Greeks Speakers
       </RSText>
-      <UserSearch
+      <SearchField
         label="Speakers"
         className={styles.textField}
         name="speakers"

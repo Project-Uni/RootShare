@@ -5,12 +5,11 @@ import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
   generateSignedImagePromises,
-  getUserToCommunityRelationship,
-  getUserToUserRelationship,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
-import { User, Community } from '../models';
+import { User, Community, Search } from '../models';
+import { createSearch } from '../models/searches';
 
 const MAX_RETRIEVED = 20;
 
@@ -165,13 +164,16 @@ export async function populateDiscoverForUser(userID: string) {
   }
 }
 
-export async function exactMatchSearchFor(userID: string, query: string) {
-  const USER_LIMIT = 15;
-  const COMMUNITY_LIMIT = 5;
-
+export async function exactMatchSearchFor(
+  userID: string,
+  query: string,
+  limit: number = 20
+) {
   const cleanedQuery = query.trim();
   if (cleanedQuery.length < 3)
     return sendPacket(0, 'Query is too short to provide accurate search');
+
+  createSearch(userID, query);
 
   const terms = query.split(' ');
   const userSearchConditions: { [key: string]: any }[] = [];
@@ -211,39 +213,15 @@ export async function exactMatchSearchFor(userID: string, query: string) {
   }
 
   try {
-    const currentUserPromise = User.findById(userID)
-      .select([
-        'connections',
-        'pendingConnections',
-        'joinedCommunities',
-        'pendingCommunities',
-      ])
-      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
-      .populate({ path: 'pendingConnections', select: ['from', 'to'] })
-      .exec();
-
     const userPromise = User.find({
       $and: [
-        { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
+        // { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
         { $or: userSearchConditions },
       ],
     })
-      .select([
-        'firstName',
-        'lastName',
-        'university',
-        'work',
-        'position',
-        'graduationYear',
-        'profilePicture',
-        'joinedCommunities',
-        'connections',
-        'pendingConnections',
-        'pendingCommunities',
-      ])
-      .limit(USER_LIMIT)
-      .populate({ path: 'university', select: ['universityName'] })
-      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .select(['firstName', 'lastName', 'email', 'profilePicture'])
+      .limit(limit)
+      .lean()
       .exec();
 
     const communityPromise = Community.find({
@@ -254,63 +232,15 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'type',
         'description',
         'private',
-        'members',
         'profilePicture',
         'university',
-        'admin',
       ])
-      .limit(COMMUNITY_LIMIT)
-      .populate({ path: 'university', select: ['universityName'] })
+      .limit(limit)
+      .lean()
       .exec();
 
-    return Promise.all([currentUserPromise, userPromise, communityPromise])
-      .then(async ([currentUser, users, communities]) => {
-        if (!currentUser) return sendPacket(0, 'Could not find current user entry');
-
-        const selfConnectionUserIDs = connectionsToUserIDStrings(
-          userID,
-          currentUser.connections
-        );
-
-        for (let i = 0; i < users.length; i++) {
-          let cleanedUser = users[i].toObject();
-          cleanedUser.connections = connectionsToUserIDStrings(
-            users[i]._id,
-            users[i].connections
-          );
-
-          cleanedUser = await addCalculatedUserFields(
-            selfConnectionUserIDs,
-            currentUser.joinedCommunities,
-            cleanedUser
-          );
-
-          getUserToUserRelationship(
-            currentUser.connections,
-            currentUser.pendingConnections,
-            users[i],
-            cleanedUser
-          );
-          users[i] = cleanedUser;
-        }
-
-        //Cleaning communities array
-        for (let i = 0; i < communities.length; i++) {
-          const cleanedCommunity = await addCalculatedCommunityFields(
-            selfConnectionUserIDs,
-            communities[i].toObject()
-          );
-
-          getUserToCommunityRelationship(
-            currentUser.joinedCommunities,
-            currentUser.pendingCommunities,
-            communities[i],
-            cleanedCommunity
-          );
-
-          communities[i] = cleanedCommunity;
-        }
-
+    return Promise.all([userPromise, communityPromise])
+      .then(async ([users, communities]) => {
         const imageInfo = await addCommunityAndUserImages(communities, users);
 
         return sendPacket(

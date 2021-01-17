@@ -15,7 +15,7 @@ import RSTabs from './components/RSTabs';
 import RSModal from './components/RSModal/RSModal';
 import BigButton from './components/RSModal/BigButton';
 
-import UserSearch from './components/UserSearch';
+import SearchField from './components/SearchField';
 
 import RSButton from './components/RSButton';
 
@@ -31,6 +31,6 @@ export {
   RSTabs,
   RSModal,
   BigButton,
-  UserSearch,
+  SearchField,
   RSButton,
 };
