@@ -4,20 +4,33 @@ import { log, sendPacket } from '../helpers/functions';
 import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
 module.exports = (app) => {
-  app.get('/auth/login/linkedin', passport.authenticate('linkedin-login'));
+  app.get('/auth/login/linkedin', (req, res, next) => {
+    const redirect = req.query.redirect || '/home';
+    const state = Buffer.from(JSON.stringify({ redirect })).toString('base64');
+    passport.authenticate('linkedin-login', { state })(req, res, next);
+  });
 
   app.get('/auth/callback/linkedin', (req, res) => {
     passport.authenticate('linkedin-login', (err, user, info) => {
+      const { state } = req.query;
+      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
+      if (typeof redirect !== 'string' || !redirect.startsWith('/'))
+        return res.redirect('/');
+
       if (user) {
         req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
+          if (err) return log('error', `Failed serializing ${user.email}`);
           log('info', `Successfully serialized ${user.email}`);
 
-          return res.redirect(
-            `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-          );
+          // https://github.com/jaredhanson/passport/issues/306
+          // Sometimes user still gets redirected to landing page on external signup
+          // Cause: Redirect sometimes happens before session gets saved
+          req.session.save(() => {
+            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+            if (user.work === undefined || user.work === null)
+              return res.redirect(`/register/external?${tokenString}`);
+            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          });
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
@@ -29,25 +42,34 @@ module.exports = (app) => {
     })(req, res);
   });
 
-  app.get(
-    '/auth/login/google',
-    passport.authenticate('google-login', {
-      scope: ['profile', 'email'],
-    })
-  );
+  app.get('/auth/login/google', (req, res, next) => {
+    const redirect = req.query.redirect || '/home';
+    const state = Buffer.from(JSON.stringify({ redirect })).toString('base64');
+    passport.authenticate('google-login', { scope: ['profile', 'email'], state })(
+      req,
+      res,
+      next
+    );
+  });
 
   app.get('/auth/callback/google', (req, res) => {
     passport.authenticate('google-login', (err, user, info) => {
+      const { state } = req.query;
+      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
+      if (typeof redirect !== 'string' || !redirect.startsWith('/'))
+        return res.redirect('/');
+
       if (user) {
         req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
+          if (err) return log('error', `Failed serializing ${user.email}`);
           log('info', `Successfully serialized ${user.email}`);
 
-          return res.redirect(
-            `/register/external?accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`
-          );
+          req.session.save(() => {
+            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+            if (user.work === undefined || user.work === null)
+              return res.redirect(`/register/external?${tokenString}`);
+            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
+          });
         });
       } else if (info) {
         res.json(sendPacket(0, info.message));
