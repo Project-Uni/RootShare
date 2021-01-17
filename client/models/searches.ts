@@ -53,7 +53,6 @@ export const createSearch = async (userID: string, query: string) => {
   return search;
 };
 
-//Still trying to figure out how to do this, might have to make everything an aggregation pipeline for the options
 const ACCEPTED_FIELDS = ['user', 'query', 'createdAt', 'updatedAt'] as const;
 
 export const getSearchesByIds = async (
@@ -70,7 +69,6 @@ export const getSearchesByIds = async (
     lean?: boolean;
   } = {}
 ) => {
-  // const searches = await Search.find({ _id: { $in: _ids } }, fields).exec();
   let output = Search.find({ _id: { $in: _ids } }, fields);
   if (options.limit) output = output.limit(options.limit);
   if (options.populateUser)
