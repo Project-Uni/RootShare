@@ -419,6 +419,7 @@ function CommunityGeneralInfo(props: Props) {
         <RSText size={16} color={Theme.secondaryText} type="body">
           {props.type}
         </RSText>
+
         <div
           style={{ display: 'flex', alignItems: 'center' }}
           className={styles.description}

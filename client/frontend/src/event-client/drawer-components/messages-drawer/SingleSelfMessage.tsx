@@ -22,7 +22,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
     padding: 5,
     float: 'right',
-    background: colors.primary,
+    background: colors.white,
     marginRight: 5,
     borderStyle: 'solid',
     borderColor: colors.primary,
