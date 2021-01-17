@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton } from '@material-ui/core';
 import RootShareLogo from '../images/RootShareLogoFull.png';
@@ -53,8 +53,8 @@ function EventClientHeader(props: Props) {
     window.innerWidth >= minWidth ? window.innerWidth : props.minWidth
   );
 
-  const isDesktop = checkDesktop();
-  const iconSize = isDesktop ? 32 : 24;
+  const isDesktop = useRef(checkDesktop());
+  const iconSize = useRef(isDesktop.current ? 32 : 24);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -106,16 +106,17 @@ function EventClientHeader(props: Props) {
   }
 
   function renderIcons() {
+    const iconProps = { size: iconSize.current, color: theme.primary };
     return (
       <>
         <IconButton onClick={handleConnectionsClick}>
-          <MdGroupAdd size={iconSize} color={theme.primary} />
+          <MdGroupAdd {...iconProps} />
         </IconButton>
         <IconButton onClick={handleMessagesClick}>
-          <IoMdText size={iconSize} color={theme.primary} />
+          <IoMdText {...iconProps} />
         </IconButton>
         <IconButton onClick={handleProfileClick}>
-          <MdAccountCircle color={theme.primary} size={iconSize} />
+          <MdAccountCircle {...iconProps} />
         </IconButton>
       </>
     );
@@ -134,38 +135,46 @@ function EventClientHeader(props: Props) {
               </IconButton>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <div
+              style={
+                window.innerWidth >= 767
+                  ? { display: 'flex', alignItems: 'center', flex: 1 }
+                  : {
+                      flex: 1,
+                    }
+              }
+            >
               <a href="/home">
                 <img
                   src={RootShareLogo}
                   alt="RootShare"
                   style={{
-                    width: isDesktop ? 190 : 130,
+                    width: isDesktop.current ? 190 : 130,
                   }}
                 />
               </a>
-            </div>
 
-            <UserSearch
-              mode="both"
-              name="header-search"
-              placeholder="Search RootShare"
-              className={styles.searchbar}
-              adornment={<GrSearch />}
-              fetchDataURL="/api/discover/search/v1/exactMatch"
-              renderLimit={10}
-              onAutocomplete={(selectedOption) => {
-                window.location.href = `/${
-                  selectedOption.type === 'community' ? 'community' : 'profile'
-                }/${selectedOption._id}`;
-              }}
-              fullWidth
-              freeSolo
-              groupByType
-            />
+              <UserSearch
+                mode="both"
+                name="header-search"
+                placeholder="Search RootShare"
+                className={styles.searchbar}
+                adornment={<GrSearch />}
+                fetchDataURL="/api/discover/search/v1/exactMatch"
+                renderLimit={10}
+                onAutocomplete={(selectedOption) => {
+                  window.location.href = `/${
+                    selectedOption.type === 'community' ? 'community' : 'profile'
+                  }/${selectedOption._id}`;
+                }}
+                fullWidth
+                freeSolo
+                groupByType
+              />
+            </div>
           </div>
 
-          <div>{isDesktop && renderIcons()}</div>
+          <div>{isDesktop.current && renderIcons()}</div>
         </Toolbar>
         <EventDrawer
           open={Boolean(drawerContent)}
