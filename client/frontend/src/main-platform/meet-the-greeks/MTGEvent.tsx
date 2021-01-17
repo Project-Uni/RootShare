@@ -83,6 +83,8 @@ const MTGEvent = (props: Props) => {
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageDivHeight, setImageDivHeight] = useState(300);
 
+  const componentRef = useRef<any>(null);
+
   const onWatchVideoClick = () => {
     setShowVideo((prev) => {
       if (prev) setVideoLoading(false);

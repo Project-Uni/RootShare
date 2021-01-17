@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { GiTreeBranch } from 'react-icons/gi';
-import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
-import { MdGroup, MdOndemandVideo } from 'react-icons/md';
+import { FaHome, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdGroup } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
@@ -37,12 +37,10 @@ const useStyles = makeStyles((_: any) => ({
 
 export type AVAILABLE_TABS =
   | 'home'
-  | 'discover'
   | 'communities'
   | 'events'
   | 'connections'
   | 'profile'
-  | 'library'
   | 'none';
 
 type Props = {
@@ -73,22 +71,11 @@ function MainNavigator(props: Props) {
       ),
     },
     {
-      name: 'Discover',
-      icon: (
-        <FaSearch
-          size={ICON_SIZE}
-          color={props.currentTab === 'discover' ? theme.bright : theme.primary}
-        />
-      ),
-    },
-    {
       name: 'Communities',
       icon: (
         <FaHome
           size={ICON_SIZE}
-          color={
-            props.currentTab === 'communities' ? theme.bright : theme.primary
-          }
+          color={props.currentTab === 'communities' ? theme.bright : theme.primary}
         />
       ),
       link: '/communities/user',
@@ -102,23 +89,12 @@ function MainNavigator(props: Props) {
         />
       ),
     },
-    // {
-    //   name: 'Library',
-    //   icon: (
-    //     <MdOndemandVideo
-    //       size={ICON_SIZE}
-    //       color={props.currentTab === 'library' ? theme.bright : theme.primaryText}
-    //     />
-    //   ),
-    // },
     {
       name: 'Connections',
       icon: (
         <MdGroup
           size={ICON_SIZE}
-          color={
-            props.currentTab === 'connections' ? theme.bright : theme.primary
-          }
+          color={props.currentTab === 'connections' ? theme.bright : theme.primary}
         />
       ),
       link: '/connections/user',

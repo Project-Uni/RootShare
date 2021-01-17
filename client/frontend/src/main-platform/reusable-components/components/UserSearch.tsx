@@ -142,10 +142,11 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
 
   const fetchData = async () => {
     if (fetchDataURL) {
+      const cleanedQuery = searchValue.replace(/\?/g, ' ').trim();
       setLoading(true);
       const { data } = await makeRequest<ServiceResponse>(
         'GET',
-        `${fetchDataURL}?query=${searchValue}&limit=10`
+        `${fetchDataURL}?query=${cleanedQuery}&limit=10`
       );
       if (data.success === 1) {
         const { users, communities } = data.content;
@@ -171,6 +172,7 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       freeSolo={freeSolo}
       fullWidth={fullWidth}
       loading={loading}
+      noOptionsText="Nothing found :("
       renderInput={(params) => (
         <TextField
           {...params}

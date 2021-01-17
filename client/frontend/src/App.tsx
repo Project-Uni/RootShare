@@ -18,13 +18,10 @@ import SocketManager from './main-platform/SocketManager';
 import LandingPage from './landing-page/LandingPage';
 
 import {
-  Homepage,
-  Discover,
   Events,
   Profile,
   CommunityDetails,
   YourCommunities,
-  // StreamLibrary,
   Connections,
   MeetTheGreeks,
 } from './main-platform';
@@ -88,12 +85,10 @@ function App(props: Props) {
                 />
               )}
             />
-            <Route exact path="/discover" component={Discover} />
             <Route exact path="/events" component={Events} />
             <Route exact path="/profile/:profileID" component={Profile} />
             <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
-            {/* <Route exact path="/library" component={StreamLibrary} /> */}
             <Route exact path="/connections/:userID" component={Connections} />
             <Route
               exact

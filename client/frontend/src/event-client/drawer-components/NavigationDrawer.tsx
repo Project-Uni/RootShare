@@ -2,8 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { GiTreeBranch } from 'react-icons/gi';
-import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
-import { MdGroup, MdOndemandVideo } from 'react-icons/md';
+import { FaHome, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdGroup } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
 import { colors } from '../../theme/Colors';
@@ -33,12 +33,10 @@ const ICON_SIZE = 32;
 
 type AVAILABLE_TABS =
   | 'home'
-  | 'discover'
   | 'communities'
   | 'events'
   | 'connections'
   | 'profile'
-  | 'library'
   | 'none';
 
 type Props = {
@@ -55,17 +53,6 @@ function NavigationDrawer(props: Props) {
         <GiTreeBranch
           size={ICON_SIZE}
           color={props.currentTab === 'home' ? Theme.bright : Theme.primaryText}
-        />
-      ),
-    },
-    {
-      name: 'Discover',
-      icon: (
-        <FaSearch
-          size={ICON_SIZE}
-          color={
-            props.currentTab === 'discover' ? Theme.bright : Theme.primaryText
-          }
         />
       ),
     },
@@ -90,15 +77,6 @@ function NavigationDrawer(props: Props) {
         />
       ),
     },
-    // {
-    //   name: 'Library',
-    //   icon: (
-    //     <MdOndemandVideo
-    //       size={ICON_SIZE}
-    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-    //     />
-    //   ),
-    // },
     {
       name: 'Connections',
       icon: (
@@ -154,7 +132,7 @@ function NavigationDrawer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.linkContainer}>{renderLinks()}</div>{' '}
+      <div className={styles.linkContainer}>{renderLinks()}</div>
     </div>
   );
 }
