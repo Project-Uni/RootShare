@@ -873,48 +873,18 @@ export async function updateAttendingList(
   }) => any
 ) {
   try {
-    let userPromise = User.findById(userID).exec();
-    let webinarPromise = Webinar.findById(webinarID).exec();
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $addToSet: { attendedWebinars: webinarID } }
+    ).exec();
+    const webinarPromise = Webinar.updateOne(
+      { _id: webinarID },
+      { $addToSet: { attendees_V2: userID } }
+    ).exec();
 
     return Promise.all([userPromise, webinarPromise]).then((values) => {
-      const [user, webinar] = values;
-      if (user) {
-        if (user.attendedWebinars) {
-          if (!user.attendedWebinars.includes(webinarID)) {
-            user.attendedWebinars.push(webinarID);
-            log(
-              'info',
-              `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
-            );
-          }
-        } else {
-          user.attendedWebinars = [webinarID];
-          log(
-            'info',
-            `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
-          );
-        }
-      }
-      //TODO - decide which method for setting is better and stick with it
-      //TODO - mark attendees as modified
-      if (webinar) {
-        if (webinar.attendees) {
-          if (!(userID in webinar)) webinar.attendees[userID] = 1;
-        } else webinar.attendees = { userID: 1 };
-      }
-
-      const userSavePromise = user.save();
-      const webinarSavePromise = webinar.save();
-
-      return Promise.all([userSavePromise, webinarSavePromise]).then(
-        ([savedUser, savedWebinar]) => {
-          return callback(
-            sendPacket(
-              1,
-              'Successfully updated attendee list for user and for webinar'
-            )
-          );
-        }
+      return callback(
+        sendPacket(1, 'Succesfully updated attended list for webinar and user')
       );
     });
   } catch (err) {

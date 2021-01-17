@@ -45,6 +45,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {
     marginRight: 20,
+    flex: 1,
   },
   right: {
     minWidth: 150,
@@ -418,6 +419,7 @@ function CommunityGeneralInfo(props: Props) {
         <RSText size={16} color={Theme.secondaryText} type="body">
           {props.type}
         </RSText>
+
         <div
           style={{ display: 'flex', alignItems: 'center' }}
           className={styles.description}
@@ -488,7 +490,7 @@ function CommunityGeneralInfo(props: Props) {
           )}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          {fullDesc !== descSubstr && (
+          {fullDesc !== descSubstr && !editingDesc && (
             <a
               href={undefined}
               className={styles.seeMore}
