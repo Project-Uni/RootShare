@@ -172,7 +172,6 @@ function UserSearch<T extends SearchOption = SearchOption>(props: Props<T>) {
       freeSolo={freeSolo}
       fullWidth={fullWidth}
       loading={loading}
-      noOptionsText="Nothing found :("
       renderInput={(params) => (
         <TextField
           {...params}
