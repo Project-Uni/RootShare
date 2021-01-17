@@ -178,6 +178,7 @@ const MTGEvent = (props: Props) => {
                 maxHeight: isDesktop.current ? 300 : undefined,
                 maxWidth: !isDesktop.current ? '100%' : undefined,
                 objectFit: 'contain',
+                width: '100%',
               }}
               ref={imageRef}
               onLoad={onImageLoaded}
