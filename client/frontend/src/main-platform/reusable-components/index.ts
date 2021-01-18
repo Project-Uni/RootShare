@@ -34,3 +34,5 @@ export {
   SearchField,
   RSButton,
 };
+
+export * from './components/HoverPreview';

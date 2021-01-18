@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import qs from 'query-string';
 
 import { GiTreeBranch } from 'react-icons/gi';
@@ -33,6 +33,12 @@ import {
 import LikesModal from './LikesModal';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import Theme from '../../../theme/Theme';
+
+import { HoverPreview } from '../';
+import {
+  dispatchHoverPreview,
+  clearHoverPreview,
+} from '../../../redux/actions/interactions';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -210,6 +216,8 @@ function UserPost(props: Props) {
   const styles = useStyles();
   const textFieldStyles = useTextFieldStyles();
 
+  const dispatch = useDispatch();
+
   const [showFullMessage, setShowFullMessage] = useState(false);
   const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
@@ -248,11 +256,7 @@ function UserPost(props: Props) {
     setLikeDisabled(true);
     const { data } = await makeRequest(
       'POST',
-      `/api/posts/action/${props.postID}/like`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/action/${props.postID}/like`
     );
     if (data.success === 1) {
       setLiked(true);
@@ -265,11 +269,7 @@ function UserPost(props: Props) {
     setLikeDisabled(true);
     const { data } = await makeRequest(
       'POST',
-      `/api/posts/action/${props.postID}/unlike`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/action/${props.postID}/unlike`
     );
     if (data.success === 1) {
       setLiked(false);
@@ -303,10 +303,7 @@ function UserPost(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/posts/comment/new/${props.postID}`,
-      { message },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { message }
     );
 
     if (data.success === 1) {
@@ -333,14 +330,7 @@ function UserPost(props: Props) {
 
   async function handleRetrieveComments() {
     setLoadingMoreComments(true);
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/comments/${props.postID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/comments/${props.postID}`);
 
     if (data.success == 1) {
       if (data.content['comments'].length > 0)
@@ -359,11 +349,7 @@ function UserPost(props: Props) {
     const query = qs.stringify({ from: earliestComment });
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/comments/${props.postID}?${query}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/comments/${props.postID}?${query}`
     );
 
     if (data.success == 1) {
@@ -696,8 +682,6 @@ function UserPost(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

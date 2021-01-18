@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Avatar } from '@material-ui/core';
 import { CommunityType } from '../../../helpers/types';
+
+import { useSelector, useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -21,24 +23,43 @@ type CommunityFields = {
   description: string;
 };
 
-type AdditionalFields<T extends 'user' | 'community'> = T extends 'user'
-  ? UserFields
-  : CommunityFields;
+// type AdditionalFields<T extends 'user' | 'community'> = T extends 'user'
+//   ? UserFields
+//   : CommunityFields;
 
-type Props<T extends 'user' | 'community'> = {
+export type HoverProps = {
   _id: string;
+  type: 'user' | 'community';
   anchorEl: HTMLElement | null;
   profilePicture?: string;
   name: string;
-  additionalFields: AdditionalFields<T>;
+  additionalFields: UserFields | CommunityFields;
 };
 
-export function HoverPreview<T extends 'user' | 'community'>(props: Props<T>) {
+// Conditional Typing Guide
+// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
+
+export function HoverPreview() {
   const styles = useStyles();
 
-  const { anchorEl } = props;
+  const {
+    anchorEl,
+    _id,
+    type,
+    profilePicture,
+    name,
+    additionalFields: additionalFieldsProps,
+  } = useSelector((state: { [key: string]: any }) => state.hoverPreview);
 
   const open = Boolean(anchorEl);
+  const additionalFields = useState(
+    type === 'user'
+      ? (additionalFieldsProps as UserFields)
+      : (additionalFieldsProps as CommunityFields)
+  );
+
+  // const renderAdditionalFields = (fields: UserFields) => {};
+  // const renderAdditionalFields = (fields: CommunityFields) => {};
 
   return (
     <div className={styles.wrapper}>
