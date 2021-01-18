@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Avatar } from '@material-ui/core';
@@ -88,7 +88,12 @@ const HoverPreview = () => {
     setLoading(false);
   };
 
-  const handleClose = () => dispatch(clearHoverPreview());
+  const handleClose = () => {
+    setOpen(false);
+    setTimeout(() => {
+      dispatch(clearHoverPreview());
+    }, 300);
+  };
 
   useEffect(() => {
     if (anchorEl) fetchData();

@@ -274,7 +274,6 @@ export const getUsersByIDs = async (
     AcceptedFields.includes(field)
   );
   if (options.includeDefaultFields) {
-    // fields = [...DefaultFields.filter((field) => !fields.includes(field))];
     fields.push(...[...DefaultFields].filter((field) => fields.includes(field)));
   }
 
