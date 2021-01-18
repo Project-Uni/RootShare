@@ -194,8 +194,6 @@ type Props = {
   anonymous?: boolean;
   liked?: boolean;
   user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
   images?: { fileName: string }[];
 };
 
