@@ -13,6 +13,8 @@ import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
 import { makeRequest } from '../../../helpers/functions';
 
+import qs from 'query-string';
+
 const useStyles = makeStyles((_: any) => ({
   paper: {
     borderRadius: 20,
@@ -50,7 +52,7 @@ export type HoverProps = {
   anchorEl: HTMLElement | null;
   profilePicture?: string;
   name: string;
-  additionalFields?: UserFields | CommunityFields; //Optionalizing for now
+  // additionalFields?: UserFields | CommunityFields; //Optionalizing for now
 };
 
 const HoverPreview = () => {
@@ -66,27 +68,32 @@ const HoverPreview = () => {
     additionalFields: additionalFieldsProps,
   } = useSelector((state: { [key: string]: any }) => state.hoverPreview);
 
-  const additionalFields = useState(
-    type === 'user'
-      ? (additionalFieldsProps as UserFields)
-      : (additionalFieldsProps as CommunityFields)
-  );
+  const [additionalFields, setAdditionalFields] = useState<
+    UserFields | CommunityFields
+  >();
   const [loading, setLoading] = useState(false);
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    const query = qs.stringify({
+      _ids: [_id],
+      limit: 1,
+      fields: ['work', 'position', 'major', 'graduationYear'],
+      getProfilePicture: false,
+      getRelationship: true,
+    });
     setLoading(true);
     const route = type === 'user' ? '/api/v2/users' : '';
-    const { data } = await makeRequest('GET', route);
+    const { data } = await makeRequest('GET', `${route}?${query}`);
     if (data.success === 1) {
       setOpen(true);
     } else {
       dispatch(clearHoverPreview());
     }
     setLoading(false);
-  };
+  }, [_id, type]);
 
   const handleClose = () => {
     setOpen(false);
@@ -96,8 +103,8 @@ const HoverPreview = () => {
   };
 
   useEffect(() => {
-    if (anchorEl) fetchData();
-    else setOpen(false);
+    if (anchorEl && !loading) fetchData();
+    else if (open) setOpen(false);
   }, [anchorEl]);
 
   return (

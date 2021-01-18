@@ -252,6 +252,7 @@ export type GetUsersByIDsOptions = {
   populates?: { path: typeof Populate[number]; select: string }[];
   getProfilePicture?: boolean;
   getBannerPicture?: boolean;
+  getRelationship?: boolean;
 };
 
 export const getUsersByIDs = async (
@@ -261,13 +262,13 @@ export const getUsersByIDs = async (
     options?: GetUsersByIDsOptions;
   }
 ) => {
-  const { fields: fieldsParam, options: optionParam } = params;
+  const { fields: fieldsParam, options: optionsParam } = params;
 
   const options: typeof params.options = {
     includeDefaultFields: true,
     lean: true,
     getProfilePicture: true,
-    ...(optionParam || {}),
+    ...(optionsParam || {}),
   };
 
   const fields = (fieldsParam || []).filter((field) =>
@@ -285,8 +286,9 @@ export const getUsersByIDs = async (
   if (options.lean) result = result.lean();
 
   const output = await result.exec();
-  if (options.getProfilePicture) {
-    await addProfilePicturesAll(output, 'profile');
+  if (options.getProfilePicture) await addProfilePicturesAll(output, 'profile');
+  if (options.getRelationship) {
+    /* get current relationship */
   }
   return output;
 };

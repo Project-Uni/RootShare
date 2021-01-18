@@ -265,23 +265,26 @@ module.exports = (app) => {
       getBannerPicture,
       lean,
       includeDefaultFields,
+      getRelationship,
     }: {
       _ids: string[];
       fields?: string[];
-      limit?: number;
+      limit?: string;
       populates?: string[];
       getProfilePicture?: boolean;
       lean?: boolean;
       getBannerPicture?: boolean;
       includeDefaultFields?: boolean;
+      getRelationship?: boolean;
     } = req.query;
     const options = {
-      limit,
+      limit: parseInt(limit),
       populates,
       getProfilePicture,
       getBannerPicture,
       lean,
       includeDefaultFields,
+      getRelationship,
     };
     const packet = await getUsersGeneric(_ids, {
       fields: fields as any,
