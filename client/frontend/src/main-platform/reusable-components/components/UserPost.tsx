@@ -389,6 +389,18 @@ function UserPost(props: Props) {
     }
   }
 
+  const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
+    dispatch(
+      dispatchHoverPreview({
+        _id: props.posterID,
+        type: props.anonymous ? 'community' : 'user',
+        profilePicture: props.profilePicture,
+        name: props.name,
+        anchorEl: e.currentTarget,
+      })
+    );
+  };
+
   function renderPostHeader() {
     return (
       <div className={styles.top}>
@@ -414,6 +426,7 @@ function UserPost(props: Props) {
                   props.posterID
                 }`}
                 className={styles.noUnderline}
+                onMouseOver={handleMouseOver}
               >
                 <RSText type="subhead" bold size={14}>
                   {props.name}

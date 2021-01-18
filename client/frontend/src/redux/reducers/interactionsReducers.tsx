@@ -1,4 +1,4 @@
-import { HoverProps } from '../../main-platform/reusable-components';
+import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import {
   DISPATCH_HOVER_PREVIEW,
   CLEAR_HOVER_PREVIEW,
@@ -6,12 +6,12 @@ import {
 
 export function hoverPreviewReducer(
   state = {},
-  data: { type: string; payload?: { anchorEl: HTMLElement; data: HoverProps } }
+  data: { type: string; payload?: { data: HoverProps } }
 ) {
   const { type, payload } = data;
   switch (type) {
     case DISPATCH_HOVER_PREVIEW:
-      return payload;
+      return payload?.data;
     case CLEAR_HOVER_PREVIEW:
       return {};
     default:

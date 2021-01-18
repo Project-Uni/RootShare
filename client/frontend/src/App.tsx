@@ -29,6 +29,7 @@ import {
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import HomepageBody from './main-platform/homepage/components/HomepageBody';
+import { HoverPreview } from './main-platform/reusable-components';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -49,6 +50,7 @@ function App(props: Props) {
   return (
     <div className="App">
       <SocketManager />
+      <HoverPreview />
       <Router history={history}>
         <div className="wrapper">
           <Switch>

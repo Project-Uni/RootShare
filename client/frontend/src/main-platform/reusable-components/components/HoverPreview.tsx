@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Avatar } from '@material-ui/core';
 import { CommunityType } from '../../../helpers/types';
 
 import { useSelector, useDispatch } from 'react-redux';
+import { clearHoverPreview } from '../../../redux/actions/interactions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -23,24 +24,21 @@ type CommunityFields = {
   description: string;
 };
 
-// type AdditionalFields<T extends 'user' | 'community'> = T extends 'user'
-//   ? UserFields
-//   : CommunityFields;
-
 export type HoverProps = {
   _id: string;
   type: 'user' | 'community';
   anchorEl: HTMLElement | null;
   profilePicture?: string;
   name: string;
-  additionalFields: UserFields | CommunityFields;
+  additionalFields?: UserFields | CommunityFields; //Optionalizing for now
 };
 
 // Conditional Typing Guide
 // https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
 
-export function HoverPreview() {
+const HoverPreview = () => {
   const styles = useStyles();
+  const dispatch = useDispatch();
 
   const {
     anchorEl,
@@ -51,19 +49,47 @@ export function HoverPreview() {
     additionalFields: additionalFieldsProps,
   } = useSelector((state: { [key: string]: any }) => state.hoverPreview);
 
-  const open = Boolean(anchorEl);
+  const state = useSelector((state) => state);
+  console.log('State:', state);
+  console.log('Retrieved Fields:', type, name, _id, profilePicture);
   const additionalFields = useState(
     type === 'user'
       ? (additionalFieldsProps as UserFields)
       : (additionalFieldsProps as CommunityFields)
   );
 
-  // const renderAdditionalFields = (fields: UserFields) => {};
-  // const renderAdditionalFields = (fields: CommunityFields) => {};
+  const open = Boolean(anchorEl);
+  const id = open ? 'preview-popover' : undefined;
+
+  const handleClose = () => dispatch(clearHoverPreview());
+
+  useEffect(() => {
+    console.log('Is Open?:', open);
+  }, [open]);
 
   return (
-    <div className={styles.wrapper}>
-      <p>I am a template</p>
-    </div>
+    <Popover
+      id={id}
+      open={open}
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
+      transformOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+      onMouseLeave={handleClose}
+      onClose={handleClose}
+    >
+      <Avatar
+        src={profilePicture}
+        alt={name}
+        style={{ marginRight: 15, height: 50, width: 50 }}
+      />
+    </Popover>
   );
-}
+};
+
+export default React.memo(HoverPreview);

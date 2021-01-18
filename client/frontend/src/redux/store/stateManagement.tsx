@@ -9,6 +9,7 @@ const initializeState = () => ({
   conversations: [],
   currConversationID: '',
   newMessage: {},
+  hoverPreview: {},
 });
 
 const saveState = (state: { [key: string]: any }) => {
