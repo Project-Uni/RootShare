@@ -213,11 +213,11 @@ const DefaultFields = [
   'position',
 ] as const;
 
-const AcceptedFields = [
+export const AcceptedFields = [
   ...DefaultFields,
   'university',
   'privilegeLevel',
-  'hashedPassword',
+  // 'hashedPassword', //We need to find a way to only be able to read this in certain cases, dont want this getting sent out on a rogue get request
   'googleID',
   'linkedinID',
   'phoneNumber',
@@ -245,27 +245,36 @@ const Populate = [
   'likes',
 ] as const;
 
+export type GetUsersByIDsOptions = {
+  includeDefaultFields?: boolean;
+  lean?: boolean;
+  limit?: number;
+  populates?: { path: typeof Populate[number]; select: string }[];
+  getProfilePicture?: boolean;
+  getBannerPicture?: boolean;
+};
+
 export const getUsersByIDs = async (
   _ids: string[],
   params: {
-    fields: typeof AcceptedFields[number][];
-    options: {
-      includeDefaultFields?: boolean;
-      lean?: boolean;
-      limit?: number;
-      populates?: { path: typeof Populate[number]; select: string }[];
-      getProfilePicture?: boolean;
-      getBannerPicture?: boolean;
-    };
+    fields?: typeof AcceptedFields[number][];
+    options?: GetUsersByIDsOptions;
   } = { fields: [...DefaultFields], options: {} }
 ) => {
-  const { fields, options: optionParams } = params;
+  const { fields: fieldsParam, options: optionParam } = params;
+
   const options: typeof params.options = {
     includeDefaultFields: true,
     lean: true,
     getProfilePicture: true,
-    ...optionParams,
+    ...optionParam,
   };
+
+  const fields = fieldsParam.filter((field) => AcceptedFields.includes(field));
+  if (options.includeDefaultFields) {
+    // fields = [...DefaultFields.filter((field) => !fields.includes(field))];
+    fields.push(...[...DefaultFields].filter((field) => fields.includes(field)));
+  }
 
   let result = User.find({ _id: { $in: _ids } }, fields);
   if (options.limit) result = result.limit(options.limit);

@@ -22,6 +22,7 @@ import {
   getOtherConnectionsFullData,
   getUserAdminCommunities,
   getBasicUserInfo,
+  getUsersGeneric,
 } from '../interactions/user';
 
 module.exports = (app) => {
@@ -166,6 +167,42 @@ module.exports = (app) => {
   app.get('/api/user/:userID/basic', isAuthenticatedWithJWT, async (req, res) => {
     const { userID } = req.params;
     const packet = await getBasicUserInfo(userID);
+    return res.json(packet);
+  });
+
+  //TODO - Add swagger
+  app.get('/api/v2/user', isAuthenticatedWithJWT, async (req, res) => {
+    const {
+      _ids,
+      fields,
+      limit,
+      populates, //Need to figure out how to do this, we should define the populate fields ourselves
+      getProfilePicture,
+      getBannerPicture,
+      lean,
+      includeDefaultFields,
+    }: {
+      _ids: string[];
+      fields?: string[];
+      limit?: number;
+      populates?: string[];
+      getProfilePicture?: boolean;
+      lean?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+    } = req.query;
+    const options = {
+      limit,
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      lean,
+      includeDefaultFields,
+    };
+    const packet = await getUsersGeneric(_ids, {
+      fields: fields as any,
+      options: options as any,
+    });
     return res.json(packet);
   });
 };
