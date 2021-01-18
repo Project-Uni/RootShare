@@ -11,6 +11,7 @@ import { clearHoverPreview } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
+import { makeRequest } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -52,9 +53,6 @@ export type HoverProps = {
   additionalFields?: UserFields | CommunityFields; //Optionalizing for now
 };
 
-// Conditional Typing Guide
-// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
-
 const HoverPreview = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
@@ -75,17 +73,27 @@ const HoverPreview = () => {
   );
   const [loading, setLoading] = useState(false);
 
-  const open = Boolean(anchorEl);
+  const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
 
-  const fetchData = () => {
+  const fetchData = async () => {
     setLoading(true);
-    const route = type === 'user' ? '' : '';
-    const { data } = await makeRequest('GET');
+    const route = type === 'user' ? '/api/v2/users' : '';
+    const { data } = await makeRequest('GET', route);
+    if (data.success === 1) {
+      setOpen(true);
+    } else {
+      dispatch(clearHoverPreview());
+    }
     setLoading(false);
   };
 
   const handleClose = () => dispatch(clearHoverPreview());
+
+  useEffect(() => {
+    if (anchorEl) fetchData();
+    else setOpen(false);
+  }, [anchorEl]);
 
   return (
     <Popover

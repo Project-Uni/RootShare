@@ -255,7 +255,7 @@ module.exports = (app) => {
    *
    */
 
-  app.get('/api/v2/user', isAuthenticatedWithJWT, async (req, res) => {
+  app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
     const {
       _ids,
       fields,

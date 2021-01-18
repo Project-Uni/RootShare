@@ -259,7 +259,7 @@ export const getUsersByIDs = async (
   params: {
     fields?: typeof AcceptedFields[number][];
     options?: GetUsersByIDsOptions;
-  } = { fields: [...DefaultFields], options: {} }
+  }
 ) => {
   const { fields: fieldsParam, options: optionParam } = params;
 
@@ -267,10 +267,12 @@ export const getUsersByIDs = async (
     includeDefaultFields: true,
     lean: true,
     getProfilePicture: true,
-    ...optionParam,
+    ...(optionParam || {}),
   };
 
-  const fields = fieldsParam.filter((field) => AcceptedFields.includes(field));
+  const fields = (fieldsParam || []).filter((field) =>
+    AcceptedFields.includes(field)
+  );
   if (options.includeDefaultFields) {
     // fields = [...DefaultFields.filter((field) => !fields.includes(field))];
     fields.push(...[...DefaultFields].filter((field) => fields.includes(field)));
