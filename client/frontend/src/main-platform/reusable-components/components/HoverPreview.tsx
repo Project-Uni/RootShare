@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from 'react';
+
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Avatar } from '@material-ui/core';
-import { CommunityType } from '../../../helpers/types';
 
 import { useSelector, useDispatch } from 'react-redux';
+
+import { CommunityType } from '../../../helpers/types';
+
 import { clearHoverPreview } from '../../../redux/actions/interactions';
+import { RSText } from '../../../base-components';
+import Theme from '../../../theme/Theme';
+import RSButton from './RSButton';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  paper: {
+    borderRadius: 20,
+    background: Theme.white,
+  },
+  actionButton: {
+    width: '100%',
+    marginTop: 15,
+  },
+  navigation: {
+    '&:hover': {
+      cursor: 'pointer',
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type UserFields = {
@@ -49,9 +68,6 @@ const HoverPreview = () => {
     additionalFields: additionalFieldsProps,
   } = useSelector((state: { [key: string]: any }) => state.hoverPreview);
 
-  const state = useSelector((state) => state);
-  console.log('State:', state);
-  console.log('Retrieved Fields:', type, name, _id, profilePicture);
   const additionalFields = useState(
     type === 'user'
       ? (additionalFieldsProps as UserFields)
@@ -62,10 +78,6 @@ const HoverPreview = () => {
   const id = open ? 'preview-popover' : undefined;
 
   const handleClose = () => dispatch(clearHoverPreview());
-
-  useEffect(() => {
-    console.log('Is Open?:', open);
-  }, [open]);
 
   return (
     <Popover
@@ -80,14 +92,39 @@ const HoverPreview = () => {
         vertical: 'bottom',
         horizontal: 'left',
       }}
-      onMouseLeave={handleClose}
+      // onMouseLeave={handleClose}
       onClose={handleClose}
+      classes={{ paper: styles.paper }}
     >
-      <Avatar
-        src={profilePicture}
-        alt={name}
-        style={{ marginRight: 15, height: 50, width: 50 }}
-      />
+      <div style={{ padding: 20 }}>
+        <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', height: '100%', alignItems: 'center' }}>
+            <a href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
+              <Avatar
+                src={profilePicture}
+                alt={name}
+                style={{ marginRight: 15, height: 125, width: 125 }}
+              />
+            </a>
+          </div>
+          <div style={{ flex: 1 }}>
+            <RSText
+              size={14}
+              bold
+              type="head"
+              className={styles.navigation}
+              onClick={() =>
+                (window.location.href = `/${
+                  type === 'user' ? 'profile' : type
+                }/${_id}`)
+              }
+            >
+              {name}
+            </RSText>
+          </div>
+        </div>
+        <RSButton className={styles.actionButton}>Connect</RSButton>
+      </div>
     </Popover>
   );
 };
