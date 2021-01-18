@@ -1,3 +1,5 @@
+import { addProfilePicturesAll } from '../interactions/utilities';
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -198,3 +200,83 @@ mongoose.model('users', userSchema);
 const User = mongoose.model('users');
 
 export default User;
+
+const DefaultFields = [
+  'firstName',
+  'lastName',
+  'email',
+  'accountType',
+  'major',
+  'graduationYear',
+  'profilePicture',
+  'work',
+  'position',
+] as const;
+
+const AcceptedFields = [
+  ...DefaultFields,
+  'university',
+  'privilegeLevel',
+  'hashedPassword',
+  'googleID',
+  'linkedinID',
+  'phoneNumber',
+  'organizations',
+  'interests',
+  'bio',
+  'attendedWebinars',
+  'connections',
+  'pendingConnections',
+  'joinedCommunities',
+  'pendingCommunities',
+  'bannerPicture',
+  'broadcastedPosts',
+  'communityPosts',
+] as const;
+
+const Populate = [
+  'attendedWebinars',
+  'connections',
+  'pendingConnections',
+  'joinedCommunities',
+  'pendingCommunities',
+  'broadcastedPosts',
+  'communityPosts',
+  'likes',
+] as const;
+
+export const getUsersByIDs = async (
+  _ids: string[],
+  params: {
+    fields: typeof AcceptedFields[number][];
+    options: {
+      includeDefaultFields?: boolean;
+      lean?: boolean;
+      limit?: number;
+      populates?: { path: typeof Populate[number]; select: string }[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+    };
+  } = { fields: [...DefaultFields], options: {} }
+) => {
+  const { fields, options: optionParams } = params;
+  const options: typeof params.options = {
+    includeDefaultFields: true,
+    lean: true,
+    getProfilePicture: true,
+    ...optionParams,
+  };
+
+  let result = User.find({ _id: { $in: _ids } }, fields);
+  if (options.limit) result = result.limit(options.limit);
+  options.populates?.forEach((populateAction) => {
+    result = result.populate(populateAction);
+  });
+  if (options.lean) result = result.lean();
+
+  const output = await result.exec();
+  if (options.getProfilePicture) {
+    await addProfilePicturesAll(output, 'profile');
+  }
+  return output;
+};
