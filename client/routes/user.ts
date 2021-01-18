@@ -25,6 +25,15 @@ import {
   getUsersGeneric,
 } from '../interactions/user';
 
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Users
+ *    description: API to manage User Interactions
+ *
+ */
+
 module.exports = (app) => {
   app.get('/user/getCurrent', (req, res) => {
     return getCurrentUser(req.user, (packet) => res.json(packet));
@@ -170,13 +179,88 @@ module.exports = (app) => {
     return res.json(packet);
   });
 
-  //TODO - Add swagger
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/v2/user:
+   *      get:
+   *        summary: Retrieve users by IDs
+   *        tags:
+   *          - User
+   *        parameters:
+   *          - in: query
+   *            name: _ids
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The IDs of the users you are trying to retrieve
+   *
+   *          - in: query
+   *            name: fields
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The fields you are trying to retrieve.
+   *
+   *          - in: query
+   *            name: limit
+   *            schema:
+   *              type: number
+   *            description: Max number of users to retrieve
+   *
+   *          - in: query
+   *            name: populates
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The names of the fields you are trying to populate
+   *
+   *          - in: query
+   *            name: lean
+   *            schema:
+   *              type: boolean
+   *            description: Lean query or not
+   *            default: true
+   *
+   *          - in: query
+   *            name: includeDefaultFields
+   *            schema:
+   *              type: boolean
+   *            description: Option to include default fields or not
+   *            default: true
+   *
+   *          - in: query
+   *            name: getProfilePicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get profile picture from s3
+   *            default: true
+   *
+   *          - in: query
+   *            name: getBannerPicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get banner picture
+   *            default: false
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully retrieved users
+   *          "-1":
+   *            description: Failed to retrieve users
+   *
+   */
+
   app.get('/api/v2/user', isAuthenticatedWithJWT, async (req, res) => {
     const {
       _ids,
       fields,
       limit,
-      populates, //Need to figure out how to do this, we should define the populate fields ourselves
+      populates, //Need to figure out how to do this, we should define the populate fields ourselves within the function
       getProfilePicture,
       getBannerPicture,
       lean,
