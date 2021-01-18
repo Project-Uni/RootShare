@@ -39,7 +39,7 @@ type UserFields = {
 
 type CommunityFields = {
   relationship: 'getFromDefinedType';
-  type: CommunityType;
+  communityType: CommunityType;
   description: string;
 };
 
@@ -73,9 +73,17 @@ const HoverPreview = () => {
       ? (additionalFieldsProps as UserFields)
       : (additionalFieldsProps as CommunityFields)
   );
+  const [loading, setLoading] = useState(false);
 
   const open = Boolean(anchorEl);
   const id = open ? 'preview-popover' : undefined;
+
+  const fetchData = () => {
+    setLoading(true);
+    const route = type === 'user' ? '' : '';
+    const { data } = await makeRequest('GET');
+    setLoading(false);
+  };
 
   const handleClose = () => dispatch(clearHoverPreview());
 
