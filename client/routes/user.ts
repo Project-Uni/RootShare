@@ -284,7 +284,7 @@ module.exports = (app) => {
       getBannerPicture,
       lean,
       includeDefaultFields,
-      getRelationship,
+      getRelationship: getRelationship ? req.user._id : undefined,
     };
     const packet = await getUsersGeneric(_ids, {
       fields: fields as any,

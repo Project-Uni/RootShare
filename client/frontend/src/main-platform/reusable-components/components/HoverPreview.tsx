@@ -56,21 +56,15 @@ export type HoverProps = {
   anchorEl: HTMLElement | null;
   profilePicture?: string;
   name: string;
-  // additionalFields?: UserFields | CommunityFields; //Optionalizing for now
 };
 
 const HoverPreview = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
 
-  const {
-    anchorEl,
-    _id,
-    type,
-    profilePicture,
-    name,
-    additionalFields: additionalFieldsProps,
-  } = useSelector((state: { [key: string]: any }) => state.hoverPreview);
+  const { anchorEl, _id, type, profilePicture, name } = useSelector(
+    (state: { [key: string]: any }) => state.hoverPreview
+  );
 
   const [additionalFields, setAdditionalFields] = useState<
     UserFields | CommunityFields
@@ -209,6 +203,7 @@ const AdditionalPreviewData = ({
       {},
       additionalFieldsProps
     ) as CommunityFields;
+
     return <></>;
   }
 
@@ -216,16 +211,20 @@ const AdditionalPreviewData = ({
     {},
     additionalFieldsProps
   ) as UserFields;
+
   return (
     <div style={{ marginTop: 10 }}>
       {(work || position) && (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <FaUserTie color={Theme.primary} size={32} />
-          <div style={{ marginLeft: 10, marginRight: 10 }}>
-            <RSText>{position}</RSText>
-            <RSText>{work}</RSText>
+        <>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaUserTie color={Theme.primary} size={26} />
+            <div style={{ marginLeft: 10, marginRight: 10 }}>
+              <RSText>{position}</RSText>
+              <RSText>{work}</RSText>
+            </div>
           </div>
-        </div>
+          <div style={{ marginBottom: 15 }} />
+        </>
       )}
       {(major || graduationYear) && (
         <div style={{ display: 'flex', alignItems: 'center' }}>

@@ -252,7 +252,7 @@ export type GetUsersByIDsOptions = {
   populates?: { path: typeof Populate[number]; select: string }[];
   getProfilePicture?: boolean;
   getBannerPicture?: boolean;
-  getRelationship?: boolean;
+  getRelationship?: string; //UserID to get relationship to
 };
 
 export const getUsersByIDs = async (
