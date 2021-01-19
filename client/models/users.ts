@@ -1,7 +1,8 @@
 import { addProfilePicturesAll } from '../interactions/utilities';
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+type ObjectId = mongoose.Schema.Types.ObjectId;
 
 /**
  *
@@ -335,7 +336,7 @@ export const getUserToUserRelationship_V2 = async (
   userID: string,
   users: {
     [key: string]: any;
-    pendingConnections: { from: string; to: string; _id: string }[];
+    pendingConnections: { from: ObjectId; to: ObjectId; _id: ObjectId }[];
     connections: string[];
   }[]
 ) => {
@@ -354,13 +355,14 @@ export const getUserToUserRelationship_V2 = async (
     } else {
       const pendingConnectionIntersection = otherUser.pendingConnections.filter(
         (user2Connection) =>
-          user.pendingConnections.some(
-            (user1Connection) => user2Connection._id === user1Connection._id
+          user.pendingConnections.some((user1Connection) =>
+            user2Connection._id.equals(user1Connection._id)
           )
       );
       if (pendingConnectionIntersection.length > 0) {
         const pendingConnection = pendingConnectionIntersection[0];
-        if (pendingConnection.from === userID) otherUser.relationship = 'pending_to';
+        if (pendingConnection.from.equals(userID))
+          otherUser.relationship = 'pending_to';
         else otherUser.relationship = 'pending_from';
       } else {
         otherUser.relationship = 'open';
