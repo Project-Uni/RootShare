@@ -33,10 +33,18 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
     },
   },
+  pendingButton: {
+    flex: 0.5,
+  },
 }));
 
 // JANUARY 18 2021 - USE THIS FOR NEW USER RELATIONSHIP TYPES
-type UserToUserRelationship = 'open' | 'pending_from' | 'pending_to' | 'connected';
+type UserToUserRelationship =
+  | 'open'
+  | 'pending_from'
+  | 'pending_to'
+  | 'connected'
+  | 'self';
 
 type UserFields = {
   relationship: UserToUserRelationship;
@@ -76,6 +84,11 @@ const HoverPreview = () => {
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
+
+  useEffect(() => {
+    if (anchorEl && !loading) fetchData();
+    else if (open) setOpen(false);
+  }, [anchorEl]);
 
   const fetchData = useCallback(async () => {
     const query = qs.stringify({
@@ -125,10 +138,33 @@ const HoverPreview = () => {
     }, 300);
   };
 
-  useEffect(() => {
-    if (anchorEl && !loading) fetchData();
-    else if (open) setOpen(false);
-  }, [anchorEl]);
+  const ActionButton = useCallback(() => {
+    switch (additionalFields?.relationship) {
+      case 'open':
+        return <RSButton className={styles.actionButton}>Connect</RSButton>;
+      case 'pending_to':
+        return (
+          <RSButton className={styles.actionButton} variant="secondary">
+            Pending
+          </RSButton>
+        );
+      case 'pending_from':
+        return (
+          <div style={{ display: 'flex' }} className={styles.actionButton}>
+            <RSButton variant="secondary" className={styles.pendingButton}>
+              Reject
+            </RSButton>
+            <span style={{ marginLeft: 8, marginRight: 8 }} />
+            <RSButton className={styles.pendingButton}>Connect</RSButton>
+          </div>
+        );
+      case 'connected':
+        return <RSButton className={styles.actionButton}>Connected</RSButton>;
+      case 'self':
+      default:
+        return <></>;
+    }
+  }, [additionalFields]);
 
   return (
     <Popover
@@ -143,7 +179,6 @@ const HoverPreview = () => {
         vertical: 'bottom',
         horizontal: 'left',
       }}
-      // onMouseLeave={handleClose}
       onClose={handleClose}
       classes={{ paper: styles.paper }}
     >
@@ -186,9 +221,7 @@ const HoverPreview = () => {
             )}
           </div>
         </div>
-        <RSButton className={styles.actionButton}>
-          {additionalFields?.relationship}
-        </RSButton>
+        <ActionButton />
       </div>
     </Popover>
   );

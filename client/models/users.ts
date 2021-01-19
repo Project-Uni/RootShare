@@ -336,6 +336,7 @@ export const getUserToUserRelationship_V2 = async (
   userID: string,
   users: {
     [key: string]: any;
+    _id: ObjectId;
     pendingConnections: { from: ObjectId; to: ObjectId; _id: ObjectId }[];
     connections: string[];
   }[]
@@ -346,7 +347,8 @@ export const getUserToUserRelationship_V2 = async (
     .exec();
 
   users.forEach((otherUser) => {
-    if (
+    if (otherUser._id.equals(userID)) otherUser.relationship = 'self';
+    else if (
       otherUser.connections.some((user2connection) =>
         user.connections.includes(user2connection)
       )

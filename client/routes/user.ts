@@ -240,6 +240,12 @@ module.exports = (app) => {
    *            description: Option to get banner picture
    *            default: false
    *
+   *          - in: query
+   *            name: getRelationship
+   *            schema:
+   *              type: string
+   *            description: userID to get relationship to (connected, pending_from, pending_to, open)
+   *
    *        responses:
    *          "1":
    *            description: Successfully retrieved users
