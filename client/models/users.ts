@@ -247,7 +247,6 @@ const Populate = [
 
 export type GetUsersByIDsOptions = {
   includeDefaultFields?: boolean;
-  lean?: boolean;
   limit?: number;
   populates?: { path: typeof Populate[number]; select: string }[];
   getProfilePicture?: boolean;
@@ -266,10 +265,11 @@ export const getUsersByIDs = async (
 
   const options: typeof params.options = {
     includeDefaultFields: true,
-    lean: true,
     getProfilePicture: true,
     ...(optionsParam || {}),
   };
+
+  const populates = options.populates?.slice() || [];
 
   const fields = (fieldsParam || []).filter((field) =>
     AcceptedFields.includes(field)
@@ -278,17 +278,79 @@ export const getUsersByIDs = async (
     fields.push(...[...DefaultFields].filter((field) => fields.includes(field)));
   }
 
+  let removeConnectionsField = false;
+  let removePendingConnectionsField = false;
+
+  if (options.getRelationship) {
+    if (fields.indexOf('connections') === -1) {
+      fields.push('connections');
+      removeConnectionsField = true;
+    }
+    if (fields.indexOf('pendingConnections') === -1) {
+      fields.push('pendingConnections');
+      removePendingConnectionsField = true;
+    }
+
+    let populatesHasPendingConnections;
+    for (let i = 0; i < populates.length; i++) {
+      if (populates[i].path === 'pendingConnections')
+        populatesHasPendingConnections = true;
+    }
+
+    if (!populatesHasPendingConnections)
+      populates.push({ path: 'pendingConnections', select: 'from to' });
+  }
+
   let result = User.find({ _id: { $in: _ids } }, fields);
+
   if (options.limit) result = result.limit(options.limit);
-  options.populates?.forEach((populateAction) => {
+
+  populates.forEach((populateAction) => {
     result = result.populate(populateAction);
   });
-  if (options.lean) result = result.lean();
 
-  const output = await result.exec();
-  if (options.getProfilePicture) await addProfilePicturesAll(output, 'profile');
+  const output = await result.lean().exec();
+
+  const promises: Promise<any>[] = [];
+  if (options.getProfilePicture)
+    promises.push(addProfilePicturesAll(output, 'profile'));
   if (options.getRelationship) {
-    /* get current relationship */
+    promises.push(getUserToUserRelationship_V2(options.getRelationship, output));
   }
-  return output;
+
+  await Promise.all(promises);
+  const cleanedOutput =
+    removeConnectionsField || removePendingConnectionsField
+      ? output.map((user) => {
+          const userDelta = Object.assign({}, user);
+          if (removeConnectionsField) delete userDelta.connections;
+          if (removePendingConnectionsField) delete userDelta.pendingConnections;
+          return userDelta;
+        })
+      : output;
+  return cleanedOutput;
+};
+
+export const getUserToUserRelationship_V2 = async (
+  userID: string,
+  users: {
+    [key: string]: any;
+    pendingConnections: { from: string; to: string }[];
+    connections: string[];
+  }[]
+) => {
+  const user = await User.findById(userID)
+    .select(['connections', 'pendingConnections'])
+    .populate({ path: 'pendingConnections', select: 'from to' })
+    .exec();
+
+  users.forEach((otherUser) => {
+    if (
+      otherUser.connections.some((connection) =>
+        user.connections.includes(connection)
+      )
+    ) {
+      otherUser.relationship = 'connected';
+    }
+  });
 };

@@ -263,7 +263,6 @@ module.exports = (app) => {
       populates, //Need to figure out how to do this, we should define the populate fields ourselves within the function
       getProfilePicture,
       getBannerPicture,
-      lean,
       includeDefaultFields,
       getRelationship,
     }: {
@@ -272,7 +271,6 @@ module.exports = (app) => {
       limit?: string;
       populates?: string[];
       getProfilePicture?: boolean;
-      lean?: boolean;
       getBannerPicture?: boolean;
       includeDefaultFields?: boolean;
       getRelationship?: boolean;
@@ -282,7 +280,6 @@ module.exports = (app) => {
       populates,
       getProfilePicture,
       getBannerPicture,
-      lean,
       includeDefaultFields,
       getRelationship: getRelationship ? req.user._id : undefined,
     };
