@@ -3,7 +3,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Popover, Avatar } from '@material-ui/core';
 
+import { GiGraduateCap } from 'react-icons/gi';
+import { FaUserTie } from 'react-icons/fa';
+
 import { useSelector, useDispatch } from 'react-redux';
+
+import qs from 'query-string';
 
 import { CommunityType } from '../../../helpers/types';
 
@@ -12,8 +17,6 @@ import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
 import { makeRequest } from '../../../helpers/functions';
-
-import qs from 'query-string';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -38,11 +41,12 @@ type UserFields = {
   position?: string;
   major?: string;
   graduationYear?: number;
+  type: string;
 };
 
 type CommunityFields = {
   relationship: 'getFromDefinedType';
-  communityType: CommunityType;
+  type: CommunityType;
   description: string;
 };
 
@@ -80,14 +84,36 @@ const HoverPreview = () => {
     const query = qs.stringify({
       _ids: [_id],
       limit: 1,
-      fields: ['work', 'position', 'major', 'graduationYear'],
+      fields: ['work', 'position', 'major', 'graduationYear', 'accountType'],
       getProfilePicture: false,
       getRelationship: true,
     });
     setLoading(true);
     const route = type === 'user' ? '/api/v2/users' : '';
-    const { data } = await makeRequest('GET', `${route}?${query}`);
+    const { data } = await makeRequest<{
+      users: {
+        [key: string]: any;
+        work?: string;
+        position?: string;
+        graduationYear?: number;
+        major?: string;
+        relationship: string;
+        accountType: string;
+      }[];
+    }>('GET', `${route}?${query}`);
     if (data.success === 1) {
+      if (type === 'user') {
+        const user = data.content.users[0];
+        setAdditionalFields({
+          relationship: 'getFromDefinedType',
+          work: user.work,
+          position: user.position,
+          major: user.major,
+          graduationYear: user.graduationYear,
+          type: user.accountType,
+        } as UserFields);
+      }
+
       setOpen(true);
     } else {
       dispatch(clearHoverPreview());
@@ -149,6 +175,18 @@ const HoverPreview = () => {
             >
               {name}
             </RSText>
+            {additionalFields?.type && (
+              <RSText color={Theme.secondaryText} italic>
+                {additionalFields?.type.charAt(0).toUpperCase() +
+                  additionalFields?.type.slice(1)}
+              </RSText>
+            )}
+            {additionalFields && (
+              <AdditionalPreviewData
+                type={type}
+                additionalFields={additionalFields}
+              />
+            )}
           </div>
         </div>
         <RSButton className={styles.actionButton}>Connect</RSButton>
@@ -158,3 +196,46 @@ const HoverPreview = () => {
 };
 
 export default React.memo(HoverPreview);
+
+const AdditionalPreviewData = ({
+  type,
+  additionalFields: additionalFieldsProps,
+}: {
+  type: 'user' | 'community';
+  additionalFields: UserFields | CommunityFields;
+}) => {
+  if (type === 'community') {
+    const { description, type: communityType } = Object.assign(
+      {},
+      additionalFieldsProps
+    ) as CommunityFields;
+    return <></>;
+  }
+
+  const { work, position, graduationYear, major } = Object.assign(
+    {},
+    additionalFieldsProps
+  ) as UserFields;
+  return (
+    <div style={{ marginTop: 10 }}>
+      {(work || position) && (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <FaUserTie color={Theme.primary} size={32} />
+          <div style={{ marginLeft: 10, marginRight: 10 }}>
+            <RSText>{position}</RSText>
+            <RSText>{work}</RSText>
+          </div>
+        </div>
+      )}
+      {(major || graduationYear) && (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <GiGraduateCap color={Theme.primary} size={32} />
+          <div style={{ marginLeft: 10, marginRight: 10 }}>
+            <RSText>{major}</RSText>
+            <RSText>{graduationYear} Graduate</RSText>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
