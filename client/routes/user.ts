@@ -220,13 +220,6 @@ module.exports = (app) => {
    *            description: The names of the fields you are trying to populate
    *
    *          - in: query
-   *            name: lean
-   *            schema:
-   *              type: boolean
-   *            description: Lean query or not
-   *            default: true
-   *
-   *          - in: query
    *            name: includeDefaultFields
    *            schema:
    *              type: boolean

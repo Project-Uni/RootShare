@@ -335,7 +335,7 @@ export const getUserToUserRelationship_V2 = async (
   userID: string,
   users: {
     [key: string]: any;
-    pendingConnections: { from: string; to: string }[];
+    pendingConnections: { from: string; to: string; _id: string }[];
     connections: string[];
   }[]
 ) => {
@@ -346,11 +346,25 @@ export const getUserToUserRelationship_V2 = async (
 
   users.forEach((otherUser) => {
     if (
-      otherUser.connections.some((connection) =>
-        user.connections.includes(connection)
+      otherUser.connections.some((user2connection) =>
+        user.connections.includes(user2connection)
       )
     ) {
       otherUser.relationship = 'connected';
+    } else {
+      const pendingConnectionIntersection = otherUser.pendingConnections.filter(
+        (user2Connection) =>
+          user.pendingConnections.some(
+            (user1Connection) => user2Connection._id === user1Connection._id
+          )
+      );
+      if (pendingConnectionIntersection.length > 0) {
+        const pendingConnection = pendingConnectionIntersection[0];
+        if (pendingConnection.from === userID) otherUser.relationship = 'pending_to';
+        else otherUser.relationship = 'pending_from';
+      } else {
+        otherUser.relationship = 'open';
+      }
     }
   });
 };

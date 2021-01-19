@@ -35,8 +35,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+// JANUARY 18 2021 - USE THIS FOR NEW USER RELATIONSHIP TYPES
+type UserToUserRelationship = 'open' | 'pending_from' | 'pending_to' | 'connected';
+
 type UserFields = {
-  relationship: 'getFromDefinedType';
+  relationship: UserToUserRelationship;
   work?: string;
   position?: string;
   major?: string;
@@ -91,7 +94,7 @@ const HoverPreview = () => {
         position?: string;
         graduationYear?: number;
         major?: string;
-        relationship: string;
+        relationship: UserToUserRelationship;
         accountType: string;
       }[];
     }>('GET', `${route}?${query}`);
@@ -99,7 +102,7 @@ const HoverPreview = () => {
       if (type === 'user') {
         const user = data.content.users[0];
         setAdditionalFields({
-          relationship: 'getFromDefinedType',
+          relationship: user.relationship,
           work: user.work,
           position: user.position,
           major: user.major,
@@ -183,7 +186,9 @@ const HoverPreview = () => {
             )}
           </div>
         </div>
-        <RSButton className={styles.actionButton}>Connect</RSButton>
+        <RSButton className={styles.actionButton}>
+          {additionalFields?.relationship}
+        </RSButton>
       </div>
     </Popover>
   );
