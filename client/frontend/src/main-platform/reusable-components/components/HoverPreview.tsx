@@ -17,6 +17,7 @@ import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
 import { makeRequest } from '../../../helpers/functions';
+import { putUpdatetUserConnection } from '../../../api/put/putUserConnection';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -81,6 +82,7 @@ const HoverPreview = () => {
     UserFields | CommunityFields
   >();
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
@@ -138,24 +140,76 @@ const HoverPreview = () => {
     }, 300);
   };
 
+  const handleUserButtonAction = useCallback(
+    async (action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel') => {
+      setActionLoading(true);
+      const data = await putUpdatetUserConnection(_id, action);
+      if (data.success === 1) {
+        let newRelationship: UserToUserRelationship;
+        switch (action) {
+          case 'connect':
+            newRelationship = 'pending_to';
+            break;
+
+          case 'accept':
+            newRelationship = 'connected';
+            break;
+          case 'reject':
+          case 'cancel':
+          case 'remove':
+            newRelationship = 'open';
+            break;
+        }
+        setAdditionalFields({
+          ...additionalFields,
+          relationship: newRelationship,
+        } as UserFields);
+      } else {
+        //Dispatch error snackbar
+      }
+      setActionLoading(false);
+    },
+    []
+  );
+
   const ActionButton = useCallback(() => {
     switch (additionalFields?.relationship) {
       case 'open':
-        return <RSButton className={styles.actionButton}>Connect</RSButton>;
+        return (
+          <RSButton
+            className={styles.actionButton}
+            onClick={() => handleUserButtonAction('connect')}
+          >
+            Connect
+          </RSButton>
+        );
       case 'pending_to':
         return (
-          <RSButton className={styles.actionButton} variant="secondary">
+          <RSButton
+            className={styles.actionButton}
+            variant="secondary"
+            onClick={() => handleUserButtonAction('cancel')}
+          >
             Pending
           </RSButton>
         );
       case 'pending_from':
         return (
           <div style={{ display: 'flex' }} className={styles.actionButton}>
-            <RSButton variant="secondary" className={styles.pendingButton}>
+            <RSButton
+              variant="secondary"
+              className={styles.pendingButton}
+              onClick={() => handleUserButtonAction('reject')}
+            >
               Reject
             </RSButton>
             <span style={{ marginLeft: 8, marginRight: 8 }} />
-            <RSButton className={styles.pendingButton}>Connect</RSButton>
+            <RSButton
+              className={styles.pendingButton}
+              onClick={() => handleUserButtonAction('accept')}
+            >
+              Connect
+            </RSButton>
           </div>
         );
       case 'connected':

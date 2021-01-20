@@ -289,14 +289,14 @@ module.exports = (app) => {
     return res.json(packet);
   });
 
-  app.put('/api/user/connect', isAuthenticatedWithJWT, async (req, res) => {
+  app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
     const fromUserID = req.user._id;
     const {
       toUser,
       action,
     }: {
       toUser: string;
-      action: 'connect' | 'reject' | 'accept' | 'remove';
+      action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel';
     } = req.query;
 
     if (action === 'connect')
@@ -305,6 +305,8 @@ module.exports = (app) => {
       //Reject  or accept function
     } else if (action === 'remove') {
       //Remove connection function
+    } else if (action === 'cancel') {
+      //Cancel pending request function
     } else
       return res.json(
         sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
