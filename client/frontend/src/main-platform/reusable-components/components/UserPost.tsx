@@ -39,6 +39,7 @@ import {
   dispatchHoverPreview,
   clearHoverPreview,
 } from '../../../redux/actions/interactions';
+import { putLikeStatus } from '../../../api/put/putLikeStatus';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -252,10 +253,7 @@ function UserPost(props: Props) {
 
   async function likePost() {
     setLikeDisabled(true);
-    const { data } = await makeRequest(
-      'POST',
-      `/api/posts/action/${props.postID}/like`
-    );
+    const data = await putLikeStatus(props.postID, 'like');
     if (data.success === 1) {
       setLiked(true);
       setLikeCount(likeCount + 1);
@@ -265,10 +263,7 @@ function UserPost(props: Props) {
 
   async function unlikePost() {
     setLikeDisabled(true);
-    const { data } = await makeRequest(
-      'POST',
-      `/api/posts/action/${props.postID}/unlike`
-    );
+    const data = await putLikeStatus(props.postID, 'unlike');
     if (data.success === 1) {
       setLiked(false);
       setLikeCount(likeCount - 1);
