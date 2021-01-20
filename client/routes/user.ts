@@ -288,4 +288,26 @@ module.exports = (app) => {
     });
     return res.json(packet);
   });
+
+  app.put('/api/user/connect', isAuthenticatedWithJWT, async (req, res) => {
+    const fromUserID = req.user._id;
+    const {
+      toUser,
+      action,
+    }: {
+      toUser: string;
+      action: 'connect' | 'reject' | 'accept' | 'remove';
+    } = req.query;
+
+    if (action === 'connect')
+      return requestConnection(fromUserID, toUser, (packet) => res.json(packet));
+    else if (action === 'reject' || action === 'accept') {
+      //Reject  or accept function
+    } else if (action === 'remove') {
+      //Remove connection function
+    } else
+      return res.json(
+        sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
+      );
+  });
 };
