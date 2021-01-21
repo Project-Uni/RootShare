@@ -207,8 +207,8 @@ function EventClientHeader(props: Props) {
               </div>
               <SearchField
                 style={{
-                  transition: `max-width 1s ease, opacity ${
-                    showSearch ? 0.25 : 0.9
+                  transition: `max-width 0.75s ease, opacity ${
+                    showSearch ? 0.2 : 0.6
                   }s ease`,
                 }}
                 mode="both"

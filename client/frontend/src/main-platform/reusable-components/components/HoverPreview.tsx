@@ -179,6 +179,7 @@ const HoverPreview = () => {
           <RSButton
             className={styles.actionButton}
             onClick={() => handleUserButtonAction('connect')}
+            disabled={actionLoading}
           >
             Connect
           </RSButton>
@@ -189,6 +190,7 @@ const HoverPreview = () => {
             className={styles.actionButton}
             variant="secondary"
             onClick={() => handleUserButtonAction('cancel')}
+            disabled={actionLoading}
           >
             Pending
           </RSButton>
@@ -200,6 +202,7 @@ const HoverPreview = () => {
               variant="secondary"
               className={styles.pendingButton}
               onClick={() => handleUserButtonAction('reject')}
+              disabled={actionLoading}
             >
               Reject
             </RSButton>
@@ -207,13 +210,18 @@ const HoverPreview = () => {
             <RSButton
               className={styles.pendingButton}
               onClick={() => handleUserButtonAction('accept')}
+              disabled={actionLoading}
             >
               Connect
             </RSButton>
           </div>
         );
       case 'connected':
-        return <RSButton className={styles.actionButton}>Connected</RSButton>;
+        return (
+          <RSButton className={styles.actionButton} disabled={actionLoading}>
+            Connected
+          </RSButton>
+        );
       case 'self':
       default:
         return <></>;
