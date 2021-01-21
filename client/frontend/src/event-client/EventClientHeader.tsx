@@ -109,7 +109,7 @@ function EventClientHeader(props: Props) {
     setShowSearch(true);
     setTimeout(() => {
       searchFieldRef.current?.focus();
-    }, 1000);
+    }, 1200);
   };
 
   function getDrawerContent() {
@@ -199,16 +199,10 @@ function EventClientHeader(props: Props) {
                 <IconButton
                   onClick={() => {
                     if (!showSearch) handleSearchIconHover();
-                    else {
-                      setShowSearch(false);
-                    }
+                    else setShowSearch(false);
                   }}
                 >
-                  <FaSearch
-                    size={32}
-                    onMouseOver={handleSearchIconHover}
-                    color={theme.bright}
-                  />
+                  <FaSearch size={32} color={theme.bright} />
                 </IconButton>
               </div>
               <SearchField

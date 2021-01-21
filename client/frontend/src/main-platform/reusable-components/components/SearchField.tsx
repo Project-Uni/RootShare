@@ -202,15 +202,12 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
       freeSolo={freeSolo}
       fullWidth={fullWidth}
       loading={loading}
-      ref={ref}
       renderInput={(params) => (
         <TextField
           {...params}
           label={label}
           name={name}
           variant={variant as any}
-          // ref={ref}
-          // inputRef={ref}
           onChange={(e) => {
             setSearchValue(e.target.value);
             onChange?.(e);
