@@ -8,16 +8,14 @@ import { FaUserTie } from 'react-icons/fa';
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import qs from 'query-string';
-
 import { CommunityType } from '../../../helpers/types';
 
 import { clearHoverPreview } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
-import { makeRequest } from '../../../helpers/functions';
 import { putUpdatetUserConnection } from '../../../api/put/putUserConnection';
+import { getCommunities, getUsers } from '../../../api/get';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -47,6 +45,8 @@ type UserToUserRelationship =
   | 'connected'
   | 'self';
 
+type UserToCommunityRelationship = 'open' | 'pending' | 'joined' | 'admin';
+
 type UserFields = {
   relationship: UserToUserRelationship;
   work?: string;
@@ -57,9 +57,27 @@ type UserFields = {
 };
 
 type CommunityFields = {
-  relationship: 'getFromDefinedType';
+  relationship: UserToCommunityRelationship;
   type: CommunityType;
   description: string;
+};
+
+type UserResponse = {
+  users: {
+    [k: string]: unknown;
+    relationship: UserToUserRelationship;
+    work?: string;
+    position?: string;
+    major?: string;
+    graduationYear?: number;
+    accountType: string;
+  }[];
+};
+
+type CommunityResponse = {
+  communities: (CommunityFields & {
+    [k: string]: unknown;
+  })[];
 };
 
 export type HoverProps = {
@@ -93,29 +111,22 @@ const HoverPreview = () => {
   }, [anchorEl]);
 
   const fetchData = useCallback(async () => {
-    const query = qs.stringify({
-      _ids: [_id],
-      limit: 1,
-      fields: ['work', 'position', 'major', 'graduationYear', 'accountType'],
-      getProfilePicture: false,
-      getRelationship: true,
-    });
-    setLoading(true);
-    const route = type === 'user' ? '/api/v2/users' : '';
-    const { data } = await makeRequest<{
-      users: {
-        [key: string]: any;
-        work?: string;
-        position?: string;
-        graduationYear?: number;
-        major?: string;
-        relationship: UserToUserRelationship;
-        accountType: string;
-      }[];
-    }>('GET', `${route}?${query}`);
+    const data =
+      type === 'user'
+        ? await getUsers<UserResponse>([_id], {
+            fields: ['work', 'position', 'major', 'graduationYear', 'accountType'],
+            options: {
+              getProfilePicture: false,
+              getRelationship: true,
+              limit: 1,
+            },
+          })
+        : await getCommunities<CommunityResponse>([_id], {
+            options: { limit: 1, getProfilePicture: false, getRelationship: true },
+          });
     if (data.success === 1) {
       if (type === 'user') {
-        const user = data.content.users[0];
+        const user = (data.content as UserResponse).users[0];
         setAdditionalFields({
           relationship: user.relationship,
           work: user.work,
@@ -124,6 +135,13 @@ const HoverPreview = () => {
           graduationYear: user.graduationYear,
           type: user.accountType,
         } as UserFields);
+      } else {
+        const community = (data.content as CommunityResponse).communities[0];
+        setAdditionalFields({
+          relationship: community.relationship,
+          type: community.type,
+          description: community.description,
+        } as CommunityFields);
       }
 
       setOpen(true);
@@ -218,7 +236,11 @@ const HoverPreview = () => {
         );
       case 'connected':
         return (
-          <RSButton className={styles.actionButton} disabled={actionLoading}>
+          <RSButton
+            className={styles.actionButton}
+            disabled={actionLoading}
+            variant="secondary"
+          >
             Connected
           </RSButton>
         );
