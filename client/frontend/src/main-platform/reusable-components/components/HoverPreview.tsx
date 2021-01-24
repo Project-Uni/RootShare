@@ -122,7 +122,13 @@ const HoverPreview = () => {
             },
           })
         : await getCommunities<CommunityResponse>([_id], {
-            options: { limit: 1, getProfilePicture: false, getRelationship: true },
+            fields: ['description', 'type'],
+            options: {
+              limit: 1,
+              getProfilePicture: false,
+              getRelationship: true,
+              includeDefaultFields: false,
+            },
           });
     if (data.success === 1) {
       if (type === 'user') {
@@ -191,63 +197,105 @@ const HoverPreview = () => {
   );
 
   const ActionButton = useCallback(() => {
-    switch (additionalFields?.relationship) {
-      case 'open':
-        return (
-          <RSButton
-            className={styles.actionButton}
-            onClick={() => handleUserButtonAction('connect')}
-            disabled={actionLoading}
-          >
-            Connect
-          </RSButton>
-        );
-      case 'pending_to':
-        return (
-          <RSButton
-            className={styles.actionButton}
-            variant="secondary"
-            onClick={() => handleUserButtonAction('cancel')}
-            disabled={actionLoading}
-          >
-            Pending
-          </RSButton>
-        );
-      case 'pending_from':
-        return (
-          <div style={{ display: 'flex' }} className={styles.actionButton}>
+    if (type === 'user')
+      switch ((additionalFields as UserFields)?.relationship) {
+        case 'open':
+          return (
             <RSButton
-              variant="secondary"
-              className={styles.pendingButton}
-              onClick={() => handleUserButtonAction('reject')}
-              disabled={actionLoading}
-            >
-              Reject
-            </RSButton>
-            <span style={{ marginLeft: 8, marginRight: 8 }} />
-            <RSButton
-              className={styles.pendingButton}
-              onClick={() => handleUserButtonAction('accept')}
+              className={styles.actionButton}
+              onClick={() => handleUserButtonAction('connect')}
               disabled={actionLoading}
             >
               Connect
             </RSButton>
-          </div>
-        );
-      case 'connected':
-        return (
-          <RSButton
-            className={styles.actionButton}
-            disabled={actionLoading}
-            variant="secondary"
-          >
-            Connected
-          </RSButton>
-        );
-      case 'self':
-      default:
-        return <></>;
-    }
+          );
+        case 'pending_to':
+          return (
+            <RSButton
+              className={styles.actionButton}
+              variant="secondary"
+              onClick={() => handleUserButtonAction('cancel')}
+              disabled={actionLoading}
+            >
+              Pending
+            </RSButton>
+          );
+        case 'pending_from':
+          return (
+            <div style={{ display: 'flex' }} className={styles.actionButton}>
+              <RSButton
+                variant="secondary"
+                className={styles.pendingButton}
+                onClick={() => handleUserButtonAction('reject')}
+                disabled={actionLoading}
+              >
+                Reject
+              </RSButton>
+              <span style={{ marginLeft: 8, marginRight: 8 }} />
+              <RSButton
+                className={styles.pendingButton}
+                onClick={() => handleUserButtonAction('accept')}
+                disabled={actionLoading}
+              >
+                Connect
+              </RSButton>
+            </div>
+          );
+        case 'connected':
+          return (
+            <RSButton
+              className={styles.actionButton}
+              disabled={actionLoading}
+              variant="secondary"
+            >
+              Connected
+            </RSButton>
+          );
+        case 'self':
+        default:
+          return <></>;
+      }
+    else
+      switch ((additionalFields as CommunityFields)?.relationship) {
+        case 'open':
+          return (
+            <RSButton className={styles.actionButton} disabled={actionLoading}>
+              Join
+            </RSButton>
+          );
+        case 'pending':
+          return (
+            <RSButton
+              className={styles.actionButton}
+              disabled={actionLoading}
+              variant="secondary"
+            >
+              Pending
+            </RSButton>
+          );
+        case 'joined':
+          return (
+            <RSButton
+              className={styles.actionButton}
+              disabled={actionLoading}
+              variant="secondary"
+            >
+              Member
+            </RSButton>
+          );
+        case 'admin':
+          return (
+            <RSButton
+              className={styles.actionButton}
+              disabled={actionLoading}
+              variant="secondary"
+            >
+              Admin
+            </RSButton>
+          );
+        default:
+          return <></>;
+      }
   }, [additionalFields]);
 
   return (
@@ -313,6 +361,7 @@ const HoverPreview = () => {
 
 export default React.memo(HoverPreview);
 
+const MAX_DESC_LEN = 80;
 const AdditionalPreviewData = ({
   type,
   additionalFields: additionalFieldsProps,
@@ -321,12 +370,20 @@ const AdditionalPreviewData = ({
   additionalFields: UserFields | CommunityFields;
 }) => {
   if (type === 'community') {
-    const { description, type: communityType } = Object.assign(
+    const { description } = Object.assign(
       {},
       additionalFieldsProps
     ) as CommunityFields;
 
-    return <></>;
+    return (
+      <div style={{ marginTop: 10 }}>
+        <RSText>
+          {description.length > MAX_DESC_LEN
+            ? `${description.substr(0, MAX_DESC_LEN)} ...`
+            : description}
+        </RSText>
+      </div>
+    );
   }
 
   const { work, position, graduationYear, major } = Object.assign(
