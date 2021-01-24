@@ -68,3 +68,16 @@ mongoose.model('users', userSchema);
 const User = mongoose.model('users');
 
 export default User;
+
+export const checkUsersExist = async (userIDs: string[]) => {
+  const existPromises = userIDs.map((userID) =>
+    User.exists({
+      _id: userID,
+    })
+  );
+
+  return Promise.all(existPromises).then((existBools) => {
+    for (let i = 0; i < existBools.length; i++) if (!existBools[i]) return false;
+    return true;
+  });
+};
