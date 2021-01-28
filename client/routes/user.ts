@@ -77,18 +77,14 @@ module.exports = (app) => {
     }
   );
 
-  app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
-    requestConnection(req.user._id, req.body.requestUserID, (packet) =>
-      res.json(packet)
-    );
+  app.post('/user/requestConnection', async (req, res) => {
+    const { requestUserID } = req.body;
+    res.json(await requestConnection(req.user._id, requestUserID));
   });
 
-  app.post('/user/respondConnection', isAuthenticatedWithJWT, (req, res) => {
-    respondConnection(
-      req.user._id,
-      req.body.requestID,
-      req.body.accepted,
-      (packet) => res.json(packet)
+  app.post('/user/respondConnection', isAuthenticatedWithJWT, async (req, res) => {
+    res.json(
+      await respondConnection(req.user._id, req.body.requestID, req.body.accepted)
     );
   });
 

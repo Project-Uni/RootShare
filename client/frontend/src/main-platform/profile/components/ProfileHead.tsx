@@ -62,7 +62,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectedConnectionButton: {
     color: Theme.white,
-    background: Theme.primary
+    background: Theme.primary,
   },
   selfBioWrapper: {
     display: 'flex',

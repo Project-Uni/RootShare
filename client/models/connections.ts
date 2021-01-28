@@ -35,7 +35,7 @@ var Schema = mongoose.Schema;
  *
  */
 
-var connectionSchema = new Schema(
+const connectionSchema = new Schema(
   {
     from: { type: Schema.ObjectId, ref: 'users', required: true },
     to: { type: Schema.ObjectId, ref: 'users', required: true },
@@ -45,45 +45,93 @@ var connectionSchema = new Schema(
 );
 
 mongoose.model('connections', connectionSchema);
-const Connection = mongoose.model('connections');
+const ConnectionModel = mongoose.model('connections');
 
-export default Connection;
+export default class Connection {
+  static model = ConnectionModel;
+  static DefaultConnectionFields = [
+    'from',
+    'to',
+    'accepted',
+    'createdAt',
+    'updatedAt',
+  ] as const;
 
-export const createConnection = async (fromUserID: string, toUserID: string) => {
-  const connection = await new Connection({ from: fromUserID, to: toUserID }).save();
-  return connection;
-};
+  static create = async (params: { from: string; to: string }) => {
+    const connection = await new ConnectionModel({ ...params }).save();
+    return connection;
+  };
 
-const DefaultConnectionFields = ['from', 'to', 'accepted', 'createdAt', 'updatedAt'];
-export const getConnectionsByIDs = async (
-  _ids: string[],
-  fields: typeof DefaultConnectionFields[number][] = [...DefaultConnectionFields],
-  options: {
-    populateFromFields?: string[];
-    populateToFields?: string[];
-    limit?: number;
-    lean?: boolean;
-  } = {}
-) => {
-  let output = Connection.find({ _id: { $in: _ids } }, fields);
-  if (options.limit) output = output.limit(options.limit);
-  if (options.populateFromFields)
-    output = output.populate({
-      path: 'from',
-      select: options.populateFromFields.concat(' '),
+  static getByIDs = async (
+    _ids: string[],
+    fields: typeof Connection.DefaultConnectionFields[number][] = [
+      ...Connection.DefaultConnectionFields,
+    ],
+    options: {
+      populateFromFields?: string[];
+      populateToFields?: string[];
+      limit?: number;
+      lean?: boolean;
+    } = {}
+  ) => {
+    let output = ConnectionModel.find({ _id: { $in: _ids } }, fields);
+    if (options.limit) output = output.limit(options.limit);
+    if (options.populateFromFields)
+      output = output.populate({
+        path: 'from',
+        select: options.populateFromFields.concat(' '),
+      });
+    if (options.populateToFields)
+      output = output.populate({
+        path: 'to',
+        select: options.populateToFields.concat(' '),
+      });
+
+    if (options.lean) output = output.lean();
+    const result = await output.exec();
+    return result;
+  };
+
+  static update = async (connectionID: string, updates: any) => {
+    const update = await ConnectionModel.updateOne({ _id: connectionID }, updates);
+    return update;
+  };
+
+  static getConnectionStatuses = async (userID: string, otherUserIDs: string[]) => {
+    let sentPromises = [];
+    let receivedPromises = [];
+    const length = otherUserIDs.length;
+    let connections = new Array(length);
+    connections.fill({ status: 'PUBLIC' });
+
+    otherUserIDs.forEach((otherUserID) => {
+      sentPromises.push(
+        ConnectionModel.findOne({ from: userID, to: otherUserID }).lean().exec()
+      );
+      receivedPromises.push(
+        ConnectionModel.findOne({ from: otherUserID, to: userID }).lean().exec()
+      );
     });
-  if (options.populateToFields)
-    output = output.populate({
-      path: 'to',
-      select: options.populateToFields.concat(' '),
-    });
 
-  if (options.lean) output = output.lean();
-  const result = await output.exec();
-  return result;
-};
+    return Promise.all([...sentPromises, ...receivedPromises]).then(
+      (allRequests) => {
+        for (let i = 0; i < length; i++) {
+          if (!!allRequests[i]) {
+            connections[i] = { ...allRequests[i] };
+            if (allRequests[i].accepted) connections[i].status = 'CONNECTED';
+            else connections[i].status = 'TO';
+          }
 
-export const updateConnection = async (connectionID: string, updates: any) => {
-  const update = await Connection.updateOne({ _id: connectionID }, updates);
-  return update;
-};
+          const j = i + length;
+          if (!!allRequests[j]) {
+            connections[i] = { ...allRequests[j] };
+            if (allRequests[j].accepted) connections[i].status = 'CONNECTED';
+            else connections[i].status = 'FROM';
+          }
+        }
+
+        return connections;
+      }
+    );
+  };
+}
