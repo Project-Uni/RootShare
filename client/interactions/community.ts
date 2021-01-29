@@ -10,6 +10,7 @@ import {
   addCalculatedUserFields,
   addProfilePicturesAll,
 } from '../interactions/utilities';
+import { CommunityC, CommunityGetOptions } from '../models/communities';
 
 export async function createNewCommunity(
   name: string,
@@ -1086,3 +1087,19 @@ export async function updateFields(
     });
   }
 }
+
+export const getCommunitiesGeneric = async (
+  _ids: string[],
+  params: {
+    fields?: typeof CommunityC.AcceptedFields[number][];
+    options?: CommunityGetOptions;
+  }
+) => {
+  try {
+    const communities = await CommunityC.getByIDs(_ids, params);
+    return sendPacket(1, 'Successfully retrieved communities', { communities });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
+  }
+};

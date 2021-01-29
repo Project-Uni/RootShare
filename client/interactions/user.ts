@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 import { User, Connection, Webinar } from '../models';
+import {
+  AcceptedFields as AcceptedUserFields,
+  getUsersByIDs,
+  GetUsersByIDsOptions,
+} from '../models/users';
 
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
@@ -1206,4 +1211,21 @@ export async function getBasicUserInfo(userID: string) {
   if (!user) return sendPacket(-1, 'Could not find user');
   log('info', `Retrieved basic info for user ${userID}`);
   return sendPacket(1, 'Found user info', { user });
+}
+
+export async function getUsersGeneric(
+  _ids: string[],
+  params: {
+    fields?: typeof AcceptedUserFields[number][];
+    options?: GetUsersByIDsOptions;
+  }
+) {
+  const { fields, options } = params;
+  try {
+    const users = await getUsersByIDs(_ids, { fields, options });
+    return sendPacket(1, 'Successfully retrieved users', { users });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'Failed to retrieve users', { error: err.message });
+  }
 }

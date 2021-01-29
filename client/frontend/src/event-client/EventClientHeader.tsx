@@ -6,7 +6,7 @@ import RootShareLogo from '../images/RootShareLogoFull.png';
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
 
-import { GrSearch } from 'react-icons/gr';
+import { FaSearch } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
@@ -33,9 +33,16 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   searchbar: {
-    maxWidth: 500,
-    marginLeft: 25,
+    marginLeft: 10,
     marginRight: 25,
+  },
+  collapsedSearch: {
+    maxWidth: 0,
+    opacity: 0,
+  },
+  visibleSearch: {
+    maxWidth: 400,
+    opacity: 1,
   },
 }));
 
@@ -58,6 +65,9 @@ function EventClientHeader(props: Props) {
   const iconSize = useRef(isDesktop.current ? 32 : 24);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<any>();
+
+  const [showSearch, setShowSearch] = useState(false);
+  const searchFieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -94,6 +104,13 @@ function EventClientHeader(props: Props) {
     setDrawerContent('navigation');
     setMenuAnchorEl(undefined);
   }
+
+  const handleSearchIconHover = () => {
+    setShowSearch(true);
+    setTimeout(() => {
+      searchFieldRef.current?.focus();
+    }, 1200);
+  };
 
   function getDrawerContent() {
     switch (drawerContent) {
@@ -178,13 +195,29 @@ function EventClientHeader(props: Props) {
                   }}
                 />
               </a>
-
+              <div style={{ marginLeft: 55 }}>
+                <IconButton
+                  onClick={() => {
+                    if (!showSearch) handleSearchIconHover();
+                    else setShowSearch(false);
+                  }}
+                >
+                  <FaSearch size={32} color={theme.bright} />
+                </IconButton>
+              </div>
               <SearchField
+                style={{
+                  transition: `max-width 0.75s ease, opacity ${
+                    showSearch ? 0.2 : 0.6
+                  }s ease`,
+                }}
                 mode="both"
                 name="header-search"
-                placeholder="Search RootShare"
-                className={styles.searchbar}
-                adornment={<GrSearch />}
+                placeholder="Search RootShare..."
+                className={[
+                  styles.searchbar,
+                  showSearch ? styles.visibleSearch : styles.collapsedSearch,
+                ].join(' ')}
                 fetchDataURL="/api/discover/search/v1/exactMatch"
                 renderLimit={10}
                 onAutocomplete={(selectedOption) => {
@@ -195,6 +228,9 @@ function EventClientHeader(props: Props) {
                 fullWidth
                 freeSolo
                 groupByType
+                variant="standard"
+                bigText
+                ref={searchFieldRef}
               />
             </div>
           </div>

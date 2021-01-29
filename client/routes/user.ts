@@ -22,7 +22,17 @@ import {
   getOtherConnectionsFullData,
   getUserAdminCommunities,
   getBasicUserInfo,
+  getUsersGeneric,
 } from '../interactions/user';
+
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Users
+ *    description: API to manage User Interactions
+ *
+ */
 
 module.exports = (app) => {
   app.get('/user/getCurrent', (req, res) => {
@@ -163,5 +173,139 @@ module.exports = (app) => {
     const { userID } = req.params;
     const packet = await getBasicUserInfo(userID);
     return res.json(packet);
+  });
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/v2/user:
+   *      get:
+   *        summary: Retrieve users by IDs
+   *        tags:
+   *          - User
+   *        parameters:
+   *          - in: query
+   *            name: _ids
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The IDs of the users you are trying to retrieve
+   *
+   *          - in: query
+   *            name: fields
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The fields you are trying to retrieve.
+   *
+   *          - in: query
+   *            name: limit
+   *            schema:
+   *              type: number
+   *            description: Max number of users to retrieve
+   *
+   *          - in: query
+   *            name: populates
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The names of the fields you are trying to populate
+   *
+   *          - in: query
+   *            name: includeDefaultFields
+   *            schema:
+   *              type: boolean
+   *            description: Option to include default fields or not
+   *            default: true
+   *
+   *          - in: query
+   *            name: getProfilePicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get profile picture from s3
+   *            default: true
+   *
+   *          - in: query
+   *            name: getBannerPicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get banner picture
+   *            default: false
+   *
+   *          - in: query
+   *            name: getRelationship
+   *            schema:
+   *              type: string
+   *            description: userID to get relationship to (connected, pending_from, pending_to, open)
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully retrieved users
+   *          "-1":
+   *            description: Failed to retrieve users
+   *
+   */
+
+  app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
+    const {
+      _ids,
+      fields,
+      limit,
+      populates, //Need to figure out how to do this, we should define the populate fields ourselves within the function
+      getProfilePicture,
+      getBannerPicture,
+      includeDefaultFields,
+      getRelationship,
+    }: {
+      _ids: string[];
+      fields?: string[];
+      limit?: string;
+      populates?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+      getRelationship?: boolean;
+    } = req.query;
+    const options = {
+      limit: parseInt(limit),
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      includeDefaultFields,
+      getRelationship: getRelationship ? req.user._id : undefined,
+    };
+    const packet = await getUsersGeneric(_ids, {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
+
+  app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
+    const fromUserID = req.user._id;
+    const {
+      toUser,
+      action,
+    }: {
+      toUser: string;
+      action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel';
+    } = req.query;
+
+    if (action === 'connect')
+      return requestConnection(fromUserID, toUser, (packet) => res.json(packet));
+    else if (action === 'reject' || action === 'accept') {
+      //Reject  or accept function
+    } else if (action === 'remove') {
+      //Remove connection function
+    } else if (action === 'cancel') {
+      //Cancel pending request function
+    } else
+      return res.json(
+        sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
+      );
   });
 };

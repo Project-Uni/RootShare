@@ -28,6 +28,8 @@ import {
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
   updateFields,
+  //generics
+  getCommunitiesGeneric,
 } from '../interactions/community';
 
 /**
@@ -421,4 +423,41 @@ export default function communityRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
+    const {
+      _ids,
+      fields,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship,
+      limit,
+      includeDefaultFields,
+      populates,
+    }: {
+      _ids: string[];
+      fields?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      getRelationship?: boolean;
+      limit?: string;
+      includeDefaultFields?: boolean;
+      populates?: string[];
+    } = req.query;
+
+    const options = {
+      limit: parseInt(limit),
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship: getRelationship ? req.user._id : undefined,
+      includeDefaultFields,
+    };
+
+    const packet = await getCommunitiesGeneric(_ids, {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
 }
