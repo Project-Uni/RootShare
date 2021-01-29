@@ -14,8 +14,7 @@ import { clearHoverPreview } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
-import { putUpdatetUserConnection } from '../../../api/put/putUserConnection';
-import { getCommunities, getUsers } from '../../../api/get';
+import { putUpdateUserConnection, getCommunities, getUsers } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -167,7 +166,7 @@ const HoverPreview = () => {
   const handleUserButtonAction = useCallback(
     async (action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel') => {
       setActionLoading(true);
-      const data = await putUpdatetUserConnection(_id, action);
+      const data = await putUpdateUserConnection(action, _id);
       if (data.success === 1) {
         let newRelationship: UserToUserRelationship;
         switch (action) {

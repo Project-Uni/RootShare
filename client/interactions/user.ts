@@ -649,13 +649,18 @@ export async function requestConnection(userID, requestUserID) {
   }
 }
 
-export async function respondConnection(userID, requestID, accepted) {
+export async function respondConnection(selfUserID, otherUserID, accepted) {
   try {
-    const request = await Connection.model.findById(requestID);
+    const request = await Connection.model.findOne({
+      $or: [
+        { $and: [{ from: selfUserID }, { to: otherUserID }] },
+        { $and: [{ from: otherUserID }, { to: selfUserID }] },
+      ],
+    });
     if (!request) return sendPacket(0, 'Could not find Connection Request');
 
-    const isRequestee = userID.toString().localeCompare(request['to']) === 0;
-    const isRequester = userID.toString().localeCompare(request['from']) === 0;
+    const isRequestee = selfUserID.toString().localeCompare(request['to']) === 0;
+    const isRequester = selfUserID.toString().localeCompare(request['from']) === 0;
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request);
     if (accepted && isRequestee) return acceptConnectionRequest(request);

@@ -1,3 +1,5 @@
+const isProd = process.env.NODE_ENV !== 'dev';
+
 const { ELASTIC_APM_SECRET_TOKEN } = require('../keys/keys.json');
 const apm = require('elastic-apm-node').start({
   serviceName: 'rootshare-client',
@@ -46,8 +48,6 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
 
-initializeDirectory();
-
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -67,13 +67,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-initializeElasticSearch();
-app.use(elasticMiddleware);
+if (isProd) {
+  initializeDirectory();
+  initializeElasticSearch();
+  app.use(elasticMiddleware);
+}
 
 // app.use(rateLimiter);
 
 //Swagger config
-if (process.env.NODE_ENV === 'dev') {
+if (!isProd) {
   const swaggerUI = require('swagger-ui-express');
   const swaggerJsdoc = require('swagger-jsdoc');
   const options = {

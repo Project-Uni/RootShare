@@ -92,12 +92,6 @@ module.exports = (app) => {
     res.json(await requestConnection(req.user._id, requestUserID));
   });
 
-  app.post('/user/respondConnection', isAuthenticatedWithJWT, async (req, res) => {
-    res.json(
-      await respondConnection(req.user._id, req.body.requestID, req.body.accepted)
-    );
-  });
-
   app.post('/user/checkConnectedWithUser', isAuthenticatedWithJWT, (req, res) => {
     checkConnectedWithUser(req.user._id, req.body.requestUserID, (packet) =>
       res.json(packet)
@@ -286,24 +280,22 @@ module.exports = (app) => {
   });
 
   app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
-    const fromUserID = req.user._id;
+    const selfUserID = req.user._id;
     const {
-      toUser,
       action,
+      otherUserID,
     }: {
-      toUser: string;
       action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel';
+      otherUserID: string;
     } = req.query;
 
     if (action === 'connect')
-      return requestConnection(fromUserID, toUser, (packet) => res.json(packet));
-    else if (action === 'reject' || action === 'accept') {
-      //Reject  or accept function
-    } else if (action === 'remove') {
-      //Remove connection function
-    } else if (action === 'cancel') {
-      //Cancel pending request function
-    } else
+      res.json(await requestConnection(selfUserID, otherUserID));
+    else if (action === 'reject' || action === 'cancel' || action === 'remove')
+      res.json(await respondConnection(selfUserID, otherUserID, false));
+    else if (action === 'accept')
+      res.json(await respondConnection(selfUserID, otherUserID, true));
+    else
       return res.json(
         sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
       );

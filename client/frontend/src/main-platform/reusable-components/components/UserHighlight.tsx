@@ -11,6 +11,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -115,16 +116,7 @@ function UserHighlight(props: Props) {
   const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const data = await putUpdateUserConnection('connect', props.userID);
     if (data['success'] === 1) setUserStatus('TO');
     if (data.success !== 1)
       props.setNotification &&
@@ -133,16 +125,9 @@ function UserHighlight(props: Props) {
 
   async function respondRequest(accepted: boolean) {
     setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: props.connectionRequestID,
-        accepted,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
+    const data = await putUpdateUserConnection(
+      accepted ? 'accept' : 'reject',
+      props.userID
     );
 
     if (data['success'] !== 1) {
@@ -165,11 +150,7 @@ function UserHighlight(props: Props) {
       );
     else if (userStatus === 'TO')
       return (
-        <RSText
-          color={Theme.altText}
-          size={12}
-          className={styles.pendingStatus}
-        >
+        <RSText color={Theme.altText} size={12} className={styles.pendingStatus}>
           PENDING
         </RSText>
       );

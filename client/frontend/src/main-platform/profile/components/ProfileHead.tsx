@@ -10,6 +10,7 @@ import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/functions';
 import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const ITEM_HEIGHT = 28;
 
@@ -209,69 +210,32 @@ function ProfileHead(props: Props) {
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.profileID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
   }
 
   async function declineConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('reject', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
     setAnchorEl(null);
   }
 
   async function acceptConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: true,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('accept', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) => prevNumConnections + 1);
     }
   }
 
-  async function removeConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+  async function cancelRequest() {
+    const data = await putUpdateUserConnection('cancel', props.profileID);
+    if (data['success'] === 1) props.updateProfileState();
+    setAnchorEl(null);
+  }
 
+  async function removeConnection() {
+    const data = await putUpdateUserConnection('remove', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) =>
@@ -363,7 +327,7 @@ function ProfileHead(props: Props) {
     return (
       <div>
         {props.currentProfileState === 'TO' && (
-          <MenuItem onClick={declineConnection}>Cancel Request</MenuItem>
+          <MenuItem onClick={cancelRequest}>Cancel Request</MenuItem>
         )}
         {props.currentProfileState === 'CONNECTION' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>

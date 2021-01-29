@@ -11,6 +11,7 @@ import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
 import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -109,16 +110,7 @@ function SingleSuggestion(props: Props) {
   }, [document.getElementById('suggestionWrapper')?.offsetHeight]);
 
   function requestConnection() {
-    makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.suggestedUser._id,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    putUpdateUserConnection('connect', props.suggestedUser._id);
 
     setRequested(true);
     removeSuggestion();
