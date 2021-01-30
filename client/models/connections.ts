@@ -92,7 +92,7 @@ export default class Connection {
     return result;
   };
 
-  static update = async (connectionID: string, updates: any) => {
+  static update = async (connectionID: string, updates: { accepted: boolean }) => {
     const update = await ConnectionModel.updateOne({ _id: connectionID }, updates);
     return update;
   };
