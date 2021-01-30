@@ -6,6 +6,7 @@ import {
   sendPacket,
   generateJWT,
   retrieveSignedUrl,
+  getUserFromJWT,
 } from '../helpers/functions';
 var {
   confirmUser,
@@ -221,7 +222,8 @@ module.exports = (app) => {
   });
 
   app.post('/auth/logout', (req, res) => {
-    let email = req.user.email;
+    const { email } = getUserFromJWT(req);
+    //ASHWIN -TODO remove this
     req.logout();
     res.json(sendPacket(1, 'Successfully logged out'));
     log('info', `Successfully logged out ${email}`);

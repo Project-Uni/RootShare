@@ -15,7 +15,8 @@ import {
 } from './utilities';
 
 export async function getCurrentUser(user, callback) {
-  if (!user) return callback(sendPacket(0, 'User not found'));
+  if (Object.keys(user).some((key) => !user[key]))
+    return callback(sendPacket(0, 'User not found'));
   await addProfilePictureToUser(user);
 
   return callback(
