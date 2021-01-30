@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 import invalidInputsMessage from '../helpers/functions/invalidInputsMessage';
 import {
@@ -50,7 +50,7 @@ export default function meetTheGreekRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       return res.json(await getInterestAnswers(userID, communityID));
     }
@@ -141,7 +141,7 @@ export default function meetTheGreekRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { answers } = req.body;
 
       if (!answers)
@@ -217,6 +217,7 @@ export default function meetTheGreekRoutes(app) {
       const { communityID } = req.params;
       const { mode }: { mode: 'text' | 'email' } = req.query;
       const { message } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!mode || !message || (mode !== 'text' && mode !== 'email'))
         return res.json(
           sendPacket(
@@ -224,18 +225,14 @@ export default function meetTheGreekRoutes(app) {
             '[Required Query Params] - mode, [Required Body Params] - message'
           )
         );
-      const packet = await sendMTGCommunications(
-        req.user._id,
-        communityID,
-        mode,
-        message
-      );
+      const packet = await sendMTGCommunications(userID, communityID, mode, message);
       return res.json(packet);
     }
   );
 
   app.put('/api/mtg/updateUserInfo', isAuthenticatedWithJWT, (req, res) => {
-    updateUserInfo(req.user._id, req.body, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    updateUserInfo(userID, req.body, (packet) => res.json(packet));
   });
 
   app.all('/api/mtg/*', async (req: Request, res: Response) => {

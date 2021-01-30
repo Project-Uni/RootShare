@@ -1,4 +1,4 @@
-import { log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -44,7 +44,8 @@ export default function communityRoutes(app) {
     '/api/admin/community/create',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
         return res.json(
           sendPacket(-1, 'User is not authorized to perform this action')
         );
@@ -79,7 +80,8 @@ export default function communityRoutes(app) {
   );
 
   app.get('/api/admin/community/all', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const { privilegeLevel } = getUserFromJWT(req);
+    if (privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(-1, 'User is not authorized to perform this action')
       );
@@ -89,7 +91,8 @@ export default function communityRoutes(app) {
   });
 
   app.post('/api/admin/community/edit', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const { privilegeLevel } = getUserFromJWT(req);
+    if (privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(-1, 'User is not authorized to perform this action')
       );
@@ -141,7 +144,7 @@ export default function communityRoutes(app) {
         )
       );
 
-    const userID = req.user._id;
+    const { _id: userID } = getUserFromJWT(req);
     const packet = await createNewCommunity(
       name,
       description,
@@ -158,7 +161,8 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const packet = await getCommunityInformation(communityID, req.user._id);
+      const { _id } = getUserFromJWT(req);
+      const packet = await getCommunityInformation(communityID, _id;
       return res.json(packet);
     }
   );
@@ -168,7 +172,8 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const packet = await joinCommunity(communityID, req.user._id);
+      const { _id } = getUserFromJWT(req);
+      const packet = await joinCommunity(communityID, _id);
       return res.json(packet);
     }
   );
@@ -219,9 +224,9 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id } = getUserFromJWT(req);
 
-      const packet = await leaveCommunity(communityID, userID);
+      const packet = await leaveCommunity(communityID, _id);
       return res.json(packet);
     }
   );
@@ -231,7 +236,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       const packet = await cancelCommunityPendingRequest(communityID, userID);
       return res.json(packet);
@@ -243,7 +248,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { followAsCommunityID } = req.body;
       if (!followAsCommunityID)
         return res.json(
@@ -292,7 +297,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { fromCommunityID } = req.body;
 
       if (!fromCommunityID)
@@ -308,7 +313,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { fromCommunityID } = req.body;
 
       const packet = await unfollowCommunity(fromCommunityID, communityID, userID);
@@ -352,7 +357,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID } = req.user;
+      const { _id: userID } = getUserFromJWT(req);
       const { skipCalculation } = req.query;
       const packet = await getCommunityMembers(userID, communityID, {
         skipCalculation,

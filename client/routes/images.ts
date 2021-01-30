@@ -1,4 +1,4 @@
-import { sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -18,9 +18,10 @@ export default function imageRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const packet = await updateUserProfilePicture(image, req.user._id);
+      const packet = await updateUserProfilePicture(image, userID);
       return res.json(packet);
     }
   );
@@ -30,9 +31,10 @@ export default function imageRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const packet = await updateUserBanner(image, req.user._id);
+      const packet = await updateUserBanner(image, userID);
       return res.json(packet);
     }
   );
@@ -74,7 +76,7 @@ export default function imageRoutes(app) {
 
       let isCurrentUser = false;
       if (userID === 'user') {
-        userID = req.user._id;
+        userID = getUserFromJWT(req)._id;
         isCurrentUser = true;
       }
       const packet = await getUserProfileAndBanner(userID, isCurrentUser);

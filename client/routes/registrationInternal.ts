@@ -7,7 +7,6 @@ import {
   generateJWT,
   retrieveSignedUrl,
 } from '../helpers/functions';
-var isConfirmed = require('./middleware/isConfirmed');
 var {
   confirmUser,
   unsubscribeUser,
@@ -206,21 +205,6 @@ module.exports = (app) => {
     );
     log('info', `User accessed secure-unconfirmed endpoint`);
   });
-
-  app.get(
-    '/auth/secure-confirmed',
-    isAuthenticatedWithJWT,
-    isConfirmed,
-    (req, res) => {
-      res.json(
-        sendPacket(
-          1,
-          'Successfully accessed secure endpoint! Account has been confirmed'
-        )
-      );
-      log('info', `User accessed secure-confirmed endpoint`);
-    }
-  );
 
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));

@@ -1,5 +1,5 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
 
 const { GITHUB_OAUTH } = require('../../keys/keys.json');
 
@@ -26,7 +26,9 @@ export default function feedbackRoutes(app: Express) {
         sendPacket(-1, 'title, category, or message missing from request body')
       );
 
-    const body = generateGithubIssueContent(category, message, req.user);
+    const user = getUserFromJWT(req);
+
+    const body = generateGithubIssueContent(category, message, user);
 
     try {
       const result = await requestWithAuth(
