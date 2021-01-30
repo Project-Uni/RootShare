@@ -8,6 +8,7 @@ import {
   retrieveSignedUrl,
   getUserFromJWT,
 } from '../helpers/functions';
+import { User } from '../models';
 var {
   confirmUser,
   unsubscribeUser,
@@ -109,10 +110,11 @@ module.exports = (app) => {
     '/auth/complete-registration/required',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const result = await completeRegistrationRequired(req.body, req.user.email);
+      const { email } = getUserFromJWT(req);
+      const result = await completeRegistrationRequired(req.body, email);
 
       if (result['success'] === 1) {
-        log('info', `Completed required registration for ${req.user.email}`);
+        log('info', `Completed required registration for ${email}`);
       }
       return res.json(result);
     }
@@ -122,31 +124,39 @@ module.exports = (app) => {
     '/auth/complete-registration/details',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const result = await completeRegistrationDetails(req.body, req.user.email);
+      const { email } = getUserFromJWT(req);
+      const result = await completeRegistrationDetails(req.body, email);
 
       if (result['success'] === 1) {
-        log('info', `Completed registration details for ${req.user.email}`);
+        log('info', `Completed registration details for ${email}`);
       }
       return res.json(result);
     }
   );
 
   app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
-    const email = req.user.email;
+    const user = getUserFromJWT(req);
 
-    let check = await userExists(email.toLowerCase());
+    let check = await userExists(user.email.toLowerCase());
+
+    //ASHWIN - Fix this route
     if (check) {
-      res.json(
-        sendPacket(1, 'Sending back current user', {
-          email,
-          regComplete: req.user.work !== undefined,
-          externalComplete: req.user.accountType !== undefined,
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-          _id: req.user._id,
-        })
-      );
-      log('info', `Sent ${email} to frontend`);
+      try {
+        const userDB = await User.findOne({ _id: user._id }, 'work').exec();
+        res.json(
+          sendPacket(1, 'Sending back current user', {
+            email: user.email,
+            regComplete: userDB.work !== undefined,
+            externalComplete: user.accountType !== undefined,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id,
+          })
+        );
+        log('info', `Sent ${user.email} to frontend`);
+      } catch (err) {
+        res.json(sendPacket(0, 'Invalid user'));
+      }
     } else {
       res.json(sendPacket(0, 'There is no user currently logged in'));
       log('error', `There is no user currently logged in`);
@@ -186,7 +196,7 @@ module.exports = (app) => {
   });
 
   app.get('/auth/confirmation-resend', isAuthenticatedWithJWT, (req, res) => {
-    let email = req.user.email;
+    const { email } = getUserFromJWT(req);
     if (email) {
       sendConfirmationEmail(email);
       res.json(sendPacket(1, 'Confirmation email has been resent'));
