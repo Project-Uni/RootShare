@@ -2,7 +2,6 @@ import { User } from '../../models';
 import { log } from '../functions';
 import json2csv = require('json2csv');
 
-const fs = require('fs');
 const dayjs = require('dayjs');
 
 const { Parser } = json2csv;
@@ -29,13 +28,13 @@ export const getUserGrowthByPeriod = async (
   if (range?.end) query.createdAt.$lte = range?.end;
 
   try {
-    const users = await User.find(query, ['createdAt', 'firstName'])
-      .sort('createdAt')
-      .exec();
+    const users: { _id: string; createdAt: Date }[] = await User.find(query, [
+      'createdAt',
+    ]).exec();
 
     const groupedUsers = groupByPeriod(users, period);
-
     const csv = countAndConvertToCSV(groupedUsers);
+
     return csv;
   } catch (err) {
     log('error', err.message);
@@ -90,7 +89,7 @@ const countAndConvertToCSV = (periodGroupedUsers: {
       { label: 'Period', value: 'periods.period' },
       { label: 'New users', value: 'periods.newUsers' },
     ],
-    transforms: [unwind({ paths: 'periods', blankOut: true })],
+    transforms: [unwind({ paths: 'periods' })],
   });
 
   try {
