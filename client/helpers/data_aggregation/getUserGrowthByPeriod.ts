@@ -10,8 +10,9 @@ const {
 } = json2csv;
 
 /**
- * Returns how many new users were created within a given window, broken down by period
+ * @public
  * @function getUserGrowthByPeriod
+ * @description Returns how many new users were created within a given window, broken down by period
  * @param period Frame to group users by
  * @param range Optional start date and optional end date to count user growth between.
  * Defaults: start=rootshare creation && end=present
@@ -43,7 +44,8 @@ export const getUserGrowthByPeriod = async (
 };
 
 /**
- *
+ * @private
+ * @description Groups an array of object based on the period by field createdAt
  * @param objArr Array of objects to group, only required field is createdAt. Object will not be modified
  * @param period Period to group by
  * @returns Dictionary, each key is one period, values are array of created within that period
@@ -63,6 +65,11 @@ const groupByPeriod = (
   return output;
 };
 
+/**
+ * @private
+ * @description Returns dayjs format to use for grouping
+ * @param period
+ */
 const getDateFormat = (period: 'day' | 'month' | 'year') => {
   switch (period) {
     case 'day':
@@ -74,6 +81,12 @@ const getDateFormat = (period: 'day' | 'month' | 'year') => {
   }
 };
 
+/**
+ * @private
+ * @description Takes a grouped array (of users in this case), counts the number in each group, and returns a CSV file of this data
+ * @param periodGroupedUsers Dictionary of grouped users, key is the frame that it is grouped under, value is the object
+ * @returns CSV File with counts for each period frame
+ */
 const countAndConvertToCSV = (periodGroupedUsers: {
   [key: string]: { [key: string]: unknown; createdAt: Date }[];
 }) => {
