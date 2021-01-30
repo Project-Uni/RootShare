@@ -544,8 +544,14 @@ export async function createBroadcastCommunityPost(
 
 // GETTERS
 
-export async function getGeneralFeed(universityID: string, userID: string = '') {
+export async function getGeneralFeed(userID: string = '') {
   try {
+    const { university: universityID } = await User.findOne(
+      { _id: userID },
+      'university'
+    )
+      .lean()
+      .exec();
     const condition = {
       university: universityID,
       toCommunity: null,

@@ -44,7 +44,7 @@ export default function postsRoutes(app) {
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
-    const packet = await getGeneralFeed(req.user.university._id, userID);
+    const packet = await getGeneralFeed(userID);
     return res.json(packet);
   });
 
