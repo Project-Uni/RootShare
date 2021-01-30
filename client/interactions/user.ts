@@ -17,7 +17,6 @@ import {
 export async function getCurrentUser(user, callback) {
   if (Object.keys(user).some((key) => !user[key]))
     return callback(sendPacket(0, 'User not found'));
-  await addProfilePictureToUser(user);
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -27,7 +26,6 @@ export async function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
-      profilePicture: user.profilePicture,
     })
   );
 }

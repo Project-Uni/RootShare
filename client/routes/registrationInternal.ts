@@ -26,32 +26,25 @@ var {
 
 module.exports = (app) => {
   app.post('/auth/login/local', (req, res) => {
-    passport.authenticate('local-login', (err, user, info) => {
+    passport.authenticate('local-login', async (err, user, info) => {
       if (user) {
-        req.login(user, async (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-            return res.json(sendPacket(-1, 'Failed to serialize user'));
-          }
-          log('info', `Successfully logged in ${user.email} locally`);
-          const profilePicture = await retrieveSignedUrl(
-            'profile',
-            user.profilePicture
-          );
-          return res.json(
-            sendPacket(1, 'Successfully logged in', {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              profilePicture,
-              _id: user._id,
-              privilegeLevel: user.privilegeLevel || 1,
-              accountType: user.accountType,
-              accessToken: info['jwtAccessToken'],
-              refreshToken: info['jwtRefreshToken'],
-            })
-          );
-        });
+        const profilePicture = await retrieveSignedUrl(
+          'profile',
+          user.profilePicture
+        );
+        return res.json(
+          sendPacket(1, 'Successfully logged in', {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            profilePicture,
+            _id: user._id,
+            privilegeLevel: user.privilegeLevel || 1,
+            accountType: user.accountType,
+            accessToken: info['jwtAccessToken'],
+            refreshToken: info['jwtRefreshToken'],
+          })
+        );
       } else if (info) {
         res.json(sendPacket(0, info.message));
         log('error', `User local login failed`);
@@ -65,25 +58,18 @@ module.exports = (app) => {
   app.post('/auth/signup/local', (req, res) => {
     passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
-        req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
-          log('info', `Successfully created account for ${user.email}`);
-
-          return res.json(
-            sendPacket(1, 'Successfully signed up', {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              _id: user._id,
-              privilegeLevel: 1,
-              accountType: user.accountType,
-              accessToken: info['jwtAccessToken'],
-              refreshToken: info['jwtRefreshToken'],
-            })
-          );
-        });
+        return res.json(
+          sendPacket(1, 'Successfully signed up', {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            _id: user._id,
+            privilegeLevel: 1,
+            accountType: user.accountType,
+            accessToken: info['jwtAccessToken'],
+            refreshToken: info['jwtRefreshToken'],
+          })
+        );
       } else if (info) {
         res.json(sendPacket(0, info.message));
         log('error', `User local signup failed`);
@@ -167,16 +153,10 @@ module.exports = (app) => {
     let user = await confirmUser(req.params.token);
 
     if (user) {
-      req.login(user, (err) => {
-        if (err) {
-          log('error', `Failed serializing ${user.email}`);
-        }
-        log('info', `Confirmed user ${user.email}`);
-        const JWT = generateJWT(user);
-        return res.redirect(
-          `/register/external?accessToken=${JWT.accessToken}&refreshToken=${JWT.refreshToken}`
-        );
-      });
+      const JWT = generateJWT(user);
+      return res.redirect(
+        `/register/external?accessToken=${JWT.accessToken}&refreshToken=${JWT.refreshToken}`
+      );
     } else {
       res.json(sendPacket(-1, 'There was an error processing your request'));
       log('error', `Was not able to confirm user`);
@@ -232,10 +212,8 @@ module.exports = (app) => {
   });
 
   app.post('/auth/logout', (req, res) => {
-    const { email } = getUserFromJWT(req);
-    //ASHWIN -TODO remove this
-    req.logout();
+    // const { email } = getUserFromJWT(req);
+    //TODO - Invalidate Access and Refresh tokens
     res.json(sendPacket(1, 'Successfully logged out'));
-    log('info', `Successfully logged out ${email}`);
   });
 };
