@@ -1,6 +1,7 @@
-import { Webinar } from '../../models';
+import { Webinar, User } from '../../models';
 import { log } from '../functions';
 import json2csv = require('json2csv');
+const fs = require('fs');
 
 const { Parser } = json2csv;
 const {
@@ -41,24 +42,15 @@ export const getViewersForEvents = async (
       result = result.populate({ path: 'hostCommunity', select: 'name' });
 
     const events = await result.lean().exec();
-    console.log(events);
-
-    const getEventsManual = events.some((event) => !event.attendees_V2);
-    if (getEventsManual) {
-      getViewsFromUsers();
-    }
 
     const reshapedEvents = reshapeEvents(events);
     const csv = convertToCSV(reshapedEvents);
     return csv;
-    // return events;
   } catch (err) {
     log('error', err);
     return false;
   }
 };
-
-const getViewsFromUsers = () => {};
 
 type Attendee = {
   _id?: string;
@@ -86,20 +78,18 @@ const reshapeEvents = (
     full_description: string;
     hostCommunity?: { _id: string; name: string };
     attendees_V2?: Attendee[];
-    attendees_V1?: Attendee[];
   }[]
 ): ReshapedEvent[] => {
   const output: ReshapedEvent[] = events.map((event) => ({
     title: event.title || `${event.hostCommunity?.name} - Meet The Greeks`,
     description: event.brief_description || event.full_description,
-    attendees: (event.attendees_V1 || event.attendees_V2 || []).map((attendee) => {
+    attendees: (event.attendees_V2 || []).map((attendee) => {
       const copy = Object.assign({}, attendee);
       delete copy._id;
       return copy;
     }),
   }));
 
-  console.log('Reshaped events:', output);
   return output;
 };
 
@@ -124,8 +114,71 @@ const convertToCSV = (events: ReshapedEvent[]) => {
     const csv = parser.parse(events);
     return csv;
   } catch (err) {
-    console.log('Failed to parse CSV');
-    console.log('Error:', err);
+    log('error', `Failed to parse CSV: ${err.message}`);
     return false;
+  }
+};
+
+/**
+ * Reads all of the attendees for events from the user models
+ * and write to a JSON file
+ */
+const getViewersFromOldEventsAsJSON = async (): Promise<boolean> => {
+  const startTime = Date.now();
+
+  const eventAttendees: { [k: string]: string[] } = {};
+  try {
+    const users: { _id: string; attendedWebinars?: string[] }[] = await User.find(
+      {},
+      ['attendedWebinars']
+    ).exec();
+    users.forEach((user) => {
+      user.attendedWebinars.forEach((eventID) => {
+        if (!(eventID in eventAttendees)) eventAttendees[eventID] = [];
+        eventAttendees[eventID].push(user._id);
+      });
+    });
+
+    const stringifiedEvents = JSON.stringify(eventAttendees);
+    fs.writeFileSync('../eventAttendees.json', stringifiedEvents);
+
+    return true;
+  } catch (err) {
+    console.log('Failed to write to file:', err);
+    return false;
+  } finally {
+    const duration = Date.now() - startTime;
+    console.log(`Retrieving and writing duration: ${duration / 1000}s.`);
+  }
+};
+
+/**
+ * Takes the JSON information from @method getViewersFromOldEventsAsJSON
+ * and updates the webinar models using it
+ */
+const updateModelsWithAttendees = async (): Promise<boolean> => {
+  const startTime = Date.now();
+
+  try {
+    const eventAttendees: { [k: string]: string[] } = JSON.parse(
+      fs.readFileSync('../eventAttendees.json')
+    );
+    const eventIDs = Object.keys(eventAttendees);
+
+    const updatePromises: Promise<unknown>[] = eventIDs.map((eventID) =>
+      Webinar.updateOne(
+        { _id: eventID },
+        { $addToSet: { attendees_V2: { $each: eventAttendees[eventID] } } }
+      )
+    );
+
+    await Promise.all(updatePromises);
+    return true;
+  } catch (err) {
+    console.log('There was an unexpected error:', err);
+    return false;
+  } finally {
+    const duration = Date.now() - startTime;
+    console.log(`Reading file and updating models duration: ${duration / 1000}s.`);
   }
 };

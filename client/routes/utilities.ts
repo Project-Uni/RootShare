@@ -17,7 +17,7 @@ import {
   getUniqueInterested,
 } from '../helpers/data_aggregation/getMTGUniqueUserInfo';
 
-module.exports = (app) => {
+export default function utilityRoutes(app) {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
     getUserData((packet) => {
       res.json(packet);
@@ -44,13 +44,14 @@ module.exports = (app) => {
   });
 
   app.get('/api/utilities/events/viewers', async (req, res) => {
-    const eventsCSV = await getViewersForEvents([], { isMTG: true });
-    if (eventsCSV) {
-      res.attachment('events_aggregation.csv');
-      res.status(200).send(eventsCSV);
-    } else {
-      res.status(500).send('Failed to retrieve information and convert to CSV');
-    }
+    // const eventsCSV = await getViewersForEvents([]);
+    // if (eventsCSV) {
+    //   res.attachment('events_aggregation.csv');
+    //   res.status(200).send(eventsCSV);
+    // } else {
+    //   res.status(500).send('Failed to retrieve information and convert to CSV');
+    // }
+    res.status(401).send('Re-activate this route if you want this data');
   });
 
   //NOTE - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
@@ -72,7 +73,7 @@ module.exports = (app) => {
     // return res.send(response);
     res.status(401).send('Re-activate this route if you want this data');
   });
-};
+}
 
 export async function phasedEmergencyEmailRollout(subject: string, message: string) {
   const users = await User.find({}, ['email']).exec();
