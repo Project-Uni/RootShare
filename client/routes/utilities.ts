@@ -56,9 +56,12 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/growth', async (req, res) => {
-    const data = await getUserGrowthByPeriod('month');
-    if (data) res.status(200).send('Success');
-    else res.status(401).send('Failure');
+    // const growthCSV = await getUserGrowthByPeriod('month');
+    // if (growthCSV) {
+    //   res.attachment('user_growth.csv');
+    //   res.status(200).send(growthCSV);
+    // } else res.status(401).send('Failure');
+    res.status(401).send('Re-activate this route if you want this data');
   });
 
   //NOTE - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event

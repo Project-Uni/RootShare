@@ -33,44 +33,71 @@ export const getUserGrowthByPeriod = async (
       .sort('createdAt')
       .exec();
 
-    const groupedUsers = groupUsersByPeriod(users, period);
+    const groupedUsers = groupByPeriod(users, period);
 
-    console.log('Grouped:', Object.keys(groupedUsers as any));
-
-    return true;
+    const csv = countAndConvertToCSV(groupedUsers);
+    return csv;
   } catch (err) {
     log('error', err.message);
     return false;
   }
 };
 
-const groupUsersByPeriod = (
-  users: { _id: string; createdAt: Date }[],
+/**
+ *
+ * @param objArr Array of objects to group, only required field is createdAt. Object will not be modified
+ * @param period Period to group by
+ * @returns Dictionary, each key is one period, values are array of created within that period
+ */
+
+const groupByPeriod = (
+  objArr: { [k: string]: unknown; createdAt: Date }[],
   period: 'day' | 'month' | 'year'
 ) => {
-  switch (period) {
-    case 'day':
-    // return groupByDay(users);
-    case 'month':
-      return groupByMonth(users);
-    case 'year':
-      return groupByYear(users);
-  }
-};
-const groupByDay = (obj: { [k: string]: unknown; createdAt: Date }) => {
-  let output: { [k: string]: typeof obj } = {};
-  // let d = newDate();
-};
-
-const groupByMonth = (objArr: { [k: string]: unknown; createdAt: Date }[]) => {
+  const format = getDateFormat(period);
   let output: { [k: string]: typeof objArr } = {};
   objArr.forEach((obj) => {
-    const month = dayjs(obj.createdAt).format('MMM YYYY');
-    if (!(month in output)) output[month] = [];
-    output[month].push(obj);
+    const frame = dayjs(obj.createdAt).format(format);
+    if (!(frame in output)) output[frame] = [];
+    output[frame].push(obj);
   });
   return output;
 };
-const groupByYear = (objArr: { [k: string]: unknown; createdAt: Date }[]) => {
-  const output: { [k: string]: typeof objArr } = {};
+
+const getDateFormat = (period: 'day' | 'month' | 'year') => {
+  switch (period) {
+    case 'day':
+      return 'MMM D YYYY';
+    case 'month':
+      return 'MMM YYYY';
+    case 'year':
+      return 'YYYY';
+  }
+};
+
+const countAndConvertToCSV = (periodGroupedUsers: {
+  [key: string]: { [key: string]: unknown; createdAt: Date }[];
+}) => {
+  const periodCounts: { periods: { period: string; newUsers: number }[] } = {
+    periods: Object.keys(periodGroupedUsers).map((key) => ({
+      period: key,
+      newUsers: periodGroupedUsers[key].length,
+    })),
+  };
+
+  const parser = new Parser({
+    fields: [
+      { label: 'Period', value: 'periods.period' },
+      { label: 'New users', value: 'periods.newUsers' },
+    ],
+    transforms: [unwind({ paths: 'periods', blankOut: true })],
+  });
+
+  try {
+    const csv = parser.parse(periodCounts);
+    return csv;
+  } catch (err) {
+    log('error', `Failed to parse CSV: ${err.message}`);
+    return false;
+  }
 };
