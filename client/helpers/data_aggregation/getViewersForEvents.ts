@@ -8,6 +8,14 @@ const {
   transforms: { unwind },
 } = json2csv;
 
+/**
+ * @method getViewersForEvents Driver function for getting viewers for events
+ * @param eventIDs _ids of events to retrieve viewers for
+ * @param flags additional filters to apply to the query
+ * @param fields user fields to display in the csv file
+ *
+ * @returns CSV File containg attended users for each event
+ */
 export const getViewersForEvents = async (
   eventIDs: string[] = [],
   flags: { isMTG?: boolean } = {},
@@ -121,7 +129,7 @@ const convertToCSV = (events: ReshapedEvent[]) => {
 
 /**
  * Reads all of the attendees for events from the user models
- * and write to a JSON file
+ * and write to a JSON file. Part 1/2 of chain with @method updateModelsWithAttendees
  */
 const getViewersFromOldEventsAsJSON = async (): Promise<boolean> => {
   const startTime = Date.now();
