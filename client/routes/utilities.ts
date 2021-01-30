@@ -55,7 +55,8 @@ export default function utilityRoutes(app) {
     res.status(401).send('Re-activate this route if you want this data');
   });
 
-  app.get('/api/growth', async (req, res) => {
+  app.get('/api/utilities/growth', async (req, res) => {
+    // const { period }: { period: 'day' | 'month' | 'year' } = req.query;
     // const growthCSV = await getUserGrowthByPeriod('month');
     // if (growthCSV) {
     //   res.attachment('user_growth.csv');

@@ -4,8 +4,8 @@ import json2csv = require('json2csv');
 
 const dayjs = require('dayjs');
 
-const { Parser } = json2csv;
 const {
+  Parser,
   transforms: { unwind },
 } = json2csv;
 
@@ -50,7 +50,6 @@ export const getUserGrowthByPeriod = async (
  * @param period Period to group by
  * @returns Dictionary, each key is one period, values are array of created within that period
  */
-
 const groupByPeriod = (
   objArr: { [k: string]: unknown; createdAt: Date }[],
   period: 'day' | 'month' | 'year'

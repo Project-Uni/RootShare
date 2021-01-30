@@ -3,12 +3,13 @@ import { log } from '../functions';
 import json2csv = require('json2csv');
 const fs = require('fs');
 
-const { Parser } = json2csv;
 const {
+  Parser,
   transforms: { unwind },
 } = json2csv;
 
 /**
+ * @public
  * @method getViewersForEvents Driver function for getting viewers for events
  * @param eventIDs _ids of events to retrieve viewers for
  * @param flags additional filters to apply to the query
@@ -35,21 +36,20 @@ export const getViewersForEvents = async (
   if (eventIDs.length > 0) query._id = { $in: eventIDs };
 
   try {
-    let result = Webinar.find(
+    let events = await Webinar.find(
       { ...query },
       [
         'title',
         'full_description',
         'brief_description',
         'attendees_V2',
-        flags.isMTG ? 'hostCommunity' : undefined,
+        'hostCommunity',
       ].concat(' ')
-    ).populate({ path: 'attendees_V2', select: fields.concat(' ') });
-
-    if (flags.isMTG)
-      result = result.populate({ path: 'hostCommunity', select: 'name' });
-
-    const events = await result.lean().exec();
+    )
+      .populate({ path: 'attendees_V2', select: fields.concat(' ') })
+      .populate({ path: 'hostCommunity', select: 'name' })
+      .lean()
+      .exec();
 
     const reshapedEvents = reshapeEvents(events);
     const csv = convertToCSV(reshapedEvents);
@@ -128,7 +128,8 @@ const convertToCSV = (events: ReshapedEvent[]) => {
 };
 
 /**
- * Reads all of the attendees for events from the user models
+ * @protected
+ * @description Reads all of the attendees for events from the user models
  * and write to a JSON file. Part 1/2 of chain with @method updateModelsWithAttendees
  */
 const getViewersFromOldEventsAsJSON = async (): Promise<boolean> => {
@@ -161,7 +162,8 @@ const getViewersFromOldEventsAsJSON = async (): Promise<boolean> => {
 };
 
 /**
- * Takes the JSON information from @method getViewersFromOldEventsAsJSON
+ * @protected
+ * @description Takes the JSON information from getViewersFromOldEventsAsJSON
  * and updates the webinar models using it
  */
 const updateModelsWithAttendees = async (): Promise<boolean> => {
