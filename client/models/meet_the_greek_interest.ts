@@ -15,13 +15,13 @@ var Schema = mongoose.Schema;
  *        properties:
  *          id:
  *            type: string
- *            description: Auto-generated id
+ *            description: Auto-generated ID
  *          user:
- *            type: string
- *            description: The id of the user who is interested
+ *            $ref: '#/components/schemas/User'
+ *            description: The ID of the user who is interested
  *          community:
- *            type: string
- *            description: The id of the community the user is interested in
+ *            $ref: '#/components/schemas/Community'
+ *            description: The ID of the community the user is interested in
  *          answers:
  *            type: string
  *            description: A JSON string of the users responses, needs to be parsed before being sent back

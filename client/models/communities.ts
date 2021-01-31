@@ -1,6 +1,143 @@
-import mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-type ObjectId = mongoose.Schema.Types.ObjectId;
+
+/**
+ *
+ * @swagger
+ *  components:
+ *    schemas:
+ *      Community:
+ *        type: object
+ *        required:
+ *          - name
+ *          - admin
+ *          - private
+ *          - type
+ *          - description
+ *          - university
+ *        properties:
+ *          _id:
+ *            type: string
+ *            description: Auto-generated ID
+ *          name:
+ *            type: string
+ *            description: The name of the community
+ *          admin:
+ *            $ref: '#/components/schemas/User'
+ *            description: The admin of the community
+ *          private:
+ *            type: boolean
+ *            description: Whether or not the community is private
+ *          members:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/User'
+ *            description: All the members of the community
+ *          pendingMembers:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/User'
+ *            description: The members who have requested membership to the community
+ *          description:
+ *            type: string
+ *            description: The description for what the community is for
+ *          university:
+ *            $ref: '#/components/schemas/University'
+ *            description: The university the community belongs to
+ *          profilePicture:
+ *            type: string
+ *            description: The file for the community's profile picture
+ *          bannerPicture:
+ *            type: string
+ *            description: The file for the community's banner image
+ *          followedByCommunities:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/CommunityEdge'
+ *            description: The communities this community is followed by
+ *          followingCommunities:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/CommunityEdge'
+ *            description: The communities this community is following
+ *          outgoingPendingCommunityFollowRequests:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/CommunityEdge'
+ *            description: The communities this community requested to follow
+ *          incomingPendingCommunityFollowRequests:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/CommunityEdge'
+ *            description: The communities this community received follow requests from
+ *          internalCurrentMemberPosts:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: The posts made by current members to this community
+ *          internalAlumniPosts:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: The posts made by alumni to this community
+ *          externalPosts:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: Posts made externally by/to this community
+ *          postsToOtherCommunities:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: The posts this community made to other communities
+ *          broadcastedPosts:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: The posts this community broadcast to the university
+ *          pinnedPosts:
+ *            type: array
+ *            items:
+ *              $ref: '#/components/schemas/Post'
+ *            description: The posts pinned by this community
+ *          isMTGFlag:
+ *            type: boolean
+ *            description: Flag for communities that participated in MTG
+ *          createdAt:
+ *            type: string
+ *            format: date-time
+ *            description: The date of the record creation.
+ *          updatedAt:
+ *            type: string
+ *            format: date-time
+ *            description: When the record was last updated
+ *        example:
+ *          _id: 0123456789abcdef
+ *          name: Rho Sigma
+ *          admin: 1123456789abcdef
+ *          private: true
+ *          members: [2123456789abcdef, 3123456789abcdef]
+ *          pendingMembers: [4123456789abcdef]
+ *          description: The Greek RootShare community
+ *          university: 5123456789abcdef
+ *          profilePicture: 0123456789abcdef_profile.jpeg
+ *          bannerPicture: 0123456789abcdef_profile.jpeg
+ *          followedByCommunities: [6123456789abcdef]
+ *          followingCommunities: [7123456789abcdef]
+ *          outgoingPendingCommunityFollowRequests: [8123456789abcdef]
+ *          incomingPendingCommunityFollowRequests: [9123456789abcdef]
+ *          internalCurrentMemberPosts: [a123456789abcdef]
+ *          internalAlumniPosts: [b123456789abcdef]
+ *          externalPosts: [c123456789abcdef]
+ *          postsToOtherCommunities: [d123456789abcdef]
+ *          broadcastedPosts: [e123456789abcdef]
+ *          pinnedPosts: [f123456789abcdef]
+ *          isMTGFlag: false
+ *
+ */
+
+import { Types } from 'mongoose';
+type ObjectId = Types.ObjectId;
 
 import { CommunityType, CommunityMap } from '../helpers/types';
 import { addProfilePicturesAll } from '../interactions/utilities';

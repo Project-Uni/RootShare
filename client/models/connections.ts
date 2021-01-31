@@ -17,21 +17,21 @@ var Schema = mongoose.Schema;
  *            type: string
  *            description: Auto-generated id
  *          from:
- *            type: ObjectId
+ *            $ref: '#/components/schemas/User'
  *            description: The id of the user who requested the connection
  *          to:
- *            type: ObjectId
+ *            $ref: '#/components/schemas/User'
  *            description: The id of the user whom the request was sent to
  *          createdAt:
- *            type: date
+ *            type: date-time
  *            description: The date of the record creation.
  *          updatedAt:
- *            type: date
+ *            type: date-time
  *            description: When the record was last updated
  *        example:
  *          from: 0123456789abcdef
- *          to: '0123456789abcdff'
- *          accepted: 'true'
+ *          to: 1123456789abcdef
+ *          accepted: true
  *
  */
 

@@ -16,13 +16,13 @@ const { Schema } = mongoose;
  *        properties:
  *          id:
  *            type: string
- *            description: Auto-generated id
+ *            description: Auto-generated ID
  *          user:
- *            type: string
- *            description: The id of the user who sent the message
+ *            $ref: '#/components/schemas/User'
+ *            description: The ID of the user who sent the message
  *          community:
- *            type: string
- *            description: The id of the community the user belongs to
+ *            $ref: '#/components/schemas/Community'
+ *            description: The ID of the community the user belongs to
  *          mode:
  *            type: string
  *            description: The type of message, either 'text' or 'email'
