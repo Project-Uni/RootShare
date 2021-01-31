@@ -1,5 +1,10 @@
 import jwt = require('jsonwebtoken');
 
+/**
+ * @description Extracts the user from a valid access token
+ * @param req HTTP Request
+ * @returns User from token if successful, returns an object with empty user values if unsuccessful
+ */
 export const getUserFromJWT = (
   req
 ): {

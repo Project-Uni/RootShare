@@ -6,6 +6,8 @@ const { GITHUB_OAUTH } = require('../../keys/keys.json');
 import { request } from '@octokit/request';
 import { Express } from 'express';
 
+import { User } from '../models';
+
 const PROJECT_OWNER = 'Project-Uni';
 const REPO = 'RootShare-Bugs';
 
@@ -26,18 +28,26 @@ export default function feedbackRoutes(app: Express) {
         sendPacket(-1, 'title, category, or message missing from request body')
       );
 
-    const user = getUserFromJWT(req);
-
-    const body = generateGithubIssueContent(category, message, user);
-
+    const userFromToken = getUserFromJWT(req);
     try {
+      const userFromDB = await User.findOne(
+        { _id: userFromToken._id },
+        'phoneNumber'
+      )
+        .lean()
+        .exec();
+      const user = Object.assign({}, userFromToken, {
+        phoneNumber: userFromDB.phoneNumber,
+      });
+
+      const body = generateGithubIssueContent(category, message, user);
+
       const result = await requestWithAuth(
         `POST /repos/${PROJECT_OWNER}/${REPO}/issues`,
         {
           title,
           body,
           labels: ['Bug'],
-          // assignees: ['caitecap'],
         }
       );
 
@@ -53,7 +63,7 @@ export default function feedbackRoutes(app: Express) {
 function generateGithubIssueContent(
   category: string,
   message: string,
-  user: { [key: string]: any }
+  user: { firstName: string; lastName: string; email: string; phoneNumber: string }
 ) {
   const output = `
   **Category - ${category}**\n
