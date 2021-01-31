@@ -82,17 +82,9 @@ function Login(props: Props) {
 
   async function checkAuth() {
     setLoading(true);
+    if (accessToken) props.updateAccessToken(accessToken);
+    if (refreshToken) props.updateRefreshToken(refreshToken);
     if (props.accessToken) setRedirectHome(true);
-    else {
-      const { data } = await makeRequest('GET', '/user/getCurrent');
-
-      if (data['success'] === 1) {
-        props.updateUser({ ...data['content'] });
-        if (accessToken) props.updateAccessToken(accessToken);
-        if (refreshToken) props.updateRefreshToken(refreshToken);
-        setRedirectHome(true);
-      }
-    }
     setLoading(false);
   }
 

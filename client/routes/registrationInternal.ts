@@ -21,7 +21,6 @@ var {
 var {
   completeRegistrationDetails,
   completeRegistrationRequired,
-  userExists,
 } = require('../interactions/registration/registration-data');
 
 module.exports = (app) => {
@@ -82,7 +81,7 @@ module.exports = (app) => {
 
   app.post('/auth/signup/user-exists', async (req, res) => {
     let email = req.body.email;
-    let check = await userExists(email.toLowerCase());
+    let check = await User.exists({ email: email.toLowerCase() });
     if (check) {
       res.json(sendPacket(0, 'User with this email already exists'));
       log('error', `User tried creating a duplicate account with ${email}`);
@@ -123,9 +122,8 @@ module.exports = (app) => {
   app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
     const user = getUserFromJWT(req);
 
-    let check = await userExists(user.email.toLowerCase());
+    let check = await User.exists({ email: user.email.toLowerCase() });
 
-    //ASHWIN - Fix this route
     if (check) {
       try {
         const userDB = await User.findOne({ _id: user._id }, 'work').exec();

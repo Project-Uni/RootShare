@@ -80,7 +80,6 @@ function Homepage(props: Props) {
       props.updateRefreshToken('');
       return false;
     }
-    props.updateUser({ ...data['content'] });
     return true;
   }
 

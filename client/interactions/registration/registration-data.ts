@@ -66,14 +66,4 @@ module.exports = {
       return sendPacket(1, 'Successfully updated user profile');
     }
   },
-
-  userExists: async (email) => {
-    let user = await User.findOne({ email: email });
-
-    if (!user) {
-      return false;
-    } else {
-      return true;
-    }
-  },
 };
