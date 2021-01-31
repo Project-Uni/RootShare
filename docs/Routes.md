@@ -34,8 +34,6 @@ BACKEND ROUTES
 
 - [ /auth/secure-unconfirmed ] Route with access to logged in Users with unconfirmed emails
 
-- [ /auth/secure-confirmed ] Route with access to logged in Users with confirmed emails
-
 - [ /auth/logout] Logs out cookie'd User
 
 - [ /api/user/getCurrent ] Returns current cookie'd User

@@ -10,7 +10,6 @@ import {
   connectionsToUserIDStrings,
   connectionsToUserIDs,
   pendingToUserIDs,
-  addProfilePictureToUser,
   addProfilePicturesAll,
 } from './utilities';
 

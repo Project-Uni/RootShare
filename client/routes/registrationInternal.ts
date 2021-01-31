@@ -126,12 +126,15 @@ module.exports = (app) => {
 
     if (check) {
       try {
-        const userDB = await User.findOne({ _id: user._id }, 'work').exec();
+        const userDB = await User.findOne(
+          { _id: user._id },
+          'work accountType'
+        ).exec();
         res.json(
           sendPacket(1, 'Sending back current user', {
             email: user.email,
             regComplete: userDB.work !== undefined,
-            externalComplete: user.accountType !== undefined,
+            externalComplete: Boolean(userDB.accountType),
             firstName: user.firstName,
             lastName: user.lastName,
             _id: user._id,

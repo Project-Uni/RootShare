@@ -95,7 +95,9 @@ function HypeAdditionalInfo(props: Props) {
         setRegCompleted(data['content']['regComplete']);
         setCurrentUser(data['content']['email']);
       }
-    } else setLandingRedirect(true);
+    } else {
+      setLandingRedirect(true);
+    }
   }
 
   useEffect(() => {

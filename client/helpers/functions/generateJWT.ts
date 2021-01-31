@@ -1,16 +1,23 @@
 import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types';
 import jwt = require('jsonwebtoken');
 
-export function generateJWT(user) {
+export function generateJWT(
+  user: {
+    [key in typeof JWT_TOKEN_FIELDS[number]]: string;
+  }
+): { accessToken: string; refreshToken: string } {
   const userTokenInfo = {};
   for (let i = 0; i < JWT_TOKEN_FIELDS.length; i++)
     userTokenInfo[JWT_TOKEN_FIELDS[i]] = user[JWT_TOKEN_FIELDS[i]];
-  const accessToken = jwt.sign(
+  const accessToken: string = jwt.sign(
     userTokenInfo,
     process.env.JWT_ACCESS_SECRET
     // { expiresIn: JWT_ACCESS_TOKEN_TIMEOUT }
   );
-  const refreshToken = jwt.sign(userTokenInfo, process.env.JWT_REFRESH_SECRET);
+  const refreshToken: string = jwt.sign(
+    userTokenInfo,
+    process.env.JWT_REFRESH_SECRET
+  );
 
   const JWT = {
     accessToken,

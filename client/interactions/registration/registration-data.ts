@@ -1,6 +1,6 @@
 import { User, University } from '../../models';
 
-import { log, sendPacket, hashPassword } from '../../helpers/functions';
+import { log, sendPacket, hashPassword, generateJWT } from '../../helpers/functions';
 
 module.exports = {
   completeRegistrationDetails: async (userData, email) => {
@@ -60,10 +60,19 @@ module.exports = {
       if (err) outerErr = err;
     });
 
+    const tokens = generateJWT({
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      _id: user._id,
+      accountType: user.accountType,
+      privilegeLevel: user.privilegeLevel,
+    });
+
     if (outerErr) {
       return sendPacket(0, outerErr);
     } else {
-      return sendPacket(1, 'Successfully updated user profile');
+      return sendPacket(1, 'Successfully updated user profile', { ...tokens });
     }
   },
 };
