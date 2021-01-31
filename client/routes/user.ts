@@ -25,11 +25,6 @@ import {
 } from '../interactions/user';
 
 module.exports = (app) => {
-  app.get('/user/getCurrent', (req, res) => {
-    const user = getUserFromJWT(req);
-    return getCurrentUser(user, (packet) => res.json(packet));
-  });
-
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getConnections(userID, (packet) => res.json(packet));

@@ -36,8 +36,6 @@ BACKEND ROUTES
 
 - [ /auth/logout] Logs out cookie'd User
 
-- [ /api/user/getCurrent ] Returns current cookie'd User
-
 - [ /api/adminCount ] Retrieves information about our database for admins
 
 - [ /api/messaging/sendMessage ] Send a Message to a Conversation
