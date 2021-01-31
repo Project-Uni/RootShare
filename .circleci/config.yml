@@ -7,7 +7,7 @@ jobs:
     docker:
       - image: node:14.4.0
 
-    working_directory: ~/client/frontend
+    working_directory: ~/repo
 
     steps:
       - checkout
@@ -19,6 +19,7 @@ jobs:
 
       ## run: npm test
 
+      - run: cd client/frontend
       - run: npm install
 
       - save_cache:
