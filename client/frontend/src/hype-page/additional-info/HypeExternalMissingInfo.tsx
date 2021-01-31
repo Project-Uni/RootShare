@@ -131,16 +131,8 @@ function HypeExternalMissingInfo(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      accessToken,
-      refreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
+    if (Boolean(accessToken)) {
+      // props.updateUser({ ...data['content'] });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
       checkCompletedRegistration();

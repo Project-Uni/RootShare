@@ -211,23 +211,12 @@ function AdminEventCreator(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) {
+    if (!Boolean(props.accessToken)) {
       setLoginRedirect(true);
       return false;
-    } else {
-      updateUser({ ...data['content'] });
-      if (data['content']['privilegeLevel'] < MIN_ACCESS_LEVEL) {
-        setShowInvalid(true);
-        return false;
-      }
+    } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
+      setShowInvalid(true);
+      return false;
     }
     return true;
   }

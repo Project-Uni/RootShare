@@ -66,9 +66,7 @@ function SocketManager(props: Props) {
   }, [newConversation]);
 
   async function checkAuth(callback: (authed: boolean) => void) {
-    const { data } = await makeRequest('GET', '/user/getCurrent');
-
-    callback(data['success'] === 1);
+    callback(Boolean(props.accessToken));
   }
 
   function connectSocket() {

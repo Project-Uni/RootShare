@@ -78,7 +78,7 @@ function Login(props: Props) {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [props.accessToken]);
 
   async function checkAuth() {
     setLoading(true);
