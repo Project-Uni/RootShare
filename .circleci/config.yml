@@ -1,32 +1,31 @@
 version: 2.1
 orbs:
   node: circleci/node@3.0.0
-workflows:
-  node-tests:
-    jobs:
-      build:
-        docker:
-          - image: node:14.4.0
 
-        working_directory: ~/repo/client/frontend
+jobs:
+  build:
+    docker:
+      - image: node:14.4.0
 
-        steps:
-          - checkout
+    working_directory: ~/repo/client/frontend
 
-          - restore_cache:
-              keys:
-                - v1-dependencies-{{ checksum "package.json" }}
-                - v1-dependencies-
+    steps:
+      - checkout
 
-          ## run: npm test
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
 
-          - run: npm install
+      ## run: npm test
 
-          - save_cache:
-            paths:
-              - node_modules
-            key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm install
 
-          - run: npm run build
+      - save_cache:
+        paths:
+          - node_modules
+        key: v1-dependencies-{{ checksum "package.json" }}
 
-          ## run: aws deploy
+      - run: npm run build
+
+      ## run: aws deploy
