@@ -4,4 +4,29 @@ orbs:
 workflows:
   node-tests:
     jobs:
-      - node/test
+      build:
+        docker:
+          - image: node:14.4.0
+
+        working_directory: ~/repo/client/frontend
+
+        steps:
+          - checkout
+
+          - restore_cache:
+              keys:
+                - v1-dependencies-{{ checksum "package.json" }}
+                - v1-dependencies-
+
+          ## run: npm test
+
+          - run: npm install
+
+          - save_cache:
+            paths:
+              - node_modules
+            key: v1-dependencies-{{ checksum "package.json" }}
+
+          - run: npm run build
+
+          ## run: aws deploy
