@@ -12,23 +12,20 @@ jobs:
     steps:
       - checkout
 
-      - run: ls
-      - run: cd client/frontend
-
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "client/frontend/package.json" }}
             - v1-dependencies-
 
       ## run: npm test
 
-      - run: npm install
+      - run: cd client/frontend && npm install
 
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "client/frontend/package.json" }}
 
-      - run: npm run build
+      - run: cd client/frontend && npm run build
 
       ## run: aws deploy
