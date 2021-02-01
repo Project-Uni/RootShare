@@ -27,6 +27,6 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "client/frontend/package.json" }}
 
-      - run: cd client/frontend && npm run build
+      - run: CI=false cd client/frontend && npm run build
 
       ## run: aws deploy
