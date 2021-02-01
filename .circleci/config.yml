@@ -19,7 +19,7 @@ jobs:
 
       ## run: npm test
 
-      - run: cd client/frontend
+      - run: cd RootShare/client/frontend
       - run: npm install
 
       - save_cache:
