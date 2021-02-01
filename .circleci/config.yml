@@ -3,53 +3,51 @@ orbs:
   node: circleci/node@3.0.0
 
 jobs:
-  - build:
-      docker:
-        - image: node:14.4.0
-      resource_class: large ## Or xlarge
+  build:
+    docker:
+      - image: node:14.4.0
+    resource_class: large ## Or xlarge
 
-      working_directory: ~/repo
+    working_directory: ~/repo
 
-      steps:
-        - checkout
+    steps:
+      - checkout
 
-        - restore_cache:
-            keys:
-              - frontend-deps-{{ checksum "client/frontend/package.json" }}
-              - frontend-deps-
+      - restore_cache:
+          keys:
+            - frontend-deps-{{ checksum "client/frontend/package.json" }}
+            - frontend-deps-
 
-        ## run: npm test
+      ## run: npm test
 
-        - run: cd client/frontend && npm install
+      - run: cd client/frontend && npm install
 
-        - save_cache:
-            paths:
-              - client/frontend/node_modules ##client/frontend/node_modules?
-            key: frontend-deps-{{ checksum "client/frontend/package.json" }}
+      - save_cache:
+          paths:
+            - client/frontend/node_modules ##client/frontend/node_modules?
+          key: frontend-deps-{{ checksum "client/frontend/package.json" }}
 
-        - run: cd client/frontend && CI=false npm run build
+      - run: cd client/frontend && CI=false npm run build
 
-        - persist_to_workspace:
-            root: .
-            paths:
-              - .
-        ## run: aws deploy
-  - save_artifact:
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
       - run:
           name: Compress Artifacts
           command: tar -cvzf client-latest.tar client
+
       - store_artifacts:
           path: client-latest.tar
           destination: artifacts/client-latest ##Todo - Automate package version update and use that as the tag here
+
+      ## run: aws deploy
 
 workflows:
   build-react:
     jobs:
       - build:
-          filters:
-            branches:
-              only: circleci-project-setup
-      - save_artifact:
           filters:
             branches:
               only: circleci-project-setup
