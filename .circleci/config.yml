@@ -1,6 +1,8 @@
 version: 2.1
 orbs:
-  node: circleci/node@3.0.0
+  - node: circleci/node@3.0.0
+  - aws-s3: circleci/aws-s3@2.0.0
+  - aws-code-deploy: circleci/aws-code-deploy@1.0.1
 
 jobs:
   build:
@@ -51,3 +53,9 @@ workflows:
           filters:
             branches:
               only: circleci-project-setup
+  # deploy:
+  #   jobs:
+  #     - aws-code-deploy/deploy:
+  #         application-name: rootshare-client
+  #         arguments: '--profile assume_role'
+  #         bundleBucket: s3://rootshare-client-artifacts
