@@ -12,6 +12,9 @@ jobs:
     steps:
       - checkout
 
+      - run: ls
+      - run: cd client/frontend
+
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
@@ -19,7 +22,6 @@ jobs:
 
       ## run: npm test
 
-      - run: cd RootShare/client/frontend
       - run: npm install
 
       - save_cache:
