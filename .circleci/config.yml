@@ -31,27 +31,27 @@ jobs:
 
       - run: cd client/frontend && CI=false npm run build
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
-
       - run:
           name: Compress Artifacts
           command: tar --exclude='./client/node_modules' --exclude='./client/frontend/node_modules' -cvzf client-latest.tar client
 
       - store_artifacts:
           path: client-latest.tar
-          destination: artifacts/client-latest ##Todo - Automate package version update and use that as the tag here
+          destination: artifacts/client-latest.tar ##Todo - Automate package version update and use that as the tag here
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
       - aws-s3/sync:
-          arguments: |
-            --acl public-read \
-            --cache-control "max-age=86400"
+          # arguments: |
+          #   --acl public-read \
+          #   --cache-control "max-age=86400"
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-region: AWS_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          from: client-latest.tar
+          from: artifacts/client-latest.tar
           to: s3://rootshare-client-artifacts
 
       - aws-s3/copy:
@@ -68,9 +68,3 @@ workflows:
           filters:
             branches:
               only: circleci-project-setup
-  # deploy:
-  #   jobs:
-  #     - aws-code-deploy/deploy:
-  #         application-name: rootshare-client
-  #         arguments: '--profile assume_role'
-  #         bundleBucket: s3://rootshare-client-artifacts
