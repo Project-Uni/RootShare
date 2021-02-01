@@ -29,4 +29,8 @@ jobs:
 
       - run: cd client/frontend && CI=false npm run build
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
       ## run: aws deploy
