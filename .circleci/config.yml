@@ -4,6 +4,9 @@ orbs:
 
 jobs:
   build:
+    branches:
+      only:
+        - master
     docker:
       - image: node:14.4.0
     resource_class: xlarge
