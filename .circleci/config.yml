@@ -4,12 +4,9 @@ orbs:
 
 jobs:
   build:
-    branches:
-      only:
-        - master
     docker:
       - image: node:14.4.0
-    resource_class: xlarge
+    resource_class: large ## Or xlarge
 
     working_directory: ~/repo
 
@@ -37,3 +34,11 @@ jobs:
           paths:
             - .
       ## run: aws deploy
+
+workflows:
+  build-react:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
