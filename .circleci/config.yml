@@ -15,8 +15,8 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "client/frontend/package.json" }}
-            - v1-dependencies-
+            - frontend-deps-{{ checksum "client/frontend/package.json" }}
+            - frontend-deps-
 
       ## run: npm test
 
@@ -25,7 +25,7 @@ jobs:
       - save_cache:
           paths:
             - client/frontend/node_modules ##client/frontend/node_modules?
-          key: v1-dependencies-{{ checksum "client/frontend/package.json" }}
+          key: frontend-deps-{{ checksum "client/frontend/package.json" }}
 
       - run: cd client/frontend && CI=false npm run build
 
@@ -33,12 +33,24 @@ jobs:
           root: .
           paths:
             - .
+
+  save_artifact:
+    - run:
+        name: Compress Artifacts
+        command: tar -cvzf client-latest.tar client
+    - store_artifacts:
+        path: client-latest.tar
+        destination: artifacts/client-latest ##Todo - Automate package version update and use that as the tag here
       ## run: aws deploy
 
 workflows:
   build-react:
     jobs:
       - build:
+          filters:
+            branches:
+              only: circleci-project-setup
+      - save_artifact:
           filters:
             branches:
               only: circleci-project-setup
