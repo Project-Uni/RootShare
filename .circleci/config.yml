@@ -34,7 +34,7 @@ jobs:
 
       # - run:
       #     name: Compress Artifacts
-      #     command: tar --exclude './client/node_modules' --exclude './client/frontend/node_modules' -cvzf client-latest.tar client/
+      #     command: tar --exclude='client/frontend/node_modules' -cvzf client-latest.tar client/
 
       # - store_artifacts:
       #     path: client-latest.tar
