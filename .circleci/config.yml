@@ -63,7 +63,7 @@ jobs:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           # from: client-latest.tar
           from: artifacts
-          to: s3://rootshare-client-artifacts/artifacts
+          to: s3://rootshare-client-artifacts/artifacts/
 
       # - aws-s3/copy:
       #     from: client-latest.tar
