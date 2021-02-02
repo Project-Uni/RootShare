@@ -48,6 +48,9 @@ jobs:
       - run: mkdir artifacts && echo "Test artifact" > artifacts/test.txt
 
       - aws-s3/copy:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           from: artifacts/test.txt
           to: s3://rootshare-clients-artifacts
 
