@@ -8,56 +8,64 @@ jobs:
   build:
     docker:
       - image: node:14.4.0
-    resource_class: large ## Or xlarge
+    # resource_class: large ## Or xlarge
+    resource_class: small
 
     working_directory: ~/repo
 
     steps:
-      - checkout
+      # - checkout
 
-      - restore_cache:
-          keys:
-            - frontend-deps-{{ checksum "client/frontend/package.json" }}
-            - frontend-deps-
+      # - restore_cache:
+      #     keys:
+      #       - frontend-deps-{{ checksum "client/frontend/package.json" }}
+      #       - frontend-deps-
 
-      ## run: npm test
+      # ## run: npm test
 
-      - run: cd client/frontend && npm install
+      # - run: cd client/frontend && npm install
 
-      - save_cache:
-          paths:
-            - client/frontend/node_modules
-          key: frontend-deps-{{ checksum "client/frontend/package.json" }}
+      # - save_cache:
+      #     paths:
+      #       - client/frontend/node_modules
+      #     key: frontend-deps-{{ checksum "client/frontend/package.json" }}
 
-      - run: cd client/frontend && CI=false npm run build
+      # - run: cd client/frontend && CI=false npm run build
 
-      - run:
-          name: Compress Artifacts
-          command: tar --exclude './client/node_modules' --exclude './client/frontend/node_modules' -cvzf client-latest.tar client/
+      # - run:
+      #     name: Compress Artifacts
+      #     command: tar --exclude './client/node_modules' --exclude './client/frontend/node_modules' -cvzf client-latest.tar client/
 
-      - store_artifacts:
-          path: client-latest.tar
-          destination: artifacts/client-latest.tar ##Todo - Automate package version update and use that as the tag here
+      # - store_artifacts:
+      #     path: client-latest.tar
+      #     destination: artifacts/client-latest.tar ##Todo - Automate package version update and use that as the tag here
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - .
 
-      - aws-s3/sync:
-          # arguments: |
-          #   --acl public-read \
-          #   --cache-control "max-age=86400"
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-region: AWS_REGION
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          from: client-latest.tar
-          to: s3://rootshare-client-artifacts
+      - run: mkdir artifacts && echo "Test artifact" > artifacts/test.txt
 
       - aws-s3/copy:
           arguments: "--dryrun"
-          from: client-latest.tar
-          to: s3://rootshare-client-artifacts
+          from: artifacts/test.txt
+          to: s3://rootshare-clients-artifacts
+
+      # - aws-s3/sync:
+      #     # arguments: |
+      #     #   --acl public-read \
+      #     #   --cache-control "max-age=86400"
+      #     aws-access-key-id: AWS_ACCESS_KEY_ID
+      #     aws-region: AWS_REGION
+      #     aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      #     from: client-latest.tar
+      #     to: s3://rootshare-client-artifacts
+
+      # - aws-s3/copy:
+      #     arguments: "--dryrun"
+      #     from: client-latest.tar
+      #     to: s3://rootshare-client-artifacts
 
       ## run: aws deploy
 
