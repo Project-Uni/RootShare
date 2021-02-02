@@ -48,7 +48,6 @@ jobs:
       - run: mkdir artifacts && echo "Test artifact" > artifacts/test.txt
 
       - aws-s3/copy:
-          arguments: "--dryrun"
           from: artifacts/test.txt
           to: s3://rootshare-clients-artifacts
 
@@ -63,7 +62,6 @@ jobs:
       #     to: s3://rootshare-client-artifacts
 
       # - aws-s3/copy:
-      #     arguments: "--dryrun"
       #     from: client-latest.tar
       #     to: s3://rootshare-client-artifacts
 
