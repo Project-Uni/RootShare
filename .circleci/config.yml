@@ -55,8 +55,8 @@ jobs:
       #     to: s3://rootshare-clients-artifacts/artifacts
 
       - aws-s3/sync:
-          # arguments: |
-          #   --acl public-read \
+          arguments: |
+            --acl public-read
           #   --cache-control "max-age=86400"
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-region: AWS_REGION
