@@ -51,6 +51,7 @@ jobs:
 
       - run: echo AWS_CLIENT_PEM > projectu.pem
       - run: ssh -i "projectu.pem" ubuntu@ec2-18-224-25-211.us-east-2.compute.amazonaws.com
+      - run: yes
       - run: ls
       - run: logout
 
