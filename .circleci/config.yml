@@ -52,7 +52,7 @@ jobs:
           aws-region: AWS_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           from: artifacts/test.txt
-          to: s3://rootshare-clients-artifacts
+          to: s3://rootshare-clients-artifacts/artifacts
 
       # - aws-s3/sync:
       #     # arguments: |
