@@ -47,6 +47,8 @@ jobs:
 
       - run: mkdir artifacts && echo "Test artifact" > artifacts/test.txt
 
+      - run: echo $AWS_ACCESS_KEY_ID
+
       - aws-s3/copy:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-region: AWS_REGION
@@ -54,15 +56,16 @@ jobs:
           from: artifacts/test.txt
           to: s3://rootshare-clients-artifacts/artifacts
 
-      # - aws-s3/sync:
-      #     # arguments: |
-      #     #   --acl public-read \
-      #     #   --cache-control "max-age=86400"
-      #     aws-access-key-id: AWS_ACCESS_KEY_ID
-      #     aws-region: AWS_REGION
-      #     aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-      #     from: client-latest.tar
-      #     to: s3://rootshare-client-artifacts
+      - aws-s3/sync:
+          # arguments: |
+          #   --acl public-read \
+          #   --cache-control "max-age=86400"
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          # from: client-latest.tar
+          from: artifacts
+          to: s3://rootshare-client-artifacts/artifacts
 
       # - aws-s3/copy:
       #     from: client-latest.tar
