@@ -60,6 +60,7 @@ module.exports = (app) => {
   //   const response = await phasedEmergencyEmailRollout(subject, message);
   //   return res.send(response);
   // });
+};
 
 export async function phasedEmergencyEmailRollout(subject: string, message: string) {
   const users = await User.find({}, ['email']).exec();
