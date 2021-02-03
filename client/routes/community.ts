@@ -1,4 +1,4 @@
-import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -131,6 +131,23 @@ export default function communityRoutes(app) {
   app.delete(
     '/api/admin/community/:communityID',
     isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
+        return res.json(
+          sendPacket(-1, 'User is not authorized to perform this action')
+        );
+
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.delete(
+    '/api/community/:communityID',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
     async (req, res) => {
       if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
         return res.json(
