@@ -10,13 +10,12 @@ import {
   connectionsToUserIDStrings,
   connectionsToUserIDs,
   pendingToUserIDs,
-  addProfilePictureToUser,
   addProfilePicturesAll,
 } from './utilities';
 
 export async function getCurrentUser(user, callback) {
-  if (!user) return callback(sendPacket(0, 'User not found'));
-  await addProfilePictureToUser(user);
+  if (Object.keys(user).some((key) => !user[key]))
+    return callback(sendPacket(0, 'User not found'));
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -26,7 +25,6 @@ export async function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
-      profilePicture: user.profilePicture,
     })
   );
 }

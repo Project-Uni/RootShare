@@ -121,7 +121,7 @@ require('./routes/messaging')(app, io);
 require('./routes/opentok')(app);
 require('./routes/event')(app);
 require('./routes/mocks')(app);
-
+require('./routes/utilities')(app);
 require('./routes/proxy')(app);
 
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})

@@ -200,10 +200,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
   }
 }
 
-export async function joinCommunity(
-  communityID: string,
-  userID: { [key: string]: any }
-) {
+export async function joinCommunity(communityID: string, userID: string) {
   try {
     let userPromise = User.findById(userID).exec();
     let communityPromise = Community.findById(communityID).exec();

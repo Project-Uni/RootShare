@@ -1,4 +1,9 @@
-import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import {
+  log,
+  sendPacket,
+  retrieveSignedUrl,
+  getUserFromJWT,
+} from '../helpers/functions';
 import { addProfilePictureToUser } from '../interactions/utilities';
 
 const mongoose = require('mongoose');
@@ -7,7 +12,7 @@ import { Conversation, Message, User } from '../models';
 
 export function createThread(req, io, callback) {
   const { message, tempID, recipients } = req.body;
-  const { _id: userID } = req.user;
+  const { _id: userID } = getUserFromJWT(req);
 
   checkConversationExists(userID, recipients, (packet) => {
     if (packet['success'] === -1) return callback(packet);
