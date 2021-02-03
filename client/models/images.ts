@@ -19,7 +19,7 @@ const mongoose = require('mongoose');
  *            description: The user who owns/created the image
  *          post:
  *            $ref: '#/components/schemas/Post'
- *            description: The post the image is associated with (if any)
+ *            description: The post the image is associated with
  *          imageType:
  *            type: string
  *            description: The type of image usage

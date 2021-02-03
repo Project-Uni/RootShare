@@ -383,8 +383,7 @@ export const checkUsersExist = async (userIDs: string[]) => {
     })
   );
 
-  return Promise.all(existPromises).then((existBools) => {
-    for (let i = 0; i < existBools.length; i++) if (!existBools[i]) return false;
-    return true;
-  });
+  return Promise.all(existPromises).then(
+    (existBools) => !existBools.some((val) => !val)
+  );
 };

@@ -11,8 +11,6 @@ var Schema = mongoose.Schema;
  *        required:
  *          - host
  *          - dateTime
- *          - private
- *          - isDev
  *        properties:
  *          _id:
  *            type: string
@@ -151,11 +149,11 @@ var webinarSchema = new Schema(
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
     hostCommunity: { type: Schema.ObjectId, ref: 'communities' },
-    private: { type: Boolean, required: true, default: false },
+    private: { type: Boolean },
     eventImage: { type: String },
     eventBanner: { type: String },
     blockedUsers: [{ type: Schema.ObjectId, ref: 'users' }],
-    isDev: { type: Boolean, required: true, default: false },
+    isDev: { type: Boolean },
     //MTG Fields
     isMTG: { type: Boolean },
     introVideoURL: { type: String },

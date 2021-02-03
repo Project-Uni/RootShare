@@ -31,11 +31,11 @@ const { Schema } = mongoose;
  *            description: The message the user sent
  *          createdAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: The date of the record creation.
  *          updatedAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          user: 1jknj209asd0

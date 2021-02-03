@@ -27,7 +27,7 @@ const { Schema } = mongoose;
  *            description: The date of the record creation.
  *          updatedAt:
  *            type: string
- *            format: datetime
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          user: 1jknj209asd0

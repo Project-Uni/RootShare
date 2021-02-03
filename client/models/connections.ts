@@ -23,10 +23,12 @@ var Schema = mongoose.Schema;
  *            $ref: '#/components/schemas/User'
  *            description: The id of the user whom the request was sent to
  *          createdAt:
- *            type: date-time
+ *            type: string
+ *            format: date-time
  *            description: The date of the record creation.
  *          updatedAt:
- *            type: date-time
+ *            type: string
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          from: 0123456789abcdef
