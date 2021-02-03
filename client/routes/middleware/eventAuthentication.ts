@@ -1,11 +1,11 @@
-import { sendPacket } from '../../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../../helpers/functions';
 const mongoose = require('mongoose');
 const Webinar = mongoose.model('webinars');
 
 // Only use this middleware after a isAuthenticated or isAuthenticatedWithJWT
 
 export function isEventHost(req, res, next) {
-  const userID: string = req.user._id;
+  const { _id: userID } = getUserFromJWT(req);
   const { webinarID } = req.body;
   if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request body'));
 
@@ -20,7 +20,7 @@ export function isEventHost(req, res, next) {
 }
 
 export function isEventSpeaker(req, res, next) {
-  const userID: string = req.user._id;
+  const { _id: userID } = getUserFromJWT(req);
   const { webinarID } = req.body;
 
   if (!webinarID) return res.json(sendPacket(-1, 'webinarID not in request body'));

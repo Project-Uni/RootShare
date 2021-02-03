@@ -29,6 +29,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  accessToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
@@ -50,9 +51,7 @@ function AuthenticatedPage(props: Props) {
     rightElement,
     showRightElementWidth,
     selectedTab,
-    updateUser,
-    updateAccessToken,
-    updateRefreshToken,
+    accessToken,
   } = props;
 
   const [loading, setLoading] = useState(true);
@@ -81,15 +80,7 @@ function AuthenticatedPage(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest('GET', '/user/getCurrent');
-    if (data['success'] !== 1) {
-      updateUser({});
-      updateAccessToken('');
-      updateRefreshToken('');
-      return false;
-    }
-    updateUser({ ...data['content'] });
-    return true;
+    return Boolean(accessToken);
   }
 
   return (
@@ -116,7 +107,9 @@ function AuthenticatedPage(props: Props) {
 }
 
 const mapStateToProps = (state: { [key: string]: any }) => {
-  return {};
+  return {
+    accessToken: state.accessToken,
+  };
 };
 
 const mapDispatchToProps = (dispatch: any) => {
