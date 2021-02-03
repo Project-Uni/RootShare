@@ -81,7 +81,7 @@ function cleanupWaitingRoom() {
       const currID = userIDs[i];
       const currUser = currWebinar.users[currID];
 
-      if (Date.now() - currUser.joinedAt >= WAITING_ROOM_TIMEOUT)
+      if (Date.now() - currUser.joinedAt || Date.now() >= WAITING_ROOM_TIMEOUT)
         delete waitingRooms[webinarID].users[userIDs[i]];
     }
 

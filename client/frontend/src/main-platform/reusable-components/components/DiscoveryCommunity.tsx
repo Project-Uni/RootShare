@@ -5,6 +5,7 @@ import { Button } from '@material-ui/core';
 import { FaLock } from 'react-icons/fa';
 
 import { colors } from '../../../theme/Colors';
+import theme from '../../../theme/Theme';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -14,7 +15,7 @@ import { CommunityType } from '../../../helpers/types';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${colors.fourth}`,
+    borderBottom: `1px solid ${theme.dark}`,
     paddingBottom: 15,
   },
   lastWrapper: {
@@ -35,9 +36,12 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 10,
   },
   removeButton: {
-    color: colors.primaryText,
-    background: colors.secondary,
+    color: theme.altText,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -48,9 +52,12 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 7,
   },
   connectButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: theme.altText,
+    background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   fadeOut: {
     opacity: 0,
@@ -63,14 +70,14 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: theme.primaryText,
     },
   },
   noUnderline: {
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: theme.dark,
     },
   },
 }));
@@ -137,7 +144,7 @@ function DiscoveryCommunity(props: Props) {
       <div className={styles.buttonContainer}>
         {props.private && (
           <FaLock
-            color={colors.secondaryText}
+            color={theme.secondaryText}
             size={18}
             className={styles.lockIcon}
           />
@@ -178,18 +185,18 @@ function DiscoveryCommunity(props: Props) {
               href={`/community/${props.communityID}`}
               className={styles.noUnderline}
             >
-              <RSText type="body" bold size={13} color={colors.primaryText}>
+              <RSText type="body" bold size={13} color={theme.primaryText}>
                 {props.name || ''}
               </RSText>
             </a>
 
-            <RSText type="body" italic={true} size={11} color={colors.secondaryText}>
+            <RSText type="body" italic={true} size={11} color={theme.secondaryText}>
               {props.type || ''}
             </RSText>
-            <RSText type="body" size={11} color={colors.secondaryText}>
+            <RSText type="body" size={11} color={theme.secondaryText}>
               {props.memberCount || 0} Members
             </RSText>
-            <RSText type="body" size={11} color={colors.secondaryText}>
+            <RSText type="body" size={11} color={theme.secondaryText}>
               {props.mutualMemberCount || 0} Mutual
             </RSText>
           </div>

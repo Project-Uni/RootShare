@@ -8,17 +8,17 @@ import RSText from '../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
     width: 400,
     border: '1px solid black',
     borderRadius: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    padding: 10,
     margin: 10,
-    height: '90vh',
+    height: '85vh',
   },
 
   adminEventContainer: {
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -26,7 +26,9 @@ const useStyles = makeStyles((_: any) => ({
     overflow: 'scroll',
     label: colors.primaryText,
   },
-  eventHeader: {},
+  eventHeader: {
+    marginBottom: 10,
+  },
 }));
 
 type Props = {

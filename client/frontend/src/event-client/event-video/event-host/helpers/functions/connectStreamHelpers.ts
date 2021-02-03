@@ -83,7 +83,7 @@ export async function createEventSession(
         updateVideoElements
       );
 
-      eventSession.publish(publisher, (err) => {
+      eventSession.publish(publisher, (err: any) => {
         if (err) alert(err.message);
       });
       setCameraPublisher(publisher);

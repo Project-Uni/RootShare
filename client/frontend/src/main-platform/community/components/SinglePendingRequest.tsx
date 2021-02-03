@@ -4,6 +4,7 @@ import { Button } from '@material-ui/core';
 import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import RSText from '../../../base-components/RSText';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -19,8 +20,8 @@ const useStyles = makeStyles((_: any) => ({
   },
   right: {},
   acceptButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
     marginLeft: 15,
   },
   name: {
@@ -28,7 +29,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   noDecoration: {
     textDecoration: 'none',
-    color: colors.primary,
+    color: Theme.primary,
   },
 }));
 

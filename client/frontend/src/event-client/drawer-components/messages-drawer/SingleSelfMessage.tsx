@@ -1,12 +1,13 @@
 import React from 'react';
-import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, withStyles, Theme as MUITheme } from '@material-ui/core/styles';
 
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
+import colors from '../../../theme/Theme';
 import { MessageType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -14,18 +15,17 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
     alignSelf: 'flex-end',
     width: '80%',
-    background: colors.secondary,
   },
   message: {
-    color: colors.primaryText,
+    color: colors.altText,
     marginTop: 2,
     marginBottom: 5,
     padding: 5,
     float: 'right',
-    background: colors.primary,
+    background: Theme.primary,
     marginRight: 5,
     borderStyle: 'solid',
-    borderColor: 'gray',
+    borderColor: colors.primary,
     borderRadius: 7,
     borderWidth: '2px',
     wordWrap: 'break-word',
@@ -35,19 +35,19 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'right',
     marginTop: 10,
     marginRight: 25,
-    color: 'gray',
+    color: colors.secondaryText,
   },
   errorIcon: {
-    color: colors.brightError,
+    color: colors.error,
     marginTop: 'auto',
     marginBottom: 'auto',
   },
 }));
 
-const CustomTooltip = withStyles((theme: Theme) => ({
+const CustomTooltip = withStyles((theme: MUITheme) => ({
   tooltip: {
     backgroundColor: theme.palette.common.white,
-    color: colors.brightError,
+    color: colors.error,
     boxShadow: theme.shadows[1],
     fontSize: 12,
   },

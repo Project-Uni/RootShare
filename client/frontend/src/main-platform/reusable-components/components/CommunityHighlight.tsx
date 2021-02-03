@@ -10,13 +10,14 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { cropText, makeRequest } from '../../../helpers/functions';
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
   },
   wrapper: {
     display: 'flex',
@@ -30,17 +31,17 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'left',
   },
   profilePic: {
-    border: `1px solid ${colors.bright}`,
+    border: `1px solid ${Theme.bright}`,
   },
   connectButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
     '&:hover': {
-      background: colors.primary,
+      background: Theme.brightHover,
     },
   },
   pendingText: {
-    background: colors.secondaryText,
+    background: Theme.secondaryText,
     padding: 3,
     paddingLeft: 5,
     paddingRight: 5,
@@ -75,13 +76,7 @@ type Props = {
   communityID: string;
   private?: boolean;
   name: string;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   description: string;
   memberCount: number;
   mutualMemberCount: number;
@@ -135,13 +130,13 @@ function CommunityHighlight(props: Props) {
       );
     else if (communityStatus === 'PENDING')
       return (
-        <RSText color={colors.primaryText} size={12} className={styles.pendingText}>
+        <RSText color={Theme.altText} size={12} className={styles.pendingText}>
           PENDING
         </RSText>
       );
     else
       return (
-        <RSText color={colors.primary} size={12}>
+        <RSText color={Theme.secondaryText} size={12}>
           {props.userID === props.admin ? 'ADMIN' : 'MEMBER'}
         </RSText>
       );
@@ -177,7 +172,7 @@ function CommunityHighlight(props: Props) {
                 <RSText
                   type="head"
                   size={13}
-                  color={colors.second}
+                  color={Theme.primaryText}
                   className={styles.name}
                 >
                   {props.name}
@@ -185,7 +180,7 @@ function CommunityHighlight(props: Props) {
               </a>
               {props.private && (
                 <FaLock
-                  color={colors.secondaryText}
+                  color={Theme.secondaryText}
                   size={13}
                   className={styles.lock}
                 />
@@ -195,7 +190,7 @@ function CommunityHighlight(props: Props) {
             <RSText
               type="subhead"
               size={12}
-              color={colors.fourth}
+              color={Theme.secondaryText}
               className={styles.type}
             >
               {props.type}
@@ -203,12 +198,12 @@ function CommunityHighlight(props: Props) {
             <RSText
               type="subhead"
               size={12}
-              color={colors.secondaryText}
+              color={Theme.secondaryText}
               className={styles.type}
             >
               {cropText(props.description, MAX_DESC_LEN)}
             </RSText>
-            <RSText type="subhead" size={12} color={colors.second}>
+            <RSText type="subhead" size={12} color={Theme.secondaryText}>
               {numMembers} Members | {props.mutualMemberCount} Connections
             </RSText>
           </div>

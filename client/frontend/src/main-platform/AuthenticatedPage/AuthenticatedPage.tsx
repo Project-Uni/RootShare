@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
 
@@ -9,13 +9,14 @@ import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
-import DiscoverBody from './components/DiscoverBody';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
   HEADER_HEIGHT,
 } from '../../helpers/constants';
+
+import { AVAILABLE_TABS } from '../reusable-components/components/MainNavigator';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -28,27 +29,45 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  user: { [key: string]: any };
   accessToken: string;
-  refreshToken: string;
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
+  component: JSX.Element;
+  leftElement?: JSX.Element;
+  showLeftElementWidth?: number;
+  rightElement?: JSX.Element;
+  showRightElementWidth?: Number;
+  selectedTab?: AVAILABLE_TABS;
 };
 
-function Discover(props: Props) {
+function AuthenticatedPage(props: Props) {
   const styles = useStyles();
 
+  const {
+    component,
+    leftElement,
+    showLeftElementWidth,
+    rightElement,
+    showRightElementWidth,
+    selectedTab,
+    accessToken,
+  } = props;
+
+  const [loading, setLoading] = useState(true);
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const showLeftEl = useRef(showLeftElementWidth || SHOW_HEADER_NAVIGATION_WIDTH);
+  const showRightEl = useRef(showRightElementWidth || SHOW_DISCOVERY_SIDEBAR_WIDTH);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
 
     checkAuth().then(async (authenticated) => {
       if (authenticated) {
-        console.log('User is authenticated');
+        setLoading(false);
       } else {
         setLoginRedirect(true);
       }
@@ -61,44 +80,35 @@ function Discover(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      return false;
-    }
-    props.updateUser({ ...data['content'] });
-    return true;
+    return Boolean(accessToken);
   }
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/discover`} />}
-      <EventClientHeader showNavigationWidth={SHOW_HEADER_NAVIGATION_WIDTH} />
-      <div className={styles.body} style={{ height: height }}>
-        {width > SHOW_HEADER_NAVIGATION_WIDTH && (
-          <MainNavigator currentTab="discover" />
-        )}
-        <DiscoverBody />
-        {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
-      </div>
+      {loginRedirect && (
+        <Redirect to={`/login?redirect=${window.location.pathname}`} />
+      )}
+      <EventClientHeader showNavigationWidth={showLeftEl.current} />
+      {!loading && (
+        <div className={styles.body} style={{ height: height }}>
+          {width > showLeftEl.current &&
+            (leftElement ? (
+              leftElement
+            ) : (
+              <MainNavigator currentTab={selectedTab || 'none'} />
+            ))}
+          {component}
+          {width > showRightEl.current &&
+            (rightElement ? rightElement : <DiscoverySidebar />)}
+        </div>
+      )}
     </div>
   );
 }
 
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
-    user: state.user,
     accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 
@@ -116,4 +126,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Discover);
+export default connect(mapStateToProps, mapDispatchToProps)(AuthenticatedPage);

@@ -1,5 +1,5 @@
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { User } from '../models';
+import { MeetTheGreekInterest, User, Webinar } from '../models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
@@ -7,9 +7,11 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-import { log } from '../helpers/functions';
+import { log, sendPacket } from '../helpers/functions';
 
 import { getUserData } from '../interactions/utilities';
+import { Request, Response } from 'express';
+import { sendSMS } from '../helpers/functions/twilio';
 
 module.exports = (app) => {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
@@ -17,6 +19,28 @@ module.exports = (app) => {
       res.json(packet);
     });
   });
+
+  app.get('/api/interested', async (req, res) => {
+    const data = await getUniqueInterested();
+    return res.json(
+      sendPacket(1, 'Retrieved Data', {
+        users: data,
+        count: Object.keys(data).length,
+      })
+    );
+  });
+
+  app.get('/api/viewers', async (req, res) => {
+    const data = await getTotalMTGViewers();
+    return res.json(
+      sendPacket(1, 'Retrieved Viewers:', { viewers: data, length: data.length })
+    );
+  });
+
+  // app.get('/api/twilio', async (req: Request, res: Response) => {
+  //   const data = await sendSMS(['(408) 644-9017'], 'RootShare SMS!');
+  //   return res.json({ message: data });
+  // });
 
   //NOTE - Keep this for now, and update text if we need it for upcoming events, so we don't have to randomly write up and format an email 20 minutes before the event
   // app.get('/api/emergency/dontUse/phasedEmail', async (req, res) => {
@@ -89,4 +113,64 @@ function sendEmail(email, subject, message) {
     .catch((err) => {
       log('error', `${email}: ${err}`);
     });
+}
+
+async function getUniqueInterested() {
+  const data: any[] = await MeetTheGreekInterest.find({}, 'answers user')
+    .populate({ path: 'user', select: 'firstName lastName email phoneNumber' })
+    .exec();
+
+  const reducedData = {};
+  data.forEach((currentInterest) => {
+    if (!(currentInterest.user._id in reducedData)) {
+      reducedData[
+        currentInterest.user._id
+      ] = `${currentInterest.user.firstName} ${currentInterest.user.lastName}`;
+    }
+  });
+
+  return reducedData;
+}
+
+async function getTotalMTGViewers() {
+  const events = await Webinar.find({ isMTG: true, isDev: false }, 'attendees_V2')
+    .populate({ path: 'attendees_V2', select: 'firstName lastName email _id' })
+    .lean()
+    .exec();
+
+  const output = {};
+  const chain = events
+    .map((event) => event.attendees_V2)
+    .forEach((event) => {
+      if (event) {
+        event.forEach((attendee) => {
+          if (attendee._id && !(attendee._id in output)) {
+            output[attendee._id] = {
+              firstName: attendee.firstName,
+              lastName: attendee.lastName,
+            };
+          }
+        });
+      }
+    });
+
+  // const first = events.map((event) => event.attendees_V2);
+  // const output = {};
+  // first.forEach((event) => {
+  //   if (event) {
+  //     event.forEach((attendee) => {
+  //       if (attendee._id && !(attendee._id in output)) {
+  //         output[attendee._id] = {
+  //           firstName: attendee.firstName,
+  //           lastName: attendee.lastName,
+  //         };
+  //       }
+  //     });
+  //   }
+  // });
+
+  const filteredOutput = Object.keys(output).map(
+    (key) => `${output[key].firstName} ${output[key].lastName}`
+  );
+  return filteredOutput;
 }

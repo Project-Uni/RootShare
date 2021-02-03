@@ -8,12 +8,13 @@ import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import RootSharePreviewBanner from '../../../images/event/RootSharePreviewBanner.png';
+import Theme from '../../../theme/Theme';
 
 const MAX_SUBSTR_LEN = 200;
 
 const useStyles = makeStyles((_: any) => ({
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
   },
   wrapper: {
     marginLeft: 1,
@@ -54,7 +55,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-end',
   },
   seeMoreButton: {
-    color: colors.fourth,
+    color: Theme.primaryText,
     marginRight: -9,
   },
   bottom: {
@@ -62,17 +63,23 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   rsvpButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   goToEventButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.altText,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   hostLink: {
     display: 'inline-block',
     textDecoration: 'none',
-    color: colors.primaryText,
+    color: Theme.primaryText,
     '&:hover': {
       textDecoration: 'underline',
     },
@@ -87,7 +94,7 @@ type Props = {
   summary: string;
   description: string;
   timestamp: string;
-  eventImage: string;
+  eventBanner: string;
   mutualSignups: number;
   rsvpYes: boolean;
   style?: any;
@@ -109,7 +116,7 @@ function Event(props: Props) {
     return (
       <div className={styles.top}>
         <a href={`/event/${props.eventID}`} className={styles.eventName}>
-          <RSText type="head" color={colors.second} bold size={16}>
+          <RSText type="head" color={Theme.secondaryText} bold size={16}>
             {props.title}
           </RSText>
         </a>
@@ -120,16 +127,16 @@ function Event(props: Props) {
             alignItems: 'center',
           }}
         >
-          <RSText color={colors.fourth}>{props.timestamp}</RSText>
+          <RSText color={Theme.secondaryText}>{props.timestamp}</RSText>
           <IconButton
             onClick={() => {
               setShowFullEvent(!showFullEvent);
             }}
           >
             {showFullEvent ? (
-              <BsChevronDown color={colors.second} size={14} />
+              <BsChevronDown color={Theme.secondaryText} size={14} />
             ) : (
-              <BsChevronRight color={colors.second} size={14} />
+              <BsChevronRight color={Theme.secondaryText} size={14} />
             )}
           </IconButton>
         </div>
@@ -144,13 +151,13 @@ function Event(props: Props) {
           href={props.communityID ? `/community/${props.communityID}` : undefined}
           className={styles.hostLink}
         >
-          <RSText type="subhead" color={colors.second} size={14}>
+          <RSText type="subhead" color={Theme.secondaryText} size={14}>
             Hosted by {props.communityName || 'RootShare'}
           </RSText>
         </a>
         <a href={`/event/${props.eventID}`} className={styles.hostLink}>
           <img
-            src={props.eventImage || RootSharePreviewBanner}
+            src={props.eventBanner || RootSharePreviewBanner}
             className={styles.banner}
           />
         </a>
@@ -158,12 +165,12 @@ function Event(props: Props) {
           type="body"
           bold
           size={14}
-          color={colors.second}
+          color={Theme.secondaryText}
           className={styles.summary}
         >
           {props.summary}
         </RSText>
-        <RSText type="body" size={13} color={colors.second}>
+        <RSText type="body" size={13} color={Theme.secondaryText}>
           {showFullDesc || descriptionSubstr === props.description
             ? props.description
             : descriptionSubstr.concat(' ...')}
@@ -179,7 +186,7 @@ function Event(props: Props) {
         )}
 
         <div className={styles.bottom}>
-          <RSText type="body" color={colors.fourth} size={13}>
+          <RSText type="body" color={Theme.primaryText} size={13}>
             {props.mutualSignups !== 0 &&
               `${props.mutualSignups} Connections Signed Up`}
           </RSText>

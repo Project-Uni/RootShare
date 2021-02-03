@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, withStyles, Theme as MUITheme } from '@material-ui/core/styles';
 
 import { Menu, MenuItem } from '@material-ui/core';
 import { FaEllipsisH, FaRegStar, FaStar } from 'react-icons/fa';
@@ -10,6 +10,7 @@ import RSText from '../../base-components/RSText';
 
 import { makeRequest, getConversationTime } from '../../helpers/functions';
 import { MessageType } from '../../helpers/types';
+import Theme from '../../theme/Theme';
 
 const options = ['Connect with yourself?', 'Cancel'];
 
@@ -17,19 +18,13 @@ const ITEM_HEIGHT = 48;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.ternary,
+    background: Theme.bright,
     paddingBottom: 4,
-    borderTopStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: 'lightgray',
     display: 'flex',
   },
   errorWrapper: {
-    background: colors.brightError,
+    background: Theme.error,
     paddingBottom: 4,
-    borderTopStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: 'lightgray',
   },
   top: {
     display: 'flex',
@@ -44,18 +39,19 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     alignItems: 'center',
     marginRight: 12,
+    justifyContent: 'center',
     marginTop: 7,
   },
   senderName: {
     margin: 10,
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.white,
     wordWrap: 'break-word',
     maxWidth: 240,
   },
   message: {
     textAlign: 'left',
-    color: '#f2f2f2',
+    color: Theme.white,
     marginLeft: 10,
     marginRight: 10,
     marginTop: 7,
@@ -69,34 +65,31 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: -10,
   },
   likeCount: {
-    color: '#f2f2f2',
+    color: Theme.white,
   },
   star: {
     '&:hover': {
-      color: colors.primaryText,
       cursor: 'pointer',
     },
     marginTop: -10,
     marginBottom: 3,
-    color: '#6699ff',
+    color: Theme.white,
   },
   starGray: {
     '&:hover': {
-      color: colors.primaryText,
       cursor: 'pointer',
     },
     marginTop: -10,
     marginBottom: 3,
-    color: 'grey',
+    color: Theme.white,
   },
   time: {
     marginTop: 12,
     display: 'inline-block',
-    color: 'grey',
+    color: Theme.secondaryText,
   },
   ellipsis: {
     '&:hover': {
-      color: colors.primaryText,
       cursor: 'pointer',
     },
     color: 'grey',
@@ -154,10 +147,6 @@ function MyEventMessage(props: Props) {
     if (data['success'] === 1) setLiked(data['content']['newLiked']);
   }
 
-  const handleClick = (event: any) => {
-    setAnchorEl(event.currentTarget);
-  };
-
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -179,38 +168,6 @@ function MyEventMessage(props: Props) {
           </div>
         </div>
         <div className={styles.right}>
-          <FaEllipsisH
-            aria-label="more"
-            aria-controls="long-menu"
-            aria-haspopup="true"
-            onClick={handleClick}
-            className={styles.ellipsis}
-            size={17}
-          />
-
-          {/* <Menu
-            id="long-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            open={open}
-            onClose={handleClose}
-            PaperProps={{
-              style: {
-                maxHeight: ITEM_HEIGHT * 4.5,
-                width: 200,
-              },
-            }}
-          >
-            {options.map((option) => (
-              <MenuItem
-                key={option}
-                selected={option === 'Cancel'}
-                onClick={handleClose}
-              >
-                {option}
-              </MenuItem>
-            ))}
-          </Menu> */}
           {liked ? (
             <FaStar onClick={handleLikeClicked} className={styles.star} size={20} />
           ) : (
@@ -252,7 +209,7 @@ function MyEventMessage(props: Props) {
     );
   }
 
-  const CustomTooltip = withStyles((theme: Theme) => ({
+  const CustomTooltip = withStyles((theme: MUITheme) => ({
     tooltip: {
       backgroundColor: theme.palette.common.white,
       color: colors.brightError,
@@ -261,7 +218,6 @@ function MyEventMessage(props: Props) {
     },
   }))(Tooltip);
 
-  /* TODO - Think about removing the ellipsis and options from your own messages */
   return (
     <div>
       {props.message.error ? renderErroredMessage() : renderSuccessfulMessage()}

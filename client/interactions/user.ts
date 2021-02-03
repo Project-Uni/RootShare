@@ -10,13 +10,12 @@ import {
   connectionsToUserIDStrings,
   connectionsToUserIDs,
   pendingToUserIDs,
-  addProfilePictureToUser,
   addProfilePicturesAll,
 } from './utilities';
 
 export async function getCurrentUser(user, callback) {
-  if (!user) return callback(sendPacket(0, 'User not found'));
-  await addProfilePictureToUser(user);
+  if (Object.keys(user).some((key) => !user[key]))
+    return callback(sendPacket(0, 'User not found'));
 
   return callback(
     sendPacket(1, 'Found current User', {
@@ -26,7 +25,6 @@ export async function getCurrentUser(user, callback) {
       lastName: user.lastName,
       privilegeLevel: user.privilegeLevel || 1,
       accountType: user.accountType,
-      profilePicture: user.profilePicture,
     })
   );
 }
@@ -587,7 +585,7 @@ export function getPendingRequests(userID, callback) {
       }
 
       pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
-      if (pendingRequests === -1)
+      if (pendingRequests !== -1)
         return callback(
           sendPacket(1, 'Sending pending requests', { pendingRequests })
         );
@@ -873,48 +871,18 @@ export async function updateAttendingList(
   }) => any
 ) {
   try {
-    let userPromise = User.findById(userID).exec();
-    let webinarPromise = Webinar.findById(webinarID).exec();
+    const userPromise = User.updateOne(
+      { _id: userID },
+      { $addToSet: { attendedWebinars: webinarID } }
+    ).exec();
+    const webinarPromise = Webinar.updateOne(
+      { _id: webinarID },
+      { $addToSet: { attendees_V2: userID } }
+    ).exec();
 
     return Promise.all([userPromise, webinarPromise]).then((values) => {
-      const [user, webinar] = values;
-      if (user) {
-        if (user.attendedWebinars) {
-          if (!user.attendedWebinars.includes(webinarID)) {
-            user.attendedWebinars.push(webinarID);
-            log(
-              'info',
-              `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
-            );
-          }
-        } else {
-          user.attendedWebinars = [webinarID];
-          log(
-            'info',
-            `Added webinar ${webinarID} to ${user.firstName} ${user.lastName}`
-          );
-        }
-      }
-      //TODO - decide which method for setting is better and stick with it
-      //TODO - mark attendees as modified
-      if (webinar) {
-        if (webinar.attendees) {
-          if (!(userID in webinar)) webinar.attendees[userID] = 1;
-        } else webinar.attendees = { userID: 1 };
-      }
-
-      const userSavePromise = user.save();
-      const webinarSavePromise = webinar.save();
-
-      return Promise.all([userSavePromise, webinarSavePromise]).then(
-        ([savedUser, savedWebinar]) => {
-          return callback(
-            sendPacket(
-              1,
-              'Successfully updated attendee list for user and for webinar'
-            )
-          );
-        }
+      return callback(
+        sendPacket(1, 'Succesfully updated attended list for webinar and user')
       );
     });
   } catch (err) {

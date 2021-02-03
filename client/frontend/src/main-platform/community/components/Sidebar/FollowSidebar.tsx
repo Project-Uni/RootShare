@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { makeRequest } from '../../../../helpers/functions';
 import { colors } from '../../../../theme/Colors';
+import theme from '../../../../theme/Theme';
 import { HEADER_HEIGHT } from '../../../../helpers/constants';
 
 import SingleFollowCommunity from './SingleFollowCommunity';
@@ -14,7 +15,7 @@ const VERTICAL_PADDING_TOTAL = 40;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 270,
-    background: colors.second,
+    background: theme.background,
     textAlign: 'left',
     padding: 20,
     overflow: 'scroll',
@@ -128,7 +129,7 @@ function FollowedByCommunities(props: Props) {
           size={14}
           type="body"
           bold
-          color={colors.secondaryText}
+          color={theme.secondaryText}
           className={styles.communityText}
         >
           Not following any communities yet
@@ -141,7 +142,7 @@ function FollowedByCommunities(props: Props) {
           size={18}
           type="head"
           bold
-          color={colors.primaryText}
+          color={theme.primaryText}
           className={styles.communityText}
         >
           Following
@@ -178,7 +179,7 @@ function FollowedByCommunities(props: Props) {
           size={14}
           type="body"
           bold
-          color={colors.secondaryText}
+          color={theme.secondaryText}
           className={styles.communityText}
         >
           Not followed by any communities yet
@@ -191,7 +192,7 @@ function FollowedByCommunities(props: Props) {
           size={18}
           type="head"
           bold
-          color={colors.primaryText}
+          color={theme.primaryText}
           className={styles.communityText}
         >
           Followed By

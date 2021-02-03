@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
+import theme from '../../../theme/Theme';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -12,7 +13,7 @@ import { makeRequest } from '../../../helpers/functions';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${colors.secondaryText}`,
+    borderBottom: `1px solid ${theme.dark}`,
     paddingBottom: 15,
   },
   lastWrapper: {
@@ -30,18 +31,24 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: theme.primary,
     },
   },
   removeButton: {
-    color: colors.primaryText,
-    background: colors.secondary,
+    color: theme.altText,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   connectButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: theme.altText,
+    background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -146,17 +153,17 @@ function DiscoverySinglePerson(props: Props) {
           </a>
           <div className={styles.textContainer}>
             <a href={`/profile/${props.userID}`} className={styles.personLink}>
-              <RSText type="body" color={colors.primaryText} size={13} bold>
+              <RSText type="body" color={theme.primaryText} size={13} bold>
                 {props.name}
               </RSText>
             </a>
-            <RSText type="body" color={colors.secondaryText} italic size={11}>
+            <RSText type="body" color={theme.secondaryText} italic size={11}>
               {props.position}
             </RSText>
-            <RSText type="body" color={colors.secondaryText} italic size={11}>
+            <RSText type="body" color={theme.secondaryText} italic size={11}>
               {props.company}
             </RSText>
-            <RSText type="body" color={colors.secondaryText} size={10}>
+            <RSText type="body" color={theme.secondaryText} size={10}>
               {numMutualConnections} Mutual Connections
             </RSText>
           </div>

@@ -83,15 +83,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest('GET', '/user/getCurrent');
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      return false;
-    }
-    props.updateUser({ ...data['content'] });
-    return true;
+    return Boolean(props.accessToken);
   }
 
   async function fetchCommunityInfo() {
@@ -156,13 +148,12 @@ function CommunityDetails(props: Props) {
             private={communityInfoComplete.private}
             description={communityInfoComplete.description}
             loading={loading}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
             communityID={communityInfoComplete._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
             userID={props.user._id}
             hasFollowingAccess={hasFollowingAccess}
+            flags={{ isMTGFlag: communityInfoComplete.isMTGFlag || false }}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (

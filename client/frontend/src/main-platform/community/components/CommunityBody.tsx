@@ -11,23 +11,22 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus } from '../../../helpers/types';
+import { CommunityStatus, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
     // background: colors.primaryText,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
-    borderLeft: `1px solid ${colors.fourth}`,
-    borderRight: `1px solid ${colors.fourth}`,
   },
   body: {},
   coverPhoto: {
-    background: colors.bright,
+    background: Theme.bright,
     height: 200,
     objectFit: 'cover',
     borderTopLeftRadius: 10,
@@ -39,30 +38,34 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
   },
   profilePicture: {
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 50,
   },
   loadingProfilePicture: {
-    background: colors['tint-three'],
+    background: Theme.background,
     height: 175,
     width: 175,
     borderRadius: 100,
     marginTop: -88,
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
     marginLeft: 50,
   },
   bodyContent: {
     marginTop: 10,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
     paddingBottom: 20,
   },
 }));
+
+export type CommunityFlags = {
+  isMTGFlag: boolean;
+};
 
 type Props = {
   communityID: string;
@@ -75,20 +78,14 @@ type Props = {
   numMutual: number;
   numPending: number;
   numFollowRequests: number;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   private?: boolean;
   loading?: boolean;
-  accessToken: string;
-  refreshToken: string;
+
   updateCommunityStatus: (newStatus: CommunityStatus) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
+  flags: CommunityFlags;
 };
 
 function CommunityBody(props: Props) {
@@ -167,8 +164,8 @@ function CommunityBody(props: Props) {
   function renderLocked() {
     return (
       <div style={{ marginTop: 70 }}>
-        <FaLock size={90} color={colors.second} />
-        <RSText type="subhead" size={20} color={colors.second}>
+        <FaLock size={90} color={Theme.primary} />
+        <RSText type="subhead" size={20} color={Theme.primary}>
           You must be a member to view this content.
         </RSText>
       </div>
@@ -192,10 +189,9 @@ function CommunityBody(props: Props) {
               type={props.type}
               private={props.private}
               description={props.description}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
               updateCommunityStatus={props.updateCommunityStatus}
               isAdmin={props.isAdmin}
+              flags={props.flags}
             />
           )}
         </Box>
@@ -216,6 +212,8 @@ function CommunityBody(props: Props) {
             status={props.status}
             isAdmin={props.isAdmin}
             private={props.private}
+            flags={props.flags}
+            communityName={props.name}
           />
         )}
       </div>
