@@ -189,9 +189,9 @@ function ProfileHead(props: Props) {
 
   useEffect(() => {
     if (
-      props.currentProfileState === 'TO' ||
-      props.currentProfileState === 'FROM' ||
-      props.currentProfileState === 'CONNECTION'
+      props.currentProfileState === 'PENDING_TO' ||
+      props.currentProfileState === 'PENDING_FROM' ||
+      props.currentProfileState === 'CONNECTED'
     )
       fetchConnection();
   }, [props.currentProfileState]);
@@ -326,10 +326,10 @@ function ProfileHead(props: Props) {
   function renderOptions() {
     return (
       <div>
-        {props.currentProfileState === 'TO' && (
+        {props.currentProfileState === 'PENDING_TO' && (
           <MenuItem onClick={cancelRequest}>Cancel Request</MenuItem>
         )}
-        {props.currentProfileState === 'CONNECTION' && (
+        {props.currentProfileState === 'CONNECTED' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
         )}
       </div>
@@ -343,15 +343,15 @@ function ProfileHead(props: Props) {
     let buttonText = 'Connect';
     let clickHandler: any = requestConnection;
 
-    if (props.currentProfileState === 'TO') {
+    if (props.currentProfileState === 'PENDING_TO') {
       buttonStyles.push(styles.pendingConnectionButton);
       buttonText = 'Requested';
       clickHandler = handleOptionsClick;
-    } else if (props.currentProfileState === 'FROM') {
+    } else if (props.currentProfileState === 'PENDING_FROM') {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
       clickHandler = declineConnection;
-    } else if (props.currentProfileState === 'CONNECTION') {
+    } else if (props.currentProfileState === 'CONNECTED') {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
       clickHandler = handleOptionsClick;
@@ -381,7 +381,7 @@ function ProfileHead(props: Props) {
         >
           {renderOptions()}
         </Menu>
-        {props.currentProfileState === 'FROM' && (
+        {props.currentProfileState === 'PENDING_FROM' && (
           <Button
             variant="contained"
             className={[

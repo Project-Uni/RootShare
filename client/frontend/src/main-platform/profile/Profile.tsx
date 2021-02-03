@@ -47,7 +47,7 @@ function Profile(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
   const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
-    'PUBLIC'
+    'OPEN'
   );
 
   //If it is the logged in user's, then profileID = 'user', else it is that user's ID

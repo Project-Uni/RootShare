@@ -613,8 +613,8 @@ export async function requestConnection(userID, requestUserID) {
       async ([connection, userExists]) => {
         const { status } = connection[0];
         if (status === 'CONNECTED') return sendPacket(0, 'Already connected');
-        if (status === 'TO') return sendPacket(0, 'Already Requested');
-        if (status === 'FROM') return acceptConnectionRequest(connection[0]);
+        if (status === 'PENDING_TO') return sendPacket(0, 'Already Requested');
+        if (status === 'PENDING_FROM') return acceptConnectionRequest(connection[0]);
 
         const newConnectionRequest = await Connection.create({
           from: userID,
@@ -771,25 +771,25 @@ export function checkConnectedWithUser(userID, requestUserID, callback) {
         if (err) return callback(sendPacket(-1, err));
         if (!connection)
           return callback(
-            sendPacket(1, 'Not yet connected to this user', { connected: 'PUBLIC' })
+            sendPacket(1, 'Not yet connected to this user', { connected: 'OPEN' })
           );
 
         if (connection.accepted)
           return callback(
             sendPacket(1, 'Already connected to this User', {
-              connected: 'CONNECTION',
+              connected: 'CONNECTED',
             })
           );
         else if (connection.from.toString() === requestUserID)
           return callback(
             sendPacket(1, 'This User has already sent you a request', {
-              connected: 'FROM',
+              connected: 'PENDING_FROM',
             })
           );
         else if (connection.to.toString() === requestUserID)
           return callback(
             sendPacket(1, 'Request has already been sent to this User', {
-              connected: 'TO',
+              connected: 'PENDING_TO',
             })
           );
         else return callback(sendPacket(-1, 'An error has occured'));
@@ -1044,7 +1044,7 @@ export async function getSelfConnectionsFullData(selfID: string) {
         cleanedConnection
       );
 
-      cleanedConnection.status = 'CONNECTION';
+      cleanedConnection.status = 'CONNECTED';
       connectionsWithData[i] = cleanedConnection;
     }
 

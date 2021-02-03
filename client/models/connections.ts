@@ -102,7 +102,7 @@ export default class Connection {
     let receivedPromises = [];
     const length = otherUserIDs.length;
     let connections = new Array(length);
-    connections.fill({ status: 'PUBLIC' });
+    connections.fill({ status: 'OPEN' });
 
     otherUserIDs.forEach((otherUserID) => {
       sentPromises.push(
@@ -119,14 +119,14 @@ export default class Connection {
           if (!!allRequests[i]) {
             connections[i] = { ...allRequests[i] };
             if (allRequests[i].accepted) connections[i].status = 'CONNECTED';
-            else connections[i].status = 'TO';
+            else connections[i].status = 'PENDING_TO';
           }
 
           const j = i + length;
           if (!!allRequests[j]) {
             connections[i] = { ...allRequests[j] };
             if (allRequests[j].accepted) connections[i].status = 'CONNECTED';
-            else connections[i].status = 'FROM';
+            else connections[i].status = 'PENDING_FROM';
           }
         }
 

@@ -117,14 +117,14 @@ function UserHighlight(props: Props) {
 
   async function requestConnection() {
     const data = await putUpdateUserConnection('connect', props.userID);
-    if (data['success'] === 1) setUserStatus('TO');
+    if (data['success'] === 1) setUserStatus('PENDING_TO');
     if (data.success !== 1)
       props.setNotification &&
         props.setNotification('error', 'Failed to send connection request');
   }
 
   async function respondRequest(accepted: boolean) {
-    setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
+    setUserStatus(accepted ? 'CONNECTED' : 'OPEN');
     const data = await putUpdateUserConnection(
       accepted ? 'accept' : 'reject',
       props.userID
@@ -142,19 +142,19 @@ function UserHighlight(props: Props) {
 
   function renderStatus() {
     if (props.userID === props.user._id) return;
-    else if (userStatus === 'CONNECTION')
+    else if (userStatus === 'CONNECTED')
       return (
         <RSText color={Theme.secondaryText} size={11}>
           CONNECTED
         </RSText>
       );
-    else if (userStatus === 'TO')
+    else if (userStatus === 'PENDING_TO')
       return (
         <RSText color={Theme.altText} size={12} className={styles.pendingStatus}>
           PENDING
         </RSText>
       );
-    else if (userStatus === 'FROM')
+    else if (userStatus === 'PENDING_FROM')
       return (
         <div className={styles.pendingButtonContainer}>
           <Button

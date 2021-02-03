@@ -44,10 +44,10 @@ export type ConnectionRequestType = {
 
 export type ProfileState =
   | 'SELF'
-  | 'CONNECTION'
-  | 'TO'
-  | 'FROM'
-  | 'PUBLIC'
+  | 'CONNECTED'
+  | 'PENDING_TO'
+  | 'PENDING_FROM'
+  | 'OPEN'
   | 'PENDING';
 
 //NOTE - Pending added for general display when figuring out from / to not needed
@@ -58,7 +58,7 @@ export type LeanUser = {
   state: ProfileState;
   profilePicture?: string;
   _id: string;
-}
+};
 
 export type SearchUserType = {
   _id: string;

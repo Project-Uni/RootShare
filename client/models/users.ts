@@ -350,13 +350,13 @@ export const getUserToUserRelationship_V2 = async (
     .exec();
 
   users.forEach((otherUser) => {
-    if (otherUser._id.equals(userID)) otherUser.relationship = 'self';
+    if (otherUser._id.equals(userID)) otherUser.relationship = 'SELF';
     else if (
       otherUser.connections.some((user2connection) =>
         user.connections.includes(user2connection)
       )
     ) {
-      otherUser.relationship = 'connected';
+      otherUser.relationship = 'CONNECTED';
     } else {
       const pendingConnectionIntersection = otherUser.pendingConnections.filter(
         (user2Connection) =>
@@ -367,10 +367,10 @@ export const getUserToUserRelationship_V2 = async (
       if (pendingConnectionIntersection.length > 0) {
         const pendingConnection = pendingConnectionIntersection[0];
         if (pendingConnection.from.equals(userID))
-          otherUser.relationship = 'pending_to';
-        else otherUser.relationship = 'pending_from';
+          otherUser.relationship = 'PENDING_TO';
+        else otherUser.relationship = 'PENDING_FROM';
       } else {
-        otherUser.relationship = 'open';
+        otherUser.relationship = 'OPEN';
       }
     }
   });
