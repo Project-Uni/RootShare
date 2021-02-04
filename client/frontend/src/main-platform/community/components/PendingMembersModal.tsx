@@ -11,11 +11,12 @@ import SinglePendingRequest from './SinglePendingRequest';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import { makeRequest } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: 500,
-    background: colors.primaryText,
+    background: Theme.white,
   },
 
   top: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     marginTop: 80,
-    color: colors.primary,
+    color: Theme.bright,
   },
   errorText: {
     marginLeft: 20,
@@ -153,7 +154,7 @@ function PendingMembersModal(props: Props) {
           display: 'flex',
         }}
       >
-        <MdErrorOutline color={colors.brightError} size={50} />
+        <MdErrorOutline color={Theme.error} size={50} />
         <RSText size={14} className={styles.errorText}>
           There was an error retrieving the list of pending members.
         </RSText>

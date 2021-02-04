@@ -10,7 +10,7 @@ export type EventType = {
   hostCommunity: string;
   availableCommunities: string[];
   speakers: string[] | SpeakerType[];
-  attendees: {};
+  attendees_V2: { [key: string]: any }[];
   userRSVP: boolean;
   userSpeaker: boolean;
   conversation: string | ConversationType;
@@ -19,6 +19,8 @@ export type EventType = {
   muxAssetPlaybackID: string;
   isDev?: boolean;
   isPrivate?: boolean;
+  eventImage: string;
+  eventBanner: string;
 };
 
 export type LeanEventType = {
@@ -30,7 +32,11 @@ export type LeanEventType = {
   brief_description: string;
   full_description: string;
   muxAssetPlaybackID: string;
+  eventBanner: string;
 };
+
+export type EventUserMode = 'viewer' | 'speaker' | 'host';
+export type SpeakerMode = 'speaker' | 'host';
 
 export type HostType = {
   _id: string;
@@ -55,4 +61,19 @@ export type MuxMetaDataType = {
   viewerUserID: string;
   webinarID: string;
   eventTitle: string;
+};
+
+export type SpeakRequestType = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+};
+
+export type GuestSpeaker = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  speakingToken: string;
+  connection?: OT.Connection;
 };

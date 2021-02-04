@@ -9,6 +9,7 @@ import { colors } from '../../../theme/Colors';
 
 import { makeRequest } from '../../../helpers/functions';
 import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const ITEM_HEIGHT = 28;
 
@@ -40,28 +41,28 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   connectButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.white,
+    background: Theme.bright,
     '&:hover': {
-      background: colors.primary,
+      background: Theme.brightHover,
     },
   },
   removeConnectionButton: {
-    color: colors.primaryText,
-    background: 'gray',
+    color: Theme.white,
+    background: Theme.primary,
   },
   acceptConnectionButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.white,
+    background: Theme.primary,
     marginLeft: 7,
   },
   pendingConnectionButton: {
-    color: colors.primaryText,
-    background: colors.secondary,
+    color: Theme.white,
+    background: Theme.primary,
   },
   connectedConnectionButton: {
-    color: colors.primaryText,
-    background: colors.secondary,
+    color: Theme.white,
+    background: Theme.primary
   },
   selfBioWrapper: {
     display: 'flex',
@@ -85,14 +86,14 @@ const useStyles = makeStyles((_: any) => ({
   cancelButton: {
     marginLeft: 5,
     height: 35,
-    color: colors.primaryText,
-    background: colors.second,
+    color: Theme.white,
+    background: Theme.primary,
   },
   saveButton: {
     marginLeft: 5,
     height: 35,
-    color: colors.primaryText,
-    background: colors.second,
+    color: Theme.white,
+    background: Theme.primary,
   },
   numbers: {
     marginTop: 1,
@@ -102,31 +103,31 @@ const useStyles = makeStyles((_: any) => ({
       borderRadius: 9,
     },
     flex: 1,
-    color: colors['shade-one'],
+    color: Theme.bright,
     borderRadius: 9,
-    background: '#e9e9e9',
+    background: Theme.white,
   },
   cssLabel: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
   },
   cssFocused: {
-    color: colors.first,
+    color: Theme.primary,
     borderWidth: '1px',
-    borderColor: `${colors.first} !important`,
+    borderColor: `${Theme.primary} !important`,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
       // color: '#f2f2f2 !important',
       // label: '#f2f2f2 !important',
       borderWidth: '2px',
-      borderColor: `${colors.second} !important`,
+      borderColor: `${Theme.primary} !important`,
     },
   },
   notchedOutline: {
     borderWidth: '1px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
+    label: Theme.white,
+    borderColor: Theme.white,
+    color: Theme.white,
   },
   navigationText: {
     textDecoration: 'none',
@@ -446,7 +447,7 @@ function ProfileHead(props: Props) {
         <RSText
           type="subhead"
           size={12}
-          color={colors.second}
+          color={Theme.primary}
           className={styles.bio}
         >
           {originalBio}
@@ -462,7 +463,7 @@ function ProfileHead(props: Props) {
 
   function renderOtherBio() {
     return (
-      <RSText type="subhead" size={14} color={colors.second} className={styles.bio}>
+      <RSText type="subhead" size={14} color={Theme.primary} className={styles.bio}>
         {originalBio}
       </RSText>
     );
@@ -471,15 +472,15 @@ function ProfileHead(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
-        <RSText type="head" size={18} bold color={colors.second}>
+        <RSText type="head" size={18} bold color={Theme.primaryText}>
           {props.name}
         </RSText>
         {props.university && (
-          <RSText type="subhead" size={12} color={colors.secondaryText}>
+          <RSText type="subhead" size={12} color={Theme.secondaryText}>
             {`${props.university} ${props.graduationYear || ''}`}
           </RSText>
         )}
-        <RSText type="subhead" size={12} color={colors.secondaryText}>
+        <RSText type="subhead" size={12} color={Theme.secondaryText}>
           {`${(props.position && `${props.position}, `) || ''} ${props.company ||
             ''}`}
         </RSText>
@@ -512,7 +513,7 @@ function ProfileHead(props: Props) {
           <RSText
             type="subhead"
             size={12}
-            color={colors.second}
+            color={Theme.primaryText}
             className={styles.numbers}
           >
             {numConnections || 0} Connections {mutualConnections}
@@ -527,7 +528,7 @@ function ProfileHead(props: Props) {
           <RSText
             type="subhead"
             size={12}
-            color={colors.second}
+            color={Theme.primaryText}
             className={styles.numbers}
           >
             {props.numCommunities || 0} Communities {mutualCommunities}

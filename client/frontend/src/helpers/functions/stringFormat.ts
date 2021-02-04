@@ -1,8 +1,10 @@
 export function capitalizeFirstLetter(word: string) {
+  if (!word) return '';
   return word.replace(/^./, word[0].toUpperCase());
 }
 
 export function cropText(text: string, maxLength: number) {
-  if (text.length < maxLength) return text;
-  else return `${text.substring(0, maxLength)}...`;
+  if (!text || !maxLength) return '';
+
+  return text.length < maxLength ? text : `${text.substring(0, maxLength)}...`;
 }

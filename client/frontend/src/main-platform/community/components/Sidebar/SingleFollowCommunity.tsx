@@ -1,13 +1,14 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../../theme/Colors';
+import theme from '../../../../theme/Theme';
 import RSText from '../../../../base-components/RSText';
 import ProfilePicture from '../../../../base-components/ProfilePicture';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${colors.fourth}`,
+    borderBottom: `1px solid ${theme.dark}`,
     paddingBottom: 15,
   },
   lastWrapper: {
@@ -28,8 +29,8 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 7,
   },
   connectButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: theme.altText,
+    background: theme.bright,
     marginLeft: 7,
   },
   joinedText: {
@@ -39,14 +40,14 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: theme.primaryText,
     },
   },
   noUnderline: {
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: theme.primaryText,
     },
   },
 }));
@@ -82,16 +83,16 @@ function SingleFollowCommunity(props: Props) {
           </a>
           <div className={styles.textContainer}>
             <a href={`/community/${props._id}`} className={styles.noUnderline}>
-              <RSText type="body" bold size={13} color={colors.primaryText}>
+              <RSText type="body" bold size={13} color={theme.primaryText}>
                 {props.name || ''}
               </RSText>
             </a>
 
-            <RSText type="body" italic={true} size={11} color={colors.primaryText}>
+            <RSText type="body" italic={true} size={11} color={theme.primaryText}>
               {props.type || ''}
             </RSText>
 
-            <RSText type="body" italic={false} size={11} color={colors.primaryText}>
+            <RSText type="body" italic={false} size={11} color={theme.primaryText}>
               {props.members} Members
             </RSText>
           </div>

@@ -14,7 +14,12 @@ import MakePostContainer from './components/MakePostContainer';
 
 import RSTabs from './components/RSTabs';
 
-import RSModal from './components/RSModal';
+import RSModal from './components/RSModal/RSModal';
+import BigButton from './components/RSModal/BigButton';
+
+import SearchField from './components/SearchField';
+
+import RSButton from './components/RSButton';
 
 export {
   MainNavigator,
@@ -28,4 +33,7 @@ export {
   RSTabs,
   RSModal,
   MakePostContainer,
+  BigButton,
+  SearchField,
+  RSButton,
 };

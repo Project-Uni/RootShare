@@ -24,11 +24,13 @@ import {
   formatTime,
 } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import ProfileBanner from '../../../base-components/ProfileBanner';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
   },
   profileWrapper: {
     overflow: 'scroll',
@@ -36,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
   body: {},
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.white,
   },
   headBox: {
     paddingBottom: 20,
@@ -44,16 +46,13 @@ const useStyles = makeStyles((_: any) => ({
   eventBox: {
     marginBottom: 4,
   },
-  coverPhoto: {
-    background: colors.bright,
-    height: 200,
-  },
   profilePictureContainer: {
     marginTop: -88,
     marginLeft: 50,
+    display: 'inline-block',
   },
   profilePicture: {
-    border: `8px solid ${colors.primaryText}`,
+    border: `8px solid ${Theme.white}`,
   },
   event: {
     marginTop: 0,
@@ -61,7 +60,7 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
   },
   eventWithBorder: {
-    borderTop: `1px solid #c5c5c5`,
+    borderTop: `1px solid ${Theme.dark}`,
   },
   post: {
     margin: 8,
@@ -71,13 +70,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     paddingTop: 15,
     paddingBottom: 15,
-    background: colors.secondary,
-    borderBottom: `1px solid ${colors.fourth}`,
-    borderTop: `1px solid ${colors.fourth}`,
+    background: Theme.primary,
+    borderBottom: `1px solid ${Theme.primary}`,
+    borderTop: `1px solid ${Theme.primary}`,
   },
   postsLoadingIndicator: {
     marginTop: 60,
-    color: colors.primary,
+    color: Theme.bright,
   },
   noPosts: {
     marginTop: 20,
@@ -98,6 +97,7 @@ function ProfileBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [currentPicture, setCurrentPicture] = useState<string>();
+  const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
   const [events, setEvents] = useState<EventType[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -159,7 +159,10 @@ function ProfileBody(props: Props) {
       props.refreshToken
     );
 
-    if (data['success'] === 1) setCurrentPicture(data['content']['imageURL']);
+    if (data['success'] === 1) {
+      setCurrentPicture(data['content']['profile']);
+      setCurrentBanner(data.content.banner);
+    }
   }
 
   async function fetchEvents() {
@@ -213,10 +216,15 @@ function ProfileBody(props: Props) {
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
-        <div
-          className={styles.coverPhoto}
-          style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
-        ></div>
+        <ProfileBanner
+          type="profile"
+          height={200}
+          editable={props.currentProfileState === 'SELF'}
+          zoomOnClick={props.currentProfileState !== 'SELF'}
+          borderRadius={10}
+          currentPicture={currentBanner}
+          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
+        />
         <ProfilePicture
           type="profile"
           className={styles.profilePictureContainer}
@@ -316,7 +324,7 @@ function ProfileBody(props: Props) {
         </RSText>
       );
     return (
-      <div style={{ background: colors.background, paddingTop: 1 }}>{output}</div>
+      <div style={{ background: Theme.background, paddingTop: 1 }}>{output}</div>
     );
   }
 
@@ -374,7 +382,7 @@ function ProfileBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.postsLoadingIndicator} />
       ) : fetchingErr ? (
-        <RSText size={32} type="head" color={colors.error}>
+        <RSText size={32} type="head" color={Theme.error}>
           THERE WAS AN ERROR GETTING THE USER'S PROFILE
         </RSText>
       ) : (

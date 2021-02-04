@@ -4,6 +4,7 @@ import log from '../helpers/logger';
 import sendPacket from '../helpers/sendPacket';
 import { isAuthenticatedWithJWT } from '../middleware/isAuthenticated';
 import { WebinarCache, WaitingRooms } from '../types/types';
+import checkSpeakingTokenMatches from '../helpers/speakingToken';
 
 module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) => {
   app.post('/api/inviteUserToSpeak', isAuthenticatedWithJWT, (req, res) => {
@@ -19,34 +20,55 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
     if (!(userID in webinarCache[webinarID].users))
       return res.json(sendPacket(0, 'User not found in webinar cache'));
 
+    for (let i = 0; i < webinarCache[webinarID].guestSpeakers.length; i++)
+      if (webinarCache[webinarID].guestSpeakers[i]._id === userID)
+        return res.json(sendPacket(0, 'User is already a guest speaker'));
+
     const socket = webinarCache[webinarID].users[userID];
 
-    const speaking_token = crypto.randomBytes(64).toString();
-    webinarCache[webinarID].speakingToken = speaking_token;
+    const speakingToken = crypto.randomBytes(64).toString();
+    webinarCache[webinarID].speakingTokens.push(speakingToken);
 
-    socket.emit('speaking-invite', { speaking_token, sessionID });
-    return res.json(sendPacket(1, 'Successfully invited user to speak'));
+    socket.emit('speaking-invite', { speakingToken: speakingToken, sessionID });
+    return res.json(
+      sendPacket(1, 'Successfully invited user to speak', { speakingToken })
+    );
   });
 
   app.post('/api/removeGuestSpeaker', isAuthenticatedWithJWT, (req, res) => {
-    const { webinarID } = req.body;
+    const { webinarID, speakingToken } = req.body;
     if (!webinarID)
       return res.json(sendPacket(-1, 'webinarID missing from request body'));
 
     if (!(webinarID in webinarCache))
-      return res.json(sendPacket(0, 'Webinar not in cache'));
+      return res.json(sendPacket(-1, 'Webinar not in cache'));
 
-    const speakerID = webinarCache[webinarID].guestSpeaker._id;
+    let speakerID;
+    webinarCache[webinarID].guestSpeakers.forEach((guestSpeaker) => {});
+
+    const currWebinar = webinarCache[webinarID];
+    let currSpeakers = currWebinar.guestSpeakers;
+    for (let i = 0; i < currSpeakers.length; i++) {
+      if (currSpeakers[i].speakingToken === speakingToken) {
+        speakerID = currSpeakers[i]._id;
+        currSpeakers.splice(i, 1);
+        break;
+      }
+    }
+
+    for (let i = 0; i < currWebinar.speakingTokens.length; i++) {
+      if (currWebinar.speakingTokens[i] === speakingToken) {
+        currWebinar.speakingTokens.splice(i, 1);
+        break;
+      }
+    }
 
     // if (!webinarCache[webinarID].guestSpeaker.connection?.connectionId) {
     //   return res.json(sendPacket(0, 'Still waiting for connection to initialize'));
     // }
 
-    delete webinarCache[webinarID].guestSpeaker;
-    delete webinarCache[webinarID].speakingToken;
-
     if (!(speakerID in webinarCache[webinarID].users))
-      return res.json(sendPacket(1, 'User already left the stream'));
+      return res.json(sendPacket(0, 'User already left the stream'));
 
     const socket = webinarCache[webinarID].users[speakerID];
     socket.emit('speaking-revoke');
@@ -55,22 +77,28 @@ module.exports = (app, webinarCache: WebinarCache, waitingRooms: WaitingRooms) =
   });
 
   app.post('/api/setConnectionID', isAuthenticatedWithJWT, (req, res) => {
-    const { connection, webinarID, speaking_token } = req.body;
-    if (!connection || !webinarID || !speaking_token)
+    const { connection, webinarID, speakingToken } = req.body;
+    if (!connection || !webinarID || !speakingToken)
       return res.json(
         sendPacket(
           -1,
-          'connection, webinarID, or speaking_token missing from request body'
+          'connection, webinarID, or speakingToken missing from request body'
         )
       );
 
-    if (!webinarCache[webinarID].speakingToken)
+    const currWebinar = webinarCache[webinarID];
+    if (currWebinar.speakingTokens.length === 0)
       return res.json(sendPacket(0, 'No guest speakers in current webinar'));
 
-    if (webinarCache[webinarID].speakingToken !== speaking_token)
+    if (!checkSpeakingTokenMatches(currWebinar.speakingTokens, speakingToken))
       return res.json(sendPacket(0, 'Speaking token does not match webinar'));
 
-    webinarCache[webinarID].guestSpeaker.connection = connection;
+    for (let i = 0; i < currWebinar.guestSpeakers.length; i++) {
+      if (currWebinar.guestSpeakers[i].speakingToken === speakingToken) {
+        currWebinar.guestSpeakers[i].connection = connection;
+        break;
+      }
+    }
 
     log('info', `New Connection: ${JSON.stringify(connection)}`);
 

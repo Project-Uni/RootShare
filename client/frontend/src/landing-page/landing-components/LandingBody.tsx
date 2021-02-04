@@ -4,7 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
-import CommunityWow from '../../images/CommunityWow.png';
+import LandingImage from '../../images/iconandphrase.png';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -17,18 +18,19 @@ const useStyles = makeStyles((_: any) => ({
   textLeft: {
     marginTop: 25,
     marginLeft: 200,
-    alignSelf: 'left',
-    alignItems: 'left',
-    justifyContent: 'left',
-    textAlign: 'left',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   photoLeft: {
     marginTop: 25,
     marginLeft: 200,
-    alignSelf: 'left',
-    alignItems: 'left',
-    justifyContent: 'left',
-    textAlign: 'left',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    height: 600,
   },
   login: {
     marginTop: 25,
@@ -48,16 +50,16 @@ function LandingBody() {
   return (
     <div className={styles.wrapper}>
       <div>
-        <RSText
+        {/*<RSText
           type="head"
           size={25}
-          color={colors.second}
+          color={Theme.primary}
           className={styles.textLeft}
         >
-          Every success story is rooted in the support from a community.
-        </RSText>
+          Let's grow together!
+        </RSText>*/}
         <img
-          src={CommunityWow}
+          src={LandingImage}
           alt="RootShare-Landing-Image"
           className={styles.photoLeft}
         />

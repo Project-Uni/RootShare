@@ -216,7 +216,7 @@ module.exports = {
       layout: {
         type: 'bestFit',
       },
-      maxDuration: 10800, // 3 Hours
+      maxDuration: 14400, // 4 Hours
       outputs: {
         rtmp: {
           serverUrl: 'rtmps://global-live.mux.com:443/app',

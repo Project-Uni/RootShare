@@ -19,7 +19,7 @@ import {
 import RSText from '../../base-components/RSText';
 
 import { makeRequest } from '../../helpers/functions';
-import { Community, CommunityStatus } from '../../helpers/types';
+import { Community, CommunityStatus, UserType } from '../../helpers/types';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -59,6 +59,8 @@ function CommunityDetails(props: Props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
+  const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
+
   const orgID = props.match.params['orgID'];
 
   useEffect(() => {
@@ -81,15 +83,7 @@ function CommunityDetails(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest('GET', '/user/getCurrent');
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      return false;
-    }
-    props.updateUser({ ...data['content'] });
-    return true;
+    return Boolean(props.accessToken);
   }
 
   async function fetchCommunityInfo() {
@@ -98,13 +92,14 @@ function CommunityDetails(props: Props) {
       setCommunityInfo(data.content['community']);
       initializeCommunityStatus(data.content['community']);
       setMutualConnections(data.content['mutualConnections']);
+      setHasFollowingAccess(data.content['hasFollowingAccess']);
     } else {
       setShowInvalid(true);
     }
   }
 
   function initializeCommunityStatus(communityDetails: Community) {
-    if (communityDetails.admin._id === props.user._id) {
+    if ((communityDetails.admin as UserType)._id === props.user._id) {
       setIsAdmin(true);
       setCommunityStatus('JOINED');
     } else if (communityDetails.members.indexOf(props.user._id) !== -1)
@@ -153,12 +148,12 @@ function CommunityDetails(props: Props) {
             private={communityInfoComplete.private}
             description={communityInfoComplete.description}
             loading={loading}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
             communityID={communityInfoComplete._id}
             updateCommunityStatus={updateCommunityStatus}
             isAdmin={isAdmin}
             userID={props.user._id}
+            hasFollowingAccess={hasFollowingAccess}
+            flags={{ isMTGFlag: communityInfoComplete.isMTGFlag || false }}
           />
         )}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && (

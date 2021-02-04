@@ -2,22 +2,26 @@ const mongoose = require('mongoose');
 
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { COMMUNITY_TYPE } from '../helpers/types';
+import { CommunityType } from '../helpers/types';
 import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
+  addProfilePicturesAll,
 } from '../interactions/utilities';
 
 export async function createNewCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
-  isPrivate: boolean
+  type: CommunityType,
+  isPrivate: boolean,
+  additionalFlags: { isMTG?: boolean } = {},
+  options: {} = {}
 ) {
-  //TODO - Add check to see if community with same name already exists
+  const userExists = await User.exists({ _id: adminID });
+  if (!userExists) return sendPacket(0, 'Admin does not exist');
 
   const newCommunity = new Community({
     name,
@@ -26,14 +30,15 @@ export async function createNewCommunity(
     private: isPrivate,
     admin: adminID,
     members: [adminID],
+    isMTGFlag: additionalFlags.isMTG || false,
   });
 
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = await User.updateOne(
+    await User.updateOne(
       { _id: adminID },
-      { $push: { joinedCommunities: savedCommunity._id } }
+      { $addToSet: { joinedCommunities: savedCommunity._id } }
     ).exec();
 
     log('info', `Successfully created community ${name}`);
@@ -53,6 +58,7 @@ export async function retrieveAllCommunities() {
       'description',
       'admin',
       'private',
+      'isMTGFlag',
       'type',
       'university',
       'members',
@@ -77,32 +83,41 @@ export async function editCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
-  isPrivate: boolean
+  type: CommunityType,
+  isPrivate: boolean,
+  additionalFlags: { isMTG?: boolean } = {},
+  options: { returnCommunity?: boolean } = {}
 ) {
   try {
-    const community = await Community.findById({ _id });
-    community.name = name;
-    community.description = description;
-    community.admin = adminID;
-    community.type = type;
-    community.private = isPrivate;
-
-    const savedCommunity = await community.save();
-
     const communityPromise = Community.updateOne(
       { _id },
-      { $addToSet: { members: adminID } }
+      {
+        $set: {
+          name,
+          description,
+          admin: adminID,
+          type,
+          private: isPrivate,
+          isMTGFlag: additionalFlags.isMTG || false,
+        },
+        $addToSet: { members: adminID },
+      }
     ).exec();
+
     const userPromise = User.updateOne(
       { _id: adminID },
       { $addToSet: { joinedCommunities: _id } }
     ).exec();
     await Promise.all([communityPromise, userPromise]);
 
+    let community;
+    if (options.returnCommunity) {
+      community = await Community.findById(_id).exec();
+    }
+
     log('info', `Successfully updated community ${name}`);
     return sendPacket(1, 'Successfully updated community', {
-      community: savedCommunity,
+      community,
     });
   } catch (err) {
     log('error', err);
@@ -122,7 +137,9 @@ export async function getCommunityInformation(communityID: string, userID: strin
       'pendingMembers',
       'university',
       'profilePicture',
+      'followedByCommunities',
       'incomingPendingCommunityFollowRequests',
+      'isMTGFlag',
     ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
@@ -133,10 +150,11 @@ export async function getCommunityInformation(communityID: string, userID: strin
         path: 'incomingPendingCommunityFollowRequests',
         select: 'from',
       })
+      .populate({ path: 'followedByCommunities', select: 'from' })
       .exec();
 
     const userPromise = User.findById(userID)
-      .select('connections')
+      .select(['connections', 'joinedCommunities'])
       .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
       .exec();
 
@@ -150,6 +168,18 @@ export async function getCommunityInformation(communityID: string, userID: strin
           (member) => connections.indexOf(member) !== -1
         );
 
+        let hasFollowingAccess = false;
+
+        if (community.private) {
+          const followedByCommunities = community.followedByCommunities.map(
+            (community) => community.from.toString()
+          );
+          const communityIntersection = user.joinedCommunities.filter((community) =>
+            followedByCommunities.includes(community.toString())
+          );
+          if (communityIntersection.length > 0) hasFollowingAccess = true;
+        }
+
         log(
           'info',
           `Successfully retrieved community information for ${community.name}`
@@ -157,6 +187,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
         return sendPacket(1, 'Successfully retrieved community', {
           community,
           mutualConnections,
+          hasFollowingAccess,
         });
       })
       .catch((err) => {
@@ -169,10 +200,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
   }
 }
 
-export async function joinCommunity(
-  communityID: string,
-  userID: { [key: string]: any }
-) {
+export async function joinCommunity(communityID: string, userID: string) {
   try {
     let userPromise = User.findById(userID).exec();
     let communityPromise = Community.findById(communityID).exec();
@@ -195,7 +223,7 @@ export async function joinCommunity(
         if (community.private === false) {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { members: userID } }
+            { $addToSet: { members: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -217,7 +245,7 @@ export async function joinCommunity(
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { pendingMembers: userID } }
+            { $addToSet: { pendingMembers: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -248,7 +276,7 @@ export async function joinCommunity(
         if (community.private === false) {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { joinedCommunities: communityID } }
+            { $addToSet: { joinedCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -270,7 +298,7 @@ export async function joinCommunity(
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { pendingCommunities: communityID } }
+            { $addToSet: { pendingCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -402,14 +430,14 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   try {
     const communityPromise = Community.updateOne(
       { _id: communityID },
-      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+      { $pull: { pendingMembers: userID }, $addToSet: { members: userID } }
     ).exec();
 
     const userPromise = User.updateOne(
       { _id: userID },
       {
         $pull: { pendingCommunities: communityID },
-        $push: { joinedCommunities: communityID },
+        $addToSet: { joinedCommunities: communityID },
       }
     ).exec();
 
@@ -955,14 +983,18 @@ export async function getAllPendingFollowRequests(communityID: string) {
   }
 }
 
-export async function getCommunityMembers(userID: string, communityID: string) {
+export async function getCommunityMembers(
+  userID: string,
+  communityID: string,
+  options: { skipCalculation?: boolean } = {}
+) {
   try {
     const communityPromise = Community.findById(communityID)
       .select(['members', 'name'])
       .populate({
         path: 'members',
         select:
-          'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections',
+          'firstName lastName university graduationYear work position profilePicture joinedCommunities connections pendingConnections email',
         populate: [
           { path: 'university', select: 'universityName' },
           { path: 'connections', select: 'from to accepted' },
@@ -983,50 +1015,71 @@ export async function getCommunityMembers(userID: string, communityID: string) {
         if (!community) return sendPacket(0, 'Could not find community');
         if (!user) return sendPacket(0, 'Could not find current user');
 
-        const { members } = community;
+        let { members } = community;
 
-        const userConnections = connectionsToUserIDStrings(userID, user.connections);
-
-        for (let i = 0; i < members.length; i++) {
-          const cleanedMember = await addCalculatedUserFields(
-            userConnections,
-            user.joinedCommunities,
-            members[i]
+        if (!options.skipCalculation) {
+          const userConnections = connectionsToUserIDStrings(
+            userID,
+            user.connections
           );
 
-          getUserToUserRelationship(
-            user.connections,
-            user.pendingConnections,
-            members[i],
-            cleanedMember
-          );
-          members[i] = cleanedMember;
+          for (let i = 0; i < members.length; i++) {
+            let cleanedMember = members[i].toObject();
+            cleanedMember.connections = connectionsToUserIDStrings(
+              cleanedMember._id,
+              cleanedMember.connections
+            );
+
+            cleanedMember = await addCalculatedUserFields(
+              userConnections,
+              user.joinedCommunities,
+              cleanedMember
+            );
+
+            getUserToUserRelationship(
+              user.connections,
+              user.pendingConnections,
+              members[i],
+              cleanedMember
+            );
+            members[i] = cleanedMember;
+          }
         }
 
-        const imagePromises = await generateSignedImagePromises(members, 'profile');
-
-        return Promise.all(imagePromises)
-          .then((signedImageURLs) => {
-            for (let i = 0; i < signedImageURLs.length; i++)
-              if (signedImageURLs[i]) members[i].profilePicture = signedImageURLs[i];
-
-            log('info', `Successfully retrieved all members for ${community.name}`);
-            return sendPacket(1, 'Successfully all members', {
-              members,
-            });
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(
-              1,
-              'Successfully retrieved all members, but there was an error retrieving profile pictures',
-              { members }
-            );
-          });
+        members = await addProfilePicturesAll(members, 'profile');
+        return sendPacket(1, 'Sending Community Members', { members });
       }
     );
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
+  }
+}
+
+export async function updateFields(
+  communityID: string,
+  fields: { [key: string]: any }
+) {
+  const acceptedFields = ['description', 'name', 'type', 'private'];
+  const updates: {
+    description?: string;
+    private?: boolean;
+    type?: CommunityType;
+    name?: string;
+  } = Object.assign(
+    {},
+    ...Object.keys(fields)
+      .filter((k) => acceptedFields.includes(k))
+      .map((key) => ({ [key]: fields[key] }))
+  );
+
+  try {
+    await Community.updateOne({ _id: communityID }, updates).exec();
+    return sendPacket(1, 'Successfully updated community');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error trying to update the community', {
+      error: err.message,
+    });
   }
 }

@@ -6,16 +6,19 @@ import { connect } from 'react-redux';
 
 import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
-import CommunityOverview from './CommunityOverview';
+import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
+import CreateCommunityModal from './CreateCommunityModal';
+import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import { CommunityType } from '../../../helpers/types';
+import { Community } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    background: colors.background,
+    background: Theme.background,
     overflow: 'scroll',
   },
   body: {},
@@ -29,30 +32,21 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
     marginRight: 20,
   },
+  noCommunities: {
+    marginTop: 30,
+  },
   singleCommunity: {
     margin: 8,
   },
   loadingIndicator: {
     marginTop: 80,
-    color: colors.primary,
+    color: Theme.bright,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
   },
 }));
-
-type YourCommunities_Community = {
-  _id: string;
-  name: string;
-  description: string;
-  private: boolean;
-  type: CommunityType;
-  admin: string;
-  profilePicture?: string;
-  numMembers: number;
-  numMutual: number;
-};
 
 type Props = {
   requestUserID: string;
@@ -67,12 +61,13 @@ function YourCommunitiesBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [username, setUsername] = useState('User');
-  const [joinedCommunities, setJoinedCommunities] = useState<
-    YourCommunities_Community[]
-  >([]);
-  const [pendingCommunities, setPendingCommunities] = useState<
-    YourCommunities_Community[]
-  >([]);
+
+  const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
+  const [pendingCommunities, setPendingCommunities] = useState<Community[]>([]);
+
+  const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
+    false
+  );
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -117,63 +112,75 @@ function YourCommunitiesBody(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
-  function renderJoinedCommunities() {
-    const output = [];
-    for (let i = 0; i < joinedCommunities.length; i++) {
-      output.push(
-        <CommunityOverview
-          userID={props.user._id}
-          communityID={joinedCommunities[i]._id}
-          name={joinedCommunities[i].name}
-          private={joinedCommunities[i].private}
-          style={styles.singleCommunity}
-          description={joinedCommunities[i].description}
-          type={joinedCommunities[i].type}
-          admin={joinedCommunities[i].admin}
-          memberCount={joinedCommunities[i].numMembers}
-          mutualMemberCount={joinedCommunities[i].numMutual}
-          profilePicture={joinedCommunities[i].profilePicture}
-          status="joined"
-        />
-      );
-    }
-    return output;
-  }
-
-  function renderPendingCommunities() {
-    const output = [];
-    for (let i = 0; i < pendingCommunities.length; i++) {
-      output.push(
-        <CommunityOverview
-          userID={props.user._id}
-          communityID={pendingCommunities[i]._id}
-          name={pendingCommunities[i].name}
-          private={pendingCommunities[i].private}
-          style={styles.singleCommunity}
-          description={pendingCommunities[i].description}
-          type={pendingCommunities[i].type}
-          admin={pendingCommunities[i].admin}
-          memberCount={pendingCommunities[i].numMembers}
-          mutualMemberCount={pendingCommunities[i].numMutual}
-          profilePicture={pendingCommunities[i].profilePicture}
-          status="pending"
-        />
-      );
-    }
-    return output;
+  function appendNewCommunity(community: Community) {
+    setJoinedCommunities([community, ...joinedCommunities]);
   }
 
   function renderCommunities() {
-    return (
-      <>
-        {renderPendingCommunities()}
-        {renderJoinedCommunities()}
-      </>
-    );
+    const output = [];
+    //Joined Communities
+    for (let i = 0; i < joinedCommunities.length; i++) {
+      const currCommunity = joinedCommunities[i];
+      output.push(
+        <CommunityHighlight
+          userID={props.user._id}
+          style={styles.singleCommunity}
+          communityID={currCommunity._id}
+          private={currCommunity.private}
+          name={currCommunity.name}
+          type={currCommunity.type}
+          description={currCommunity.description}
+          profilePicture={currCommunity.profilePicture}
+          memberCount={currCommunity.numMembers!}
+          mutualMemberCount={currCommunity.numMutual!}
+          status={currCommunity.status}
+          admin={currCommunity.admin as string}
+        />
+      );
+    }
+
+    //Pending Communities
+    for (let i = 0; i < pendingCommunities.length; i++) {
+      const currCommunity = pendingCommunities[i];
+      output.push(
+        <CommunityHighlight
+          userID={props.user._id}
+          style={styles.singleCommunity}
+          communityID={currCommunity._id}
+          private={currCommunity.private}
+          name={currCommunity.name}
+          type={currCommunity.type}
+          description={currCommunity.description}
+          profilePicture={currCommunity.profilePicture}
+          memberCount={currCommunity.numMembers!}
+          mutualMemberCount={currCommunity.numMutual!}
+          status={currCommunity.status}
+          admin={currCommunity.admin as string}
+        />
+      );
+    }
+    if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
+      const noCommunitiesMessage =
+        props.requestUserID === 'user'
+          ? `You aren't a part of any communities yet. Get involved!`
+          : `${username} isn't a part of any communities yet.`;
+
+      return (
+        <RSText size={20} type="head" className={styles.noCommunities}>
+          {noCommunitiesMessage}
+        </RSText>
+      );
+    }
+    return output;
   }
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
+      <CreateCommunityModal
+        open={showCreateCommunitiesModal}
+        onClose={() => setShowCreateCommunitiesModal(false)}
+        appendCommunity={appendNewCommunity}
+      />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
           title={`${
@@ -182,13 +189,15 @@ function YourCommunitiesBody(props: Props) {
           message={`All of the communities that ${
             props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
           } to will be displayed on this page.`}
+          buttonText={'Create Community'}
+          buttonAction={() => setShowCreateCommunitiesModal(true)}
         />
       </Box>
       <div className={styles.body}>
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />
         ) : (
-          renderCommunities()
+          <>{renderCommunities()}</>
         )}
       </div>
     </div>

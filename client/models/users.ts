@@ -49,8 +49,8 @@ var userSchema = new Schema(
     pendingCommunities: {
       type: [{ type: Schema.ObjectId, ref: 'communities' }],
     },
-    //TODO - Add fields for background image
     profilePicture: { type: String },
+    bannerPicture: { type: String },
     broadcastedPosts: {
       type: [{ type: Schema.ObjectId, ref: 'posts' }],
     },
@@ -58,8 +58,8 @@ var userSchema = new Schema(
       type: [{ type: Schema.ObjectId, ref: 'posts' }],
     },
     likes: {
-      type: [{ type: Schema.ObjectId, ref: 'posts' }]
-    }
+      type: [{ type: Schema.ObjectId, ref: 'posts' }],
+    },
   },
   { timestamps: true }
 );

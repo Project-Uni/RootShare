@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-import { COMMUNITY_TYPE, CommunityMap } from '../helpers/types';
+import { CommunityType, CommunityMap } from '../helpers/types';
 
 const CommunitySchema = new mongoose.Schema(
   {
@@ -31,6 +31,7 @@ const CommunitySchema = new mongoose.Schema(
       default: '5eb89c308cc6636630c1311f',
     },
     profilePicture: { type: String },
+    bannerPicture: { type: String },
     //TODO - Add fields for background Image
     followedByCommunities: [
       { type: mongoose.Types.ObjectId, ref: 'community_edges' },
@@ -49,6 +50,8 @@ const CommunitySchema = new mongoose.Schema(
     externalPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     postsToOtherCommunities: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
     broadcastedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    pinnedPosts: [{ type: mongoose.Types.ObjectId, ref: 'posts' }],
+    isMTGFlag: { type: Boolean, default: false },
     // subcommunities: [{ type: mongoose.Types.ObjectId, ref: 'communities' }],
   },
   { timestamps: true }
@@ -59,7 +62,7 @@ const Community = mongoose.model('communities');
 
 export default Community;
 
-export function getCommunityValueFromType(type: COMMUNITY_TYPE) {
+export function getCommunityValueFromType(type: CommunityType) {
   return CommunityMap[type];
 }
 
@@ -77,6 +80,8 @@ export function getCommunityTypeFromValue(value: number) {
       return 'Student Organization';
     case 5:
       return 'Academic';
+    case 6:
+      return 'Greek';
     default:
       return '';
   }

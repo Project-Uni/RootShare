@@ -1,9 +1,55 @@
-import { log, makeRequest } from '../helpers/functions';
+import { getUserFromJWT, log, makeRequest } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import sendPacket from '../../webinar/helpers/sendPacket';
 import { isEventHost } from './middleware/eventAuthentication';
+import { User } from '../models';
 
 module.exports = (app) => {
+  app.get(
+    '/api/webinar/:webinarID/getActiveViewers',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { webinarID } = req.params;
+      const authHeader = req.headers['authorization'];
+      const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
+
+      const data = await makeRequest(
+        'webinarCache',
+        `api/webinar/${webinarID}/getActiveViewers`,
+        'GET',
+        {},
+        true,
+        accessToken,
+        '',
+        user
+      );
+
+      if (data['success'] !== 1) {
+        return res.json(data);
+      }
+
+      User.find(
+        { _id: { $in: data['content']['activeUserIDs'] } },
+        ['_id', 'firstName', 'lastName', 'email'],
+        (err, users) => {
+          if (err) {
+            log('error', err);
+            return res.json(
+              sendPacket(-1, 'There was an error retrieving active users')
+            );
+          }
+          return res.json(
+            sendPacket(1, 'Successfully retrieved all active users', {
+              users: users,
+              currentSpeakers: data['content']['currentSpeakers'],
+            })
+          );
+        }
+      );
+    }
+  );
+
   app.post(
     '/proxy/addWebinarToCache',
     isAuthenticatedWithJWT,
@@ -15,6 +61,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -26,7 +73,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       return res.json(data);
@@ -44,6 +91,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -55,7 +103,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       return res.json(data);
@@ -78,6 +126,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -87,7 +136,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data['success'] !== 1) log('error', 'Failed to invite user to stream');
@@ -102,22 +151,23 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     isEventHost,
     async (req, res) => {
-      const { webinarID } = req.body;
+      const { webinarID, speakingToken } = req.body;
       if (!webinarID)
         return res.json(sendPacket(-1, 'webinarID missing from request body'));
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
         'api/removeGuestSpeaker',
         'POST',
-        { webinarID },
+        { webinarID, speakingToken },
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data['success'] !== 1) log('error', 'Failed to remove user from stream');
@@ -131,16 +181,17 @@ module.exports = (app) => {
     '/proxy/webinar/setConnectionID',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { webinarID, connection, speaking_token } = req.body;
+      const { webinarID, connection, speakingToken } = req.body;
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
-      if (!webinarID || !connection || !speaking_token)
+      if (!webinarID || !connection || !speakingToken)
         return res.json(
           sendPacket(
             -1,
-            'webinarID, connection, or speaking_token missing from request body'
+            'webinarID, connection, or speakingToken missing from request body'
           )
         );
 
@@ -151,12 +202,12 @@ module.exports = (app) => {
         {
           webinarID,
           connection,
-          speaking_token,
+          speakingToken,
         },
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data.success !== 1) log('error', data.message);
@@ -176,6 +227,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -188,7 +240,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       //NOTE: -1 means invalid webinarID, 0 means could not find user (user left stream already), 1 means successfully removed user

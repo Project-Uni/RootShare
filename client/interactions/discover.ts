@@ -5,12 +5,11 @@ import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
   generateSignedImagePromises,
-  getUserToCommunityRelationship,
-  getUserToUserRelationship,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
-import { User, Community } from '../models';
+import { User, Community, Search } from '../models';
+import { createSearch } from '../models/searches';
 
 const MAX_RETRIEVED = 20;
 
@@ -126,10 +125,15 @@ export async function populateDiscoverForUser(userID: string) {
 
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
+          users[i].connections = connectionsToUserIDStrings(
+            users[i]._id,
+            users[i].connections
+          );
+
           const cleanedUser = await addCalculatedUserFields(
             connectionUserIDs,
             joinedCommunities,
-            users[i],
+            users[i]
           );
           users[i] = cleanedUser;
         }
@@ -143,37 +147,12 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
-        const communityImagePromises = generateSignedImagePromises(
-          communities,
-          'communityProfile'
-        );
-        const userImagePromises = generateSignedImagePromises(users, 'profile');
+        const imageInfo = await addCommunityAndUserImages(communities, users);
 
-        return Promise.all([...communityImagePromises, ...userImagePromises])
-          .then((images) => {
-            let i = 0;
-            for (i; i < communities.length; i++)
-              if (images[i]) communities[i].profilePicture = images[i];
-
-            for (i; i < communities.length + users.length; i++)
-              if (images[i])
-                users[i - communities.length].profilePicture = images[i];
-            log('info', `Pre-populated discovery page for user ${userID}`);
-
-            return sendPacket(
-              1,
-              'Successfully retrieved users and communities for population',
-              { communities, users }
-            );
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(
-              1,
-              'Successfully retrieved users and communities, but there was an error retrieving profile images',
-              { communities, user }
-            );
-          });
+        return sendPacket(1, `Pre-populated discovery page for user ${userID}`, {
+          communities: imageInfo['communities'],
+          users: imageInfo['users'],
+        });
       })
       .catch((err) => {
         log('error', err);
@@ -185,13 +164,16 @@ export async function populateDiscoverForUser(userID: string) {
   }
 }
 
-export async function exactMatchSearchFor(userID: string, query: string) {
-  const USER_LIMIT = 15;
-  const COMMUNITY_LIMIT = 5;
-
+export async function exactMatchSearchFor(
+  userID: string,
+  query: string,
+  limit: number = 20
+) {
   const cleanedQuery = query.trim();
   if (cleanedQuery.length < 3)
     return sendPacket(0, 'Query is too short to provide accurate search');
+
+  createSearch(userID, query);
 
   const terms = query.split(' ');
   const userSearchConditions: { [key: string]: any }[] = [];
@@ -231,39 +213,15 @@ export async function exactMatchSearchFor(userID: string, query: string) {
   }
 
   try {
-    const currentUserPromise = User.findById(userID)
-      .select([
-        'connections',
-        'pendingConnections',
-        'joinedCommunities',
-        'pendingCommunities',
-      ])
-      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
-      .populate({ path: 'pendingConnections', select: ['from', 'to'] })
-      .exec();
-
     const userPromise = User.find({
       $and: [
-        { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
+        // { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
         { $or: userSearchConditions },
       ],
     })
-      .select([
-        'firstName',
-        'lastName',
-        'university',
-        'work',
-        'position',
-        'graduationYear',
-        'profilePicture',
-        'joinedCommunities',
-        'connections',
-        'pendingConnections',
-        'pendingCommunities',
-      ])
-      .limit(USER_LIMIT)
-      .populate({ path: 'university', select: ['universityName'] })
-      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .select(['firstName', 'lastName', 'email', 'profilePicture'])
+      .limit(limit)
+      .lean()
       .exec();
 
     const communityPromise = Community.find({
@@ -274,90 +232,25 @@ export async function exactMatchSearchFor(userID: string, query: string) {
         'type',
         'description',
         'private',
-        'members',
         'profilePicture',
         'university',
-        'admin',
       ])
-      .limit(COMMUNITY_LIMIT)
-      .populate({ path: 'university', select: ['universityName'] })
+      .limit(limit)
+      .lean()
       .exec();
 
-    return Promise.all([currentUserPromise, userPromise, communityPromise])
-      .then(async ([currentUser, users, communities]) => {
-        if (!currentUser) return sendPacket(0, 'Could not find current user entry');
+    return Promise.all([userPromise, communityPromise])
+      .then(async ([users, communities]) => {
+        const imageInfo = await addCommunityAndUserImages(communities, users);
 
-        const selfConnectionUserIDs = connectionsToUserIDStrings(
-          userID,
-          currentUser.connections
+        return sendPacket(
+          1,
+          `Successfully retrieved all matching users and communities for query: ${query}`,
+          {
+            communities: imageInfo['communities'],
+            users: imageInfo['users'],
+          }
         );
-
-        for (let i = 0; i < users.length; i++) {          
-          const cleanedUser = await addCalculatedUserFields(
-            selfConnectionUserIDs,
-            currentUser.joinedCommunities,
-            users[i],
-          );
-
-          getUserToUserRelationship(
-            currentUser.connections,
-            currentUser.pendingConnections,
-            users[i],
-            cleanedUser
-          );
-          users[i] = cleanedUser;
-        }
-
-        //Cleaning communities array
-        for (let i = 0; i < communities.length; i++) {
-          const cleanedCommunity = await addCalculatedCommunityFields(
-            selfConnectionUserIDs,
-            communities[i]
-          );
-          getUserToCommunityRelationship(
-            currentUser.joinedCommunities,
-            currentUser.pendingCommunities,
-            communities[i],
-            cleanedCommunity
-          );
-          communities[i] = cleanedCommunity;
-        }
-
-        const communityImagePromises = generateSignedImagePromises(
-          communities,
-          'communityProfile'
-        );
-        const userImagePromises = generateSignedImagePromises(users, 'profile');
-
-        return Promise.all([...communityImagePromises, ...userImagePromises])
-          .then((images) => {
-            let i = 0;
-            for (i; i < communities.length; i++)
-              if (images[i]) communities[i].profilePicture = images[i];
-
-            for (i; i < communities.length + users.length; i++)
-              if (images[i])
-                users[i - communities.length].profilePicture = images[i];
-
-            log(
-              'info',
-              `Successfully retrieved all matching users and communities for query: ${query}`
-            );
-
-            return sendPacket(
-              1,
-              'Successfully retrieved all users and communities for query',
-              { users, communities }
-            );
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(
-              1,
-              'Successfully retrieved discover search, but there was an error retrieving images',
-              { users, communities }
-            );
-          });
       })
       .catch((err) => {
         log('error', err);
@@ -367,4 +260,52 @@ export async function exactMatchSearchFor(userID: string, query: string) {
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+function addCommunityAndUserImages(communities, users) {
+  const communityImagePromises = generateSignedImagePromises(
+    communities,
+    'communityProfile'
+  );
+  const userImagePromises = generateSignedImagePromises(users, 'profile');
+
+  return Promise.all([...communityImagePromises, ...userImagePromises])
+    .then((images) => {
+      let i = 0;
+      for (i; i < communities.length; i++)
+        if (images[i]) communities[i].profilePicture = images[i];
+        else communities[i].profilePicture = undefined;
+
+      for (i; i < communities.length + users.length; i++)
+        if (images[i]) users[i - communities.length].profilePicture = images[i];
+        else users[i - communities.length].profilePicture = undefined;
+
+      return { communities, users };
+    })
+    .catch((err) => {
+      log('error', err);
+      for (let i = 0; i < communities.length; i++) {
+        const imageURL = communities[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          communities[i].profilePicture = undefined;
+      }
+
+      for (let i = 0; i < users.length; i++) {
+        const imageURL = users[i].profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          users[i].profilePicture = undefined;
+      }
+
+      return { communities, users };
+    });
 }

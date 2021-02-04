@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Button } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 import OT, { Session, Publisher } from '@opentok/client';
@@ -8,8 +8,9 @@ import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/to
 
 import EventHostButtonContainer from './EventHostButtonContainer';
 
-import { log } from '../../../helpers/functions';
-import { makeRequest } from '../../../helpers/functions';
+import { log, makeRequest } from '../../../helpers/functions';
+import { SpeakRequestType, SpeakerMode } from '../../../helpers/types';
+import { ViewersServiceResponse } from './ManageSpeakersDialog';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
@@ -27,7 +28,7 @@ import {
   removeFromCache,
 } from './helpers';
 
-import { SINGLE_DIGIT } from '../../../helpers/types';
+import { SINGLE_DIGIT, EventType, GuestSpeaker } from '../../../helpers/types';
 
 const MIN_WINDOW_WIDTH = 1150;
 const EVENT_MESSAGES_CONTAINER_WIDTH = 350;
@@ -59,18 +60,21 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type EventMode = 'viewer' | 'speaker' | 'admin';
-
 type Props = {
+  mode: SpeakerMode;
+  webinar: EventType;
+  speakingToken?: string;
+  sessionID?: string;
+
+  speakRequests: SpeakRequestType[];
+  removeSpeakRequest: (viewerID: string) => void;
+  initializeHostSocket: (webinarID: string) => void;
+
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
-  mode: 'speaker' | 'admin';
-  webinar: { [key: string]: any };
-  speaking_token?: string;
-  sessionID?: string;
 };
 
 function EventHostContainer(props: Props) {
@@ -80,7 +84,7 @@ function EventHostContainer(props: Props) {
   const [cameraPublisher, setCameraPublisher] = useState(new Publisher());
   const [screenPublisher, setScreenPublisher] = useState(new Publisher());
   const [session, setSession] = useState(new Session());
-  const [webinarID, setWebinarID] = useState(-1);
+  const [webinarID, setWebinarID] = useState('');
   const [eventSessionID, setEventSessionID] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -92,6 +96,9 @@ function EventHostContainer(props: Props) {
   const [sharingScreen, setSharingScreen] = useState(false);
   const [someoneSharingScreen, setSomeoneSharingScreen] = useState('');
   const [eventStarted, setEventStarted] = useState(true);
+  const [currentGuestSpeakers, setCurrentGuestSpeakers] = useState<GuestSpeaker[]>(
+    []
+  );
 
   const [numSpeakers, setNumSpeakers] = useState<SINGLE_DIGIT>(1);
 
@@ -116,6 +123,14 @@ function EventHostContainer(props: Props) {
     initializeSession();
   }, []);
 
+  useEffect(() => {
+    // Checking if stream is still going if host refreshes webpage
+    // Will need to update eventually since there are some cases where we may get
+    // false positives with this method
+    if (!props.webinar) return;
+    setIsStreaming(!!props.webinar.muxPlaybackID);
+  }, [props.webinar.muxPlaybackID]);
+
   function handleResize() {
     if (window.innerWidth >= MIN_WINDOW_WIDTH)
       setVideoWidth(window.innerWidth - EVENT_MESSAGES_CONTAINER_WIDTH);
@@ -127,11 +142,13 @@ function EventHostContainer(props: Props) {
       if (window.confirm('Are you sure you want to end the live stream?')) {
         setIsStreaming(false);
         stopLiveStream(props.webinar['_id'], props.accessToken, props.refreshToken);
-        removeFromCache(props.webinar['_id'], props.accessToken, props.refreshToken);
+        await clearGuests();
+        removeFromCache(props.webinar['_id']);
       }
     } else {
       if (window.confirm('Are you sure you want to begin the live stream?')) {
         setIsStreaming(true);
+        props.initializeHostSocket(props.webinar['_id']);
         const streamStarted = await startLiveStream(
           props.webinar['_id'],
           props.accessToken,
@@ -147,7 +164,7 @@ function EventHostContainer(props: Props) {
             screenPublisher.stream?.streamId
           );
         }
-        addToCache(props.webinar['_id'], props.accessToken, props.refreshToken);
+        addToCache(props.webinar._id);
       }
     }
   }
@@ -299,7 +316,7 @@ function EventHostContainer(props: Props) {
               return new Publisher();
             }
 
-            session.publish(publisher, (err) => {
+            session.publish(publisher, (err: any) => {
               if (err) return log('error', err.message);
 
               changeBroadcastLayout(
@@ -337,9 +354,62 @@ function EventHostContainer(props: Props) {
     return new Publisher();
   }
 
-  function removeGuestSpeaker(connection: OT.Connection) {
-    session.forceDisconnect(connection, (error) => {
-      if (error) log('OT Error', error.message);
+  async function clearGuests() {
+    const { data } = await makeRequest<ViewersServiceResponse>(
+      'GET',
+      `/api/webinar/${webinarID}/getActiveViewers`
+    );
+
+    if (data.success === 1)
+      for (let i = 0; i < data.content.currentSpeakers.length; i++)
+        await removeGuestSpeaker(data.content.currentSpeakers[i]);
+    else
+      for (let i = 0; i < currentGuestSpeakers.length; i++)
+        await removeGuestSpeaker(currentGuestSpeakers[i]);
+  }
+
+  async function removeGuestSpeaker(
+    speaker: GuestSpeaker,
+    callback?: (success: boolean) => void
+  ) {
+    const { data } = await makeRequest('POST', '/proxy/webinar/removeGuestSpeaker', {
+      webinarID: webinarID,
+      speakingToken: speaker.speakingToken,
+    });
+
+    if (data.success === 0) {
+      spliceGuestSpeakers(speaker._id);
+      return callback && callback(true);
+    }
+
+    session.forceDisconnect(speaker.connection!, (error) => {
+      if (error) {
+        log('OT Error', error.message);
+        // return callback && callback(false);
+      }
+
+      spliceGuestSpeakers(speaker._id);
+    });
+
+    // The logical flow here seems messy, but it's very deliberate due to the
+    // peculiarities of working with OpenTok.
+    // Please do not change unless absolutely necessary.
+    if (data.success === -1 || !speaker?.connection?.connectionId)
+      return callback && callback(false);
+
+    return callback && callback(true);
+  }
+
+  function spliceGuestSpeakers(speakerID: string) {
+    setCurrentGuestSpeakers((prevGuestSpeakers) => {
+      let newGuestSpeakers = prevGuestSpeakers.slice();
+      for (let i = 0; i < newGuestSpeakers.length; i++) {
+        if (newGuestSpeakers[i]._id === speakerID) {
+          newGuestSpeakers.splice(i, 1);
+          return newGuestSpeakers;
+        }
+      }
+      return newGuestSpeakers;
     });
   }
 
@@ -349,8 +419,8 @@ function EventHostContainer(props: Props) {
         'POST',
         '/proxy/webinar/setConnectionID',
         {
-          webinarID: props.webinar['_id'],
-          speaking_token: props.speaking_token,
+          webinarID: props.webinar._id,
+          speakingToken: props.speakingToken,
           connection: eventSession.connection,
         },
         true,
@@ -364,9 +434,9 @@ function EventHostContainer(props: Props) {
 
   async function initializeSession() {
     if (props.webinar) {
-      setWebinarID(props.webinar['_id']);
+      setWebinarID(props.webinar._id);
       const { screenshare, eventSession, message, sessionID } = await connectStream(
-        props.webinar['_id'],
+        props.webinar._id,
         updateVideoElements,
         removeVideoElement,
         setCameraPublisher,
@@ -387,7 +457,7 @@ function EventHostContainer(props: Props) {
       setScreenshareCapable(screenshare);
       setSession((eventSession as unknown) as OT.Session);
 
-      if (props.speaking_token) {
+      if (props.speakingToken) {
         const eventSession_casted = (eventSession as unknown) as Session;
         setCacheConnection(eventSession_casted);
       }
@@ -454,7 +524,7 @@ function EventHostContainer(props: Props) {
         {renderVideoSections()}
       </div>
       <EventHostButtonContainer
-        webinarID={props.webinar['_id']}
+        webinarID={props.webinar._id}
         mode={props.mode}
         isStreaming={isStreaming}
         showWebcam={showWebcam}
@@ -467,6 +537,10 @@ function EventHostContainer(props: Props) {
         loading={publisherLoading}
         removeGuestSpeaker={removeGuestSpeaker}
         sessionID={eventSessionID}
+        speakRequests={props.speakRequests}
+        removeSpeakRequest={props.removeSpeakRequest}
+        currentGuestSpeakers={currentGuestSpeakers}
+        setCurrentGuestSpeakers={setCurrentGuestSpeakers}
       />
     </div>
   );

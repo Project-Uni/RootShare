@@ -18,17 +18,17 @@ import SocketManager from './main-platform/SocketManager';
 import LandingPage from './landing-page/LandingPage';
 
 import {
-  Homepage,
-  Discover,
   Events,
   Profile,
   CommunityDetails,
   YourCommunities,
-  // StreamLibrary,
   Connections,
+  MeetTheGreeks,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
+import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
+import HomepageBody from './main-platform/homepage/components/HomepageBody';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -74,14 +74,29 @@ function App(props: Props) {
 
             <Route path="/admin" component={AdminRoutes} />
 
-            <Route exact path="/home" component={Homepage} />
-            <Route exact path="/discover" component={Discover} />
+            <Route
+              exact
+              path="/home"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<HomepageBody />}
+                  selectedTab="home"
+                />
+              )}
+            />
             <Route exact path="/events" component={Events} />
             <Route exact path="/profile/:profileID" component={Profile} />
             <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
-            {/* <Route exact path="/library" component={StreamLibrary} /> */}
             <Route exact path="/connections/:userID" component={Connections} />
+            <Route
+              exact
+              path="/mtg"
+              render={(props) => (
+                <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
+              )}
+            />
 
             <Route component={PageNotFound} />
           </Switch>

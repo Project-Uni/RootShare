@@ -46,7 +46,8 @@ function SocketManager(props: Props) {
     if (
       Object.keys(props.user).length === 0 ||
       props.accessToken === '' ||
-      props.refreshToken === ''
+      props.refreshToken === '' ||
+      socket !== undefined
     )
       return;
 
@@ -54,7 +55,7 @@ function SocketManager(props: Props) {
       if (authed) connectSocket();
       else disconnectSocket();
     });
-  }, [props.user, props.accessToken, props.refreshToken]);
+  }, [props.user, props.accessToken, props.refreshToken, socket]);
 
   useEffect(() => {
     addMessage(props.newMessage);
@@ -65,16 +66,7 @@ function SocketManager(props: Props) {
   }, [newConversation]);
 
   async function checkAuth(callback: (authed: boolean) => void) {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
-    callback(data['success'] === 1);
+    callback(Boolean(props.accessToken));
   }
 
   function connectSocket() {
