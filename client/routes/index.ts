@@ -37,6 +37,7 @@ export default function allRoutes(app, io) {
   webhookRoutes(app);
 
   app.all('/api/*', async (req: Request, res: Response) => {
+    console.log('TEST');
     return res.json(sendPacket(-1, 'Path not found'));
   });
 }

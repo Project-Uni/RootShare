@@ -90,13 +90,13 @@ function App(props: Props) {
             <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
             <Route exact path="/connections/:userID" component={Connections} />
-            <Route
+            {/* <Route
               exact
               path="/mtg"
               render={(props) => (
                 <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
               )}
-            />
+            /> */}
 
             <Route component={PageNotFound} />
           </Switch>
