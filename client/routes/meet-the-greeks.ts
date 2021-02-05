@@ -234,8 +234,4 @@ export default function meetTheGreekRoutes(app) {
     const { _id: userID } = getUserFromJWT(req);
     updateUserInfo(userID, req.body, (packet) => res.json(packet));
   });
-
-  app.all('/api/mtg/*', async (req: Request, res: Response) => {
-    return res.json(sendPacket(-1, 'Path not found'));
-  });
 }

@@ -23,7 +23,7 @@ var {
   completeRegistrationRequired,
 } = require('../interactions/registration/registration-data');
 
-module.exports = (app) => {
+export default function registrationInternalRoutes(app) {
   app.post('/auth/login/local', (req, res) => {
     passport.authenticate('local-login', async (err, user, info) => {
       if (user) {
@@ -217,4 +217,4 @@ module.exports = (app) => {
     //TODO - Invalidate Access and Refresh tokens
     res.json(sendPacket(1, 'Successfully logged out'));
   });
-};
+}
