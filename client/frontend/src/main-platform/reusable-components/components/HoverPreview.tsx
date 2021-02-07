@@ -39,7 +39,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type UserToCommunityRelationship = 'open' | 'pending' | 'joined' | 'admin';
+type UserToCommunityRelationship = 'OPEN' | 'PENDING' | 'JOINED' | 'ADMIN';
 
 type UserFields = {
   relationship: UserToUserRelationship;
@@ -201,6 +201,42 @@ const HoverPreview = () => {
     [_id, additionalFields]
   );
 
+  const handleCommunityButtonAction = useCallback(
+    async (action: 'join' | 'cancel' | 'leave') => {
+      setActionLoading(true);
+      const data: { success: number } = await new Promise((resolve) =>
+        resolve({ success: 1 })
+      );
+      if (data.success === 1) {
+        let newRelationship: UserToCommunityRelationship;
+        switch (action) {
+          case 'join':
+          case 'leave':
+          case 'cancel':
+        }
+        setAdditionalFields({
+          ...additionalFields,
+          relationship: 'OPEN',
+        } as CommunityFields);
+        dispatch(
+          dispatchSnackbar({
+            message: 'Successfully performed action',
+            mode: 'success',
+          })
+        );
+      } else {
+        dispatch(
+          dispatchSnackbar({
+            message: 'There was an error performing the action',
+            mode: 'error',
+          })
+        );
+      }
+      setActionLoading(false);
+    },
+    [_id, additionalFields]
+  );
+
   const ActionButton = useCallback(() => {
     if (type === 'user')
       switch ((additionalFields as UserFields)?.relationship) {
@@ -262,33 +298,39 @@ const HoverPreview = () => {
       }
     else
       switch ((additionalFields as CommunityFields)?.relationship) {
-        case 'open':
+        case 'OPEN':
           return (
-            <RSButton className={styles.actionButton} disabled={actionLoading}>
+            <RSButton
+              className={styles.actionButton}
+              disabled={actionLoading}
+              onClick={() => handleCommunityButtonAction('join')}
+            >
               Join
             </RSButton>
           );
-        case 'pending':
+        case 'PENDING':
           return (
             <RSButton
               className={styles.actionButton}
               disabled={actionLoading}
               variant="secondary"
+              onClick={() => handleCommunityButtonAction('cancel')}
             >
               Pending
             </RSButton>
           );
-        case 'joined':
+        case 'JOINED':
           return (
             <RSButton
               className={styles.actionButton}
               disabled={actionLoading}
               variant="secondary"
+              onClick={() => handleCommunityButtonAction('leave')}
             >
               Member
             </RSButton>
           );
-        case 'admin':
+        case 'ADMIN':
           return (
             <RSButton
               className={styles.actionButton}
