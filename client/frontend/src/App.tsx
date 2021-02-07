@@ -17,7 +17,7 @@ import SocketManager from './main-platform/SocketManager';
 
 import LandingPage from './landing-page/LandingPage';
 
-import { CommunityDetails, YourCommunities, MeetTheGreeks } from './main-platform';
+import { CommunityDetails, MeetTheGreeks } from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
@@ -25,6 +25,7 @@ import HomepageBody from './main-platform/homepage/components/HomepageBody';
 import ProfileBody from './main-platform/profile/components/ProfileBody';
 import EventsBody from './main-platform/events/components/EventsBody';
 import ConnectionsBody from './main-platform/connections/components/ConnectionsBody';
+import YourCommunitiesBody from './main-platform/your-communities/components/YourCommunitiesBody';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -103,7 +104,17 @@ function App(props: Props) {
                 />
               )}
             />
-            <Route exact path="/communities/:userID" component={YourCommunities} />
+            <Route
+              exact
+              path="/communities/:userID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<YourCommunitiesBody {...props} />}
+                  selectedTab="communities"
+                />
+              )}
+            />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
             <Route
               exact
