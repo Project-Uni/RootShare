@@ -4,8 +4,6 @@ import './App.css';
 import { Router, Route, Switch } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga';
-import { connect } from 'react-redux';
-import { updateUser } from './redux/actions/user';
 
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
@@ -37,12 +35,7 @@ history.listen((location) => {
   ReactGA.pageview(location.pathname); // Record a pageview for the given page
 });
 
-type Props = {
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
-};
-
-function App(props: Props) {
+const App = () => {
   return (
     <div className="App">
       <SocketManager />
@@ -140,20 +133,6 @@ function App(props: Props) {
       </Router>
     </div>
   );
-}
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;
