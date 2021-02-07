@@ -287,7 +287,7 @@ const HoverPreview = () => {
         default:
           return <></>;
       }
-  }, [additionalFields]);
+  }, [additionalFields, actionLoading]);
 
   return (
     <Popover
