@@ -23,10 +23,9 @@ import {
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { cropText } from '../../../helpers/functions';
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import { UserToCommunityRelationship, CommunityType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
@@ -135,7 +134,7 @@ type CommunityFlags = {
 
 type Props = {
   communityID: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   name: string;
   description: string;
   numMembers: number;
@@ -147,7 +146,7 @@ type Props = {
   isAdmin?: boolean;
   isMTG?: boolean;
 
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   flags: CommunityFlags;
 };
 

@@ -19,7 +19,11 @@ import {
 import RSText from '../../base-components/RSText';
 
 import { makeRequest } from '../../helpers/functions';
-import { Community, CommunityStatus, UserType } from '../../helpers/types';
+import {
+  Community,
+  UserToCommunityRelationship,
+  UserType,
+} from '../../helpers/types';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
@@ -55,7 +59,9 @@ function CommunityDetails(props: Props) {
   const [width, setWidth] = useState(window.innerWidth);
 
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
-  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>('OPEN');
+  const [communityStatus, setCommunityStatus] = useState<
+    UserToCommunityRelationship
+  >('OPEN');
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
@@ -109,7 +115,7 @@ function CommunityDetails(props: Props) {
     else setCommunityStatus('OPEN');
   }
 
-  function updateCommunityStatus(newStatus: CommunityStatus) {
+  function updateCommunityStatus(newStatus: UserToCommunityRelationship) {
     setCommunityStatus(newStatus);
   }
 

@@ -10,7 +10,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { cropText, makeRequest } from '../../../helpers/functions';
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import { UserToCommunityRelationship, CommunityType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 200;
@@ -80,7 +80,7 @@ type Props = {
   description: string;
   memberCount: number;
   mutualMemberCount: number;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   profilePicture: any;
   admin: string;
   setNotification?: (
@@ -95,9 +95,9 @@ type Props = {
 function CommunityHighlight(props: Props) {
   const styles = useStyles();
 
-  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>(
-    props.status
-  );
+  const [communityStatus, setCommunityStatus] = useState<
+    UserToCommunityRelationship
+  >(props.status);
   const [numMembers, setNumMembers] = useState(props.memberCount);
 
   async function requestJoin() {

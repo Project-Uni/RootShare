@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
@@ -12,7 +11,7 @@ import CommunityMembers from './CommunityMembers';
 import {
   PostType,
   AdminCommunityServiceResponse,
-  CommunityStatus,
+  UserToCommunityRelationship,
   CommunityPostingOption,
   SearchUserType,
 } from '../../../helpers/types';
@@ -61,7 +60,7 @@ type Props = {
   universityName: string;
   communityProfilePicture?: string;
   name: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   isAdmin?: boolean;
   user: { [key: string]: any };
   accessToken: string;

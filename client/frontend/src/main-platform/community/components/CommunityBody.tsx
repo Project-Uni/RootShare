@@ -11,7 +11,7 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import { UserToCommunityRelationship, CommunityType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
@@ -70,7 +70,7 @@ export type CommunityFlags = {
 type Props = {
   communityID: string;
   userID: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   name: string;
   universityName: string;
   description: string;
@@ -82,7 +82,7 @@ type Props = {
   private?: boolean;
   loading?: boolean;
 
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
   flags: CommunityFlags;

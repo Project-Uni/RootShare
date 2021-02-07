@@ -8,7 +8,11 @@ import { FaUserTie } from 'react-icons/fa';
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import { CommunityType, UserToUserRelationship } from '../../../helpers/types';
+import {
+  CommunityType,
+  UserToUserRelationship,
+  UserToCommunityRelationship,
+} from '../../../helpers/types';
 
 import {
   clearHoverPreview,
@@ -43,8 +47,6 @@ const useStyles = makeStyles((_: any) => ({
     flex: 0.5,
   },
 }));
-
-type UserToCommunityRelationship = 'OPEN' | 'PENDING' | 'JOINED' | 'ADMIN';
 
 type UserFields = {
   relationship: UserToUserRelationship;

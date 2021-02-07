@@ -17,11 +17,11 @@ export type Community = {
   numMembers?: number;
   numMutual?: number;
   profilePicture?: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   isMTGFlag?: boolean; //For Meet the Greeks
 };
 
-export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';
+export type UserToCommunityRelationship = 'PENDING' | 'JOINED' | 'OPEN' | 'ADMIN';
 
 export type CommunityType =
   | 'Social'

@@ -2,7 +2,7 @@ import {
   CommunityType,
   UniversityType,
   UserToUserRelationship,
-  CommunityStatus,
+  UserToCommunityRelationship,
 } from '.';
 
 export type DiscoverCommunity = {
@@ -16,7 +16,7 @@ export type DiscoverCommunity = {
   admin: string;
   numMembers: number;
   numMutual: number;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
 };
 
 export type DiscoverUser = {
