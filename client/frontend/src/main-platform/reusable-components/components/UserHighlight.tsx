@@ -4,12 +4,10 @@ import { connect } from 'react-redux';
 import { Button, Box } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import { UserToUserRelationship } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
 
@@ -98,7 +96,7 @@ type Props = {
   company?: string;
   mutualConnections?: number;
   mutualCommunities?: number;
-  status: ProfileState;
+  status: UserToUserRelationship;
   connectionRequestID?: string;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
@@ -113,7 +111,7 @@ type Props = {
 function UserHighlight(props: Props) {
   const styles = useStyles();
 
-  const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
+  const [userStatus, setUserStatus] = useState<UserToUserRelationship>(props.status);
 
   async function requestConnection() {
     const data = await putUpdateUserConnection('connect', props.userID);

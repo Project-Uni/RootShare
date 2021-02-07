@@ -84,44 +84,20 @@ function ConnectionsDrawer(props: Props) {
   }, []);
 
   async function fetchPendingRequests() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getPendingRequests',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getPendingRequests');
 
-    console.log(data);
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 
   async function fetchConnectionSuggestions() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnectionSuggestions',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getConnectionSuggestions');
 
-    console.log(data);
     if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
   }
 
   async function fetchConnections() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnections',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getConnections');
 
-    console.log(data);
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
@@ -199,8 +175,6 @@ function ConnectionsDrawer(props: Props) {
           removeSuggestion={removeSuggestion}
           key={currSuggestion._id}
           suggestedUser={currSuggestion}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
         />
       );
     }
@@ -220,12 +194,7 @@ function ConnectionsDrawer(props: Props) {
     for (let i = 0; i < connections.length; i++) {
       const currConnection = connections[i];
       output.push(
-        <SingleConnection
-          key={currConnection._id}
-          connectedUser={currConnection}
-          // accessToken={props.accessToken}
-          // refreshToken={props.refreshToken}
-        />
+        <SingleConnection key={currConnection._id} connectedUser={currConnection} />
       );
     }
     return output;

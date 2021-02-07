@@ -5,10 +5,12 @@ import { Button, TextField, Menu, MenuItem } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { makeRequest } from '../../../helpers/functions';
-import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
+import {
+  ConnectionRequestType,
+  UserToUserRelationship,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
 
@@ -150,7 +152,7 @@ type Props = {
   numMutualConnections?: number;
   numCommunities: number;
   numMutualCommunities?: number;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   updateProfileState: () => void;
 
   accessToken: string;

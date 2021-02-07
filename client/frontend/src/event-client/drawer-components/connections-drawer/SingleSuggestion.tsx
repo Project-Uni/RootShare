@@ -93,8 +93,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   suggestedUser: UserType;
   removeSuggestion: (userID: string) => void;
-  accessToken: string;
-  refreshToken: string;
 };
 
 function SingleSuggestion(props: Props) {
