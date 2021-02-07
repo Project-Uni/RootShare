@@ -17,7 +17,12 @@ import {
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
-import { putUpdateUserConnection, getCommunities, getUsers } from '../../../api';
+import {
+  putUpdateUserConnection,
+  getCommunities,
+  getUsers,
+  putUserToCommunityRelationship,
+} from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -205,8 +210,9 @@ const HoverPreview = () => {
   const handleCommunityButtonAction = useCallback(
     async (action: 'join' | 'cancel' | 'leave') => {
       setActionLoading(true);
-      const data: { success: number } = await new Promise((resolve) =>
-        resolve({ success: 1 })
+      const data: { success: number } = await putUserToCommunityRelationship(
+        action,
+        _id
       );
       if (data.success === 1) {
         let newRelationship: UserToCommunityRelationship;
