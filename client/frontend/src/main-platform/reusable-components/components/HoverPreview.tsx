@@ -54,6 +54,7 @@ type CommunityFields = {
   relationship: UserToCommunityRelationship;
   type: CommunityType;
   description: string;
+  private?: boolean;
 };
 
 type UserResponse = {
@@ -116,7 +117,7 @@ const HoverPreview = () => {
             },
           })
         : await getCommunities<CommunityResponse>([_id], {
-            fields: ['description', 'type'],
+            fields: ['description', 'type', 'private'],
             options: {
               limit: 1,
               getProfilePicture: false,
@@ -211,12 +212,18 @@ const HoverPreview = () => {
         let newRelationship: UserToCommunityRelationship;
         switch (action) {
           case 'join':
+            if ((additionalFields as CommunityFields).private)
+              newRelationship = 'PENDING';
+            else newRelationship = 'JOINED';
+            break;
           case 'leave':
           case 'cancel':
+            newRelationship = 'OPEN';
+            break;
         }
         setAdditionalFields({
           ...additionalFields,
-          relationship: 'OPEN',
+          relationship: newRelationship,
         } as CommunityFields);
         dispatch(
           dispatchSnackbar({
@@ -417,7 +424,7 @@ const AdditionalPreviewData = ({
   additionalFields: UserFields | CommunityFields;
 }) => {
   if (type === 'community') {
-    const { description } = Object.assign(
+    const { description, private: isPrivate } = Object.assign(
       {},
       additionalFieldsProps
     ) as CommunityFields;

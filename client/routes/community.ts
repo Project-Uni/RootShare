@@ -430,6 +430,7 @@ export default function communityRoutes(app) {
   );
 
   app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
     const {
       _ids,
       fields,
@@ -455,7 +456,7 @@ export default function communityRoutes(app) {
       populates,
       getProfilePicture,
       getBannerPicture,
-      getRelationship: getRelationship ? req.user._id : undefined,
+      getRelationship: getRelationship ? userID : undefined,
       includeDefaultFields,
     };
 

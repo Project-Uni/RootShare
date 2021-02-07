@@ -386,11 +386,11 @@ export const getUserToCommunityRelationship_V2 = async (
   }[]
 ) => {
   communities.forEach((community) => {
-    if (community.admin.equals(userID)) community.relationship = 'admin';
+    if (community.admin.equals(userID)) community.relationship = 'ADMIN';
     else if (community.members.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'joined';
+      community.relationship = 'JOINED';
     else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'pending';
-    else community.relationship = 'open';
+      community.relationship = 'PENDING';
+    else community.relationship = 'OPEN';
   });
 };
