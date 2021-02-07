@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton, Menu, MenuItem } from '@material-ui/core';
-import RootShareLogo from '../images/RootShareLogoFull.png';
+import RootShareLogo from '../images/RootShareLogoFullbeta.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';

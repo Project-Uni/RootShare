@@ -284,6 +284,7 @@ function EventMessageContainer(props: Props) {
   }
 
   function renderViewerButtons() {
+    return;
     if (!props.onRequestToSpeak && !props.communityID) return;
 
     return (
@@ -291,10 +292,12 @@ function EventMessageContainer(props: Props) {
         <RSButton onClick={props.onRequestToSpeak} className={styles.viewerButtons}>
           Request to Speak
         </RSButton>
-        <InterestedButton
-          className={styles.viewerButtons}
-          communityID={props.communityID!}
-        />
+        {props.communityID && (
+          <InterestedButton
+            className={styles.viewerButtons}
+            communityID={props.communityID!}
+          />
+        )}
       </div>
     );
   }

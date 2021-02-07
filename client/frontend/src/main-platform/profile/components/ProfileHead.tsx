@@ -53,7 +53,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   acceptConnectionButton: {
     color: Theme.white,
-    background: Theme.primary,
+    background: Theme.bright,
     marginLeft: 7,
   },
   pendingConnectionButton: {
@@ -62,7 +62,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectedConnectionButton: {
     color: Theme.white,
-    background: Theme.primary
+    background: Theme.primary,
   },
   selfBioWrapper: {
     display: 'flex',
