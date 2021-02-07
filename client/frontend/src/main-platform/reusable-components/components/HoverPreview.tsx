@@ -198,7 +198,7 @@ const HoverPreview = () => {
       }
       setActionLoading(false);
     },
-    [_id]
+    [_id, additionalFields]
   );
 
   const ActionButton = useCallback(() => {
