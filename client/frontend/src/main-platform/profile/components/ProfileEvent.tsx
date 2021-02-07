@@ -5,9 +5,8 @@ import { Button, IconButton } from '@material-ui/core';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
-import { EventType, HostType, ProfileState } from '../../../helpers/types';
+import { EventType, HostType, UserToUserRelationship } from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
@@ -68,7 +67,7 @@ type Props = {
   style?: any;
   accessToken: string;
   refreshToken: string;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   removeEvent: (eventID: string) => void;
 };
 

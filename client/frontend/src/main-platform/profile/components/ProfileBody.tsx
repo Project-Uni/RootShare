@@ -15,8 +15,8 @@ import {
   UserType,
   UniversityType,
   EventType,
-  ProfileState,
   PostType,
+  UserToUserRelationship,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -83,7 +83,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   user: any;
   profileID: string;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   accessToken: string;
   refreshToken: string;
   updateProfileState: () => void;

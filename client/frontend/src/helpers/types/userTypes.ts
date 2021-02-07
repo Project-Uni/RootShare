@@ -42,12 +42,12 @@ export type ConnectionRequestType = {
   createdAt: Date;
 };
 
-export type ProfileState =
+export type UserToUserRelationship =
   | 'SELF'
-  | 'CONNECTION'
-  | 'TO'
-  | 'FROM'
-  | 'PUBLIC'
+  | 'CONNECTED'
+  | 'PENDING_TO'
+  | 'PENDING_FROM'
+  | 'OPEN'
   | 'PENDING';
 
 //NOTE - Pending added for general display when figuring out from / to not needed
@@ -55,10 +55,10 @@ export type ProfileState =
 export type LeanUser = {
   firstName: string;
   lastName: string;
-  state: ProfileState;
+  state: UserToUserRelationship;
   profilePicture?: string;
   _id: string;
-}
+};
 
 export type SearchUserType = {
   _id: string;
@@ -72,5 +72,5 @@ export type SearchUserType = {
   accountType?: string;
   numMutualCommunities: number;
   numMutualConnections: number;
-  status: ProfileState;
+  status: UserToUserRelationship;
 };

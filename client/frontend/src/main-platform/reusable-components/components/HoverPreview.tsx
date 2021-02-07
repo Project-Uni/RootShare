@@ -8,14 +8,13 @@ import { FaUserTie } from 'react-icons/fa';
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import { CommunityType } from '../../../helpers/types';
+import { CommunityType, UserToUserRelationship } from '../../../helpers/types';
 
 import { clearHoverPreview } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
-import { putUpdatetUserConnection } from '../../../api/put/putUserConnection';
-import { getCommunities, getUsers } from '../../../api/get';
+import { putUpdateUserConnection, getCommunities, getUsers } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -36,14 +35,6 @@ const useStyles = makeStyles((_: any) => ({
     flex: 0.5,
   },
 }));
-
-// JANUARY 18 2021 - USE THIS FOR NEW USER RELATIONSHIP TYPES
-type UserToUserRelationship =
-  | 'open'
-  | 'pending_from'
-  | 'pending_to'
-  | 'connected'
-  | 'self';
 
 type UserToCommunityRelationship = 'open' | 'pending' | 'joined' | 'admin';
 
@@ -167,21 +158,21 @@ const HoverPreview = () => {
   const handleUserButtonAction = useCallback(
     async (action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel') => {
       setActionLoading(true);
-      const data = await putUpdatetUserConnection(_id, action);
+      const data = await putUpdateUserConnection(action, _id);
       if (data.success === 1) {
         let newRelationship: UserToUserRelationship;
         switch (action) {
           case 'connect':
-            newRelationship = 'pending_to';
+            newRelationship = 'PENDING_TO';
             break;
 
           case 'accept':
-            newRelationship = 'connected';
+            newRelationship = 'CONNECTED';
             break;
           case 'reject':
           case 'cancel':
           case 'remove':
-            newRelationship = 'open';
+            newRelationship = 'OPEN';
             break;
         }
         setAdditionalFields({
@@ -193,13 +184,13 @@ const HoverPreview = () => {
       }
       setActionLoading(false);
     },
-    []
+    [_id]
   );
 
   const ActionButton = useCallback(() => {
     if (type === 'user')
       switch ((additionalFields as UserFields)?.relationship) {
-        case 'open':
+        case 'OPEN':
           return (
             <RSButton
               className={styles.actionButton}
@@ -209,7 +200,7 @@ const HoverPreview = () => {
               Connect
             </RSButton>
           );
-        case 'pending_to':
+        case 'PENDING_TO':
           return (
             <RSButton
               className={styles.actionButton}
@@ -220,7 +211,7 @@ const HoverPreview = () => {
               Pending
             </RSButton>
           );
-        case 'pending_from':
+        case 'PENDING_FROM':
           return (
             <div style={{ display: 'flex' }} className={styles.actionButton}>
               <RSButton
@@ -241,7 +232,7 @@ const HoverPreview = () => {
               </RSButton>
             </div>
           );
-        case 'connected':
+        case 'CONNECTED':
           return (
             <RSButton
               className={styles.actionButton}
@@ -251,7 +242,7 @@ const HoverPreview = () => {
               Connected
             </RSButton>
           );
-        case 'self':
+        case 'SELF':
         default:
           return <></>;
       }

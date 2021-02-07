@@ -1,8 +1,10 @@
 import { addProfilePicturesAll } from '../interactions/utilities';
 
-import mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-type ObjectId = mongoose.Schema.Types.ObjectId;
+
+import { Types } from 'mongoose';
+type ObjectId = Types.ObjectId;
 
 /**
  *
@@ -16,12 +18,13 @@ type ObjectId = mongoose.Schema.Types.ObjectId;
  *          - lastName
  *          - email
  *          - university
- *          - createdAt
- *          - updatedAt
+ *          - sendEmails
+ *          - confirmed
+ *          - verified
  *        properties:
  *          _id:
  *            type: string
- *            description: Auto-generated id
+ *            description: Auto-generated ID
  *          firstName:
  *            type: string
  *            description: First name of user
@@ -76,43 +79,43 @@ type ObjectId = mongoose.Schema.Types.ObjectId;
  *          attendedWebinars:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all webinars the user has attended
+ *              $ref: '#/components/schemas/Webinar'
+ *            description: IDs of all webinars the user has attended
  *          connections:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all connections Objects the user is connected with
+ *              $ref: '#/components/schemas/Connection'
+ *            description: IDs of all connections Objects the user is connected by
  *          pendingConnections:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all pending connection Objects
+ *              $ref: '#/components/schemas/Connection'
+ *            description: IDs of all pending connection Objects
  *          joinedCommunities:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all communities the user has joined
+ *              $ref: '#/components/schemas/Community'
+ *            description: IDs of all communities the user has joined
  *          pendingCommunities:
  *            type: array
  *            items:
- *              type: string
+ *              $ref: '#/components/schemas/Community'
  *            description: ID's of all communities the user has requested to join
  *          broadcastedPosts:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all posts the user has broadcasted
+ *              $ref: '#/components/schemas/Post'
+ *            description: IDs of all posts the user has broadcasted
  *          communityPosts:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all posts sent to a community by the user
+ *              $ref: '#/components/schemas/Post'
+ *            description: IDs of all posts sent to a community by the user
  *          likes:
  *            type: array
  *            items:
- *              type: string
- *            description: ID's of all posts the user has liked
+ *              $ref: '#/components/schemas/Post'
+ *            description: IDs of all posts the user has liked
  *          profilePicture:
  *            type: string
  *            description: File name of user's current profile picture
@@ -121,11 +124,11 @@ type ObjectId = mongoose.Schema.Types.ObjectId;
  *            description: File name of user's current banner picture
  *          createdAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: The date of the record creation.
  *          updatedAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          firstName: 'John'
@@ -347,13 +350,13 @@ export const getUserToUserRelationship_V2 = async (
     .exec();
 
   users.forEach((otherUser) => {
-    if (otherUser._id.equals(userID)) otherUser.relationship = 'self';
+    if (otherUser._id.equals(userID)) otherUser.relationship = 'SELF';
     else if (
       otherUser.connections.some((user2connection) =>
         user.connections.includes(user2connection)
       )
     ) {
-      otherUser.relationship = 'connected';
+      otherUser.relationship = 'CONNECTED';
     } else {
       const pendingConnectionIntersection = otherUser.pendingConnections.filter(
         (user2Connection) =>
@@ -364,11 +367,23 @@ export const getUserToUserRelationship_V2 = async (
       if (pendingConnectionIntersection.length > 0) {
         const pendingConnection = pendingConnectionIntersection[0];
         if (pendingConnection.from.equals(userID))
-          otherUser.relationship = 'pending_to';
-        else otherUser.relationship = 'pending_from';
+          otherUser.relationship = 'PENDING_TO';
+        else otherUser.relationship = 'PENDING_FROM';
       } else {
-        otherUser.relationship = 'open';
+        otherUser.relationship = 'OPEN';
       }
     }
   });
+};
+
+export const checkUsersExist = async (userIDs: string[]) => {
+  const existPromises = userIDs.map((userID) =>
+    User.exists({
+      _id: userID,
+    })
+  );
+
+  return Promise.all(existPromises).then(
+    (existBools) => !existBools.some((val) => !val)
+  );
 };

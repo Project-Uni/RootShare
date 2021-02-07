@@ -100,7 +100,7 @@ export async function addCalculatedUserFields(
 
   cleanedUser.numMutualConnections = mutualConnections.length;
   cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'PUBLIC';
+  cleanedUser.status = 'OPEN';
 
   return cleanedUser;
 }
@@ -156,7 +156,7 @@ export function getUserToUserRelationship(
         currentUserConnections[i]._id.toString() ===
         originalOtherUser.connections[j]._id.toString()
       )
-        return (cleanedOtherUser.status = 'CONNECTION');
+        return (cleanedOtherUser.status = 'CONNECTED');
 
   for (let i = 0; i < currentUserPendingConnections.length; i++)
     if (
@@ -168,9 +168,9 @@ export function getUserToUserRelationship(
         currentUserPendingConnections[i].from.toString() ===
         cleanedOtherUser._id.toString()
       ) {
-        cleanedOtherUser.status = 'FROM';
+        cleanedOtherUser.status = 'PENDING_FROM';
         cleanedOtherUser.connectionRequestID = currentUserPendingConnections[i]._id;
-      } else cleanedOtherUser.status = 'TO';
+      } else cleanedOtherUser.status = 'PENDING_TO';
 }
 
 export function getUserToCommunityRelationship(

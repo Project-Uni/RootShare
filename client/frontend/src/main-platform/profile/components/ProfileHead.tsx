@@ -5,11 +5,14 @@ import { Button, TextField, Menu, MenuItem } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { makeRequest } from '../../../helpers/functions';
-import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
+import {
+  ConnectionRequestType,
+  UserToUserRelationship,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const ITEM_HEIGHT = 28;
 
@@ -62,7 +65,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectedConnectionButton: {
     color: Theme.white,
-    background: Theme.primary
+    background: Theme.primary,
   },
   selfBioWrapper: {
     display: 'flex',
@@ -149,7 +152,7 @@ type Props = {
   numMutualConnections?: number;
   numCommunities: number;
   numMutualCommunities?: number;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   updateProfileState: () => void;
 
   accessToken: string;
@@ -188,9 +191,9 @@ function ProfileHead(props: Props) {
 
   useEffect(() => {
     if (
-      props.currentProfileState === 'TO' ||
-      props.currentProfileState === 'FROM' ||
-      props.currentProfileState === 'CONNECTION'
+      props.currentProfileState === 'PENDING_TO' ||
+      props.currentProfileState === 'PENDING_FROM' ||
+      props.currentProfileState === 'CONNECTED'
     )
       fetchConnection();
   }, [props.currentProfileState]);
@@ -209,69 +212,32 @@ function ProfileHead(props: Props) {
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.profileID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
   }
 
   async function declineConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('reject', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
     setAnchorEl(null);
   }
 
   async function acceptConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: true,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('accept', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) => prevNumConnections + 1);
     }
   }
 
-  async function removeConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+  async function cancelRequest() {
+    const data = await putUpdateUserConnection('cancel', props.profileID);
+    if (data['success'] === 1) props.updateProfileState();
+    setAnchorEl(null);
+  }
 
+  async function removeConnection() {
+    const data = await putUpdateUserConnection('remove', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) =>
@@ -362,10 +328,10 @@ function ProfileHead(props: Props) {
   function renderOptions() {
     return (
       <div>
-        {props.currentProfileState === 'TO' && (
-          <MenuItem onClick={declineConnection}>Cancel Request</MenuItem>
+        {props.currentProfileState === 'PENDING_TO' && (
+          <MenuItem onClick={cancelRequest}>Cancel Request</MenuItem>
         )}
-        {props.currentProfileState === 'CONNECTION' && (
+        {props.currentProfileState === 'CONNECTED' && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
         )}
       </div>
@@ -379,15 +345,15 @@ function ProfileHead(props: Props) {
     let buttonText = 'Connect';
     let clickHandler: any = requestConnection;
 
-    if (props.currentProfileState === 'TO') {
+    if (props.currentProfileState === 'PENDING_TO') {
       buttonStyles.push(styles.pendingConnectionButton);
       buttonText = 'Requested';
       clickHandler = handleOptionsClick;
-    } else if (props.currentProfileState === 'FROM') {
+    } else if (props.currentProfileState === 'PENDING_FROM') {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
       clickHandler = declineConnection;
-    } else if (props.currentProfileState === 'CONNECTION') {
+    } else if (props.currentProfileState === 'CONNECTED') {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
       clickHandler = handleOptionsClick;
@@ -417,7 +383,7 @@ function ProfileHead(props: Props) {
         >
           {renderOptions()}
         </Menu>
-        {props.currentProfileState === 'FROM' && (
+        {props.currentProfileState === 'PENDING_FROM' && (
           <Button
             variant="contained"
             className={[

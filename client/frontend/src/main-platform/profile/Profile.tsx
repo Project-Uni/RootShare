@@ -15,7 +15,7 @@ import {
   HEADER_HEIGHT,
 } from '../../helpers/constants';
 import { makeRequest } from '../../helpers/functions';
-import { ProfileState } from '../../helpers/types';
+import { UserToUserRelationship } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -46,9 +46,9 @@ function Profile(props: Props) {
   const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
-  const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
-    'PUBLIC'
-  );
+  const [currentProfileState, setCurrentProfileState] = useState<
+    UserToUserRelationship
+  >('OPEN');
 
   //If it is the logged in user's, then profileID = 'user', else it is that user's ID
   const profileID = props.match.params['profileID'];
