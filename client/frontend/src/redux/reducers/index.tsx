@@ -7,7 +7,10 @@ import {
   currConversationIDReducer,
   newMessageReducer,
 } from './messageReducers';
-import { hoverPreviewReducer } from './interactionsReducers';
+import {
+  hoverPreviewReducer,
+  snackbarNotificationReducer,
+} from './interactionsReducers';
 
 const allReducers = combineReducers({
   user: userReducer,
@@ -18,6 +21,7 @@ const allReducers = combineReducers({
   currConversationID: currConversationIDReducer,
   newMessage: newMessageReducer,
   hoverPreview: hoverPreviewReducer,
+  snackbarNotification: snackbarNotificationReducer,
 });
 
 export default allReducers;

@@ -34,11 +34,7 @@ import LikesModal from './LikesModal';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import Theme from '../../../theme/Theme';
 
-import { HoverPreview } from '../';
-import {
-  dispatchHoverPreview,
-  clearHoverPreview,
-} from '../../../redux/actions/interactions';
+import { dispatchHoverPreview } from '../../../redux/actions/interactions';
 import { putLikeStatus } from '../../../api/put/putLikeStatus';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;

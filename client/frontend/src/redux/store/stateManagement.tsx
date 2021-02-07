@@ -1,5 +1,19 @@
 import { log } from '../../helpers/functions';
+import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
+import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
 const STATE_NAME = 'RootShare:state';
+
+export type RootshareReduxState = {
+  user: { [k: string]: any };
+  accessToken: string;
+  refreshToken: string;
+  messageSocket: { [k: string]: any };
+  conversations: any[];
+  currConversationID: string;
+  newMessage: { [k: string]: any };
+  hoverPreview: HoverProps;
+  snackbarNotification: SnackbarProps;
+};
 
 const initializeState = () => ({
   user: {},
@@ -10,6 +24,7 @@ const initializeState = () => ({
   currConversationID: '',
   newMessage: {},
   hoverPreview: {},
+  snackbarNotification: {},
 });
 
 const saveState = (state: { [key: string]: any }) => {

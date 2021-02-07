@@ -10,7 +10,10 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { CommunityType, UserToUserRelationship } from '../../../helpers/types';
 
-import { clearHoverPreview } from '../../../redux/actions/interactions';
+import {
+  clearHoverPreview,
+  dispatchSnackbar,
+} from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import RSButton from './RSButton';
@@ -179,8 +182,19 @@ const HoverPreview = () => {
           ...additionalFields,
           relationship: newRelationship,
         } as UserFields);
+        dispatch(
+          dispatchSnackbar({
+            message: 'Successfully performed action',
+            mode: 'success',
+          })
+        );
       } else {
-        //Dispatch error snackbar
+        dispatch(
+          dispatchSnackbar({
+            message: 'There was an error performing the action',
+            mode: 'error',
+          })
+        );
       }
       setActionLoading(false);
     },
