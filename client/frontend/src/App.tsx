@@ -15,16 +15,18 @@ import SocketManager from './main-platform/SocketManager';
 
 import LandingPage from './landing-page/LandingPage';
 
-import { MeetTheGreeks } from './main-platform';
+import {
+  MeetTheGreeks,
+  HomepageBody,
+  ProfileBody,
+  EventsBody,
+  ConnectionsBody,
+  CommunityBody,
+  YourCommunitiesBody,
+} from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
-import HomepageBody from './main-platform/homepage/components/HomepageBody';
-import ProfileBody from './main-platform/profile/components/ProfileBody';
-import EventsBody from './main-platform/events/components/EventsBody';
-import ConnectionsBody from './main-platform/connections/components/ConnectionsBody';
-import YourCommunitiesBody from './main-platform/your-communities/components/YourCommunitiesBody';
-import CommunityBody from './main-platform/community/components/CommunityBody';
 import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 
 const analyticsTrackingID = 'UA-169916177-1';
@@ -127,6 +129,7 @@ const App = () => {
               path="/connections/:userID"
               render={(props) => (
                 <AuthenticatedPage
+                  {...props}
                   component={<ConnectionsBody {...props} />}
                   selectedTab="connections"
                 />
