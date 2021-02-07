@@ -27,14 +27,15 @@ import {
   formatDatePretty,
   formatTime,
   makeRequest,
-  slideLeft,
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
-import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import Theme from '../../../theme/Theme';
 
-import { dispatchHoverPreview } from '../../../redux/actions/interactions';
+import {
+  dispatchHoverPreview,
+  dispatchSnackbar,
+} from '../../../redux/actions/interactions';
 import { putLikeStatus } from '../../../api/put/putLikeStatus';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
@@ -232,12 +233,6 @@ function UserPost(props: Props) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
-  const [transition, setTransition] = useState<any>();
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-
   const [isDeleted, setIsDeleted] = useState(false);
   const [showDeletedMessage, setShowDeletedMessage] = useState(false);
 
@@ -369,13 +364,16 @@ function UserPost(props: Props) {
         setIsDeleted(true);
         setShowDeletedMessage(true);
         setTimeout(() => setShowDeletedMessage(false), 5000);
-        setSnackbarMessage('Successfully deleted post');
-        setSnackbarMode('notify');
-        setTransition(() => slideLeft);
+        dispatch(
+          dispatchSnackbar({ message: 'Successfully deleted post', mode: 'notify' })
+        );
       } else {
-        setSnackbarMessage('There was an error trying to delete this post');
-        setSnackbarMode('error');
-        setTransition(() => slideLeft);
+        dispatch(
+          dispatchSnackbar({
+            message: 'There was an error trying to delete this post',
+            mode: 'error',
+          })
+        );
       }
     }
   }
@@ -605,12 +603,6 @@ function UserPost(props: Props) {
 
   return (
     <>
-      <ManageSpeakersSnackbar
-        mode={snackbarMode}
-        message={snackbarMessage}
-        transition={transition}
-        handleClose={() => setSnackbarMode(null)}
-      />
       {renderDeletedMessage()}
       <Box
         borderRadius={10}
