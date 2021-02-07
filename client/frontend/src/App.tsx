@@ -15,7 +15,7 @@ import SocketManager from './main-platform/SocketManager';
 
 import LandingPage from './landing-page/LandingPage';
 
-import { CommunityDetails, MeetTheGreeks } from './main-platform';
+import { MeetTheGreeks } from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
@@ -24,6 +24,8 @@ import ProfileBody from './main-platform/profile/components/ProfileBody';
 import EventsBody from './main-platform/events/components/EventsBody';
 import ConnectionsBody from './main-platform/connections/components/ConnectionsBody';
 import YourCommunitiesBody from './main-platform/your-communities/components/YourCommunitiesBody';
+import CommunityBody from './main-platform/community/components/CommunityBody';
+import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -108,7 +110,18 @@ const App = () => {
                 />
               )}
             />
-            <Route exact path="/community/:orgID" component={CommunityDetails} />
+            <Route
+              exact
+              path="/community/:orgID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<CommunityBody {...props} />}
+                  selectedTab="communities"
+                  rightElement={<FollowSidebar {...props} />}
+                />
+              )}
+            />
             <Route
               exact
               path="/connections/:userID"

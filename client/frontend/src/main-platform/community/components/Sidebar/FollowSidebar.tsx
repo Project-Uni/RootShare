@@ -33,10 +33,10 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  accessToken: string;
-  refreshToken: string;
-
-  communityID: string;
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
 };
 
 type FollowCommunity = {
@@ -62,6 +62,8 @@ function FollowedByCommunities(props: Props) {
     FollowCommunity[]
   >([]);
 
+  const communityID = props.match.params['orgID'];
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     fetchData();
@@ -73,33 +75,23 @@ function FollowedByCommunities(props: Props) {
 
   function fetchData() {
     //Retrieve following communities
-    makeRequest(
-      'GET',
-      `/api/community/${props.communityID}/following`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    ).then(({ data }) => {
-      if (data['success'] === 1) {
-        const { communities: communitiesFollowing } = data.content;
-        setFollowingCommunities(communitiesFollowing);
+    makeRequest('GET', `/api/community/${communityID}/following`).then(
+      ({ data }) => {
+        if (data['success'] === 1) {
+          const { communities: communitiesFollowing } = data.content;
+          setFollowingCommunities(communitiesFollowing);
+        }
       }
-    });
+    );
     //Retrieve followed by communities
-    makeRequest(
-      'GET',
-      `/api/community/${props.communityID}/followedBy`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    ).then(({ data }) => {
-      if (data['success'] === 1) {
-        const { communities: communitiesFollowedBy } = data.content;
-        setFollowedByCommunities(communitiesFollowedBy);
+    makeRequest('GET', `/api/community/${communityID}/followedBy`).then(
+      ({ data }) => {
+        if (data['success'] === 1) {
+          const { communities: communitiesFollowedBy } = data.content;
+          setFollowedByCommunities(communitiesFollowedBy);
+        }
       }
-    });
+    );
   }
 
   function renderFollowingCommunities() {
@@ -116,8 +108,6 @@ function FollowedByCommunities(props: Props) {
           description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
           isLast={i === followingCommunities.length - 1}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
           members={followingCommunities[i].members.length}
         />
       );
@@ -166,8 +156,6 @@ function FollowedByCommunities(props: Props) {
           description={currSuggestion.description}
           profilePicture={currSuggestion.profilePicture}
           isLast={i === followedByCommunities.length - 1}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
           members={followedByCommunities[i].members.length}
         />
       );
@@ -210,15 +198,4 @@ function FollowedByCommunities(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(FollowedByCommunities);
+export default FollowedByCommunities;

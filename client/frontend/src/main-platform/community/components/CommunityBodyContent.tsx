@@ -68,7 +68,6 @@ type Props = {
   refreshToken: string;
   private?: boolean;
   flags: CommunityFlags;
-  communityName: string;
 };
 
 type CommunityTab =
@@ -171,7 +170,7 @@ function CommunityBodyContent(props: Props) {
         community: {
           _id: props.communityID,
           profilePicture: props.communityProfilePicture,
-          name: props.communityName,
+          name: props.name,
         },
       });
     }
