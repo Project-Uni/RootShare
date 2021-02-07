@@ -1,4 +1,4 @@
-import { log, makeRequest } from '../helpers/functions';
+import { getUserFromJWT, log, makeRequest } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import sendPacket from '../../webinar/helpers/sendPacket';
 import { isEventHost } from './middleware/eventAuthentication';
@@ -12,6 +12,7 @@ module.exports = (app) => {
       const { webinarID } = req.params;
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -21,7 +22,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data['success'] !== 1) {
@@ -60,6 +61,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -71,7 +73,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       return res.json(data);
@@ -89,6 +91,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -100,7 +103,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       return res.json(data);
@@ -123,6 +126,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -132,7 +136,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data['success'] !== 1) log('error', 'Failed to invite user to stream');
@@ -153,6 +157,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -162,7 +167,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data['success'] !== 1) log('error', 'Failed to remove user from stream');
@@ -180,6 +185,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       if (!webinarID || !connection || !speakingToken)
         return res.json(
@@ -201,7 +207,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       if (data.success !== 1) log('error', data.message);
@@ -221,6 +227,7 @@ module.exports = (app) => {
 
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader && authHeader.split(' ')[1];
+      const user = getUserFromJWT(req);
 
       const data = await makeRequest(
         'webinarCache',
@@ -233,7 +240,7 @@ module.exports = (app) => {
         true,
         accessToken,
         '',
-        req.user
+        user
       );
 
       //NOTE: -1 means invalid webinarID, 0 means could not find user (user left stream already), 1 means successfully removed user

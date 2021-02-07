@@ -1,4 +1,4 @@
-import { log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
 import { Post, User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -35,43 +35,49 @@ import {
  */
 
 module.exports = (app) => {
-  app.get('/user/getCurrent', (req, res) => {
-    return getCurrentUser(req.user, (packet) => res.json(packet));
-  });
-
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-    getConnections(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getConnections(userID, (packet) => res.json(packet));
   });
 
   app.get('/api/user/profile/:userID', isAuthenticatedWithJWT, (req, res) => {
+    const { _id } = getUserFromJWT(req);
+
     if (req.params.userID === 'user')
-      getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
+      getPrivateProfileInformation(_id, (packet) => res.json(packet));
     else
-      getPublicProfileInformation(req.user._id, req.params.userID, (packet) =>
+      getPublicProfileInformation(_id, req.params.userID, (packet) =>
         res.json(packet)
       );
   });
 
   app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
     let { userID } = req.params;
-    if (userID === 'user') userID = req.user._id;
+    const { _id } = getUserFromJWT(req);
+
+    if (userID === 'user') userID = _id;
     getUserEvents(userID, (packet) => res.json(packet));
   });
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {
-    updateProfileInformation(req.user._id, req.body, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+
+    updateProfileInformation(userID, req.body, (packet) => res.json(packet));
   });
 
   app.post('/user/updateBio', isAuthenticatedWithJWT, (req, res) => {
-    updateUserBio(req.user._id, req.body.newBio, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    updateUserBio(userID, req.body.newBio, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionSuggestions(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getConnectionSuggestions(userID, (packet) => res.json(packet));
   });
 
   app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
-    getPendingRequests(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getPendingRequests(userID, (packet) => res.json(packet));
   });
 
   app.get(
@@ -79,27 +85,28 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
+      const { _id } = getUserFromJWT(req);
+
       let packet;
-      if (req.user._id.toString() === userID.toString())
+      if (_id.toString() === userID.toString())
         packet = await getSelfConnectionsFullData(userID);
-      else packet = await getOtherConnectionsFullData(req.user._id, userID);
+      else packet = await getOtherConnectionsFullData(_id, userID);
       return res.json(packet);
     }
   );
 
-  app.post('/user/requestConnection', async (req, res) => {
-    const { requestUserID } = req.body;
-    res.json(await requestConnection(req.user._id, requestUserID));
-  });
-
   app.post('/user/checkConnectedWithUser', isAuthenticatedWithJWT, (req, res) => {
-    checkConnectedWithUser(req.user._id, req.body.requestUserID, (packet) =>
+    const { _id: userID } = getUserFromJWT(req);
+
+    checkConnectedWithUser(userID, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
 
   app.post('/user/getConnectionWithUser', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionWithUser(req.user._id, req.body.requestUserID, (packet) =>
+    const { _id: userID } = getUserFromJWT(req);
+
+    getConnectionWithUser(userID, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
@@ -146,10 +153,12 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
+      const { _id } = getUserFromJWT(req);
+
       let packet;
-      if (req.user._id.toString() === userID.toString())
+      if (_id.toString() === userID.toString())
         packet = await getSelfUserCommunities(userID);
-      else packet = await getOtherUserCommunities(req.user._id, userID);
+      else packet = await getOtherUserCommunities(_id, userID);
       return res.json(packet);
     }
   );
@@ -245,6 +254,7 @@ module.exports = (app) => {
    */
 
   app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
     const {
       _ids,
       fields,
@@ -270,7 +280,7 @@ module.exports = (app) => {
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
-      getRelationship: getRelationship ? req.user._id : undefined,
+      getRelationship: getRelationship ? userID : undefined,
     };
     const packet = await getUsersGeneric(_ids, {
       fields: fields as any,
@@ -280,7 +290,7 @@ module.exports = (app) => {
   });
 
   app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
-    const selfUserID = req.user._id;
+    const { _id: selfUserID } = getUserFromJWT(req);
     const {
       action,
       otherUserID,

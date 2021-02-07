@@ -28,6 +28,7 @@ import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
 import university from './routes/university';
+import utilityRoutes from './routes/utilities';
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
@@ -122,9 +123,6 @@ require('./routes/messaging')(app, io);
 
 require('./routes/opentok')(app);
 require('./routes/event')(app);
-require('./routes/utilities')(app);
-require('./routes/mocks')(app);
-
 require('./routes/proxy')(app);
 
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
@@ -136,6 +134,7 @@ imageRoutes(app);
 mtgRoutes(app);
 webhooks(app);
 university(app);
+utilityRoutes(app);
 
 require('./config/setup')(passport);
 

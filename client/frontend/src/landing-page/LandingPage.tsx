@@ -74,18 +74,7 @@ function LandingPage(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
-    }
+    if (props.accessToken) setRedirectHome(true);
   }
 
   function handleResize() {
