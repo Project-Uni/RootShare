@@ -19,7 +19,6 @@ import LandingPage from './landing-page/LandingPage';
 
 import {
   Events,
-  Profile,
   CommunityDetails,
   YourCommunities,
   Connections,
@@ -29,6 +28,7 @@ import {
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import HomepageBody from './main-platform/homepage/components/HomepageBody';
+import ProfileBody from './main-platform/profile/components/ProfileBody';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -86,7 +86,16 @@ function App(props: Props) {
               )}
             />
             <Route exact path="/events" component={Events} />
-            <Route exact path="/profile/:profileID" component={Profile} />
+            <Route
+              exact
+              path="/profile/:profileID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<ProfileBody {...props} />}
+                />
+              )}
+            />
             <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
             <Route exact path="/connections/:userID" component={Connections} />

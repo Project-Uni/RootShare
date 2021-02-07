@@ -62,7 +62,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectedConnectionButton: {
     color: Theme.white,
-    background: Theme.primary
+    background: Theme.primary,
   },
   selfBioWrapper: {
     display: 'flex',
@@ -151,9 +151,6 @@ type Props = {
   numMutualCommunities?: number;
   currentProfileState: ProfileState;
   updateProfileState: () => void;
-
-  accessToken: string;
-  refreshToken: string;
 };
 
 function ProfileHead(props: Props) {
@@ -196,62 +193,36 @@ function ProfileHead(props: Props) {
   }, [props.currentProfileState]);
 
   async function fetchConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/getConnectionWithUser',
-      { requestUserID: props.profileID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/getConnectionWithUser', {
+      requestUserID: props.profileID,
+    });
 
     if (data['success'] === 1) setConnection(data['content']['connection']);
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.profileID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/requestConnection', {
+      requestUserID: props.profileID,
+    });
 
     if (data['success'] === 1) props.updateProfileState();
   }
 
   async function declineConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/respondConnection', {
+      requestID: connection?._id,
+      accepted: false,
+    });
 
     if (data['success'] === 1) props.updateProfileState();
     setAnchorEl(null);
   }
 
   async function acceptConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: true,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/respondConnection', {
+      requestID: connection?._id,
+      accepted: true,
+    });
 
     if (data['success'] === 1) {
       props.updateProfileState();
@@ -260,17 +231,10 @@ function ProfileHead(props: Props) {
   }
 
   async function removeConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/respondConnection', {
+      requestID: connection?._id,
+      accepted: false,
+    });
 
     if (data['success'] === 1) {
       props.updateProfileState();
@@ -286,16 +250,9 @@ function ProfileHead(props: Props) {
     const trimmed = updatedBio.trim();
     setOriginalBio(trimmed);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/user/updateBio',
-      {
-        newBio: trimmed,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/updateBio', {
+      newBio: trimmed,
+    });
   }
 
   ////// END REQUEST FUNCTIONS
