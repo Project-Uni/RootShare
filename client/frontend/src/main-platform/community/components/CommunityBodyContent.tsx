@@ -141,7 +141,6 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
       if (selectedTab === 'external')
         fetchCurrentEventInformation().then(() => setLoading(false));
