@@ -17,18 +17,14 @@ import SocketManager from './main-platform/SocketManager';
 
 import LandingPage from './landing-page/LandingPage';
 
-import {
-  Events,
-  CommunityDetails,
-  YourCommunities,
-  Connections,
-  MeetTheGreeks,
-} from './main-platform';
+import { CommunityDetails, YourCommunities, MeetTheGreeks } from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import HomepageBody from './main-platform/homepage/components/HomepageBody';
 import ProfileBody from './main-platform/profile/components/ProfileBody';
+import EventsBody from './main-platform/events/components/EventsBody';
+import ConnectionsBody from './main-platform/connections/components/ConnectionsBody';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -80,12 +76,22 @@ function App(props: Props) {
               render={(props) => (
                 <AuthenticatedPage
                   {...props}
-                  component={<HomepageBody />}
+                  component={<HomepageBody {...props} />}
                   selectedTab="home"
                 />
               )}
             />
-            <Route exact path="/events" component={Events} />
+            <Route
+              exact
+              path="/events"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<EventsBody {...props} />}
+                  selectedTab="events"
+                />
+              )}
+            />
             <Route
               exact
               path="/profile/:profileID"
@@ -93,12 +99,22 @@ function App(props: Props) {
                 <AuthenticatedPage
                   {...props}
                   component={<ProfileBody {...props} />}
+                  selectedTab="profile"
                 />
               )}
             />
             <Route exact path="/communities/:userID" component={YourCommunities} />
             <Route exact path="/community/:orgID" component={CommunityDetails} />
-            <Route exact path="/connections/:userID" component={Connections} />
+            <Route
+              exact
+              path="/connections/:userID"
+              render={(props) => (
+                <AuthenticatedPage
+                  component={<ConnectionsBody {...props} />}
+                  selectedTab="connections"
+                />
+              )}
+            />
             <Route
               exact
               path="/mtg"
