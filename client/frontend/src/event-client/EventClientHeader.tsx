@@ -188,14 +188,12 @@ function EventClientHeader(props: Props) {
                   }}
                 />
               </a>
-              <div style={{ marginLeft: 55 }}>
-                <FaSearch size={32} color={theme.bright} />
-              </div>
               <SearchField
                 style={{
                   transition: `max-width 0.75s ease, opacity ${
                     showSearch ? 0.2 : 0.6
                   }s ease`,
+                  marginLeft: window.innerWidth >= 767 ? 55 : undefined,
                 }}
                 mode="both"
                 name="header-search"
@@ -216,6 +214,7 @@ function EventClientHeader(props: Props) {
                 groupByType
                 variant="standard"
                 bigText
+                adornment={<FaSearch size={24} color={theme.secondaryText} />}
               />
             </div>
           </div>
