@@ -13,15 +13,16 @@ import {
 
 import { FaHome } from 'react-icons/fa';
 
-import { makeRequest, slideLeft } from '../../../helpers/functions';
+import { useDispatch } from 'react-redux';
+
+import { makeRequest } from '../../../helpers/functions';
 
 import { RSModal } from '../../reusable-components';
 import { RSText } from '../../../base-components';
-import { colors } from '../../../theme/Colors';
 import { Community, CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 
-import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import Theme from '../../../theme/Theme';
+import { dispatchSnackbar } from '../../../redux/actions/interactions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -80,6 +81,8 @@ type Props = {
 function CreateCommunityModal(props: Props) {
   const styles = useStyles();
 
+  const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState('');
@@ -92,12 +95,6 @@ function CreateCommunityModal(props: Props) {
   const [typeErr, setTypeErr] = useState('');
 
   const [serverErr, setServerErr] = useState(false);
-
-  const [transition, setTransition] = useState<any>();
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
 
   const helperText =
     'Post to the community, broadcast to the university, and follow and post to other communities';
@@ -180,9 +177,12 @@ function CreateCommunityModal(props: Props) {
       props.appendCommunity(data.content.community);
       props.onClose();
 
-      setSnackbarMessage('Successfully created community');
-      setSnackbarMode('notify');
-      setTransition(() => slideLeft);
+      dispatch(
+        dispatchSnackbar({
+          mode: 'success',
+          message: 'Successfully created the community',
+        })
+      );
     } else {
       setServerErr(true);
     }
@@ -227,12 +227,6 @@ function CreateCommunityModal(props: Props) {
 
   return (
     <>
-      <ManageSpeakersSnackbar
-        mode={snackbarMode}
-        message={snackbarMessage}
-        transition={transition}
-        handleClose={() => setSnackbarMode(null)}
-      />
       <RSModal
         open={props.open}
         title="Create Community"

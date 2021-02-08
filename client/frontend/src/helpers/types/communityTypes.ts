@@ -17,11 +17,18 @@ export type Community = {
   numMembers?: number;
   numMutual?: number;
   profilePicture?: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   isMTGFlag?: boolean; //For Meet the Greeks
 };
 
-export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
+
+export const U2CR = {
+  PENDING: <UserToCommunityRelationship>'pending',
+  JOINED: <UserToCommunityRelationship>'joined',
+  OPEN: <UserToCommunityRelationship>'open',
+  ADMIN: <UserToCommunityRelationship>'admin',
+};
 
 export type CommunityType =
   | 'Social'

@@ -281,29 +281,20 @@ export default function postsRoutes(app) {
     }
   );
 
-  app.post(
-    '/api/posts/action/:postID/like',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const { _id: userID } = getUserFromJWT(req);
+  app.put('/api/posts/likes', isAuthenticatedWithJWT, async (req, res) => {
+    const {
+      action,
+      postID,
+    }: { action: 'like' | 'unlike'; postID: string } = req.query;
+    const { _id: userID } = getUserFromJWT(req);
 
-      const packet = await likePost(postID, userID);
-      return res.json(packet);
-    }
-  );
+    if (action === 'like') return res.json(await likePost(postID, userID));
+    else if (action === 'unlike') return res.json(await unlikePost(postID, userID));
 
-  app.post(
-    '/api/posts/action/:postID/unlike',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const { _id: userID } = getUserFromJWT(req);
-
-      const packet = await unlikePost(postID, userID);
-      return res.json(packet);
-    }
-  );
+    return res.json(
+      sendPacket(0, 'action (like, unlike) missing from query params')
+    );
+  });
 
   app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {
     const { postID } = req.params;

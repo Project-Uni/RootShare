@@ -11,7 +11,11 @@ import CommunityBodyContent from './CommunityBodyContent';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
@@ -70,7 +74,7 @@ export type CommunityFlags = {
 type Props = {
   communityID: string;
   userID: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   name: string;
   universityName: string;
   description: string;
@@ -82,7 +86,7 @@ type Props = {
   private?: boolean;
   loading?: boolean;
 
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   isAdmin?: boolean;
   hasFollowingAccess?: boolean;
   flags: CommunityFlags;
@@ -95,8 +99,8 @@ function CommunityBody(props: Props) {
   const [currentBanner, setCurrentBanner] = useState<string>();
 
   const locked =
-    props.status === 'PENDING' ||
-    (props.status === 'OPEN' && props.private && !props.hasFollowingAccess);
+    props.status === U2CR.PENDING ||
+    (props.status === U2CR.OPEN && props.private && !props.hasFollowingAccess);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

@@ -15,8 +15,9 @@ import {
   UserType,
   UniversityType,
   EventType,
-  ProfileState,
   PostType,
+  UserToUserRelationship,
+  U2UR,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -83,7 +84,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   user: any;
   profileID: string;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   accessToken: string;
   refreshToken: string;
   updateProfileState: () => void;
@@ -210,8 +211,8 @@ function ProfileBody(props: Props) {
         <ProfileBanner
           type="profile"
           height={200}
-          editable={props.currentProfileState === 'SELF'}
-          zoomOnClick={props.currentProfileState !== 'SELF'}
+          editable={props.currentProfileState === U2UR.SELF}
+          zoomOnClick={props.currentProfileState !== U2UR.SELF}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
@@ -220,14 +221,14 @@ function ProfileBody(props: Props) {
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={props.currentProfileState === 'SELF'}
+          editable={props.currentProfileState === U2UR.SELF}
           height={150}
           width={150}
           borderRadius={150}
           currentPicture={
             props.profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={props.currentProfileState !== 'SELF'}
+          zoomOnClick={props.currentProfileState !== U2UR.SELF}
           borderWidth={8}
         />
       </div>

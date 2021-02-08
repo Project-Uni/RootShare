@@ -19,6 +19,10 @@ import SearchField from './components/SearchField';
 
 import RSButton from './components/RSButton';
 
+import HoverPreview from './components/HoverPreview';
+
+import SnackbarNotification from './components/SnackbarNotification';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -33,4 +37,6 @@ export {
   BigButton,
   SearchField,
   RSButton,
+  HoverPreview,
+  SnackbarNotification,
 };

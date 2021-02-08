@@ -1,4 +1,9 @@
-import { CommunityType, UniversityType, ProfileState, CommunityStatus } from '.';
+import {
+  CommunityType,
+  UniversityType,
+  UserToUserRelationship,
+  UserToCommunityRelationship,
+} from '.';
 
 export type DiscoverCommunity = {
   _id: string;
@@ -11,7 +16,7 @@ export type DiscoverCommunity = {
   admin: string;
   numMembers: number;
   numMutual: number;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
 };
 
 export type DiscoverUser = {
@@ -25,6 +30,6 @@ export type DiscoverUser = {
   profilePicture?: string;
   numMutualConnections: number;
   numMutualCommunities: number;
-  status: ProfileState;
+  status: UserToUserRelationship;
   connectionRequestID?: string;
 };

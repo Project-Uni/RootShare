@@ -42,23 +42,32 @@ export type ConnectionRequestType = {
   createdAt: Date;
 };
 
-export type ProfileState =
-  | 'SELF'
-  | 'CONNECTION'
-  | 'TO'
-  | 'FROM'
-  | 'PUBLIC'
-  | 'PENDING';
+export type UserToUserRelationship =
+  | 'self'
+  | 'connected'
+  | 'pending_to'
+  | 'pending_from'
+  | 'open'
+  | 'pending';
+
+export const U2UR = {
+  SELF: <UserToUserRelationship>'self',
+  CONNECTED: <UserToUserRelationship>'connected',
+  PENDING_TO: <UserToUserRelationship>'pending_to',
+  PENDING_FROM: <UserToUserRelationship>'pending_from',
+  OPEN: <UserToUserRelationship>'open',
+  PENDING: <UserToUserRelationship>'pending',
+};
 
 //NOTE - Pending added for general display when figuring out from / to not needed
 
 export type LeanUser = {
   firstName: string;
   lastName: string;
-  state: ProfileState;
+  state: UserToUserRelationship;
   profilePicture?: string;
   _id: string;
-}
+};
 
 export type SearchUserType = {
   _id: string;
@@ -72,5 +81,5 @@ export type SearchUserType = {
   accountType?: string;
   numMutualCommunities: number;
   numMutualConnections: number;
-  status: ProfileState;
+  status: UserToUserRelationship;
 };

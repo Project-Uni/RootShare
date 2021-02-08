@@ -6,7 +6,7 @@ import RootShareLogo from '../images/RootShareLogoFullbeta.png';
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
 
-import { GrSearch } from 'react-icons/gr';
+import { FaSearch } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
@@ -33,10 +33,18 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   searchbar: {
-    maxWidth: 500,
-    marginLeft: 25,
+    marginLeft: 10,
     marginRight: 25,
+    maxWidth: 400,
   },
+  // collapsedSearch: {
+  //   maxWidth: 0,
+  //   opacity: 0,
+  // },
+  // visibleSearch: {
+  //   maxWidth: 400,
+  //   opacity: 1,
+  // },
 }));
 
 type Props = {
@@ -58,6 +66,8 @@ function EventClientHeader(props: Props) {
   const iconSize = useRef(isDesktop.current ? 32 : 24);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<any>();
+
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -178,13 +188,20 @@ function EventClientHeader(props: Props) {
                   }}
                 />
               </a>
-
               <SearchField
+                style={{
+                  transition: `max-width 0.75s ease, opacity ${
+                    showSearch ? 0.2 : 0.6
+                  }s ease`,
+                  marginLeft: window.innerWidth >= 767 ? 55 : undefined,
+                }}
                 mode="both"
                 name="header-search"
-                placeholder="Search RootShare"
-                className={styles.searchbar}
-                adornment={<GrSearch />}
+                placeholder="Search RootShare..."
+                className={[
+                  styles.searchbar,
+                  // showSearch ? styles.visibleSearch : styles.collapsedSearch,
+                ].join(' ')}
                 fetchDataURL="/api/discover/search/v1/exactMatch"
                 renderLimit={10}
                 onAutocomplete={(selectedOption) => {
@@ -195,6 +212,9 @@ function EventClientHeader(props: Props) {
                 fullWidth
                 freeSolo
                 groupByType
+                variant="standard"
+                bigText
+                adornment={<FaSearch size={24} color={theme.secondaryText} />}
               />
             </div>
           </div>
