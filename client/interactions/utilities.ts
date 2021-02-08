@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User } from '../models';
+import { U2UR } from '../helpers/types';
 
 export function getUserData(callback) {
   User.find(
@@ -100,7 +101,7 @@ export async function addCalculatedUserFields(
 
   cleanedUser.numMutualConnections = mutualConnections.length;
   cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'OPEN';
+  cleanedUser.status = U2UR.OPEN;
 
   return cleanedUser;
 }
@@ -125,7 +126,7 @@ export async function addCalculatedCommunityFields(
   const cleanedCommunity = copyObject(community, ['members']);
   cleanedCommunity.numMembers = community.members.length;
   cleanedCommunity.numMutual = mutualMembers.length;
-  cleanedCommunity.status = 'OPEN';
+  cleanedCommunity.status = U2UR.OPEN;
 
   return cleanedCommunity;
 }
@@ -156,7 +157,7 @@ export function getUserToUserRelationship(
         currentUserConnections[i]._id.toString() ===
         originalOtherUser.connections[j]._id.toString()
       )
-        return (cleanedOtherUser.status = 'CONNECTED');
+        return (cleanedOtherUser.status = U2UR.CONNECTED);
 
   for (let i = 0; i < currentUserPendingConnections.length; i++)
     if (
@@ -168,9 +169,9 @@ export function getUserToUserRelationship(
         currentUserPendingConnections[i].from.toString() ===
         cleanedOtherUser._id.toString()
       ) {
-        cleanedOtherUser.status = 'PENDING_FROM';
+        cleanedOtherUser.status = U2UR.PENDING_FROM;
         cleanedOtherUser.connectionRequestID = currentUserPendingConnections[i]._id;
-      } else cleanedOtherUser.status = 'PENDING_TO';
+      } else cleanedOtherUser.status = U2UR.PENDING_TO;
 }
 
 export function getUserToCommunityRelationship(

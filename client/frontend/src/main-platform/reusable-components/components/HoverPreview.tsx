@@ -12,6 +12,7 @@ import {
   CommunityType,
   UserToUserRelationship,
   UserToCommunityRelationship,
+  U2UR,
 } from '../../../helpers/types';
 
 import {
@@ -174,16 +175,16 @@ const HoverPreview = () => {
         let newRelationship: UserToUserRelationship;
         switch (action) {
           case 'connect':
-            newRelationship = 'PENDING_TO';
+            newRelationship = U2UR.PENDING_TO;
             break;
 
           case 'accept':
-            newRelationship = 'CONNECTED';
+            newRelationship = U2UR.CONNECTED;
             break;
           case 'reject':
           case 'cancel':
           case 'remove':
-            newRelationship = 'OPEN';
+            newRelationship = U2UR.OPEN;
             break;
         }
         setAdditionalFields({
@@ -255,7 +256,7 @@ const HoverPreview = () => {
   const ActionButton = useCallback(() => {
     if (type === 'user')
       switch ((additionalFields as UserFields)?.relationship) {
-        case 'OPEN':
+        case U2UR.OPEN:
           return (
             <RSButton
               className={styles.actionButton}
@@ -265,7 +266,7 @@ const HoverPreview = () => {
               Connect
             </RSButton>
           );
-        case 'PENDING_TO':
+        case U2UR.PENDING_TO:
           return (
             <RSButton
               className={styles.actionButton}
@@ -276,7 +277,7 @@ const HoverPreview = () => {
               Pending
             </RSButton>
           );
-        case 'PENDING_FROM':
+        case U2UR.PENDING_FROM:
           return (
             <div style={{ display: 'flex' }} className={styles.actionButton}>
               <RSButton
@@ -297,7 +298,7 @@ const HoverPreview = () => {
               </RSButton>
             </div>
           );
-        case 'CONNECTED':
+        case U2UR.CONNECTED:
           return (
             <RSButton
               className={styles.actionButton}
@@ -307,7 +308,7 @@ const HoverPreview = () => {
               Connected
             </RSButton>
           );
-        case 'SELF':
+        case U2UR.SELF:
         default:
           return <></>;
       }

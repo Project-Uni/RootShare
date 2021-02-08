@@ -6,7 +6,12 @@ import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
 
-import { EventType, HostType, UserToUserRelationship } from '../../../helpers/types';
+import {
+  EventType,
+  HostType,
+  UserToUserRelationship,
+  U2UR,
+} from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
@@ -138,7 +143,7 @@ function ProfileEvent(props: Props) {
             {props.event.full_description}
           </RSText>
         </div>
-        {props.currentProfileState === 'SELF' && (
+        {props.currentProfileState === U2UR.SELF && (
           <div className={styles.right}>
             {participationType === 'ATTENDEE' && (
               <Button className={styles.removeButton} onClick={removeEvent}>

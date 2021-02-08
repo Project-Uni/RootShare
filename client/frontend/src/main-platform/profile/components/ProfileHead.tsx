@@ -10,6 +10,7 @@ import { makeRequest } from '../../../helpers/functions';
 import {
   ConnectionRequestType,
   UserToUserRelationship,
+  U2UR,
 } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
@@ -177,11 +178,11 @@ function ProfileHead(props: Props) {
   const menuOpen = Boolean(anchorEl);
 
   const mutualConnections =
-    props.currentProfileState === 'SELF'
+    props.currentProfileState === U2UR.SELF
       ? ''
       : ` | ${props.numMutualConnections || 0} Mutual`;
   const mutualCommunities =
-    props.currentProfileState === 'SELF'
+    props.currentProfileState === U2UR.SELF
       ? ''
       : ` | ${props.numMutualCommunities || 0} Mutual`;
 
@@ -191,9 +192,9 @@ function ProfileHead(props: Props) {
 
   useEffect(() => {
     if (
-      props.currentProfileState === 'PENDING_TO' ||
-      props.currentProfileState === 'PENDING_FROM' ||
-      props.currentProfileState === 'CONNECTED'
+      props.currentProfileState === U2UR.PENDING_TO ||
+      props.currentProfileState === U2UR.PENDING_FROM ||
+      props.currentProfileState === U2UR.CONNECTED
     )
       fetchConnection();
   }, [props.currentProfileState]);
@@ -328,10 +329,10 @@ function ProfileHead(props: Props) {
   function renderOptions() {
     return (
       <div>
-        {props.currentProfileState === 'PENDING_TO' && (
+        {props.currentProfileState === U2UR.PENDING_TO && (
           <MenuItem onClick={cancelRequest}>Cancel Request</MenuItem>
         )}
-        {props.currentProfileState === 'CONNECTED' && (
+        {props.currentProfileState === U2UR.CONNECTED && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
         )}
       </div>
@@ -339,21 +340,21 @@ function ProfileHead(props: Props) {
   }
 
   function renderConnectionButton() {
-    if (props.currentProfileState === 'SELF') return;
+    if (props.currentProfileState === U2UR.SELF) return;
 
     let buttonStyles = [styles.allConnectionButtons];
     let buttonText = 'Connect';
     let clickHandler: any = requestConnection;
 
-    if (props.currentProfileState === 'PENDING_TO') {
+    if (props.currentProfileState === U2UR.PENDING_TO) {
       buttonStyles.push(styles.pendingConnectionButton);
       buttonText = 'Requested';
       clickHandler = handleOptionsClick;
-    } else if (props.currentProfileState === 'PENDING_FROM') {
+    } else if (props.currentProfileState === U2UR.PENDING_FROM) {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
       clickHandler = declineConnection;
-    } else if (props.currentProfileState === 'CONNECTED') {
+    } else if (props.currentProfileState === U2UR.CONNECTED) {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
       clickHandler = handleOptionsClick;
@@ -383,7 +384,7 @@ function ProfileHead(props: Props) {
         >
           {renderOptions()}
         </Menu>
-        {props.currentProfileState === 'PENDING_FROM' && (
+        {props.currentProfileState === U2UR.PENDING_FROM && (
           <Button
             variant="contained"
             className={[
@@ -462,7 +463,7 @@ function ProfileHead(props: Props) {
               </Button>
             </div>
           </div>
-        ) : props.currentProfileState === 'SELF' ? (
+        ) : props.currentProfileState === U2UR.SELF ? (
           renderSelfBio()
         ) : (
           renderOtherBio()
@@ -472,7 +473,7 @@ function ProfileHead(props: Props) {
         {renderConnectionButton()}
         <a
           href={`/connections/${
-            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+            props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
           className={styles.navigationText}
         >
@@ -487,7 +488,7 @@ function ProfileHead(props: Props) {
         </a>
         <a
           href={`/communities/${
-            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+            props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
           className={styles.navigationText}
         >
