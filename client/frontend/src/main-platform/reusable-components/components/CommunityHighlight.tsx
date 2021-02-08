@@ -10,7 +10,11 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { cropText, makeRequest } from '../../../helpers/functions';
-import { UserToCommunityRelationship, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 200;
@@ -111,9 +115,9 @@ function CommunityHighlight(props: Props) {
     );
 
     if (data['success'] === 1) {
-      if (props.private) setCommunityStatus('PENDING');
+      if (props.private) setCommunityStatus(U2CR.PENDING);
       else {
-        setCommunityStatus('JOINED');
+        setCommunityStatus(U2CR.JOINED);
         setNumMembers((prevNumMembers) => prevNumMembers + 1);
       }
     } else
@@ -122,13 +126,13 @@ function CommunityHighlight(props: Props) {
   }
 
   function renderButton() {
-    if (communityStatus === 'OPEN')
+    if (communityStatus === U2CR.OPEN)
       return (
         <Button className={styles.connectButton} onClick={requestJoin}>
           Join
         </Button>
       );
-    else if (communityStatus === 'PENDING')
+    else if (communityStatus === U2CR.PENDING)
       return (
         <RSText color={Theme.altText} size={12} className={styles.pendingText}>
           PENDING

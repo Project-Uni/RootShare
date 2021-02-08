@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User } from '../models';
-import { U2UR } from '../helpers/types';
+import { U2UR, U2CR } from '../helpers/types';
 
 export function getUserData(callback) {
   User.find(
@@ -187,9 +187,9 @@ export function getUserToCommunityRelationship(
   }
 ) {
   if (currentUserJoinedCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'JOINED';
+    cleanedCommunity.status = U2CR.JOINED;
   else if (currentUserPendingCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'PENDING';
+    cleanedCommunity.status = U2CR.PENDING;
 }
 
 function copyObject(oldObject, exclusions) {

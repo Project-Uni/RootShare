@@ -14,6 +14,7 @@ import {
   UserToCommunityRelationship,
   CommunityPostingOption,
   SearchUserType,
+  U2CR,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -100,11 +101,11 @@ function CommunityBodyContent(props: Props) {
     { label: 'Members', value: 'members' },
   ];
 
-  if (!props.private || props.status === 'JOINED') {
+  if (!props.private || props.status === U2CR.JOINED) {
     tabs.splice(1, 0, { label: 'Following', value: 'following' });
   }
 
-  if (props.private && props.status === 'JOINED') {
+  if (props.private && props.status === U2CR.JOINED) {
     if (props.isAdmin) {
       tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
       tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
@@ -309,7 +310,7 @@ function CommunityBodyContent(props: Props) {
         });
       }
 
-      if (props.status === 'JOINED' || !props.private)
+      if (props.status === U2CR.JOINED || !props.private)
         newPostingOptions.unshift({
           description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',

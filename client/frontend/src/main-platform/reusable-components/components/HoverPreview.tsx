@@ -13,6 +13,7 @@ import {
   UserToUserRelationship,
   UserToCommunityRelationship,
   U2UR,
+  U2CR,
 } from '../../../helpers/types';
 
 import {
@@ -222,12 +223,12 @@ const HoverPreview = () => {
         switch (action) {
           case 'join':
             if ((additionalFields as CommunityFields).private)
-              newRelationship = 'PENDING';
-            else newRelationship = 'JOINED';
+              newRelationship = U2CR.PENDING;
+            else newRelationship = U2CR.JOINED;
             break;
           case 'leave':
           case 'cancel':
-            newRelationship = 'OPEN';
+            newRelationship = U2CR.OPEN;
             break;
         }
         setAdditionalFields({
@@ -314,7 +315,7 @@ const HoverPreview = () => {
       }
     else
       switch ((additionalFields as CommunityFields)?.relationship) {
-        case 'OPEN':
+        case U2CR.OPEN:
           return (
             <RSButton
               className={styles.actionButton}
@@ -324,7 +325,7 @@ const HoverPreview = () => {
               Join
             </RSButton>
           );
-        case 'PENDING':
+        case U2CR.PENDING:
           return (
             <RSButton
               className={styles.actionButton}
@@ -335,7 +336,7 @@ const HoverPreview = () => {
               Pending
             </RSButton>
           );
-        case 'JOINED':
+        case U2CR.JOINED:
           return (
             <RSButton
               className={styles.actionButton}
@@ -346,7 +347,7 @@ const HoverPreview = () => {
               Member
             </RSButton>
           );
-        case 'ADMIN':
+        case U2CR.ADMIN:
           return (
             <RSButton
               className={styles.actionButton}

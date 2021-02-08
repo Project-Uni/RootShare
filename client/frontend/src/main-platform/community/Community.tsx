@@ -23,6 +23,7 @@ import {
   Community,
   UserToCommunityRelationship,
   UserType,
+  U2CR,
 } from '../../helpers/types';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 
@@ -61,7 +62,7 @@ function CommunityDetails(props: Props) {
   const [communityInfo, setCommunityInfo] = useState<Community | {}>({});
   const [communityStatus, setCommunityStatus] = useState<
     UserToCommunityRelationship
-  >('OPEN');
+  >(U2CR.OPEN);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
@@ -107,12 +108,12 @@ function CommunityDetails(props: Props) {
   function initializeCommunityStatus(communityDetails: Community) {
     if ((communityDetails.admin as UserType)._id === props.user._id) {
       setIsAdmin(true);
-      setCommunityStatus('JOINED');
+      setCommunityStatus(U2CR.JOINED);
     } else if (communityDetails.members.indexOf(props.user._id) !== -1)
-      setCommunityStatus('JOINED');
+      setCommunityStatus(U2CR.JOINED);
     else if (communityDetails.pendingMembers.indexOf(props.user._id) !== -1)
-      setCommunityStatus('PENDING');
-    else setCommunityStatus('OPEN');
+      setCommunityStatus(U2CR.PENDING);
+    else setCommunityStatus(U2CR.OPEN);
   }
 
   function updateCommunityStatus(newStatus: UserToCommunityRelationship) {

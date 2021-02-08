@@ -139,7 +139,7 @@ const Schema = mongoose.Schema;
 import { Types } from 'mongoose';
 type ObjectId = Types.ObjectId;
 
-import { CommunityType, CommunityMap } from '../helpers/types';
+import { CommunityType, CommunityMap, U2CR } from '../helpers/types';
 import { addProfilePicturesAll } from '../interactions/utilities';
 
 const CommunitySchema = new Schema(
@@ -386,11 +386,11 @@ export const getUserToCommunityRelationship_V2 = async (
   }[]
 ) => {
   communities.forEach((community) => {
-    if (community.admin.equals(userID)) community.relationship = 'ADMIN';
+    if (community.admin.equals(userID)) community.relationship = U2CR.ADMIN;
     else if (community.members.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'JOINED';
+      community.relationship = U2CR.JOINED;
     else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'PENDING';
-    else community.relationship = 'OPEN';
+      community.relationship = U2CR.PENDING;
+    else community.relationship = U2CR.OPEN;
   });
 };

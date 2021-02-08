@@ -17,7 +17,7 @@ import {
   pendingToUserIDs,
   addProfilePicturesAll,
 } from './utilities';
-import { U2UR } from '../helpers/types';
+import { U2UR, U2CR } from '../helpers/types';
 
 export async function getCurrentUser(user, callback) {
   if (Object.keys(user).some((key) => !user[key]))
@@ -891,7 +891,7 @@ export async function getSelfUserCommunities(userID: string) {
         joinedCommunities[i].toObject()
       );
 
-      joinedCommunities[i].status = 'JOINED';
+      joinedCommunities[i].status = U2CR.JOINED;
     }
 
     for (let i = 0; i < pendingCommunities.length; i++) {
@@ -900,7 +900,7 @@ export async function getSelfUserCommunities(userID: string) {
         pendingCommunities[i].toObject()
       );
 
-      pendingCommunities[i].status = 'PENDING';
+      pendingCommunities[i].status = U2CR.PENDING;
     }
 
     joinedCommunities = await addProfilePicturesAll(

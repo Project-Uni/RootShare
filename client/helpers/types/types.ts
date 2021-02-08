@@ -45,19 +45,11 @@ export type ImageReason =
   | 'postImage'
   | 'mtgBanner';
 
-export type UserToUserRelationship =
-  | 'self'
-  | 'connected'
-  | 'pending_to'
-  | 'pending_from'
-  | 'open'
-  | 'pending';
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
 
-export const U2UR = {
-  SELF: <UserToUserRelationship>'self',
-  CONNECTED: <UserToUserRelationship>'connected',
-  PENDING_TO: <UserToUserRelationship>'pending_to',
-  PENDING_FROM: <UserToUserRelationship>'pending_from',
-  OPEN: <UserToUserRelationship>'open',
-  PENDING: <UserToUserRelationship>'pending',
+export const U2CR = {
+  PENDING: <UserToCommunityRelationship>'pending',
+  JOINED: <UserToCommunityRelationship>'joined',
+  OPEN: <UserToCommunityRelationship>'open',
+  ADMIN: <UserToCommunityRelationship>'admin',
 };
