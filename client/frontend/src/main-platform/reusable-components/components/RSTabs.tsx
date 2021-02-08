@@ -11,10 +11,16 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
     },
+    paddingBottom: 10,
   },
   selectedTab: {
-    background: Theme.white,
+    background: Theme.background,
     color: Theme.primary,
+    borderTopStyle: 'solid',
+    borderLeftStyle: 'solid',
+    borderRightStyle: 'solid',
+    borderColor: Theme.primaryHover,
+    borderWidth: 2,
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },
@@ -26,7 +32,6 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       background: Theme.primary,
       color: Theme.white,
-
     },
   },
   tab: {
@@ -65,11 +70,7 @@ function RSTabs(props: Props) {
             props.onChange(props.tabs[i].value);
           }}
         >
-          <RSText
-            size={11}
-          >
-            {props.tabs[i].label.toUpperCase()}
-          </RSText>
+          <RSText size={11}>{props.tabs[i].label.toUpperCase()}</RSText>
         </div>
       );
     }
