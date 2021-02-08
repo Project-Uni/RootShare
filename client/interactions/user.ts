@@ -579,7 +579,7 @@ export function getPendingRequests(userID, callback) {
     .then(async (user) => {
       if (!user || user.length === 0)
         return callback(sendPacket(0, 'Could not get user'));
-
+      console.log(user);
       let pendingRequests = user[0].pendingConnections;
       for (let i = 0; i < pendingRequests.length; i++) {
         const cleanedUser = await addCalculatedUserFields(
