@@ -142,11 +142,8 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
-      if (selectedTab === 'external')
-        fetchCurrentEventInformation().then(() => setLoading(false));
-      else setLoading(false);
+      setLoading(false);
     });
   }, [selectedTab]);
 
@@ -154,28 +151,28 @@ function CommunityBodyContent(props: Props) {
     updatePostingOptions();
   }, [selectedTab, props.communityProfilePicture]);
 
-  const fetchCurrentEventInformation = useCallback(async () => {
-    const { data } = await makeRequest<EventInformationServiceResponse>(
-      'GET',
-      `/api/mtg/event/${props.communityID}`
-    );
-    if (data.success === 1) {
-      const { mtgEvent: mtgEvent_raw } = data.content;
+  // const fetchMTGEventInformation = useCallback(async () => {
+  //   const { data } = await makeRequest<EventInformationServiceResponse>(
+  //     'GET',
+  //     `/api/mtg/event/${props.communityID}`
+  //   );
+  //   if (data.success === 1) {
+  //     const { mtgEvent: mtgEvent_raw } = data.content;
 
-      setMtgEvent({
-        _id: mtgEvent_raw._id,
-        description: mtgEvent_raw.description,
-        introVideoURL: mtgEvent_raw.introVideoURL,
-        dateTime: mtgEvent_raw.dateTime,
-        eventBanner: mtgEvent_raw.eventBanner,
-        community: {
-          _id: props.communityID,
-          profilePicture: props.communityProfilePicture,
-          name: props.communityName,
-        },
-      });
-    }
-  }, []);
+  //     setMtgEvent({
+  //       _id: mtgEvent_raw._id,
+  //       description: mtgEvent_raw.description,
+  //       introVideoURL: mtgEvent_raw.introVideoURL,
+  //       dateTime: mtgEvent_raw.dateTime,
+  //       eventBanner: mtgEvent_raw.eventBanner,
+  //       community: {
+  //         _id: props.communityID,
+  //         profilePicture: props.communityProfilePicture,
+  //         name: props.communityName,
+  //       },
+  //     });
+  //   }
+  // }, []);
 
   async function fetchData() {
     if (selectedTab !== 'members') {
