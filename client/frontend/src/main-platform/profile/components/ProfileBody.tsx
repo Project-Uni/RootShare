@@ -16,6 +16,7 @@ import {
   EventType,
   PostType,
   UserToUserRelationship,
+  U2UR,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -87,7 +88,7 @@ function ProfileBody(props: Props) {
 
   const [currentProfileState, setCurrentProfileState] = useState<
     UserToUserRelationship
-  >('OPEN');
+  >('open');
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
@@ -133,7 +134,7 @@ function ProfileBody(props: Props) {
   }
 
   async function updateProfileState() {
-    if (profileID === 'user') return setCurrentProfileState('SELF');
+    if (profileID === 'user') return setCurrentProfileState(U2UR.SELF);
 
     const { data } = await makeRequest('POST', '/user/checkConnectedWithUser', {
       requestUserID: profileID,
@@ -189,8 +190,8 @@ function ProfileBody(props: Props) {
         <ProfileBanner
           type="profile"
           height={200}
-          editable={currentProfileState === 'SELF'}
-          zoomOnClick={currentProfileState !== 'SELF'}
+          editable={currentProfileState === U2UR.SELF}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
@@ -199,14 +200,14 @@ function ProfileBody(props: Props) {
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={currentProfileState === 'SELF'}
+          editable={currentProfileState === U2UR.SELF}
           height={150}
           width={150}
           borderRadius={150}
           currentPicture={
             profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={currentProfileState !== 'SELF'}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderWidth={8}
         />
       </div>

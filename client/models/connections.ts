@@ -1,3 +1,5 @@
+import { U2UR } from '../helpers/types';
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -104,7 +106,7 @@ export default class Connection {
     let receivedPromises = [];
     const length = otherUserIDs.length;
     let connections = new Array(length);
-    connections.fill({ status: 'OPEN' });
+    connections.fill({ status: U2UR.OPEN });
 
     otherUserIDs.forEach((otherUserID) => {
       sentPromises.push(
@@ -120,15 +122,15 @@ export default class Connection {
         for (let i = 0; i < length; i++) {
           if (!!allRequests[i]) {
             connections[i] = { ...allRequests[i] };
-            if (allRequests[i].accepted) connections[i].status = 'CONNECTED';
-            else connections[i].status = 'PENDING_TO';
+            if (allRequests[i].accepted) connections[i].status = U2UR.CONNECTED;
+            else connections[i].status = U2UR.PENDING_TO;
           }
 
           const j = i + length;
           if (!!allRequests[j]) {
             connections[i] = { ...allRequests[j] };
-            if (allRequests[j].accepted) connections[i].status = 'CONNECTED';
-            else connections[i].status = 'PENDING_FROM';
+            if (allRequests[j].accepted) connections[i].status = U2UR.CONNECTED;
+            else connections[i].status = U2UR.PENDING_FROM;
           }
         }
 

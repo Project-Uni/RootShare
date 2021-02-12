@@ -25,7 +25,11 @@ import FollowButton from './FollowButton';
 import RSText from '../../../base-components/RSText';
 
 import { cropText } from '../../../helpers/functions';
-import { UserToCommunityRelationship, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
@@ -192,7 +196,7 @@ function CommunityGeneralInfo(props: Props) {
 
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);
-      if (data.content['newStatus'] === 'JOINED') {
+      if (data.content['newStatus'] === U2CR.JOINED) {
         updateMemberCount(1);
       }
     }
@@ -275,7 +279,7 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   function renderStatusButton() {
-    if (props.status === 'OPEN')
+    if (props.status === U2CR.OPEN)
       return (
         <Button
           className={[styles.button, styles.joinButton].join(' ')}
@@ -285,7 +289,7 @@ function CommunityGeneralInfo(props: Props) {
           Join
         </Button>
       );
-    else if (props.status === 'PENDING')
+    else if (props.status === U2CR.PENDING)
       return (
         <>
           <Button

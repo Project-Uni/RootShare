@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 import { Types } from 'mongoose';
+import { U2UR } from '../helpers/types';
 type ObjectId = Types.ObjectId;
 
 /**
@@ -348,13 +349,13 @@ export const getUserToUserRelationship_V2 = async (
     .exec();
 
   users.forEach((otherUser) => {
-    if (otherUser._id.equals(userID)) otherUser.relationship = 'SELF';
+    if (otherUser._id.equals(userID)) otherUser.relationship = U2UR.SELF;
     else if (
       otherUser.connections.some((user2connection) =>
         user.connections.includes(user2connection)
       )
     ) {
-      otherUser.relationship = 'CONNECTED';
+      otherUser.relationship = U2UR.CONNECTED;
     } else {
       const pendingConnectionIntersection = otherUser.pendingConnections.filter(
         (user2Connection) =>
@@ -365,10 +366,10 @@ export const getUserToUserRelationship_V2 = async (
       if (pendingConnectionIntersection.length > 0) {
         const pendingConnection = pendingConnectionIntersection[0];
         if (pendingConnection.from.equals(userID))
-          otherUser.relationship = 'PENDING_TO';
-        else otherUser.relationship = 'PENDING_FROM';
+          otherUser.relationship = U2UR.PENDING_TO;
+        else otherUser.relationship = U2UR.PENDING_FROM;
       } else {
-        otherUser.relationship = 'OPEN';
+        otherUser.relationship = U2UR.OPEN;
       }
     }
   });
