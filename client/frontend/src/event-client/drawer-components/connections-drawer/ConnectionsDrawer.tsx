@@ -86,7 +86,6 @@ function ConnectionsDrawer(props: Props) {
   async function fetchPendingRequests() {
     const { data } = await makeRequest('GET', '/user/getPendingRequests');
 
-    console.log(data);
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 
