@@ -134,7 +134,7 @@ function ProfileBody(props: Props) {
   }
 
   async function updateProfileState() {
-    if (profileID === 'user') return setCurrentProfileState('SELF');
+    if (profileID === 'user') return setCurrentProfileState(U2UR.SELF);
 
     const { data } = await makeRequest('POST', '/user/checkConnectedWithUser', {
       requestUserID: profileID,
