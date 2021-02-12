@@ -3,9 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom';
 
 import { connect } from 'react-redux';
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -17,28 +14,33 @@ import {
 } from '../../helpers/constants';
 
 import { AVAILABLE_TABS } from '../reusable-components/components/MainNavigator';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
+    background: Theme.background,
   },
   body: {
     display: 'flex',
     justifyContent: 'space-between',
+    maxWidth: 1300,
+  },
+  bodyContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
   },
 }));
 
 type Props = {
-  accessToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
   component: JSX.Element;
   leftElement?: JSX.Element;
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
   showRightElementWidth?: Number;
   selectedTab?: AVAILABLE_TABS;
+  accessToken: string;
 };
 
 function AuthenticatedPage(props: Props) {
@@ -65,22 +67,13 @@ function AuthenticatedPage(props: Props) {
   useEffect(() => {
     window.addEventListener('resize', handleResize);
 
-    checkAuth().then(async (authenticated) => {
-      if (authenticated) {
-        setLoading(false);
-      } else {
-        setLoginRedirect(true);
-      }
-    });
+    if (Boolean(accessToken)) setLoading(false);
+    else setLoginRedirect(true);
   }, []);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
-  }
-
-  async function checkAuth() {
-    return Boolean(accessToken);
   }
 
   return (
@@ -89,19 +82,21 @@ function AuthenticatedPage(props: Props) {
         <Redirect to={`/login?redirect=${window.location.pathname}`} />
       )}
       <EventClientHeader showNavigationWidth={showLeftEl.current} />
-      {!loading && (
-        <div className={styles.body} style={{ height: height }}>
-          {width > showLeftEl.current &&
-            (leftElement ? (
-              leftElement
-            ) : (
-              <MainNavigator currentTab={selectedTab || 'none'} />
-            ))}
-          {component}
-          {width > showRightEl.current &&
-            (rightElement ? rightElement : <DiscoverySidebar />)}
-        </div>
-      )}
+      <div className={styles.bodyContainer}>
+        {!loading && (
+          <div className={styles.body} style={{ height: height }}>
+            {width > showLeftEl.current &&
+              (leftElement ? (
+                leftElement
+              ) : (
+                <MainNavigator currentTab={selectedTab || 'none'} />
+              ))}
+            {component}
+            {width > showRightEl.current &&
+              (rightElement ? rightElement : <DiscoverySidebar />)}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -113,17 +108,7 @@ const mapStateToProps = (state: { [key: string]: any }) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuthenticatedPage);

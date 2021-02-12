@@ -4,23 +4,22 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { FaLock } from 'react-icons/fa';
 
-import { colors } from '../../../theme/Colors';
 import CommunityGeneralInfo from './CommunityGeneralInfo';
 import CommunityBodyContent from './CommunityBodyContent';
 
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import { CommunityStatus, Community, UserType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
+import { connect } from 'react-redux';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
-    // background: colors.primaryText,
     background: Theme.background,
     overflow: 'scroll',
   },
@@ -68,24 +67,11 @@ export type CommunityFlags = {
 };
 
 type Props = {
-  communityID: string;
-  userID: string;
-  status: CommunityStatus;
-  name: string;
-  universityName: string;
-  description: string;
-  numMembers: number;
-  numMutual: number;
-  numPending: number;
-  numFollowRequests: number;
-  type: CommunityType;
-  private?: boolean;
-  loading?: boolean;
-
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
-  isAdmin?: boolean;
-  hasFollowingAccess?: boolean;
-  flags: CommunityFlags;
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
+  user: { [k: string]: any };
 };
 
 function CommunityBody(props: Props) {
@@ -94,26 +80,83 @@ function CommunityBody(props: Props) {
   const [currentProfile, setCurrentProfile] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
 
-  const locked =
-    props.status === 'PENDING' ||
-    (props.status === 'OPEN' && props.private && !props.hasFollowingAccess);
+  const [loading, setLoading] = useState(true);
+
+  const [showInvalid, setShowInvalid] = useState(false);
+  const [communityInfo, setCommunityInfo] = useState<Community>();
+  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>('OPEN');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mutualConnections, setMutualConnections] = useState<string[]>([]);
+
+  const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
+  const [locked, setLocked] = useState<boolean>(true);
+
+  const communityID = props.match.params['orgID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    if (!props.loading) getProfilePicture();
-  }, [props.loading]);
+    if (!loading) {
+      getProfilePicture();
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    fetchCommunityInfo().then(() => {
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (
+      !(
+        communityStatus === 'PENDING' ||
+        (communityStatus === 'OPEN' && communityInfo?.private && !hasFollowingAccess)
+      )
+    ) {
+      setLocked(false);
+    }
+  }, [communityStatus]);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
+  async function fetchCommunityInfo() {
+    const { data } = await makeRequest('GET', `/api/community/${communityID}/info`);
+    if (data.success === 1) {
+      setCommunityInfo(data.content['community']);
+      initializeCommunityStatus(data.content['community']);
+      setMutualConnections(data.content['mutualConnections']);
+      setHasFollowingAccess(data.content['hasFollowingAccess']);
+      return true;
+    } else {
+      setShowInvalid(true);
+      return false;
+    }
+  }
+
+  function initializeCommunityStatus(communityDetails: Community) {
+    if ((communityDetails.admin as UserType)._id === props.user._id) {
+      setIsAdmin(true);
+      setCommunityStatus('JOINED');
+    } else if (communityDetails.members.indexOf(props.user._id) !== -1)
+      setCommunityStatus('JOINED');
+    else if (communityDetails.pendingMembers.indexOf(props.user._id) !== -1)
+      setCommunityStatus('PENDING');
+    else setCommunityStatus('OPEN');
+  }
+
+  function updateCommunityStatus(newStatus: CommunityStatus) {
+    setCommunityStatus(newStatus);
+  }
+
   async function getProfilePicture() {
     const { data } = await makeRequest(
       'GET',
-      `/api/images/community/${props.communityID}`
+      `/api/images/community/${communityID}`
     );
 
     if (data['success'] === 1) {
@@ -132,14 +175,14 @@ function CommunityBody(props: Props) {
         <ProfileBanner
           type="community"
           height={200}
-          editable={props.isAdmin}
-          zoomOnClick={!props.isAdmin}
+          editable={isAdmin}
+          zoomOnClick={!isAdmin}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
-          _id={props.communityID}
+          _id={communityID}
         />
-        {props.loading ? (
+        {loading ? (
           <div className={[styles.loadingProfilePicture].join(' ')}></div>
         ) : (
           <ProfilePicture
@@ -150,11 +193,11 @@ function CommunityBody(props: Props) {
             borderRadius={100}
             className={styles.profilePictureWrapper}
             pictureStyle={styles.profilePicture}
-            editable={props.isAdmin}
+            editable={isAdmin}
             borderWidth={8}
-            _id={props.communityID}
+            _id={communityID}
             updateCurrentPicture={updateCurrentProfilePicture}
-            zoomOnClick={!props.isAdmin}
+            zoomOnClick={!isAdmin}
           />
         )}
       </div>
@@ -172,53 +215,77 @@ function CommunityBody(props: Props) {
     );
   }
 
+  function renderInvalid() {
+    return (
+      <div style={{ marginTop: 30, marginLeft: 60, marginRight: 60 }}>
+        <RSText type="head" size={24} bold>
+          The community you are trying to reach does not exist.
+        </RSText>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <div className={styles.body}>
-        <Box boxShadow={2} borderRadius={10} className={styles.box}>
-          {renderProfileAndBackground()}
-          {!props.loading && (
-            <CommunityGeneralInfo
-              communityID={props.communityID}
-              status={props.status}
-              name={props.name}
-              numMembers={props.numMembers}
-              numPending={props.numPending}
-              numMutual={props.numMutual}
-              numFollowRequests={props.numFollowRequests}
-              type={props.type}
-              private={props.private}
-              description={props.description}
-              updateCommunityStatus={props.updateCommunityStatus}
-              isAdmin={props.isAdmin}
-              flags={props.flags}
+      {showInvalid ? (
+        renderInvalid()
+      ) : (
+        <div className={styles.body}>
+          <Box boxShadow={2} borderRadius={10} className={styles.box}>
+            {renderProfileAndBackground()}
+            {loading ? (
+              <CircularProgress size={100} className={styles.loadingIndicator} />
+            ) : (
+              <CommunityGeneralInfo
+                communityID={communityID}
+                status={communityStatus}
+                name={communityInfo?.name || ''}
+                numMembers={communityInfo?.members.length || 0}
+                numPending={communityInfo?.pendingMembers.length || 0}
+                numMutual={mutualConnections.length}
+                numFollowRequests={
+                  communityInfo?.incomingPendingCommunityFollowRequests?.length || 0
+                }
+                type={communityInfo?.type || 'Business'}
+                private={communityInfo?.private}
+                description={communityInfo?.description || ''}
+                updateCommunityStatus={updateCommunityStatus}
+                isAdmin={isAdmin}
+                flags={{ isMTGFlag: communityInfo?.isMTGFlag || false }}
+              />
+            )}
+          </Box>
+          {loading ? (
+            <></>
+          ) : locked ? (
+            renderLocked()
+          ) : (
+            <CommunityBodyContent
+              className={styles.bodyContent}
+              communityID={communityID}
+              universityName={communityInfo?.university.universityName || ''}
+              communityProfilePicture={currentProfile}
+              name={communityInfo?.name || ''}
+              status={communityStatus}
+              isAdmin={isAdmin}
+              private={communityInfo?.private}
+              flags={{ isMTGFlag: communityInfo?.isMTGFlag || false }}
             />
           )}
-        </Box>
-        {props.loading && (
-          <CircularProgress size={100} className={styles.loadingIndicator} />
-        )}
-        {props.loading ? (
-          <></>
-        ) : locked ? (
-          renderLocked()
-        ) : (
-          <CommunityBodyContent
-            className={styles.bodyContent}
-            communityID={props.communityID}
-            universityName={props.universityName}
-            communityProfilePicture={currentProfile}
-            name={props.name}
-            status={props.status}
-            isAdmin={props.isAdmin}
-            private={props.private}
-            flags={props.flags}
-            communityName={props.name}
-          />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default CommunityBody;
+const mapStateToProps = (state: { [key: string]: any }) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CommunityBody);
