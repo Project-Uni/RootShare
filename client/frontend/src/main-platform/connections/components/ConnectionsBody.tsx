@@ -69,12 +69,11 @@ function ConnectionsBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
-  const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
+  const [autocompleteResults, setAutocompleteResults] = useState(['']);
   const [connections, setConnections] = useState<DiscoverUser[]>([]);
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
-  const [numConnections, setNumConnections] = useState(null);
-  
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     if (props.requestUserID !== 'user') fetchUserBasicInfo();
@@ -98,7 +97,6 @@ function ConnectionsBody(props: Props) {
     if (data.success === 1) {
       setConnections(data.content['connections']);
       setPendingConnections(data.content['pendingConnections']);
-      
     }
   }
 
@@ -116,10 +114,30 @@ function ConnectionsBody(props: Props) {
     }
   }
 
+  function updateConnectionStatus(connectionRequestID: string) {
+    for (let i = 0; i < pendingConnections.length; i++) {
+      let currPending = pendingConnections[i];
+      if (currPending.connectionRequestID === connectionRequestID) {
+        currPending.status = setConnections((prevConnections) =>
+          prevConnections.concat(currPending)
+        );
+        setPendingConnections((prevPending) => {
+          let newPending = prevPending;
+          for (let i = 0; i < newPending.length; i++)
+            if (newPending[i].connectionRequestID === connectionRequestID)
+              newPending.splice(i, 1);
+
+          return newPending;
+        });
+
+        return;
+      }
+    }
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
- 
   function renderSearchArea() {
     return (
       <div className={styles.searchBarContainer}>
@@ -166,9 +184,7 @@ function ConnectionsBody(props: Props) {
           style={styles.connectionStyle}
           status={currPending.status}
           connectionRequestID={currPending.connectionRequestID}
-          numConnections={numConnections}
-          setNumConnections={setNumConnections}
-          isConnection={true}
+          updateConnectionStatus={updateConnectionStatus}
         />
       );
     }
@@ -177,7 +193,7 @@ function ConnectionsBody(props: Props) {
 
   function renderConnections() {
     const output = [];
-    
+
     if (connections.length === 0)
       return (
         <RSText size={20} type="head" className={styles.noConnections}>
@@ -208,15 +224,6 @@ function ConnectionsBody(props: Props) {
       );
     }
 
-    if (connections.length > numConnections) {
-      if (connections.length > 0) {
-        setNumConnections(connections.length);
-      }
-      else {
-        setNumConnections(null);
-      }
-    }
-
     return output;
   }
 
@@ -230,8 +237,7 @@ function ConnectionsBody(props: Props) {
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
-          counter={`${numConnections === null ? ' ' : 
-            numConnections === 1 ? `${numConnections} Connection` : `${numConnections} Connections`}`}
+          counter={connections.length}
           title={`${
             props.requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}

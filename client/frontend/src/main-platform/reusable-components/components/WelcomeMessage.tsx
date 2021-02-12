@@ -9,7 +9,6 @@ import RSText from '../../../base-components/RSText';
 import { MdGroup } from 'react-icons/md';
 import theme from '../../../theme/Theme';
 
-
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
     borderRadius: 1,
@@ -46,7 +45,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   message: string;
-  counter?: string;
+  counter?: number;
   buttonText?: string;
   buttonAction?: () => any;
 };
@@ -56,12 +55,9 @@ function WelcomeMessage(props: Props) {
   return (
     <div className={styles.welcomeMessage}>
       <div className={styles.welcomeTextContainer}>
-        <RSText
-          type="head"
-          size={24}
-          color={colors.secondary}
-          bold>
+        <RSText type="head" size={24} color={colors.secondary} bold>
           {props.title}
+          {props.counter && props.counter !== 0 ? ` | ${props.counter}` : ''}
         </RSText>
         <RSText
           type="subhead"
@@ -71,20 +67,7 @@ function WelcomeMessage(props: Props) {
         >
           {props.message}
         </RSText>
-        <table>
-        <RSText
-          size={14}
-          color={colors.secondaryText}
-        >
-        {props.counter}
-        </RSText>
-        </table>
-        <RSText 
-          type="other"
-          size={10}
-          color={colors.secondaryText}
-          >
-        </RSText>
+        <RSText type="other" size={10} color={colors.secondaryText}></RSText>
         {props.buttonText && (
           <Button className={styles.discoverButton} onClick={props.buttonAction}>
             {props.buttonText}

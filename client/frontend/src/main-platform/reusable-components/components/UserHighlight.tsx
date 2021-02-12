@@ -92,73 +92,70 @@ type Props = {
   mutualCommunities?: number;
   status: ProfileState;
   connectionRequestID?: string;
-  numConnections?: number;
-  isConnection?: boolean;
-  setNumConnections?: (numConnections: number) => void;
+  updateConnectionStatus?: (connectionRequestID: string) => void;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
     message: string
   ) => void;
 
   user: any;
-  accessToken: string;
-  refreshToken: string;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
 
-  const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
+  const {
+    style,
+    userID,
+    profilePic,
+    name,
+    university,
+    graduationYear,
+    position,
+    company,
+    mutualConnections,
+    mutualCommunities,
+    status,
+    connectionRequestID,
+    updateConnectionStatus,
+    setNotification,
+
+    user,
+  } = props;
+
+  const [userStatus, setUserStatus] = useState<ProfileState>(status);
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] === 1) setUserStatus('TO');
-    if (data.success !== 1)
-      props.setNotification &&
-        props.setNotification('error', 'Failed to send connection request');
-  }
+    const { data } = await makeRequest('POST', '/user/requestConnection', {
+      requestUserID: userID,
+    });
+    if (data['success'] === 1) return setUserStatus('TO');
 
-  async function setNumConnections(){
-    props.setNumConnections(props.numConnections + 1);
+    setNotification && setNotification('error', 'Failed to send connection request');
   }
 
   async function respondRequest(accepted: boolean) {
-    setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: props.connectionRequestID,
-        accepted,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken,
-    );
+    // setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
+    // const { data } = await makeRequest('POST', '/user/respondConnection', {
+    //   requestID: connectionRequestID,
+    //   accepted,
+    // });
 
-    if (data['success'] !== 1) {
-      setUserStatus(props.status);
-      props.setNotification &&
-        props.setNotification(
-          'error',
-          `Failed to ${accepted ? 'accept' : 'remove'} connection request`
-        );
-    } else if (accepted && props.isConnection) {
-      setNumConnections();
-    }
+    // if (data['success'] === 1 && updateConnectionStatus && connectionRequestID)
+    if (updateConnectionStatus && connectionRequestID)
+      updateConnectionStatus(connectionRequestID);
+    // else {
+    //   setUserStatus(status);
+    //   setNotification &&
+    //     setNotification(
+    //       'error',
+    //       `Failed to ${accepted ? 'accept' : 'remove'} connection request`
+    //     );
+    // }
   }
 
   function renderStatus() {
-    if (props.userID === props.user._id) return;
+    if (userID === user._id) return;
     else if (userStatus === 'CONNECTION')
       return (
         <RSText color={colors.primary} size={11}>
@@ -201,17 +198,13 @@ function UserHighlight(props: Props) {
   }
 
   return (
-    <Box
-      boxShadow={2}
-      borderRadius={10}
-      className={[props.style, styles.box].join(' ')}
-    >
+    <Box boxShadow={2} borderRadius={10} className={[style, styles.box].join(' ')}>
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${props.userID}`}>
+          <a href={`/profile/${userID}`}>
             <ProfilePicture
               type="profile"
-              currentPicture={props.profilePic}
+              currentPicture={profilePic}
               height={70}
               width={70}
               borderRadius={50}
@@ -220,20 +213,20 @@ function UserHighlight(props: Props) {
           </a>
           <div className={styles.textContainer}>
             <div className={styles.nameContainer}>
-              <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+              <a href={`/profile/${userID}`} className={styles.noUnderline}>
                 <RSText
                   type="head"
                   size={13}
                   color={colors.second}
                   className={styles.name}
                 >
-                  {props.name}
+                  {name}
                 </RSText>
               </a>
             </div>
             <RSText type="subhead" size={12} color={colors.secondaryText}>
-              {props.university}
-              {props.graduationYear ? ' ' + props.graduationYear : null}
+              {university}
+              {graduationYear ? ' ' + graduationYear : null}
             </RSText>
             <RSText
               type="subhead"
@@ -241,14 +234,14 @@ function UserHighlight(props: Props) {
               color={colors.secondaryText}
               className={styles.work}
             >
-              {props.position ? props.position : null}
-              {props.position && props.company ? ', ' : null}
-              {props.company ? props.company : null}
+              {position ? position : null}
+              {position && company ? ', ' : null}
+              {company ? company : null}
             </RSText>
-            {props.userID === props.user._id || (
+            {userID === user._id || (
               <RSText type="subhead" size={12} color={colors.second}>
-                {props.mutualConnections || 0} Mutual Connections |{' '}
-                {props.mutualCommunities || 0} Mutual Communities
+                {mutualConnections || 0} Mutual Connections |{' '}
+                {mutualCommunities || 0} Mutual Communities
               </RSText>
             )}
           </div>
@@ -264,8 +257,6 @@ function UserHighlight(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 
