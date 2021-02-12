@@ -318,6 +318,7 @@ const HoverPreview = () => {
             <RSButton
               className={styles.actionButton}
               disabled={actionLoading}
+              onClick={() => handleUserButtonAction('remove')}
               variant="secondary"
             >
               Connected
