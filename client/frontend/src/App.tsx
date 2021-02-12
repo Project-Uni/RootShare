@@ -27,10 +27,7 @@ import {
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
-import {
-  HoverPreview,
-  SnackbarNotification,
-} from './main-platform/reusable-components';
+import { SnackbarNotification } from './main-platform/reusable-components';
 import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 
 const analyticsTrackingID = 'UA-169916177-1';
@@ -47,7 +44,6 @@ const App = () => {
   return (
     <div className="App">
       <SocketManager />
-      <HoverPreview />
       <SnackbarNotification />
       <Router history={history}>
         <div className="wrapper">

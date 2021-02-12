@@ -113,13 +113,17 @@ const HoverPreview = () => {
     else if (open) setOpen(false);
   }, [anchorEl]);
 
+  const handleCloseOnScroll = useCallback(() => {
+    if (open) handleClose();
+  }, [open]);
+
   useEffect(() => {
-    const mainComponent = document.getElementById('main-component');
-    mainComponent?.addEventListener('scroll', () => console.log('Scrolling'), {
+    const mainComponent = document.getElementById('mainComponent');
+    mainComponent?.addEventListener('scroll', handleCloseOnScroll, {
       passive: true,
     });
-    return () => mainComponent?.removeEventListener('scroll', handleClose);
-  }, []);
+    return () => mainComponent?.removeEventListener('scroll', handleCloseOnScroll);
+  }, [handleCloseOnScroll]);
 
   const fetchData = useCallback(async () => {
     const data =
