@@ -23,12 +23,13 @@ export type Community = {
 
 export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
 
-export const U2CR = {
+const U2CR = {
   PENDING: 'pending',
   JOINED: 'joined',
   OPEN: 'open',
   ADMIN: 'admin',
 } as const;
+export { U2CR };
 
 export type CommunityType =
   | 'Social'

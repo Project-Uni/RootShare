@@ -6,8 +6,12 @@ import { connect } from 'react-redux';
 
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
-import MakePostContainer from './MakePostContainer';
+import {
+  WelcomeMessage,
+  UserPost,
+  RSTabs,
+  MakePostContainer,
+} from '../../reusable-components';
 
 import {
   makeRequest,
