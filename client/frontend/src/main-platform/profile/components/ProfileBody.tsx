@@ -114,6 +114,7 @@ function ProfileBody(props: Props) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
           getCurrentProfilePicture();
+          updateProfileState();
           fetchEvents();
           getUserPosts(profile).then(() => {
             setLoadingPosts(false);
