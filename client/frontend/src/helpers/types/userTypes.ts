@@ -51,13 +51,13 @@ export type UserToUserRelationship =
   | 'pending';
 
 export const U2UR = {
-  SELF: <UserToUserRelationship>'self',
-  CONNECTED: <UserToUserRelationship>'connected',
-  PENDING_TO: <UserToUserRelationship>'pending_to',
-  PENDING_FROM: <UserToUserRelationship>'pending_from',
-  OPEN: <UserToUserRelationship>'open',
-  PENDING: <UserToUserRelationship>'pending',
-};
+  SELF: 'self',
+  CONNECTED: 'connected',
+  PENDING_TO: 'pending_to',
+  PENDING_FROM: 'pending_from',
+  OPEN: 'open',
+  PENDING: 'pending',
+} as const;
 
 //NOTE - Pending added for general display when figuring out from / to not needed
 

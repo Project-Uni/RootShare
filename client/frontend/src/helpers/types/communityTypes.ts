@@ -24,11 +24,11 @@ export type Community = {
 export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
 
 export const U2CR = {
-  PENDING: <UserToCommunityRelationship>'pending',
-  JOINED: <UserToCommunityRelationship>'joined',
-  OPEN: <UserToCommunityRelationship>'open',
-  ADMIN: <UserToCommunityRelationship>'admin',
-};
+  PENDING: 'pending',
+  JOINED: 'joined',
+  OPEN: 'open',
+  ADMIN: 'admin',
+} as const;
 
 export type CommunityType =
   | 'Social'
