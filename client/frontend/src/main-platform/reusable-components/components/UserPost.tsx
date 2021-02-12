@@ -35,6 +35,7 @@ import Theme from '../../../theme/Theme';
 import {
   dispatchHoverPreview,
   dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions/interactions';
 import { putLikeStatus } from '../../../api/put/putLikeStatus';
 
@@ -425,6 +426,9 @@ function UserPost(props: Props) {
                 onMouseEnter={handleMouseOver}
                 onMouseLeave={() => {
                   isHovering.current = false;
+                  setTimeout(() => {
+                    dispatch(hoverPreviewTriggerComponentExit());
+                  }, 500);
                 }}
               >
                 <RSText type="subhead" bold size={14}>

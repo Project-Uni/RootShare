@@ -17,6 +17,7 @@ import {
 import {
   clearHoverPreview,
   dispatchSnackbar,
+  mouseEnteredHoverPreview,
 } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
@@ -94,7 +95,7 @@ const HoverPreview = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
 
-  const { anchorEl, _id, type, profilePicture, name } = useSelector(
+  const { anchorEl, _id, type, profilePicture, name, mouseEntered } = useSelector(
     (state: { [key: string]: any }) => state.hoverPreview
   );
 
@@ -103,7 +104,6 @@ const HoverPreview = () => {
   >();
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [mouseEntered, setMouseEntered] = useState(false);
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
@@ -385,7 +385,7 @@ const HoverPreview = () => {
         boxShadow={2}
         borderRadius={20}
         style={{ padding: 20, background: Theme.white }}
-        onMouseEnter={() => setMouseEntered(true)}
+        onMouseEnter={() => dispatch(mouseEnteredHoverPreview())}
         onMouseLeave={() => {
           if (mouseEntered) handleClose();
         }}

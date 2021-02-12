@@ -11,11 +11,11 @@ export type RootshareReduxState = {
   conversations: any[];
   currConversationID: string;
   newMessage: { [k: string]: any };
-  hoverPreview: HoverProps;
+  hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
 };
 
-const initializeState = () => ({
+export const initializeState = (): RootshareReduxState => ({
   user: {},
   accessToken: '',
   refreshToken: '',
@@ -23,11 +23,19 @@ const initializeState = () => ({
   conversations: [],
   currConversationID: '',
   newMessage: {},
-  hoverPreview: {},
-  snackbarNotification: {},
+  hoverPreview: {
+    _id: '',
+    type: 'user',
+    anchorEl: null,
+    name: '',
+  },
+  snackbarNotification: {
+    mode: null,
+    message: '',
+  },
 });
 
-const saveState = (state: { [key: string]: any }) => {
+const saveState = (state: RootshareReduxState) => {
   try {
     let serializedState = JSON.stringify(state);
     localStorage.setItem(STATE_NAME, serializedState);
@@ -36,15 +44,16 @@ const saveState = (state: { [key: string]: any }) => {
   }
 };
 
-const loadState = () => {
+const loadState = (): RootshareReduxState => {
   try {
     let serializedState = localStorage.getItem(STATE_NAME);
     if (serializedState == null) {
       return initializeState();
     }
-    return JSON.parse(serializedState);
+    return JSON.parse(serializedState) as RootshareReduxState;
   } catch (err) {
     log('error', 'There was an unexpected error while trying to load state');
+    return initializeState();
   }
 };
 
