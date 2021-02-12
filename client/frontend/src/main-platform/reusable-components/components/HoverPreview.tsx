@@ -30,6 +30,7 @@ import {
   getUsers,
   putUserToCommunityRelationship,
 } from '../../../api';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -98,7 +99,7 @@ const HoverPreview = () => {
   const dispatch = useDispatch();
 
   const { anchorEl, _id, type, profilePicture, name, mouseEntered } = useSelector(
-    (state: { [key: string]: any }) => state.hoverPreview
+    (state: RootshareReduxState) => state.hoverPreview
   );
 
   const [additionalFields, setAdditionalFields] = useState<
