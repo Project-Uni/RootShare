@@ -149,11 +149,6 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
-      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
-        return res.json(
-          sendPacket(-1, 'User is not authorized to perform this action')
-        );
-
       const { communityID } = req.params;
       const packet = await deleteCommunity(communityID);
       return res.json(packet);
