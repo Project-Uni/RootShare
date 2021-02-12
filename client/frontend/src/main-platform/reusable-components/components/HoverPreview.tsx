@@ -103,6 +103,7 @@ const HoverPreview = () => {
   >();
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [mouseEntered, setMouseEntered] = useState(false);
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
@@ -376,7 +377,13 @@ const HoverPreview = () => {
       onClose={handleClose}
       classes={{ paper: styles.paper }}
     >
-      <div style={{ padding: 20 }}>
+      <div
+        style={{ padding: 20 }}
+        onMouseEnter={() => setMouseEntered(true)}
+        onMouseLeave={() => {
+          if (mouseEntered) handleClose();
+        }}
+      >
         <div style={{ display: 'flex' }}>
           <div style={{ display: 'flex', height: '100%', alignItems: 'center' }}>
             <a href={`/${type === 'user' ? 'profile' : type}/${_id}`}>

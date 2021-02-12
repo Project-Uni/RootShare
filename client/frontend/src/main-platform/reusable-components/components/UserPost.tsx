@@ -415,7 +415,7 @@ function UserPost(props: Props) {
                   props.posterID
                 }`}
                 className={styles.noUnderline}
-                onMouseOver={handleMouseOver}
+                onMouseEnter={handleMouseOver}
               >
                 <RSText type="subhead" bold size={14}>
                   {props.name}

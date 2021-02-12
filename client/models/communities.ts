@@ -238,6 +238,8 @@ export type CommunityGetOptions = {
 };
 
 export class CommunityC {
+  static model = Community;
+
   static DefaultFields = [
     'name',
     'description',
@@ -356,7 +358,7 @@ export class CommunityC {
       //TODO - Get Banner Picture
     }
     if (options.getRelationship)
-      getUserToCommunityRelationship_V2(options.getRelationship, output);
+      CommunityC.getUserToCommunityRelationship_V2(options.getRelationship, output);
 
     await Promise.all(promises);
 
@@ -373,24 +375,24 @@ export class CommunityC {
 
     return cleanedOutput;
   };
-}
 
-export const getUserToCommunityRelationship_V2 = async (
-  userID: string,
-  communities: {
-    _id: ObjectId;
-    members: ObjectId[];
-    pendingMembers: ObjectId[];
-    admin: ObjectId;
-    [k: string]: unknown;
-  }[]
-) => {
-  communities.forEach((community) => {
-    if (community.admin.equals(userID)) community.relationship = 'ADMIN';
-    else if (community.members.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'JOINED';
-    else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
-      community.relationship = 'PENDING';
-    else community.relationship = 'OPEN';
-  });
-};
+  static getUserToCommunityRelationship_V2 = async (
+    userID: string,
+    communities: {
+      _id: ObjectId;
+      members: ObjectId[];
+      pendingMembers: ObjectId[];
+      admin: ObjectId;
+      [k: string]: unknown;
+    }[]
+  ) => {
+    communities.forEach((community) => {
+      if (community.admin.equals(userID)) community.relationship = 'ADMIN';
+      else if (community.members.some((memberID) => memberID.equals(userID)))
+        community.relationship = 'JOINED';
+      else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
+        community.relationship = 'PENDING';
+      else community.relationship = 'OPEN';
+    });
+  };
+}

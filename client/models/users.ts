@@ -255,7 +255,7 @@ export type GetUsersByIDsOptions = {
   populates?: { path: typeof Populate[number]; select: string }[];
   getProfilePicture?: boolean;
   getBannerPicture?: boolean;
-  getRelationship?: string; //UserID to get relationship to
+  getRelationshipTo?: string; //UserID to get relationship to
 };
 
 export const getUsersByIDs = async (
@@ -285,7 +285,7 @@ export const getUsersByIDs = async (
   let removeConnectionsField = false;
   let removePendingConnectionsField = false;
 
-  if (options.getRelationship) {
+  if (options.getRelationshipTo) {
     if (fields.indexOf('connections') === -1) {
       fields.push('connections');
       removeConnectionsField = true;
@@ -295,11 +295,9 @@ export const getUsersByIDs = async (
       removePendingConnectionsField = true;
     }
 
-    let populatesHasPendingConnections;
-    for (let i = 0; i < populates.length; i++) {
-      if (populates[i].path === 'pendingConnections')
-        populatesHasPendingConnections = true;
-    }
+    const populatesHasPendingConnections = populates.some(
+      (populate) => populate.path === 'pendingConnections'
+    );
 
     if (!populatesHasPendingConnections)
       populates.push({ path: 'pendingConnections', select: 'from to' });
@@ -318,8 +316,8 @@ export const getUsersByIDs = async (
   const promises: Promise<any>[] = [];
   if (options.getProfilePicture)
     promises.push(addProfilePicturesAll(output, 'profile'));
-  if (options.getRelationship) {
-    promises.push(getUserToUserRelationship_V2(options.getRelationship, output));
+  if (options.getRelationshipTo) {
+    promises.push(getUserToUserRelationship_V2(options.getRelationshipTo, output));
   }
 
   await Promise.all(promises);
