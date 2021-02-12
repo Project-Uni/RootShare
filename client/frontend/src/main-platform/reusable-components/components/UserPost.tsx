@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -238,6 +238,8 @@ function UserPost(props: Props) {
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
+  const isHovering = useRef(false);
+
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
   }
@@ -379,15 +381,20 @@ function UserPost(props: Props) {
   }
 
   const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      dispatchHoverPreview({
-        _id: props.posterID,
-        type: props.anonymous ? 'community' : 'user',
-        profilePicture: props.profilePicture,
-        name: props.name,
-        anchorEl: e.currentTarget,
-      })
-    );
+    isHovering.current = true;
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (isHovering.current)
+        dispatch(
+          dispatchHoverPreview({
+            _id: props.posterID,
+            type: props.anonymous ? 'community' : 'user',
+            profilePicture: props.profilePicture,
+            name: props.name,
+            anchorEl: currentTarget,
+          })
+        );
+    }, 500);
   };
 
   function renderPostHeader() {
@@ -416,6 +423,9 @@ function UserPost(props: Props) {
                 }`}
                 className={styles.noUnderline}
                 onMouseEnter={handleMouseOver}
+                onMouseLeave={() => {
+                  isHovering.current = false;
+                }}
               >
                 <RSText type="subhead" bold size={14}>
                   {props.name}

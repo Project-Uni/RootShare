@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { Popover, Avatar } from '@material-ui/core';
+import { Avatar, Popper, Box } from '@material-ui/core';
 
 import { GiGraduateCap } from 'react-icons/gi';
 import { FaUserTie } from 'react-icons/fa';
@@ -112,6 +112,11 @@ const HoverPreview = () => {
     if (anchorEl && !loading) fetchData();
     else if (open) setOpen(false);
   }, [anchorEl]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleClose, { passive: true });
+    return () => window.removeEventListener('scroll', handleClose);
+  }, []);
 
   const fetchData = useCallback(async () => {
     const data =
@@ -362,23 +367,11 @@ const HoverPreview = () => {
   }, [additionalFields, actionLoading]);
 
   return (
-    <Popover
-      id={id}
-      open={open}
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
-      onClose={handleClose}
-      classes={{ paper: styles.paper }}
-    >
-      <div
-        style={{ padding: 20 }}
+    <Popper id={id} open={open} anchorEl={anchorEl} placement="top-start">
+      <Box
+        boxShadow={2}
+        borderRadius={20}
+        style={{ padding: 20, background: Theme.white }}
         onMouseEnter={() => setMouseEntered(true)}
         onMouseLeave={() => {
           if (mouseEntered) handleClose();
@@ -390,7 +383,12 @@ const HoverPreview = () => {
               <Avatar
                 src={profilePicture}
                 alt={name}
-                style={{ marginRight: 15, height: 125, width: 125 }}
+                style={{
+                  marginRight: 15,
+                  height: 125,
+                  width: 125,
+                  border: `2px solid ${Theme.bright}`,
+                }}
               />
             </a>
           </div>
@@ -423,8 +421,8 @@ const HoverPreview = () => {
           </div>
         </div>
         <ActionButton />
-      </div>
-    </Popover>
+      </Box>
+    </Popper>
   );
 };
 
