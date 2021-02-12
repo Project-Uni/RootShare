@@ -15,11 +15,7 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   searchBar: {
     flex: 1,

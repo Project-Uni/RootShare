@@ -27,13 +27,7 @@ import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-  },
-  profileWrapper: {
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   box: {
     margin: 8,
@@ -299,7 +293,7 @@ function ProfileBody(props: Props) {
     const university = profile.university as UniversityType;
 
     return (
-      <div className={styles.profileWrapper} style={{ height: height }}>
+      <div style={{ height: height }}>
         <div className={styles.body}>
           <Box
             boxShadow={2}
