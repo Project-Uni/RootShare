@@ -12,6 +12,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import {
   UserToCommunityRelationship,
+  U2CR,
   UserType,
   Community,
 } from '../../../helpers/types';
@@ -90,7 +91,7 @@ function CommunityBody(props: Props) {
   const [communityInfo, setCommunityInfo] = useState<Community>();
   const [communityStatus, setCommunityStatus] = useState<
     UserToCommunityRelationship
-  >('OPEN');
+  >('open');
   const [isAdmin, setIsAdmin] = useState(false);
   const [mutualConnections, setMutualConnections] = useState<string[]>([]);
 
@@ -118,8 +119,10 @@ function CommunityBody(props: Props) {
   useEffect(() => {
     if (
       !(
-        communityStatus === 'PENDING' ||
-        (communityStatus === 'OPEN' && communityInfo?.private && !hasFollowingAccess)
+        communityStatus === U2CR.PENDING ||
+        (communityStatus === U2CR.OPEN &&
+          communityInfo?.private &&
+          !hasFollowingAccess)
       )
     ) {
       setLocked(false);
@@ -147,12 +150,12 @@ function CommunityBody(props: Props) {
   function initializeCommunityStatus(communityDetails: Community) {
     if ((communityDetails.admin as UserType)._id === props.user._id) {
       setIsAdmin(true);
-      setCommunityStatus('JOINED');
+      setCommunityStatus(U2CR.JOINED);
     } else if (communityDetails.members.indexOf(props.user._id) !== -1)
-      setCommunityStatus('JOINED');
+      setCommunityStatus(U2CR.JOINED);
     else if (communityDetails.pendingMembers.indexOf(props.user._id) !== -1)
-      setCommunityStatus('PENDING');
-    else setCommunityStatus('OPEN');
+      setCommunityStatus(U2CR.PENDING);
+    else setCommunityStatus(U2CR.OPEN);
   }
 
   function updateCommunityStatus(newStatus: UserToCommunityRelationship) {

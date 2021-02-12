@@ -21,7 +21,14 @@ export type Community = {
   isMTGFlag?: boolean; //For Meet the Greeks
 };
 
-export type UserToCommunityRelationship = 'PENDING' | 'JOINED' | 'OPEN' | 'ADMIN';
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
+
+export const U2CR = {
+  PENDING: 'pending',
+  JOINED: 'joined',
+  OPEN: 'open',
+  ADMIN: 'admin',
+} as const;
 
 export type CommunityType =
   | 'Social'

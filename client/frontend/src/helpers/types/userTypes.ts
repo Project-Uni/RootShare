@@ -43,12 +43,21 @@ export type ConnectionRequestType = {
 };
 
 export type UserToUserRelationship =
-  | 'SELF'
-  | 'CONNECTED'
-  | 'PENDING_TO'
-  | 'PENDING_FROM'
-  | 'OPEN'
-  | 'PENDING';
+  | 'self'
+  | 'connected'
+  | 'pending_to'
+  | 'pending_from'
+  | 'open'
+  | 'pending';
+
+export const U2UR = {
+  SELF: 'self',
+  CONNECTED: 'connected',
+  PENDING_TO: 'pending_to',
+  PENDING_FROM: 'pending_from',
+  OPEN: 'open',
+  PENDING: 'pending',
+} as const;
 
 //NOTE - Pending added for general display when figuring out from / to not needed
 

@@ -139,7 +139,7 @@ const Schema = mongoose.Schema;
 import { Types } from 'mongoose';
 type ObjectId = Types.ObjectId;
 
-import { CommunityType, CommunityMap } from '../helpers/types';
+import { CommunityType, CommunityMap, U2CR } from '../helpers/types';
 import { addProfilePicturesAll } from '../interactions/utilities';
 
 const CommunitySchema = new Schema(

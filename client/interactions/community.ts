@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { CommunityType } from '../helpers/types';
+import { CommunityType, U2CR } from '../helpers/types';
 import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
@@ -242,7 +242,7 @@ export async function joinCommunity(communityID: string, userID: string) {
               );
             });
 
-          newStatus = 'JOINED';
+          newStatus = U2CR.JOINED;
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
@@ -264,7 +264,7 @@ export async function joinCommunity(communityID: string, userID: string) {
               );
             });
 
-          newStatus = 'PENDING';
+          newStatus = U2CR.PENDING;
         }
       }
 
@@ -295,7 +295,7 @@ export async function joinCommunity(communityID: string, userID: string) {
               );
             });
 
-          newStatus = 'JOINED';
+          newStatus = U2CR.JOINED;
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
@@ -317,7 +317,7 @@ export async function joinCommunity(communityID: string, userID: string) {
               );
             });
 
-          newStatus = 'PENDING';
+          newStatus = U2CR.PENDING;
         }
       }
 
@@ -472,7 +472,9 @@ export async function leaveCommunity(communityID: string, userID: string) {
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `User ${userID} left community ${communityID}`);
-        return sendPacket(1, 'Successfully left community', { newStatus: 'OPEN' });
+        return sendPacket(1, 'Successfully left community', {
+          newStatus: U2CR.OPEN,
+        });
       })
       .catch((err) => {
         log('error', err);
@@ -503,7 +505,7 @@ export function cancelCommunityPendingRequest(communityID: string, userID: strin
           `User ${userID} cancelled pending request for community ${communityID}`
         );
         return sendPacket(1, 'Successfully cancelled pending request', {
-          newStatus: 'OPEN',
+          newStatus: U2CR.OPEN,
         });
       })
       .catch((err) => {

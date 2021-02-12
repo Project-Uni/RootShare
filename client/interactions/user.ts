@@ -17,6 +17,7 @@ import {
   pendingToUserIDs,
   addProfilePicturesAll,
 } from './utilities';
+import { U2UR, U2CR } from '../helpers/types';
 
 export async function getCurrentUser(user, callback) {
   if (Object.keys(user).some((key) => !user[key]))
@@ -610,9 +611,10 @@ export async function requestConnection(userID, requestUserID) {
     return Promise.all([connectionPromise, userPromise]).then(
       async ([connection, userExists]) => {
         const { status } = connection[0];
-        if (status === 'CONNECTED') return sendPacket(0, 'Already connected');
-        if (status === 'PENDING_TO') return sendPacket(0, 'Already Requested');
-        if (status === 'PENDING_FROM') return acceptConnectionRequest(connection[0]);
+        if (status === U2UR.CONNECTED) return sendPacket(0, 'Already connected');
+        if (status === U2UR.PENDING_TO) return sendPacket(0, 'Already Requested');
+        if (status === U2UR.PENDING_FROM)
+          return acceptConnectionRequest(connection[0]);
 
         const newConnectionRequest = await Connection.create({
           from: userID,
@@ -754,7 +756,7 @@ export function checkConnectedWithUser(userID, requestUserID, callback) {
     if (requestUserID.localeCompare(userID) === 0)
       return callback(
         sendPacket(1, "Can't be connected to yourself", {
-          connected: 'SELF',
+          connected: U2UR.SELF,
         })
       );
 
@@ -769,25 +771,25 @@ export function checkConnectedWithUser(userID, requestUserID, callback) {
         if (err) return callback(sendPacket(-1, err));
         if (!connection)
           return callback(
-            sendPacket(1, 'Not yet connected to this user', { connected: 'OPEN' })
+            sendPacket(1, 'Not yet connected to this user', { connected: U2UR.OPEN })
           );
 
         if (connection.accepted)
           return callback(
             sendPacket(1, 'Already connected to this User', {
-              connected: 'CONNECTED',
+              connected: U2UR.CONNECTED,
             })
           );
         else if (connection.from.toString() === requestUserID)
           return callback(
             sendPacket(1, 'This User has already sent you a request', {
-              connected: 'PENDING_FROM',
+              connected: U2UR.PENDING_FROM,
             })
           );
         else if (connection.to.toString() === requestUserID)
           return callback(
             sendPacket(1, 'Request has already been sent to this User', {
-              connected: 'PENDING_TO',
+              connected: U2UR.PENDING_TO,
             })
           );
         else return callback(sendPacket(-1, 'An error has occured'));
@@ -889,7 +891,7 @@ export async function getSelfUserCommunities(userID: string) {
         joinedCommunities[i].toObject()
       );
 
-      joinedCommunities[i].status = 'JOINED';
+      joinedCommunities[i].status = U2CR.JOINED;
     }
 
     for (let i = 0; i < pendingCommunities.length; i++) {
@@ -898,7 +900,7 @@ export async function getSelfUserCommunities(userID: string) {
         pendingCommunities[i].toObject()
       );
 
-      pendingCommunities[i].status = 'PENDING';
+      pendingCommunities[i].status = U2CR.PENDING;
     }
 
     joinedCommunities = await addProfilePicturesAll(
@@ -1042,7 +1044,7 @@ export async function getSelfConnectionsFullData(selfID: string) {
         cleanedConnection
       );
 
-      cleanedConnection.status = 'CONNECTED';
+      cleanedConnection.status = U2UR.CONNECTED;
       connectionsWithData[i] = cleanedConnection;
     }
 

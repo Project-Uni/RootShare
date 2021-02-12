@@ -7,7 +7,7 @@ import RSText from '../../../base-components/RSText';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { UserToUserRelationship } from '../../../helpers/types';
+import { UserToUserRelationship, U2UR } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
 
@@ -115,14 +115,14 @@ function UserHighlight(props: Props) {
 
   async function requestConnection() {
     const data = await putUpdateUserConnection('connect', props.userID);
-    if (data['success'] === 1) setUserStatus('PENDING_TO');
+    if (data['success'] === 1) setUserStatus(U2UR.PENDING_TO);
     if (data.success !== 1)
       props.setNotification &&
         props.setNotification('error', 'Failed to send connection request');
   }
 
   async function respondRequest(accepted: boolean) {
-    setUserStatus(accepted ? 'CONNECTED' : 'OPEN');
+    setUserStatus(accepted ? U2UR.CONNECTED : U2UR.OPEN);
     const data = await putUpdateUserConnection(
       accepted ? 'accept' : 'reject',
       props.userID
@@ -140,19 +140,19 @@ function UserHighlight(props: Props) {
 
   function renderStatus() {
     if (props.userID === props.user._id) return;
-    else if (userStatus === 'CONNECTED')
+    else if (userStatus === U2UR.CONNECTED)
       return (
         <RSText color={Theme.secondaryText} size={11}>
           CONNECTED
         </RSText>
       );
-    else if (userStatus === 'PENDING_TO')
+    else if (userStatus === U2UR.PENDING_TO)
       return (
         <RSText color={Theme.altText} size={12} className={styles.pendingStatus}>
           PENDING
         </RSText>
       );
-    else if (userStatus === 'PENDING_FROM')
+    else if (userStatus === U2UR.PENDING_FROM)
       return (
         <div className={styles.pendingButtonContainer}>
           <Button
