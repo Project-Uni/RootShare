@@ -91,7 +91,12 @@ function AuthenticatedPage(props: Props) {
               ) : (
                 <MainNavigator currentTab={selectedTab || 'none'} />
               ))}
-            {component}
+            <div
+              style={{ flex: 1, overflow: 'scroll', background: Theme.background }}
+              id="main-component"
+            >
+              {component}
+            </div>
             {width > showRightEl.current &&
               (rightElement ? rightElement : <DiscoverySidebar />)}
           </div>

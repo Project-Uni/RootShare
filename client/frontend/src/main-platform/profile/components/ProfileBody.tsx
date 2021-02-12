@@ -93,7 +93,7 @@ function ProfileBody(props: Props) {
 
   const [currentProfileState, setCurrentProfileState] = useState<
     UserToUserRelationship
-  >('PUBLIC');
+  >('OPEN');
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();

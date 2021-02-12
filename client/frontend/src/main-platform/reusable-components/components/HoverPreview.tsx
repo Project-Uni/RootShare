@@ -114,8 +114,11 @@ const HoverPreview = () => {
   }, [anchorEl]);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleClose, { passive: true });
-    return () => window.removeEventListener('scroll', handleClose);
+    const mainComponent = document.getElementById('main-component');
+    mainComponent?.addEventListener('scroll', () => console.log('Scrolling'), {
+      passive: true,
+    });
+    return () => mainComponent?.removeEventListener('scroll', handleClose);
   }, []);
 
   const fetchData = useCallback(async () => {
