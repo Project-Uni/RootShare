@@ -7,14 +7,13 @@ type Config = {
   };
 };
 
-const store = getStore();
-
 export function makeRequest<T = { [key: string]: any }>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   data: { [key: string]: any } = {},
   ...rest: any
 ): Promise<AxiosResponse<{ success: -1 | 0 | 1; message: string; content: T }>> {
+  const store = getStore();
   const state = store.getState();
   const { accessToken, refreshToken } = state;
 

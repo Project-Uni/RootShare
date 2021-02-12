@@ -67,7 +67,6 @@ type Props = {
   refreshToken: string;
   private?: boolean;
   flags: CommunityFlags;
-  communityName: string;
 };
 
 type CommunityTab =
@@ -141,7 +140,6 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
       if (selectedTab === 'external')
         fetchCurrentEventInformation().then(() => setLoading(false));
@@ -170,7 +168,7 @@ function CommunityBodyContent(props: Props) {
         community: {
           _id: props.communityID,
           profilePicture: props.communityProfilePicture,
-          name: props.communityName,
+          name: props.name,
         },
       });
     }
