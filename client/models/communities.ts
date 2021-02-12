@@ -387,12 +387,12 @@ export class CommunityC {
     }[]
   ) => {
     communities.forEach((community) => {
-      if (community.admin.equals(userID)) community.relationship = 'ADMIN';
+      if (community.admin.equals(userID)) community.relationship = U2CR.ADMIN;
       else if (community.members.some((memberID) => memberID.equals(userID)))
-        community.relationship = 'JOINED';
+        community.relationship = U2CR.JOINED;
       else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
-        community.relationship = 'PENDING';
-      else community.relationship = 'OPEN';
+        community.relationship = U2CR.PENDING;
+      else community.relationship = U2CR.OPEN;
     });
   };
 }
