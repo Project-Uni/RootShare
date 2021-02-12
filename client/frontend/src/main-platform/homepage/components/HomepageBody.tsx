@@ -77,14 +77,7 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/feed/${selectedTab}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
 
     if (data.success === 1) {
       setFeed(createFeed(data.content['posts']));
