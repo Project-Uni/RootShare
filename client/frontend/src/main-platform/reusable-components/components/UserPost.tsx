@@ -394,7 +394,7 @@ function UserPost(props: Props) {
             anchorEl: currentTarget,
           })
         );
-    }, 500);
+    }, 300);
   };
 
   function renderPostHeader() {

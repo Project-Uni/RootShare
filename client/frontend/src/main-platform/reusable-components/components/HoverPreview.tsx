@@ -374,7 +374,13 @@ const HoverPreview = () => {
   }, [additionalFields, actionLoading]);
 
   return (
-    <Popper id={id} open={open} anchorEl={anchorEl} placement="top-start">
+    <Popper
+      id={id}
+      open={open}
+      anchorEl={anchorEl}
+      placement="top-start"
+      style={{ zIndex: 10 }}
+    >
       <Box
         boxShadow={2}
         borderRadius={20}
