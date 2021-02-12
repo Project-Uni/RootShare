@@ -4,7 +4,6 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
 
@@ -18,11 +17,7 @@ import {
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   searchBar: {
     flex: 1,
@@ -49,8 +44,6 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
 };
 
 function EventsBody(props: Props) {
@@ -69,14 +62,7 @@ function EventsBody(props: Props) {
   }, []);
 
   async function fetchData() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/webinar/recents',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/webinar/recents');
     if (data.success == 1) {
       setEvents(data.content['events'].reverse());
       setConnectionIDs(data.content['connectionIDs']);
@@ -137,8 +123,6 @@ function EventsBody(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

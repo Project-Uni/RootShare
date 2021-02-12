@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { Popover, Avatar } from '@material-ui/core';
+import { Avatar, Popper, Box } from '@material-ui/core';
 
 import { GiGraduateCap } from 'react-icons/gi';
 import { FaUserTie } from 'react-icons/fa';
@@ -105,6 +105,7 @@ const HoverPreview = () => {
   >();
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [mouseEntered, setMouseEntered] = useState(false);
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
@@ -113,6 +114,18 @@ const HoverPreview = () => {
     if (anchorEl && !loading) fetchData();
     else if (open) setOpen(false);
   }, [anchorEl]);
+
+  const handleCloseOnScroll = useCallback(() => {
+    if (open) handleClose();
+  }, [open]);
+
+  useEffect(() => {
+    const mainComponent = document.getElementById('mainComponent');
+    mainComponent?.addEventListener('scroll', handleCloseOnScroll, {
+      passive: true,
+    });
+    return () => mainComponent?.removeEventListener('scroll', handleCloseOnScroll);
+  }, [handleCloseOnScroll]);
 
   const fetchData = useCallback(async () => {
     const data =
@@ -363,29 +376,34 @@ const HoverPreview = () => {
   }, [additionalFields, actionLoading]);
 
   return (
-    <Popover
+    <Popper
       id={id}
       open={open}
       anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
-      onClose={handleClose}
-      classes={{ paper: styles.paper }}
+      placement="top-start"
+      style={{ zIndex: 10 }}
     >
-      <div style={{ padding: 20 }}>
+      <Box
+        boxShadow={2}
+        borderRadius={20}
+        style={{ padding: 20, background: Theme.white }}
+        onMouseEnter={() => setMouseEntered(true)}
+        onMouseLeave={() => {
+          if (mouseEntered) handleClose();
+        }}
+      >
         <div style={{ display: 'flex' }}>
           <div style={{ display: 'flex', height: '100%', alignItems: 'center' }}>
             <a href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
               <Avatar
                 src={profilePicture}
                 alt={name}
-                style={{ marginRight: 15, height: 125, width: 125 }}
+                style={{
+                  marginRight: 15,
+                  height: 125,
+                  width: 125,
+                  border: `2px solid ${Theme.bright}`,
+                }}
               />
             </a>
           </div>
@@ -418,8 +436,8 @@ const HoverPreview = () => {
           </div>
         </div>
         <ActionButton />
-      </div>
-    </Popover>
+      </Box>
+    </Popper>
   );
 };
 

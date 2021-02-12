@@ -70,8 +70,6 @@ type Props = {
   profileID: string;
   event: EventType;
   style?: any;
-  accessToken: string;
-  refreshToken: string;
   currentProfileState: UserToUserRelationship;
   removeEvent: (eventID: string) => void;
 };
@@ -96,17 +94,10 @@ function ProfileEvent(props: Props) {
   async function removeEvent() {
     props.removeEvent(props.event._id);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/webinar/updateRSVP',
-      {
-        webinarID: props.event._id,
-        didRSVP: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/webinar/updateRSVP', {
+      webinarID: props.event._id,
+      didRSVP: false,
+    });
 
     console.log(data);
   }

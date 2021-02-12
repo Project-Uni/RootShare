@@ -280,7 +280,7 @@ module.exports = (app) => {
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
-      getRelationship: getRelationship ? userID : undefined,
+      getRelationshipTo: getRelationship ? userID : undefined,
     };
     const packet = await getUsersGeneric(_ids, {
       fields: fields as any,
