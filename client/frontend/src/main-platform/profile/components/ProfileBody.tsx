@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { UserPost, MakePostContainer } from '../../reusable-components';
@@ -84,18 +83,20 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: any;
-  profileID: string;
-  currentProfileState: ProfileState;
-  accessToken: string;
-  refreshToken: string;
-  updateProfileState: () => void;
 };
 
 function ProfileBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
+  const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
+    'PUBLIC'
+  );
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
@@ -107,12 +108,14 @@ function ProfileBody(props: Props) {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [postsFetchErr, setPostsFetchErr] = useState(false);
 
+  const profileID = props.match.params['profileID'];
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    if (props.profileID) {
+    if (profileID) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
           getCurrentProfilePicture();
@@ -123,17 +126,10 @@ function ProfileBody(props: Props) {
         }
       });
     }
-  }, [props.profileID]);
+  }, [profileID]);
 
   async function fetchProfile() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/profile/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/profile/${profileID}`);
 
     if (data['success'] === 1) {
       setProfileState(data['content']['user']);
@@ -145,19 +141,22 @@ function ProfileBody(props: Props) {
     return [false, null];
   }
 
+  async function updateProfileState() {
+    if (profileID === 'user') return setCurrentProfileState('SELF');
+
+    const { data } = await makeRequest('POST', '/user/checkConnectedWithUser', {
+      requestUserID: profileID,
+    });
+
+    if (data['success'] === 1) setCurrentProfileState(data['content']['connected']);
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/images/profile/${profileID}`);
 
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['profile']);
@@ -166,27 +165,13 @@ function ProfileBody(props: Props) {
   }
 
   async function fetchEvents() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/events/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/events/${profileID}`);
 
     if (data['success'] === 1) setEvents(data['content']['events']);
   }
 
   async function getUserPosts(profile: UserType) {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/user/${props.profileID}/all`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/user/${profileID}/all`);
 
     if (data.success === 1) {
       const { posts } = data.content;
@@ -219,8 +204,8 @@ function ProfileBody(props: Props) {
         <ProfileBanner
           type="profile"
           height={200}
-          editable={props.currentProfileState === 'SELF'}
-          zoomOnClick={props.currentProfileState !== 'SELF'}
+          editable={currentProfileState === 'SELF'}
+          zoomOnClick={currentProfileState !== 'SELF'}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
@@ -229,14 +214,14 @@ function ProfileBody(props: Props) {
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={props.currentProfileState === 'SELF'}
+          editable={currentProfileState === 'SELF'}
           height={150}
           width={150}
           borderRadius={150}
           currentPicture={
-            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+            profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={props.currentProfileState !== 'SELF'}
+          zoomOnClick={currentProfileState !== 'SELF'}
           borderWidth={8}
         />
       </div>
@@ -271,9 +256,7 @@ function ProfileBody(props: Props) {
           profileID={(profileState as UserType)._id}
           event={event}
           style={[styles.event, i !== 0 ? styles.eventWithBorder : null].join(' ')}
-          currentProfileState={props.currentProfileState}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
+          currentProfileState={currentProfileState}
           removeEvent={removeEvent}
         />
       );
@@ -297,10 +280,10 @@ function ProfileBody(props: Props) {
       output.push(
         <UserPost
           postID={currPost._id}
-          posterID={props.profileID}
+          posterID={profileID}
           name={`${currPost.user?.firstName} ${currPost.user?.lastName}`}
           profilePicture={
-            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+            profileID === 'user' ? props.user.profilePicture : currentPicture
           }
           timestamp={(function() {
             const date = new Date(currPost.createdAt);
@@ -312,7 +295,7 @@ function ProfileBody(props: Props) {
           style={styles.post}
           liked={currPost.liked}
           images={currPost.images}
-          isOwnPost={props.profileID === 'user'}
+          isOwnPost={profileID === 'user'}
         />
       );
     }
@@ -353,15 +336,13 @@ function ProfileBody(props: Props) {
               numMutualConnections={profile.numMutualConnections!}
               numCommunities={profile.numCommunities!}
               numMutualCommunities={profile.numMutualCommunities}
-              currentProfileState={props.currentProfileState}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
-              updateProfileState={props.updateProfileState}
+              currentProfileState={currentProfileState}
+              updateProfileState={updateProfileState}
             />
           </Box>
 
           {renderRegisteredEvents()}
-          {props.profileID === 'user' && (
+          {profileID === 'user' && (
             <MakePostContainer
               appendNewPost={appendNewPost}
               profilePicture={props.user.profilePicture}
@@ -395,8 +376,6 @@ function ProfileBody(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

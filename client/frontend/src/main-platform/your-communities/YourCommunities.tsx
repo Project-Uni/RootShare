@@ -78,7 +78,7 @@ function YourCommunities(props: Props) {
         {width > SHOW_HEADER_NAVIGATION_WIDTH && (
           <MainNavigator currentTab="communities" />
         )}
-        <YourCommunitiesBody requestUserID={userID} />
+        {/* <YourCommunitiesBody requestUserID={userID} /> */}
         {width > SHOW_DISCOVERY_SIDEBAR_WIDTH && <DiscoverySidebar />}
       </div>
     </div>
