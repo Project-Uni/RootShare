@@ -60,6 +60,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 4,
     marginBottom: 6,
   },
+  navigationText: {
+    textDecoration: 'none',
+    color: 'inherit',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -130,6 +137,8 @@ function ProfileEvent(props: Props) {
             {props.event.full_description}
           </RSText>
         </div>
+        {/* --- Hiding this for now because removing RSVP/Attended isn't well-defined yet
+
         {props.currentProfileState === 'SELF' && (
           <div className={styles.right}>
             {participationType === 'ATTENDEE' && (
@@ -138,7 +147,7 @@ function ProfileEvent(props: Props) {
               </Button>
             )}
           </div>
-        )}
+        )} */}
       </div>
     );
   }
@@ -156,15 +165,17 @@ function ProfileEvent(props: Props) {
           <RSText type="body" size={11} italic color={Theme.secondaryText}>
             {eventDate}
           </RSText>
-          <RSText
-            type="body"
-            size={12}
-            bold
-            color={Theme.primaryText}
-            className={styles.eventTitle}
-          >
-            {props.event.title}
-          </RSText>
+          <a href={`/event/${props.event._id}`} className={styles.navigationText}>
+            <RSText
+              type="body"
+              size={12}
+              bold
+              color={Theme.primaryText}
+              className={styles.eventTitle}
+            >
+              {props.event.title}
+            </RSText>
+          </a>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <RSText type="body" size={12} color={Theme.primaryText}>

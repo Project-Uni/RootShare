@@ -6,7 +6,7 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { UserPost } from '../../reusable-components';
+import { UserPost, MakePostContainer } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -76,6 +76,9 @@ const useStyles = makeStyles((_: any) => ({
   postsLoadingIndicator: {
     marginTop: 60,
     color: Theme.bright,
+  },
+  noPosts: {
+    marginTop: 20,
   },
 }));
 
@@ -189,6 +192,12 @@ function ProfileBody(props: Props) {
     }
   }
 
+  function appendNewPost(post: PostType) {
+    setPosts((prevState) => {
+      return [post].concat(prevState);
+    });
+  }
+
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
@@ -267,28 +276,36 @@ function ProfileBody(props: Props) {
   function renderPosts() {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
+      const currPost = posts[i];
       output.push(
         <UserPost
-          postID={posts[i]._id}
+          postID={currPost._id}
           posterID={profileID}
-          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          name={`${currPost.user?.firstName} ${currPost.user?.lastName}`}
           profilePicture={
             profileID === 'user' ? props.user.profilePicture : currentPicture
           }
           timestamp={(function() {
-            const date = new Date(posts[i].createdAt);
+            const date = new Date(currPost.createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
+          message={currPost.message}
+          likeCount={currPost.likes}
+          commentCount={currPost.comments}
           style={styles.post}
-          liked={posts[i].liked}
-          images={posts[i].images}
+          liked={currPost.liked}
+          images={currPost.images}
           isOwnPost={profileID === 'user'}
         />
       );
     }
+
+    if (posts.length === 0)
+      output.push(
+        <RSText size={16} type="head" className={styles.noPosts}>
+          There are no posts yet.
+        </RSText>
+      );
     return (
       <div style={{ background: Theme.background, paddingTop: 1 }}>{output}</div>
     );
@@ -325,6 +342,12 @@ function ProfileBody(props: Props) {
           </Box>
 
           {renderRegisteredEvents()}
+          {profileID === 'user' && (
+            <MakePostContainer
+              appendNewPost={appendNewPost}
+              profilePicture={props.user.profilePicture}
+            />
+          )}
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
