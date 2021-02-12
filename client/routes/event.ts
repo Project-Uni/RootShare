@@ -1,4 +1,4 @@
-import { log, makeRequest, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, log, makeRequest, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
@@ -20,11 +20,12 @@ import User from '../models/users';
 
 module.exports = (app) => {
   app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const user = getUserFromJWT(req);
+    if (user.privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
       );
-    await createEvent(req.body, req.user, (packet) => res.json(packet));
+    await createEvent(req.body, user, (packet) => res.json(packet));
   });
 
   app.post(
@@ -44,11 +45,13 @@ module.exports = (app) => {
   );
 
   app.get('/api/webinar/recents', isAuthenticatedWithJWT, (req, res) => {
-    getAllRecentEvents(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getAllRecentEvents(userID, (packet) => res.json(packet));
   });
 
   app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const { privilegeLevel } = getUserFromJWT(req);
+    if (privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(0, 'User is not authorized to perform this action')
       );
@@ -56,14 +59,16 @@ module.exports = (app) => {
   });
 
   app.get('/api/webinar/getAllEventsUser', isAuthenticatedWithJWT, (req, res) => {
-    getAllEventsUser(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getAllEventsUser(userID, (packet) => res.json(packet));
   });
 
   app.post(
     '/api/webinar/resendSpeakerInvites',
     isAuthenticatedWithJWT,
     (req, res) => {
-      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
         return res.json(
           sendPacket(0, 'User is not authorized to perform this action')
         );
@@ -81,14 +86,16 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { eventID } = req.params;
-      await getWebinarDetails(req.user._id, eventID, (packet) => {
+      const { _id: userID } = getUserFromJWT(req);
+      await getWebinarDetails(userID, eventID, (packet) => {
         res.json(packet);
       });
     }
   );
 
   app.post('/api/webinar/updateRSVP', isAuthenticatedWithJWT, (req, res) => {
-    updateRSVP(req.user._id, req.body.webinarID, req.body.didRSVP, (packet) => {
+    const { _id: userID } = getUserFromJWT(req);
+    updateRSVP(userID, req.body.webinarID, req.body.didRSVP, (packet) => {
       res.json(packet);
     });
   });
@@ -98,55 +105,10 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { webinarID } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!webinarID)
         return res.json(sendPacket(-1, 'Field webinarID not in request.'));
-      await updateAttendingList(req.user._id, webinarID, (packet) =>
-        res.json(packet)
-      );
-    }
-  );
-
-  app.get(
-    '/api/webinar/:webinarID/getActiveViewers',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { webinarID } = req.params;
-      const authHeader = req.headers['authorization'];
-      const accessToken = authHeader && authHeader.split(' ')[1];
-
-      const data = await makeRequest(
-        'webinarCache',
-        `api/webinar/${webinarID}/getActiveViewers`,
-        'GET',
-        {},
-        true,
-        accessToken,
-        '',
-        req.user
-      );
-
-      if (data['success'] !== 1) {
-        return res.json(data);
-      }
-
-      User.find(
-        { _id: { $in: data['content']['activeUserIDs'] } },
-        ['_id', 'firstName', 'lastName', 'email'],
-        (err, users) => {
-          if (err) {
-            log('error', err);
-            return res.json(
-              sendPacket(-1, 'There was an error retrieving active users')
-            );
-          }
-          return res.json(
-            sendPacket(1, 'Successfully retrieved all active users', {
-              users: users,
-              currentSpeaker: data['content']['currentSpeaker'],
-            })
-          );
-        }
-      );
+      await updateAttendingList(userID, webinarID, (packet) => res.json(packet));
     }
   );
 };

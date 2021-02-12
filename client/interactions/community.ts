@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 import { Community, CommunityEdge, User } from '../models';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { COMMUNITY_TYPE } from '../helpers/types';
+import { CommunityType, U2CR } from '../helpers/types';
 import {
   generateSignedImagePromises,
   connectionsToUserIDStrings,
@@ -10,12 +10,13 @@ import {
   addCalculatedUserFields,
   addProfilePicturesAll,
 } from '../interactions/utilities';
+import { CommunityC, CommunityGetOptions } from '../models/communities';
 
 export async function createNewCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: {} = {}
@@ -36,9 +37,9 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = await User.updateOne(
+    await User.updateOne(
       { _id: adminID },
-      { $push: { joinedCommunities: savedCommunity._id } }
+      { $addToSet: { joinedCommunities: savedCommunity._id } }
     ).exec();
 
     log('info', `Successfully created community ${name}`);
@@ -83,7 +84,7 @@ export async function editCommunity(
   name: string,
   description: string,
   adminID: string,
-  type: COMMUNITY_TYPE,
+  type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: { returnCommunity?: boolean } = {}
@@ -200,10 +201,7 @@ export async function getCommunityInformation(communityID: string, userID: strin
   }
 }
 
-export async function joinCommunity(
-  communityID: string,
-  userID: { [key: string]: any }
-) {
+export async function joinCommunity(communityID: string, userID: string) {
   try {
     let userPromise = User.findById(userID).exec();
     let communityPromise = Community.findById(communityID).exec();
@@ -226,7 +224,7 @@ export async function joinCommunity(
         if (community.private === false) {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { members: userID } }
+            { $addToSet: { members: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -244,11 +242,11 @@ export async function joinCommunity(
               );
             });
 
-          newStatus = 'JOINED';
+          newStatus = U2CR.JOINED;
         } else {
           communityUpdatePromise = Community.updateOne(
             { _id: communityID },
-            { $push: { pendingMembers: userID } }
+            { $addToSet: { pendingMembers: userID } }
           ).exec();
 
           communityUpdatePromise
@@ -266,7 +264,7 @@ export async function joinCommunity(
               );
             });
 
-          newStatus = 'PENDING';
+          newStatus = U2CR.PENDING;
         }
       }
 
@@ -279,7 +277,7 @@ export async function joinCommunity(
         if (community.private === false) {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { joinedCommunities: communityID } }
+            { $addToSet: { joinedCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -297,11 +295,11 @@ export async function joinCommunity(
               );
             });
 
-          newStatus = 'JOINED';
+          newStatus = U2CR.JOINED;
         } else {
           userUpdatePromise = User.updateOne(
             { _id: userID },
-            { $push: { pendingCommunities: communityID } }
+            { $addToSet: { pendingCommunities: communityID } }
           ).exec();
 
           userUpdatePromise
@@ -319,7 +317,7 @@ export async function joinCommunity(
               );
             });
 
-          newStatus = 'PENDING';
+          newStatus = U2CR.PENDING;
         }
       }
 
@@ -433,14 +431,14 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   try {
     const communityPromise = Community.updateOne(
       { _id: communityID },
-      { $pull: { pendingMembers: userID }, $push: { members: userID } }
+      { $pull: { pendingMembers: userID }, $addToSet: { members: userID } }
     ).exec();
 
     const userPromise = User.updateOne(
       { _id: userID },
       {
         $pull: { pendingCommunities: communityID },
-        $push: { joinedCommunities: communityID },
+        $addToSet: { joinedCommunities: communityID },
       }
     ).exec();
 
@@ -474,7 +472,9 @@ export async function leaveCommunity(communityID: string, userID: string) {
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `User ${userID} left community ${communityID}`);
-        return sendPacket(1, 'Successfully left community', { newStatus: 'OPEN' });
+        return sendPacket(1, 'Successfully left community', {
+          newStatus: U2CR.OPEN,
+        });
       })
       .catch((err) => {
         log('error', err);
@@ -505,7 +505,7 @@ export function cancelCommunityPendingRequest(communityID: string, userID: strin
           `User ${userID} cancelled pending request for community ${communityID}`
         );
         return sendPacket(1, 'Successfully cancelled pending request', {
-          newStatus: 'OPEN',
+          newStatus: U2CR.OPEN,
         });
       })
       .catch((err) => {
@@ -1058,3 +1058,47 @@ export async function getCommunityMembers(
     return sendPacket(-1, err);
   }
 }
+
+export async function updateFields(
+  communityID: string,
+  fields: { [key: string]: any }
+) {
+  const acceptedFields = ['description', 'name', 'type', 'private'];
+  const updates: {
+    description?: string;
+    private?: boolean;
+    type?: CommunityType;
+    name?: string;
+  } = Object.assign(
+    {},
+    ...Object.keys(fields)
+      .filter((k) => acceptedFields.includes(k))
+      .map((key) => ({ [key]: fields[key] }))
+  );
+
+  try {
+    await Community.updateOne({ _id: communityID }, updates).exec();
+    return sendPacket(1, 'Successfully updated community');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'There was an error trying to update the community', {
+      error: err.message,
+    });
+  }
+}
+
+export const getCommunitiesGeneric = async (
+  _ids: string[],
+  params: {
+    fields?: typeof CommunityC.AcceptedFields[number][];
+    options?: CommunityGetOptions;
+  }
+) => {
+  try {
+    const communities = await CommunityC.getByIDs(_ids, params);
+    return sendPacket(1, 'Successfully retrieved communities', { communities });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
+  }
+};

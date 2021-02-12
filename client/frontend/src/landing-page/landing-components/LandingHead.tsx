@@ -4,14 +4,15 @@ import { AppBar, Toolbar } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { Link } from 'react-router-dom';
 
-import RootShareLogoWhite from '../../images/RootShareLogoWhite.png';
+import RootShareLogo from '../../images/RootShareLogoFull.png';
 
 import { colors } from '../../theme/Colors';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   header: {
     marginBottom: '5px',
-    background: colors.second,
+    background: Theme.primary,
     width: '100vw',
     minWidth: 450,
   },
@@ -40,7 +41,7 @@ function LandingHead(props: Props) {
         <div className={styles.headerTitle}>
           <a href="/">
             <img
-              src={RootShareLogoWhite}
+              src={RootShareLogo}
               alt="RootShare"
               className={styles.headerLogo}
             />
@@ -48,7 +49,7 @@ function LandingHead(props: Props) {
         </div>
         <div className={styles.loginButton}>
           <Link to="/login" style={{ textDecoration: 'none' }}>
-            <RSText type="subhead" size={15} color={colors.primaryText}>
+            <RSText type="subhead" size={15} color={Theme.white}>
               Login
             </RSText>
           </Link>

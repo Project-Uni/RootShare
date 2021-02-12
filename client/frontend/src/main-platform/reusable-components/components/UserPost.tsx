@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import qs from 'query-string';
 
 import { GiTreeBranch } from 'react-icons/gi';
@@ -23,22 +23,26 @@ import Carousel, { Modal, ModalGateway } from 'react-images';
 
 import { Comment } from '../';
 import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
-import { colors } from '../../../theme/Colors';
 import {
   formatDatePretty,
   formatTime,
   makeRequest,
-  slideLeft,
 } from '../../../helpers/functions';
 
 import LikesModal from './LikesModal';
-import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import Theme from '../../../theme/Theme';
+
+import {
+  dispatchHoverPreview,
+  dispatchSnackbar,
+} from '../../../redux/actions/interactions';
+import { putLikeStatus } from '../../../api/put/putLikeStatus';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: colors.primaryText,
+    background: Theme.white,
     borderRadius: 10,
     padding: 1,
   },
@@ -95,7 +99,7 @@ const useStyles = makeStyles((_: any) => ({
     lineHeight: 1.3,
   },
   seeMoreButton: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     marginRight: 38,
   },
   seeMoreButtonDiv: {
@@ -119,7 +123,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   commentProfile: {
-    border: `1px solid ${colors.fourth}`,
+    border: `1px solid ${Theme.primaryText}`,
   },
   leaveCommentContainer: {
     display: 'flex',
@@ -131,7 +135,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 15,
   },
   loadingIndicator: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     marginTop: 8,
     marginBottom: 8,
   },
@@ -188,8 +192,6 @@ type Props = {
   anonymous?: boolean;
   liked?: boolean;
   user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
   images?: { fileName: string }[];
 };
 
@@ -210,6 +212,8 @@ function UserPost(props: Props) {
   const styles = useStyles();
   const textFieldStyles = useTextFieldStyles();
 
+  const dispatch = useDispatch();
+
   const [showFullMessage, setShowFullMessage] = useState(false);
   const [liked, setLiked] = useState(props.liked);
   const [likeCount, setLikeCount] = useState(props.likeCount);
@@ -229,16 +233,12 @@ function UserPost(props: Props) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
-  const [transition, setTransition] = useState<any>();
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-
   const [isDeleted, setIsDeleted] = useState(false);
   const [showDeletedMessage, setShowDeletedMessage] = useState(false);
 
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
+
+  const isHovering = useRef(false);
 
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
@@ -246,14 +246,7 @@ function UserPost(props: Props) {
 
   async function likePost() {
     setLikeDisabled(true);
-    const { data } = await makeRequest(
-      'POST',
-      `/api/posts/action/${props.postID}/like`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const data = await putLikeStatus(props.postID, 'like');
     if (data.success === 1) {
       setLiked(true);
       setLikeCount(likeCount + 1);
@@ -263,14 +256,7 @@ function UserPost(props: Props) {
 
   async function unlikePost() {
     setLikeDisabled(true);
-    const { data } = await makeRequest(
-      'POST',
-      `/api/posts/action/${props.postID}/unlike`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const data = await putLikeStatus(props.postID, 'unlike');
     if (data.success === 1) {
       setLiked(false);
       setLikeCount(likeCount - 1);
@@ -303,10 +289,7 @@ function UserPost(props: Props) {
     const { data } = await makeRequest(
       'POST',
       `/api/posts/comment/new/${props.postID}`,
-      { message },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { message }
     );
 
     if (data.success === 1) {
@@ -333,14 +316,7 @@ function UserPost(props: Props) {
 
   async function handleRetrieveComments() {
     setLoadingMoreComments(true);
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/comments/${props.postID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/comments/${props.postID}`);
 
     if (data.success == 1) {
       if (data.content['comments'].length > 0)
@@ -359,11 +335,7 @@ function UserPost(props: Props) {
     const query = qs.stringify({ from: earliestComment });
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/comments/${props.postID}?${query}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/posts/comments/${props.postID}?${query}`
     );
 
     if (data.success == 1) {
@@ -394,16 +366,36 @@ function UserPost(props: Props) {
         setIsDeleted(true);
         setShowDeletedMessage(true);
         setTimeout(() => setShowDeletedMessage(false), 5000);
-        setSnackbarMessage('Successfully deleted post');
-        setSnackbarMode('notify');
-        setTransition(() => slideLeft);
+        dispatch(
+          dispatchSnackbar({ message: 'Successfully deleted post', mode: 'notify' })
+        );
       } else {
-        setSnackbarMessage('There was an error trying to delete this post');
-        setSnackbarMode('error');
-        setTransition(() => slideLeft);
+        dispatch(
+          dispatchSnackbar({
+            message: 'There was an error trying to delete this post',
+            mode: 'error',
+          })
+        );
       }
     }
   }
+
+  const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
+    isHovering.current = true;
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (isHovering.current)
+        dispatch(
+          dispatchHoverPreview({
+            _id: props.posterID,
+            type: props.anonymous ? 'community' : 'user',
+            profilePicture: props.profilePicture,
+            name: props.name,
+            anchorEl: currentTarget,
+          })
+        );
+    }, 300);
+  };
 
   function renderPostHeader() {
     return (
@@ -430,8 +422,12 @@ function UserPost(props: Props) {
                   props.posterID
                 }`}
                 className={styles.noUnderline}
+                onMouseEnter={handleMouseOver}
+                onMouseLeave={() => {
+                  isHovering.current = false;
+                }}
               >
-                <RSText type="subhead" color={colors.secondary} bold size={14}>
+                <RSText type="subhead" bold size={14}>
                   {props.name}
                 </RSText>
               </a>
@@ -439,7 +435,7 @@ function UserPost(props: Props) {
               {props.toCommunity && (
                 <>
                   <GiTreeBranch
-                    color={colors.secondary}
+                    color={Theme.secondaryText}
                     size={16}
                     className={styles.plantIcon}
                   />
@@ -447,7 +443,7 @@ function UserPost(props: Props) {
                     href={`/community/${props.toCommunityID}`}
                     className={styles.noUnderline}
                   >
-                    <RSText type="subhead" color={colors.secondary} bold size={14}>
+                    <RSText type="subhead" bold size={14}>
                       {props.toCommunity}
                     </RSText>
                   </a>
@@ -460,7 +456,7 @@ function UserPost(props: Props) {
                 />
               )}
             </div>
-            <RSText type="subhead" color={colors.secondaryText} size={12}>
+            <RSText type="subhead" color={Theme.secondaryText} size={12}>
               {props.timestamp}
             </RSText>
           </div>
@@ -471,7 +467,7 @@ function UserPost(props: Props) {
               style={{ height: 30 }}
               onClick={(event: any) => setMenuAnchorEl(event.currentTarget)}
             >
-              <FaEllipsisH color={colors.secondaryText} size={16} />
+              <FaEllipsisH color={Theme.secondaryText} size={16} />
             </IconButton>
             <Menu
               open={Boolean(menuAnchorEl)}
@@ -479,7 +475,7 @@ function UserPost(props: Props) {
               onClose={() => setMenuAnchorEl(null)}
             >
               <MenuItem onClick={handleDeleteClicked}>
-                <RSText color={colors.brightError}>Delete</RSText>
+                <RSText color={Theme.error}>Delete</RSText>
               </MenuItem>
             </Menu>
           </div>
@@ -493,7 +489,7 @@ function UserPost(props: Props) {
       <div className={styles.message}>
         <RSText
           type="body"
-          color={colors.secondary}
+          color={Theme.primaryText}
           size={12}
           className={styles.messageBody}
         >
@@ -520,15 +516,15 @@ function UserPost(props: Props) {
             disabled={likeDisabled}
           >
             {liked ? (
-              <BsStarFill color={colors.bright} size={24} />
+              <BsStarFill color={Theme.bright} size={24} />
             ) : (
-              <BsStar color={colors.bright} size={24} />
+              <BsStar color={Theme.bright} size={24} />
             )}
           </DynamicIconButton>
 
           <RSText
             type="body"
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
             size={12}
             className={styles.likes}
             onClick={() => {
@@ -539,7 +535,7 @@ function UserPost(props: Props) {
           </RSText>
           <RSText
             type="body"
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
             size={12}
             className={[styles.commentCount, styles.commentCountLink].join(' ')}
             onClick={commentCount > 0 ? handleShowComments : undefined}
@@ -578,7 +574,7 @@ function UserPost(props: Props) {
           error={commentErr !== ''}
         />
         <DynamicIconButton onClick={handleSendComment}>
-          <MdSend size={22} color={colors.bright} />
+          <MdSend size={22} color={Theme.bright} />
         </DynamicIconButton>
       </div>
     );
@@ -587,7 +583,7 @@ function UserPost(props: Props) {
   function renderDeletedMessage() {
     return showDeletedMessage ? (
       <div>
-        <RSText color={colors.success} italic>
+        <RSText color={Theme.success} italic>
           Successfully deleted post!
         </RSText>
       </div>
@@ -617,12 +613,6 @@ function UserPost(props: Props) {
 
   return (
     <>
-      <ManageSpeakersSnackbar
-        mode={snackbarMode}
-        message={snackbarMessage}
-        transition={transition}
-        handleClose={() => setSnackbarMode(null)}
-      />
       {renderDeletedMessage()}
       <Box
         borderRadius={10}
@@ -696,8 +686,6 @@ function UserPost(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

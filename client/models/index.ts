@@ -9,7 +9,11 @@ import User from './users';
 import Webinar from './webinars';
 import CommunityEdge from './community_edges';
 import Image from './images';
-import MeetTheGreekEvent from './meet_the_greek_event';
+
+import MeetTheGreekInterest from './meet_the_greek_interest';
+
+import ExternalCommunication from './external_communication';
+import Search from './searches';
 
 export {
   Comment,
@@ -18,10 +22,12 @@ export {
   Connection,
   Conversation,
   Image,
-  MeetTheGreekEvent,
   Message,
   Post,
   University,
   User,
   Webinar,
+  MeetTheGreekInterest,
+  ExternalCommunication,
+  Search,
 };

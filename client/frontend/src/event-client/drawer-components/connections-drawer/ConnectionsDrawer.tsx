@@ -11,6 +11,7 @@ import MyConnections from '../images/MyConnections.png';
 import { colors } from '../../../theme/Colors';
 import { UserType, ConnectionRequestType } from '../../../helpers/types';
 import { makeRequest } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -30,35 +31,35 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   connectionContainer: {
     flex: 1,
     justifyContent: 'flex-start',
-    background: colors.secondary,
+    background: Theme.white,
     overflowY: 'scroll',
     overflowX: 'hidden',
-    label: colors.primaryText,
+    label: Theme.primaryText,
   },
   sectionHeader: {
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
     borderTopStyle: 'solid',
-    borderTopColor: colors.primaryText,
+    borderTopColor: Theme.dark,
     borderTopWidth: '1px',
     paddingTop: 10,
     paddingBottom: 3,
   },
   sectionName: {
-    color: colors.primaryText,
+    color: Theme.primaryText,
     size: 20,
   },
   pendingContainer: {
     maxHeight: 194,
     overflow: 'scroll',
     borderTopStyle: 'solid',
-    borderTopColor: colors.primary,
+    borderTopColor: Theme.primary,
     borderTopWidth: '2px',
     marginTop: 5,
   },
@@ -83,40 +84,19 @@ function ConnectionsDrawer(props: Props) {
   }, []);
 
   async function fetchPendingRequests() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getPendingRequests',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getPendingRequests');
 
     if (data['success'] === 1) setPending(data['content']['pendingRequests']);
   }
 
   async function fetchConnectionSuggestions() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnectionSuggestions',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getConnectionSuggestions');
 
     if (data['success'] === 1) setSuggestions(data['content']['suggestions']);
   }
 
   async function fetchConnections() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnections',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getConnections');
 
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
@@ -195,8 +175,6 @@ function ConnectionsDrawer(props: Props) {
           removeSuggestion={removeSuggestion}
           key={currSuggestion._id}
           suggestedUser={currSuggestion}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
         />
       );
     }
@@ -216,12 +194,7 @@ function ConnectionsDrawer(props: Props) {
     for (let i = 0; i < connections.length; i++) {
       const currConnection = connections[i];
       output.push(
-        <SingleConnection
-          key={currConnection._id}
-          connectedUser={currConnection}
-          // accessToken={props.accessToken}
-          // refreshToken={props.refreshToken}
-        />
+        <SingleConnection key={currConnection._id} connectedUser={currConnection} />
       );
     }
     return output;

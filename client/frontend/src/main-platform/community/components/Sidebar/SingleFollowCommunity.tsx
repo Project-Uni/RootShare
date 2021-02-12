@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectButton: {
     color: theme.altText,
-    background: colors.bright,
+    background: theme.bright,
     marginLeft: 7,
   },
   joinedText: {
@@ -60,8 +60,6 @@ type Props = {
   _id: string;
   isLast?: boolean;
   members: number;
-  accessToken: string;
-  refreshToken: string;
 };
 
 function SingleFollowCommunity(props: Props) {

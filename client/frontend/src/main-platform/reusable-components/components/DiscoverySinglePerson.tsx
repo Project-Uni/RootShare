@@ -9,6 +9,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -31,18 +32,24 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primaryText,
+      color: theme.primary,
     },
   },
   removeButton: {
     color: theme.altText,
-    background: colors.secondary,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   connectButton: {
     color: theme.altText,
     background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -87,17 +94,7 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.userID);
     if (data['success'] === 1) {
       props.setNotification('success', data['message']);
       removeSuggestion();

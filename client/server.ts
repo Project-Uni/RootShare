@@ -1,9 +1,14 @@
+const isProd = process.env.NODE_ENV !== 'dev';
+
+const { ELASTIC_APM_SECRET_TOKEN } = require('../keys/keys.json');
+
 require('dotenv').config();
 
 import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
@@ -16,6 +21,12 @@ import postRoutes from './routes/posts';
 import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
+import university from './routes/university';
+import utilityRoutes from './routes/utilities';
+import {
+  elasticMiddleware,
+  initialize as initializeElasticSearch,
+} from './helpers/functions/elasticSearch';
 
 const mongoConfig = require('./config/mongoConfig');
 const fs = require('fs');
@@ -32,13 +43,11 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
 
-initializeDirectory();
-
 const app = express();
 const port = process.env.PORT || 8000;
 
 app.use(pino());
-app.use(bodyParser.json({ limit: '1.5mb', type: 'application/json' }));
+app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   expressSession({
@@ -52,7 +61,58 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
+if (isProd) {
+  const apm = require('elastic-apm-node').start({
+    serviceName: 'rootshare-client',
+    secretToken: ELASTIC_APM_SECRET_TOKEN,
+    serverUrl:
+      'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
+  });
+
+  initializeDirectory();
+  initializeElasticSearch();
+  app.use(elasticMiddleware);
+}
+
 // app.use(rateLimiter);
+
+//Swagger config
+if (!isProd) {
+  const swaggerUI = require('swagger-ui-express');
+  const swaggerJsdoc = require('swagger-jsdoc');
+  const options = {
+    definition: {
+      openapi: '3.0.0',
+      info: {
+        title: 'RootShare Swagger Specs',
+        version: '0.1.0',
+        description: 'Documentation for RootShare API Calls',
+        license: {
+          name: 'MIT',
+          url: 'https://spdx.org/licenses/MIT.html',
+        },
+        contact: {
+          name: 'RootShare',
+          url: 'https://rootshare.io',
+          email: 'dev@rootshare.io',
+        },
+      },
+      servers: [
+        {
+          url: 'http://localhost:8000',
+        },
+        {
+          url: 'http://cache.rootshare.io/api',
+        },
+      ],
+    },
+    apis: ['routes/*.ts', 'models/*.ts'],
+  };
+
+  const specs = swaggerJsdoc(options);
+  app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
+}
 
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -64,9 +124,6 @@ require('./routes/messaging')(app, io);
 
 require('./routes/opentok')(app);
 require('./routes/event')(app);
-require('./routes/utilities')(app);
-require('./routes/mocks')(app);
-
 require('./routes/proxy')(app);
 
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
@@ -77,6 +134,8 @@ postRoutes(app);
 imageRoutes(app);
 mtgRoutes(app);
 webhooks(app);
+university(app);
+utilityRoutes(app);
 
 require('./config/setup')(passport);
 

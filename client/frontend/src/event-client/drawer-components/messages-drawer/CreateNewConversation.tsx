@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { makeRequest } from '../../../helpers/functions';
 
 import MessageTextField from './MessageTextField';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -26,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   cancelButton: {},
   cancelText: {
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   conversationsTitle: {
     height: '25px',
@@ -34,22 +35,22 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     margin: 'auto',
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   filler: {
-    color: colors.secondary,
+    color: Theme.altText,
   },
   searchBarContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    background: colors.secondary,
+    background: Theme.white,
     overflow: 'scroll',
-    label: colors.primaryText,
+    label: Theme.primaryText,
     borderTopStyle: 'solid',
-    borderTopColor: colors.primaryText,
+    borderTopColor: Theme.primaryText,
     borderTopWidth: '1px',
     borderBottomStyle: 'solid',
-    borderBottomColor: colors.primaryText,
+    borderBottomColor: Theme.primaryText,
     borderBottomWidth: '1px',
     marginTop: '-2px',
     paddingTop: 10,
@@ -61,19 +62,19 @@ const useStyles = makeStyles((_: any) => ({
       borderRadius: 40,
     },
     width: '100%',
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
     borderRadius: 40,
   },
   cssLabel: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
   },
   cssFocused: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
     borderWidth: '1px',
-    borderColor: '#f2f2f2 !important',
+    borderColor: `${Theme.dark} !important`,
   },
 }));
 

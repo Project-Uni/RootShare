@@ -15,7 +15,13 @@ import RSTabs from './components/RSTabs';
 import RSModal from './components/RSModal/RSModal';
 import BigButton from './components/RSModal/BigButton';
 
-import UserSearch from './components/UserSearch';
+import SearchField from './components/SearchField';
+
+import RSButton from './components/RSButton';
+
+import HoverPreview from './components/HoverPreview';
+
+import SnackbarNotification from './components/SnackbarNotification';
 
 export {
   MainNavigator,
@@ -29,5 +35,8 @@ export {
   RSTabs,
   RSModal,
   BigButton,
-  UserSearch,
+  SearchField,
+  RSButton,
+  HoverPreview,
+  SnackbarNotification,
 };

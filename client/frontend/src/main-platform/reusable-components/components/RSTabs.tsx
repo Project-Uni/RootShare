@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -12,12 +13,20 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   selectedTab: {
-    background: colors.bright,
+    background: Theme.white,
+    color: Theme.primary,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
   },
   notSelectedTab: {
-    background: 'rgb(232, 232, 232)',
+    background: Theme.primaryHover,
+    color: Theme.white,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
     '&:hover': {
-      background: colors.brightHover,
+      background: Theme.primary,
+      color: Theme.white,
+
     },
   },
   tab: {
@@ -27,12 +36,6 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  whiteText: {
-    color: colors.primaryText,
-  },
-  grayText: {
-    color: colors.secondaryText,
   },
 }));
 
@@ -64,11 +67,6 @@ function RSTabs(props: Props) {
         >
           <RSText
             size={11}
-            className={
-              props.selected === props.tabs[i].value
-                ? styles.whiteText
-                : styles.grayText
-            }
           >
             {props.tabs[i].label.toUpperCase()}
           </RSText>

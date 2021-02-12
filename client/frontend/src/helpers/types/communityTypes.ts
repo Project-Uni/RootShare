@@ -12,22 +12,23 @@ export type Community = {
   members: string[];
   pendingMembers: string[];
   private: boolean;
-  type:
-    | 'Social'
-    | 'Business'
-    | 'Just for Fun'
-    | 'Athletics'
-    | 'Student Organization'
-    | 'Academic';
+  type: CommunityType;
   incomingPendingCommunityFollowRequests: string[];
   numMembers?: number;
   numMutual?: number;
   profilePicture?: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   isMTGFlag?: boolean; //For Meet the Greeks
 };
 
-export type CommunityStatus = 'PENDING' | 'JOINED' | 'OPEN';
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
+
+export const U2CR = {
+  PENDING: 'pending',
+  JOINED: 'joined',
+  OPEN: 'open',
+  ADMIN: 'admin',
+} as const;
 
 export type CommunityType =
   | 'Social'
@@ -35,7 +36,18 @@ export type CommunityType =
   | 'Just for Fun'
   | 'Athletics'
   | 'Student Organization'
-  | 'Academic';
+  | 'Academic'
+  | 'Greek';
+
+export const COMMUNITY_TYPES = [
+  'Social',
+  'Business',
+  'Just for Fun',
+  'Athletics',
+  'Student Organization',
+  'Academic',
+  'Greek',
+];
 
 export type AdminCommunityServiceResponse = {
   _id: string;

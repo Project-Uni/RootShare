@@ -9,18 +9,14 @@ import { MessageType } from '../../helpers/types';
 import { makeRequest, getConversationTime } from '../../helpers/functions';
 
 import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
-
+import Theme from '../../theme/Theme';
+import { putUpdateUserConnection } from '../../api';
 const ITEM_HEIGHT = 48;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    background: '#242d56',
     paddingBottom: 4,
-    borderTopStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: 'lightgray',
     display: 'flex',
   },
   top: {
@@ -42,13 +38,11 @@ const useStyles = makeStyles((_: any) => ({
   senderName: {
     margin: 10,
     display: 'inline-block',
-    color: '#f2f2f2',
     wordWrap: 'break-word',
     maxWidth: 240,
   },
   message: {
     textAlign: 'left',
-    color: '#f2f2f2',
     marginLeft: 10,
     marginRight: 10,
     marginTop: 7,
@@ -61,21 +55,19 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     marginTop: -10,
   },
-  likeCount: {
-    color: '#f2f2f2',
-  },
+  likeCount: {},
   star: {
     '&:hover': {
-      color: colors.primaryText,
+      color: Theme.secondaryText,
       cursor: 'pointer',
     },
     marginTop: -10,
     marginBottom: 3,
-    color: '#6699ff',
+    color: Theme.bright,
   },
   starGray: {
     '&:hover': {
-      color: colors.primaryText,
+      color: Theme.bright,
       cursor: 'pointer',
     },
     marginTop: -10,
@@ -89,7 +81,6 @@ const useStyles = makeStyles((_: any) => ({
   },
   ellipsis: {
     '&:hover': {
-      color: colors.primaryText,
       cursor: 'pointer',
     },
     color: 'grey',
@@ -166,15 +157,9 @@ function EventMessage(props: Props) {
   }
 
   async function handleConnect() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.message.sender as string,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
+    const data = await putUpdateUserConnection(
+      'connect',
+      props.message.sender as string
     );
     setAnchorEl(null);
 
@@ -224,7 +209,7 @@ function EventMessage(props: Props) {
         <MenuItem onClick={handleConnect}>Connect</MenuItem>
         {props.isHost && (
           <MenuItem onClick={handleRemoveUser}>
-            <RSText color={colors.brightError} size={12}>
+            <RSText color={Theme.error} size={12}>
               Remove
             </RSText>
           </MenuItem>
@@ -234,69 +219,71 @@ function EventMessage(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper}>
-      <ManageSpeakersSnackbar
-        message={snackbarMessage}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={() => setSnackbarMode(null)}
-      />
-      <div className={styles.left}>
-        <div className={styles.top}>
-          <RSText bold className={styles.senderName}>
-            {props.message.senderName}
-          </RSText>
-          <RSText size={10} className={styles.time}>
-            {getConversationTime(new Date(props.message.createdAt))}
-          </RSText>
-        </div>
-        <div className={styles.bottom}>
-          <RSText className={styles.message}>{props.message.content}</RSText>
-        </div>
-      </div>
-      <div className={styles.right}>
-        <FaEllipsisH
-          aria-label="more"
-          aria-controls="long-menu"
-          aria-haspopup="true"
-          onClick={handleOptionsClick}
-          className={styles.ellipsis}
-          size={17}
+    <div>
+      <div className={styles.wrapper}>
+        <ManageSpeakersSnackbar
+          message={snackbarMessage}
+          transition={transition}
+          mode={snackbarMode}
+          handleClose={() => setSnackbarMode(null)}
         />
+        <div className={styles.left}>
+          <div className={styles.top}>
+            <RSText bold className={styles.senderName}>
+              {props.message.senderName}
+            </RSText>
+            <RSText size={10} className={styles.time}>
+              {getConversationTime(new Date(props.message.createdAt))}
+            </RSText>
+          </div>
+          <div className={styles.bottom}>
+            <RSText className={styles.message}>{props.message.content}</RSText>
+          </div>
+        </div>
+        <div className={styles.right}>
+          <FaEllipsisH
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleOptionsClick}
+            className={styles.ellipsis}
+            size={17}
+          />
 
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={menuOpen}
-          onClose={handleClose}
-          PaperProps={{
-            style: {
-              maxHeight: ITEM_HEIGHT * 4.5,
-              width: 200,
-            },
-          }}
-        >
-          {renderOptions()}
-        </Menu>
-        {liked ? (
-          <FaStar
-            // disabled={loadingLike}
-            className={styles.star}
-            onClick={handleLikeClicked}
-            size={20}
-          />
-        ) : (
-          <FaRegStar
-            // disabled={loadingLike}
-            className={styles.starGray}
-            onClick={handleLikeClicked}
-            size={20}
-          />
-        )}
-        <RSText size={10} className={styles.likeCount}>
-          {numLikes}
-        </RSText>
+          <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={menuOpen}
+            onClose={handleClose}
+            PaperProps={{
+              style: {
+                maxHeight: ITEM_HEIGHT * 4.5,
+                width: 200,
+              },
+            }}
+          >
+            {renderOptions()}
+          </Menu>
+          {liked ? (
+            <FaStar
+              // disabled={loadingLike}
+              className={styles.star}
+              onClick={handleLikeClicked}
+              size={20}
+            />
+          ) : (
+            <FaRegStar
+              // disabled={loadingLike}
+              className={styles.starGray}
+              onClick={handleLikeClicked}
+              size={20}
+            />
+          )}
+          <RSText size={10} className={styles.likeCount}>
+            {numLikes}
+          </RSText>
+        </div>
       </div>
     </div>
   );

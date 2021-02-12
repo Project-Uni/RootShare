@@ -12,8 +12,6 @@ import {
 } from '@material-ui/core';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 
-import Draggable from 'react-draggable';
-
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -28,6 +26,7 @@ import {
 } from './profileHelpers/profilePictureHelpers';
 import { log, makeRequest } from '../helpers/functions';
 import RSText from './RSText';
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -47,20 +46,26 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   paper: {
-    background: colors.secondary,
+    background: Theme.white,
   },
   dialogText: {
-    color: colors.primaryText,
+    color: Theme.dark,
   },
   cancelButton: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
   },
   saveButton: {
-    background: colors.bright,
-    color: colors.primaryText,
+    background: Theme.bright,
+    color: Theme.white,
   },
   loadingIndicator: {
-    color: colors.primaryText,
+    color: Theme.bright,
+  },
+  disabledButton: {
+    background: Theme.disabledButton,
+    color: Theme.white,
+    marginLeft: 10,
+    marginRight: 1,
   },
 }));
 
@@ -201,7 +206,8 @@ function ProfilePicture(props: Props) {
     if (
       !currentPicture ||
       currentPicture.length < 4 ||
-      currentPicture.substring(0, 4) !== 'http'
+      (currentPicture.substring(0, 4) !== 'http' &&
+        currentPicture.substring(0, 4) !== 'data')
     )
       currentPicture = DefaultProfilePicture;
 
@@ -232,7 +238,7 @@ function ProfilePicture(props: Props) {
         <div className={styles.cameraContainer}>
           {hovering && (
             <FaCamera
-              color={colors.secondaryText}
+              color={Theme.primaryText}
               size={32}
               style={{
                 position: 'absolute',
@@ -320,7 +326,7 @@ function ProfilePicture(props: Props) {
             Cancel
           </Button>
           <Button
-            className={styles.saveButton}
+            className={Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton}
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >

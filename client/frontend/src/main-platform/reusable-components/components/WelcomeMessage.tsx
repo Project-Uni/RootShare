@@ -5,6 +5,7 @@ import { Button, Icon } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
+import Theme from '../../../theme/Theme';
 
 import { MdGroup } from 'react-icons/md';
 import theme from '../../../theme/Theme';
@@ -31,13 +32,13 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 25,
   },
   discoverButton: {
-    background: colors.bright,
+    background: Theme.bright,
     color: 'white',
     fontSize: 14,
     paddingLeft: 30,
     paddingRight: 30,
     '&:hover': {
-      background: colors.ternary,
+      background: Theme.brightHover,
     },
   },
 }));
@@ -55,14 +56,14 @@ function WelcomeMessage(props: Props) {
   return (
     <div className={styles.welcomeMessage}>
       <div className={styles.welcomeTextContainer}>
-        <RSText type="head" size={24} color={colors.secondary} bold>
+        <RSText type="head" size={24} color={Theme.primaryText} bold>
           {props.title}
           {props.counter && props.counter !== 0 ? ` | ${props.counter}` : ''}
         </RSText>
         <RSText
           type="subhead"
           size={14}
-          color={colors.secondaryText}
+          color={Theme.secondaryText}
           className={styles.welcomeBrief}
         >
           {props.message}

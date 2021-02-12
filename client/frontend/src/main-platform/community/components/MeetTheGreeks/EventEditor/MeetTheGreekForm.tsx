@@ -1,23 +1,14 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import {
-  CircularProgress,
-  TextField,
-  Button,
-  FormHelperText,
-  makeStyles,
-} from '@material-ui/core';
+import React, { ChangeEvent } from 'react';
+import { TextField, FormHelperText, makeStyles } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import theme from '../../../../../theme/Theme';
-import { colors } from '../../../../../theme/Colors';
-
-import { BigButton, UserSearch } from '../../../../reusable-components';
-import { SearchOption } from '../../../../reusable-components/components/UserSearch';
+import { BigButton, SearchField } from '../../../../reusable-components';
+import { SearchOption } from '../../../../reusable-components/components/SearchField';
 import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 
-import { IFormData, IFormErrors } from './MeetTheGreeksModal';
+import { IFormData } from './MeetTheGreeksModal';
 
 const useStyles = makeStyles((_: any) => ({
   textField: {
@@ -38,13 +29,13 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   loading?: boolean;
   formFields: IFormData;
-  formErrors: IFormErrors;
+  formErrors: { [key in keyof IFormData]: string };
   handleChange: (key: keyof IFormData) => (e: ChangeEvent<HTMLInputElement>) => void;
   handleDateChange: (key: keyof IFormData) => (date: Date) => void;
-  updateFields: (
+  updateFields: <K extends keyof IFormData>(
     fields: {
-      key: keyof IFormData;
-      value: any;
+      key: K;
+      value: IFormData[K];
     }[]
   ) => void;
   communityMembers: SearchOption[];
@@ -114,12 +105,11 @@ function MeetTheGreekForm(props: Props) {
         key="introURL"
         className={styles.textField}
         autoComplete="off"
-        required
         helperText={formErrors.introVideoURL}
         error={formErrors.introVideoURL !== ''}
       />
 
-      <RSText type="body" bold size={12} className={styles.fieldLabel}>
+      {/* <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Event Date & Time
       </RSText>
       <FormHelperText className={styles.dateBox}>
@@ -132,19 +122,19 @@ function MeetTheGreekForm(props: Props) {
             onChange={(date) =>
               handleDateChange('eventTime')(new Date(date as Date))
             }
-            minDate={new Date('January 17, 2021')}
-            minDateMessage={'Event Must Be on January 17th'}
-            maxDate={new Date('January 19, 2021')}
+            minDate={new Date('Jan 17 2021 13:00:00 EST')}
+            minDateMessage={'Event Must Be on January 17th after 1 PM'}
+            maxDate={new Date('Jan 17 2021 17:00:00 EST')}
             maxDateMessage={'Event Must be before January 19th'}
             className={styles.dateBox}
             key="datePicker"
           />
         </MuiPickersUtilsProvider>
-      </FormHelperText>
+      </FormHelperText> */}
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Meet The Greeks Speakers
       </RSText>
-      <UserSearch
+      <SearchField
         label="Speakers"
         className={styles.textField}
         name="speakers"

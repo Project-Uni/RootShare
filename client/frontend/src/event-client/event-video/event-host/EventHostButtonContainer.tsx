@@ -9,8 +9,19 @@ import {
   MicrophoneOff,
 } from '@styled-icons/boxicons-solid';
 
-import { colors } from '../../../theme/Colors';
 import ManageSpeakersDialog from './ManageSpeakersDialog';
+import ManageSpeakersSnackbar from './ManageSpeakersSnackbar';
+import { RSText } from '../../../base-components';
+
+import { colors } from '../../../theme/Colors';
+import { slideLeft } from '../../../helpers/functions';
+import {
+  SnackbarMode,
+  SpeakRequestType,
+  SpeakerMode,
+  GuestSpeaker,
+} from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -23,15 +34,15 @@ const useStyles = makeStyles((_: any) => ({
   buttonDefault: {
     marginLeft: 8,
     marginBottom: 'auto',
-    backgroundColor: colors.secondary,
+    backgroundColor: Theme.bright,
     color: 'white',
     '&:hover': {
-      backgroundColor: colors.ternary,
+      backgroundColor: Theme.brightHover,
     },
   },
   cameraIcon: {},
   disabledButton: {
-    background: 'lightgray',
+    background: Theme.disabledButton,
   },
 }));
 
@@ -46,9 +57,17 @@ type Props = {
   toggleMute: () => void;
   toggleScreenshare: () => void;
   loading: boolean;
-  mode: 'admin' | 'speaker';
-  removeGuestSpeaker: (connection: OT.Connection) => void;
+  mode: SpeakerMode;
+  removeGuestSpeaker: (
+    speaker: GuestSpeaker,
+    callback?: (success: boolean) => void
+  ) => void;
   sessionID: string;
+
+  speakRequests: SpeakRequestType[];
+  removeSpeakRequest: (viewerID: string) => void;
+  currentGuestSpeakers: GuestSpeaker[];
+  setCurrentGuestSpeakers: (guestSpeakers: GuestSpeaker[]) => void;
 };
 
 function EventHostButtonContainer(props: Props) {
@@ -57,9 +76,11 @@ function EventHostButtonContainer(props: Props) {
   const [showManageDialog, setShowManageDialog] = useState(false);
   const [manageSpeakersDisabled, setManageSpeakersDisabled] = useState(false);
 
-  function handleManageSpeakersClick() {
-    setShowManageDialog(true);
-  }
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMode, setSnackbarMode] = useState<
+    'success' | 'error' | 'notify' | null
+  >(null);
+  const [transition, setTransition] = useState<any>();
 
   function handleOnSpeakerAdd(user: { [key: string]: any }) {
     setManageSpeakersDisabled(true);
@@ -71,22 +92,35 @@ function EventHostButtonContainer(props: Props) {
     setShowManageDialog(false);
   }
 
-  function handleManageSpeakersCancel() {
-    setShowManageDialog(false);
+  function handleSnackbar(message: string, mode: SnackbarMode) {
+    setSnackbarMessage(message);
+    setSnackbarMode(mode);
+    setTransition(() => slideLeft);
   }
 
   return (
     <div className={styles.wrapper}>
+      <ManageSpeakersSnackbar
+        message={snackbarMessage}
+        transition={transition}
+        mode={snackbarMode}
+        handleClose={() => setSnackbarMode(null)}
+      />
       <ManageSpeakersDialog
         open={showManageDialog}
-        onCancel={handleManageSpeakersCancel}
+        onClose={() => setShowManageDialog(false)}
+        handleSnackbar={handleSnackbar}
         onAdd={handleOnSpeakerAdd}
         webinarID={props.webinarID}
         removeGuestSpeaker={props.removeGuestSpeaker}
         sessionID={props.sessionID}
+        speakRequests={props.speakRequests}
+        removeSpeakRequest={props.removeSpeakRequest}
+        currentGuestSpeakers={props.currentGuestSpeakers}
+        setCurrentGuestSpeakers={props.setCurrentGuestSpeakers}
       />
 
-      {props.mode === 'admin' && (
+      {props.mode === 'host' && (
         <Button
           variant="contained"
           onClick={props.handleStreamStatusChange}
@@ -135,12 +169,12 @@ function EventHostButtonContainer(props: Props) {
       >
         {!props.sharingScreen ? 'Share Screen' : 'Stop Sharing Screen'}
       </Button>
-      {props.mode === 'admin' && (
+      {props.mode === 'host' && (
         <Button
           variant="contained"
           className={[styles.buttonDefault, styles.cameraIcon].join(' ')}
           disabled={props.loading || manageSpeakersDisabled}
-          onClick={handleManageSpeakersClick}
+          onClick={() => setShowManageDialog(true)}
         >
           Manage Speakers
         </Button>

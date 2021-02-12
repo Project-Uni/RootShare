@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
 import { useLocation, Redirect } from 'react-router-dom';
+import queryString from 'query-string';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-import { checkDesktop, makeRequest } from '../helpers/functions';
+import { makeRequest } from '../helpers/functions';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
 import GoogleButton from '../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../hype-page/hype-registration/LinkedInButton';
 import { colors } from '../theme/Colors';
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -30,10 +32,10 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     marginBottom: 20,
     height: 40,
-    background: colors.primary,
-    color: 'white',
+    background: Theme.bright,
+    color: Theme.white,
     '&:hover': {
-      background: 'lightblue',
+      background: Theme.brightHover,
     },
   },
   forgotPassword: {
@@ -55,44 +57,35 @@ type Props = {
   updateUser: (userInfo: { [key: string]: any }) => void;
   updateAccessToken: (accessToken: string) => void;
   updateRefreshToken: (refreshToken: string) => void;
+
+  location: any;
 };
 
 // TODO - Set up login, signup and reset password to work with chrome’s credential standards
 function Login(props: Props) {
   const styles = useStyles();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [redirectHome, setRedirectHome] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
-  const [query, setQuery] = useQuery();
-  // const redirectUrl = query && query[1] !== '/login' ? query[1] : '/home';
-  const redirectUrl =
-    query && query[1] !== '/login'
-      ? query[1]
-      : checkDesktop()
-      ? '/home'
-      : '/event/5f89f333821f7f6046243a53';
+  const values = queryString.parse(props.location.search);
+  const redirectUrl = (values.redirect as string) || '/home';
+  const accessToken = values.accessToken as string;
+  const refreshToken = values.refreshToken as string;
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [props.accessToken]);
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
-      setRedirectHome(true);
-    }
+    setLoading(true);
+    if (accessToken) props.updateAccessToken(accessToken);
+    if (refreshToken) props.updateRefreshToken(refreshToken);
+    if (props.accessToken) setRedirectHome(true);
+    setLoading(false);
   }
 
   function handleEmailChange(event: any) {
@@ -180,10 +173,14 @@ function Login(props: Props) {
             Login
           </Button>
           <div className={styles.externalWrapper}>
-            <GoogleButton messageType={'login'} width={300} />
+            <GoogleButton messageType={'login'} width={300} redirect={redirectUrl} />
           </div>
           <div className={styles.externalWrapper}>
-            <LinkedInButton messageType={'login'} width={300} />
+            <LinkedInButton
+              messageType={'login'}
+              width={300}
+              redirect={redirectUrl}
+            />
           </div>
           <Link
             href={undefined}

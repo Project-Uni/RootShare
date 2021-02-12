@@ -10,7 +10,7 @@ import RichTextEditor from 'react-rte';
 
 import theme from '../../../../../theme/Theme';
 
-import { usePrevious } from '../../../../../hooks';
+import { usePrevious } from '../../../../../helpers/hooks';
 import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 
 import { BigButton, RSModal } from '../../../../reusable-components';
@@ -114,7 +114,7 @@ function MTGMessageModal(props: Props) {
       <BigButton
         label="next"
         onClick={() => {
-          console.log('Email Message:', emailValue.toString('html'));
+          // console.log('Email Message:', emailValue.toString('html'));
           setStage('confirmation');
         }}
       />
@@ -235,7 +235,7 @@ function MTGMessageModal(props: Props) {
         }}
         className={styles.modal}
         helperText={
-          'Send a message to everyone who is interested in your fraternity'
+          'Send a message to everyone who is interested in your fraternity. Please keep in mind that all communications will have your organization name attached to it.'
         }
         helperIcon={<RiMessage2Line size={60} />}
         onBackArrow={getBackArrowFunction()}
