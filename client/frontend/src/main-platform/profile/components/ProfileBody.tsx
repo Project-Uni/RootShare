@@ -4,8 +4,6 @@ import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { stringify } from 'query-string';
-
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { UserPost, MakePostContainer } from '../../reusable-components';

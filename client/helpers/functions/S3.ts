@@ -80,7 +80,7 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
   }; //Expires in 24 hours
   try {
     const head = await s3.headObject(headParams).promise();
-    const signedURL = s3.getSignedUrlPromise('getObject', params);
+    const signedURL = await s3.getSignedUrlPromise('getObject', params);
 
     return signedURL;
   } catch (err) {
