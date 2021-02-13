@@ -4,7 +4,16 @@ import { SnackbarProps } from '../../main-platform/reusable-components/component
 const STATE_NAME = 'RootShare:state';
 
 export type RootshareReduxState = {
-  user: { [k: string]: any };
+  user: {
+    firstName: string;
+    lastName: string;
+    _id: string;
+    email: string;
+    privilegeLevel: number;
+    accountType: string;
+    profilePicture?: string;
+    profilePictureLastUpdated?: Date;
+  };
   accessToken: string;
   refreshToken: string;
   messageSocket: { [k: string]: any };
@@ -14,9 +23,17 @@ export type RootshareReduxState = {
   hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
 };
+type v = RootshareReduxState['user'];
 
 export const initializeState = (): RootshareReduxState => ({
-  user: {},
+  user: {
+    firstName: '',
+    lastName: '',
+    _id: '',
+    email: '',
+    privilegeLevel: 0,
+    accountType: 'fan',
+  },
   accessToken: '',
   refreshToken: '',
   messageSocket: {},
