@@ -18,7 +18,6 @@ import Theme from '../../theme/Theme';
 import { HoverPreview } from '../reusable-components';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { checkProfilePictureExpired } from '../../helpers/functions';
-import { updateProfilePicture } from '../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -83,8 +82,7 @@ function AuthenticatedPage(props: Props) {
 
   const checkAuth = useCallback(async () => {
     if (Boolean(accessToken)) {
-      const { success, profilePicture } = await checkProfilePictureExpired();
-      if (success === 1) dispatch(updateProfilePicture(profilePicture));
+      await checkProfilePictureExpired(dispatch);
       setLoading(false);
     } else {
       setLoginRedirect(true);

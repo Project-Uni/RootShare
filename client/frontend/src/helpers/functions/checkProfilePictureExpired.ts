@@ -1,9 +1,10 @@
 import { getProfilePictureAndBanner } from '../../api';
+import { Dispatch, updateProfilePicture } from '../../redux/actions';
 import { getStore } from '../../redux/store/persistedStore';
 
 const IMAGE_EXPIRATION = 1000 * 60 * 60 * 24; //24 HOURS
 
-export const checkProfilePictureExpired = async () => {
+export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
   const currentTime = Date.now();
   const {
     user: { _id: userID, profilePictureLastUpdated },
@@ -15,9 +16,6 @@ export const checkProfilePictureExpired = async () => {
     const data = await getProfilePictureAndBanner('user', userID, {
       getProfile: true,
     });
-    if (data.success === 1)
-      return { success: 1, profilePicture: data.content.profile };
-    else return { success: 0 };
+    if (data.success === 1) dispatch(updateProfilePicture(data.content.profile));
   }
-  return { success: 0 };
 };
