@@ -15,11 +15,10 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { connect } from 'react-redux';
-import { updateUser } from '../redux/actions/user';
+import { useDispatch } from 'react-redux';
+import { updateProfilePicture } from '../redux/actions/user';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
-import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
@@ -72,8 +71,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   type: 'profile' | 'community';
   _id?: string; //Required for community
-  accessToken: string;
-  refreshToken: string;
   className?: string; //Use this for margin and positioning
   pictureStyle?: string; //The only thing this should be used for is adding border
   currentPicture?: any;
@@ -84,13 +81,12 @@ type Props = {
   borderWidth?: number; //Added for camera icon positioning on images with a border
   updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
-
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
 function ProfilePicture(props: Props) {
   const styles = useStyles();
+
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
@@ -176,16 +172,9 @@ function ProfilePicture(props: Props) {
         ? '/api/images/profile/updateProfilePicture'
         : `/api/images/community/${props._id}/updateProfilePicture`;
 
-    const { data } = await makeRequest(
-      'POST',
-      path,
-      {
-        image: imageData,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', path, {
+      image: imageData,
+    });
     setLoading(false);
     if (data['success'] !== 1) {
       setUploadErr(data.message);
@@ -193,11 +182,9 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile') {
-      let currUser = { ...props.user };
-      currUser.profilePicture = imageData as string;
-      props.updateUser(currUser);
-    }
+    if (props.type === 'profile')
+      dispatch(updateProfilePicture(imageData as string));
+
     props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
   }
 
@@ -347,23 +334,7 @@ function ProfilePicture(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
+export default ProfilePicture;
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();
