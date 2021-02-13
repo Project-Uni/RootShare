@@ -13,9 +13,7 @@ export function makeRequest<T = { [key: string]: any }>(
   data: { [key: string]: any } = {},
   ...rest: any
 ): Promise<AxiosResponse<{ success: -1 | 0 | 1; message: string; content: T }>> {
-  const store = getStore();
-  const state = store.getState();
-  const { accessToken, refreshToken } = state;
+  const { accessToken, refreshToken } = getStore().getState();
 
   const config: Config = {
     headers: {

@@ -14,8 +14,9 @@ import {
   UserType,
   UniversityType,
   EventType,
-  ProfileState,
   PostType,
+  UserToUserRelationship,
+  U2UR,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -27,13 +28,7 @@ import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-  },
-  profileWrapper: {
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   box: {
     margin: 8,
@@ -94,9 +89,9 @@ function ProfileBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
-  const [currentProfileState, setCurrentProfileState] = useState<ProfileState>(
-    'PUBLIC'
-  );
+  const [currentProfileState, setCurrentProfileState] = useState<
+    UserToUserRelationship
+  >('open');
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
@@ -119,6 +114,7 @@ function ProfileBody(props: Props) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
           getCurrentProfilePicture();
+          updateProfileState();
           fetchEvents();
           getUserPosts(profile).then(() => {
             setLoadingPosts(false);
@@ -142,7 +138,7 @@ function ProfileBody(props: Props) {
   }
 
   async function updateProfileState() {
-    if (profileID === 'user') return setCurrentProfileState('SELF');
+    if (profileID === 'user') return setCurrentProfileState(U2UR.SELF);
 
     const { data } = await makeRequest('POST', '/user/checkConnectedWithUser', {
       requestUserID: profileID,
@@ -204,8 +200,8 @@ function ProfileBody(props: Props) {
         <ProfileBanner
           type="profile"
           height={200}
-          editable={currentProfileState === 'SELF'}
-          zoomOnClick={currentProfileState !== 'SELF'}
+          editable={currentProfileState === U2UR.SELF}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
@@ -214,14 +210,14 @@ function ProfileBody(props: Props) {
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={currentProfileState === 'SELF'}
+          editable={currentProfileState === U2UR.SELF}
           height={150}
           width={150}
           borderRadius={150}
           currentPicture={
             profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={currentProfileState !== 'SELF'}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderWidth={8}
         />
       </div>
@@ -316,7 +312,7 @@ function ProfileBody(props: Props) {
     const university = profile.university as UniversityType;
 
     return (
-      <div className={styles.profileWrapper} style={{ height: height }}>
+      <div style={{ height: height }}>
         <div className={styles.body}>
           <Box
             boxShadow={2}

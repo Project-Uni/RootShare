@@ -8,7 +8,7 @@ import {
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
-import { User, Community, Search } from '../models';
+import { User, Community } from '../models';
 import { createSearch } from '../models/searches';
 
 const MAX_RETRIEVED = 20;
@@ -170,8 +170,6 @@ export async function exactMatchSearchFor(
   limit: number = 20
 ) {
   const cleanedQuery = query.trim();
-  if (cleanedQuery.length < 3)
-    return sendPacket(0, 'Query is too short to provide accurate search');
 
   createSearch(userID, query);
 

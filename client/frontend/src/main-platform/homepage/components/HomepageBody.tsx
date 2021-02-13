@@ -4,7 +4,6 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
 import {
@@ -25,11 +24,7 @@ import MeetTheGreeksInfoCard from '../../meet-the-greeks/MeetTheGreeksInfoCard';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   loadingIndicator: {
     color: Theme.bright,
     marginTop: 80,
@@ -86,14 +81,7 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/feed/${selectedTab}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
 
     if (data.success === 1) {
       setFeed(createFeed(data.content['posts']));

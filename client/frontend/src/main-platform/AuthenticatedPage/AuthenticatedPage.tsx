@@ -15,6 +15,7 @@ import {
 
 import { AVAILABLE_TABS } from '../reusable-components/components/MainNavigator';
 import Theme from '../../theme/Theme';
+import { HoverPreview } from '../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -81,6 +82,7 @@ function AuthenticatedPage(props: Props) {
       {loginRedirect && (
         <Redirect to={`/login?redirect=${window.location.pathname}`} />
       )}
+
       <EventClientHeader showNavigationWidth={showLeftEl.current} />
       <div className={styles.bodyContainer}>
         {!loading && (
@@ -91,7 +93,13 @@ function AuthenticatedPage(props: Props) {
               ) : (
                 <MainNavigator currentTab={selectedTab || 'none'} />
               ))}
-            {component}
+            <div
+              style={{ flex: 1, overflow: 'scroll', background: Theme.background }}
+              id="mainComponent"
+            >
+              <HoverPreview />
+              {component}
+            </div>
             {width > showRightEl.current &&
               (rightElement ? rightElement : <DiscoverySidebar />)}
           </div>

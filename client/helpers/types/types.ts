@@ -44,3 +44,31 @@ export type ImageReason =
   | 'eventBanner'
   | 'postImage'
   | 'mtgBanner';
+
+export type UserToUserRelationship =
+  | 'self'
+  | 'connected'
+  | 'pending_to'
+  | 'pending_from'
+  | 'open'
+  | 'pending';
+
+const U2UR = {
+  SELF: 'self',
+  CONNECTED: 'connected',
+  PENDING_TO: 'pending_to',
+  PENDING_FROM: 'pending_from',
+  OPEN: 'open',
+  PENDING: 'pending',
+} as const;
+
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
+
+const U2CR = {
+  PENDING: 'pending',
+  JOINED: 'joined',
+  OPEN: 'open',
+  ADMIN: 'admin',
+} as const;
+
+export { U2UR, U2CR };

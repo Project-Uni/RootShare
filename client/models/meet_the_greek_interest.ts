@@ -15,23 +15,23 @@ var Schema = mongoose.Schema;
  *        properties:
  *          id:
  *            type: string
- *            description: Auto-generated id
+ *            description: Auto-generated ID
  *          user:
- *            type: string
- *            description: The id of the user who is interested
+ *            $ref: '#/components/schemas/User'
+ *            description: The ID of the user who is interested
  *          community:
- *            type: string
- *            description: The id of the community the user is interested in
+ *            $ref: '#/components/schemas/Community'
+ *            description: The ID of the community the user is interested in
  *          answers:
  *            type: string
  *            description: A JSON string of the users responses, needs to be parsed before being sent back
  *          createdAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: The date of the record creation.
  *          updatedAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          user: 1jknj209asd0

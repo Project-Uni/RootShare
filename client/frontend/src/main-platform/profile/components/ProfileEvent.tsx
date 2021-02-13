@@ -5,9 +5,8 @@ import { Button, IconButton } from '@material-ui/core';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
-import { EventType, HostType, ProfileState } from '../../../helpers/types';
+import { EventType, HostType, UserToUserRelationship } from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
@@ -73,7 +72,7 @@ type Props = {
   profileID: string;
   event: EventType;
   style?: any;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   removeEvent: (eventID: string) => void;
 };
 
@@ -139,7 +138,7 @@ function ProfileEvent(props: Props) {
         </div>
         {/* --- Hiding this for now because removing RSVP/Attended isn't well-defined yet
 
-        {props.currentProfileState === 'SELF' && (
+        {props.currentProfileState === U2UR.SELF && (
           <div className={styles.right}>
             {participationType === 'ATTENDEE' && (
               <Button className={styles.removeButton} onClick={removeEvent}>

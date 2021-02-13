@@ -828,20 +828,17 @@ export async function likePost(postID: string, userID: string) {
           { $addToSet: { likes: postID } }
         ).exec();
 
-        return Promise.all([postUpdate, userUpdate])
-          .then(() => {
-            log('info', `User ${userID} successfully liked post ${postID}`);
-            return sendPacket(1, 'Successfully liked post');
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(-1, 'There was an error updating the models');
-          });
+        return Promise.all([postUpdate, userUpdate]).then(() => {
+          log('info', `User ${userID} successfully liked post ${postID}`);
+          return sendPacket(1, 'Successfully liked post');
+        });
       }
     );
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return sendPacket(-1, 'There was an error updating the models', {
+      error: err.message,
+    });
   }
 }
 
@@ -864,23 +861,20 @@ export async function unlikePost(postID: string, userID: string) {
           { $pull: { likes: postID } }
         ).exec();
 
-        return Promise.all([postUpdate, userUpdate])
-          .then(() => {
-            log(
-              'info',
-              `User ${userID} successfully removed like from post ${postID}`
-            );
-            return sendPacket(1, 'Successfully removed like from post');
-          })
-          .catch((err) => {
-            log('error', err);
-            return sendPacket(-1, 'There was an error updating the models');
-          });
+        return Promise.all([postUpdate, userUpdate]).then(() => {
+          log(
+            'info',
+            `User ${userID} successfully removed like from post ${postID}`
+          );
+          return sendPacket(1, 'Successfully removed like from post');
+        });
       }
     );
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return sendPacket(-1, 'There was an error updating the models', {
+      error: err.message,
+    });
   }
 }
 
