@@ -15,9 +15,9 @@ export * from './sockets';
 export * from './token';
 export * from './user';
 
-export const resetState = (
-  dispatch: Dispatch<{ type: string; payload?: { [k: string]: any } }>
-) => {
+export type ReduxAction = { type: string; payload?: { [k: string]: unknown } };
+
+export const resetState = (dispatch: Dispatch<ReduxAction>) => {
   dispatch(resetUser());
   dispatch(updateAccessToken(''));
   dispatch(updateRefreshToken(''));
