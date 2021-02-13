@@ -1,5 +1,9 @@
 import { getProfilePictureAndBanner } from '../../api';
-import { Dispatch, updateProfilePicture } from '../../redux/actions';
+import {
+  Dispatch,
+  dispatchSnackbar,
+  updateProfilePicture,
+} from '../../redux/actions';
 import { getStore } from '../../redux/store/persistedStore';
 
 const IMAGE_EXPIRATION = 1000 * 60 * 60 * 24; //24 HOURS
@@ -17,5 +21,12 @@ export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
       getProfile: true,
     });
     if (data.success === 1) dispatch(updateProfilePicture(data.content.profile));
+    else
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error updating profile picture',
+        })
+      );
   }
 };
