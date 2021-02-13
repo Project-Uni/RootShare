@@ -1,5 +1,4 @@
 import { Dispatch } from 'react';
-import { DispatchProp } from 'react-redux';
 
 import { resetUser } from './user';
 import { updateAccessToken, updateRefreshToken } from './token';
