@@ -68,21 +68,57 @@ export default function imageRoutes(app) {
     }
   );
 
-  app.get(
-    '/api/images/profile/:userID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      let { userID } = req.params;
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/images/profile:
+   *      get:
+   *        summary: Retrieve profile and banner for a user
+   *        tags:
+   *          - Image
+   *        parameters:
+   *          - in: query
+   *            name: userID
+   *            schema:
+   *              type: string
+   *            description: The ID of the user whos profile and banner you are trying to retrieve
+   *
+   *          - in: query
+   *            name: getProfile
+   *            schema:
+   *              type: boolean
+   *            description: Option to retrieve profile picture (true if you want it)
+   *
+   *          - in: query
+   *            name: getBanner
+   *            schema:
+   *              type: boolean
+   *            description: Option to retrieve banner picture (true if you want it)
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully retrieved profile picture / banner
+   *          "-1":
+   *            description: Failed to retrieve profile picture / banner
+   *
+   */
 
-      let isCurrentUser = false;
-      if (userID === 'user') {
-        userID = getUserFromJWT(req)._id;
-        isCurrentUser = true;
-      }
-      const packet = await getUserProfileAndBanner(userID, isCurrentUser);
-      return res.json(packet);
-    }
-  );
+  app.get('/api/images/profile', isAuthenticatedWithJWT, async (req, res) => {
+    let {
+      getProfile,
+      getBanner,
+      userID,
+    }: { getProfile: boolean; getBanner: boolean; userID: string } = req.query;
+
+    if (userID === 'user') userID = getUserFromJWT(req)._id;
+
+    const packet = await getUserProfileAndBanner(userID, {
+      getProfile,
+      getBanner,
+    });
+    return res.json(packet);
+  });
 
   app.get(
     '/api/images/community/:communityID',

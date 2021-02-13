@@ -108,7 +108,7 @@ export async function updateCommunityBanner(image: string, communityID: string) 
 
 export async function getUserProfileAndBanner(
   userID: string,
-  isCurrentUser: boolean
+  options: { getProfile?: boolean; getBanner?: boolean }
 ) {
   try {
     const user = await User.findById(userID)
@@ -118,11 +118,11 @@ export async function getUserProfileAndBanner(
     if (!user) return sendPacket(0, 'Could not find this user');
 
     const imagePromises = [];
-    if (!isCurrentUser && user.profilePicture)
+    if (options.getProfile && user.profilePicture)
       imagePromises.push(retrieveSignedUrl('profile', user.profilePicture));
     else imagePromises.push(null);
 
-    if (user.bannerPicture)
+    if (options.getBanner && user.bannerPicture)
       imagePromises.push(retrieveSignedUrl('profileBanner', user.bannerPicture));
     else imagePromises.push(null);
 

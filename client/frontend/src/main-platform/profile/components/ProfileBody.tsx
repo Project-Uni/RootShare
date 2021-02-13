@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
+import { stringify } from 'query-string';
+
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
 import { UserPost, MakePostContainer } from '../../reusable-components';
@@ -152,7 +154,12 @@ function ProfileBody(props: Props) {
   }
 
   async function getCurrentProfilePicture() {
-    const { data } = await makeRequest('GET', `/api/images/profile/${profileID}`);
+    const params = stringify({
+      userID: profileID,
+      getProfile: true,
+      getBanner: true,
+    });
+    const { data } = await makeRequest('GET', `/api/images/profile?${params}`);
 
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['profile']);
