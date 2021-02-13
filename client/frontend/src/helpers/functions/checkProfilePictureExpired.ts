@@ -1,13 +1,17 @@
 import { getProfilePictureAndBanner } from '../../api';
+import { getStore } from '../../redux/store/persistedStore';
 
-const IMAGE_EXPIRATION = 60 * 60 * 24; //24 HOURS
+const IMAGE_EXPIRATION = 1000 * 60 * 60 * 24; //24 HOURS
 
-export const checkProfilePictureExpired = async (
-  lastUpdated: number,
-  userID: string
-) => {
+export const checkProfilePictureExpired = async () => {
   const currentTime = Date.now();
-  if (currentTime - lastUpdated >= IMAGE_EXPIRATION) {
+  const {
+    user: { _id: userID, profilePictureLastUpdated },
+  } = getStore().getState();
+  if (
+    profilePictureLastUpdated &&
+    currentTime - profilePictureLastUpdated >= IMAGE_EXPIRATION
+  ) {
     const data = await getProfilePictureAndBanner('user', userID, {
       getProfile: true,
     });

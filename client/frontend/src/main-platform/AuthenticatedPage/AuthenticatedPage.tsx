@@ -49,13 +49,9 @@ type Props = {
 function AuthenticatedPage(props: Props) {
   const styles = useStyles();
   const dispatch = useDispatch();
-  const { accessToken, profilePictureLastUpdated, userID } = useSelector(
-    (state: RootshareReduxState) => ({
-      userID: state.user._id,
-      accessToken: state.accessToken,
-      profilePictureLastUpdated: state.user.profilePictureLastUpdated,
-    })
-  );
+  const { accessToken } = useSelector((state: RootshareReduxState) => ({
+    accessToken: state.accessToken,
+  }));
 
   const {
     component,
@@ -87,20 +83,13 @@ function AuthenticatedPage(props: Props) {
 
   const checkAuth = useCallback(async () => {
     if (Boolean(accessToken)) {
-      if (profilePictureLastUpdated) {
-        const { success, profilePicture } = await checkProfilePictureExpired(
-          profilePictureLastUpdated,
-          userID
-        );
-        if (success === 1) {
-          dispatch(updateProfilePicture(profilePicture));
-        }
-      }
+      const { success, profilePicture } = await checkProfilePictureExpired();
+      if (success === 1) dispatch(updateProfilePicture(profilePicture));
       setLoading(false);
     } else {
       setLoginRedirect(true);
     }
-  }, [accessToken, profilePictureLastUpdated]);
+  }, [accessToken, dispatch, checkProfilePictureExpired]);
 
   return (
     <div className={styles.wrapper}>

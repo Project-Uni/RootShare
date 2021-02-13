@@ -73,11 +73,14 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
     Bucket: BUCKET,
     Key: prefix + fileName,
   };
-  const params = { Bucket: BUCKET, Key: prefix + fileName, Expires: 60 * 60 * 24 }; //Expires in 24 hours
-
+  const params = {
+    Bucket: BUCKET,
+    Key: prefix + fileName,
+    Expires: 60 * 60 * 24,
+  }; //Expires in 24 hours
   try {
     const head = await s3.headObject(headParams).promise();
-    const signedURL = s3.getSignedUrl('getObject', params);
+    const signedURL = s3.getSignedUrlPromise('getObject', params);
 
     return signedURL;
   } catch (err) {
