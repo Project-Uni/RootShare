@@ -79,10 +79,10 @@ export default function imageRoutes(app) {
    *          - Image
    *        parameters:
    *          - in: query
-   *            name: userID
+   *            name: _id
    *            schema:
    *              type: string
-   *            description: The ID of the user whos profile and banner you are trying to retrieve
+   *            description: The ID of the user or community whos profile and banner you are trying to retrieve
    *
    *          - in: query
    *            name: getProfile
@@ -96,6 +96,12 @@ export default function imageRoutes(app) {
    *              type: boolean
    *            description: Option to retrieve banner picture (true if you want it)
    *
+   *          - in: query
+   *            name: type
+   *            schema:
+   *               type: string
+   *            description: Entity type to retrieve information of (community or user)
+   *
    *        responses:
    *          "1":
    *            description: Successfully retrieved profile picture / banner
@@ -108,26 +114,33 @@ export default function imageRoutes(app) {
     let {
       getProfile,
       getBanner,
-      userID,
-    }: { getProfile: boolean; getBanner: boolean; userID: string } = req.query;
+      _id,
+      type,
+    }: {
+      getProfile: boolean;
+      getBanner: boolean;
+      _id: string;
+      type: 'user' | 'community';
+    } = req.query;
 
-    if (userID === 'user') userID = getUserFromJWT(req)._id;
+    let packet: {
+      success: number;
+      message: string;
+      content: {
+        [key: string]: any;
+      };
+    };
+    if (type === 'user') {
+      if (_id === 'user') _id = getUserFromJWT(req)._id;
 
-    const packet = await getUserProfileAndBanner(userID, {
-      getProfile,
-      getBanner,
-    });
+      packet = await getUserProfileAndBanner(_id, {
+        getProfile,
+        getBanner,
+      });
+    } else if (type === 'community')
+      packet = await getCommunityProfileAndBanner(_id, { getProfile, getBanner });
+    else packet = sendPacket(-1, 'Invalid type');
+
     return res.json(packet);
   });
-
-  app.get(
-    '/api/images/community/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { communityID } = req.params;
-
-      const packet = await getCommunityProfileAndBanner(communityID);
-      return res.json(packet);
-    }
-  );
 }

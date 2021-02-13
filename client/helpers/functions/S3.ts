@@ -73,7 +73,7 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
     Bucket: BUCKET,
     Key: prefix + fileName,
   };
-  const params = { Bucket: BUCKET, Key: prefix + fileName, Expires: 86400 * 7 };
+  const params = { Bucket: BUCKET, Key: prefix + fileName, Expires: 60 * 60 * 24 }; //Expires in 24 hours
 
   try {
     const head = await s3.headObject(headParams).promise();

@@ -24,7 +24,7 @@ export default function userReducer(
       return {
         ...state,
         profilePicture: payload?.profilePicture,
-        profilePictureLastUpdated: new Date(),
+        profilePictureLastUpdated: Date.now(),
       };
     case RESET_USER:
       return initialState;

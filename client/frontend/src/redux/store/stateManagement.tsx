@@ -12,7 +12,7 @@ export type RootshareReduxState = {
     privilegeLevel: number;
     accountType: string;
     profilePicture?: string;
-    profilePictureLastUpdated?: Date;
+    profilePictureLastUpdated?: number;
   };
   accessToken: string;
   refreshToken: string;
@@ -23,7 +23,6 @@ export type RootshareReduxState = {
   hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
 };
-type v = RootshareReduxState['user'];
 
 export const initializeState = (): RootshareReduxState => ({
   user: {

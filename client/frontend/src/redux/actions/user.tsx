@@ -17,7 +17,7 @@ export function updateUser(
   };
 }
 
-export const updateProfilePicture = (profilePicture: string) => {
+export const updateProfilePicture = (profilePicture?: string) => {
   return { type: UPDATE_PROFILE_PICTURE, payload: { profilePicture } };
 };
 

@@ -326,7 +326,9 @@ function ProfilePicture(props: Props) {
             Cancel
           </Button>
           <Button
-            className={Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton}
+            className={
+              Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton
+            }
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >

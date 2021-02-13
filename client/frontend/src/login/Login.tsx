@@ -123,7 +123,7 @@ function Login(props: Props) {
           privilegeLevel,
           accountType,
           profilePicture,
-          profilePictureLastUpdated: new Date(),
+          profilePictureLastUpdated: profilePicture ? Date.now() : undefined,
         })
       );
       dispatch(updateAccessToken(newAccessToken));
