@@ -483,9 +483,15 @@ export default function communityRoutes(app) {
    *              type: string
    *            description: The id of the community to update relationship to
    *
+   *          - in: query
+   *            name: action
+   *            schema:
+   *              type: string
+   *            description: Value is join, cancel, or leave
+   *
    *        responses:
    *          "1":
-   *            description: Successfully updated community
+   *            description: Successfully updated community relationship
    *          "0":
    *            description: User input based error
    *          "-1":
