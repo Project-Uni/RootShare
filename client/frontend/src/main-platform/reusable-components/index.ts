@@ -10,14 +10,20 @@ import Event from './components/Event';
 import UserHighlight from './components/UserHighlight';
 import CommunityHighlight from './components/CommunityHighlight';
 
+import MakePostContainer from './components/MakePostContainer';
+
 import RSTabs from './components/RSTabs';
 
 import RSModal from './components/RSModal/RSModal';
 import BigButton from './components/RSModal/BigButton';
 
-import UserSearch from './components/UserSearch';
+import SearchField from './components/SearchField';
 
 import RSButton from './components/RSButton';
+
+import HoverPreview from './components/HoverPreview';
+
+import SnackbarNotification from './components/SnackbarNotification';
 
 export {
   MainNavigator,
@@ -30,7 +36,10 @@ export {
   CommunityHighlight,
   RSTabs,
   RSModal,
+  MakePostContainer,
   BigButton,
-  UserSearch,
+  SearchField,
   RSButton,
+  HoverPreview,
+  SnackbarNotification,
 };

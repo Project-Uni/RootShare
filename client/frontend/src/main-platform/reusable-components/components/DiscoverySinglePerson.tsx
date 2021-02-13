@@ -9,6 +9,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -93,17 +94,7 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.userID);
     if (data['success'] === 1) {
       props.setNotification('success', data['message']);
       removeSuggestion();

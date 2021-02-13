@@ -4,8 +4,6 @@ import './App.css';
 import { Router, Route, Switch } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga';
-import { connect } from 'react-redux';
-import { updateUser } from './redux/actions/user';
 
 import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
 import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
@@ -18,20 +16,19 @@ import SocketManager from './main-platform/SocketManager';
 import LandingPage from './landing-page/LandingPage';
 
 import {
-  Homepage,
-  Discover,
-  Events,
-  Profile,
-  CommunityDetails,
-  YourCommunities,
-  // StreamLibrary,
-  Connections,
   MeetTheGreeks,
+  HomepageBody,
+  ProfileBody,
+  EventsBody,
+  ConnectionsBody,
+  CommunityBody,
+  YourCommunitiesBody,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
-import HomepageBody from './main-platform/homepage/components/HomepageBody';
+import { SnackbarNotification } from './main-platform/reusable-components';
+import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -43,15 +40,11 @@ history.listen((location) => {
   ReactGA.pageview(location.pathname); // Record a pageview for the given page
 });
 
-type Props = {
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
-};
-
-function App(props: Props) {
+const App = () => {
   return (
     <div className="App">
       <SocketManager />
+      <SnackbarNotification />
       <Router history={history}>
         <div className="wrapper">
           <Switch>
@@ -83,18 +76,67 @@ function App(props: Props) {
               render={(props) => (
                 <AuthenticatedPage
                   {...props}
-                  component={<HomepageBody />}
+                  component={<HomepageBody {...props} />}
                   selectedTab="home"
                 />
               )}
             />
-            <Route exact path="/discover" component={Discover} />
-            <Route exact path="/events" component={Events} />
-            <Route exact path="/profile/:profileID" component={Profile} />
-            <Route exact path="/communities/:userID" component={YourCommunities} />
-            <Route exact path="/community/:orgID" component={CommunityDetails} />
-            {/* <Route exact path="/library" component={StreamLibrary} /> */}
-            <Route exact path="/connections/:userID" component={Connections} />
+            <Route
+              exact
+              path="/events"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<EventsBody {...props} />}
+                  selectedTab="events"
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/profile/:profileID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<ProfileBody {...props} />}
+                  selectedTab="profile"
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/communities/:userID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<YourCommunitiesBody {...props} />}
+                  selectedTab="communities"
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/community/:orgID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<CommunityBody {...props} />}
+                  selectedTab="communities"
+                  rightElement={<FollowSidebar {...props} />}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/connections/:userID"
+              render={(props) => (
+                <AuthenticatedPage
+                  {...props}
+                  component={<ConnectionsBody {...props} />}
+                  selectedTab="connections"
+                />
+              )}
+            />
             <Route
               exact
               path="/mtg"
@@ -109,20 +151,6 @@ function App(props: Props) {
       </Router>
     </div>
   );
-}
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

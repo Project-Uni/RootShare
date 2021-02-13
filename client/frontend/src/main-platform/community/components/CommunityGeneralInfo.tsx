@@ -23,10 +23,13 @@ import {
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { cropText } from '../../../helpers/functions';
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
@@ -44,8 +47,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
   },
   left: {
-    marginRight: 20,
+    marginRight: 50,
     flex: 1,
+    textAlign: 'left',
   },
   right: {
     minWidth: 150,
@@ -134,7 +138,7 @@ type CommunityFlags = {
 
 type Props = {
   communityID: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   name: string;
   description: string;
   numMembers: number;
@@ -146,7 +150,7 @@ type Props = {
   isAdmin?: boolean;
   isMTG?: boolean;
 
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   flags: CommunityFlags;
 };
 
@@ -192,7 +196,7 @@ function CommunityGeneralInfo(props: Props) {
 
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);
-      if (data.content['newStatus'] === 'JOINED') {
+      if (data.content['newStatus'] === U2CR.JOINED) {
         updateMemberCount(1);
       }
     }
@@ -275,7 +279,7 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   function renderStatusButton() {
-    if (props.status === 'OPEN')
+    if (props.status === U2CR.OPEN)
       return (
         <Button
           className={[styles.button, styles.joinButton].join(' ')}
@@ -285,7 +289,7 @@ function CommunityGeneralInfo(props: Props) {
           Join
         </Button>
       );
-    else if (props.status === 'PENDING')
+    else if (props.status === U2CR.PENDING)
       return (
         <>
           <Button
@@ -405,7 +409,7 @@ function CommunityGeneralInfo(props: Props) {
       )}
 
       <div className={styles.left}>
-        <RSText type="head" size={22} color={Theme.primaryText}>
+        <RSText type="head" size={18} color={Theme.primaryText}>
           {props.name}
           {props.private && (
             <FaLock
@@ -416,7 +420,7 @@ function CommunityGeneralInfo(props: Props) {
           )}
         </RSText>
 
-        <RSText size={16} color={Theme.secondaryText} type="body">
+        <RSText size={14} color={Theme.secondaryText} type="body">
           {props.type}
         </RSText>
 
@@ -436,7 +440,7 @@ function CommunityGeneralInfo(props: Props) {
               onChange={(e) => setUpdateDescText(e.target.value)}
             />
           ) : (
-            <RSText type="body" color={Theme.secondaryText} size={13}>
+            <RSText type="body" color={Theme.secondaryText} size={12}>
               {showFullDesc ? fullDesc : descSubstr}
             </RSText>
           )}

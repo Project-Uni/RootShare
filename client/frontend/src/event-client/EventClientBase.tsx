@@ -109,23 +109,7 @@ function EventClientBase(props: Props) {
   }, []);
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      setLoginRedirect(true);
-      return false;
-    }
-    props.updateUser({ ...data['content'] });
-    return true;
+    return Boolean(props.accessToken);
   }
 
   async function fetchEventInfo() {

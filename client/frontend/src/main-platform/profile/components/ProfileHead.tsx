@@ -5,11 +5,15 @@ import { Button, TextField, Menu, MenuItem } from '@material-ui/core';
 import CreateIcon from '@material-ui/icons/Create';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { makeRequest } from '../../../helpers/functions';
-import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
+import {
+  ConnectionRequestType,
+  UserToUserRelationship,
+  U2UR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const ITEM_HEIGHT = 28;
 
@@ -62,7 +66,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   connectedConnectionButton: {
     color: Theme.white,
-    background: Theme.primary
+    background: Theme.primary,
   },
   selfBioWrapper: {
     display: 'flex',
@@ -149,11 +153,8 @@ type Props = {
   numMutualConnections?: number;
   numCommunities: number;
   numMutualCommunities?: number;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   updateProfileState: () => void;
-
-  accessToken: string;
-  refreshToken: string;
 };
 
 function ProfileHead(props: Props) {
@@ -174,11 +175,11 @@ function ProfileHead(props: Props) {
   const menuOpen = Boolean(anchorEl);
 
   const mutualConnections =
-    props.currentProfileState === 'SELF'
+    props.currentProfileState === U2UR.SELF
       ? ''
       : ` | ${props.numMutualConnections || 0} Mutual`;
   const mutualCommunities =
-    props.currentProfileState === 'SELF'
+    props.currentProfileState === U2UR.SELF
       ? ''
       : ` | ${props.numMutualCommunities || 0} Mutual`;
 
@@ -188,90 +189,48 @@ function ProfileHead(props: Props) {
 
   useEffect(() => {
     if (
-      props.currentProfileState === 'TO' ||
-      props.currentProfileState === 'FROM' ||
-      props.currentProfileState === 'CONNECTION'
+      props.currentProfileState === U2UR.PENDING_TO ||
+      props.currentProfileState === U2UR.PENDING_FROM ||
+      props.currentProfileState === U2UR.CONNECTED
     )
       fetchConnection();
   }, [props.currentProfileState]);
 
   async function fetchConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/getConnectionWithUser',
-      { requestUserID: props.profileID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/getConnectionWithUser', {
+      requestUserID: props.profileID,
+    });
 
     if (data['success'] === 1) setConnection(data['content']['connection']);
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.profileID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
   }
 
   async function declineConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('reject', props.profileID);
     if (data['success'] === 1) props.updateProfileState();
     setAnchorEl(null);
   }
 
   async function acceptConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: true,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('accept', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) => prevNumConnections + 1);
     }
   }
 
-  async function removeConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: connection?._id,
-        accepted: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+  async function cancelRequest() {
+    const data = await putUpdateUserConnection('cancel', props.profileID);
+    if (data['success'] === 1) props.updateProfileState();
+    setAnchorEl(null);
+  }
 
+  async function removeConnection() {
+    const data = await putUpdateUserConnection('remove', props.profileID);
     if (data['success'] === 1) {
       props.updateProfileState();
       setNumConnections((prevNumConnections) =>
@@ -286,16 +245,9 @@ function ProfileHead(props: Props) {
     const trimmed = updatedBio.trim();
     setOriginalBio(trimmed);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/user/updateBio',
-      {
-        newBio: trimmed,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/updateBio', {
+      newBio: trimmed,
+    });
   }
 
   ////// END REQUEST FUNCTIONS
@@ -362,10 +314,10 @@ function ProfileHead(props: Props) {
   function renderOptions() {
     return (
       <div>
-        {props.currentProfileState === 'TO' && (
-          <MenuItem onClick={declineConnection}>Cancel Request</MenuItem>
+        {props.currentProfileState === U2UR.PENDING_TO && (
+          <MenuItem onClick={cancelRequest}>Cancel Request</MenuItem>
         )}
-        {props.currentProfileState === 'CONNECTION' && (
+        {props.currentProfileState === U2UR.CONNECTED && (
           <MenuItem onClick={removeConnection}>Remove Connection</MenuItem>
         )}
       </div>
@@ -373,21 +325,21 @@ function ProfileHead(props: Props) {
   }
 
   function renderConnectionButton() {
-    if (props.currentProfileState === 'SELF') return;
+    if (props.currentProfileState === U2UR.SELF) return;
 
     let buttonStyles = [styles.allConnectionButtons];
     let buttonText = 'Connect';
     let clickHandler: any = requestConnection;
 
-    if (props.currentProfileState === 'TO') {
+    if (props.currentProfileState === U2UR.PENDING_TO) {
       buttonStyles.push(styles.pendingConnectionButton);
       buttonText = 'Requested';
       clickHandler = handleOptionsClick;
-    } else if (props.currentProfileState === 'FROM') {
+    } else if (props.currentProfileState === U2UR.PENDING_FROM) {
       buttonStyles.push(styles.removeConnectionButton);
       buttonText = 'Remove';
       clickHandler = declineConnection;
-    } else if (props.currentProfileState === 'CONNECTION') {
+    } else if (props.currentProfileState === U2UR.CONNECTED) {
       buttonStyles.push(styles.connectedConnectionButton);
       buttonText = 'Connected';
       clickHandler = handleOptionsClick;
@@ -417,7 +369,7 @@ function ProfileHead(props: Props) {
         >
           {renderOptions()}
         </Menu>
-        {props.currentProfileState === 'FROM' && (
+        {props.currentProfileState === U2UR.PENDING_FROM && (
           <Button
             variant="contained"
             className={[
@@ -496,7 +448,7 @@ function ProfileHead(props: Props) {
               </Button>
             </div>
           </div>
-        ) : props.currentProfileState === 'SELF' ? (
+        ) : props.currentProfileState === U2UR.SELF ? (
           renderSelfBio()
         ) : (
           renderOtherBio()
@@ -506,7 +458,7 @@ function ProfileHead(props: Props) {
         {renderConnectionButton()}
         <a
           href={`/connections/${
-            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+            props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
           className={styles.navigationText}
         >
@@ -521,7 +473,7 @@ function ProfileHead(props: Props) {
         </a>
         <a
           href={`/communities/${
-            props.currentProfileState === 'SELF' ? 'user' : props.profileID
+            props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
           className={styles.navigationText}
         >

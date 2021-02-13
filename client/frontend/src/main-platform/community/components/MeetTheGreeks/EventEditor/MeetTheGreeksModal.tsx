@@ -9,7 +9,7 @@ import theme from '../../../../../theme/Theme';
 
 import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { RSModal } from '../../../../reusable-components';
-import { SearchOption } from '../../../../reusable-components/components/UserSearch';
+import { SearchOption } from '../../../../reusable-components/components/SearchField';
 
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
@@ -170,6 +170,7 @@ function MeetTheGreeksModal(props: Props) {
           label: `${member.firstName} ${member.lastName}`,
           value: `${member.firstName} ${member.lastName} ${member._id} ${member.email}`,
           profilePicture: member.profilePicture,
+          type: 'user',
         }))
       );
     }

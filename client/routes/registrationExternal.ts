@@ -18,20 +18,13 @@ module.exports = (app) => {
         return res.redirect('/');
 
       if (user) {
-        req.login(user, (err) => {
-          if (err) return log('error', `Failed serializing ${user.email}`);
-          log('info', `Successfully serialized ${user.email}`);
-
-          // https://github.com/jaredhanson/passport/issues/306
-          // Sometimes user still gets redirected to landing page on external signup
-          // Cause: Redirect sometimes happens before session gets saved
-          req.session.save(() => {
-            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-            if (user.work === undefined || user.work === null)
-              return res.redirect(`/register/external?${tokenString}`);
-            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
-          });
-        });
+        // https://github.com/jaredhanson/passport/issues/306
+        // Sometimes user still gets redirected to landing page on external signup
+        // Cause: Redirect sometimes happens before session gets saved
+        const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+        if (user.work === undefined || user.work === null)
+          return res.redirect(`/register/external?${tokenString}`);
+        return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
       } else if (info) {
         res.json(sendPacket(0, info.message));
         log('error', `User linkedin login-signup failed`);
@@ -60,17 +53,13 @@ module.exports = (app) => {
         return res.redirect('/');
 
       if (user) {
-        req.login(user, (err) => {
-          if (err) return log('error', `Failed serializing ${user.email}`);
-          log('info', `Successfully serialized ${user.email}`);
+        if (err) return log('error', `Failed serializing ${user.email}`);
+        log('info', `Successfully serialized ${user.email}`);
 
-          req.session.save(() => {
-            const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
-            if (user.work === undefined || user.work === null)
-              return res.redirect(`/register/external?${tokenString}`);
-            return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
-          });
-        });
+        const tokenString = `accessToken=${info['jwtAccessToken']}&refreshToken=${info['jwtRefreshToken']}`;
+        if (user.work === undefined || user.work === null)
+          return res.redirect(`/register/external?${tokenString}`);
+        return res.redirect(`/login?redirect=${redirect}&${tokenString}`);
       } else if (info) {
         res.json(sendPacket(0, info.message));
         log('error', `User google login-signup failed`);

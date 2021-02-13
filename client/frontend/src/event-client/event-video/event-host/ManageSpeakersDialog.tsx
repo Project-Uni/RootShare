@@ -5,9 +5,9 @@ import { CircularProgress, IconButton, Button } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 import { IoMdClose } from 'react-icons/io';
 
-import { RSModal, RSButton } from '../../../main-platform/reusable-components';
+import { RSModal } from '../../../main-platform/reusable-components';
 import RSText from '../../../base-components/RSText';
-import { UserSearch } from '../../../main-platform/reusable-components';
+import { SearchField } from '../../../main-platform/reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { useForm } from '../../../helpers/hooks';
@@ -138,7 +138,7 @@ type UserOption = {
   lastName: string;
   email: string;
   connection?: OT.Connection;
-
+  type: 'user' | 'community';
   label: string;
   value: string;
 };
@@ -316,14 +316,14 @@ function MeetTheGreeksModal(props: Props) {
   };
 
   const searchOptionMap = useCallback(
-    (users: UserInfo[]): UserOption[] =>
-      users.map((user) => ({
+    (users?: UserInfo[], _?: any): UserOption[] =>
+      users!.map((user) => ({
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         connection: user.connection,
-
+        type: 'user',
         label: `${user.firstName} ${user.lastName}`,
         value: `${user.firstName} ${user.lastName} ${user.email} ${user._id}`,
       })) as UserOption[],
@@ -408,7 +408,7 @@ function MeetTheGreeksModal(props: Props) {
     return (
       <div className={[styles.autoCompleteContainer, styles.bottomBorder].join(' ')}>
         {searchedUser && renderSelectedUserInfo()}
-        <UserSearch<UserOption>
+        <SearchField<UserOption>
           label="Viewers"
           className={styles.textField}
           name="viewers"

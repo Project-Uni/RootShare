@@ -1,10 +1,6 @@
+const isProd = process.env.NODE_ENV !== 'dev';
+
 const { ELASTIC_APM_SECRET_TOKEN } = require('../keys/keys.json');
-const apm = require('elastic-apm-node').start({
-  serviceName: 'rootshare-client',
-  secretToken: ELASTIC_APM_SECRET_TOKEN,
-  serverUrl:
-    'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
-});
 
 require('dotenv').config();
 
@@ -26,6 +22,7 @@ import imageRoutes from './routes/images';
 import mtgRoutes from './routes/meet-the-greeks';
 import webhooks from './routes/webhooks';
 import university from './routes/university';
+import utilityRoutes from './routes/utilities';
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
@@ -46,8 +43,6 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
 
-initializeDirectory();
-
 const app = express();
 const port = process.env.PORT || 8000;
 
@@ -67,13 +62,23 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-initializeElasticSearch();
-app.use(elasticMiddleware);
+if (isProd) {
+  const apm = require('elastic-apm-node').start({
+    serviceName: 'rootshare-client',
+    secretToken: ELASTIC_APM_SECRET_TOKEN,
+    serverUrl:
+      'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
+  });
+
+  initializeDirectory();
+  initializeElasticSearch();
+  app.use(elasticMiddleware);
+}
 
 // app.use(rateLimiter);
 
 //Swagger config
-if (process.env.NODE_ENV === 'dev') {
+if (!isProd) {
   const swaggerUI = require('swagger-ui-express');
   const swaggerJsdoc = require('swagger-jsdoc');
   const options = {
@@ -119,9 +124,6 @@ require('./routes/messaging')(app, io);
 
 require('./routes/opentok')(app);
 require('./routes/event')(app);
-require('./routes/utilities')(app);
-require('./routes/mocks')(app);
-
 require('./routes/proxy')(app);
 
 //TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
@@ -133,6 +135,7 @@ imageRoutes(app);
 mtgRoutes(app);
 webhooks(app);
 university(app);
+utilityRoutes(app);
 
 require('./config/setup')(passport);
 

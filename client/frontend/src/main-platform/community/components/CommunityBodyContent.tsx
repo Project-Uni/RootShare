@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import { RSTabs, UserPost } from '../../reusable-components';
 import CommunityMakePostContainer from './CommunityMakePostContainer';
@@ -12,9 +11,10 @@ import CommunityMembers from './CommunityMembers';
 import {
   PostType,
   AdminCommunityServiceResponse,
-  CommunityStatus,
+  UserToCommunityRelationship,
   CommunityPostingOption,
   SearchUserType,
+  U2CR,
 } from '../../../helpers/types';
 import {
   makeRequest,
@@ -61,14 +61,13 @@ type Props = {
   universityName: string;
   communityProfilePicture?: string;
   name: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   isAdmin?: boolean;
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
   private?: boolean;
   flags: CommunityFlags;
-  communityName: string;
 };
 
 type CommunityTab =
@@ -101,11 +100,11 @@ function CommunityBodyContent(props: Props) {
     { label: 'Members', value: 'members' },
   ];
 
-  if (!props.private || props.status === 'JOINED') {
+  if (!props.private || props.status === U2CR.JOINED) {
     tabs.splice(1, 0, { label: 'Following', value: 'following' });
   }
 
-  if (props.private && props.status === 'JOINED') {
+  if (props.private && props.status === U2CR.JOINED) {
     if (props.isAdmin) {
       tabs.splice(1, 0, { label: 'Internal Current', value: 'internal-current' });
       tabs.splice(2, 0, { label: 'Internal Alumni', value: 'internal-alumni' });
@@ -142,7 +141,6 @@ function CommunityBodyContent(props: Props) {
 
   useEffect(() => {
     setLoading(true);
-    if (selectedTab === 'external') fetchCurrentEventInformation();
     fetchData().then(() => {
       if (selectedTab === 'external')
         fetchCurrentEventInformation().then(() => setLoading(false));
@@ -171,7 +169,7 @@ function CommunityBodyContent(props: Props) {
         community: {
           _id: props.communityID,
           profilePicture: props.communityProfilePicture,
-          name: props.communityName,
+          name: props.name,
         },
       });
     }
@@ -310,7 +308,7 @@ function CommunityBodyContent(props: Props) {
         });
       }
 
-      if (props.status === 'JOINED' || !props.private)
+      if (props.status === U2CR.JOINED || !props.private)
         newPostingOptions.unshift({
           description: `${props.user.firstName} ${props.user.lastName}`,
           routeSuffix: 'external/member',

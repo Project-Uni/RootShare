@@ -10,7 +10,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
-import { CommunityType } from '../../../helpers/types';
+import { CommunityType, U2CR } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -125,7 +125,7 @@ function DiscoveryCommunity(props: Props) {
 
     if (data['success'] === 1) {
       const message =
-        data['content']['newStatus'] === 'PENDING'
+        data['content']['newStatus'] === U2CR.PENDING
           ? `Successfully requested to join ${props.name}`
           : `Successfully joined ${props.name}`;
       props.setNotification('success', message);

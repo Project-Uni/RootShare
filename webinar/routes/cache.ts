@@ -78,4 +78,8 @@ module.exports = (
       );
     }
   );
+
+  app.get('/api/webinar/cache', (req, res) => {
+    return res.json({ cache: webinarCache, waitingRooms: waitingRooms });
+  });
 };
