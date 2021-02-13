@@ -1,4 +1,4 @@
-import { Dispatch } from 'react';
+import { Dispatch as ReactDispatch } from 'react';
 
 import { resetUser } from './user';
 import { updateAccessToken, updateRefreshToken } from './token';
@@ -16,8 +16,9 @@ export * from './token';
 export * from './user';
 
 export type ReduxAction = { type: string; payload?: { [k: string]: unknown } };
+export type Dispatch = ReactDispatch<ReduxAction>;
 
-export const resetState = (dispatch: Dispatch<ReduxAction>) => {
+export const resetState = (dispatch: Dispatch) => {
   dispatch(resetUser());
   dispatch(updateAccessToken(''));
   dispatch(updateRefreshToken(''));
