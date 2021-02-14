@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 
@@ -44,6 +44,7 @@ type Props = {
 
 function AuthenticatedPage(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const {
     component,
@@ -55,7 +56,6 @@ function AuthenticatedPage(props: Props) {
   } = props;
 
   const [loading, setLoading] = useState(true);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -66,7 +66,7 @@ function AuthenticatedPage(props: Props) {
     window.addEventListener('resize', handleResize);
 
     if (Boolean(accessToken)) setLoading(false);
-    else setLoginRedirect(true);
+    else history.push(`/login?redirect=${window.location.pathname}`);
   }, []);
 
   function handleResize() {
@@ -76,10 +76,6 @@ function AuthenticatedPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && (
-        <Redirect to={`/login?redirect=${window.location.pathname}`} />
-      )}
-
       <EventClientHeader showNavigationWidth={showLeftEl.current} />
       <div className={styles.bodyContainer}>
         {!loading && (
