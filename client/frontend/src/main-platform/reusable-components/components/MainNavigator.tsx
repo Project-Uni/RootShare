@@ -10,6 +10,7 @@ import RSText from '../../../base-components/RSText';
 import theme from '../../../theme/Theme';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { RSLink } from '../';
 
 const TEXT_SIZE = 22;
 const ICON_SIZE = 32;
@@ -29,6 +30,9 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
     marginTop: 20,
     textDecoration: 'none',
+    '&:hover': {
+      cursor: 'pointer',
+    },
   },
   textStyle: {
     marginLeft: 30,
@@ -115,7 +119,7 @@ function MainNavigator(props: Props) {
     const output = [];
     for (let i = 0; i < tabs.length; i++) {
       output.push(
-        <a
+        <RSLink
           href={tabs[i].link || `/${tabs[i].name.toLowerCase()}`}
           className={styles.link}
         >
@@ -134,7 +138,7 @@ function MainNavigator(props: Props) {
           >
             {tabs[i].name}
           </RSText>
-        </a>
+        </RSLink>
       );
     }
     return output;

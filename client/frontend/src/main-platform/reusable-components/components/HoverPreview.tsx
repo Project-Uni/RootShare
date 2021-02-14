@@ -31,6 +31,7 @@ import {
   putUserToCommunityRelationship,
 } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { RSLink } from '../';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -396,7 +397,7 @@ const HoverPreview = () => {
       >
         <div style={{ display: 'flex' }}>
           <div style={{ display: 'flex', height: '100%', alignItems: 'center' }}>
-            <a href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
+            <RSLink href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
               <Avatar
                 src={profilePicture}
                 alt={name}
@@ -407,7 +408,7 @@ const HoverPreview = () => {
                   border: `2px solid ${Theme.bright}`,
                 }}
               />
-            </a>
+            </RSLink>
           </div>
           <div style={{ flex: 1 }}>
             <RSText

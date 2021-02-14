@@ -21,7 +21,7 @@ import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
-import { Comment } from '../';
+import { Comment, RSLink } from '../';
 import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
 import {
   formatDatePretty,
@@ -88,6 +88,7 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
+      cursor: 'pointer',
     },
   },
   message: {
@@ -402,9 +403,8 @@ function UserPost(props: Props) {
     return (
       <div className={styles.top}>
         <div style={{ display: 'flex' }}>
-          <a
+          <RSLink
             href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
-            className={styles.noUnderline}
           >
             <ProfilePicture
               height={50}
@@ -414,27 +414,30 @@ function UserPost(props: Props) {
               type="profile"
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
 
           <div className={styles.postHeadText}>
             <div className={styles.nameAndOrgDiv}>
-              <a
+              <RSLink
                 href={`/${props.anonymous ? 'community' : 'profile'}/${
                   props.posterID
                 }`}
                 className={styles.noUnderline}
-                onMouseEnter={handleMouseOver}
-                onMouseLeave={() => {
-                  isHovering.current = false;
-                  setTimeout(() => {
-                    dispatch(hoverPreviewTriggerComponentExit());
-                  }, 500);
-                }}
               >
-                <RSText type="subhead" bold size={14}>
-                  {props.name}
-                </RSText>
-              </a>
+                <div
+                  onMouseEnter={handleMouseOver}
+                  onMouseLeave={() => {
+                    isHovering.current = false;
+                    setTimeout(() => {
+                      dispatch(hoverPreviewTriggerComponentExit());
+                    }, 500);
+                  }}
+                >
+                  <RSText type="subhead" bold size={14}>
+                    {props.name}
+                  </RSText>
+                </div>
+              </RSLink>
 
               {props.toCommunity && (
                 <>
@@ -443,14 +446,14 @@ function UserPost(props: Props) {
                     size={16}
                     className={styles.plantIcon}
                   />
-                  <a
+                  <RSLink
                     href={`/community/${props.toCommunityID}`}
                     className={styles.noUnderline}
                   >
                     <RSText type="subhead" bold size={14}>
                       {props.toCommunity}
                     </RSText>
-                  </a>
+                  </RSLink>
                 </>
               )}
               {props.type === 'broadcast' && (
