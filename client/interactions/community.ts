@@ -16,7 +16,6 @@ import {
   addProfilePicturesAll,
 } from '../interactions/utilities';
 import { deletePost } from './posts';
-import { exec } from 'child_process';
 
 export async function createNewCommunity(
   name: string,
