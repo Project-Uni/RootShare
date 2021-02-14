@@ -16,6 +16,7 @@ import {
   U2CR,
 } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '..';
 
 const MAX_DESC_LEN = 200;
 
@@ -154,7 +155,7 @@ function CommunityHighlight(props: Props) {
     >
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/community/${props.communityID}`}>
+          <RSLink href={`/community/${props.communityID}`}>
             <ProfilePicture
               type="community"
               height={70}
@@ -164,12 +165,12 @@ function CommunityHighlight(props: Props) {
               currentPicture={props.profilePicture}
               pictureStyle={styles.profilePic}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <div style={{ display: 'flex', alignItems: 'center' }}></div>
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <a
+              <RSLink
                 href={`/community/${props.communityID}`}
                 className={styles.noUnderline}
               >
@@ -181,7 +182,7 @@ function CommunityHighlight(props: Props) {
                 >
                   {props.name}
                 </RSText>
-              </a>
+              </RSLink>
               {props.private && (
                 <FaLock
                   color={Theme.secondaryText}

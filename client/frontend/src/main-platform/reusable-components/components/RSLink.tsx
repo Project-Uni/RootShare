@@ -15,7 +15,7 @@ type Props = {
   href: string;
   className?: string;
   style?: React.CSSProperties;
-  children: JSX.Element[] | JSX.Element;
+  children: JSX.Element[] | JSX.Element | string;
 };
 
 const RSLink = (props: Props) => {

@@ -19,6 +19,7 @@ import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
 import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -388,9 +389,9 @@ function HypeRegistration(props: Props) {
               bold
             >
               Already have an account?{' '}
-              <a className={styles.loginLink} href="/login">
+              <RSLink className={styles.loginLink} href="/login">
                 Login
-              </a>
+              </RSLink>
             </RSText>
           </>
         )}
