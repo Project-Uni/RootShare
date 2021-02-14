@@ -57,7 +57,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   acceptConnectionButton: {
     color: Theme.white,
-    background: Theme.primary,
+    background: Theme.bright,
     marginLeft: 7,
   },
   pendingConnectionButton: {

@@ -3,7 +3,7 @@ var passport = require('passport');
 import { log, sendPacket } from '../helpers/functions';
 import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
-module.exports = (app) => {
+export default function registrationExternalRoutes(app) {
   app.get('/auth/login/linkedin', (req, res, next) => {
     const redirect = req.query.redirect || '/home';
     const state = Buffer.from(JSON.stringify({ redirect })).toString('base64');
@@ -93,4 +93,4 @@ module.exports = (app) => {
       res.json(packet);
     });
   });
-};
+}

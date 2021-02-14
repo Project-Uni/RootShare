@@ -1,7 +1,5 @@
-import { sleep } from '../../helpers/functions';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
-import { getStore } from '../store/persistedStore';
 
 export const DISPATCH_HOVER_PREVIEW = 'interactions:dispatchHoverPreview';
 export const CLEAR_HOVER_PREVIEW = 'interactions:clearHover';

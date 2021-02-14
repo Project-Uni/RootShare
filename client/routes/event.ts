@@ -18,7 +18,7 @@ import { updateAttendingList } from '../interactions/user';
 import { USER_LEVEL } from '../helpers/types';
 import User from '../models/users';
 
-module.exports = (app) => {
+export default function eventRoutes(app) {
   app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
     const user = getUserFromJWT(req);
     if (user.privilegeLevel < USER_LEVEL.ADMIN)
@@ -111,4 +111,4 @@ module.exports = (app) => {
       await updateAttendingList(userID, webinarID, (packet) => res.json(packet));
     }
   );
-};
+}

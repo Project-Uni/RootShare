@@ -13,16 +13,8 @@ import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
+import RootshareRoutes from './routes';
 
-import communityRoutes from './routes/community';
-import feedbackRoutes from './routes/feedback';
-import discoverRoutes from './routes/discover';
-import postRoutes from './routes/posts';
-import imageRoutes from './routes/images';
-import mtgRoutes from './routes/meet-the-greeks';
-import webhooks from './routes/webhooks';
-import university from './routes/university';
-import utilityRoutes from './routes/utilities';
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
@@ -116,26 +108,7 @@ if (!isProd) {
 
 const server = http.createServer(app);
 const io = socketIO(server);
-
-require('./routes/user')(app);
-require('./routes/registrationInternal')(app);
-require('./routes/registrationExternal')(app);
-require('./routes/messaging')(app, io);
-
-require('./routes/opentok')(app);
-require('./routes/event')(app);
-require('./routes/proxy')(app);
-
-//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
-communityRoutes(app);
-feedbackRoutes(app);
-discoverRoutes(app);
-postRoutes(app);
-imageRoutes(app);
-mtgRoutes(app);
-webhooks(app);
-university(app);
-utilityRoutes(app);
+RootshareRoutes(app, io); // Setup for all routes files
 
 require('./config/setup')(passport);
 

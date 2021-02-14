@@ -16,6 +16,7 @@ import {
   connectionsToUserIDs,
   pendingToUserIDs,
   addProfilePicturesAll,
+  addProfilePicturesToRequests,
 } from './utilities';
 import { U2UR, U2CR } from '../helpers/types';
 
@@ -563,7 +564,7 @@ export function getPendingRequests(userID, callback) {
             cond: {
               $and: [
                 {
-                  $eq: ['$$pendingConnection.to', userID],
+                  $eq: ['$$pendingConnection.to', mongoose.Types.ObjectId(userID)],
                 },
                 {
                   $eq: ['$$pendingConnection.accepted', false],
@@ -590,7 +591,7 @@ export function getPendingRequests(userID, callback) {
         pendingRequests[i].from = cleanedUser;
       }
 
-      pendingRequests = await addProfilePicturesAll(pendingRequests, 'profile');
+      pendingRequests = await addProfilePicturesToRequests(pendingRequests);
       if (pendingRequests !== -1)
         return callback(
           sendPacket(1, 'Sending pending requests', { pendingRequests })

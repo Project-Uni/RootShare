@@ -15,6 +15,11 @@ export function getUserData(callback) {
       'email',
       'phoneNumber',
       'graduationYear',
+      'major',
+      'work',
+      'position',
+      'department',
+      'graduateSchool',
     ],
     (err, users) => {
       if (err || users === undefined || users === null) {
@@ -66,7 +71,7 @@ function countAccountType(users) {
   return retCounts;
 }
 
-// Adds profile picture, mutual members, and mutual communities
+// Adds mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
@@ -274,6 +279,45 @@ export function addProfilePicturesAll(
           entities[i].profilePicture = undefined;
       }
       return entities;
+    });
+}
+
+export function addProfilePicturesToRequests(requests) {
+  const profilePicturePromises = [];
+  for (let i = 0; i < requests.length; i++) {
+    if (requests[i].from.profilePicture) {
+      const signedImageURLPromise = retrieveSignedUrl(
+        'profile',
+        requests[i].from.profilePicture
+      );
+      profilePicturePromises.push(signedImageURLPromise);
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+
+  return Promise.all(profilePicturePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++) {
+        if (signedImageURLs[i]) requests[i].from.profilePicture = signedImageURLs[i];
+        else requests[i].from.profilePicture = undefined;
+      }
+
+      return requests;
+    })
+    .catch((err) => {
+      log('error', err);
+      for (let i = 0; i < requests.length; i++) {
+        const imageURL = requests[i].from.profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          requests[i].from.profilePicture = undefined;
+      }
+      return requests;
     });
 }
 
