@@ -31,6 +31,9 @@ import {
   //generics
   getCommunitiesGeneric,
 } from '../interactions/community';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
+import { stringify } from 'querystring';
+import { send } from 'process';
 
 /**
  *
@@ -360,9 +363,19 @@ export default function communityRoutes(app) {
     async (req, res) => {
       const { communityID } = req.params;
       const { _id: userID } = getUserFromJWT(req);
-      const { skipCalculation } = req.query;
+
+      const query = getQueryParams(req, {
+        skipCalculation: {
+          type: 'boolean',
+          optional: true,
+        },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+
+      const { skipCalculation } = query;
       const packet = await getCommunityMembers(userID, communityID, {
-        skipCalculation,
+        skipCalculation: (skipCalculation || false) as boolean,
       });
       return res.json(packet);
     }
@@ -423,7 +436,14 @@ export default function communityRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const { query } = req;
+      const query = getQueryParams(req, {
+        description: { type: 'string', optional: true },
+        name: { type: 'string', optional: true },
+        type: { type: 'string', optional: true },
+        private: { type: 'boolean', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const packet = await updateFields(communityID, query);
       return res.json(packet);
     }
@@ -431,6 +451,18 @@ export default function communityRoutes(app) {
 
   app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
+    const query = getQueryParams(req, {
+      _ids: { type: 'string[]' },
+      limit: { type: 'number', optional: true },
+      fields: { type: 'string[]', optional: true },
+      populates: { type: 'string[]', optional: true },
+      getProfilePicture: { type: 'boolean', optional: true },
+      getBannerPicture: { type: 'boolean', optional: true },
+      includeDefaultFields: { type: 'boolean', optional: true },
+      getRelationship: { type: 'boolean', optional: true },
+    });
+
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
     const {
       _ids,
       fields,
@@ -440,19 +472,10 @@ export default function communityRoutes(app) {
       limit,
       includeDefaultFields,
       populates,
-    }: {
-      _ids: string[];
-      fields?: string[];
-      getProfilePicture?: boolean;
-      getBannerPicture?: boolean;
-      getRelationship?: boolean;
-      limit?: string;
-      includeDefaultFields?: boolean;
-      populates?: string[];
-    } = req.query;
+    } = query;
 
     const options = {
-      limit: parseInt(limit),
+      limit,
       populates,
       getProfilePicture,
       getBannerPicture,
@@ -460,7 +483,7 @@ export default function communityRoutes(app) {
       includeDefaultFields,
     };
 
-    const packet = await getCommunitiesGeneric(_ids, {
+    const packet = await getCommunitiesGeneric(_ids as string[], {
       fields: fields as any,
       options: options as any,
     });
@@ -498,10 +521,15 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const {
-        action,
-        communityID,
-      }: { action: 'join' | 'cancel' | 'leave'; communityID: string } = req.query;
+      const query = getQueryParams(req, {
+        action: { type: 'string' },
+        communityID: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+      let { action, communityID } = query;
+      (action = action as string), (communityID = communityID as string);
 
       if (action === 'join') res.json(await joinCommunity(communityID, userID));
       else if (action === 'leave')
