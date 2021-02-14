@@ -32,6 +32,7 @@ import {
 } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { RSLink } from '../';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -98,6 +99,7 @@ export type HoverProps = {
 const HoverPreview = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const { anchorEl, _id, type, profilePicture, name, mouseEntered } = useSelector(
     (state: RootshareReduxState) => state.hoverPreview
@@ -128,6 +130,16 @@ const HoverPreview = () => {
     });
     return () => mainComponent?.removeEventListener('scroll', handleCloseOnScroll);
   }, [handleCloseOnScroll]);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      if (anchorEl || open) {
+        setOpen(false);
+        dispatch(clearHoverPreview());
+      }
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   const fetchData = useCallback(async () => {
     const data =
