@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles((_: any) => ({
   link: {
     color: 'inherit',
+  },
+  pointer: {
     '&:hover': {
       cursor: 'pointer',
     },
@@ -12,19 +14,23 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  href: string;
+  href?: string;
   className?: string;
   style?: React.CSSProperties;
   children: JSX.Element[] | JSX.Element | string;
 };
 
-const RSLink = (props: Props) => {
+export const RSLink = (props: Props) => {
   const styles = useStyles();
 
   const { href, className, style, children } = props;
 
   return href ? (
-    <Link to={href} style={style} className={[className, styles.link].join(' ')}>
+    <Link
+      to={href}
+      style={style}
+      className={[className, styles.link, styles.pointer].join(' ')}
+    >
       {children}
     </Link>
   ) : (
@@ -33,4 +39,3 @@ const RSLink = (props: Props) => {
     </a>
   );
 };
-export default RSLink;
