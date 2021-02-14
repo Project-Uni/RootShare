@@ -281,16 +281,11 @@ export function addProfilePicturesToRequests(requests) {
   const profilePicturePromises = [];
   for (let i = 0; i < requests.length; i++) {
     if (requests[i].from.profilePicture) {
-      try {
-        const signedImageURLPromise = retrieveSignedUrl(
-          'profile',
-          requests[i].from.profilePicture
-        );
-        profilePicturePromises.push(signedImageURLPromise);
-      } catch (err) {
-        profilePicturePromises.push(null);
-        log('error', 'There was an error retrieving a signed url from S3');
-      }
+      const signedImageURLPromise = retrieveSignedUrl(
+        'profile',
+        requests[i].from.profilePicture
+      );
+      profilePicturePromises.push(signedImageURLPromise);
     } else {
       profilePicturePromises.push(null);
     }

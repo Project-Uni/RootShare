@@ -284,7 +284,6 @@ function EventMessageContainer(props: Props) {
   }
 
   function renderViewerButtons() {
-    return;
     if (!props.onRequestToSpeak && !props.communityID) return;
 
     return (

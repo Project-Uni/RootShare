@@ -13,7 +13,7 @@ import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
-import allRoutes from './routes';
+import RootshareRoutes from './routes';
 
 import {
   elasticMiddleware,
@@ -108,7 +108,7 @@ if (!isProd) {
 
 const server = http.createServer(app);
 const io = socketIO(server);
-allRoutes(app, io); // Setup for all routes files
+RootshareRoutes(app, io); // Setup for all routes files
 
 require('./config/setup')(passport);
 

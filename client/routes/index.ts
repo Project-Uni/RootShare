@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Express } from 'express';
 import { sendPacket } from '../helpers/functions';
 
 import communityRoutes from './community';
@@ -18,7 +18,7 @@ import userRoutes from './user';
 import utilityRoutes from './utilities';
 import webhookRoutes from './webhooks';
 
-export default function allRoutes(app, io) {
+export default function RootshareRoutes(app: Express, io) {
   communityRoutes(app);
   discoverRoutes(app);
   eventRoutes(app);
@@ -36,9 +36,7 @@ export default function allRoutes(app, io) {
   utilityRoutes(app);
   webhookRoutes(app);
 
-  //Ashwin: Not sure if we need this
-  app.all('/api/*', async (req: Request, res: Response) => {
-    console.log('TEST');
-    return res.json(sendPacket(-1, 'Path not found'));
+  app.all('/api/*', async (req, res) => {
+    return res.status(404).json(sendPacket(-1, 'Path not found'));
   });
 }
