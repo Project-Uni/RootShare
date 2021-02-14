@@ -165,22 +165,20 @@ function MainNavigator(props: Props) {
           className={styles.link}
           key={`navigation_tab_${i}`}
         >
-          <>
-            {tabs[i].icon}
-            <RSText
-              type="head"
-              size={TEXT_SIZE}
-              bold
-              className={[
-                styles.textStyle,
-                currentTab === tabs[i].name.toLowerCase()
-                  ? styles.selectedTab
-                  : styles.unselectedTab,
-              ].join(' ')}
-            >
-              {tabs[i].name}
-            </RSText>
-          </>
+          {tabs[i].icon}
+          <RSText
+            type="head"
+            size={TEXT_SIZE}
+            bold
+            className={[
+              styles.textStyle,
+              currentTab === tabs[i].name.toLowerCase()
+                ? styles.selectedTab
+                : styles.unselectedTab,
+            ].join(' ')}
+          >
+            {tabs[i].name}
+          </RSText>
         </RSLink>
       );
     }

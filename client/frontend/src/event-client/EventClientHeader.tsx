@@ -119,7 +119,7 @@ function EventClientHeader(props: Props) {
       case 'profile':
         return <ProfileDrawer />;
       case 'navigation':
-        return <NavigationDrawer currentTab="none" />;
+        return <NavigationDrawer />;
       default:
         return null;
     }
