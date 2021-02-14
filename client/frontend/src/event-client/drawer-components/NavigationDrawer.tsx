@@ -6,9 +6,9 @@ import { FaHome, FaRegCalendarAlt } from 'react-icons/fa';
 import { MdGroup } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
-import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
 import Theme from '../../theme/Theme';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -105,9 +105,10 @@ function NavigationDrawer(props: Props) {
     const output = [];
     for (let i = 0; i < tabs.length; i++) {
       output.push(
-        <a
+        <RSLink
           href={tabs[i].link || `/${tabs[i].name.toLowerCase()}`}
           className={styles.link}
+          key={`navigation_${i}`}
         >
           {tabs[i].icon}
           <RSText
@@ -124,7 +125,7 @@ function NavigationDrawer(props: Props) {
           >
             {tabs[i].name}
           </RSText>
-        </a>
+        </RSLink>
       );
     }
     return output;

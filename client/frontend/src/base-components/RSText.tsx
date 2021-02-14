@@ -55,11 +55,11 @@ function RSText(props: Props) {
   });
 
   function handleMouseOver() {
-    setStyle({ ...style, color: hoverColor });
+    if (hoverColor) setStyle({ ...style, color: hoverColor });
   }
 
   function handleMouseLeave() {
-    setStyle({ ...style, color });
+    if (hoverColor) setStyle({ ...style, color });
   }
 
   return (
