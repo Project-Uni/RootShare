@@ -14,6 +14,7 @@ import {
 } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '../../reusable-components';
 
 const ITEM_HEIGHT = 28;
 
@@ -456,7 +457,7 @@ function ProfileHead(props: Props) {
       </div>
       <div className={styles.headRight}>
         {renderConnectionButton()}
-        <a
+        <RSLink
           href={`/connections/${
             props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
@@ -470,8 +471,8 @@ function ProfileHead(props: Props) {
           >
             {numConnections || 0} Connections {mutualConnections}
           </RSText>
-        </a>
-        <a
+        </RSLink>
+        <RSLink
           href={`/communities/${
             props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
@@ -485,7 +486,7 @@ function ProfileHead(props: Props) {
           >
             {props.numCommunities || 0} Communities {mutualCommunities}
           </RSText>
-        </a>
+        </RSLink>
       </div>
     </div>
   );

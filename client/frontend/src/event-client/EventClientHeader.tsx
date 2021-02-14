@@ -20,7 +20,7 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
-import { SearchField } from '../main-platform/reusable-components';
+import { RSLink, SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 import { useHistory } from 'react-router-dom';
 
@@ -182,7 +182,7 @@ function EventClientHeader(props: Props) {
                     }
               }
             >
-              <a href="/home">
+              <RSLink href="/home">
                 <img
                   src={RootShareLogo}
                   alt="RootShare"
@@ -190,7 +190,7 @@ function EventClientHeader(props: Props) {
                     width: isDesktop.current ? 190 : 130,
                   }}
                 />
-              </a>
+              </RSLink>
               <SearchField
                 style={{
                   // transition: `max-width 0.75s ease, opacity ${

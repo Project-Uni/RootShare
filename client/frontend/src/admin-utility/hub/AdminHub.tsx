@@ -16,6 +16,7 @@ import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -125,14 +126,14 @@ function AdminHub(props: Props) {
       output.push(
         <Grid item xs={12} sm={6} md={3}>
           <div style={{ display: 'inline-block' }}>
-            <a href={pages[i].link} className={styles.pageLink}>
+            <RSLink href={pages[i].link} className={styles.pageLink}>
               <div className={styles.iconBackground}>{pages[i].icon}</div>
               <div className={styles.pageNameDiv}>
                 <RSText type="body" bold size={14} className={styles.pageName}>
                   {pages[i].title}
                 </RSText>
               </div>
-            </a>
+            </RSLink>
           </div>
         </Grid>
       );
