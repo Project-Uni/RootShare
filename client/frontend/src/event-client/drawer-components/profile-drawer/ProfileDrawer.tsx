@@ -22,6 +22,7 @@ import BugModal from './BugModal';
 
 import { makeRequest } from '../../../helpers/functions';
 import { UserType, UniversityType, ConversationType } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -31,7 +32,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
   },
   profilePicture: {
-    border: `3px solid ${colors.primaryText}`,
+    border: `3px solid ${Theme.white}`,
   },
   names: {
     display: 'flex',
@@ -60,23 +61,26 @@ const useStyles = makeStyles((_: any) => ({
   },
   updateIndividual: {
     marginTop: 17,
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   button: {
     width: '361px',
     marginTop: 20,
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.altText,
+    background: Theme.bright,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   logoutButton: {
     width: '361px',
     marginTop: 10,
-    color: colors.primaryText,
+    color: Theme.primaryText,
   },
   logoutErr: {
     width: '361px',
     marginTop: 10,
-    color: colors.brightError,
+    color: Theme.error,
   },
   buttonWrapper: {
     marginLeft: -20,
@@ -91,7 +95,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 360,
     height: 57,
     marginTop: 17,
-    background: colors.fourth,
+    background: Theme.primary,
   },
   collegeOfItem: {
     // Dropdown Menu Items
@@ -108,22 +112,6 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
 }));
-
-const PurdueColleges = [
-  'College of Agriculture',
-  'College of Education',
-  'College of Engineering',
-  'Exploratory Studies',
-  'College of Health and Human Sciences',
-  'College of Liberal Arts',
-  'Krannert School of Management',
-  'College of Pharmacy',
-  'Purdue Polytechnic Institute',
-  'College of Science',
-  'College of Veterinary Medicine',
-  'Honors College',
-  'The Graduate School',
-];
 
 type Props = {
   user: { [key: string]: any };
@@ -173,6 +161,8 @@ function ProfileDrawer(props: Props) {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState('');
   const [updatedDiscoveryMethod, setUpdatedDiscoveryMethod] = useState('');
 
+  const [universityDepartments, setUniversityDepartments] = useState<string[]>([]);
+
   //TODO: Keep as is for now. Will update to show error in the future
   const [fetchingErr, setFetchingErr] = useState(false);
   const [updateErr, setUpdateErr] = useState(false);
@@ -186,19 +176,22 @@ function ProfileDrawer(props: Props) {
 
   useEffect(() => {
     getProfile();
+    getDepartments();
   }, []);
 
   async function getProfile() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/user/profile/user',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/user/profile/user');
 
+    console.log(data);
     if (data['success'] === 1) setOriginalUserInfo(data['content']['user']);
+    else setFetchingErr(true);
+  }
+
+  async function getDepartments() {
+    const { data } = await makeRequest('GET', '/api/university/departments');
+
+    if (data['success'] === 1)
+      setUniversityDepartments(data['content']['departments']);
     else setFetchingErr(true);
   }
 
@@ -211,8 +204,8 @@ function ProfileDrawer(props: Props) {
     setOriginalCurrentRole(user.position);
     setOriginalCollege(user.university as UniversityType);
     setOriginalCollegeOf(user.department);
-    setOriginalInterests(user.interests.join(','));
-    setOriginalOrganizations(user.organizations.join(','));
+    setOriginalInterests(user.interests.join(', '));
+    setOriginalOrganizations(user.organizations.join(', '));
     setOriginalGraduateDegree(user.graduateSchool);
     setOriginalPhoneNumber(user.phoneNumber);
     setOriginalDiscoveryMethod(user.discoveryMethod);
@@ -245,8 +238,8 @@ function ProfileDrawer(props: Props) {
         position: updatedCurrentRole,
         university: updatedCollege?._id,
         department: updatedCollegeOf,
-        interests: updatedInterests.split(','),
-        organizations: updatedOrganizations.split(','),
+        interests: updatedInterests.split(', '),
+        organizations: updatedOrganizations.split(', '),
         graduateSchool: updatedGraduateDegree,
         phoneNumber: updatedPhoneNumber,
         discoveryMethod: updatedDiscoveryMethod,
@@ -454,7 +447,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.name}
           bold
         >
@@ -463,7 +456,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.name}
         >
           {props.user.email}
@@ -527,7 +520,7 @@ function ProfileDrawer(props: Props) {
           onChange={handleCollegeOfChange}
           label="College"
         >
-          {PurdueColleges.map((singleCollege) => (
+          {universityDepartments.map((singleCollege) => (
             <MenuItem value={singleCollege}>{singleCollege}</MenuItem>
           ))}
         </Select>
@@ -568,7 +561,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Major: {originalMajor}
@@ -576,7 +569,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Graduation Year: {originalGraduationYear}
@@ -584,7 +577,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Current Employer: {originalCurrentEmployer}
@@ -592,7 +585,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Current Role: {originalCurrentRole}
@@ -600,7 +593,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           University: {originalCollege?.universityName}
@@ -608,7 +601,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           College: {originalCollegeOf}
@@ -616,7 +609,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Interests: {originalInterests}
@@ -624,7 +617,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Organizations: {originalOrganizations}
@@ -641,7 +634,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Phone Number: {originalPhoneNumber}
@@ -649,7 +642,7 @@ function ProfileDrawer(props: Props) {
         <RSText
           type="body"
           size={12}
-          color={colors.primaryText}
+          color={Theme.primaryText}
           className={styles.staticIndividual}
         >
           Discovery Method: {originalDiscoveryMethod}

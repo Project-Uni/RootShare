@@ -7,7 +7,6 @@ import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core'
 
 import { FaSearch } from 'react-icons/fa';
 
-import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
@@ -15,12 +14,10 @@ import { makeRequest } from '../../../helpers/functions';
 import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   searchBar: {
     flex: 1,
@@ -44,21 +41,22 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 10,
   },
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 60,
   },
   box: {
     margin: 8,
-    background: colors.primaryText,
+    background: Theme.altText,
   },
 }));
 
 type Props = {
-  requestUserID: string;
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
 
   user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
 };
 
 function ConnectionsBody(props: Props) {
@@ -71,9 +69,11 @@ function ConnectionsBody(props: Props) {
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
+  const requestUserID = props.match.params['userID'];
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    if (props.requestUserID !== 'user') fetchUserBasicInfo();
+    if (requestUserID !== 'user') fetchUserBasicInfo();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -83,12 +83,8 @@ function ConnectionsBody(props: Props) {
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
-        props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/connections`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+        requestUserID === 'user' ? props.user._id : requestUserID
+      }/connections`
     );
 
     if (data.success === 1) {
@@ -98,14 +94,7 @@ function ConnectionsBody(props: Props) {
   }
 
   async function fetchUserBasicInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/${props.requestUserID}/basic`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
     }
@@ -127,7 +116,7 @@ function ConnectionsBody(props: Props) {
             <TextField
               {...params}
               label={`Search ${
-                props.requestUserID === 'user' ? 'your' : `${username}'s`
+                requestUserID === 'user' ? 'your' : `${username}'s`
               } connections`}
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
@@ -135,7 +124,7 @@ function ConnectionsBody(props: Props) {
           )}
         />
         <IconButton>
-          <FaSearch size={22} color={colors.primary} className={styles.searchIcon} />
+          <FaSearch size={22} color={Theme.primary} className={styles.searchIcon} />
         </IconButton>
       </div>
     );
@@ -173,8 +162,8 @@ function ConnectionsBody(props: Props) {
     if (connections.length === 0)
       return (
         <RSText size={20} type="head" className={styles.noConnections}>
-          {props.requestUserID === 'user' ? `You don't` : `${username} doesn't`} have
-          any connections yet. Send a request!
+          {requestUserID === 'user' ? `You don't` : `${username} doesn't`} have any
+          connections yet. Send a request!
         </RSText>
       );
 
@@ -206,16 +195,16 @@ function ConnectionsBody(props: Props) {
       className={styles.wrapper}
       style={{
         height: height,
-        background: colors.background,
+        background: Theme.background,
       }}
     >
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+            requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
           message={`See all of the people that ${
-            props.requestUserID === 'user' ? 'you have' : `${username} has`
+            requestUserID === 'user' ? 'you have' : `${username} has`
           } connected with!`}
         />
         {renderSearchArea()}
@@ -237,8 +226,6 @@ function ConnectionsBody(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

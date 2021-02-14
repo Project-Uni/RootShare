@@ -2,12 +2,13 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { GiTreeBranch } from 'react-icons/gi';
-import { FaSearch, FaHome, FaRegCalendarAlt } from 'react-icons/fa';
-import { MdGroup, MdOndemandVideo } from 'react-icons/md';
+import { FaHome, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdGroup } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
 import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -32,12 +33,10 @@ const ICON_SIZE = 32;
 
 type AVAILABLE_TABS =
   | 'home'
-  | 'discover'
   | 'communities'
   | 'events'
   | 'connections'
   | 'profile'
-  | 'library'
   | 'none';
 
 type Props = {
@@ -53,18 +52,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? colors.bright : colors.primaryText}
-        />
-      ),
-    },
-    {
-      name: 'Discover',
-      icon: (
-        <FaSearch
-          size={ICON_SIZE}
-          color={
-            props.currentTab === 'discover' ? colors.bright : colors.primaryText
-          }
+          color={props.currentTab === 'home' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
@@ -74,7 +62,7 @@ function NavigationDrawer(props: Props) {
         <FaHome
           size={ICON_SIZE}
           color={
-            props.currentTab === 'communities' ? colors.bright : colors.primaryText
+            props.currentTab === 'communities' ? Theme.bright : Theme.primaryText
           }
         />
       ),
@@ -85,26 +73,17 @@ function NavigationDrawer(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'events' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
-    // {
-    //   name: 'Library',
-    //   icon: (
-    //     <MdOndemandVideo
-    //       size={ICON_SIZE}
-    //       color={props.currentTab === 'library' ? colors.bright : colors.primaryText}
-    //     />
-    //   ),
-    // },
     {
       name: 'Connections',
       icon: (
         <MdGroup
           size={ICON_SIZE}
           color={
-            props.currentTab === 'connections' ? colors.bright : colors.primaryText
+            props.currentTab === 'connections' ? Theme.bright : Theme.primaryText
           }
         />
       ),
@@ -115,7 +94,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? colors.bright : colors.primaryText}
+          color={props.currentTab === 'profile' ? Theme.bright : Theme.primaryText}
         />
       ),
       link: '/profile/user',
@@ -135,13 +114,13 @@ function NavigationDrawer(props: Props) {
             type="head"
             color={
               props.currentTab === tabs[i].name.toLowerCase()
-                ? colors.bright
-                : colors.primaryText
+                ? Theme.bright
+                : Theme.primaryText
             }
             size={TEXT_SIZE}
             bold
             className={styles.textStyle}
-            hoverColor={colors.bright}
+            hoverColor={Theme.brightHover}
           >
             {tabs[i].name}
           </RSText>
@@ -153,7 +132,7 @@ function NavigationDrawer(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.linkContainer}>{renderLinks()}</div>{' '}
+      <div className={styles.linkContainer}>{renderLinks()}</div>
     </div>
   );
 }

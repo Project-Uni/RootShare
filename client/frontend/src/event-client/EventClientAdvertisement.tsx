@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    flex: 1,
+  },
   adbox: {
     height: '100%',
     width: '100%',

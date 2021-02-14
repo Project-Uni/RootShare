@@ -10,11 +10,13 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { UserType } from '../../../helpers/types';
 import { UniversityType } from '../../../helpers/types/universityTypes';
 import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
-    background: colors.secondary,
+    background: Theme.white,
     paddingTop: 5,
     paddingBottom: 5,
   },
@@ -34,38 +36,44 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 2,
   },
   mutual: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
   },
   organization: {
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
   },
   name: {
     display: 'inline-block',
-    color: colors.primaryText,
+    color: Theme.primaryText,
     wordWrap: 'break-word',
     maxWidth: 200,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: colors.primaryText,
+      color: Theme.primaryText,
     },
   },
   removeButton: {
-    color: colors.primaryText,
-    background: 'gray',
+    color: Theme.altText,
+    background: Theme.primary,
     height: 27,
     marginTop: 7,
+    '&:hover': {
+      background: Theme.primaryHover,
+    },
   },
   connectButton: {
-    color: colors.primaryText,
-    background: colors.bright,
+    color: Theme.altText,
+    background: Theme.bright,
     height: 27,
     marginTop: 7,
     marginLeft: 7,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   fadeOut: {
     opacity: 0,
@@ -75,7 +83,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
   },
   confirmation: {
-    color: colors.success,
+    color: Theme.success,
     marginTop: 'auto',
     marginBottom: 'auto',
     marginLeft: 40,
@@ -85,8 +93,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   suggestedUser: UserType;
   removeSuggestion: (userID: string) => void;
-  accessToken: string;
-  refreshToken: string;
 };
 
 function SingleSuggestion(props: Props) {
@@ -102,16 +108,7 @@ function SingleSuggestion(props: Props) {
   }, [document.getElementById('suggestionWrapper')?.offsetHeight]);
 
   function requestConnection() {
-    makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.suggestedUser._id,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    putUpdateUserConnection('connect', props.suggestedUser._id);
 
     setRequested(true);
     removeSuggestion();

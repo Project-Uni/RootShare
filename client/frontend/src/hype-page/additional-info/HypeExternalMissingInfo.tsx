@@ -131,24 +131,16 @@ function HypeExternalMissingInfo(props: Props) {
   }
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      accessToken,
-      refreshToken
-    );
-    if (data['success'] === 1) {
-      props.updateUser({ ...data['content'] });
+    if (Boolean(accessToken)) {
+      // props.updateUser({ ...data['content'] });
       props.updateAccessToken(accessToken);
       props.updateRefreshToken(refreshToken);
+      checkCompletedRegistration();
     } else setLandingRedirect(true);
   }
 
   useEffect(() => {
     checkAuth();
-    checkCompletedRegistration();
   }, []);
 
   function handleUniversityChange(event: any) {
@@ -173,49 +165,50 @@ function HypeExternalMissingInfo(props: Props) {
     setConfirmPassword(event.target.value);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setLoading(true);
     let hasErr = false;
-    setTimeout(async () => {
+
+    if (standing.length === 0) {
+      setStandingErr('Standing is required');
+      hasErr = true;
+    } else setStandingErr('');
+
+    if (university.length === 0) {
+      setUniversityErr('University is required');
+      hasErr = true;
+    } else setUniversityErr('');
+
+    if (password.length > 0 && password.length < 8) {
+      setPasswordErr('Password must be at least 8 characters');
+      hasErr = true;
+    } else setPasswordErr('');
+
+    if (confirmPassword !== password) {
+      setConfirmErr('Passwords must match');
+      hasErr = true;
+    } else setConfirmErr('');
+
+    if (hasErr) {
       setLoading(false);
-      if (standing.length === 0) {
-        setStandingErr('Standing is required');
-        hasErr = true;
-      } else setStandingErr('');
-
-      if (university.length === 0) {
-        setUniversityErr('University is required');
-        hasErr = true;
-      } else setUniversityErr('');
-
-      if (password.length > 0 && password.length < 8) {
-        setPasswordErr('Password must be at least 8 characters');
-        hasErr = true;
-      } else setPasswordErr('');
-
-      if (confirmPassword !== password) {
-        setConfirmErr('Passwords must match');
-        hasErr = true;
-      } else setConfirmErr('');
-
-      if (hasErr) return;
-
-      const { data } = await makeRequest(
-        'POST',
-        '/auth/complete-registration/required',
-        {
-          university: university,
-          accountType: standing,
-          password,
-        },
-        true,
-        accessToken,
-        refreshToken
-      );
-      if (data.success === 1) {
-        window.location.href = '/register/initialize';
+      return;
+    }
+    const { data } = await makeRequest(
+      'POST',
+      '/auth/complete-registration/required',
+      {
+        university: university,
+        accountType: standing,
+        password,
       }
-    }, 1000);
+    );
+
+    setLoading(false);
+    if (data.success === 1) {
+      props.updateAccessToken(data.content.accessToken);
+      props.updateRefreshToken(data.content.refreshToken);
+      window.location.href = '/register/initialize';
+    }
   }
 
   function renderUniversityStandingSelect() {
@@ -282,13 +275,7 @@ function HypeExternalMissingInfo(props: Props) {
       {additionalRedirect && <Redirect to="/register/initialize" />}
       <HypeHeader />
       <div className={styles.body}>
-        <HypeCard
-          headerText="We need some more info"
-          backArrow="link"
-          backArrowLink="/"
-          width={400}
-          loading={loading}
-        >
+        <HypeCard headerText="We need some more info" width={400} loading={loading}>
           <p className={styles.tabDesc}>University:</p>
           <div className={styles.autocompleteDiv}>
             <UniversityAutocomplete

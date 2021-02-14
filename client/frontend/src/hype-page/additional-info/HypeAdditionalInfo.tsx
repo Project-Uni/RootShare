@@ -76,9 +76,6 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  // const redirectURL = '/home';
-  const redirectURL = checkDesktop() ? '/home' : '/event/5f89f333821f7f6046243a53';
-
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
       'POST',
@@ -95,7 +92,9 @@ function HypeAdditionalInfo(props: Props) {
         setRegCompleted(data['content']['regComplete']);
         setCurrentUser(data['content']['email']);
       }
-    } else setLandingRedirect(true);
+    } else {
+      setLandingRedirect(true);
+    }
   }
 
   useEffect(() => {
@@ -199,7 +198,7 @@ function HypeAdditionalInfo(props: Props) {
   }
 
   function handleContinue() {
-    window.location.href = redirectURL;
+    window.location.href = '/home';
   }
 
   const mode = 'question';

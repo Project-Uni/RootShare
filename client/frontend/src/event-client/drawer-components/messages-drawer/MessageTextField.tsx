@@ -9,6 +9,7 @@ import { Picker } from 'emoji-mart';
 
 import { colors } from '../../../theme/Colors';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -16,8 +17,8 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     width: '100%',
     justifyContent: 'space-between',
-    borderTop: '1px solid #333333',
-    color: '#f2f2f2',
+    borderTop: `1px solid ${Theme.primary}`,
+    color: Theme.dark,
     paddingTop: 5,
     paddingBottom: 5,
     paddingLeft: 5,
@@ -27,41 +28,41 @@ const useStyles = makeStyles((_: any) => ({
       borderRadius: 40,
     },
     width: '100%',
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
     borderRadius: 40,
   },
   cssLabel: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
   },
   cssFocused: {
-    color: '#f2f2f2',
-    label: '#f2f2f2',
+    color: Theme.dark,
+    label: Theme.dark,
     borderWidth: '1px',
-    borderColor: '#f2f2f2 !important',
+    borderColor: `${Theme.dark} !important`,
   },
   cssOutlinedInput: {
     '&$cssFocused $notchedOutline': {
       // color: '#f2f2f2 !important',
       // label: '#f2f2f2 !important',
       borderWidth: '2px',
-      borderColor: '#f2f2f2 !important',
+      borderColor: `${Theme.dark} !important`,
     },
   },
   notchedOutline: {
     borderWidth: '1px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
+    label: Theme.primaryText,
+    borderColor: Theme.primaryText,
+    color: Theme.primaryText,
   },
   paper: {
     width: 270,
   },
   icon: {
-    color: '#f2f2f2',
+    color: Theme.primary,
     '&:hover': {
-      color: colors.bright,
+      color: Theme.bright,
     },
   },
 }));
@@ -106,7 +107,7 @@ function MessageTextField(props: Props) {
           onSelect={onEmojiClick}
           title="Spice it up"
           perLine={7}
-          theme="dark"
+          theme="light"
           showPreview={false}
           sheetSize={64}
           emoji=""

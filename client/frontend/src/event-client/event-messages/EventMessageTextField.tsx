@@ -7,59 +7,24 @@ import { FaRegSmile } from 'react-icons/fa';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker } from 'emoji-mart';
 
-import { colors } from '../../theme/Colors';
 import { ENTER_KEYCODE } from '../../helpers/constants';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
   textFieldContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.secondary,
-    color: colors.primaryText,
-    borderTopStyle: 'solid',
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
+    background: Theme.background,
+    paddingTop: 5,
   },
   textField: {
-    width: 250,
-    background: colors.ternary,
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssLabel: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-  },
-  cssFocused: {
-    color: colors.primaryText,
-    label: colors.primaryText,
-    borderWidth: '2px',
-    borderColor: colors.primaryText,
-    shrink: false,
-  },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      color: colors.primaryText,
-      label: colors.primaryText,
-      borderWidth: '2px',
-      borderColor: colors.primaryText,
-    },
-  },
-  notchedOutline: {
-    borderWidth: '1px',
-    label: colors.primaryText,
-    borderColor: colors.primaryText,
-    color: colors.primaryText,
+    marginLeft: 5,
   },
   paper: {
     width: 270,
   },
   icon: {
-    color: colors.primaryText,
-    '&:hover': {
-      color: colors.bright,
-    },
+    color: Theme.bright,
   },
 }));
 
@@ -143,34 +108,22 @@ function MessageTextField(props: Props) {
       <TextField
         multiline
         type="search"
-        label="Aa"
+        label="Message"
         variant="outlined"
         className={styles.textField}
         onChange={handleMessageChange}
         onKeyDown={handleMessageKey}
         value={newMessage}
-        InputLabelProps={{
-          classes: {
-            root: styles.cssLabel,
-            focused: styles.cssFocused,
-          },
-        }}
-        InputProps={{
-          classes: {
-            root: styles.cssOutlinedInput,
-            focused: styles.cssFocused,
-            // notchedOutline: styles.notchedOutline,
-          },
-        }}
+        fullWidth
       />
-      <div>
+      <div style={{ display: 'flex' }}>
         <IconButton
           aria-label="more"
           aria-controls="long-menu"
           aria-haspopup="true"
           onClick={() => setOpen(true)}
         >
-          <FaRegSmile size={24} className={styles.icon}></FaRegSmile>
+          <FaRegSmile size={20} className={styles.icon}></FaRegSmile>
         </IconButton>
         <Modal open={open} onClose={() => setOpen(false)}>
           {renderEmojiPicker()}
@@ -182,7 +135,9 @@ function MessageTextField(props: Props) {
         >
           <MdSend
             size={20}
-            style={{ color: getSendingDisabled() ? '#555555' : undefined }}
+            style={{
+              color: getSendingDisabled() ? Theme.primaryHover : Theme.bright,
+            }}
           />
         </IconButton>
       </div>

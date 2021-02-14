@@ -4,7 +4,6 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
@@ -13,13 +12,10 @@ import { RSText } from '../../../base-components';
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: colors.background,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   searchBar: {
     flex: 1,
@@ -39,19 +35,20 @@ const useStyles = makeStyles((_: any) => ({
   },
   loadingIndicator: {
     marginTop: 80,
-    color: colors.primary,
+    color: Theme.bright,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
   },
 }));
 
 type Props = {
-  requestUserID: string;
   user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
 };
 
 function YourCommunitiesBody(props: Props) {
@@ -68,9 +65,11 @@ function YourCommunitiesBody(props: Props) {
     false
   );
 
+  const requestUserID = props.match.params['userID'];
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    if (props.requestUserID !== 'user') fetchUserBasicInfo();
+    if (requestUserID !== 'user') fetchUserBasicInfo();
     fetchData().then(() => {
       setLoading(false);
     });
@@ -80,12 +79,8 @@ function YourCommunitiesBody(props: Props) {
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
-        props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/communities/all`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+        requestUserID === 'user' ? props.user._id : requestUserID
+      }/communities/all`
     );
     if (data.success === 1) {
       setJoinedCommunities(data.content['joinedCommunities']);
@@ -94,14 +89,7 @@ function YourCommunitiesBody(props: Props) {
   }
 
   async function fetchUserBasicInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/${props.requestUserID}/basic`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
     }
@@ -160,7 +148,7 @@ function YourCommunitiesBody(props: Props) {
     }
     if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
       const noCommunitiesMessage =
-        props.requestUserID === 'user'
+        requestUserID === 'user'
           ? `You aren't a part of any communities yet. Get involved!`
           : `${username} isn't a part of any communities yet.`;
 
@@ -183,10 +171,10 @@ function YourCommunitiesBody(props: Props) {
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
           title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+            requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}
           message={`All of the communities that ${
-            props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
+            requestUserID === 'user' ? 'you belong' : `${username} belongs`
           } to will be displayed on this page.`}
           buttonText={'Create Community'}
           buttonAction={() => setShowCreateCommunitiesModal(true)}

@@ -4,16 +4,17 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
-import theme from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
+import { putUpdateUserConnection } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${theme.dark}`,
+    borderBottom: `1px solid ${Theme.dark}`,
     paddingBottom: 15,
   },
   lastWrapper: {
@@ -31,18 +32,24 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primaryText,
+      color: Theme.primary,
     },
   },
   removeButton: {
-    color: theme.altText,
-    background: colors.secondary,
+    color: Theme.altText,
+    background: Theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: Theme.primaryHover,
+    },
   },
   connectButton: {
-    color: theme.altText,
-    background: theme.bright,
+    color: Theme.altText,
+    background: Theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: Theme.brightHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -87,17 +94,7 @@ function DiscoverySinglePerson(props: Props) {
   }
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-
+    const data = await putUpdateUserConnection('connect', props.userID);
     if (data['success'] === 1) {
       props.setNotification('success', data['message']);
       removeSuggestion();
@@ -147,17 +144,17 @@ function DiscoverySinglePerson(props: Props) {
           </a>
           <div className={styles.textContainer}>
             <a href={`/profile/${props.userID}`} className={styles.personLink}>
-              <RSText type="body" color={theme.primaryText} size={13} bold>
+              <RSText type="body" color={Theme.primaryText} size={13} bold>
                 {props.name}
               </RSText>
             </a>
-            <RSText type="body" color={theme.secondaryText} italic size={11}>
+            <RSText type="body" color={Theme.secondaryText} italic size={11}>
               {props.position}
             </RSText>
-            <RSText type="body" color={theme.secondaryText} italic size={11}>
+            <RSText type="body" color={Theme.secondaryText} italic size={11}>
               {props.company}
             </RSText>
-            <RSText type="body" color={theme.secondaryText} size={10}>
+            <RSText type="body" color={Theme.secondaryText} size={10}>
               {numMutualConnections} Mutual Connections
             </RSText>
           </div>

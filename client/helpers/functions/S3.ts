@@ -73,7 +73,7 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
     Bucket: BUCKET,
     Key: prefix + fileName,
   };
-  const params = { Bucket: BUCKET, Key: prefix + fileName, Expires: 86400 };
+  const params = { Bucket: BUCKET, Key: prefix + fileName, Expires: 86400 * 7 };
 
   try {
     const head = await s3.headObject(headParams).promise();
@@ -103,6 +103,8 @@ function getPathPrefix(imageType: ImageReason) {
       return base + 'event/banner/';
     case 'postImage':
       return base + 'post/';
+    case 'mtgBanner':
+      return base + 'mtg/banner/';
     default:
       return null;
   }

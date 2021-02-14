@@ -5,21 +5,21 @@ import { Button, IconButton } from '@material-ui/core';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
-import { EventType, HostType, ProfileState } from '../../../helpers/types';
+import { EventType, HostType, UserToUserRelationship } from '../../../helpers/types';
 import {
   makeRequest,
   formatDatePretty,
   formatTime,
 } from '../../../helpers/functions';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   compactWrapper: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: colors.primaryText,
+    background: Theme.white,
     paddingTop: 3,
     paddingBottom: 3,
     paddingLeft: 10,
@@ -50,14 +50,21 @@ const useStyles = makeStyles((_: any) => ({
     marginRight: 30,
   },
   removeButton: {
-    color: colors.error,
-    background: colors.primaryText,
+    color: Theme.error,
+    background: Theme.white,
     height: 30,
   },
   descriptions: {
-    color: colors.secondaryText,
+    color: Theme.white,
     marginTop: 4,
     marginBottom: 6,
+  },
+  navigationText: {
+    textDecoration: 'none',
+    color: 'inherit',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   },
 }));
 
@@ -65,9 +72,7 @@ type Props = {
   profileID: string;
   event: EventType;
   style?: any;
-  accessToken: string;
-  refreshToken: string;
-  currentProfileState: ProfileState;
+  currentProfileState: UserToUserRelationship;
   removeEvent: (eventID: string) => void;
 };
 
@@ -91,17 +96,10 @@ function ProfileEvent(props: Props) {
   async function removeEvent() {
     props.removeEvent(props.event._id);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/webinar/updateRSVP',
-      {
-        webinarID: props.event._id,
-        didRSVP: false,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/webinar/updateRSVP', {
+      webinarID: props.event._id,
+      didRSVP: false,
+    });
 
     console.log(data);
   }
@@ -114,7 +112,7 @@ function ProfileEvent(props: Props) {
             type="body"
             size={11}
             italic
-            color={colors.secondaryText}
+            color={Theme.primary}
             className={styles.eventTime}
           >
             @ {eventTime}
@@ -123,7 +121,7 @@ function ProfileEvent(props: Props) {
           <RSText
             type="body"
             size={12}
-            color={colors.second}
+            color={Theme.dark}
             className={styles.descriptions}
           >
             {props.event.brief_description}
@@ -132,13 +130,15 @@ function ProfileEvent(props: Props) {
           <RSText
             type="body"
             size={12}
-            color={colors.second}
+            color={Theme.dark}
             className={styles.descriptions}
           >
             {props.event.full_description}
           </RSText>
         </div>
-        {props.currentProfileState === 'SELF' && (
+        {/* --- Hiding this for now because removing RSVP/Attended isn't well-defined yet
+
+        {props.currentProfileState === U2UR.SELF && (
           <div className={styles.right}>
             {participationType === 'ATTENDEE' && (
               <Button className={styles.removeButton} onClick={removeEvent}>
@@ -146,7 +146,7 @@ function ProfileEvent(props: Props) {
               </Button>
             )}
           </div>
-        )}
+        )} */}
       </div>
     );
   }
@@ -161,28 +161,30 @@ function ProfileEvent(props: Props) {
             alignItems: 'center',
           }}
         >
-          <RSText type="body" size={11} italic color={colors.secondaryText}>
+          <RSText type="body" size={11} italic color={Theme.secondaryText}>
             {eventDate}
           </RSText>
-          <RSText
-            type="body"
-            size={12}
-            bold
-            color={colors.second}
-            className={styles.eventTitle}
-          >
-            {props.event.title}
-          </RSText>
+          <a href={`/event/${props.event._id}`} className={styles.navigationText}>
+            <RSText
+              type="body"
+              size={12}
+              bold
+              color={Theme.primaryText}
+              className={styles.eventTitle}
+            >
+              {props.event.title}
+            </RSText>
+          </a>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <RSText type="body" size={12} color={colors.second}>
+          <RSText type="body" size={12} color={Theme.primaryText}>
             {participationType}
           </RSText>
           <IconButton onClick={toggleEventDetails}>
             {showEventDetails ? (
-              <BsChevronUp size={12} color={colors.secondaryText} />
+              <BsChevronUp size={12} color={Theme.secondaryText} />
             ) : (
-              <BsChevronDown size={12} color={colors.secondaryText} />
+              <BsChevronDown size={12} color={Theme.secondaryText} />
             )}
           </IconButton>
         </div>

@@ -4,11 +4,14 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
-import MakePostContainer from './MakePostContainer';
+import {
+  WelcomeMessage,
+  UserPost,
+  RSTabs,
+  MakePostContainer,
+} from '../../reusable-components';
 
 import {
   makeRequest,
@@ -17,15 +20,12 @@ import {
 } from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: 'rgb(227, 227, 227)',
-    overflow: 'scroll',
-  },
+  wrapper: {},
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 80,
   },
   posts: {
@@ -45,7 +45,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   box: {
-    background: colors.primaryText,
+    background: Theme.white,
     margin: 8,
   },
 }));
@@ -80,14 +80,7 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/feed/${selectedTab}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
 
     if (data.success === 1) {
       setFeed(createFeed(data.content['posts']));
@@ -201,7 +194,7 @@ function HomepageBody(props: Props) {
         <div className={styles.posts}>{feed}</div>
       ) : (
         <div style={{ marginTop: 10 }}>
-          <RSText size={18} bold type="head" color={colors.primary}>
+          <RSText size={18} bold type="head" color={Theme.primary}>
             There was an error retrieving your posts.
           </RSText>
         </div>

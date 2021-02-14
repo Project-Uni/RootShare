@@ -10,7 +10,7 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
-import { CommunityType } from '../../../helpers/types';
+import { CommunityType, U2CR } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,8 +37,11 @@ const useStyles = makeStyles((_: any) => ({
   },
   removeButton: {
     color: theme.altText,
-    background: colors.secondary,
+    background: theme.primary,
     marginRight: 7,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
   },
   buttonContainer: {
     display: 'flex',
@@ -52,6 +55,9 @@ const useStyles = makeStyles((_: any) => ({
     color: theme.altText,
     background: theme.bright,
     marginLeft: 7,
+    '&:hover': {
+      background: theme.brightHover,
+    },
   },
   fadeOut: {
     opacity: 0,
@@ -71,7 +77,7 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primaryText,
+      color: theme.dark,
     },
   },
 }));
@@ -119,7 +125,7 @@ function DiscoveryCommunity(props: Props) {
 
     if (data['success'] === 1) {
       const message =
-        data['content']['newStatus'] === 'PENDING'
+        data['content']['newStatus'] === U2CR.PENDING
           ? `Successfully requested to join ${props.name}`
           : `Successfully joined ${props.name}`;
       props.setNotification('success', message);

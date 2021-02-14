@@ -5,17 +5,25 @@ export const USER_LEVEL = {
   REGULAR: 1,
 };
 
-export const JWT_TOKEN_FIELDS = ['email', '_id', 'privilegeLevel'];
+export const JWT_TOKEN_FIELDS = [
+  'email',
+  '_id',
+  'privilegeLevel',
+  'firstName',
+  'lastName',
+  'accountType',
+] as const;
 
 export const JWT_ACCESS_TOKEN_TIMEOUT = '30m';
 
-export type COMMUNITY_TYPE =
+export type CommunityType =
   | 'Social'
   | 'Business'
   | 'Just for Fun'
   | 'Athletics'
   | 'Student Organization'
-  | 'Academic';
+  | 'Academic'
+  | 'Greek';
 
 export const CommunityMap = {
   Social: 0,
@@ -24,6 +32,7 @@ export const CommunityMap = {
   Athletics: 3,
   'Student Organization': 4,
   Academic: 5,
+  Greek: 6,
 };
 
 export type ImageReason =
@@ -33,4 +42,33 @@ export type ImageReason =
   | 'communityBanner'
   | 'eventImage'
   | 'eventBanner'
-  | 'postImage';
+  | 'postImage'
+  | 'mtgBanner';
+
+export type UserToUserRelationship =
+  | 'self'
+  | 'connected'
+  | 'pending_to'
+  | 'pending_from'
+  | 'open'
+  | 'pending';
+
+const U2UR = {
+  SELF: 'self',
+  CONNECTED: 'connected',
+  PENDING_TO: 'pending_to',
+  PENDING_FROM: 'pending_from',
+  OPEN: 'open',
+  PENDING: 'pending',
+} as const;
+
+export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
+
+const U2CR = {
+  PENDING: 'pending',
+  JOINED: 'joined',
+  OPEN: 'open',
+  ADMIN: 'admin',
+} as const;
+
+export { U2UR, U2CR };

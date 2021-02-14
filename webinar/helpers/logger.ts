@@ -12,7 +12,7 @@ export default function log(title: string, message: string) {
 }
 
 export async function initializeDirectory() {
-  console.log(`[INFO] Initializing log directory`);
+  log('info', `Initializing log directory`);
   try {
     await fs.promises.access(LOGS_DIRECTORY);
   } catch (DNEError) {

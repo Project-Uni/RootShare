@@ -7,9 +7,9 @@ import {
 } from '../actions/message';
 
 export function conversationsReducer(
-  state = [],
+  state: ConversationType[] = [],
   data: { type: string; payload: { conversations: ConversationType[] } }
-) {
+): ConversationType[] {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_CONVERSATIONS:
@@ -22,7 +22,7 @@ export function conversationsReducer(
 export function currConversationIDReducer(
   state = '',
   data: { type: string; payload: { currConversationID: string } }
-) {
+): string {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_CURR_CONVERSATION_ID:
@@ -35,7 +35,7 @@ export function currConversationIDReducer(
 export function newMessageReducer(
   state = '',
   data: { type: string; payload: { newMessage?: MessageType } }
-) {
+): any {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_NEW_MESSAGE:
