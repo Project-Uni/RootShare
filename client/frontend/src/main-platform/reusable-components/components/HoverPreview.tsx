@@ -428,11 +428,9 @@ const HoverPreview = () => {
               bold
               type="head"
               className={styles.navigation}
-              onClick={() =>
-                (window.location.href = `/${
-                  type === 'user' ? 'profile' : type
-                }/${_id}`)
-              }
+              onClick={() => {
+                history.push(`/${type === 'user' ? 'profile' : type}/${_id}`);
+              }}
             >
               {name}
             </RSText>

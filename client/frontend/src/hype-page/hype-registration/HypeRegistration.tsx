@@ -18,6 +18,7 @@ import { colors } from '../../theme/Colors';
 
 import RSText from '../../base-components/RSText';
 import Theme from '../../theme/Theme';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,8 +54,8 @@ const useStyles = makeStyles((_: any) => ({
     color: Theme.white,
     '&:hover': {
       background: Theme.brightHover,
+    },
   },
-  }
 }));
 
 type Props = {
@@ -65,6 +66,7 @@ type Props = {
 
 function HypeRegistration(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -275,7 +277,7 @@ function HypeRegistration(props: Props) {
   }
 
   function handleStep3NextButtonClick() {
-    window.location.href = '/register/initialize';
+    history.push('/register/initialize');
   }
 
   function getStepContent(step: Number) {

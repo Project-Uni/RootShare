@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 
 import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -128,6 +128,8 @@ type Props = {
 
 function ProfileDrawer(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [edit, setEdit] = useState(false);
 
   // Original User Information
@@ -222,7 +224,8 @@ function ProfileDrawer(props: Props) {
     props.updateCurrConversationID('');
     props.resetNewMessage();
     props.resetMessageSocket();
-    window.location.href = '/';
+
+    history.push('/');
   }
 
   async function updateNewUserInfoToServer() {

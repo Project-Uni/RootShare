@@ -243,7 +243,7 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('removed-from-event', () => {
-      window.location.href = '/';
+      history.push('/');
     });
   }
 

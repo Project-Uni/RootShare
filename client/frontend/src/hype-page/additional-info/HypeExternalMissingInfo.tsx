@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import queryString from 'query-string';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -99,6 +99,8 @@ type Props = {
 
 function HypeExternalMissingInfo(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [loading, setLoading] = useState(false);
   const [landingRedirect, setLandingRedirect] = useState(false);
   const [additionalRedirect, setAdditionalRedirect] = useState(false);
@@ -207,7 +209,7 @@ function HypeExternalMissingInfo(props: Props) {
     if (data.success === 1) {
       props.updateAccessToken(data.content.accessToken);
       props.updateRefreshToken(data.content.refreshToken);
-      window.location.href = '/register/initialize';
+      history.push('/register/initialize');
     }
   }
 

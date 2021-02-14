@@ -66,7 +66,7 @@ function AuthenticatedPage(props: Props) {
     window.addEventListener('resize', handleResize);
 
     if (Boolean(accessToken)) setLoading(false);
-    else history.push(`/login?redirect=${window.location.pathname}`);
+    else history.push(`/login?redirect=${history.location.pathname}`);
   }, []);
 
   function handleResize() {
