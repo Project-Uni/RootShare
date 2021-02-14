@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Grid, CircularProgress, Button } from '@material-ui/core';
 
 import { CSVDownload } from 'react-csv';
 
-import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import RootShareLogoFull from '../../images/RootShareLogoFull.png';
@@ -17,6 +16,7 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 import { makeRequest } from '../../helpers/functions';
 import { colors } from '../../theme/Colors';
+import { useHistory } from 'react-router-dom';
 
 const MIN_ACCESS_LEVEL = 6;
 
@@ -78,8 +78,9 @@ type Props = {
 
 function UserCount(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [loading, setLoading] = useState(true);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const [allUsers, setAllUsers] = useState([]);
@@ -107,7 +108,7 @@ function UserCount(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(props.accessToken)) {
-      setLoginRedirect(true);
+      history.push('/login?redirect=/admin/count');
       return false;
     } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
@@ -269,7 +270,6 @@ function UserCount(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin/count" />}
       <EventClientHeader showNavigationMenuDefault />
       <img
         src={RootShareLogoFull}

@@ -6,13 +6,12 @@ import { RiCommunityLine } from 'react-icons/ri';
 import { BsPeopleFill } from 'react-icons/bs';
 import { MdEvent } from 'react-icons/md';
 
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
-import { makeRequest } from '../../helpers/functions';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
@@ -72,9 +71,9 @@ type Props = {
 
 function AdminHub(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const pages = [
@@ -103,7 +102,7 @@ function AdminHub(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(props.accessToken)) {
-      setLoginRedirect(true);
+      history.push('/login?redirect=/admin/event');
       return false;
     } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
@@ -158,7 +157,6 @@ function AdminHub(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin" />}
       <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
