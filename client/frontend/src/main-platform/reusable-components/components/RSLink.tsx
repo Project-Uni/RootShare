@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   link: {
+    color: 'inherit',
     '&:hover': {
       cursor: 'pointer',
     },

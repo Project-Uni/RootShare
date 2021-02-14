@@ -13,7 +13,6 @@ import {
   HEADER_HEIGHT,
 } from '../../helpers/constants';
 
-import { AVAILABLE_TABS } from '../reusable-components/components/MainNavigator';
 import Theme from '../../theme/Theme';
 import { HoverPreview } from '../reusable-components';
 
@@ -40,7 +39,6 @@ type Props = {
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
   showRightElementWidth?: Number;
-  selectedTab?: AVAILABLE_TABS;
   accessToken: string;
 };
 
@@ -53,7 +51,6 @@ function AuthenticatedPage(props: Props) {
     showLeftElementWidth,
     rightElement,
     showRightElementWidth,
-    selectedTab,
     accessToken,
   } = props;
 
@@ -88,11 +85,7 @@ function AuthenticatedPage(props: Props) {
         {!loading && (
           <div className={styles.body} style={{ height: height }}>
             {width > showLeftEl.current &&
-              (leftElement ? (
-                leftElement
-              ) : (
-                <MainNavigator currentTab={selectedTab || 'none'} />
-              ))}
+              (leftElement ? leftElement : <MainNavigator />)}
             <div
               style={{ flex: 1, overflow: 'scroll', background: Theme.background }}
               id="mainComponent"

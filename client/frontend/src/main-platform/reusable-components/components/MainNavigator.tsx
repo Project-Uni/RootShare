@@ -11,6 +11,7 @@ import theme from '../../../theme/Theme';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import { RSLink } from '../';
+import { useHistory } from 'react-router-dom';
 
 const TEXT_SIZE = 22;
 const ICON_SIZE = 32;
@@ -36,6 +37,15 @@ const useStyles = makeStyles((_: any) => ({
   },
   textStyle: {
     marginLeft: 30,
+    '&:hover': {
+      color: theme.brightHover,
+    },
+  },
+  unselectedTab: {
+    color: theme.primary,
+  },
+  selectedTab: {
+    color: theme.bright,
   },
 }));
 
@@ -47,18 +57,49 @@ export type AVAILABLE_TABS =
   | 'profile'
   | 'none';
 
-type Props = {
-  currentTab: AVAILABLE_TABS;
-};
+type Props = {};
 
 function MainNavigator(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
+  const [currentTab, setCurrentTab] = useState<AVAILABLE_TABS>();
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    selectCurrentTab(history.location);
+
+    const removeHistoryListen = history.listen((location, action) => {
+      selectCurrentTab(location);
+    });
+    return removeHistoryListen;
+  }, [history]);
+
+  const selectCurrentTab = (location: typeof history.location) => {
+    const { pathname } = location;
+    let tab = pathname.split('/')[1];
+    switch (tab) {
+      case 'home':
+      case 'communities':
+      case 'events':
+      case 'connections':
+      case 'profile':
+        break;
+      case 'community':
+        tab = 'communities';
+        break;
+      default:
+        tab = 'none';
+        break;
+    }
+    setCurrentTab(tab as AVAILABLE_TABS);
+  };
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
@@ -70,7 +111,7 @@ function MainNavigator(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? theme.bright : theme.primary}
+          color={currentTab === 'home' ? theme.bright : theme.primary}
         />
       ),
     },
@@ -79,7 +120,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaHome
           size={ICON_SIZE}
-          color={props.currentTab === 'communities' ? theme.bright : theme.primary}
+          color={currentTab === 'communities' ? theme.bright : theme.primary}
         />
       ),
       link: '/communities/user',
@@ -89,7 +130,7 @@ function MainNavigator(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? theme.bright : theme.primary}
+          color={currentTab === 'events' ? theme.bright : theme.primary}
         />
       ),
     },
@@ -98,7 +139,7 @@ function MainNavigator(props: Props) {
       icon: (
         <MdGroup
           size={ICON_SIZE}
-          color={props.currentTab === 'connections' ? theme.bright : theme.primary}
+          color={currentTab === 'connections' ? theme.bright : theme.primary}
         />
       ),
       link: '/connections/user',
@@ -108,7 +149,7 @@ function MainNavigator(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? theme.bright : theme.primary}
+          color={currentTab === 'profile' ? theme.bright : theme.primary}
         />
       ),
       link: '/profile/user',
@@ -122,22 +163,24 @@ function MainNavigator(props: Props) {
         <RSLink
           href={tabs[i].link || `/${tabs[i].name.toLowerCase()}`}
           className={styles.link}
+          key={`navigation_tab_${i}`}
         >
-          {tabs[i].icon}
-          <RSText
-            type="head"
-            color={
-              props.currentTab === tabs[i].name.toLowerCase()
-                ? theme.bright
-                : theme.primary
-            }
-            size={TEXT_SIZE}
-            bold
-            className={styles.textStyle}
-            hoverColor={theme.bright}
-          >
-            {tabs[i].name}
-          </RSText>
+          <>
+            {tabs[i].icon}
+            <RSText
+              type="head"
+              size={TEXT_SIZE}
+              bold
+              className={[
+                styles.textStyle,
+                currentTab === tabs[i].name.toLowerCase()
+                  ? styles.selectedTab
+                  : styles.unselectedTab,
+              ].join(' ')}
+            >
+              {tabs[i].name}
+            </RSText>
+          </>
         </RSLink>
       );
     }

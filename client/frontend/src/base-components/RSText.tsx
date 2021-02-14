@@ -20,6 +20,9 @@ const useStyles = makeStyles((_: any) => ({
   italic: {
     fontStyle: 'italic',
   },
+  defaultColor: {
+    color: Theme.primaryText,
+  },
 }));
 
 type Props = {
@@ -55,17 +58,18 @@ function RSText(props: Props) {
   });
 
   function handleMouseOver() {
-    if (hoverColor) setStyle({ ...style, color: hoverColor });
+    setStyle({ ...style, color: hoverColor });
   }
 
   function handleMouseLeave() {
-    if (hoverColor) setStyle({ ...style, color });
+    setStyle({ ...style, color });
   }
 
   return (
     <p
       className={[
         styles.base,
+        color ? null : styles.defaultColor,
         className,
         type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
         bold ? styles.bold : null,
@@ -84,7 +88,6 @@ function RSText(props: Props) {
 RSText.defaultProps = {
   type: 'body',
   size: 12,
-  color: Theme.primaryText,
 };
 
 export default RSText;
