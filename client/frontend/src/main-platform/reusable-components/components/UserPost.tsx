@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -38,6 +38,7 @@ import {
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions/interactions';
 import { putLikeStatus } from '../../../api/put/putLikeStatus';
+import { useHistory } from 'react-router-dom';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -213,6 +214,7 @@ type CommentResponse = {
 function UserPost(props: Props) {
   const styles = useStyles();
   const textFieldStyles = useTextFieldStyles();
+  const history = useHistory();
 
   const dispatch = useDispatch();
 
@@ -241,6 +243,13 @@ function UserPost(props: Props) {
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
   const isHovering = useRef(false);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      if (isHovering.current) isHovering.current = false;
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
@@ -396,7 +405,7 @@ function UserPost(props: Props) {
             anchorEl: currentTarget,
           })
         );
-    }, 300);
+    }, 500);
   };
 
   function renderPostHeader() {

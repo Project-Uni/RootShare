@@ -26,7 +26,7 @@ export const initializeState = (): RootshareReduxState => ({
   hoverPreview: {
     _id: '',
     type: 'user',
-    anchorEl: null,
+    anchorEl: undefined,
     name: '',
   },
   snackbarNotification: {

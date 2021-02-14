@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Popper, Box } from '@material-ui/core';
@@ -19,6 +19,7 @@ import {
 import {
   clearHoverPreview,
   dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
   mouseEnteredHoverPreview,
 } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
@@ -91,7 +92,7 @@ type CommunityResponse = {
 export type HoverProps = {
   _id: string;
   type: 'user' | 'community';
-  anchorEl: HTMLElement | null;
+  anchorEl: HTMLElement | undefined;
   profilePicture?: string;
   name: string;
 };
@@ -114,6 +115,9 @@ const HoverPreview = () => {
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
 
+  const anchorElRef = useRef<HTMLElement>();
+  anchorElRef.current = anchorEl;
+
   useEffect(() => {
     if (anchorEl && !loading) fetchData();
     else if (open) setOpen(false);
@@ -133,7 +137,8 @@ const HoverPreview = () => {
 
   useEffect(() => {
     const removeHistoryListen = history.listen((location, action) => {
-      if (anchorEl || open) {
+      dispatch(hoverPreviewTriggerComponentExit());
+      if (anchorElRef.current) {
         setOpen(false);
         dispatch(clearHoverPreview());
       }
