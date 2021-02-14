@@ -4,10 +4,12 @@ import { AppBar, Toolbar } from '@material-ui/core';
 
 import RootShareLogoWhite from '../../images/RootShareLogoWhite.png';
 
+import Theme from '../../theme/Theme';
+
 const useStyles = makeStyles((_: any) => ({
   header: {
     marginBottom: '5px',
-    background: '#3D66DE',
+    background: Theme.bright,
     width: '100vw',
   },
   headerTitle: {

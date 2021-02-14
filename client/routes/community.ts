@@ -29,6 +29,8 @@ import {
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
   updateFields,
+  //generics
+  getCommunitiesGeneric,
 } from '../interactions/community';
 
 /**
@@ -452,6 +454,89 @@ export default function communityRoutes(app) {
       const { query } = req;
       const packet = await updateFields(communityID, query);
       return res.json(packet);
+    }
+  );
+
+  app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      _ids,
+      fields,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship,
+      limit,
+      includeDefaultFields,
+      populates,
+    }: {
+      _ids: string[];
+      fields?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      getRelationship?: boolean;
+      limit?: string;
+      includeDefaultFields?: boolean;
+      populates?: string[];
+    } = req.query;
+
+    const options = {
+      limit: parseInt(limit),
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship: getRelationship ? userID : undefined,
+      includeDefaultFields,
+    };
+
+    const packet = await getCommunitiesGeneric(_ids, {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *   /api/v2/community/relationship:
+   *      put:
+   *        summary: Update relationship between user and a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: query
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            description: The id of the community to update relationship to
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully updated community
+   *          "0":
+   *            description: User input based error
+   *          "-1":
+   *            description: Internal error
+   *
+   */
+
+  app.put(
+    '/api/v2/community/relationship',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const {
+        action,
+        communityID,
+      }: { action: 'join' | 'cancel' | 'leave'; communityID: string } = req.query;
+
+      if (action === 'join') res.json(await joinCommunity(communityID, userID));
+      else if (action === 'leave')
+        res.json(await leaveCommunity(communityID, userID));
+      else if (action === 'cancel')
+        res.json(await cancelCommunityPendingRequest(communityID, userID));
+      else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );
 }

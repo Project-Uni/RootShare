@@ -4,7 +4,7 @@ import sendPacket from '../../webinar/helpers/sendPacket';
 import { isEventHost } from './middleware/eventAuthentication';
 import { User } from '../models';
 
-module.exports = (app) => {
+export default function proxyRoutes(app) {
   app.get(
     '/api/webinar/:webinarID/getActiveViewers',
     isAuthenticatedWithJWT,
@@ -251,4 +251,4 @@ module.exports = (app) => {
       return res.json(data);
     }
   );
-};
+}

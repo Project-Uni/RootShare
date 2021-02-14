@@ -21,7 +21,12 @@ const useStyles = makeStyles((_: any) => ({
   loadingIndicator: {
     color: Theme.primary,
   },
+  bigFont: {
+    fontSize: 24,
+  },
 }));
+
+type TextFieldVariant = 'standard' | 'outlined' | 'outlined';
 
 export type SearchOption = {
   _id: string;
@@ -70,8 +75,15 @@ type Props<T extends SearchOption> = {
   mode?: 'user' | 'community' | 'both';
   adornment?: JSX.Element;
   renderLimit?: number;
+  bigText?: boolean;
+  variant?: TextFieldVariant;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  initialValue?: string;
+  ref?: React.MutableRefObject<HTMLDivElement | null> | null | undefined;
+  style?: React.CSSProperties;
 };
-
 function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
 
@@ -92,12 +104,19 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     fullWidth,
     groupByType,
     freeSolo,
+    variant,
+    bigText,
+    initialValue,
+    onFocus,
+    onBlur,
+    onChange,
+    ref,
+    style,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState(initialValue || '');
 
-  const [isFocused, setIsFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onAutocomplete = (_: any, value: string | T | null) => {
@@ -173,6 +192,7 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   return (
     <Autocomplete
       className={className}
+      style={style}
       options={options}
       inputValue={searchValue}
       getOptionLabel={(option) => option.value}
@@ -187,17 +207,20 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
           {...params}
           label={label}
           name={name}
-          variant="outlined"
-          onChange={(e) => setSearchValue(e.target.value)}
-          fullWidth
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          variant={variant as any}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+            onChange?.(e);
+          }}
+          fullWidth={fullWidth}
+          onFocus={onFocus}
+          onBlur={onBlur}
           helperText={Boolean(error) && error !== '' ? error : helperText}
           error={Boolean(error) && error !== ''}
           placeholder={placeholder}
           InputProps={{
             ...params.InputProps,
-            startAdornment: !isFocused && adornment && (
+            startAdornment: adornment && (
               <InputAdornment position="start">{adornment}</InputAdornment>
             ),
             endAdornment: loading && (
@@ -205,6 +228,7 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
                 <CircularProgress size={20} className={styles.loadingIndicator} />
               </React.Fragment>
             ),
+            classes: { input: bigText ? styles.bigFont : undefined },
           }}
         />
       )}
@@ -222,6 +246,7 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
 
 SearchField.defaultProps = {
   mode: 'user',
+  variant: 'outlined',
 };
 
 export default SearchField;
