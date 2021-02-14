@@ -15,6 +15,11 @@ export function getUserData(callback) {
       'email',
       'phoneNumber',
       'graduationYear',
+      'major',
+      'work',
+      'position',
+      'department',
+      'graduateSchool',
     ],
     (err, users) => {
       if (err || users === undefined || users === null) {
