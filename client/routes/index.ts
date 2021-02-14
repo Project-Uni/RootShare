@@ -36,6 +36,7 @@ export default function allRoutes(app, io) {
   utilityRoutes(app);
   webhookRoutes(app);
 
+  //Ashwin: Not sure if we need this
   app.all('/api/*', async (req: Request, res: Response) => {
     console.log('TEST');
     return res.json(sendPacket(-1, 'Path not found'));

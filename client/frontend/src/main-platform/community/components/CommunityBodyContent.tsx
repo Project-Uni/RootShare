@@ -68,7 +68,6 @@ type Props = {
   refreshToken: string;
   private?: boolean;
   flags: CommunityFlags;
-  communityName: string;
 };
 
 type CommunityTab =

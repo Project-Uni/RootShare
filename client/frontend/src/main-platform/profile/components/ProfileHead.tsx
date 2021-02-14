@@ -155,9 +155,6 @@ type Props = {
   numMutualCommunities?: number;
   currentProfileState: UserToUserRelationship;
   updateProfileState: () => void;
-
-  accessToken: string;
-  refreshToken: string;
 };
 
 function ProfileHead(props: Props) {
@@ -200,14 +197,9 @@ function ProfileHead(props: Props) {
   }, [props.currentProfileState]);
 
   async function fetchConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/getConnectionWithUser',
-      { requestUserID: props.profileID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/getConnectionWithUser', {
+      requestUserID: props.profileID,
+    });
 
     if (data['success'] === 1) setConnection(data['content']['connection']);
   }
@@ -253,16 +245,9 @@ function ProfileHead(props: Props) {
     const trimmed = updatedBio.trim();
     setOriginalBio(trimmed);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/user/updateBio',
-      {
-        newBio: trimmed,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/updateBio', {
+      newBio: trimmed,
+    });
   }
 
   ////// END REQUEST FUNCTIONS

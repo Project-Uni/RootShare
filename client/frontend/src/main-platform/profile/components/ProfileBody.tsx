@@ -4,10 +4,9 @@ import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { colors } from '../../../theme/Colors';
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { UserPost } from '../../reusable-components';
+import { UserPost, MakePostContainer } from '../../reusable-components';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -29,13 +28,7 @@ import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-  },
-  profileWrapper: {
-    overflow: 'scroll',
-  },
+  wrapper: {},
   body: {},
   box: {
     margin: 8,
@@ -79,21 +72,26 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 60,
     color: Theme.bright,
   },
+  noPosts: {
+    marginTop: 20,
+  },
 }));
 
 type Props = {
+  match: {
+    params: { [key: string]: any };
+    [key: string]: any;
+  };
   user: any;
-  profileID: string;
-  currentProfileState: UserToUserRelationship;
-  accessToken: string;
-  refreshToken: string;
-  updateProfileState: () => void;
 };
 
 function ProfileBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
+  const [currentProfileState, setCurrentProfileState] = useState<
+    UserToUserRelationship
+  >('open');
   const [currentPicture, setCurrentPicture] = useState<string>();
   const [currentBanner, setCurrentBanner] = useState<string>();
   const [profileState, setProfileState] = useState<UserType>();
@@ -105,15 +103,18 @@ function ProfileBody(props: Props) {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [postsFetchErr, setPostsFetchErr] = useState(false);
 
+  const profileID = props.match.params['profileID'];
+
   useEffect(() => {
     window.addEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    if (props.profileID) {
+    if (profileID) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
           getCurrentProfilePicture();
+          updateProfileState();
           fetchEvents();
           getUserPosts(profile).then(() => {
             setLoadingPosts(false);
@@ -121,17 +122,10 @@ function ProfileBody(props: Props) {
         }
       });
     }
-  }, [props.profileID]);
+  }, [profileID]);
 
   async function fetchProfile() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/profile/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/profile/${profileID}`);
 
     if (data['success'] === 1) {
       setProfileState(data['content']['user']);
@@ -143,19 +137,22 @@ function ProfileBody(props: Props) {
     return [false, null];
   }
 
+  async function updateProfileState() {
+    if (profileID === 'user') return setCurrentProfileState(U2UR.SELF);
+
+    const { data } = await makeRequest('POST', '/user/checkConnectedWithUser', {
+      requestUserID: profileID,
+    });
+
+    if (data['success'] === 1) setCurrentProfileState(data['content']['connected']);
+  }
+
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   async function getCurrentProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/profile/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/images/profile/${profileID}`);
 
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['profile']);
@@ -164,27 +161,13 @@ function ProfileBody(props: Props) {
   }
 
   async function fetchEvents() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/events/${props.profileID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/events/${profileID}`);
 
     if (data['success'] === 1) setEvents(data['content']['events']);
   }
 
   async function getUserPosts(profile: UserType) {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/user/${props.profileID}/all`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/user/${profileID}/all`);
 
     if (data.success === 1) {
       const { posts } = data.content;
@@ -205,14 +188,20 @@ function ProfileBody(props: Props) {
     }
   }
 
+  function appendNewPost(post: PostType) {
+    setPosts((prevState) => {
+      return [post].concat(prevState);
+    });
+  }
+
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
         <ProfileBanner
           type="profile"
           height={200}
-          editable={props.currentProfileState === U2UR.SELF}
-          zoomOnClick={props.currentProfileState !== U2UR.SELF}
+          editable={currentProfileState === U2UR.SELF}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderRadius={10}
           currentPicture={currentBanner}
           updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
@@ -221,14 +210,14 @@ function ProfileBody(props: Props) {
           type="profile"
           className={styles.profilePictureContainer}
           pictureStyle={styles.profilePicture}
-          editable={props.currentProfileState === U2UR.SELF}
+          editable={currentProfileState === U2UR.SELF}
           height={150}
           width={150}
           borderRadius={150}
           currentPicture={
-            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+            profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={props.currentProfileState !== U2UR.SELF}
+          zoomOnClick={currentProfileState !== U2UR.SELF}
           borderWidth={8}
         />
       </div>
@@ -263,9 +252,7 @@ function ProfileBody(props: Props) {
           profileID={(profileState as UserType)._id}
           event={event}
           style={[styles.event, i !== 0 ? styles.eventWithBorder : null].join(' ')}
-          currentProfileState={props.currentProfileState}
-          accessToken={props.accessToken}
-          refreshToken={props.refreshToken}
+          currentProfileState={currentProfileState}
           removeEvent={removeEvent}
         />
       );
@@ -285,28 +272,36 @@ function ProfileBody(props: Props) {
   function renderPosts() {
     const output = [];
     for (let i = 0; i < posts.length; i++) {
+      const currPost = posts[i];
       output.push(
         <UserPost
-          postID={posts[i]._id}
-          posterID={props.profileID}
-          name={`${posts[i].user.firstName} ${posts[i].user.lastName}`}
+          postID={currPost._id}
+          posterID={profileID}
+          name={`${currPost.user?.firstName} ${currPost.user?.lastName}`}
           profilePicture={
-            props.profileID === 'user' ? props.user.profilePicture : currentPicture
+            profileID === 'user' ? props.user.profilePicture : currentPicture
           }
           timestamp={(function() {
-            const date = new Date(posts[i].createdAt);
+            const date = new Date(currPost.createdAt);
             return `${formatDatePretty(date)} at ${formatTime(date)}`;
           })()}
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
+          message={currPost.message}
+          likeCount={currPost.likes}
+          commentCount={currPost.comments}
           style={styles.post}
-          liked={posts[i].liked}
-          images={posts[i].images}
-          isOwnPost={props.profileID === 'user'}
+          liked={currPost.liked}
+          images={currPost.images}
+          isOwnPost={profileID === 'user'}
         />
       );
     }
+
+    if (posts.length === 0)
+      output.push(
+        <RSText size={16} type="head" className={styles.noPosts}>
+          There are no posts yet.
+        </RSText>
+      );
     return (
       <div style={{ background: Theme.background, paddingTop: 1 }}>{output}</div>
     );
@@ -317,7 +312,7 @@ function ProfileBody(props: Props) {
     const university = profile.university as UniversityType;
 
     return (
-      <div className={styles.profileWrapper} style={{ height: height }}>
+      <div style={{ height: height }}>
         <div className={styles.body}>
           <Box
             boxShadow={2}
@@ -337,14 +332,18 @@ function ProfileBody(props: Props) {
               numMutualConnections={profile.numMutualConnections!}
               numCommunities={profile.numCommunities!}
               numMutualCommunities={profile.numMutualCommunities}
-              currentProfileState={props.currentProfileState}
-              accessToken={props.accessToken}
-              refreshToken={props.refreshToken}
-              updateProfileState={props.updateProfileState}
+              currentProfileState={currentProfileState}
+              updateProfileState={updateProfileState}
             />
           </Box>
 
           {renderRegisteredEvents()}
+          {profileID === 'user' && (
+            <MakePostContainer
+              appendNewPost={appendNewPost}
+              profilePicture={props.user.profilePicture}
+            />
+          )}
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
           ) : (
@@ -373,8 +372,6 @@ function ProfileBody(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 
