@@ -47,5 +47,8 @@ export {
   HoverPreview,
   SnackbarNotification,
   RSLink,
+<<<<<<< HEAD
   FeaturedEvent,
+=======
+>>>>>>> master
 };
