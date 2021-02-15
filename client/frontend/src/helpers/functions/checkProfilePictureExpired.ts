@@ -26,7 +26,8 @@ export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
       dispatch(
         dispatchSnackbar({
           mode: 'error',
-          message: 'There was an error updating profile picture',
+          message:
+            "Sorry we couldn't update your profile picture, please log back in to see it correctly",
         })
       );
   }
