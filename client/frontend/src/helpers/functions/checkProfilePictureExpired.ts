@@ -13,8 +13,9 @@ export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
   const {
     user: { _id: userID, profilePictureLastUpdated },
   } = getStore().getState();
+  console.log(profilePictureLastUpdated);
   if (
-    profilePictureLastUpdated &&
+    !profilePictureLastUpdated ||
     currentTime - profilePictureLastUpdated >= IMAGE_EXPIRATION
   ) {
     const data = await getProfilePictureAndBanner('user', userID, {
