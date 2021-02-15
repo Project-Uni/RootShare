@@ -21,6 +21,7 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 import { connect } from 'react-redux';
+import { getProfilePictureAndBanner } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -163,10 +164,10 @@ function CommunityBody(props: Props) {
   }
 
   async function getProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/community/${communityID}`
-    );
+    const data = await getProfilePictureAndBanner('community', communityID, {
+      getProfile: true,
+      getBanner: true,
+    });
 
     if (data['success'] === 1) {
       setCurrentProfile(data.content.profile);
