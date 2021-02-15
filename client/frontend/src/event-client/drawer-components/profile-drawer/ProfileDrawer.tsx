@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Select, MenuItem } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
-import { updateUser } from '../../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../../redux/actions/token';
-import {
-  updateConversations,
-  updateCurrConversationID,
-  resetNewMessage,
-} from '../../../redux/actions/message';
-import { resetMessageSocket } from '../../../redux/actions/sockets';
-import { colors } from '../../../theme/Colors';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
 import UserInfoTextField from '../UserInfoTextField';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import BugModal from './BugModal';
 
 import { makeRequest } from '../../../helpers/functions';
-import { UserType, UniversityType, ConversationType } from '../../../helpers/types';
+import { UserType, UniversityType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { resetState } from '../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -113,22 +106,15 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
-  updateConversations: (conversations: ConversationType[]) => void;
-  updateCurrConversationID: (currConversationID: string) => void;
-  resetNewMessage: () => void;
-  resetMessageSocket: () => void;
-};
-
-function ProfileDrawer(props: Props) {
+function ProfileDrawer() {
   const styles = useStyles();
   const [edit, setEdit] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const { profilePicture, email } = useSelector(
+    (state: RootshareReduxState) => state.user
+  );
 
   // Original User Information
   // Constant Variables For Primary Info
@@ -215,39 +201,26 @@ function ProfileDrawer(props: Props) {
     const { data } = await makeRequest('POST', '/auth/logout');
     if (data['success'] !== 1) return setLogoutErr(true);
 
-    props.updateUser({});
-    props.updateAccessToken('');
-    props.updateRefreshToken('');
-    props.updateConversations([]);
-    props.updateCurrConversationID('');
-    props.resetNewMessage();
-    props.resetMessageSocket();
+    resetState(dispatch);
     window.location.href = '/';
   }
 
   async function updateNewUserInfoToServer() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/updateProfile',
-      {
-        firstName: updatedFirstName,
-        lastName: updatedLastName,
-        major: updatedMajor,
-        graduationYear: updatedGraduationYear,
-        work: updatedCurrentEmployer,
-        position: updatedCurrentRole,
-        university: updatedCollege?._id,
-        department: updatedCollegeOf,
-        interests: updatedInterests.split(', '),
-        organizations: updatedOrganizations.split(', '),
-        graduateSchool: updatedGraduateDegree,
-        phoneNumber: updatedPhoneNumber,
-        discoveryMethod: updatedDiscoveryMethod,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/user/updateProfile', {
+      firstName: updatedFirstName,
+      lastName: updatedLastName,
+      major: updatedMajor,
+      graduationYear: updatedGraduationYear,
+      work: updatedCurrentEmployer,
+      position: updatedCurrentRole,
+      university: updatedCollege?._id,
+      department: updatedCollegeOf,
+      interests: updatedInterests.split(', '),
+      organizations: updatedOrganizations.split(', '),
+      graduateSchool: updatedGraduateDegree,
+      phoneNumber: updatedPhoneNumber,
+      discoveryMethod: updatedDiscoveryMethod,
+    });
 
     if (data['success'] === 1) setOriginalToUpdated();
     else setUpdateErr(true);
@@ -411,7 +384,7 @@ function ProfileDrawer(props: Props) {
           height={150}
           width={150}
           borderRadius={150}
-          currentPicture={props.user.profilePicture}
+          currentPicture={profilePicture}
           borderWidth={3}
         />
       </div>
@@ -459,7 +432,7 @@ function ProfileDrawer(props: Props) {
           color={Theme.primaryText}
           className={styles.name}
         >
-          {props.user.email}
+          {email}
         </RSText>
       </div>
     );
@@ -687,38 +660,4 @@ function ProfileDrawer(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-    updateConversations: (conversations: ConversationType[]) => {
-      dispatch(updateConversations(conversations));
-    },
-    updateCurrConversationID: (currConversationID: string) => {
-      dispatch(updateCurrConversationID(currConversationID));
-    },
-    resetNewMessage: () => {
-      dispatch(resetNewMessage());
-    },
-    resetMessageSocket: () => {
-      dispatch(resetMessageSocket());
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileDrawer);
+export default ProfileDrawer;

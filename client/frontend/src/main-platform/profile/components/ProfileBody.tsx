@@ -26,6 +26,7 @@ import {
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
+import { getProfilePictureAndBanner } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -152,7 +153,10 @@ function ProfileBody(props: Props) {
   }
 
   async function getCurrentProfilePicture() {
-    const { data } = await makeRequest('GET', `/api/images/profile/${profileID}`);
+    const data = await getProfilePictureAndBanner('user', profileID, {
+      getProfile: true,
+      getBanner: true,
+    });
 
     if (data['success'] === 1) {
       setCurrentPicture(data['content']['profile']);

@@ -108,7 +108,7 @@ export async function updateCommunityBanner(image: string, communityID: string) 
 
 export async function getUserProfileAndBanner(
   userID: string,
-  isCurrentUser: boolean
+  options: { getProfile?: boolean; getBanner?: boolean }
 ) {
   try {
     const user = await User.findById(userID)
@@ -118,11 +118,11 @@ export async function getUserProfileAndBanner(
     if (!user) return sendPacket(0, 'Could not find this user');
 
     const imagePromises = [];
-    if (!isCurrentUser && user.profilePicture)
+    if (options.getProfile && user.profilePicture)
       imagePromises.push(retrieveSignedUrl('profile', user.profilePicture));
     else imagePromises.push(null);
 
-    if (user.bannerPicture)
+    if (options.getBanner && user.bannerPicture)
       imagePromises.push(retrieveSignedUrl('profileBanner', user.bannerPicture));
     else imagePromises.push(null);
 
@@ -138,7 +138,10 @@ export async function getUserProfileAndBanner(
   }
 }
 
-export async function getCommunityProfileAndBanner(communityID: string) {
+export async function getCommunityProfileAndBanner(
+  communityID: string,
+  options: { getProfile?: boolean; getBanner?: boolean }
+) {
   try {
     const community = await Community.findById(communityID).select(
       'profilePicture bannerPicture'
@@ -146,13 +149,13 @@ export async function getCommunityProfileAndBanner(communityID: string) {
     if (!community) return sendPacket(0, 'Could not find this community');
 
     const imagePromises = [];
-    if (community.profilePicture)
+    if (options.getProfile && community.profilePicture)
       imagePromises.push(
         retrieveSignedUrl('communityProfile', community.profilePicture)
       );
     else imagePromises.push(null);
 
-    if (community.bannerPicture)
+    if (options.getBanner && community.bannerPicture)
       imagePromises.push(
         retrieveSignedUrl('communityBanner', community.bannerPicture)
       );
