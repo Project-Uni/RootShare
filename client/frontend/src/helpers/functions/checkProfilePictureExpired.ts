@@ -11,12 +11,12 @@ const IMAGE_EXPIRATION = 1000 * 60 * 60 * 24; //24 HOURS
 export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
   const currentTime = Date.now();
   const {
-    user: { _id: userID, profilePictureLastUpdated },
+    user: { _id: userID, profilePictureLastUpdated, profilePicture },
   } = getStore().getState();
-  console.log(profilePictureLastUpdated);
   if (
-    !profilePictureLastUpdated ||
-    currentTime - profilePictureLastUpdated >= IMAGE_EXPIRATION
+    profilePicture &&
+    (!profilePictureLastUpdated ||
+      currentTime - profilePictureLastUpdated >= IMAGE_EXPIRATION)
   ) {
     const data = await getProfilePictureAndBanner('user', userID, {
       getProfile: true,
@@ -26,7 +26,8 @@ export const checkProfilePictureExpired = async (dispatch: Dispatch) => {
       dispatch(
         dispatchSnackbar({
           mode: 'error',
-          message: 'There was an error updating profile picture',
+          message:
+            "Sorry we couldn't update your profile picture, please log back in to see it correctly",
         })
       );
   }
