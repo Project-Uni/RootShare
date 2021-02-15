@@ -11,6 +11,7 @@ import {
   UserPost,
   RSTabs,
   MakePostContainer,
+  FeaturedEvent,
 } from '../../reusable-components';
 
 import {
@@ -21,6 +22,8 @@ import {
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { useHistory } from 'react-router-dom';
+import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -58,6 +61,7 @@ type Props = {
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -95,7 +99,7 @@ function HomepageBody(props: Props) {
   }
 
   function handleDiscoverClick() {
-    window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
+    history.push(`/discover`);
   }
 
   function handleTabChange(newTab: string) {
@@ -165,7 +169,7 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+      {/* <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
           message="Every success story is rooted in the support from a community. Join your
@@ -173,7 +177,12 @@ function HomepageBody(props: Props) {
           buttonText="Discover"
           buttonAction={handleDiscoverClick}
         />
-      </Box>
+      </Box> */}
+      <FeaturedEvent
+        src={WinningDevPlanBanner}
+        style={{ margin: 8 }}
+        href={'/event/6026ce709a7a1f218592ea37'}
+      />
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={props.user.profilePicture}

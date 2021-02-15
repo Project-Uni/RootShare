@@ -15,6 +15,7 @@ import {
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '../../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -136,7 +137,7 @@ function SinglePendingConnection(props: Props) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${fromUser._id}`}>
+          <RSLink href={`/profile/${fromUser._id}`}>
             <ProfilePicture
               type="profile"
               className={styles.picture}
@@ -146,14 +147,14 @@ function SinglePendingConnection(props: Props) {
               borderRadius={35}
               currentPicture={fromUser.profilePicture}
             />
-          </a>
+          </RSLink>
         </div>
         <div className={styles.center}>
-          <a href={`/profile/${fromUser._id}`}>
+          <RSLink href={`/profile/${fromUser._id}`}>
             <RSText bold size={12} className={styles.name}>
               {`${fromUser.firstName} ${fromUser.lastName}`}
             </RSText>
-          </a>
+          </RSLink>
 
           <RSText size={11} italic={true} className={styles.organization}>
             {universityName} | {capitalizeFirstLetter(fromUser.accountType)}

@@ -13,6 +13,7 @@ import {
   formatTime,
 } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -164,7 +165,10 @@ function ProfileEvent(props: Props) {
           <RSText type="body" size={11} italic color={Theme.secondaryText}>
             {eventDate}
           </RSText>
-          <a href={`/event/${props.event._id}`} className={styles.navigationText}>
+          <RSLink
+            href={`/event/${props.event._id}`}
+            className={styles.navigationText}
+          >
             <RSText
               type="body"
               size={12}
@@ -174,7 +178,7 @@ function ProfileEvent(props: Props) {
             >
               {props.event.title}
             </RSText>
-          </a>
+          </RSLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <RSText type="body" size={12} color={Theme.primaryText}>

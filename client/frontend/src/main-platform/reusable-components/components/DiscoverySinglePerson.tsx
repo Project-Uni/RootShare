@@ -10,6 +10,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -132,7 +133,7 @@ function DiscoverySinglePerson(props: Props) {
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.profileInfo}>
-          <a href={`/profile/${props.userID}`} className={styles.personLink}>
+          <RSLink href={`/profile/${props.userID}`} className={styles.personLink}>
             <ProfilePicture
               editable={false}
               type={'profile'}
@@ -141,7 +142,7 @@ function DiscoverySinglePerson(props: Props) {
               borderRadius={50}
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <a href={`/profile/${props.userID}`} className={styles.personLink}>
               <RSText type="body" color={Theme.primaryText} size={13} bold>

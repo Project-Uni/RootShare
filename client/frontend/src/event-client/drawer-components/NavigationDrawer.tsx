@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { GiTreeBranch } from 'react-icons/gi';
@@ -6,9 +6,10 @@ import { FaHome, FaRegCalendarAlt } from 'react-icons/fa';
 import { MdGroup } from 'react-icons/md';
 import { BsPersonFill } from 'react-icons/bs';
 
-import { colors } from '../../theme/Colors';
 import RSText from '../../base-components/RSText';
 import Theme from '../../theme/Theme';
+import { RSLink } from '../../main-platform/reusable-components';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -26,6 +27,12 @@ const useStyles = makeStyles((_: any) => ({
   textStyle: {
     marginLeft: 30,
   },
+  unselectedTab: {
+    color: Theme.primary,
+  },
+  selectedTab: {
+    color: Theme.bright,
+  },
 }));
 
 const TEXT_SIZE = 22;
@@ -39,12 +46,42 @@ type AVAILABLE_TABS =
   | 'profile'
   | 'none';
 
-type Props = {
-  currentTab: AVAILABLE_TABS;
-};
+type Props = {};
 
 function NavigationDrawer(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
+  const [currentTab, setCurrentTab] = useState<AVAILABLE_TABS>();
+
+  useEffect(() => {
+    selectCurrentTab(history.location);
+
+    const removeHistoryListen = history.listen((location, action) => {
+      selectCurrentTab(location);
+    });
+    return removeHistoryListen;
+  }, [history]);
+
+  const selectCurrentTab = (location: typeof history.location) => {
+    const { pathname } = location;
+    let tab = pathname.split('/')[1];
+    switch (tab) {
+      case 'home':
+      case 'communities':
+      case 'events':
+      case 'connections':
+      case 'profile':
+        break;
+      case 'community':
+        tab = 'communities';
+        break;
+      default:
+        tab = 'none';
+        break;
+    }
+    setCurrentTab(tab as AVAILABLE_TABS);
+  };
 
   const tabs = [
     {
@@ -52,7 +89,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <GiTreeBranch
           size={ICON_SIZE}
-          color={props.currentTab === 'home' ? Theme.bright : Theme.primaryText}
+          color={currentTab === 'home' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
@@ -61,9 +98,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <FaHome
           size={ICON_SIZE}
-          color={
-            props.currentTab === 'communities' ? Theme.bright : Theme.primaryText
-          }
+          color={currentTab === 'communities' ? Theme.bright : Theme.primaryText}
         />
       ),
       link: '/communities/user',
@@ -73,7 +108,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <FaRegCalendarAlt
           size={ICON_SIZE}
-          color={props.currentTab === 'events' ? Theme.bright : Theme.primaryText}
+          color={currentTab === 'events' ? Theme.bright : Theme.primaryText}
         />
       ),
     },
@@ -82,9 +117,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <MdGroup
           size={ICON_SIZE}
-          color={
-            props.currentTab === 'connections' ? Theme.bright : Theme.primaryText
-          }
+          color={currentTab === 'connections' ? Theme.bright : Theme.primaryText}
         />
       ),
       link: '/connections/user',
@@ -94,7 +127,7 @@ function NavigationDrawer(props: Props) {
       icon: (
         <BsPersonFill
           size={ICON_SIZE}
-          color={props.currentTab === 'profile' ? Theme.bright : Theme.primaryText}
+          color={currentTab === 'profile' ? Theme.bright : Theme.primaryText}
         />
       ),
       link: '/profile/user',
@@ -105,26 +138,26 @@ function NavigationDrawer(props: Props) {
     const output = [];
     for (let i = 0; i < tabs.length; i++) {
       output.push(
-        <a
+        <RSLink
           href={tabs[i].link || `/${tabs[i].name.toLowerCase()}`}
           className={styles.link}
+          key={`navigation_${i}`}
         >
           {tabs[i].icon}
           <RSText
             type="head"
-            color={
-              props.currentTab === tabs[i].name.toLowerCase()
-                ? Theme.bright
-                : Theme.primaryText
-            }
             size={TEXT_SIZE}
             bold
-            className={styles.textStyle}
-            hoverColor={Theme.brightHover}
+            className={[
+              styles.textStyle,
+              currentTab === tabs[i].name.toLowerCase()
+                ? styles.selectedTab
+                : styles.unselectedTab,
+            ].join(' ')}
           >
             {tabs[i].name}
           </RSText>
-        </a>
+        </RSLink>
       );
     }
     return output;

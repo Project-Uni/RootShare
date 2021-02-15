@@ -1,13 +1,33 @@
-import { UPDATE_USER } from '../actions/user';
+import { UPDATE_USER, UPDATE_PROFILE_PICTURE, RESET_USER } from '../actions/user';
+import { initializeState } from '../store/stateManagement';
+import { RootshareReduxState } from '../store/stateManagement';
+
+const initialState = initializeState().user;
 
 export default function userReducer(
-  state = {},
-  data: { type: string; payload: { [key: string]: any } }
-): { [k: string]: any } {
+  state = initialState,
+  data: {
+    type: typeof UPDATE_USER | typeof UPDATE_PROFILE_PICTURE | typeof RESET_USER;
+    payload?: {
+      [key in keyof RootshareReduxState['user']]?: RootshareReduxState['user'][key];
+    };
+  }
+): RootshareReduxState['user'] {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_USER:
-      return payload.user;
+      return {
+        ...state,
+        ...payload,
+      };
+    case UPDATE_PROFILE_PICTURE:
+      return {
+        ...state,
+        profilePicture: payload?.profilePicture,
+        profilePictureLastUpdated: Date.now(),
+      };
+    case RESET_USER:
+      return initialState;
     default:
       return state;
   }

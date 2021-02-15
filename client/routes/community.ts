@@ -1,4 +1,4 @@
-import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -9,7 +9,8 @@ import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
-  // General Community Actions
+  deleteCommunity,
+  //General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -131,6 +132,33 @@ export default function communityRoutes(app) {
 
     return res.json(packet);
   });
+
+  app.delete(
+    '/api/admin/community/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
+        return res.json(
+          sendPacket(-1, 'User is not authorized to perform this action')
+        );
+
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.delete(
+    '/api/community/:communityID',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
 
   app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
     const { name, description, type, isPrivate } = req.body;
@@ -506,9 +534,15 @@ export default function communityRoutes(app) {
    *              type: string
    *            description: The id of the community to update relationship to
    *
+   *          - in: query
+   *            name: action
+   *            schema:
+   *              type: string
+   *            description: Value is join, cancel, or leave
+   *
    *        responses:
    *          "1":
-   *            description: Successfully updated community
+   *            description: Successfully updated community relationship
    *          "0":
    *            description: User input based error
    *          "-1":

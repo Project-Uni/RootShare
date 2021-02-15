@@ -9,6 +9,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { UserType, UniversityType } from '../../../helpers/types';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '../../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -69,7 +70,7 @@ function SingleConnection(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.left}>
-        <a href={`/profile/${props.connectedUser._id}`}>
+        <RSLink href={`/profile/${props.connectedUser._id}`}>
           <ProfilePicture
             type="profile"
             className={styles.picture}
@@ -79,14 +80,14 @@ function SingleConnection(props: Props) {
             borderRadius={35}
             currentPicture={props.connectedUser.profilePicture}
           />
-        </a>
+        </RSLink>
       </div>
       <div className={styles.center}>
-        <a href={`/profile/${props.connectedUser._id}`}>
+        <RSLink href={`/profile/${props.connectedUser._id}`}>
           <RSText bold size={12} className={styles.name}>
             {`${props.connectedUser.firstName} ${props.connectedUser.lastName}`}
           </RSText>
-        </a>
+        </RSLink>
 
         <RSText size={11} italic={true} className={styles.organization}>
           {university.universityName} |{' '}

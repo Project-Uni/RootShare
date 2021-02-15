@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
-
-import { makeRequest } from '../helpers/functions';
 
 import LandingHead from './landing-components/LandingHead';
 import LandingBody from './landing-components/LandingBody';
@@ -59,8 +57,9 @@ type Props = {
 
 function LandingPage(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [desktopMode, setDesktopMode] = useState(window.innerWidth >= MIN_WIDTH);
-  const [redirectHome, setRedirectHome] = useState(false);
 
   const [height, setHeight] = useState(
     window.innerHeight >= MIN_HEIGHT ? window.innerHeight : MIN_HEIGHT
@@ -74,7 +73,7 @@ function LandingPage(props: Props) {
   }, []);
 
   async function checkAuth() {
-    if (props.accessToken) setRedirectHome(true);
+    if (props.accessToken) history.push(redirectURL);
   }
 
   function handleResize() {
@@ -87,7 +86,6 @@ function LandingPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to={redirectURL} />}
       <LandingHead />
       <div className={styles.body}>
         <div className={styles.left}>{desktopMode && <LandingBody />}</div>
