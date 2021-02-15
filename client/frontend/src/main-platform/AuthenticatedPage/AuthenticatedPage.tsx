@@ -103,7 +103,12 @@ function AuthenticatedPage(props: Props) {
               {component}
             </div>
             {width > showRightEl.current &&
-              (rightElement ? rightElement : <DiscoverySidebar />)}
+              (rightElement ? (
+                rightElement
+              ) : (
+                // <DiscoverySidebar />
+                <span style={{ width: 270 }}></span>
+              ))}
           </div>
         )}
       </div>
