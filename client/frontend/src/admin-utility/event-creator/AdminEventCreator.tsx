@@ -15,7 +15,6 @@ import {
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../../redux/actions/user';
@@ -30,6 +29,7 @@ import { colors } from '../../theme/Colors';
 
 import { EventType, HostType, SpeakerType } from '../../helpers/types';
 import { makeRequest, log } from '../../helpers/functions';
+import { useHistory } from 'react-router-dom';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -174,10 +174,10 @@ type Props = {
 
 function AdminEventCreator(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const [briefCharsRemaining, setBriefCharsRemaining] = useState(MAX_BRIEF_LEN);
@@ -220,7 +220,7 @@ function AdminEventCreator(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(props.accessToken)) {
-      setLoginRedirect(true);
+      history.push('/login?redirect=/admin/event');
       return false;
     } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
@@ -861,7 +861,6 @@ function AdminEventCreator(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin/event" />}
       <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress

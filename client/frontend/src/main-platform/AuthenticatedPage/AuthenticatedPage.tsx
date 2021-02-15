@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -13,7 +13,6 @@ import {
   HEADER_HEIGHT,
 } from '../../helpers/constants';
 
-import { AVAILABLE_TABS } from '../reusable-components/components/MainNavigator';
 import Theme from '../../theme/Theme';
 import { HoverPreview } from '../reusable-components';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
@@ -42,11 +41,11 @@ type Props = {
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
   showRightElementWidth?: Number;
-  selectedTab?: AVAILABLE_TABS;
 };
 
 function AuthenticatedPage(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
   const dispatch = useDispatch();
   const { accessToken } = useSelector((state: RootshareReduxState) => ({
     accessToken: state.accessToken,
@@ -58,11 +57,9 @@ function AuthenticatedPage(props: Props) {
     showLeftElementWidth,
     rightElement,
     showRightElementWidth,
-    selectedTab,
   } = props;
 
   const [loading, setLoading] = useState(true);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -85,26 +82,18 @@ function AuthenticatedPage(props: Props) {
       await checkProfilePictureExpired(dispatch);
       setLoading(false);
     } else {
-      setLoginRedirect(true);
+      history.push(`/login?redirect=${history.location.pathname}`);
     }
   }, [accessToken, dispatch, checkProfilePictureExpired]);
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && (
-        <Redirect to={`/login?redirect=${window.location.pathname}`} />
-      )}
-
       <EventClientHeader showNavigationWidth={showLeftEl.current} />
       <div className={styles.bodyContainer}>
         {!loading && (
           <div className={styles.body} style={{ height: height }}>
             {width > showLeftEl.current &&
-              (leftElement ? (
-                leftElement
-              ) : (
-                <MainNavigator currentTab={selectedTab || 'none'} />
-              ))}
+              (leftElement ? leftElement : <MainNavigator />)}
             <div
               style={{ flex: 1, overflow: 'scroll', background: Theme.background }}
               id="mainComponent"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Select, MenuItem } from '@material-ui/core';
@@ -108,6 +109,8 @@ const useStyles = makeStyles((_: any) => ({
 
 function ProfileDrawer() {
   const styles = useStyles();
+  const history = useHistory();
+
   const [edit, setEdit] = useState(false);
 
   const dispatch = useDispatch();
@@ -202,7 +205,7 @@ function ProfileDrawer() {
     if (data['success'] !== 1) return setLogoutErr(true);
 
     resetState(dispatch);
-    window.location.href = '/';
+    history.push('/');
   }
 
   async function updateNewUserInfoToServer() {

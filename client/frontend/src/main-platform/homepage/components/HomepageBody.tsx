@@ -21,6 +21,7 @@ import {
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -58,6 +59,7 @@ type Props = {
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -95,7 +97,7 @@ function HomepageBody(props: Props) {
   }
 
   function handleDiscoverClick() {
-    window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
+    history.push(`/discover`);
   }
 
   function handleTabChange(newTab: string) {

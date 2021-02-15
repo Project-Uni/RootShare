@@ -74,7 +74,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<HomepageBody {...props} />}
-                  selectedTab="home"
                 />
               )}
             />
@@ -85,7 +84,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<EventsBody {...props} />}
-                  selectedTab="events"
                 />
               )}
             />
@@ -96,7 +94,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<ProfileBody {...props} />}
-                  selectedTab="profile"
                 />
               )}
             />
@@ -107,7 +104,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<YourCommunitiesBody {...props} />}
-                  selectedTab="communities"
                 />
               )}
             />
@@ -118,7 +114,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<CommunityBody {...props} />}
-                  selectedTab="communities"
                   rightElement={<FollowSidebar {...props} />}
                 />
               )}
@@ -130,7 +125,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<ConnectionsBody {...props} />}
-                  selectedTab="connections"
                 />
               )}
             />

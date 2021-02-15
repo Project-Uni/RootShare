@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -56,13 +56,13 @@ type Props = {
 
 function Login(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const [redirectHome, setRedirectHome] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const values = queryString.parse(props.location.search);
@@ -87,7 +87,7 @@ function Login(props: Props) {
     setLoading(true);
     if (accessTokenParam) dispatch(updateAccessToken(accessTokenParam));
     if (refreshTokenParam) dispatch(updateRefreshToken(refreshTokenParam));
-    if (accessToken) setRedirectHome(true);
+    if (accessToken) history.push(redirectUrl);
     setLoading(false);
   }
 
@@ -128,7 +128,7 @@ function Login(props: Props) {
       );
       dispatch(updateAccessToken(newAccessToken));
       dispatch(updateRefreshToken(newRefreshToken));
-      setRedirectHome(true);
+      history.push(redirectUrl);
     } else {
       setError(true);
     }
@@ -137,7 +137,6 @@ function Login(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to={redirectUrl} />}
       {forgotPassword ? (
         <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
       ) : (

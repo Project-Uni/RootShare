@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -59,11 +60,11 @@ function Comment(props: Props) {
           currentPicture={props.profilePicture}
         />
         <div className={styles.commentBody}>
-          <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+          <RSLink href={`/profile/${props.userID}`} className={styles.noUnderline}>
             <RSText type="body" bold color={Theme.primaryText}>
               {props.name}
             </RSText>
-          </a>
+          </RSLink>
           <RSText type="body" size={10} color={Theme.secondaryText}>
             {props.timestamp}
           </RSText>

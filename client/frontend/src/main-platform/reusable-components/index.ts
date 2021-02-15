@@ -25,6 +25,8 @@ import HoverPreview from './components/HoverPreview';
 
 import SnackbarNotification from './components/SnackbarNotification';
 
+import RSLink from './components/RSLink';
+
 export {
   MainNavigator,
   DiscoverySidebar,
@@ -42,4 +44,5 @@ export {
   RSButton,
   HoverPreview,
   SnackbarNotification,
+  RSLink,
 };

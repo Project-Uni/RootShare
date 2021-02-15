@@ -7,6 +7,7 @@ import RootShareLogoFull from '../../images/RootShareLogoFullbeta.png';
 
 import { colors } from '../../theme/Colors';
 import Theme from '../../theme/Theme';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   linearProgress: {
@@ -55,9 +56,9 @@ function HypeCard(props: Props) {
     if (props.backArrow === undefined) return null;
     else if (props.backArrow === 'link')
       return (
-        <a href={props.backArrowLink} className={styles.backArrow}>
+        <RSLink href={props.backArrowLink as string} className={styles.backArrow}>
           <FaArrowLeft color={Theme.primary} size={24} />
-        </a>
+        </RSLink>
       );
     else
       return (

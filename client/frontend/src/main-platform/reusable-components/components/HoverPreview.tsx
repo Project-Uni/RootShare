@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Popper, Box } from '@material-ui/core';
@@ -19,6 +19,7 @@ import {
 import {
   clearHoverPreview,
   dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
   mouseEnteredHoverPreview,
 } from '../../../redux/actions/interactions';
 import { RSText } from '../../../base-components';
@@ -31,6 +32,8 @@ import {
   putUserToCommunityRelationship,
 } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { RSLink } from '../';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -89,7 +92,7 @@ type CommunityResponse = {
 export type HoverProps = {
   _id: string;
   type: 'user' | 'community';
-  anchorEl: HTMLElement | null;
+  anchorEl: HTMLElement | undefined;
   profilePicture?: string;
   name: string;
 };
@@ -97,6 +100,7 @@ export type HoverProps = {
 const HoverPreview = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const { anchorEl, _id, type, profilePicture, name, mouseEntered } = useSelector(
     (state: RootshareReduxState) => state.hoverPreview
@@ -110,6 +114,9 @@ const HoverPreview = () => {
 
   const [open, setOpen] = useState(Boolean(anchorEl));
   const id = open ? 'preview-popover' : undefined;
+
+  const anchorElRef = useRef<HTMLElement>();
+  anchorElRef.current = anchorEl;
 
   useEffect(() => {
     if (anchorEl && !loading) fetchData();
@@ -127,6 +134,17 @@ const HoverPreview = () => {
     });
     return () => mainComponent?.removeEventListener('scroll', handleCloseOnScroll);
   }, [handleCloseOnScroll]);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      dispatch(hoverPreviewTriggerComponentExit());
+      if (anchorElRef.current) {
+        setOpen(false);
+        dispatch(clearHoverPreview());
+      }
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   const fetchData = useCallback(async () => {
     const data =
@@ -396,7 +414,7 @@ const HoverPreview = () => {
       >
         <div style={{ display: 'flex' }}>
           <div style={{ display: 'flex', height: '100%', alignItems: 'center' }}>
-            <a href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
+            <RSLink href={`/${type === 'user' ? 'profile' : type}/${_id}`}>
               <Avatar
                 src={profilePicture}
                 alt={name}
@@ -407,7 +425,7 @@ const HoverPreview = () => {
                   border: `2px solid ${Theme.bright}`,
                 }}
               />
-            </a>
+            </RSLink>
           </div>
           <div style={{ flex: 1 }}>
             <RSText
@@ -415,11 +433,9 @@ const HoverPreview = () => {
               bold
               type="head"
               className={styles.navigation}
-              onClick={() =>
-                (window.location.href = `/${
-                  type === 'user' ? 'profile' : type
-                }/${_id}`)
-              }
+              onClick={() => {
+                history.push(`/${type === 'user' ? 'profile' : type}/${_id}`);
+              }}
             >
               {name}
             </RSText>

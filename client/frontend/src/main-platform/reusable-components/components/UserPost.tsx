@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -21,7 +21,7 @@ import CastForEducationIcon from '@material-ui/icons/CastForEducation';
 
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
-import { Comment } from '../';
+import { Comment, RSLink } from '../';
 import { RSText, ProfilePicture, DynamicIconButton } from '../../../base-components';
 import {
   formatDatePretty,
@@ -38,6 +38,7 @@ import {
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions/interactions';
 import { putLikeStatus } from '../../../api/put/putLikeStatus';
+import { useHistory } from 'react-router-dom';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
 
@@ -88,6 +89,7 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
+      cursor: 'pointer',
     },
   },
   message: {
@@ -212,6 +214,7 @@ type CommentResponse = {
 function UserPost(props: Props) {
   const styles = useStyles();
   const textFieldStyles = useTextFieldStyles();
+  const history = useHistory();
 
   const dispatch = useDispatch();
 
@@ -240,6 +243,13 @@ function UserPost(props: Props) {
   const shortenedMessage = props.message.substr(0, MAX_INITIAL_VISIBLE_CHARS);
 
   const isHovering = useRef(false);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      if (isHovering.current) isHovering.current = false;
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   function handleShowMoreClick() {
     setShowFullMessage(!showFullMessage);
@@ -395,16 +405,15 @@ function UserPost(props: Props) {
             anchorEl: currentTarget,
           })
         );
-    }, 300);
+    }, 500);
   };
 
   function renderPostHeader() {
     return (
       <div className={styles.top}>
         <div style={{ display: 'flex' }}>
-          <a
+          <RSLink
             href={`/${props.anonymous ? 'community' : 'profile'}/${props.posterID}`}
-            className={styles.noUnderline}
           >
             <ProfilePicture
               height={50}
@@ -414,27 +423,30 @@ function UserPost(props: Props) {
               type="profile"
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
 
           <div className={styles.postHeadText}>
             <div className={styles.nameAndOrgDiv}>
-              <a
+              <RSLink
                 href={`/${props.anonymous ? 'community' : 'profile'}/${
                   props.posterID
                 }`}
                 className={styles.noUnderline}
-                onMouseEnter={handleMouseOver}
-                onMouseLeave={() => {
-                  isHovering.current = false;
-                  setTimeout(() => {
-                    dispatch(hoverPreviewTriggerComponentExit());
-                  }, 500);
-                }}
               >
-                <RSText type="subhead" bold size={14}>
-                  {props.name}
-                </RSText>
-              </a>
+                <div
+                  onMouseEnter={handleMouseOver}
+                  onMouseLeave={() => {
+                    isHovering.current = false;
+                    setTimeout(() => {
+                      dispatch(hoverPreviewTriggerComponentExit());
+                    }, 500);
+                  }}
+                >
+                  <RSText type="subhead" bold size={14}>
+                    {props.name}
+                  </RSText>
+                </div>
+              </RSLink>
 
               {props.toCommunity && (
                 <>
@@ -443,14 +455,14 @@ function UserPost(props: Props) {
                     size={16}
                     className={styles.plantIcon}
                   />
-                  <a
+                  <RSLink
                     href={`/community/${props.toCommunityID}`}
                     className={styles.noUnderline}
                   >
                     <RSText type="subhead" bold size={14}>
                       {props.toCommunity}
                     </RSText>
-                  </a>
+                  </RSLink>
                 </>
               )}
               {props.type === 'broadcast' && (

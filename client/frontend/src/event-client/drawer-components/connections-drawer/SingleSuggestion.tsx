@@ -12,6 +12,7 @@ import { UniversityType } from '../../../helpers/types/universityTypes';
 import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '../../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -130,7 +131,7 @@ function SingleSuggestion(props: Props) {
     return (
       <div id="suggestionWrapper" className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${props.suggestedUser._id}`}>
+          <RSLink href={`/profile/${props.suggestedUser._id}`}>
             <ProfilePicture
               type="profile"
               className={styles.picture}
@@ -140,14 +141,14 @@ function SingleSuggestion(props: Props) {
               borderRadius={35}
               currentPicture={props.suggestedUser.profilePicture}
             />
-          </a>
+          </RSLink>
         </div>
         <div className={styles.center}>
-          <a href={`/profile/${props.suggestedUser._id}`}>
+          <RSLink href={`/profile/${props.suggestedUser._id}`}>
             <RSText bold size={12} className={styles.name}>
               {`${props.suggestedUser.firstName} ${props.suggestedUser.lastName}`}
             </RSText>
-          </a>
+          </RSLink>
 
           <RSText size={11} italic className={styles.organization}>
             {university.universityName} |{' '}
