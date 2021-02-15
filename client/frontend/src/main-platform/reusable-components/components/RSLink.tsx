@@ -1,10 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-<<<<<<< HEAD
-import { Link, useHistory } from 'react-router-dom';
-=======
 import { Link } from 'react-router-dom';
->>>>>>> f5db7feec8239c2203b85ba27e8d5516b3d9f612
 
 const useStyles = makeStyles((_: any) => ({
   link: {
@@ -29,18 +25,6 @@ export const RSLink = (props: Props) => {
 
   const { href, className, style, children } = props;
 
-<<<<<<< HEAD
-  return (
-    <Link
-      to={href || window.location.href}
-      style={style}
-      className={[className, styles.link, href ? styles.pointer : undefined].join(
-        ' '
-      )}
-    >
-      {children}
-    </Link>
-=======
   return href ? (
     <Link
       to={href}
@@ -53,6 +37,5 @@ export const RSLink = (props: Props) => {
     <a href={undefined} style={style} className={[className, styles.link].join(' ')}>
       {children}
     </a>
->>>>>>> f5db7feec8239c2203b85ba27e8d5516b3d9f612
   );
 };
