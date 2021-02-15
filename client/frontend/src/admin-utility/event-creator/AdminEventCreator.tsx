@@ -68,24 +68,32 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonWrapper: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   submitButton: {
-    width: '40%',
+    width: '30%',
     background: '#3D66DE',
     '&:hover': {
       background: '#7c97e9',
     },
     fontSize: 16,
     color: 'white',
-    marginRight: 20,
   },
   emailButton: {
-    width: '40%',
+    width: '30%',
     background: colors.secondaryText,
     fontSize: 16,
     color: colors.primaryText,
+  },
+  deleteButton: {
+    width: '30%',
+    background: colors.error,
+    '&:hover': {
+      background: '#ff4444',
+    },
+    fontSize: 16,
+    color: 'white',
   },
   loadingGray: {
     width: '60%',
@@ -432,6 +440,24 @@ function AdminEventCreator(props: Props) {
       resetData();
     } else setTopMessage('f: There was an error adding images to the webinar.');
     setLoadingSubmit(false);
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete this event? This action is irreversible.'
+      )
+    )
+      return;
+    const { data } = await makeRequest('DELETE', `/api/webinar/event/${editEvent}`);
+
+    if (data['success'] === 1) {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== editEvent)
+      );
+      resetData();
+      setTopMessage('s: The event was deleted.');
+    } else setTopMessage('f: There was an error deleting the event.');
   }
 
   async function handleResendEmails() {
@@ -816,6 +842,16 @@ function AdminEventCreator(props: Props) {
               disabled={loadingSubmit}
             >
               Resend Event Invites
+            </Button>
+          )}
+          {editEvent && (
+            <Button
+              variant="contained"
+              className={loadingSubmit ? styles.loadingGray : styles.deleteButton}
+              onClick={handleDelete}
+              disabled={loadingSubmit}
+            >
+              DELETE
             </Button>
           )}
         </div>

@@ -131,6 +131,19 @@ function AdminCommunityManager(props: Props) {
     });
   }
 
+  function onDeleteCommunity(communityID: string) {
+    setCommunities((prevCommunities) => {
+      let newCommunities = prevCommunities.slice();
+      for (let i = 0; i < newCommunities.length; i++) {
+        if (newCommunities[i]._id === communityID) {
+          newCommunities.splice(i, 1);
+          return newCommunities;
+        }
+      }
+      return prevCommunities;
+    });
+  }
+
   function renderInvalid() {
     return (
       <RSText type="subhead" size={32} bold>
@@ -160,6 +173,7 @@ function AdminCommunityManager(props: Props) {
             }
             onCancelEdit={onCancelEdit}
             onUpdateCommunity={onUpdateCommunity}
+            onDeleteCommunity={onDeleteCommunity}
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList

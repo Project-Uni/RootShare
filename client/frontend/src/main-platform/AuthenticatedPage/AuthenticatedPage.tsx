@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { MainNavigator, DiscoverySidebar } from '../reusable-components';
@@ -15,6 +15,8 @@ import {
 
 import Theme from '../../theme/Theme';
 import { HoverPreview } from '../reusable-components';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { checkProfilePictureExpired } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -39,12 +41,15 @@ type Props = {
   showLeftElementWidth?: number;
   rightElement?: JSX.Element;
   showRightElementWidth?: Number;
-  accessToken: string;
 };
 
 function AuthenticatedPage(props: Props) {
   const styles = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
+  const { accessToken } = useSelector((state: RootshareReduxState) => ({
+    accessToken: state.accessToken,
+  }));
 
   const {
     component,
@@ -52,7 +57,6 @@ function AuthenticatedPage(props: Props) {
     showLeftElementWidth,
     rightElement,
     showRightElementWidth,
-    accessToken,
   } = props;
 
   const [loading, setLoading] = useState(true);
@@ -64,15 +68,23 @@ function AuthenticatedPage(props: Props) {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-
-    if (Boolean(accessToken)) setLoading(false);
-    else history.push(`/login?redirect=${history.location.pathname}`);
+    checkAuth();
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
     setWidth(window.innerWidth);
   }
+
+  const checkAuth = useCallback(async () => {
+    if (Boolean(accessToken)) {
+      await checkProfilePictureExpired(dispatch);
+      setLoading(false);
+    } else {
+      history.push(`/login?redirect=${history.location.pathname}`);
+    }
+  }, [accessToken, dispatch, checkProfilePictureExpired]);
 
   return (
     <div className={styles.wrapper}>
@@ -98,14 +110,4 @@ function AuthenticatedPage(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AuthenticatedPage);
+export default AuthenticatedPage;
