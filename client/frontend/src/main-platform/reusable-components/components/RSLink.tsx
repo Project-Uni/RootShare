@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   link: {
@@ -20,20 +20,15 @@ type Props = {
 
 const RSLink = (props: Props) => {
   const styles = useStyles();
-  const history = useHistory();
 
   const { href, className, style, children } = props;
 
-  return (
-    <a
-      href={href}
-      style={style}
-      className={[className, styles.link].join(' ')}
-      onClick={(e) => {
-        e.preventDefault();
-        history.push(href);
-      }}
-    >
+  return href ? (
+    <Link to={href} style={style} className={[className, styles.link].join(' ')}>
+      {children}
+    </Link>
+  ) : (
+    <a href={undefined} style={style} className={[className, styles.link].join(' ')}>
       {children}
     </a>
   );
