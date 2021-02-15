@@ -26,10 +26,13 @@ const RSLink = (props: Props) => {
 
   return (
     <a
-      href={undefined}
+      href={href}
       style={style}
       className={[className, styles.link].join(' ')}
-      onClick={() => history.push(href)}
+      onClick={(e) => {
+        e.preventDefault();
+        history.push(href);
+      }}
     >
       {children}
     </a>
