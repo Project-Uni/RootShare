@@ -27,6 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     maxWidth: 1300,
+    flex: 1,
   },
   bodyContainer: {
     display: 'flex',
@@ -102,7 +103,12 @@ function AuthenticatedPage(props: Props) {
               {component}
             </div>
             {width > showRightEl.current &&
-              (rightElement ? rightElement : <DiscoverySidebar />)}
+              (rightElement ? (
+                rightElement
+              ) : (
+                // <DiscoverySidebar />
+                <span style={{ width: 270 }}></span>
+              ))}
           </div>
         )}
       </div>

@@ -25,7 +25,9 @@ import HoverPreview from './components/HoverPreview';
 
 import SnackbarNotification from './components/SnackbarNotification';
 
-import RSLink from './components/RSLink';
+import { RSLink } from './components/RSLink';
+
+import { FeaturedEvent } from './components/FeaturedEvent';
 
 export {
   MainNavigator,
@@ -45,4 +47,5 @@ export {
   HoverPreview,
   SnackbarNotification,
   RSLink,
+  FeaturedEvent,
 };

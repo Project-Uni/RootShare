@@ -11,6 +11,7 @@ import {
   UserPost,
   RSTabs,
   MakePostContainer,
+  FeaturedEvent,
 } from '../../reusable-components';
 
 import {
@@ -22,6 +23,7 @@ import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
+import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -167,7 +169,7 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <Box boxShadow={2} borderRadius={10} className={styles.box}>
+      {/* <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
           message="Every success story is rooted in the support from a community. Join your
@@ -175,7 +177,12 @@ function HomepageBody(props: Props) {
           buttonText="Discover"
           buttonAction={handleDiscoverClick}
         />
-      </Box>
+      </Box> */}
+      <FeaturedEvent
+        src={WinningDevPlanBanner}
+        style={{ margin: 8 }}
+        href={'/event/6026ce709a7a1f218592ea37'}
+      />
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={props.user.profilePicture}
