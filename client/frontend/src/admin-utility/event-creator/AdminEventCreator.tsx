@@ -15,7 +15,6 @@ import {
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../../redux/actions/user';
@@ -30,6 +29,7 @@ import { colors } from '../../theme/Colors';
 
 import { EventType, HostType, SpeakerType } from '../../helpers/types';
 import { makeRequest, log } from '../../helpers/functions';
+import { useHistory } from 'react-router-dom';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -68,24 +68,32 @@ const useStyles = makeStyles((_: any) => ({
   },
   buttonWrapper: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   submitButton: {
-    width: '40%',
+    width: '30%',
     background: '#3D66DE',
     '&:hover': {
       background: '#7c97e9',
     },
     fontSize: 16,
     color: 'white',
-    marginRight: 20,
   },
   emailButton: {
-    width: '40%',
+    width: '30%',
     background: colors.secondaryText,
     fontSize: 16,
     color: colors.primaryText,
+  },
+  deleteButton: {
+    width: '30%',
+    background: colors.error,
+    '&:hover': {
+      background: '#ff4444',
+    },
+    fontSize: 16,
+    color: 'white',
   },
   loadingGray: {
     width: '60%',
@@ -166,10 +174,10 @@ type Props = {
 
 function AdminEventCreator(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const [briefCharsRemaining, setBriefCharsRemaining] = useState(MAX_BRIEF_LEN);
@@ -212,7 +220,7 @@ function AdminEventCreator(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(props.accessToken)) {
-      setLoginRedirect(true);
+      history.push('/login?redirect=/admin/event');
       return false;
     } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
@@ -432,6 +440,24 @@ function AdminEventCreator(props: Props) {
       resetData();
     } else setTopMessage('f: There was an error adding images to the webinar.');
     setLoadingSubmit(false);
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete this event? This action is irreversible.'
+      )
+    )
+      return;
+    const { data } = await makeRequest('DELETE', `/api/webinar/event/${editEvent}`);
+
+    if (data['success'] === 1) {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== editEvent)
+      );
+      resetData();
+      setTopMessage('s: The event was deleted.');
+    } else setTopMessage('f: There was an error deleting the event.');
   }
 
   async function handleResendEmails() {
@@ -818,6 +844,16 @@ function AdminEventCreator(props: Props) {
               Resend Event Invites
             </Button>
           )}
+          {editEvent && (
+            <Button
+              variant="contained"
+              className={loadingSubmit ? styles.loadingGray : styles.deleteButton}
+              onClick={handleDelete}
+              disabled={loadingSubmit}
+            >
+              DELETE
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -825,7 +861,6 @@ function AdminEventCreator(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin/event" />}
       <EventClientHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress

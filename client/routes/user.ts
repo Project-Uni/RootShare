@@ -34,7 +34,7 @@ import {
  *
  */
 
-module.exports = (app) => {
+export default function userRoutes(app) {
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getConnections(userID, (packet) => res.json(packet));
@@ -310,4 +310,4 @@ module.exports = (app) => {
         sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
       );
   });
-};
+}

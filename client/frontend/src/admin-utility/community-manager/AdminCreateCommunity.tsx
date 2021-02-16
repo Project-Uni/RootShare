@@ -51,6 +51,11 @@ const useStyles = makeStyles((_: any) => ({
     width: 400,
     marginTop: 20,
   },
+  deleteButton: {
+    width: 400,
+    marginTop: 20,
+    color: colors.brightError,
+  },
   communitySelect: {
     width: 225,
     textAlign: 'left',
@@ -71,9 +76,10 @@ type Props = {
   editingCommunity?: Community;
   accessToken: string;
   refreshToken: string;
-  appendNewCommunity: (community: Community) => any;
-  onCancelEdit: () => any;
-  onUpdateCommunity: () => any;
+  appendNewCommunity: (community: Community) => void;
+  onCancelEdit: () => void;
+  onUpdateCommunity: () => void;
+  onDeleteCommunity: (communityID: string) => void;
 };
 
 function AdminCreateCommunity(props: Props) {
@@ -128,6 +134,33 @@ function AdminCreateCommunity(props: Props) {
     setTypeErr('');
 
     props.onCancelEdit();
+  }
+
+  async function onDeleteCommunity() {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this community? This action is irreversible.'
+      )
+    ) {
+      const communityID = (props.editingCommunity as Community)._id;
+      const { data } = await makeRequest(
+        'DELETE',
+        `/api/admin/community/${communityID}`
+      );
+
+      if (data.success !== 1)
+        return setServerMessage({
+          success: false,
+          message: `There was an error deleting the community ${name}`,
+        });
+
+      setServerMessage({
+        success: true,
+        message: `Successfully deleted community ${name}`,
+      });
+      onCancelEdit();
+      props.onDeleteCommunity(communityID);
+    }
   }
 
   function handleNameChange(event: any) {
@@ -437,13 +470,22 @@ function AdminCreateCommunity(props: Props) {
           {props.editing ? 'Save Changes' : 'Create Community'}
         </Button>
         {props.editing && (
-          <Button
-            size="large"
-            className={styles.cancelButton}
-            onClick={onCancelEdit}
-          >
-            Cancel Update
-          </Button>
+          <>
+            <Button
+              size="large"
+              className={styles.cancelButton}
+              onClick={onCancelEdit}
+            >
+              Cancel Update
+            </Button>
+            <Button
+              size="large"
+              className={styles.deleteButton}
+              onClick={onDeleteCommunity}
+            >
+              Delete Community
+            </Button>
+          </>
         )}
       </HypeCard>
     </div>

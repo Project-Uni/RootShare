@@ -10,6 +10,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import RSText from '../../../base-components/RSText';
 import { makeRequest } from '../../../helpers/functions';
 import { colors } from '../../../theme/Colors';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -106,7 +107,7 @@ function LikesModal(props: Props) {
     return (
       <div style={{}} className={styles.singleUserWrapper}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <a href={`/profile/${user._id}`}>
+          <RSLink href={`/profile/${user._id}`}>
             <ProfilePicture
               borderRadius={30}
               height={45}
@@ -115,12 +116,12 @@ function LikesModal(props: Props) {
               _id={user._id}
               currentPicture={user.profilePicture}
             />
-          </a>
-          <a href={`/profile/${user._id}`} className={styles.name}>
+          </RSLink>
+          <RSLink href={`/profile/${user._id}`} className={styles.name}>
             <RSText size={13} bold>
               {user.firstName} {user.lastName}
             </RSText>
-          </a>
+          </RSLink>
         </div>
       </div>
     );

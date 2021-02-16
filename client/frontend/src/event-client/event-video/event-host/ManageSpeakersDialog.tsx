@@ -17,7 +17,7 @@ import {
   GuestSpeaker,
 } from '../../../helpers/types';
 import theme from '../../../theme/Theme';
-import { addAlpha } from '../../../theme/Theme';
+import Theme, { addAlpha } from '../../../theme/Theme';
 import { colors } from '../../../theme/Colors';
 
 const useStyles = makeStyles((_: any) => ({
@@ -28,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   modalWrapper: {
     padding: 10,
-    paddingTop: 20,
+    paddingTop: 5,
   },
   loadingIndicator: {
     color: theme.primary,
@@ -63,12 +63,6 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       background: colors.background,
     },
-  },
-  guestSpeakerText: {
-    color: 'black',
-  },
-  guestSpeakerEmail: {
-    color: colors.secondaryText,
   },
 
   autoCompleteContainer: {
@@ -197,21 +191,15 @@ function MeetTheGreeksModal(props: Props) {
     removeGuestSpeaker,
   } = props;
 
-  const [numViewers, setNumViewers] = useState(0);
+  const [viewers, setViewers] = useState<UserOption[]>();
 
   const [loading, setLoading] = useState(true);
   const [serverErr, setServerErr] = useState<string>();
   const [searchErr, setSearchedErr] = useState('');
 
-  const {
-    formFields,
-    formErrors,
-    handleChange,
-    handleDateChange,
-    updateFields,
-    updateErrors,
-    resetForm,
-  } = useForm<IFormData>(defaultFormData);
+  const { formFields, formErrors, updateFields } = useForm<IFormData>(
+    defaultFormData
+  );
 
   const { searchedUser } = formFields;
 
@@ -229,12 +217,12 @@ function MeetTheGreeksModal(props: Props) {
     );
 
     if (data['success'] === 1) {
-      setNumViewers(data.content.users.length);
+      setViewers(searchOptionMap(data.content.users));
       if (data.content.currentSpeakers)
         setCurrentGuestSpeakers(data.content.currentSpeakers);
     } else {
       setCurrentGuestSpeakers([]);
-      setNumViewers(0);
+      setViewers(undefined);
     }
 
     setLoading(false);
@@ -338,16 +326,17 @@ function MeetTheGreeksModal(props: Props) {
         <div key={guestSpeaker._id} className={styles.guestSpeaker}>
           <div>
             <RSText
-              className={[styles.guestSpeakerText, styles.selectedName].join(' ')}
+              className={[styles.selectedName].join(' ')}
+              color={Theme.primaryText}
             >
               {guestSpeaker?.firstName} {guestSpeaker?.lastName}
             </RSText>
-            <RSText italic className={styles.guestSpeakerEmail}>
+            <RSText italic color={Theme.secondaryText}>
               {guestSpeaker?.email}
             </RSText>
           </div>
           <IconButton onClick={() => handleRemoveSpeaker(guestSpeaker)}>
-            <IoMdClose color={colors.secondaryText} />
+            <IoMdClose color={Theme.secondaryText} />
           </IconButton>
         </div>
       );
@@ -373,11 +362,12 @@ function MeetTheGreeksModal(props: Props) {
         <div className={styles.selectedUserAdd}>
           <div>
             <RSText
-              className={[styles.guestSpeakerText, styles.selectedName].join(' ')}
+              className={[styles.selectedName].join(' ')}
+              color={Theme.primaryText}
             >
               {searchedUser?.firstName} {searchedUser?.lastName}
             </RSText>
-            <RSText italic className={styles.guestSpeakerEmail}>
+            <RSText italic color={Theme.secondaryText}>
               {searchedUser?.email}
             </RSText>
           </div>
@@ -413,11 +403,11 @@ function MeetTheGreeksModal(props: Props) {
           className={styles.textField}
           name="viewers"
           onAutocomplete={onAutocomplete}
-          fetchDataURL={`/api/webinar/${webinarID}/getActiveViewers`}
-          mapData={searchOptionMap}
+          options={viewers}
           helperText="Search current viewers"
           key="userSearch"
           error={formErrors.searchedUser}
+          fullWidth
         />
       </div>
     );
@@ -495,10 +485,10 @@ function MeetTheGreeksModal(props: Props) {
 
               <RSText
                 type="body"
-                color={colors.secondaryText}
+                color={Theme.primaryText}
                 className={styles.activeViewerCount}
               >
-                {numViewers} Active Viewer{numViewers !== 1 && 's'}
+                {viewers?.length || 0} Active Viewer{viewers?.length !== 1 && 's'}
               </RSText>
             </>
           )}

@@ -16,7 +16,7 @@ import SocketManager from './main-platform/SocketManager';
 import LandingPage from './landing-page/LandingPage';
 
 import {
-  MeetTheGreeks,
+  // MeetTheGreeks,
   HomepageBody,
   ProfileBody,
   EventsBody,
@@ -65,11 +65,8 @@ const App = () => {
               component={ResetPassword}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
-
             <Route exact path="/login" component={Login} />
-
             <Route path="/admin" component={AdminRoutes} />
-
             <Route
               exact
               path="/home"
@@ -77,7 +74,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<HomepageBody {...props} />}
-                  selectedTab="home"
                 />
               )}
             />
@@ -88,7 +84,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<EventsBody {...props} />}
-                  selectedTab="events"
                 />
               )}
             />
@@ -99,7 +94,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<ProfileBody {...props} />}
-                  selectedTab="profile"
                 />
               )}
             />
@@ -110,7 +104,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<YourCommunitiesBody {...props} />}
-                  selectedTab="communities"
                 />
               )}
             />
@@ -121,7 +114,6 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<CommunityBody {...props} />}
-                  selectedTab="communities"
                   rightElement={<FollowSidebar {...props} />}
                 />
               )}
@@ -133,18 +125,16 @@ const App = () => {
                 <AuthenticatedPage
                   {...props}
                   component={<ConnectionsBody {...props} />}
-                  selectedTab="connections"
                 />
               )}
             />
-            <Route
+            {/* <Route
               exact
               path="/mtg"
               render={(props) => (
                 <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
               )}
-            />
-
+            /> */}
             <Route component={PageNotFound} />
           </Switch>
         </div>

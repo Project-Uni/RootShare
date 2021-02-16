@@ -349,6 +349,36 @@ function addUserDidRSVP(userID, webinars, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
+export async function deleteEvent(userID, eventID, callback) {
+  try {
+    const deletePromise = Webinar.deleteOne({ _id: eventID });
+    // const deletePromise = Webinar.deleteOne({ _id: eventID, host: userID });
+    // USE THIS ONCE WE SETUP COMMUNITY EVENT CREATION AND DELETION
+    const attendedPromise = User.updateMany(
+      { attendedWebinars: eventID },
+      { $pullAll: { attendedWebinars: [eventID] } }
+    ).exec();
+    const RSVPPromise = User.updateMany(
+      { RSVPWebinars: eventID },
+      { $pullAll: { RSVPWebinars: [eventID] } }
+    ).exec();
+
+    await Promise.all([deletePromise, attendedPromise, RSVPPromise]).then(
+      ([deleteData, attendedData, RSVPData]) => {
+        if (deleteData.deletedCount === 0)
+          return callback(
+            sendPacket(0, `Webinar doesn't exist or user isn't the host`)
+          );
+
+        callback(sendPacket(1, 'Successfully deleted event'));
+      }
+    );
+  } catch (err) {
+    log('error', err);
+    callback(sendPacket(-1, err));
+  }
+}
+
 export async function getWebinarDetails(userID, webinarID, callback) {
   Webinar.findById(
     webinarID,

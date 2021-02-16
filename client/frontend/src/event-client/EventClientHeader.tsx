@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar, IconButton, Menu, MenuItem } from '@material-ui/core';
-import RootShareLogo from '../images/RootShareLogoFull.png';
+import RootShareLogo from '../images/RootShareLogoFullbeta.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
@@ -20,8 +20,9 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
-import { SearchField } from '../main-platform/reusable-components';
+import { RSLink, SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -55,6 +56,8 @@ type Props = {
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [drawerContent, setDrawerContent] = useState('');
   const [drawerAnchor, setDrawerAnchor] = useState<'left' | 'right'>('right');
   const minWidth = props.minWidth || 100;
@@ -67,7 +70,7 @@ function EventClientHeader(props: Props) {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<any>();
 
-  const [showSearch, setShowSearch] = useState(false);
+  // const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -116,7 +119,7 @@ function EventClientHeader(props: Props) {
       case 'profile':
         return <ProfileDrawer />;
       case 'navigation':
-        return <NavigationDrawer currentTab="none" />;
+        return <NavigationDrawer />;
       default:
         return null;
     }
@@ -179,7 +182,7 @@ function EventClientHeader(props: Props) {
                     }
               }
             >
-              <a href="/home">
+              <RSLink href="/home">
                 <img
                   src={RootShareLogo}
                   alt="RootShare"
@@ -187,12 +190,12 @@ function EventClientHeader(props: Props) {
                     width: isDesktop.current ? 190 : 130,
                   }}
                 />
-              </a>
+              </RSLink>
               <SearchField
                 style={{
-                  transition: `max-width 0.75s ease, opacity ${
-                    showSearch ? 0.2 : 0.6
-                  }s ease`,
+                  // transition: `max-width 0.75s ease, opacity ${
+                  //   showSearch ? 0.2 : 0.6
+                  // }s ease`,
                   marginLeft: window.innerWidth >= 767 ? 55 : undefined,
                 }}
                 mode="both"
@@ -205,9 +208,11 @@ function EventClientHeader(props: Props) {
                 fetchDataURL="/api/discover/search/v1/exactMatch"
                 renderLimit={10}
                 onAutocomplete={(selectedOption) => {
-                  window.location.href = `/${
-                    selectedOption.type === 'community' ? 'community' : 'profile'
-                  }/${selectedOption._id}`;
+                  history.push(
+                    `/${
+                      selectedOption.type === 'community' ? 'community' : 'profile'
+                    }/${selectedOption._id}`
+                  );
                 }}
                 fullWidth
                 freeSolo

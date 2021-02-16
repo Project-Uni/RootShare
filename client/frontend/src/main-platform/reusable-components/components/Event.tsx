@@ -9,6 +9,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import RootSharePreviewBanner from '../../../images/event/RootSharePreviewBanner.png';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '..';
 
 const MAX_SUBSTR_LEN = 200;
 
@@ -115,11 +116,11 @@ function Event(props: Props) {
   function renderEventHeader() {
     return (
       <div className={styles.top}>
-        <a href={`/event/${props.eventID}`} className={styles.eventName}>
+        <RSLink href={`/event/${props.eventID}`} className={styles.eventName}>
           <RSText type="head" color={Theme.secondaryText} bold size={16}>
             {props.title}
           </RSText>
-        </a>
+        </RSLink>
         <div
           style={{
             display: 'flex',
@@ -147,20 +148,24 @@ function Event(props: Props) {
   function renderEventBody() {
     return (
       <div className={styles.bodyWrapper}>
-        <a
-          href={props.communityID ? `/community/${props.communityID}` : undefined}
+        <RSLink
+          href={
+            props.communityID
+              ? `/community/${props.communityID}`
+              : '/community/5f713f1870443b1485235491' //ROOTSHARE TEAM COMMUNITY ID
+          }
           className={styles.hostLink}
         >
           <RSText type="subhead" color={Theme.secondaryText} size={14}>
             Hosted by {props.communityName || 'RootShare'}
           </RSText>
-        </a>
-        <a href={`/event/${props.eventID}`} className={styles.hostLink}>
+        </RSLink>
+        <RSLink href={`/event/${props.eventID}`} className={styles.hostLink}>
           <img
             src={props.eventBanner || RootSharePreviewBanner}
             className={styles.banner}
           />
-        </a>
+        </RSLink>
         <RSText
           type="body"
           bold

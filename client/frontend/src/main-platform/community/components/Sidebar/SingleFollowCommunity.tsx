@@ -4,6 +4,7 @@ import { colors } from '../../../../theme/Colors';
 import theme from '../../../../theme/Theme';
 import RSText from '../../../../base-components/RSText';
 import ProfilePicture from '../../../../base-components/ProfilePicture';
+import { RSLink } from '../../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -69,7 +70,7 @@ function SingleFollowCommunity(props: Props) {
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div>
         <div className={styles.communityInfo}>
-          <a href={`/community/${props._id}`} className={styles.communityLink}>
+          <RSLink href={`/community/${props._id}`} className={styles.communityLink}>
             <ProfilePicture
               editable={false}
               type={'profile'}
@@ -78,13 +79,13 @@ function SingleFollowCommunity(props: Props) {
               borderRadius={60}
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
-            <a href={`/community/${props._id}`} className={styles.noUnderline}>
+            <RSLink href={`/community/${props._id}`} className={styles.noUnderline}>
               <RSText type="body" bold size={13} color={theme.primaryText}>
                 {props.name || ''}
               </RSText>
-            </a>
+            </RSLink>
 
             <RSText type="body" italic={true} size={11} color={theme.primaryText}>
               {props.type || ''}

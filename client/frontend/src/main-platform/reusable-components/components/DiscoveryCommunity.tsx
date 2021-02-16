@@ -11,6 +11,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
 import { CommunityType, U2CR } from '../../../helpers/types';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -167,7 +168,7 @@ function DiscoveryCommunity(props: Props) {
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.communityInfo}>
-          <a
+          <RSLink
             href={`/community/${props.communityID}`}
             className={styles.communityLink}
           >
@@ -179,16 +180,16 @@ function DiscoveryCommunity(props: Props) {
               borderRadius={50}
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
-            <a
+            <RSLink
               href={`/community/${props.communityID}`}
               className={styles.noUnderline}
             >
               <RSText type="body" bold size={13} color={theme.primaryText}>
                 {props.name || ''}
               </RSText>
-            </a>
+            </RSLink>
 
             <RSText type="body" italic={true} size={11} color={theme.secondaryText}>
               {props.type || ''}
