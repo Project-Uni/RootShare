@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../theme/Theme';
 
@@ -64,6 +64,10 @@ function RSText(props: Props) {
   function handleMouseLeave() {
     setStyle({ ...style, color });
   }
+
+  useEffect(() => {
+    setStyle({ ...style, color });
+  }, [color]);
 
   return (
     <p

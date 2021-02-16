@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
+import Theme from '../../theme/Theme';
+import RootShareLogo from '../../images/RootShareLogoFull.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     height: '100vh',
     width: '100%',
+  },
+  absolutePosContainer: {
+    position: 'relative',
+    height: 0,
+    width: 0,
+  },
+  logo: {
+    width: 300,
   },
 }));
 
@@ -37,7 +47,9 @@ const AccountTypeSelect = (props: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  const handleClick = (type: AccountType) => {};
+  const handleClick = (type: AccountType) => {
+    console.log('Clicking on account type:', type);
+  };
 
   return (
     <div
@@ -47,6 +59,18 @@ const AccountTypeSelect = (props: Props) => {
         flexDirection: isMobile ? 'column' : 'row',
       }}
     >
+      <div className={styles.absolutePosContainer}>
+        <div
+          style={{
+            position: 'absolute',
+            top: 30,
+            left: window.innerWidth / 2 - 100,
+            width: 200,
+          }}
+        >
+          <RSText>We're excited to have you!</RSText>
+        </div>
+      </div>
       {accountTypes.map((account) => (
         <Account
           type={account.type}
@@ -54,6 +78,20 @@ const AccountTypeSelect = (props: Props) => {
           style={{ border: '1px solid red', flex: 0.25 }}
         />
       ))}
+      <div
+        className={styles.absolutePosContainer}
+        style={{ border: '1px solid red' }}
+      >
+        <img
+          src={RootShareLogo}
+          className={styles.logo}
+          style={{
+            position: 'absolute',
+            bottom: -window.innerHeight + 30,
+            right: window.innerWidth / 2 - 150,
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -69,6 +107,8 @@ type AccountTypeProps = {
 
 const Account = (props: AccountTypeProps) => {
   const { style, className, type, onClick, image } = props;
+  const [hovering, setHovering] = useState(false);
+
   return (
     <div
       style={{
@@ -80,11 +120,14 @@ const Account = (props: AccountTypeProps) => {
       }}
       className={className}
       onClick={() => onClick(type)}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
     >
-      <RSText>{`${type.charAt(0).toUpperCase()}${type.slice(
-        1,
-        type.length
-      )}`}</RSText>
+      <RSText
+        size={32}
+        color={hovering ? Theme.primaryHover : Theme.primaryText}
+        bold
+      >{`${type.charAt(0).toUpperCase()}${type.slice(1, type.length)}`}</RSText>
     </div>
   );
 };
