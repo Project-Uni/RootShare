@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Box } from '@material-ui/core';
+import { 
+  CircularProgress,
+  Box,
+  TextField,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  FormHelperText,
+  MenuItem,
+} from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
+import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 
@@ -10,7 +22,7 @@ import CreateCommunityModal from './CreateCommunityModal';
 import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import { Community } from '../../../helpers/types';
+import { Community, CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 
@@ -27,6 +39,17 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
     marginRight: 20,
   },
+  searchIcon: {
+    marginRight: 10,
+  },
+  communitySelect: {
+    width: 225,
+    textAlign: 'left',
+  },
+  communitySelectDiv: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
   noCommunities: {
     marginTop: 30,
   },
@@ -40,6 +63,7 @@ const useStyles = makeStyles((_: any) => ({
   box: {
     background: Theme.white,
     margin: 8,
+    height: 250,
   },
 }));
 
@@ -56,6 +80,8 @@ function YourCommunitiesBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
+  const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
+
   const [username, setUsername] = useState('User');
 
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
@@ -64,6 +90,9 @@ function YourCommunitiesBody(props: Props) {
   const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
     false
   );
+
+  const [type, setType] = useState<CommunityType>();
+  const [typeErr, setTypeErr] = useState('');
 
   const requestUserID = props.match.params['userID'];
 
@@ -74,6 +103,10 @@ function YourCommunitiesBody(props: Props) {
       setLoading(false);
     });
   }, []);
+
+  function handleCommunityTypeChange(event: any) {
+    setType(event.target.value);
+  }
 
   async function fetchData() {
     const { data } = await makeRequest(
@@ -97,6 +130,49 @@ function YourCommunitiesBody(props: Props) {
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
+  }
+
+  function renderSearchArea() {
+    return (
+      <div className={styles.searchBarContainer}>
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={autocompleteResults}
+          className={styles.searchBar}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={`Search ${
+                requestUserID === 'user' ? 'your' : `${username}'s`
+              } communities`}
+              variant="outlined"
+              InputProps={{ ...params.InputProps, type: 'search' }}
+            />
+          )}
+        />
+        <IconButton>
+          <FaSearch size={22} color={Theme.primary} className={styles.searchIcon} />
+        </IconButton>
+        <div className={styles.communitySelectDiv}>
+        <FormControl
+          className={styles.communitySelect}
+          variant="outlined"
+          error={typeErr !== ''}
+        >
+          <InputLabel>Type</InputLabel>
+          <Select value={type} onChange={handleCommunityTypeChange}>
+            {COMMUNITY_TYPES.map((communityType) => (
+              <MenuItem value={communityType} key={communityType}>
+                {communityType}
+              </MenuItem>
+            ))}
+          </Select>
+          {typeErr !== '' && <FormHelperText>{typeErr}</FormHelperText>}
+        </FormControl>
+      </div>
+      </div>
+    );
   }
 
   function appendNewCommunity(community: Community) {
@@ -179,6 +255,7 @@ function YourCommunitiesBody(props: Props) {
           buttonText={'Create Community'}
           buttonAction={() => setShowCreateCommunitiesModal(true)}
         />
+        {renderSearchArea()}
       </Box>
       <div className={styles.body}>
         {loading ? (
