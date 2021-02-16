@@ -30,6 +30,7 @@ import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import { SnackbarNotification } from './main-platform/reusable-components';
 import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
+import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -59,11 +60,13 @@ const App = () => {
               path="/login"
               render={(props) => <RedesignedLanding mode="login" {...props} />}
             />
+            <Route exact path="/account/select" component={AccountTypeSelect} />
             <Route
               exact
               path="/account/initialize"
               render={(props) => <RedesignedLanding mode="additional" {...props} />}
             />
+
             {/* <Route
               exact
               path="/register/external"
