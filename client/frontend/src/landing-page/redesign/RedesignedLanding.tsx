@@ -107,30 +107,17 @@ const RedesignedLanding = (props: Props) => {
         }}
       >
         {!isMobile && (
-          <div
-            style={{ border: '1px solid red' }}
-            className={styles.leftMiddleContent}
-          >
-            {getLeftComponent()}
-          </div>
+          <div className={styles.leftMiddleContent}>{getLeftComponent()}</div>
         )}
         <div
-          style={
-            isMobile
-              ? {
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }
-              : {
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  marginLeft: 50,
-                  marginBottom: 50,
-                }
-          }
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: isMobile ? 'center' : 'flex-start',
+            justifyContent: isMobile ? 'center' : undefined,
+            marginLeft: 50,
+            marginBottom: 50,
+          }}
         >
           {/* TODO - Fix styling to match wireframe */}
           {isMobile && (
@@ -144,22 +131,7 @@ const RedesignedLanding = (props: Props) => {
           </RSText>
         </div>
       </div>
-      <div className={styles.right} style={{ border: '1px solid blue' }}>
-        <span
-          id="form"
-          style={{
-            border: '1px solid blue',
-            height: 400,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingLeft: 30,
-            paddingRight: 30,
-          }}
-        >
-          {getRightComponent()}
-        </span>
-      </div>
+      <div className={styles.right}>{getRightComponent()}</div>
     </div>
   );
 };

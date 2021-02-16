@@ -56,6 +56,16 @@ const App = () => {
             />
             <Route
               exact
+              path="/login"
+              render={(props) => <RedesignedLanding mode="login" {...props} />}
+            />
+            <Route
+              exact
+              path="/account/initialize"
+              render={(props) => <RedesignedLanding mode="additional" {...props} />}
+            />
+            {/* <Route
+              exact
               path="/register/external"
               component={HypeExternalMissingInfo}
             />
@@ -63,14 +73,14 @@ const App = () => {
               exact
               path="/register/initialize"
               component={HypeAdditionalInfo}
-            />
+            /> */}
             <Route
               exact
               path="/register/resetPassword/:emailtoken"
               component={ResetPassword}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
-            <Route exact path="/login" component={Login} />
+            {/* <Route exact path="/login" component={Login} /> */}
             <Route path="/admin" component={AdminRoutes} />
             <Route
               exact
