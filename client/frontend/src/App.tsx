@@ -14,6 +14,7 @@ import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
 import LandingPage from './landing-page/LandingPage';
+import RedesignedLanding from './landing-page/redesign/RedesignedLanding';
 
 import {
   // MeetTheGreeks,
@@ -48,7 +49,11 @@ const App = () => {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
-            <Route exact path="/" component={LandingPage} />
+            <Route
+              exact
+              path="/"
+              render={(props) => <RedesignedLanding mode="register" {...props} />}
+            />
             <Route
               exact
               path="/register/external"
