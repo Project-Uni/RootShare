@@ -14,9 +14,6 @@ const useStyles = makeStyles((_: any) => ({
     height: 0,
     width: 0,
   },
-  logo: {
-    width: 300,
-  },
 }));
 
 const MIN_WIDTH = 915;
@@ -29,6 +26,7 @@ const AccountTypeSelect = (props: Props) => {
   const styles = useStyles();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
+  const [innerWidth, setInnerWidth] = useState(window.innerWidth);
 
   const accountTypes: { type: AccountType; backgroundImage?: string }[] = [
     { type: 'student', backgroundImage: undefined },
@@ -38,6 +36,7 @@ const AccountTypeSelect = (props: Props) => {
   ];
 
   const handleResize = () => {
+    setInnerWidth(window.innerWidth);
     if (window.innerWidth < MIN_WIDTH && !isMobile) setIsMobile(true);
     else if (window.innerWidth >= MIN_WIDTH && isMobile) setIsMobile(false);
   };
@@ -64,11 +63,11 @@ const AccountTypeSelect = (props: Props) => {
           style={{
             position: 'absolute',
             top: 30,
-            left: window.innerWidth / 2 - 100,
+            left: innerWidth / 2 - 100,
             width: 200,
           }}
         >
-          <RSText>We're excited to have you!</RSText>
+          <RSText bold>We're excited to have you!</RSText>
         </div>
       </div>
       {accountTypes.map((account) => (
@@ -84,11 +83,12 @@ const AccountTypeSelect = (props: Props) => {
       >
         <img
           src={RootShareLogo}
-          className={styles.logo}
           style={{
+            width: isMobile ? 225 : 300,
             position: 'absolute',
-            bottom: -window.innerHeight + 30,
-            right: window.innerWidth / 2 - 150,
+            bottom: isMobile ? 5 : -window.innerHeight + 30,
+            right: isMobile ? undefined : innerWidth / 2 - 150,
+            left: isMobile ? innerWidth / 2 - 113 : undefined,
           }}
         />
       </div>
