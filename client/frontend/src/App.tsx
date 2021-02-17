@@ -54,7 +54,7 @@ const App = () => {
             <Route
               exact
               path="/"
-              render={(props) => <LandingPage mode="register" {...props} />}
+              render={(props) => <LandingPage mode="register" />}
             />
             {/* <Route
               exact
@@ -65,7 +65,7 @@ const App = () => {
             <Route
               exact
               path="/account/initialize"
-              render={(props) => <LandingPage mode="additional" {...props} />}
+              render={(props) => <LandingPage mode="additional" />}
             />
 
             {/* <Route
@@ -89,41 +89,23 @@ const App = () => {
             <Route
               exact
               path="/home"
-              render={(props) => (
-                <AuthenticatedPage
-                  {...props}
-                  component={<HomepageBody {...props} />}
-                />
-              )}
+              render={(props) => <AuthenticatedPage component={<HomepageBody />} />}
             />
             <Route
               exact
               path="/events"
-              render={(props) => (
-                <AuthenticatedPage
-                  {...props}
-                  component={<EventsBody {...props} />}
-                />
-              )}
+              render={(props) => <AuthenticatedPage component={<EventsBody />} />}
             />
             <Route
               exact
               path="/profile/:profileID"
-              render={(props) => (
-                <AuthenticatedPage
-                  {...props}
-                  component={<ProfileBody {...props} />}
-                />
-              )}
+              render={(props) => <AuthenticatedPage component={<ProfileBody />} />}
             />
             <Route
               exact
               path="/communities/:userID"
               render={(props) => (
-                <AuthenticatedPage
-                  {...props}
-                  component={<YourCommunitiesBody {...props} />}
-                />
+                <AuthenticatedPage component={<YourCommunitiesBody />} />
               )}
             />
             <Route
@@ -131,7 +113,6 @@ const App = () => {
               path="/community/:communityID"
               render={(props) => (
                 <AuthenticatedPage
-                  {...props}
                   component={<Community />}
                   // component={<CommunityBody {...props} />}
                   // rightElement={<FollowSidebar {...props} />}
@@ -142,10 +123,7 @@ const App = () => {
               exact
               path="/connections/:userID"
               render={(props) => (
-                <AuthenticatedPage
-                  {...props}
-                  component={<ConnectionsBody {...props} />}
-                />
+                <AuthenticatedPage component={<ConnectionsBody />} />
               )}
             />
             {/* <Route

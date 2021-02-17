@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Redirect, useHistory, useParams } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
@@ -58,10 +58,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -99,7 +95,7 @@ function EventClientBase(props: Props) {
   const webinarEvent = webinarData as EventType;
   const currConversationID = webinarEvent.conversation as string;
 
-  const eventID = props.match.params['eventid'];
+  const { eventid: eventID } = useParams<{ eventid: string }>();
   const minHeaderWidth = getHeaderMinWidth();
 
   useEffect(() => {

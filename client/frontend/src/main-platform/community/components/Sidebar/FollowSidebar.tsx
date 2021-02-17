@@ -7,6 +7,7 @@ import { HEADER_HEIGHT } from '../../../../helpers/constants';
 
 import SingleFollowCommunity from './SingleFollowCommunity';
 import RSText from '../../../../base-components/RSText';
+import { useParams } from 'react-router-dom';
 
 const VERTICAL_PADDING_TOTAL = 40;
 
@@ -30,12 +31,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
-};
+type Props = {};
 
 type FollowCommunity = {
   description: string;
@@ -60,7 +56,7 @@ function FollowedByCommunities(props: Props) {
     FollowCommunity[]
   >([]);
 
-  const communityID = props.match.params['orgID'];
+  const { orgID: communityID } = useParams<{ orgID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

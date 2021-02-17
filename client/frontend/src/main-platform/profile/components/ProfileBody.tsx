@@ -27,6 +27,7 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 import { getProfilePictureAndBanner } from '../../../api';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -79,10 +80,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   user: any;
 };
 
@@ -104,7 +101,7 @@ function ProfileBody(props: Props) {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [postsFetchErr, setPostsFetchErr] = useState(false);
 
-  const profileID = props.match.params['profileID'];
+  const { profileID } = useParams<{ profileID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

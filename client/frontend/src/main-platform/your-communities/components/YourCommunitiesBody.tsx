@@ -13,6 +13,7 @@ import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -45,10 +46,6 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   user: { [key: string]: any };
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
 };
 
 function YourCommunitiesBody(props: Props) {
@@ -65,7 +62,7 @@ function YourCommunitiesBody(props: Props) {
     false
   );
 
-  const requestUserID = props.match.params['userID'];
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
