@@ -25,7 +25,6 @@ const Community = (props: Props) => {
   }));
 
   const [info, setInfo] = useState<any>(); //Community details as a dictionary
-  const [posts, setPosts] = useState<any[]>();
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState<CommunityTab>('About');
 
@@ -62,6 +61,8 @@ const Community = (props: Props) => {
         communityID={communityID}
         tab={currentTab}
         onTabChange={setCurrentTab}
+        profilePicture={undefined}
+        banner={undefined}
       />
       {getTabContent()}
     </div>

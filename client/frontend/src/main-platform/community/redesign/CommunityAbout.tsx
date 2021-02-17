@@ -30,6 +30,7 @@ export const CommunityAbout = (props: Props) => {
         editable={editable}
         style={{ marginTop: 20 }}
       />
+      <p>Members?</p>
     </div>
   );
 };
