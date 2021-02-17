@@ -5,16 +5,16 @@ import { Router, Route, Switch } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga';
 
-import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
-import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
+// import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
+// import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
 import Login from './login/Login';
 import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
-import LandingPage from './landing-page/LandingPage';
-import RedesignedLanding from './landing-page/redesign/RedesignedLanding';
+// import LandingPage from './landing-page/LandingPage';
+import LandingPage from './landing-page/redesign/LandingPage';
 
 import {
   // MeetTheGreeks,
@@ -31,6 +31,7 @@ import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPa
 import { SnackbarNotification } from './main-platform/reusable-components';
 import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect';
+import Community from './main-platform/community/redesign/Community';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -53,18 +54,18 @@ const App = () => {
             <Route
               exact
               path="/"
-              render={(props) => <RedesignedLanding mode="register" {...props} />}
+              render={(props) => <LandingPage mode="register" {...props} />}
             />
-            <Route
+            {/* <Route
               exact
               path="/login"
-              render={(props) => <RedesignedLanding mode="login" {...props} />}
-            />
+              render={(props) => <LandingPage mode="login" {...props} />}
+            /> */}
             <Route exact path="/account/select" component={AccountTypeSelect} />
             <Route
               exact
               path="/account/initialize"
-              render={(props) => <RedesignedLanding mode="additional" {...props} />}
+              render={(props) => <LandingPage mode="additional" {...props} />}
             />
 
             {/* <Route
@@ -83,7 +84,7 @@ const App = () => {
               component={ResetPassword}
             />
             <Route exact path="/event/:eventid" component={EventClientBase} />
-            {/* <Route exact path="/login" component={Login} /> */}
+            <Route exact path="/login" component={Login} />
             <Route path="/admin" component={AdminRoutes} />
             <Route
               exact
@@ -127,12 +128,13 @@ const App = () => {
             />
             <Route
               exact
-              path="/community/:orgID"
+              path="/community/:communityID"
               render={(props) => (
                 <AuthenticatedPage
                   {...props}
-                  component={<CommunityBody {...props} />}
-                  rightElement={<FollowSidebar {...props} />}
+                  component={<Community />}
+                  // component={<CommunityBody {...props} />}
+                  // rightElement={<FollowSidebar {...props} />}
                 />
               )}
             />
