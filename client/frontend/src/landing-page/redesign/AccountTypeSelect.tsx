@@ -6,7 +6,6 @@ import RootShareLogo from '../../images/RootShareLogoFull.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    height: '100vh',
     width: '100%',
   },
   absolutePosContainer: {
@@ -27,6 +26,7 @@ const AccountTypeSelect = (props: Props) => {
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
+  const [innerHeight, setInnerHeight] = useState(window.innerHeight);
 
   const accountTypes: { type: AccountType; backgroundImage?: string }[] = [
     { type: 'student', backgroundImage: undefined },
@@ -36,7 +36,9 @@ const AccountTypeSelect = (props: Props) => {
   ];
 
   const handleResize = () => {
-    setInnerWidth(window.innerWidth);
+    if (window.innerWidth !== innerWidth) setInnerWidth(window.innerWidth);
+    if (window.innerHeight !== innerHeight) setInnerHeight(window.innerHeight);
+
     if (window.innerWidth < MIN_WIDTH && !isMobile) setIsMobile(true);
     else if (window.innerWidth >= MIN_WIDTH && isMobile) setIsMobile(false);
   };
@@ -56,6 +58,7 @@ const AccountTypeSelect = (props: Props) => {
       style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
+        height: innerHeight,
       }}
     >
       <div className={styles.absolutePosContainer}>
