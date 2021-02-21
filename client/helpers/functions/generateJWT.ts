@@ -3,7 +3,7 @@ import jwt = require('jsonwebtoken');
 
 export function generateJWT(
   user: {
-    [key in typeof JWT_TOKEN_FIELDS[number]]: string;
+    [key in typeof JWT_TOKEN_FIELDS[number]]: string | number;
   }
 ): { accessToken: string; refreshToken: string } {
   const userTokenInfo = {};
