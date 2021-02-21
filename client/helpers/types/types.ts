@@ -1,3 +1,5 @@
+import { Express } from 'express';
+
 export const USER_LEVEL = {
   SUPER_ADMIN: 9,
   ADMIN: 6,
@@ -72,3 +74,5 @@ const U2CR = {
 } as const;
 
 export { U2UR, U2CR };
+
+export type IRequest = Express['request'];

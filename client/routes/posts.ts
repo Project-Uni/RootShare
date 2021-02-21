@@ -31,6 +31,7 @@ import {
   getLikes,
   deletePost,
 } from '../interactions/posts';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 
 export default function postsRoutes(app) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
@@ -71,11 +72,17 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { postID } = req.params;
-      const startingTimestamp = req.query.from;
+      const query = getQueryParams(req, {
+        startingTimestamp: { type: 'string', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+      const { startingTimestamp } = query;
 
       const packet = await retrieveComments(
         postID,
-        startingTimestamp ? new Date(startingTimestamp) : new Date()
+        startingTimestamp ? new Date(startingTimestamp as string) : new Date()
       );
       return res.json(packet);
     }
@@ -282,14 +289,18 @@ export default function postsRoutes(app) {
   );
 
   app.put('/api/posts/likes', isAuthenticatedWithJWT, async (req, res) => {
-    const {
-      action,
-      postID,
-    }: { action: 'like' | 'unlike'; postID: string } = req.query;
     const { _id: userID } = getUserFromJWT(req);
 
-    if (action === 'like') return res.json(await likePost(postID, userID));
-    else if (action === 'unlike') return res.json(await unlikePost(postID, userID));
+    const query = getQueryParams(req, {
+      action: { type: 'string' },
+      postID: { type: 'string' },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    const { action, postID } = query;
+
+    if (action === 'like') return res.json(await likePost(postID as string, userID));
+    else if (action === 'unlike')
+      return res.json(await unlikePost(postID as string, userID));
 
     return res.json(
       sendPacket(0, 'action (like, unlike) missing from query params')

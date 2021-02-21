@@ -1,4 +1,4 @@
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -111,17 +111,15 @@ export default function imageRoutes(app) {
    */
 
   app.get('/api/images/profile', isAuthenticatedWithJWT, async (req, res) => {
-    let {
-      getProfile,
-      getBanner,
-      _id,
-      type,
-    }: {
-      getProfile: boolean;
-      getBanner: boolean;
-      _id: string;
-      type: 'user' | 'community';
-    } = req.query;
+    const query = getQueryParams(req, {
+      _id: { type: 'string' },
+      type: { type: 'string' },
+      getBanner: { type: 'boolean', optional: true },
+      getProfile: { type: 'boolean', optional: true },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+    let { getProfile, getBanner, _id, type } = query;
 
     let packet: {
       success: number;
@@ -133,12 +131,15 @@ export default function imageRoutes(app) {
     if (type === 'user') {
       if (_id === 'user') _id = getUserFromJWT(req)._id;
 
-      packet = await getUserProfileAndBanner(_id, {
-        getProfile,
-        getBanner,
+      packet = await getUserProfileAndBanner(_id as string, {
+        getProfile: getProfile as boolean | undefined,
+        getBanner: getBanner as boolean | undefined,
       });
     } else if (type === 'community')
-      packet = await getCommunityProfileAndBanner(_id, { getProfile, getBanner });
+      packet = await getCommunityProfileAndBanner(_id as string, {
+        getProfile: getProfile as boolean | undefined,
+        getBanner: getBanner as boolean | undefined,
+      });
     else packet = sendPacket(-1, 'Invalid type');
 
     return res.json(packet);
