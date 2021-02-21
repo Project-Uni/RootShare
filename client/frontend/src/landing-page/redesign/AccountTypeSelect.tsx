@@ -93,6 +93,7 @@ const AccountTypeSelect = (props: Props) => {
           type={account.type}
           onClick={handleClick}
           style={{ border: '1px solid red', flex: 0.25 }}
+          image={account.backgroundImage}
         />
       ))}
       <div

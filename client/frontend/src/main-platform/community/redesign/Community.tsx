@@ -17,7 +17,7 @@ export type CommunityTab = 'About' | 'Feed'; //For now, feed is just external
 const Community = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
-  const { communityID }: { communityID: string } = useParams();
+  const { communityID } = useParams<{ communityID: string }>();
 
   const dispatch = useDispatch();
   const {} = useSelector((state: RootshareReduxState) => ({

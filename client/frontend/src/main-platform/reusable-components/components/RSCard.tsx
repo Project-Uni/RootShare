@@ -13,7 +13,7 @@ type Props = {
   children?: JSX.Element | JSX.Element[] | string | number;
   style?: React.CSSProperties;
   className?: string;
-  variant?: 'small' | 'large';
+  variant?: 'primary' | 'secondary';
 };
 
 export const RSCard = (props: Props) => {
@@ -24,7 +24,7 @@ export const RSCard = (props: Props) => {
     <Box
       className={[styles.wrapper, className].join(' ')}
       style={{ ...style }}
-      borderRadius={variant === 'large' ? 40 : 30}
+      borderRadius={variant === 'primary' ? 40 : 30}
       boxShadow={2}
     >
       {children}
@@ -33,5 +33,5 @@ export const RSCard = (props: Props) => {
 };
 
 RSCard.defaultProps = {
-  variant: 'large',
+  variant: 'primary',
 };
