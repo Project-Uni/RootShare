@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import { RSText } from '../../base-components';
@@ -43,7 +43,7 @@ type Props = {
   mode: 'register' | 'login' | 'additional';
 };
 
-const RedesignedLanding = (props: Props) => {
+const LandingPage = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
 
@@ -57,15 +57,18 @@ const RedesignedLanding = (props: Props) => {
     else if (window.innerWidth >= MIN_WIDTH && isMobile) setIsMobile(false);
   };
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    checkAuth();
-    return () => window.removeEventListener('resize', handleResize);
-  }, [handleResize]);
-
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
   }, [accessToken]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useLayoutEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
 
   //TODO - Update with components
   const getLeftComponent = useCallback(() => {
@@ -135,4 +138,4 @@ const RedesignedLanding = (props: Props) => {
     </div>
   );
 };
-export default RedesignedLanding;
+export default LandingPage;

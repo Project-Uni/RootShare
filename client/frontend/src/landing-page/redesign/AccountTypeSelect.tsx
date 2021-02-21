@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
+import { useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -23,6 +26,10 @@ type Props = {};
 
 const AccountTypeSelect = (props: Props) => {
   const styles = useStyles();
+  const history = useHistory();
+  const { accessToken } = useSelector((state: RootshareReduxState) => ({
+    accessToken: state.accessToken,
+  }));
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -43,7 +50,15 @@ const AccountTypeSelect = (props: Props) => {
     else if (window.innerWidth >= MIN_WIDTH && isMobile) setIsMobile(false);
   };
 
+  const checkAuth = useCallback(() => {
+    if (Boolean(accessToken)) history.push('/home');
+  }, [accessToken]);
+
   useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
