@@ -1,12 +1,21 @@
 import { Express } from 'express';
 import sendPacket from '../../webinar/helpers/sendPacket';
 import { isAuthenticatedWithJWT } from '../../webinar/middleware/isAuthenticated';
-import { generateJWT, hashPassword } from '../helpers/functions';
+import { generateJWT, hashPassword, getQueryParams } from '../helpers/functions';
 import { User } from '../models';
 import {} from '../models/users';
 
 export const authRoutes = (app: Express) => {
-  app.get('/api/v2/auth/validate', async (req, res) => {});
+  app.get('/api/v2/auth/validate', async (req, res) => {
+    const query = getQueryParams(req, {
+      email: { type: 'string' },
+      phoneNumber: { type: 'string' },
+      password: { type: 'string' },
+    });
+    if (!query) return res.status(400).json(sendPacket(-1, 'Missing query params'));
+
+    const { email, password, phoneNumber } = query;
+  });
 
   app.post('/api/v2/auth/register', async (req, res) => {
     const {
