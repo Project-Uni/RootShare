@@ -103,11 +103,10 @@ function EventClientBase(props: Props) {
   const minHeaderWidth = getHeaderMinWidth();
 
   useEffect(() => {
-    if (checkAuth()) {
-      fetchEventInfo();
-    } else {
-      history.push(`/login?redirect=/event/${eventID}`);
-    }
+    checkAuth().then((authorized) => {
+      if (authorized) fetchEventInfo();
+      else history.push(`/login?redirect=/event/${eventID}`);
+    });
   }, []);
 
   async function checkAuth() {
