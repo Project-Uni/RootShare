@@ -1,14 +1,9 @@
-var bCrypt = require('bcryptjs');
+import { hashSync, compareSync, genSaltSync } from 'bcryptjs';
 
-// Generates hash using bCrypt
 export function hashPassword(password) {
-  return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+  return hashSync(password, genSaltSync(10));
 }
 
-export function isValidPassword(user, password) {
-  // if (password === user.hashedPassword) {
-  //   return true;
-  // }
-
-  return bCrypt.compareSync(password, user.hashedPassword);
-}
+export const comparePasswords = (rawPassword, hashedPassword) => {
+  return compareSync(rawPassword, hashedPassword);
+};

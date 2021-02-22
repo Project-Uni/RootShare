@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 
 const User = mongoose.model('users');
 
-import { generateJWT, isValidPassword } from '../helpers/functions';
+import { generateJWT, comparePasswords } from '../helpers/functions';
 
 module.exports = function (passport) {
   passport.use(
@@ -17,26 +17,26 @@ module.exports = function (passport) {
         process.nextTick(function () {
           // check in mongo if a user with username exists or not
           email = email.toLowerCase();
-          User.findOne({ email: { $regex: email, $options: 'i' } }, function (
-            err,
-            user
-          ) {
-            if (err) return done(err);
-            if (!user) return done(null, false, { message: 'User Not Found' });
-            if (user.hashedPassword === undefined)
-              return done(null, false, {
-                message: 'User has not signed up locally',
-              });
-            if (!isValidPassword(user, password))
-              return done(null, false, { message: 'Invalid Password' });
+          User.findOne(
+            { email: { $regex: email, $options: 'i' } },
+            function (err, user) {
+              if (err) return done(err);
+              if (!user) return done(null, false, { message: 'User Not Found' });
+              if (user.hashedPassword === undefined)
+                return done(null, false, {
+                  message: 'User has not signed up locally',
+                });
+              if (!comparePasswords(password, user.hashedPassword))
+                return done(null, false, { message: 'Invalid Password' });
 
-            const JWT = generateJWT(user);
-            return done(null, user, {
-              message: 'Found user and logged in',
-              jwtAccessToken: JWT.accessToken,
-              jwtRefreshToken: JWT.refreshToken,
-            });
-          });
+              const JWT = generateJWT(user);
+              return done(null, user, {
+                message: 'Found user and logged in',
+                jwtAccessToken: JWT.accessToken,
+                jwtRefreshToken: JWT.refreshToken,
+              });
+            }
+          );
         });
       }
     )
