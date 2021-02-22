@@ -376,6 +376,86 @@ export class CommunityC {
     return cleanedOutput;
   };
 
+  static getByUniveristy = async (
+    univeristy: string,
+    params?: {
+      fields?: typeof CommunityC.AcceptedFields[number][];
+      options?: CommunityGetOptions;
+    }
+  ) => {
+    const { fields: fieldsParam, options: optionsParam } = params;
+
+    //Preparation
+    const options: CommunityGetOptions = {
+      ...CommunityC.DefaultOptions,
+      ...(optionsParam || {}),
+    };
+    const fields = (fieldsParam || []).filter((field) =>
+      CommunityC.AcceptedFields.includes(field)
+    );
+    if (options.includeDefaultFields) {
+      fields.push(
+        ...[...CommunityC.DefaultFields].filter((field) => fields.includes(field))
+      );
+    }
+    const populates = options.populates?.slice() || [];
+
+    //Relationship prep
+    const removeFields = {
+      members: false,
+      pendingMembers: false,
+      admin: false,
+    };
+
+    if (options.getRelationship) {
+      if (fields.indexOf('members') === -1) {
+        fields.push('members');
+        removeFields.members = true;
+      }
+      if (fields.indexOf('pendingMembers') === -1) {
+        fields.push('pendingMembers');
+        removeFields.pendingMembers = true;
+      }
+      if (fields.indexOf('admin') === -1) {
+        fields.push('admin');
+        removeFields.admin = true;
+      }
+    }
+
+    //Retrieval
+    let result = Community.find({ university: { $in: univeristy } }, fields);
+    if (options.limit) result = result.limit(options.limit);
+    populates.forEach((populateAction) => {
+      result = result.populate(populateAction);
+    });
+    const output = await result.lean().exec();
+
+    //Post Retrieval
+    const promises: Promise<any>[] = [];
+    if (options.getProfilePicture)
+      promises.push(addProfilePicturesAll(output, 'communityProfile'));
+    if (options.getBannerPicture) {
+      //TODO - Get Banner Picture
+    }
+    if (options.getRelationship)
+      CommunityC.getUserToCommunityRelationship_V2(options.getRelationship, output);
+
+    await Promise.all(promises);
+
+    const cleanedOutput = Object.keys(removeFields).some((k) => removeFields[k])
+      ? output.map((community) => {
+          const communityDelta = Object.assign({}, community);
+          Object.keys(removeFields).forEach((key) => {
+            if (removeFields[key]) delete communityDelta[key];
+          });
+
+          return communityDelta;
+        })
+      : output;
+
+    return cleanedOutput;
+  };
+
   static getUserToCommunityRelationship_V2 = async (
     userID: string,
     communities: {

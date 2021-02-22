@@ -13,6 +13,8 @@ import {
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
+  addCalculatedCommunityFields,
+  getUserToCommunityRelationship,
   addProfilePicturesAll,
 } from '../interactions/utilities';
 import { deletePost } from './posts';
@@ -1244,6 +1246,23 @@ export const getCommunitiesGeneric = async (
 ) => {
   try {
     const communities = await CommunityC.getByIDs(_ids, params);
+    return sendPacket(1, 'Successfully retrieved communities', { communities });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
+  }
+};
+
+export const getCommunitiesUniversityGeneric = async (
+  university: string,
+  params: {
+    fields?: typeof CommunityC.AcceptedFields[number][];
+    options?: CommunityGetOptions;
+  }
+) => {
+  try {
+    const communities = await CommunityC.getByUniveristy(university, params);
+
     return sendPacket(1, 'Successfully retrieved communities', { communities });
   } catch (err) {
     log('error', err);

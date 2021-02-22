@@ -31,6 +31,7 @@ import {
   updateFields,
   //generics
   getCommunitiesGeneric,
+  getCommunitiesUniversityGeneric,
 } from '../interactions/community';
 
 /**
@@ -489,6 +490,36 @@ export default function communityRoutes(app) {
     };
 
     const packet = await getCommunitiesGeneric(_ids, {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
+
+  app.get('/api/v2/communitiesUniversity', isAuthenticatedWithJWT, async (req, res) => {
+    const {
+      university,
+      fields,
+      getProfilePicture,
+      limit,
+      includeDefaultFields,
+    }: {
+      university: string;
+      fields?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      getRelationship?: boolean;
+      limit?: string;
+      includeDefaultFields?: boolean;
+    } = req.query;
+
+    const options = {
+      limit: parseInt(limit),
+      getProfilePicture,
+      includeDefaultFields,
+    };
+
+    const packet = await getCommunitiesUniversityGeneric(university, {
       fields: fields as any,
       options: options as any,
     });

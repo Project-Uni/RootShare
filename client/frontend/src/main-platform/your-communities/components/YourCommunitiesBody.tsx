@@ -16,15 +16,18 @@ import { FaSearch } from 'react-icons/fa';
 
 import { connect } from 'react-redux';
 
-import { WelcomeMessage } from '../../reusable-components';
+import { RSTabs, WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
 import { RSText } from '../../../base-components';
 
+import { getCommunitiesUniversity } from '../../../api';
 import { makeRequest } from '../../../helpers/functions';
 import { Community, CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { U2CR } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { User } from '@styled-icons/boxicons-solid';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -65,7 +68,18 @@ const useStyles = makeStyles((_: any) => ({
     margin: 8,
     height: 250,
   },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
 }));
+
+type CommunityResponse = {
+  communities: (Community & {
+    [k: string]: unknown;
+  })[];
+};
 
 type Props = {
   user: { [key: string]: any };
@@ -83,9 +97,13 @@ function YourCommunitiesBody(props: Props) {
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
 
   const [username, setUsername] = useState('User');
+  const [university, setUniversity] = useState('University');
+  const [universityName, setUniversityName] = useState('University');
 
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
   const [pendingCommunities, setPendingCommunities] = useState<Community[]>([]);
+
+  const [communityFeed, setCommunityFeed] = useState<JSX.Element[]>([]);
 
   const [showCreateCommunitiesModal, setShowCreateCommunitiesModal] = useState(
     false
@@ -94,42 +112,102 @@ function YourCommunitiesBody(props: Props) {
   const [type, setType] = useState<CommunityType>();
   const [typeErr, setTypeErr] = useState('');
 
+  const [selectedTab, setSelectedTab] = useState('following');
+
   const requestUserID = props.match.params['userID'];
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    if (requestUserID !== 'user') fetchUserBasicInfo();
-    fetchData().then(() => {
+    fetchUserBasicInfo();
+    getCommunityFeed().then(() => {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    getCommunityFeed().then(() => {
+      setLoading(false);
+    });
+  }, [selectedTab]);
+
+  async function getCommunityFeed() {
+    let feed = [];
+    if (selectedTab == 'following') {
+      await fetchFollowingData();
+    }
+    else {
+      await fetchDiscoverData();
+    }
+  }
 
   function handleCommunityTypeChange(event: any) {
     setType(event.target.value);
   }
 
-  async function fetchData() {
+  async function fetchFollowingData() {
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
-        requestUserID === 'user' ? props.user._id : requestUserID
+         requestUserID === 'user' ? props.user._id : requestUserID
       }/communities/all`
     );
     if (data.success === 1) {
+      setCommunityFeed(renderFollowing(
+        data.content['joinedCommunities'],
+        data.content['pendingCommunities']));
+      //Loading joined/pending for appending
       setJoinedCommunities(data.content['joinedCommunities']);
       setPendingCommunities(data.content['pendingCommunities']);
     }
   }
 
-  async function fetchUserBasicInfo() {
-    const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
+  async function fetchDiscoverData() {
+    const data = await getCommunitiesUniversity<CommunityResponse>(university, {
+      fields: [
+        'private',
+        '_id',
+        'name',
+        'description',
+        'type',
+        'admin',
+        'members'
+      ],
+      options: {
+        //limit: 100,
+        getProfilePicture: true,
+        getBannerPicture: false,
+        getRelationship: false,
+        includeDefaultFields: false,
+      },
+    });
+
     if (data.success === 1) {
-      setUsername(`${data.content.user?.firstName}`);
+      setCommunityFeed(renderDiscover((data.content as CommunityResponse).communities));
+    }
+  }
+
+  async function fetchUserBasicInfo() {
+    const { data } = 
+      requestUserID !== 'user' ?
+        await makeRequest('GET', `/api/user/${requestUserID}/basic`) :
+        await makeRequest('GET', `/api/user/profile/user`)
+    if (data.success === 1) {
+      if (requestUserID !== 'user'){
+        setUsername(`${data.content.user?.firstName}`);
+      } else {
+        setUniversityName(`${data.content.user?.university.universityName}`);
+        setUniversity(`${data.content.user?.university._id}`);
+      }
     }
   }
 
   function handleResize() {
     setHeight(window.innerHeight - HEADER_HEIGHT);
+  }
+
+  function handleTabChange(newTab: string) {
+    setSelectedTab(newTab);
   }
 
   function renderSearchArea() {
@@ -144,7 +222,7 @@ function YourCommunitiesBody(props: Props) {
             <TextField
               {...params}
               label={`Search ${
-                requestUserID === 'user' ? 'your' : `${username}'s`
+                requestUserID === 'user' ? `${universityName}'s` : `${username}'s`
               } communities`}
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
@@ -177,13 +255,54 @@ function YourCommunitiesBody(props: Props) {
 
   function appendNewCommunity(community: Community) {
     setJoinedCommunities([community, ...joinedCommunities]);
+    setCommunityFeed(renderFollowing(
+      joinedCommunities,
+      pendingCommunities));
   }
 
-  function renderCommunities() {
+  function calculateMemberData(community: Community) {
+    let isMember = false;
+    community.numMembers = community.members.length;
+    for (let i = 0; i < community.members.length; i++) {
+      if (props.user._id == community.members[i])
+        isMember = true;
+    }
+    if (isMember)
+      community.status = U2CR.JOINED;
+    else
+      community.status = U2CR.OPEN;
+  }
+
+  function renderDiscover(community: Community[]) {
+    const output = [];
+    for (let i = 0; i < community.length; i++) {
+      const currCommunity = community[i];
+      calculateMemberData(currCommunity);
+      output.push(
+        <CommunityHighlight
+          userID={props.user._id}
+          style={styles.singleCommunity}
+          communityID={currCommunity._id}
+          private={currCommunity.private}
+          name={currCommunity.name}
+          type={currCommunity.type}
+          description={currCommunity.description}
+          profilePicture={currCommunity.profilePicture}
+          memberCount={currCommunity.numMembers!}
+          mutualMemberCount={currCommunity.numMutual!}
+          status={currCommunity.status}
+          admin={currCommunity.admin as string}
+        />
+      );
+    }
+    return output;
+  }
+
+  function renderFollowing(joined: Community[], pending: Community[]) {
     const output = [];
     //Joined Communities
-    for (let i = 0; i < joinedCommunities.length; i++) {
-      const currCommunity = joinedCommunities[i];
+    for (let i = 0; i < joined.length; i++) {
+      const currCommunity = joined[i];
       output.push(
         <CommunityHighlight
           userID={props.user._id}
@@ -203,8 +322,8 @@ function YourCommunitiesBody(props: Props) {
     }
 
     //Pending Communities
-    for (let i = 0; i < pendingCommunities.length; i++) {
-      const currCommunity = pendingCommunities[i];
+    for (let i = 0; i < pending.length; i++) {
+      const currCommunity = pending[i];
       output.push(
         <CommunityHighlight
           userID={props.user._id}
@@ -222,18 +341,18 @@ function YourCommunitiesBody(props: Props) {
         />
       );
     }
-    if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
-      const noCommunitiesMessage =
-        requestUserID === 'user'
-          ? `You aren't a part of any communities yet. Get involved!`
-          : `${username} isn't a part of any communities yet.`;
+    // if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
+    //   const noCommunitiesMessage =
+    //     requestUserID === 'user'
+    //       ? `You aren't a part of any communities yet. Get involved!`
+    //       : `${username} isn't a part of any communities yet.`;
 
-      return (
-        <RSText size={20} type="head" className={styles.noCommunities}>
-          {noCommunitiesMessage}
-        </RSText>
-      );
-    }
+    //   return (
+    //     <RSText size={20} type="head" className={styles.noCommunities}>
+    //       {noCommunitiesMessage}
+    //     </RSText>
+    //   );
+    // }
     return output;
   }
 
@@ -257,11 +376,20 @@ function YourCommunitiesBody(props: Props) {
         />
         {renderSearchArea()}
       </Box>
+      <RSTabs
+        tabs={[
+          { label: 'Following', value: 'following'},
+          { label: 'Discover', value: 'discover'}
+        ]}
+        onChange={handleTabChange}
+        selected={selectedTab}
+        className={styles.tabs}
+      />
       <div className={styles.body}>
         {loading ? (
           <CircularProgress className={styles.loadingIndicator} size={100} />
         ) : (
-          <>{renderCommunities()}</>
+          <div className={styles.singleCommunity}>{communityFeed}</div>
         )}
       </div>
     </div>
