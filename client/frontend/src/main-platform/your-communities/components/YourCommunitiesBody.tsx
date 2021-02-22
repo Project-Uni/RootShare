@@ -171,8 +171,7 @@ function YourCommunitiesBody(props: Props) {
         'description',
         'type',
         'admin',
-        'members',
-        'profilePicture'
+        'members'
       ],
       options: {
         //limit: 100,
