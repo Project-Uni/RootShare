@@ -138,9 +138,7 @@ export const authRoutes = (app: Express) => {
     const { email, password }: { email: string; password: string } = req.body;
     try {
       const validation_user = await User.findOne(
-        {
-          email: { $regex: email, $options: 'i' },
-        },
+        { email: { $regex: email, $options: 'i' } },
         ['hashedPassword']
       )
         .lean()
@@ -166,8 +164,6 @@ export const authRoutes = (app: Express) => {
           limit: 1,
         },
       });
-
-      console.log('User:', user);
 
       const { accessToken, refreshToken } = generateJWT(user);
 
