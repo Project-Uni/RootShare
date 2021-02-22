@@ -8,6 +8,7 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import cors = require('cors');
 
 const fs = require('fs');
 const http = require('http');
@@ -41,6 +42,7 @@ const port = process.env.PORT || 8000;
 
 app.set('query parser', 'simple');
 
+app.use(cors());
 app.use(pino());
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));

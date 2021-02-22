@@ -6,6 +6,7 @@ import socketio = require('socket.io');
 const pino = require('express-pino-logger');
 const bodyParser = require('body-parser');
 const expressSession = require('express-session');
+const cors = require('cors');
 
 const http = require('http');
 
@@ -24,6 +25,7 @@ initializeDirectory();
 const app = express();
 app.set('port', port);
 
+app.use(cors());
 app.use(pino());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
