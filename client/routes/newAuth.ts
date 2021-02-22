@@ -1,14 +1,12 @@
 import { Express } from 'express';
-import { send } from 'process';
 import sendPacket from '../../webinar/helpers/sendPacket';
-import { isAuthenticatedWithJWT } from '../../webinar/middleware/isAuthenticated';
 import {
   generateJWT,
   hashPassword,
   getQueryParams,
   comparePasswords,
 } from '../helpers/functions';
-import { User } from '../models';
+import { PhoneVerification, User } from '../models';
 import { getUsersByIDs } from '../models/users';
 
 export const authRoutes = (app: Express) => {
@@ -34,10 +32,22 @@ export const authRoutes = (app: Express) => {
         email: { $regex: email, $options: 'i' },
       });
       if (userExists)
-        res
+        return res
           .status(400)
           .json(sendPacket(0, 'Account with this email already exists'));
-      else res.status(200).json(sendPacket(1, 'New account information is valid'));
+
+      const code = await PhoneVerification.sendCode({
+        email: email as string,
+        phoneNumber: phoneNumber as string,
+      });
+      if (!code)
+        return res
+          .status(500)
+          .json(
+            sendPacket(-1, 'There was an error while sending SMS Verification code')
+          );
+
+      res.status(200).json(sendPacket(1, 'New account information is valid'));
     } catch (err) {
       res.status(500).json(sendPacket(-1, 'There was an error validating the user'));
     }
@@ -177,5 +187,32 @@ export const authRoutes = (app: Express) => {
     } catch (err) {
       return res.status(400).json(sendPacket(0, 'Failed to find user'));
     }
+  });
+
+  app.put('/api/v2/auth/verify', async (req, res) => {
+    const { code, email }: { code: string; email: string } = req.body;
+    if (!code || !email)
+      return res.status(400).json(sendPacket(-1, 'Missing body params'));
+
+    const validated = await PhoneVerification.validate({ email, code });
+    if (!validated) {
+      return res.status(400).json(sendPacket(-1, 'Invalid code'));
+    }
+    //Update user DB
+    return res.status(200).json(sendPacket(1, 'Successfully verified account'));
+  });
+
+  app.put('/api/v2/auth/resend', async (req, res) => {
+    const { email, phoneNumber }: { email: string; phoneNumber: string } = req.body;
+    if (!email || !phoneNumber)
+      return res.status(400).json(sendPacket(1, 'Missing body params'));
+
+    const success = await PhoneVerification.resendCode({ email, phoneNumber });
+    if (!success)
+      return res
+        .status(500)
+        .json(sendPacket(-1, 'Failed to resend verification code'));
+
+    res.status(200).json(sendPacket(1, 'Successfully sent verification code'));
   });
 };
