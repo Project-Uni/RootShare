@@ -8,7 +8,7 @@ type HttpResponse<T> = {
 };
 
 export async function makeRequest<T = { [key: string]: any }>(
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: AxiosRequestConfig['method'],
   url: string,
   data?: { [key: string]: any },
   ...rest: any
