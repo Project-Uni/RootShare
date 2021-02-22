@@ -22,6 +22,7 @@ import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 import { connect } from 'react-redux';
 import { getProfilePictureAndBanner } from '../../../api';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -73,10 +74,6 @@ export type CommunityFlags = {
 };
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   user: { [k: string]: any };
 };
 
@@ -99,7 +96,7 @@ function CommunityBody(props: Props) {
   const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
   const [locked, setLocked] = useState<boolean>(true);
 
-  const communityID = props.match.params['orgID'];
+  const { orgID: communityID } = useParams<{ orgID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

@@ -15,6 +15,7 @@ import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -51,11 +52,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
-
   user: { [key: string]: any };
 };
 
@@ -69,7 +65,7 @@ function ConnectionsBody(props: Props) {
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
-  const requestUserID = props.match.params['userID'];
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
