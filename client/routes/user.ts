@@ -1,3 +1,4 @@
+import { Express } from 'express';
 import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
 import { Post, User } from '../models';
 
@@ -25,6 +26,8 @@ import {
   getUsersGeneric,
 } from '../interactions/user';
 
+import { getQueryParams } from '../helpers/functions/getQueryParams';
+
 /**
  *
  *  @swagger
@@ -34,7 +37,7 @@ import {
  *
  */
 
-export default function userRoutes(app) {
+export default function userRoutes(app: Express) {
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getConnections(userID, (packet) => res.json(packet));
@@ -255,34 +258,40 @@ export default function userRoutes(app) {
 
   app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
+
+    const query = getQueryParams(req, {
+      _ids: { type: 'string[]' },
+      limit: { type: 'number', optional: true },
+      fields: { type: 'string[]', optional: true },
+      populates: { type: 'string[]', optional: true },
+      getProfilePicture: { type: 'boolean', optional: true },
+      getBannerPicture: { type: 'boolean', optional: true },
+      includeDefaultFields: { type: 'boolean', optional: true },
+      getRelationship: { type: 'boolean', optional: true },
+    });
+
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
     const {
       _ids,
-      fields,
       limit,
-      populates, //Need to figure out how to do this, we should define the populate fields ourselves within the function
+      fields,
+      populates,
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
       getRelationship,
-    }: {
-      _ids: string[];
-      fields?: string[];
-      limit?: string;
-      populates?: string[];
-      getProfilePicture?: boolean;
-      getBannerPicture?: boolean;
-      includeDefaultFields?: boolean;
-      getRelationship?: boolean;
-    } = req.query;
+    } = query;
+
     const options = {
-      limit: parseInt(limit),
+      limit,
       populates,
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
       getRelationshipTo: getRelationship ? userID : undefined,
     };
-    const packet = await getUsersGeneric(_ids, {
+    const packet = await getUsersGeneric(_ids as string[], {
       fields: fields as any,
       options: options as any,
     });
@@ -291,13 +300,14 @@ export default function userRoutes(app) {
 
   app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: selfUserID } = getUserFromJWT(req);
-    const {
-      action,
-      otherUserID,
-    }: {
-      action: 'connect' | 'reject' | 'accept' | 'remove' | 'cancel';
-      otherUserID: string;
-    } = req.query;
+    const query = getQueryParams(req, {
+      action: { type: 'string' },
+      otherUserID: { type: 'string' },
+    });
+    if (!query)
+      return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+
+    const { action, otherUserID } = query;
 
     if (action === 'connect')
       res.json(await requestConnection(selfUserID, otherUserID));

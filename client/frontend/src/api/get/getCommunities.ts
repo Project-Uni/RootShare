@@ -15,11 +15,14 @@ export const getCommunities = async <T = { [k: string]: unknown }>(
     };
   }
 ) => {
-  const query = stringify({
-    _ids,
-    fields: params.fields,
-    ...params.options,
-  });
+  const query = stringify(
+    {
+      _ids,
+      fields: params.fields,
+      ...params.options,
+    },
+    { arrayFormat: 'repeat' }
+  );
   const { data } = await makeRequest<T>('GET', `/api/v2/community?${query}`);
   return data;
 };

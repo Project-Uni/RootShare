@@ -11,3 +11,4 @@ export * from './getUserFromJWT';
 export * from './twilio';
 export * from './elasticSearch';
 export * from './sendEmail';
+export * from './getQueryParams';

@@ -15,6 +15,7 @@ import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
 import Theme from '../../../theme/Theme';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,12 +54,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
-};
+type Props = {};
 
 export default function ConnectionsBody(props: Props) {
   const styles = useStyles();
@@ -71,7 +67,7 @@ export default function ConnectionsBody(props: Props) {
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
-  const requestUserID = props.match.params['userID'];
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
   const fetchData = useCallback(async () => {
     const { data } = await makeRequest(

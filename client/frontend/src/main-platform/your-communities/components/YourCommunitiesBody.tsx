@@ -13,6 +13,7 @@ import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -46,12 +47,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
-};
+type Props = {};
 
 export default function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
@@ -68,7 +64,7 @@ export default function YourCommunitiesBody(props: Props) {
     false
   );
 
-  const requestUserID = props.match.params['userID'];
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
   const fetchData = useCallback(async () => {
     const { data } = await makeRequest(
