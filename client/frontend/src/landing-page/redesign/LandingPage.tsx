@@ -6,6 +6,7 @@ import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { SignupForm } from './SignupForm';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -40,7 +41,7 @@ const useStyles = makeStyles((_: any) => ({
 const MIN_WIDTH = 915;
 
 type Props = {
-  mode: 'register' | 'login' | 'additional';
+  mode: 'register' | 'login' | 'additional' | 'verify';
 };
 
 const LandingPage = (props: Props) => {
@@ -86,7 +87,9 @@ const LandingPage = (props: Props) => {
   const getRightComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Form and Buttons</p>;
+        return <SignupForm />;
+      case 'verify':
+        return <p>Verify Phone</p>;
       case 'login':
         return <p>Login Form and Buttons</p>;
       case 'additional':
