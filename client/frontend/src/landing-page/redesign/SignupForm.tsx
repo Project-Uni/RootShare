@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useForm } from '../../helpers/hooks';
 import {
@@ -24,10 +24,15 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 30,
   },
   checkboxRoot: {
-    color: Theme.bright,
     '&$checked': {
       color: Theme.bright,
     },
+  },
+  standardCheckbox: {
+    color: Theme.bright,
+  },
+  errorCheckbox: {
+    color: Theme.error,
   },
   checked: {},
 }));
@@ -48,12 +53,19 @@ type IFormData = {
 export const SignupForm = (props: Props) => {
   const styles = useStyles();
 
+  const [checked, setChecked] = useState(false);
+  const [checkboxErr, setCheckboxErr] = useState(false);
+
   const { formFields, formErrors, handleChange, updateErrors } = useForm(
     defaultFormData
   );
 
   const handleRegister = () => {
-    const { hasErr, errUpdates } = validateForm(formFields);
+    let { hasErr, errUpdates } = validateForm(formFields);
+    if (!checked) {
+      hasErr = true;
+      setCheckboxErr(true);
+    }
     updateErrors(errUpdates);
     if (hasErr) return;
   };
@@ -110,7 +122,17 @@ export const SignupForm = (props: Props) => {
           marginTop: 10,
         }}
       >
-        <Checkbox classes={{ root: styles.checkboxRoot, checked: styles.checked }} />
+        <Checkbox
+          classes={{
+            root: [
+              styles.checkboxRoot,
+              checkboxErr ? styles.errorCheckbox : styles.standardCheckbox,
+            ].join(' '),
+            checked: styles.checked,
+          }}
+          value={checked}
+          onChange={(e) => setChecked(e.target.checked)}
+        />
         <RSText
           color={Theme.secondaryText}
           style={{ marginBottom: 3, marginLeft: 8 }}
@@ -208,7 +230,5 @@ const validateForm = (formFields: IFormData) => {
     errUpdates.push({ key: 'confirmPassword', value: '' });
   }
 
-  // updateErrors(errUpdates);
-  // return hasErr;
   return { hasErr, errUpdates };
 };
