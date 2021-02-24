@@ -75,7 +75,13 @@ const LandingPage = (props: Props) => {
   const getLeftComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Left Component</p>;
+        return (
+          <div>
+            <RSText color={Theme.altText} size={40}>
+              Sign Up
+            </RSText>
+          </div>
+        );
       case 'login':
         return <p>Login Left Component</p>;
       case 'additional':
@@ -127,7 +133,7 @@ const LandingPage = (props: Props) => {
         >
           {/* TODO - Fix styling to match wireframe */}
           {isMobile && (
-            <RSText color={Theme.white} size={20}>
+            <RSText color={Theme.white} size={32}>
               Sign Up
             </RSText>
           )}

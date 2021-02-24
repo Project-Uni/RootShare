@@ -6,10 +6,11 @@ import {
   RSLink,
   RSTextField,
 } from '../../main-platform/reusable-components';
-import { Checkbox } from '@material-ui/core';
+import { Checkbox, CircularProgress } from '@material-ui/core';
 import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
 import { isValidEmail } from '../../helpers/functions';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,6 +54,9 @@ type IFormData = {
 export const SignupForm = (props: Props) => {
   const styles = useStyles();
 
+  const history = useHistory();
+
+  const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const [checkboxErr, setCheckboxErr] = useState(false);
 
@@ -60,7 +64,7 @@ export const SignupForm = (props: Props) => {
     defaultFormData
   );
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let { hasErr, errUpdates } = validateForm(formFields);
     if (!checked) {
       hasErr = true;
@@ -68,6 +72,16 @@ export const SignupForm = (props: Props) => {
     }
     updateErrors(errUpdates);
     if (hasErr) return;
+
+    setLoading(true);
+
+    //Make API Call
+
+    //Remove set timeout
+    setTimeout(() => {
+      setLoading(false);
+      history.push('/account/verify');
+    }, 1000);
   };
 
   return (
@@ -150,10 +164,21 @@ export const SignupForm = (props: Props) => {
         }}
       >
         <RSButton
-          style={{ fontSize: 20, paddingLeft: 25, paddingRight: 25 }}
+          style={{
+            fontSize: 20,
+            width: 125,
+          }}
+          disabled={loading}
           onClick={handleRegister}
         >
-          Sign Up
+          {loading ? (
+            <CircularProgress
+              size={24}
+              style={{ color: Theme.altText, paddingTop: 5, paddingBottom: 5 }}
+            />
+          ) : (
+            'Sign Up'
+          )}
         </RSButton>
         <RSText color={Theme.secondaryText} size={16} style={{ marginLeft: 25 }}>
           or

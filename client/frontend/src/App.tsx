@@ -54,7 +54,7 @@ const App = () => {
             <Route exact path="/" render={() => <LandingPage mode="register" />} />
             <Route
               exact
-              path="/acount/verify"
+              path="/account/verify"
               render={() => <LandingPage mode="verify" />}
             />
             <Route exact path="/account/select" component={AccountTypeSelect} />
