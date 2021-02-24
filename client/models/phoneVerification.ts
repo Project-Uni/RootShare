@@ -20,10 +20,6 @@ const PhoneVerificationsModel = mongoose.model('phone_verifications');
 export default class PhoneVerification {
   static model = PhoneVerificationsModel;
 
-  /**
-   *
-   * @public
-   */
   static sendCode = async ({
     email,
     phoneNumber,
@@ -51,11 +47,7 @@ export default class PhoneVerification {
     }
   };
 
-  /**
-   *
-   * @private
-   */
-  static generateCode = () => {
+  private static generateCode = () => {
     let output = '';
     for (let i = 0; i < 6; i++) {
       const nextNum = Math.floor(Math.random() * 10).toString();
@@ -64,10 +56,6 @@ export default class PhoneVerification {
     return output;
   };
 
-  /**
-   *
-   * @public
-   */
   static validate = async ({ email, code }: { email: string; code: string }) => {
     const isValidated = await PhoneVerification.model.exists({
       email,
@@ -84,11 +72,7 @@ export default class PhoneVerification {
     return false;
   };
 
-  /**
-   *
-   * @private
-   */
-  static sendText = async ({
+  private static sendText = async ({
     phoneNumber,
     code,
   }: {
@@ -102,9 +86,6 @@ export default class PhoneVerification {
     return success === 1;
   };
 
-  /**
-   * @public
-   */
   static resendCode = async ({
     email,
     phoneNumber,
