@@ -11,6 +11,7 @@ import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
 import { isValidEmail } from '../../helpers/functions';
 import { useHistory } from 'react-router-dom';
+import { getValidRegistration } from '../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -59,12 +60,15 @@ export const SignupForm = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const [checkboxErr, setCheckboxErr] = useState(false);
+  const [serverErr, setServerErr] = useState<string>();
 
   const { formFields, formErrors, handleChange, updateErrors } = useForm(
     defaultFormData
   );
 
   const handleRegister = async () => {
+    if (serverErr) setServerErr('');
+
     let { hasErr, errUpdates } = validateForm(formFields);
     if (!checked) {
       hasErr = true;
@@ -76,16 +80,23 @@ export const SignupForm = (props: Props) => {
     setLoading(true);
 
     //Make API Call
+    const { email, password, phoneNumber } = formFields;
+    const data = await getValidRegistration({ email, password, phoneNumber });
+    setLoading(false);
 
-    //Remove set timeout
-    setTimeout(() => {
-      setLoading(false);
-      history.push('/account/verify');
-    }, 1000);
+    if (data.success === 1) history.push('/account/verify');
+    else setServerErr(data.message);
   };
 
   return (
     <div className={styles.wrapper}>
+      {serverErr && (
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <RSText color={Theme.error} size={14}>
+            {serverErr}
+          </RSText>
+        </div>
+      )}
       <RSTextField
         label="E-MAIL"
         fullWidth
