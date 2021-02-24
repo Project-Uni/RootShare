@@ -16,8 +16,6 @@ const useStyles = makeStyles((_: any) => ({
 
   label: {
     fontSize: 18,
-    paddingLeft: 5,
-    paddingRight: 5,
     '&:not($focused):not($error)': {
       color: Theme.secondaryText,
     },
