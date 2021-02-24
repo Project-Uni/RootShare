@@ -6,7 +6,8 @@ import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
-import { SignupForm } from './SignupForm';
+import { SignupForm } from './registration/SignupForm';
+import { VerifyPhone } from './verification/VerifyPhone';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -95,7 +96,7 @@ const LandingPage = (props: Props) => {
       case 'register':
         return <SignupForm />;
       case 'verify':
-        return <p>Verify Phone</p>;
+        return <VerifyPhone />;
       case 'login':
         return <p>Login Form and Buttons</p>;
       case 'additional':

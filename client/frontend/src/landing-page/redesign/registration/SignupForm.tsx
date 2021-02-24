@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useForm } from '../../helpers/hooks';
+import { useForm } from '../../../helpers/hooks';
 import {
   RSButton,
   RSLink,
   RSTextField,
-} from '../../main-platform/reusable-components';
+} from '../../../main-platform/reusable-components';
 import { Checkbox, CircularProgress } from '@material-ui/core';
-import { RSText } from '../../base-components';
-import Theme from '../../theme/Theme';
-import { isValidEmail } from '../../helpers/functions';
+import { RSText } from '../../../base-components';
+import Theme from '../../../theme/Theme';
+import { isValidEmail } from '../../../helpers/functions';
 import { useHistory } from 'react-router-dom';
-import { getValidRegistration } from '../../api';
+import { getValidRegistration } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
