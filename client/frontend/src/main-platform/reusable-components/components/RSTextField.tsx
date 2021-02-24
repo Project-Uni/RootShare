@@ -45,7 +45,8 @@ export const RSTextField = (props: TextFieldProps) => {
           underline: styles.underline,
           root: styles.root,
           focused: styles.focused,
-          notchedOutline: styles.notchedOutline,
+          notchedOutline:
+            props.variant === 'outlined' ? styles.notchedOutline : undefined,
         },
       },
       InputLabelProps: {
