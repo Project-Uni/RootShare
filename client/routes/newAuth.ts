@@ -1,14 +1,7 @@
 import { Express } from 'express';
 import sendPacket from '../../webinar/helpers/sendPacket';
-import {
-  generateJWT,
-  hashPassword,
-  getQueryParams,
-  comparePasswords,
-} from '../helpers/functions';
+import { getQueryParams } from '../helpers/functions';
 import { AuthService } from '../interactions/auth';
-import { PhoneVerification, User } from '../models';
-import { getUsersByIDs } from '../models/users';
 
 export const authRoutes = (app: Express) => {
   app.get('/api/v2/auth/validate', async (req, res) => {
@@ -20,38 +13,12 @@ export const authRoutes = (app: Express) => {
     if (!query) return res.status(400).json(sendPacket(-1, 'Missing query params'));
 
     const { email, password, phoneNumber } = query;
-    // if (!isValidEmail(email))
-    //   return res.status(400).json(sendPacket(-1, 'Email address not valid'));
-
-    // if (!isValidPassword(password))
-    //   return res.status(400).json(sendPacket(-1, 'Invalid Password'));
-
-    // if (!isValidPhoneNumber(phoneNumber))
-    //   return res.status(500).json(sendPacket(-1, 'Invalid phone number'));
-    try {
-      const userExists = await User.exists({
-        email: { $regex: email, $options: 'i' },
-      });
-      if (userExists)
-        return res
-          .status(400)
-          .json(sendPacket(0, 'Account with this email already exists'));
-
-      const code = await PhoneVerification.sendCode({
-        email: email as string,
-        phoneNumber: phoneNumber as string,
-      });
-      if (!code)
-        return res
-          .status(500)
-          .json(
-            sendPacket(-1, 'There was an error while sending SMS Verification code')
-          );
-
-      res.status(200).json(sendPacket(1, 'New account information is valid'));
-    } catch (err) {
-      res.status(500).json(sendPacket(-1, 'There was an error validating the user'));
-    }
+    const { status, packet } = await new AuthService().validateRegistration({
+      email: email as string,
+      password: password as string,
+      phoneNumber: phoneNumber as string,
+    });
+    return res.status(status).json(packet);
   });
 
   app.post('/api/v2/auth/register', async (req, res) => {
@@ -82,99 +49,42 @@ export const authRoutes = (app: Express) => {
       graduationYear: number;
       state: string;
     } = req.body;
-    if (
-      !email ||
-      !phoneNumber ||
-      !password ||
-      !accountType ||
-      !firstName ||
-      !lastName ||
-      !graduationYear ||
-      !state
-    )
-      return res.status(400).json(sendPacket(-1, 'Missing body parameters'));
 
-    if ((accountType === 'alumni' || accountType === 'recruiter') && !company)
-      return res.status(400).json(sendPacket(-1, 'Missing body parameters'));
-    else if (accountType === 'student' && !major)
-      return res.status(400).json(sendPacket(-1, 'Missing body parameters'));
-    else if (accountType === 'faculty' && !jobTitle)
-      return res.status(400).json(sendPacket(-1, 'Missing body parameters'));
-
-    try {
-      const newUser = await new User({
-        email: email.toLowerCase(),
-        phoneNumber,
-        hashedPassword: hashPassword(password),
-        firstName,
-        lastName,
-        accountType,
-        major,
-        position: jobTitle,
-        work: company,
-        graduationYear,
-        // state
-      }).save();
-
-      const { accessToken, refreshToken } = generateJWT({
-        email: email.toLowerCase(),
-        _id: newUser._id,
-        privilegeLevel: 1,
-        firstName: firstName,
-        lastName: lastName,
-        accountType: accountType,
-      });
-
-      return res.status(200).json(
-        sendPacket(1, 'Successfully registered user', {
-          user: {
-            firstName: newUser.firstName,
-            lastName: newUser.lastName,
-            email: newUser.email,
-            accountType: newUser.accountType,
-            privilegeLevel: newUser.privilegeLevel,
-          },
-          accessToken,
-          refreshToken,
-        })
-      );
-    } catch (err) {
-      return res
-        .status(500)
-        .json(sendPacket(-1, 'There was an error while trying to create the user'));
-    }
+    const { status, packet } = await new AuthService().register({
+      email,
+      phoneNumber,
+      password,
+      accountType,
+      firstName,
+      lastName,
+      major,
+      company,
+      jobTitle,
+      university,
+      graduationYear,
+      state,
+    });
+    return res.status(status).json(packet);
   });
 
   app.post('/api/v2/auth/login', async (req, res) => {
     const { email, password }: { email: string; password: string } = req.body;
-    const { status, packet } = await AuthService.login({ email, password });
+    const { status, packet } = await new AuthService().login({ email, password });
     return res.status(status).json(packet);
   });
 
   app.put('/api/v2/auth/verify', async (req, res) => {
     const { code, email }: { code: string; email: string } = req.body;
-    if (!code || !email)
-      return res.status(400).json(sendPacket(-1, 'Missing body params'));
-
-    const validated = await PhoneVerification.validate({ email, code });
-    if (!validated) {
-      return res.status(400).json(sendPacket(-1, 'Invalid code'));
-    }
-    //Update user DB
-    return res.status(200).json(sendPacket(1, 'Successfully verified account'));
+    const { status, packet } = await new AuthService().verify({ code, email });
+    return res.status(status).json(packet);
   });
 
   app.put('/api/v2/auth/resend', async (req, res) => {
     const { email, phoneNumber }: { email: string; phoneNumber: string } = req.body;
-    if (!email || !phoneNumber)
-      return res.status(400).json(sendPacket(1, 'Missing body params'));
-
-    const success = await PhoneVerification.resendCode({ email, phoneNumber });
-    if (!success)
-      return res
-        .status(500)
-        .json(sendPacket(-1, 'Failed to resend verification code'));
-
-    res.status(200).json(sendPacket(1, 'Successfully sent verification code'));
+    const { status, packet } = await new AuthService().resendPhoneVerification({
+      email,
+      phoneNumber,
+    });
+    return res.status(status).json(packet);
   });
 };
