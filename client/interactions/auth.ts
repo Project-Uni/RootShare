@@ -2,6 +2,7 @@ import sendPacket from '../../webinar/helpers/sendPacket';
 import { PhoneVerification, User } from '../models';
 import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
 import { getUsersByIDs } from '../models/users';
+import { log } from '../helpers/functions/logger';
 
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
@@ -94,6 +95,7 @@ export class AuthService {
         packet: sendPacket(1, 'New account information is valid'),
       };
     } catch (err) {
+      log('error', err.message);
       return {
         status: 500,
         packet: sendPacket(-1, 'There was an error validating the user'),

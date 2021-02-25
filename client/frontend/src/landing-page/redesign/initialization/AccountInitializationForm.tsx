@@ -76,7 +76,7 @@ export const AccountInitializationForm = (props: Props) => {
     // checkAuth();
   }, [checkAuth]);
 
-  const ExtraFields = useCallback(() => {
+  const renderExtraFields = () => {
     const accountType = registration?.accountType;
     switch (accountType) {
       case 'student':
@@ -141,7 +141,7 @@ export const AccountInitializationForm = (props: Props) => {
       default:
         return <></>;
     }
-  }, [registration]);
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -168,7 +168,7 @@ export const AccountInitializationForm = (props: Props) => {
         error={formErrors.lastName !== ''}
         helperText={formErrors.lastName}
       />
-      <ExtraFields />
+      {renderExtraFields()}
       <RSTextField
         label="GRADUATION YEAR"
         fullWidth
