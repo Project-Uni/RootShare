@@ -12,6 +12,8 @@ import Theme from '../../../theme/Theme';
 import { isValidEmail } from '../../../helpers/functions';
 import { useHistory } from 'react-router-dom';
 import { getValidRegistration } from '../../../api';
+import { useDispatch } from 'react-redux';
+import { updateBasicRegistrationFields } from '../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -56,6 +58,7 @@ export const SignupForm = (props: Props) => {
   const styles = useStyles();
 
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -81,11 +84,12 @@ export const SignupForm = (props: Props) => {
 
     //Make API Call
     const { email, password, phoneNumber } = formFields;
-    const data = await getValidRegistration({ email, password, phoneNumber });
-    setLoading(false);
+    dispatch(updateBasicRegistrationFields({ email, password, phoneNumber }));
+    // const data = await getValidRegistration({ email, password, phoneNumber });
+    // setLoading(false);
 
-    if (data.success === 1) history.push('/account/verify');
-    else setServerErr(data.message);
+    // if (data.success === 1) history.push('/account/verify');
+    // else setServerErr(data.message);
   };
 
   return (

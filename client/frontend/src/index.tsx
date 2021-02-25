@@ -5,7 +5,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 import { Provider } from 'react-redux';
-import { store, PersistedStore } from './redux/store/persistedStore';
+import { store, persistor } from './redux/store/persistedStore';
 import { PersistGate } from 'redux-persist/lib/integration/react';
 import { CircularProgress } from '@material-ui/core';
 import Theme from './theme/Theme';
@@ -13,7 +13,7 @@ import Theme from './theme/Theme';
 ReactDOM.render(
   <Provider store={store}>
     <PersistGate
-      persistor={PersistedStore}
+      persistor={persistor}
       loading={
         <div
           style={{

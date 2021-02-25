@@ -1,10 +1,11 @@
-import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
 import allReducers from '../reducers';
 import logger from 'redux-logger';
-import { initializeState, RootshareReduxState } from './stateManagement';
+import { RootshareReduxState } from './stateManagement';
 import {
-  persistStore as createPersistedStore,
+  persistStore,
   persistReducer as createPersistedReducer,
+  PersistConfig,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
@@ -25,10 +26,11 @@ if (
 
 const composeEnhancers = compose(applyMiddleware(...middleware), ...enhancers);
 
-const persistConfig = {
+const persistConfig: PersistConfig<RootshareReduxState> = {
   key: 'root',
   storage,
   stateReconciler: autoMergeLevel2,
+  blacklist: ['registration'],
 };
 
 const persistedReducer = createPersistedReducer<RootshareReduxState>(
@@ -36,18 +38,8 @@ const persistedReducer = createPersistedReducer<RootshareReduxState>(
   allReducers
 );
 
-export const store = createStore(
-  persistedReducer,
-  // {
-  //   ...initializeState(),
-  //   _persist: {
-  //     version: 1.0,
-  //     rehydrated: true,
-  //   },
-  // },
-  composeEnhancers
-);
-export const PersistedStore = createPersistedStore(store);
+export const store = createStore(persistedReducer, composeEnhancers);
+export const persistor = persistStore(store);
 
 export function getStore() {
   return store;

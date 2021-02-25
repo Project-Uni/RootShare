@@ -1,7 +1,7 @@
 import { log } from '../../helpers/functions';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
-const STATE_NAME = 'RootShare:state';
+// export const STATE_NAME = 'RootShare:state';
 
 export type RootshareReduxState = {
   user: {
@@ -22,6 +22,12 @@ export type RootshareReduxState = {
   newMessage: { [k: string]: any };
   hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
+  registration: null | {
+    email?: string;
+    password?: string;
+    phoneNumber?: string;
+    accountType?: string;
+  };
 };
 
 export const initializeState = (): RootshareReduxState => ({
@@ -49,4 +55,5 @@ export const initializeState = (): RootshareReduxState => ({
     mode: null,
     message: '',
   },
+  registration: null,
 });
