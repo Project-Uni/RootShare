@@ -243,24 +243,24 @@ export class AuthService {
     };
   };
 
-  static isValidEmail = (email: string) => {
+  private static isValidEmail = (email: string) => {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
   };
 
-  static isValidPassword = (password: string) => {
+  private static isValidPassword = (password: string) => {
     return password.length >= 8 && password !== 'password';
   };
 
-  static isValidPhoneNumber = (phoneNumber: string) => {
+  private static isValidPhoneNumber = (phoneNumber: string) => {
     return !/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
   };
 
-  static isValidState = (state: string) => {
+  private static isValidState = (state: string) => {
     return StateCodeKeys.some((stateCode) => stateCode === state);
   };
 
-  static validateFields = ({
+  private static validateFields = ({
     email,
     password,
     phoneNumber,
