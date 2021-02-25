@@ -3,6 +3,7 @@ import {
   UPDATE_REGISTRATION_ACCOUNT_TYPE,
   UPDATE_REGISTRATION_FIELDS,
   RESET_REGISTRATION,
+  SET_REGISTRATION_VERIFIED,
 } from '../actions/registration';
 
 export const registrationReducer = (
@@ -11,7 +12,8 @@ export const registrationReducer = (
     type:
       | typeof UPDATE_REGISTRATION_ACCOUNT_TYPE
       | typeof UPDATE_REGISTRATION_FIELDS
-      | typeof RESET_REGISTRATION;
+      | typeof RESET_REGISTRATION
+      | typeof SET_REGISTRATION_VERIFIED;
     payload?: {
       email?: string;
       password?: string;
@@ -24,6 +26,8 @@ export const registrationReducer = (
   switch (type) {
     case UPDATE_REGISTRATION_FIELDS:
       return { ...payload };
+    case SET_REGISTRATION_VERIFIED:
+      return { ...state, verified: true };
     case UPDATE_REGISTRATION_ACCOUNT_TYPE:
       return { ...state, accountType: payload?.accountType };
     case RESET_REGISTRATION:

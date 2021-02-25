@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useForm } from '../../../helpers/hooks';
 import {
@@ -12,8 +12,9 @@ import Theme from '../../../theme/Theme';
 import { isValidEmail } from '../../../helpers/functions';
 import { useHistory } from 'react-router-dom';
 import { getValidRegistration } from '../../../api';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateBasicRegistrationFields } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -59,6 +60,7 @@ export const SignupForm = (props: Props) => {
 
   const history = useHistory();
   const dispatch = useDispatch();
+  const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -68,6 +70,14 @@ export const SignupForm = (props: Props) => {
   const { formFields, formErrors, handleChange, updateErrors } = useForm(
     defaultFormData
   );
+
+  const checkAuth = useCallback(() => {
+    if (Boolean(accessToken)) history.push('/home');
+  }, [accessToken]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const handleRegister = async () => {
     if (serverErr) setServerErr('');
@@ -84,12 +94,14 @@ export const SignupForm = (props: Props) => {
 
     //Make API Call
     const { email, password, phoneNumber } = formFields;
-    dispatch(updateBasicRegistrationFields({ email, password, phoneNumber }));
-    // const data = await getValidRegistration({ email, password, phoneNumber });
-    // setLoading(false);
 
-    // if (data.success === 1) history.push('/account/verify');
-    // else setServerErr(data.message);
+    const data = await getValidRegistration({ email, password, phoneNumber });
+    setLoading(false);
+
+    if (data.success === 1) {
+      dispatch(updateBasicRegistrationFields({ email, password, phoneNumber }));
+      history.push('/account/verify');
+    } else setServerErr(data.message);
   };
 
   return (

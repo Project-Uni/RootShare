@@ -27,9 +27,12 @@ type Props = {};
 const AccountTypeSelect = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
-  const { accessToken } = useSelector((state: RootshareReduxState) => ({
-    accessToken: state.accessToken,
-  }));
+  const { accessToken, registration } = useSelector(
+    (state: RootshareReduxState) => ({
+      accessToken: state.accessToken,
+      registration: state.registration,
+    })
+  );
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -52,7 +55,8 @@ const AccountTypeSelect = (props: Props) => {
 
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
-  }, [accessToken]);
+    else if (!registration?.verified) history.push('/account/verify');
+  }, [accessToken, registration]);
 
   useEffect(() => {
     checkAuth();

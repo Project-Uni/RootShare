@@ -3,6 +3,7 @@ import { ReduxAction } from '.';
 export const UPDATE_REGISTRATION_FIELDS = 'registration:updateRegFields';
 export const UPDATE_REGISTRATION_ACCOUNT_TYPE = 'registration:updateAccountType';
 export const RESET_REGISTRATION = 'registration:reset';
+export const SET_REGISTRATION_VERIFIED = 'registration:updateVerified';
 
 export const updateBasicRegistrationFields = (data: {
   email: string;
@@ -22,4 +23,8 @@ export const updateRegistrationAccountType = (
 
 export const resetRegistration = (): ReduxAction => ({
   type: RESET_REGISTRATION,
+});
+
+export const setRegistrationVerified = (): ReduxAction => ({
+  type: SET_REGISTRATION_VERIFIED,
 });

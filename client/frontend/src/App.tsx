@@ -52,7 +52,7 @@ const App = () => {
         <div className="wrapper">
           <Switch>
             <Route exact path="/" render={() => <LandingPage mode="register" />} />
-            {/* <Route
+            <Route
               exact
               path="/account/verify"
               render={() => <LandingPage mode="verify" />}
@@ -63,8 +63,8 @@ const App = () => {
               path="/account/initialize"
               render={() => <LandingPage mode="additional" />}
             />
-            <Route exact path="/login" render={() => <LandingPage mode="login" />} /> */}
-            <Route exact path="/" component={LandingPage} />
+            <Route exact path="/login" render={() => <LandingPage mode="login" />} />
+            {/* <Route exact path="/" component={LandingPage} />
             <Route
               exact
               path="/register/external"
@@ -75,7 +75,7 @@ const App = () => {
               path="/register/initialize"
               component={HypeAdditionalInfo}
             />
-            <Route exact path="/login" component={Login} />
+            <Route exact path="/login" component={Login} /> */}
 
             <Route
               exact

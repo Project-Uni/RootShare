@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ReactCodeInput from 'react-verification-code-input';
@@ -7,8 +7,9 @@ import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import { putResendPhoneVerification, putVerifyPhone } from '../../../api';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { dispatchSnackbar } from '../../../redux/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { dispatchSnackbar, setRegistrationVerified } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -34,18 +35,32 @@ export const VerifyPhone = (props: Props) => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const [code, setCode] = useState('');
+  const { registration, accessToken } = useSelector(
+    (state: RootshareReduxState) => ({
+      registration: state.registration,
+      accessToken: state.accessToken,
+    })
+  );
+
   const [loading, setLoading] = useState(false);
   const [serverErr, setServerErr] = useState(false);
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    if (Boolean(accessToken)) history.push('/home');
+    else if (!registration) history.push('/');
+  }, [registration, accessToken]);
+
+  const handleSubmit = async (code: string) => {
     setServerErr(false);
     setLoading(true);
     //TODO - Figure out email move, maybe unsaved redux?
-    const data = await putVerifyPhone({ code, email: '' });
+    const data = await putVerifyPhone({
+      code,
+      email: registration!.email as string,
+    });
     setLoading(false);
     if (data.success === 1) {
-      //Update redux
+      dispatch(setRegistrationVerified());
       history.push('/account/select');
     } else {
       setServerErr(true);
@@ -53,7 +68,10 @@ export const VerifyPhone = (props: Props) => {
   };
 
   const resendCode = async () => {
-    const data = await putResendPhoneVerification({ email: '', phoneNumber: '' });
+    const data = await putResendPhoneVerification({
+      email: registration!.email as string,
+      phoneNumber: registration!.phoneNumber as string,
+    });
     if (data.success === 1)
       dispatch(
         dispatchSnackbar({
@@ -79,7 +97,6 @@ export const VerifyPhone = (props: Props) => {
         autoFocus
         type="number"
         fields={6}
-        onChange={setCode}
         onComplete={handleSubmit}
         fieldHeight={70}
         loading={loading}

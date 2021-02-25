@@ -63,7 +63,7 @@ export class AuthService {
     password: string;
     phoneNumber: string;
   }) => {
-    if (!AuthService.validateFields({ email, password, phoneNumber }))
+    if (AuthService.validateFields({ email, password, phoneNumber }))
       return { status: 400, packet: sendPacket(-1, 'Inputs are invalid') };
 
     try {
@@ -148,7 +148,7 @@ export class AuthService {
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
     if (
-      !AuthService.validateFields({
+      AuthService.validateFields({
         email,
         password,
         phoneNumber,

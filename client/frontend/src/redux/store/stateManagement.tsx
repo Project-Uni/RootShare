@@ -27,6 +27,7 @@ export type RootshareReduxState = {
     password?: string;
     phoneNumber?: string;
     accountType?: string;
+    verified?: boolean;
   };
 };
 

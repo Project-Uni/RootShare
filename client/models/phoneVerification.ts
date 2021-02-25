@@ -93,14 +93,12 @@ export default class PhoneVerification {
     email: string;
     phoneNumber: string;
   }) => {
-    const entryExists = await PhoneVerification.model
-      .exists({
-        email,
-        phoneNumber,
-        validated: false,
-      })
-      .exec();
-    if (entryExists) return false;
+    // const entryExists = await PhoneVerification.model.exists({
+    //   email,
+    //   phoneNumber,
+    //   validated: true,
+    // });
+    // if (entryExists) return false;
 
     const code = PhoneVerification.generateCode();
     const validUntil = new Date();
