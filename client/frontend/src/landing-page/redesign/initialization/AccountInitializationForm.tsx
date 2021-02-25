@@ -6,15 +6,12 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import { useForm } from '../../../helpers/hooks';
-import { RSButton, RSTextField } from '../../../main-platform/reusable-components';
 import {
-  FormControl,
-  FormHelperText,
-  Select,
-  MenuItem,
-  InputLabel,
-  CircularProgress,
-} from '@material-ui/core';
+  RSButton,
+  RSSelect,
+  RSTextField,
+} from '../../../main-platform/reusable-components';
+import { CircularProgress } from '@material-ui/core';
 import { postRegisterUser } from '../../../api/post';
 import {
   updateRefreshToken,
@@ -406,53 +403,4 @@ const validateForm = (
     });
   }
   return { hasErr, errUpdates };
-};
-
-type SelectProps = {
-  options: { label: string | JSX.Element; value: string | number }[];
-  className?: string;
-  style?: React.CSSProperties;
-  label: string;
-  required?: boolean;
-  helperText?: string;
-  error?: boolean;
-  value?: string | number;
-  onChange?: (e: React.ChangeEvent<{ value: unknown }>) => void;
-  fullWidth?: boolean;
-  fontSize?: number;
-};
-
-const RSSelect = (props: SelectProps) => {
-  const styles = useStyles();
-  const {
-    options,
-    className,
-    style,
-    label,
-    required,
-    helperText,
-    error,
-    value,
-    onChange,
-    fullWidth,
-    fontSize,
-  } = props;
-
-  return (
-    <FormControl
-      className={[className].join('')}
-      style={style}
-      required={required}
-      error={error}
-      fullWidth={fullWidth}
-    >
-      <InputLabel style={{ fontSize }}>{label}</InputLabel>
-      <Select value={value} onChange={onChange} style={{ fontSize }}>
-        {options.map((option) => (
-          <MenuItem value={option.value}>{option.label}</MenuItem>
-        ))}
-      </Select>
-      <FormHelperText>{helperText}</FormHelperText>
-    </FormControl>
-  );
 };

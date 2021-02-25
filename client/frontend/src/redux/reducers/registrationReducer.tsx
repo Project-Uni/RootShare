@@ -25,9 +25,7 @@ export const registrationReducer = (
   const { type, payload } = data;
   switch (type) {
     case UPDATE_REGISTRATION_FIELDS:
-      return {
-        ...payload,
-      };
+      return { ...payload };
     case SET_REGISTRATION_VERIFIED:
       return { ...state, verified: true };
     case UPDATE_REGISTRATION_ACCOUNT_TYPE:
