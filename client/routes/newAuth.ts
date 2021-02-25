@@ -6,6 +6,7 @@ import {
   getQueryParams,
   comparePasswords,
 } from '../helpers/functions';
+import { AuthService } from '../interactions/auth';
 import { PhoneVerification, User } from '../models';
 import { getUsersByIDs } from '../models/users';
 
@@ -146,47 +147,8 @@ export const authRoutes = (app: Express) => {
 
   app.post('/api/v2/auth/login', async (req, res) => {
     const { email, password }: { email: string; password: string } = req.body;
-    try {
-      const validation_user = await User.findOne(
-        { email: { $regex: email, $options: 'i' } },
-        ['hashedPassword']
-      )
-        .lean()
-        .exec();
-
-      if (!validation_user)
-        return res.status(400).json(sendPacket(0, 'No user exists with this email'));
-
-      if (!comparePasswords(password, validation_user.hashedPassword))
-        return res.status(400).json(sendPacket(0, 'Invalid password'));
-
-      const [user] = await getUsersByIDs([validation_user._id], {
-        fields: [
-          'firstName',
-          'lastName',
-          'accountType',
-          'privilegeLevel',
-          'profilePicture',
-        ],
-        options: {
-          includeDefaultFields: false,
-          getProfilePicture: true,
-          limit: 1,
-        },
-      });
-
-      const { accessToken, refreshToken } = generateJWT(user);
-
-      return res.status(200).json(
-        sendPacket(1, 'Successfully logged in', {
-          user,
-          accessToken,
-          refreshToken,
-        })
-      );
-    } catch (err) {
-      return res.status(400).json(sendPacket(0, 'Failed to find user'));
-    }
+    const { status, packet } = await AuthService.login({ email, password });
+    return res.status(status).json(packet);
   });
 
   app.put('/api/v2/auth/verify', async (req, res) => {
