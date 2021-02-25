@@ -50,27 +50,3 @@ export const initializeState = (): RootshareReduxState => ({
     message: '',
   },
 });
-
-const saveState = (state: RootshareReduxState) => {
-  try {
-    let serializedState = JSON.stringify(state);
-    localStorage.setItem(STATE_NAME, serializedState);
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to save state.');
-  }
-};
-
-const loadState = (): RootshareReduxState => {
-  try {
-    let serializedState = localStorage.getItem(STATE_NAME);
-    if (serializedState == null) {
-      return initializeState();
-    }
-    return JSON.parse(serializedState) as RootshareReduxState;
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to load state');
-    return initializeState();
-  }
-};
-
-export { saveState, loadState };
