@@ -20,6 +20,7 @@ import {
   dispatchSnackbar,
   resetRegistration,
 } from '../../../redux/actions';
+import { States } from '../../../helpers/constants';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -249,7 +250,10 @@ export const AccountInitializationForm = (props: Props) => {
       />
       <RSSelect
         label="STATE"
-        options={[{ label: 'California', value: 'CA' }]}
+        options={States.map((state) => ({
+          label: state.State,
+          value: state.Code,
+        }))}
         fullWidth
         value={formFields.state}
         onChange={handleChange('state')}

@@ -197,6 +197,7 @@ var userSchema = new Schema(
     likes: {
       type: [{ type: Schema.ObjectId, ref: 'posts' }],
     },
+    state: { type: String },
   },
   { timestamps: true }
 );

@@ -3,6 +3,7 @@ import { PhoneVerification, User } from '../models';
 import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
 import { getUsersByIDs } from '../models/users';
 import { log } from '../helpers/functions/logger';
+import { StateCodeKeys } from '../helpers/constants/states';
 
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
@@ -174,7 +175,7 @@ export class AuthService {
         position: jobTitle.trim(),
         work: company.trim(),
         graduationYear,
-        // state
+        state,
       }).save();
 
       const { accessToken, refreshToken } = generateJWT({
@@ -255,6 +256,10 @@ export class AuthService {
     return !/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
   };
 
+  static isValidState = (state: string) => {
+    return StateCodeKeys.some((stateCode) => stateCode === state);
+  };
+
   static validateFields = ({
     email,
     password,
@@ -286,6 +291,7 @@ export class AuthService {
       isValid = false;
     if (firstName && firstName.trim().length === 0) isValid = false;
     if (lastName && lastName.trim().length === 0) isValid = false;
+    if (state && !AuthService.isValidState(state)) isValid = false;
     return isValid;
   };
 }
