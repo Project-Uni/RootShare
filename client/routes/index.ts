@@ -17,6 +17,7 @@ import universityRoutes from './university';
 import userRoutes from './user';
 import utilityRoutes from './utilities';
 import webhookRoutes from './webhooks';
+import { authRoutes } from './newAuth';
 
 export default function RootshareRoutes(app: Express, io) {
   communityRoutes(app);
@@ -35,6 +36,7 @@ export default function RootshareRoutes(app: Express, io) {
   userRoutes(app);
   utilityRoutes(app);
   webhookRoutes(app);
+  authRoutes(app);
 
   app.all('/api/*', async (req, res) => {
     return res.status(404).json(sendPacket(-1, 'Path not found'));

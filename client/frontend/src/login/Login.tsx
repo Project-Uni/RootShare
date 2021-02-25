@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -54,6 +54,20 @@ type Props = {
   location: any;
 };
 
+type LoginServiceResponse = {
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    _id: string;
+    accountType: string;
+    privilegeLevel: number;
+    profilePicture?: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+};
+
 function Login(props: Props) {
   const styles = useStyles();
   const history = useHistory();
@@ -97,33 +111,22 @@ function Login(props: Props) {
 
   async function handleLogin() {
     setLoading(true);
-    const { data } = await makeRequest('POST', '/auth/login/local', {
-      email: email,
-      password: password,
-    });
+    const { data } = await makeRequest<LoginServiceResponse>(
+      'POST',
+      '/api/v2/auth/login',
+      { email, password }
+    );
     if (data['success'] === 1) {
       setError(false);
       const {
-        firstName,
-        lastName,
-        _id,
-        email,
+        user,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        privilegeLevel,
-        accountType,
-        profilePicture,
       } = data['content'];
       dispatch(
         updateUser({
-          firstName,
-          lastName,
-          _id,
-          email,
-          privilegeLevel,
-          accountType,
-          profilePicture,
-          profilePictureLastUpdated: profilePicture ? Date.now() : undefined,
+          ...user,
+          profilePictureLastUpdated: user.profilePicture ? Date.now() : undefined,
         })
       );
       dispatch(updateAccessToken(newAccessToken));
