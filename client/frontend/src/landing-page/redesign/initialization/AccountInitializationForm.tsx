@@ -7,6 +7,13 @@ import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import { useForm } from '../../../helpers/hooks';
 import { RSTextField } from '../../../main-platform/reusable-components';
+import {
+  FormControl,
+  FormHelperText,
+  Select,
+  MenuItem,
+  InputLabel,
+} from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -66,7 +73,7 @@ export const AccountInitializationForm = (props: Props) => {
   }, [accessToken, registration]);
 
   useEffect(() => {
-    checkAuth();
+    // checkAuth();
   }, [checkAuth]);
 
   const ExtraFields = useCallback(() => {
@@ -162,6 +169,84 @@ export const AccountInitializationForm = (props: Props) => {
         helperText={formErrors.lastName}
       />
       <ExtraFields />
+      <RSTextField
+        label="GRADUATION YEAR"
+        fullWidth
+        className={styles.textfield}
+        value={formFields.graduationYear}
+        onChange={handleChange('graduationYear')}
+        error={formErrors.graduationYear !== ''}
+        helperText={formErrors.graduationYear}
+      />
+      <RSSelect
+        label="UNIVERSITY"
+        options={[{ label: 'Purdue University', value: 'xxxxx' }]}
+        fullWidth
+        value={formFields.university}
+        onChange={handleChange('university')}
+        className={styles.textfield}
+        style={{ textAlign: 'left' }}
+        fontSize={18}
+      />
+      <RSSelect
+        label="STATE"
+        options={[{ label: 'California', value: 'CA' }]}
+        fullWidth
+        value={formFields.state}
+        onChange={handleChange('state')}
+        className={styles.textfield}
+        style={{ textAlign: 'left' }}
+        fontSize={18}
+      />
     </div>
+  );
+};
+
+type SelectProps = {
+  options: { label: string | JSX.Element; value: string | number }[];
+  className?: string;
+  style?: React.CSSProperties;
+  label: string;
+  required?: boolean;
+  helperText?: string;
+  error?: boolean;
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<{ value: unknown }>) => void;
+  fullWidth?: boolean;
+  fontSize?: number;
+};
+
+const RSSelect = (props: SelectProps) => {
+  const styles = useStyles();
+  const {
+    options,
+    className,
+    style,
+    label,
+    required,
+    helperText,
+    error,
+    value,
+    onChange,
+    fullWidth,
+    fontSize,
+  } = props;
+
+  return (
+    <FormControl
+      className={[className].join('')}
+      style={style}
+      required={required}
+      error={error}
+      fullWidth={fullWidth}
+    >
+      <InputLabel style={{ fontSize }}>{label}</InputLabel>
+      <Select value={value} onChange={onChange} style={{ fontSize }}>
+        {options.map((option) => (
+          <MenuItem value={option.value}>{option.label}</MenuItem>
+        ))}
+      </Select>
+      <FormHelperText>{helperText}</FormHelperText>
+    </FormControl>
   );
 };
