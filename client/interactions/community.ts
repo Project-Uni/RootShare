@@ -1211,18 +1211,12 @@ export async function updateFields(
   communityID: string,
   fields: { [key: string]: any }
 ) {
-  const acceptedFields = ['description', 'name', 'type', 'private'];
   const updates: {
     description?: string;
     private?: boolean;
     type?: CommunityType;
     name?: string;
-  } = Object.assign(
-    {},
-    ...Object.keys(fields)
-      .filter((k) => acceptedFields.includes(k))
-      .map((key) => ({ [key]: fields[key] }))
-  );
+  } = Object.assign({}, fields);
 
   try {
     await Community.updateOne({ _id: communityID }, updates).exec();

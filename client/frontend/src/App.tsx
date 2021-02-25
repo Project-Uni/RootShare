@@ -51,6 +51,7 @@ const App = () => {
       <Router history={history}>
         <div className="wrapper">
           <Switch>
+
             <Route exact path="/" render={() => <LandingPage mode="register" />} />
 
             <Route exact path="/account/select" component={AccountTypeSelect} />
@@ -70,8 +71,9 @@ const App = () => {
               exact
               path="/register/initialize"
               component={HypeAdditionalInfo}
-            />
-            <Route exact path="/login" component={Login} /> */}
+            /> */}
+
+            {/* <Route exact path="/login" component={Login} /> */}
 
             <Route
               exact

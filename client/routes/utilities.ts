@@ -17,6 +17,7 @@ import {
   getUniqueInterested,
 } from '../helpers/data_aggregation/getMTGUniqueUserInfo';
 import { getUserGrowthByPeriod } from '../helpers/data_aggregation/getUserGrowthByPeriod';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 
 export default function utilityRoutes(app) {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
@@ -56,7 +57,8 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/utilities/growth', async (req, res) => {
-    // const { period }: { period: 'day' | 'month' | 'year' } = req.query;
+    // const query = getQueryParams(req, { period: { type: 'string' } });
+    // if (!query) return res.status(500).send('Invalid query');
     // const growthCSV = await getUserGrowthByPeriod('month');
     // if (growthCSV) {
     //   res.attachment('user_growth.csv');

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
@@ -11,12 +11,15 @@ import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
-import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+  wrapper: {
+    height: '100%',
+    overflow: 'scroll',
+  },
   body: {},
   searchBar: {
     flex: 1,
@@ -44,14 +47,13 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: { [key: string]: any };
-};
+type Props = {};
 
-function YourCommunitiesBody(props: Props) {
+export default function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
+  const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
+
   const [loading, setLoading] = useState(true);
-  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [username, setUsername] = useState('User');
 
@@ -64,36 +66,33 @@ function YourCommunitiesBody(props: Props) {
 
   const { userID: requestUserID } = useParams<{ userID: string }>();
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    if (requestUserID !== 'user') fetchUserBasicInfo();
-    fetchData().then(() => {
-      setLoading(false);
-    });
-  }, []);
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
-        requestUserID === 'user' ? props.user._id : requestUserID
+        requestUserID === 'user' ? userID : requestUserID
       }/communities/all`
     );
     if (data.success === 1) {
       setJoinedCommunities(data.content['joinedCommunities']);
       setPendingCommunities(data.content['pendingCommunities']);
     }
-  }
+  }, [requestUserID]);
+
+  useEffect(() => {
+    if (!loading) setLoading(true);
+
+    if (requestUserID !== 'user') fetchUserBasicInfo();
+    fetchData().then(() => {
+      setLoading(false);
+    });
+  }, [fetchData]);
 
   async function fetchUserBasicInfo() {
     const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
     }
-  }
-
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function appendNewCommunity(community: Community) {
@@ -107,7 +106,7 @@ function YourCommunitiesBody(props: Props) {
       const currCommunity = joinedCommunities[i];
       output.push(
         <CommunityHighlight
-          userID={props.user._id}
+          userID={userID}
           style={styles.singleCommunity}
           communityID={currCommunity._id}
           private={currCommunity.private}
@@ -128,7 +127,7 @@ function YourCommunitiesBody(props: Props) {
       const currCommunity = pendingCommunities[i];
       output.push(
         <CommunityHighlight
-          userID={props.user._id}
+          userID={userID}
           style={styles.singleCommunity}
           communityID={currCommunity._id}
           private={currCommunity.private}
@@ -159,7 +158,7 @@ function YourCommunitiesBody(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
+    <div className={styles.wrapper}>
       <CreateCommunityModal
         open={showCreateCommunitiesModal}
         onClose={() => setShowCreateCommunitiesModal(false)}
@@ -187,17 +186,3 @@ function YourCommunitiesBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(YourCommunitiesBody);

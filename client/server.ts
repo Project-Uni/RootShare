@@ -8,6 +8,11 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import cors = require('cors');
+
+const fs = require('fs');
+const http = require('http');
+const socketIO = require('socket.io');
 
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
@@ -20,10 +25,7 @@ import {
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-const mongoConfig = require('./config/mongoConfig');
-const fs = require('fs');
-const http = require('http');
-const socketIO = require('socket.io');
+import * as mongoConfig from './config/mongoConfig';
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
@@ -38,6 +40,9 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
 const app = express();
 const port = process.env.PORT || 8000;
 
+app.set('query parser', 'simple');
+
+app.use(cors());
 app.use(pino());
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
