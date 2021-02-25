@@ -326,7 +326,7 @@ const LandingPage = (props: Props) => {
                 // helperText={error ? 'Invalid login credentials' : ''}
               />
             </tr>
-          <tr>
+          {/* <tr>
             <div className={styles.externalWrapper}>
               <GoogleButton messageType={'signup'} width={500} redirect={redirectUrl} />
             </div>
@@ -339,7 +339,7 @@ const LandingPage = (props: Props) => {
                 redirect={redirectUrl}
               />
             </div>
-          </tr>
+          </tr> */}
           <tr>
             <div className={styles.buttonContainer}>
               <RSText color={Theme.secondaryText} className={styles.or} size={12}>
@@ -403,7 +403,7 @@ const LandingPage = (props: Props) => {
               type="password"
             />
           </tr>
-          <tr>
+          {/* <tr>
             <div className={styles.externalWrapper}>
               <GoogleButton messageType={'login'} width={500} redirect={redirectUrl} />
             </div>
@@ -416,7 +416,7 @@ const LandingPage = (props: Props) => {
                 redirect={redirectUrl}
               />
             </div>
-          </tr>
+          </tr> */}
           <tr>
             <div className={styles.buttonContainer}>
               <RSButton
