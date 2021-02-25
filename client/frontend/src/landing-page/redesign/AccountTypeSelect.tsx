@@ -4,8 +4,9 @@ import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { updateRegistrationAccountType } from '../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -33,6 +34,8 @@ const AccountTypeSelect = (props: Props) => {
       registration: state.registration,
     })
   );
+
+  const dispatch = useDispatch();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -68,7 +71,8 @@ const AccountTypeSelect = (props: Props) => {
   }, [handleResize]);
 
   const handleClick = (type: AccountType) => {
-    console.log('Clicking on account type:', type);
+    dispatch(updateRegistrationAccountType(type));
+    history.push('/account/initialize');
   };
 
   return (

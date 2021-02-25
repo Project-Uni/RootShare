@@ -53,7 +53,6 @@ export const VerifyPhone = (props: Props) => {
   const handleSubmit = async (code: string) => {
     setServerErr(false);
     setLoading(true);
-    //TODO - Figure out email move, maybe unsaved redux?
     const data = await putVerifyPhone({
       code,
       email: registration!.email as string,

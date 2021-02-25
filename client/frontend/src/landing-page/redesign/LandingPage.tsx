@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
+import { AccountInitializationForm } from './initialization/AccountInitializationForm';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -100,7 +101,7 @@ const LandingPage = (props: Props) => {
       case 'login':
         return <p>Login Form and Buttons</p>;
       case 'additional':
-        return <p>Additional Info Form and Buttons</p>;
+        return <AccountInitializationForm />;
     }
   }, [mode]);
 
