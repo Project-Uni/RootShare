@@ -1,4 +1,4 @@
-import { initializeState } from '../store/stateManagement';
+import { initializeState, RootshareReduxState } from '../store/stateManagement';
 import {
   UPDATE_REGISTRATION_ACCOUNT_TYPE,
   UPDATE_REGISTRATION_FIELDS,
@@ -7,7 +7,7 @@ import {
 } from '../actions/registration';
 
 export const registrationReducer = (
-  state = initializeState().registration,
+  state: RootshareReduxState['registration'] = initializeState().registration,
   data: {
     type:
       | typeof UPDATE_REGISTRATION_ACCOUNT_TYPE
@@ -21,11 +21,13 @@ export const registrationReducer = (
       accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
     };
   }
-) => {
+): RootshareReduxState['registration'] => {
   const { type, payload } = data;
   switch (type) {
     case UPDATE_REGISTRATION_FIELDS:
-      return { ...payload };
+      return {
+        ...payload,
+      };
     case SET_REGISTRATION_VERIFIED:
       return { ...state, verified: true };
     case UPDATE_REGISTRATION_ACCOUNT_TYPE:
