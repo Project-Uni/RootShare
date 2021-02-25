@@ -1,7 +1,5 @@
-import { log } from '../../helpers/functions';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
-// export const STATE_NAME = 'RootShare:state';
 
 export type RootshareReduxState = {
   user: {
@@ -26,7 +24,7 @@ export type RootshareReduxState = {
     email?: string;
     password?: string;
     phoneNumber?: string;
-    accountType?: string;
+    accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
     verified?: boolean;
   };
 };

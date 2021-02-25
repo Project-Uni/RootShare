@@ -18,7 +18,7 @@ export const registrationReducer = (
       email?: string;
       password?: string;
       phoneNumber?: string;
-      accountType?: string;
+      accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
     };
   }
 ) => {
