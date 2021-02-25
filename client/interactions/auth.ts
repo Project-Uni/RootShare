@@ -63,13 +63,8 @@ export class AuthService {
     password: string;
     phoneNumber: string;
   }) => {
-    if (
-      !AuthService.isValidEmail(email) ||
-      !AuthService.isValidPassword(password) ||
-      !AuthService.isValidPhoneNumber(phoneNumber)
-    ) {
+    if (!AuthService.validateFields({ email, password, phoneNumber }))
       return { status: 400, packet: sendPacket(-1, 'Inputs are invalid') };
-    }
 
     try {
       const userExists = await User.exists({
@@ -152,17 +147,30 @@ export class AuthService {
     else if (accountType === 'faculty' && !jobTitle)
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
+    if (
+      !AuthService.validateFields({
+        email,
+        password,
+        phoneNumber,
+        firstName,
+        lastName,
+        accountType,
+        state,
+      })
+    )
+      return { status: 400, packet: sendPacket(0, 'Invalid input fields') };
+
     try {
       const newUser = await new User({
         email: email.toLowerCase(),
         phoneNumber,
         hashedPassword: hashPassword(password),
-        firstName,
-        lastName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         accountType,
-        major,
-        position: jobTitle,
-        work: company,
+        major: major.trim(),
+        position: jobTitle.trim(),
+        work: company.trim(),
         graduationYear,
         // state
       }).save();
@@ -243,5 +251,39 @@ export class AuthService {
 
   static isValidPhoneNumber = (phoneNumber: string) => {
     return !/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
+  };
+
+  static validateFields = ({
+    email,
+    password,
+    phoneNumber,
+    accountType,
+    firstName,
+    lastName,
+    state,
+  }: {
+    email?: string;
+    password?: string;
+    phoneNumber?: string;
+    accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
+    firstName?: string;
+    lastName?: string;
+    state?: string;
+  }) => {
+    let isValid = true;
+    if (email && !AuthService.isValidEmail(email)) isValid = false;
+    if (password && !AuthService.isValidPassword(password)) isValid = false;
+    if (phoneNumber && !AuthService.isValidPhoneNumber(phoneNumber)) isValid = false;
+    if (
+      accountType &&
+      accountType !== 'student' &&
+      accountType !== 'alumni' &&
+      accountType !== 'faculty' &&
+      accountType !== 'recruiter'
+    )
+      isValid = false;
+    if (firstName && firstName.trim().length === 0) isValid = false;
+    if (lastName && lastName.trim().length === 0) isValid = false;
+    return isValid;
   };
 }
