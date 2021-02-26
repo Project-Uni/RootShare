@@ -1,4 +1,4 @@
-import { sendSMS } from '../helpers/functions';
+import { log, sendSMS } from '../helpers/functions';
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
@@ -92,7 +92,7 @@ export default class PhoneVerification {
   }: {
     email: string;
     phoneNumber: string;
-  }) => {
+  }): Promise<boolean> => {
     // const entryExists = await PhoneVerification.model.exists({
     //   email,
     //   phoneNumber,
@@ -109,6 +109,26 @@ export default class PhoneVerification {
         .exec();
       return await PhoneVerification.sendText({ phoneNumber, code });
     } catch (err) {
+      return false;
+    }
+  };
+
+  static isValidated = async ({
+    email,
+    phoneNumber,
+  }: {
+    email: string;
+    phoneNumber: string;
+  }): Promise<Boolean> => {
+    try {
+      const isValidated: boolean = await PhoneVerification.model.exists({
+        email,
+        phoneNumber,
+        validated: true,
+      });
+      return isValidated;
+    } catch (err) {
+      log('error', `Error Validating Phone Number: ${err.message}`);
       return false;
     }
   };

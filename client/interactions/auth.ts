@@ -192,6 +192,12 @@ export class AuthService {
     )
       return { status: 400, packet: sendPacket(0, 'Invalid input fields') };
 
+    if (!(await PhoneVerification.isValidated({ email, phoneNumber })))
+      return {
+        status: 400,
+        packet: sendPacket(0, 'Phone number has not been validated'),
+      };
+
     try {
       const newUser = await new User({
         email: email.toLowerCase(),
