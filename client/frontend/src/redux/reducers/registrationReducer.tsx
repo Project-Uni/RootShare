@@ -17,6 +17,7 @@ export const registrationReducer = (
     payload?: {
       email?: string;
       password?: string;
+      initializationVector?: string;
       phoneNumber?: string;
       accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
     };

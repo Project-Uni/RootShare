@@ -6,6 +6,7 @@ type RegisterParams = {
   email: string;
   phoneNumber: string;
   password: string;
+  initializationVector: string;
   accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
   university: string;
   state: string;

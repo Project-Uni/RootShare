@@ -99,7 +99,15 @@ export const SignupForm = (props: Props) => {
     setLoading(false);
 
     if (data.success === 1) {
-      dispatch(updateBasicRegistrationFields({ email, password, phoneNumber }));
+      const { encryptedPassword, initializationVector } = data.content;
+      dispatch(
+        updateBasicRegistrationFields({
+          email,
+          password: encryptedPassword,
+          initializationVector,
+          phoneNumber,
+        })
+      );
       history.push('/account/verify');
     } else setServerErr(data.message);
   };

@@ -75,7 +75,8 @@ export const AccountInitializationForm = (props: Props) => {
     else if (
       !registration?.email ||
       !registration?.password ||
-      !registration?.phoneNumber
+      !registration?.phoneNumber ||
+      !registration?.initializationVector
     )
       history.push('/');
     else if (!registration?.verified) history.push('/account/verify');
@@ -99,13 +100,20 @@ export const AccountInitializationForm = (props: Props) => {
       return;
     }
 
-    const { email, phoneNumber, accountType, password } = registration!;
+    const {
+      email,
+      phoneNumber,
+      accountType,
+      password,
+      initializationVector,
+    } = registration!;
     const data = await postRegisterUser({
       ...formFields,
       email: email!,
       phoneNumber: phoneNumber!,
       accountType: accountType!,
       password: password!,
+      initializationVector: initializationVector!,
     });
     setLoading(false);
     if (data.success === 1) {

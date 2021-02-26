@@ -4,7 +4,7 @@ import { generateJWT, hashPassword, comparePasswords } from '../helpers/function
 import { getUsersByIDs } from '../models/users';
 import { log } from '../helpers/functions/logger';
 import { StateCodeKeys } from '../helpers/constants/states';
-
+import { Encryption } from '../helpers/modules';
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
     try {
@@ -78,6 +78,17 @@ export class AuthService {
           packet: sendPacket(0, 'Account with this email already exists'),
         };
 
+      let encryptedData: { initializationVector: string; encryptedMessage: string };
+      try {
+        encryptedData = new Encryption().encrypt(password);
+      } catch (err) {
+        return { status: 400, packet: sendPacket(-1, 'Failed to encrypt password') };
+      }
+
+      const {
+        initializationVector,
+        encryptedMessage: encryptedPassword,
+      } = encryptedData;
       const code = await PhoneVerification.sendCode({
         email: email as string,
         phoneNumber: phoneNumber as string,
@@ -93,7 +104,10 @@ export class AuthService {
 
       return {
         status: 200,
-        packet: sendPacket(1, 'New account information is valid'),
+        packet: sendPacket(1, 'New account information is valid', {
+          initializationVector,
+          encryptedPassword,
+        }),
       };
     } catch (err) {
       log('error', err.message);
@@ -108,6 +122,7 @@ export class AuthService {
     email,
     phoneNumber,
     password,
+    initializationVector,
     accountType,
     firstName,
     lastName,
@@ -121,6 +136,7 @@ export class AuthService {
     email: string;
     phoneNumber: string;
     password: string;
+    initializationVector: string;
     accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
     firstName: string;
     lastName: string;
@@ -135,6 +151,7 @@ export class AuthService {
       !email ||
       !phoneNumber ||
       !password ||
+      !initializationVector ||
       !accountType ||
       !firstName ||
       !lastName ||
@@ -150,10 +167,20 @@ export class AuthService {
     else if (accountType === 'faculty' && !jobTitle)
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
+    let decryptedPassword: string;
+    try {
+      decryptedPassword = new Encryption().decrypt({
+        iv: initializationVector,
+        encryptedMessage: password,
+      });
+    } catch (err) {
+      return { status: 400, packet: sendPacket(-1, 'Failed to decrypt password') };
+    }
+
     if (
       AuthService.validateFields({
         email,
-        password,
+        password: decryptedPassword,
         phoneNumber,
         firstName,
         lastName,
@@ -167,7 +194,7 @@ export class AuthService {
       const newUser = await new User({
         email: email.toLowerCase(),
         phoneNumber,
-        hashedPassword: hashPassword(password),
+        hashedPassword: hashPassword(decryptedPassword),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         accountType,

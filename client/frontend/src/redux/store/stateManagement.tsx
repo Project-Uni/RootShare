@@ -22,7 +22,8 @@ export type RootshareReduxState = {
   snackbarNotification: SnackbarProps;
   registration: null | {
     email?: string;
-    password?: string;
+    password?: string; //Password is encrypted
+    initializationVector?: string; //Random bytes Used to decrypt the password
     phoneNumber?: string;
     accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
     verified?: boolean;

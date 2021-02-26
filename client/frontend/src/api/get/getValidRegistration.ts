@@ -11,6 +11,9 @@ export const getValidRegistration = async ({
   phoneNumber: string;
 }) => {
   const query = stringify({ email, password, phoneNumber });
-  const { data } = await makeRequest('GET', `/api/v2/auth/validate?${query}`);
+  const { data } = await makeRequest<{
+    initializationVector: string;
+    encryptedPassword: string;
+  }>('GET', `/api/v2/auth/validate?${query}`);
   return data;
 };

@@ -9,6 +9,7 @@ export const updateBasicRegistrationFields = (data: {
   email: string;
   phoneNumber: string;
   password: string;
+  initializationVector: string;
 }): ReduxAction => ({
   type: UPDATE_REGISTRATION_FIELDS,
   payload: data,
