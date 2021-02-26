@@ -7,8 +7,28 @@ import {
   MenuItem,
   InputLabel,
 } from '@material-ui/core';
+import Theme from '../../../theme/Theme';
 
-const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
+const useStyles = makeStyles((_: any) => ({
+  wrapper: {},
+  select: {
+    '&:hover:not(.Mui-disabled):before': {
+      borderBottomColor: Theme.brightHover,
+    },
+    '&:after': {
+      borderBottomColor: Theme.bright,
+    },
+  },
+  label: {
+    fontSize: 18,
+    '&:not($focused):not($error)': {
+      color: Theme.secondaryText,
+    },
+    '&.Mui-focused': {
+      color: Theme.bright,
+    },
+  },
+}));
 
 type Props = {
   options: { label: string | JSX.Element; value: string | number }[];
@@ -42,14 +62,19 @@ export const RSSelect = (props: Props) => {
 
   return (
     <FormControl
-      className={[className].join('')}
+      className={[className, styles.wrapper].join(' ')}
       style={style}
       required={required}
       error={error}
       fullWidth={fullWidth}
     >
-      <InputLabel style={{ fontSize }}>{label}</InputLabel>
-      <Select value={value} onChange={onChange} style={{ fontSize }}>
+      <InputLabel className={styles.label}>{label}</InputLabel>
+      <Select
+        value={value}
+        onChange={onChange}
+        style={{ fontSize }}
+        className={styles.select}
+      >
         {options.map((option) => (
           <MenuItem value={option.value}>{option.label}</MenuItem>
         ))}
