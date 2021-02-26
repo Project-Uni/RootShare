@@ -1,5 +1,5 @@
 import sendPacket from '../../webinar/helpers/sendPacket';
-import { PhoneVerification, User } from '../models';
+import { PhoneVerification, University, User } from '../models';
 import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
 import { getUsersByIDs } from '../models/users';
 import { log } from '../helpers/functions/logger';
@@ -156,7 +156,8 @@ export class AuthService {
       !firstName ||
       !lastName ||
       !graduationYear ||
-      !state
+      !state ||
+      !university
     )
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
@@ -186,6 +187,7 @@ export class AuthService {
         lastName,
         accountType,
         state,
+        university,
       })
     )
       return { status: 400, packet: sendPacket(0, 'Invalid input fields') };
@@ -203,6 +205,7 @@ export class AuthService {
         work: company.trim(),
         graduationYear,
         state,
+        university,
       }).save();
 
       const { accessToken, refreshToken } = generateJWT({
@@ -287,6 +290,10 @@ export class AuthService {
     return StateCodeKeys.some((stateCode) => stateCode === state);
   };
 
+  private static isValidUniversity = async (universityID: string) => {
+    return await University.exists({ _id: universityID });
+  };
+
   private static validateFields = ({
     email,
     password,
@@ -295,6 +302,7 @@ export class AuthService {
     firstName,
     lastName,
     state,
+    university,
   }: {
     email?: string;
     password?: string;
@@ -303,6 +311,7 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     state?: string;
+    university?: string;
   }) => {
     let isValid = true;
     if (email && !AuthService.isValidEmail(email)) isValid = false;
@@ -319,6 +328,7 @@ export class AuthService {
     if (firstName && firstName.trim().length === 0) isValid = false;
     if (lastName && lastName.trim().length === 0) isValid = false;
     if (state && !AuthService.isValidState(state)) isValid = false;
+    if (university && !AuthService.isValidUniversity(university)) isValid = false;
     return isValid;
   };
 }

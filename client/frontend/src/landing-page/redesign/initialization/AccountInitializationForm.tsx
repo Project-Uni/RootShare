@@ -247,7 +247,7 @@ export const AccountInitializationForm = (props: Props) => {
       />
       <RSSelect
         label="UNIVERSITY"
-        options={[{ label: 'Purdue University', value: 'xxxxx' }]}
+        options={[{ label: 'Purdue University', value: '5eb89c308cc6636630c1311f' }]}
         fullWidth
         value={formFields.university}
         onChange={handleChange('university')}
