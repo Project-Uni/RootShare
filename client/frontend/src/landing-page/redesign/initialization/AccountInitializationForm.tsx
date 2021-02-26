@@ -21,6 +21,7 @@ import {
   resetRegistration,
 } from '../../../redux/actions';
 import { States } from '../../../helpers/constants';
+import { AccountType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -295,7 +296,7 @@ export const AccountInitializationForm = (props: Props) => {
 
 const validateForm = (
   formFields: IFormData,
-  accountType: 'student' | 'alumni' | 'faculty' | 'recruiter' | undefined
+  accountType: AccountType | undefined
 ) => {
   let hasErr = false;
   const errUpdates: { key: keyof IFormData; value: string }[] = [];

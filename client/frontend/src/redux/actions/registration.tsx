@@ -1,4 +1,5 @@
 import { ReduxAction } from '.';
+import { AccountType } from '../../helpers/types';
 
 export const UPDATE_REGISTRATION_FIELDS = 'registration:updateRegFields';
 export const UPDATE_REGISTRATION_ACCOUNT_TYPE = 'registration:updateAccountType';
@@ -16,7 +17,7 @@ export const updateBasicRegistrationFields = (data: {
 });
 
 export const updateRegistrationAccountType = (
-  accountType: 'student' | 'alumni' | 'faculty' | 'recruiter'
+  accountType: AccountType
 ): ReduxAction => ({
   type: UPDATE_REGISTRATION_ACCOUNT_TYPE,
   payload: { accountType },

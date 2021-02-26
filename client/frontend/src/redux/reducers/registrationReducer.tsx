@@ -5,6 +5,7 @@ import {
   RESET_REGISTRATION,
   SET_REGISTRATION_VERIFIED,
 } from '../actions/registration';
+import { AccountType } from '../../helpers/types';
 
 export const registrationReducer = (
   state: RootshareReduxState['registration'] = initializeState().registration,
@@ -19,7 +20,7 @@ export const registrationReducer = (
       password?: string;
       initializationVector?: string;
       phoneNumber?: string;
-      accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
+      accountType?: AccountType;
     };
   }
 ): RootshareReduxState['registration'] => {

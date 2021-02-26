@@ -3,10 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useForm } from '../../../helpers/hooks';
 import {
   RSButton,
+  RSCheckbox,
   RSLink,
   RSTextField,
 } from '../../../main-platform/reusable-components';
-import { Checkbox, CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import { isValidEmail } from '../../../helpers/functions';
@@ -28,18 +29,6 @@ const useStyles = makeStyles((_: any) => ({
   textfield: {
     marginBottom: 30,
   },
-  checkboxRoot: {
-    '&$checked': {
-      color: Theme.bright,
-    },
-  },
-  standardCheckbox: {
-    color: Theme.bright,
-  },
-  errorCheckbox: {
-    color: Theme.error,
-  },
-  checked: {},
 }));
 
 type Props = {};
@@ -92,7 +81,6 @@ export const SignupForm = (props: Props) => {
 
     setLoading(true);
 
-    //Make API Call
     const { email, password, phoneNumber } = formFields;
 
     const data = await getValidRegistration({ email, password, phoneNumber });
@@ -171,16 +159,10 @@ export const SignupForm = (props: Props) => {
           marginTop: 10,
         }}
       >
-        <Checkbox
-          classes={{
-            root: [
-              styles.checkboxRoot,
-              checkboxErr ? styles.errorCheckbox : styles.standardCheckbox,
-            ].join(' '),
-            checked: styles.checked,
-          }}
+        <RSCheckbox
           value={checked}
           onChange={(e) => setChecked(e.target.checked)}
+          error={checkboxErr}
         />
         <RSText
           color={Theme.secondaryText}

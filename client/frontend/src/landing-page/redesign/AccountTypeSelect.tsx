@@ -7,6 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { updateRegistrationAccountType } from '../../redux/actions';
+import { AccountType } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -20,8 +21,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 const MIN_WIDTH = 915;
-
-type AccountType = 'student' | 'alumni' | 'faculty' | 'recruiter';
 
 type Props = {};
 

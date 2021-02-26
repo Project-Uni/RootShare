@@ -20,6 +20,7 @@ import { FeaturedEvent } from './components/FeaturedEvent';
 export * from './components/RSCard';
 export * from './components/RSTextField';
 export * from './components/RSSelect';
+export * from './components/RSCheckbox';
 
 export {
   MainNavigator,

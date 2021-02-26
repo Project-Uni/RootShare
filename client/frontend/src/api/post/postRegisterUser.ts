@@ -1,4 +1,5 @@
 import { makeRequest } from '../../helpers/functions';
+import { AccountType } from '../../helpers/types';
 
 type RegisterParams = {
   firstName: string;
@@ -7,7 +8,7 @@ type RegisterParams = {
   phoneNumber: string;
   password: string;
   initializationVector: string;
-  accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
+  accountType: AccountType;
   university: string;
   state: string;
   graduationYear: number;

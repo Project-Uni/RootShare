@@ -1,3 +1,4 @@
+import { AccountType } from '../../helpers/types';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
 
@@ -25,7 +26,7 @@ export type RootshareReduxState = {
     password?: string; //Password is encrypted
     initializationVector?: string; //Random bytes Used to decrypt the password
     phoneNumber?: string;
-    accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
+    accountType?: AccountType;
     verified?: boolean;
   };
 };
@@ -37,7 +38,7 @@ export const initializeState = (): RootshareReduxState => ({
     _id: '',
     email: '',
     privilegeLevel: 0,
-    accountType: 'fan',
+    accountType: '',
   },
   accessToken: '',
   refreshToken: '',
