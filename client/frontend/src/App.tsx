@@ -31,7 +31,7 @@ import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPa
 import { SnackbarNotification } from './main-platform/reusable-components';
 import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 // import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
-// import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
+import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -108,9 +108,9 @@ const App = () => {
               path="/community/:communityID"
               render={(props) => (
                 <AuthenticatedPage
-                  // component={<Community />} //NEW COMMUNITY UI
-                  component={<CommunityBody {...props} />} //OLD COMMUNITY
-                  rightElement={<FollowSidebar />} //OLD COMMUNITY
+                  component={<Community />} //NEW COMMUNITY UI
+                  // component={<CommunityBody {...props} />} //OLD COMMUNITY
+                  // rightElement={<FollowSidebar />} //OLD COMMUNITY
                 />
               )}
             />

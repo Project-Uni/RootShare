@@ -7,7 +7,7 @@ type Theme = {
   secondary: string;
   accent: string;
   background: string;
-  primaryHover: string,
+  primaryHover: string;
   primaryText: string;
   secondaryText: string;
   error: string;
@@ -48,7 +48,6 @@ const theme: { default: Theme; dark: Theme } = {
     primaryText: 'black',
     secondaryText: '#545454',
     disabledButton: 'lightgray',
-
   },
   dark: {
     white: '',
@@ -78,6 +77,16 @@ export function addAlpha(hex: string, alpha: number) {
   if (alphaHex.length === 1) alphaHex = '0'.concat(alphaHex);
 
   return hex.concat(alphaHex);
+}
+
+export function addShadow(
+  xOffset: number,
+  yOffset: number,
+  blurRadius: number,
+  color: string,
+  opacity: number
+) {
+  return `${xOffset}px ${yOffset}px ${blurRadius}px ${addAlpha(color, opacity)}`;
 }
 
 export default theme[currentTheme];

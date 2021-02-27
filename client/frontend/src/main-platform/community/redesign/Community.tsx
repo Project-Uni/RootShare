@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, useParams } from 'react-router-dom';
+
+import { dispatchSnackbar } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { getCommunities } from '../../../api';
+
 import { CommunityHead } from './CommunityHead';
 import { RSText } from '../../../base-components';
 import { CommunityAbout } from './CommunityAbout';
+
+import { getCommunities } from '../../../api';
+import { Community as CommunityFields } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {};
 
-export type CommunityTab = 'About' | 'Feed'; //For now, feed is just external
+export type CommunityTab = 'About' | 'Feed'; // For now, feed is just external
 
 const Community = (props: Props) => {
   const styles = useStyles();
@@ -24,23 +29,52 @@ const Community = (props: Props) => {
     //Necessary state variables
   }));
 
-  const [info, setInfo] = useState<any>(); //Community details as a dictionary
+  const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState<CommunityTab>('About');
 
   useEffect(() => {
     fetchCommunityInfo().then((data) => {
-      setInfo(data);
       setLoading(false);
     });
   }, []);
 
+  useEffect(() => {
+    console.log(info);
+  }, [info]);
+
   const fetchCommunityInfo = useCallback(async () => {
     const data = await getCommunities([communityID], {
-      fields: [],
-      options: {},
+      fields: [
+        'admin',
+        'name',
+        'members',
+        'externalPosts',
+        'description',
+        'private',
+        'type',
+        'profilePicture',
+        // 'bannerPicture',
+      ],
+      options: {
+        getProfilePicture: true,
+        getBannerPicture: true,
+        getRelationship: true,
+        limit: 1,
+        includeDefaultFields: true,
+      },
     });
-    return data;
+
+    if (data.success === 1)
+      return setInfo(data.content.communities[0] as CommunityFields);
+
+    dispatch(
+      dispatchSnackbar({
+        message: 'There was an error retrieving this community',
+        mode: 'error',
+      })
+    );
+    return {};
   }, [communityID, getCommunities]);
 
   const getTabContent = React.useCallback(() => {
@@ -56,16 +90,10 @@ const Community = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
-      <CommunityHead
-        style={{ marginTop: 20 }}
-        communityID={communityID}
-        tab={currentTab}
-        onTabChange={setCurrentTab}
-        profilePicture={undefined}
-        banner={undefined}
-      />
+      <CommunityHead style={{ marginTop: 20 }} communityInfo={info} />
       {getTabContent()}
     </div>
   );
 };
+
 export default Community;

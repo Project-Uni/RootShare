@@ -17,6 +17,7 @@ export type Community = {
   numMembers?: number;
   numMutual?: number;
   profilePicture?: string;
+  bannerPicture?: string;
   status: UserToCommunityRelationship;
   isMTGFlag?: boolean; //For Meet the Greeks
 };

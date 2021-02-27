@@ -1,11 +1,14 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
-import Theme from '../../../theme/Theme';
+
+import Theme, { addShadow } from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    margin: 10,
     background: Theme.white,
+    boxShadow: addShadow(0, 0, 10, '#444444', 0.4),
   },
 }));
 
@@ -25,7 +28,7 @@ export const RSCard = (props: Props) => {
       className={[styles.wrapper, className].join(' ')}
       style={{ ...style }}
       borderRadius={variant === 'primary' ? 40 : 30}
-      boxShadow={2}
+      // boxShadow={2}
     >
       {children}
     </Box>

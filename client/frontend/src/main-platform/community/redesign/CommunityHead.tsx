@@ -1,17 +1,43 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
 import { RSCard } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
-import { ProfilePicture } from '../../../base-components';
-import Theme from '../../../theme/Theme';
+import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
+
+import Theme, { addShadow } from '../../../theme/Theme';
+import { Community } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
+    marginBottom: 50,
     paddingBottom: 30,
+    height: 400,
+  },
+  horizontalDiv: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingLeft: 50,
+    paddingRight: 50,
+  },
+  center: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderStyle: 'solid',
+  },
+  right: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   profilePicture: {
-    border: `7px solid ${Theme.white}`,
+    border: `0px solid ${Theme.white}`,
+    boxShadow: addShadow(0, 0, 12, '#444444', 0.4),
   },
   profilePictureContainer: {
     marginTop: -82,
@@ -20,60 +46,66 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  communityID: string;
   style?: React.CSSProperties;
   className?: string;
-  profilePicture?: string;
-  banner?: string;
-  tab: CommunityTab;
-  onTabChange: (newTab: CommunityTab) => void;
+  communityInfo: Community;
 };
 
 export const CommunityHead = (props: Props) => {
   const styles = useStyles();
+  const { style, className, communityInfo } = props;
+
   const {
-    style,
-    className,
-    communityID,
+    _id: communityID,
+    name,
+    description,
+    private: isPrivate,
+    type,
+    numMembers,
+    numMutual,
     profilePicture,
-    banner,
-    tab,
-    onTabChange,
-  } = props;
+    bannerPicture,
+    status,
+  } = communityInfo;
+
+  const renderCenter = () => {
+    return (
+      <div className={styles.center}>
+        <RSText>{}</RSText>
+      </div>
+    );
+  };
+
+  const renderRight = () => {
+    return <div className={styles.right}>buttons</div>;
+  };
 
   return (
     <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
-      <ProfileBanner
+      {/* <ProfileBanner
         height={225}
         editable={false}
         type={'community'}
         borderRadius={40}
-        _id={communityID}
-        currentPicture={banner}
+        _id={communityInfo._id}
+        currentPicture={communityInfo.bannerPicture}
       />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingLeft: 50,
-          paddingRight: 50,
-        }}
-      >
+      <div className={styles.horizontalDiv}>
         <ProfilePicture
           editable={false}
           type="community"
-          height={150}
-          width={150}
+          height={170}
+          width={170}
           pictureStyle={styles.profilePicture}
           className={styles.profilePictureContainer}
           borderRadius={100}
-          _id={communityID}
-          currentPicture={profilePicture}
+          borderWidth={0}
+          _id={communityInfo._id}
+          currentPicture={communityInfo.profilePicture}
         />
-        <span>Title desc and tabs</span>
-        <span>buttons</span>
-      </div>
+        {renderCenter()}
+        {renderRight()}
+      </div> */}
     </RSCard>
   );
 };

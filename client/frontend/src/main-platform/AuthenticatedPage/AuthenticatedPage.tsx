@@ -26,7 +26,7 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 1300,
+    maxWidth: 1400,
     flex: 1,
   },
   bodyContainer: {

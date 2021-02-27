@@ -1,7 +1,7 @@
 import { makeRequest } from '../../helpers/functions';
 import { stringify } from 'qs';
 
-export const getCommunities = async <T = { [k: string]: unknown }>(
+export const getCommunities = async <T = { [k: string]: any }>(
   _ids: string[],
   params: {
     fields?: string[];

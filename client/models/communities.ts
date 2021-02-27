@@ -310,9 +310,11 @@ export class CommunityC {
       ...CommunityC.DefaultOptions,
       ...(optionsParam || {}),
     };
-    const fields = (fieldsParam || []).filter((field) =>
-      CommunityC.AcceptedFields.includes(field)
-    );
+
+    const fields = (fieldsParam || []).filter((field) => {
+      CommunityC.AcceptedFields.includes(field);
+    });
+
     if (options.includeDefaultFields) {
       fields.push(
         ...[...CommunityC.DefaultFields].filter((field) => fields.includes(field))
