@@ -256,7 +256,6 @@ export class AuthService {
     const validated = await PhoneVerification.validate({ email, code });
     if (!validated) return { status: 400, packet: sendPacket(-1, 'Invalid code') };
 
-    //Update user DB
     return { status: 200, packet: sendPacket(1, 'Successfully verified account') };
   };
 
@@ -283,47 +282,6 @@ export class AuthService {
     };
   };
 
-  private static isValidEmail = (email: string) => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  };
-
-  private static isValidPassword = (password: string) => {
-    return password.length >= 8 && password !== 'password';
-  };
-
-  private static isValidPhoneNumber = (phoneNumber: string) => {
-    return /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
-  };
-
-  private static isValidState = (state: string) => {
-    return StateCodeKeys.some((stateCode) => stateCode === state);
-  };
-
-  private static isValidUniversity = async (universityID: string) => {
-    return await University.exists({ _id: universityID });
-  };
-
-  private static isValidGraduationYear = async ({
-    accountType,
-    graduationYear,
-  }: {
-    accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
-    graduationYear: number;
-  }) => {
-    const currentYear = new Date().getFullYear();
-    switch (accountType) {
-      case 'student':
-        return graduationYear >= currentYear && graduationYear <= currentYear + 6;
-      case 'alumni':
-      case 'faculty':
-      case 'recruiter':
-        return graduationYear <= currentYear && graduationYear >= 1930;
-      default:
-        return false;
-    }
-  };
-
   private static validateFields = ({
     email,
     password,
@@ -346,9 +304,10 @@ export class AuthService {
     university?: string;
   }) => {
     let errors = [];
-    if (email && !AuthService.isValidEmail(email)) errors.push('email');
-    if (password && !AuthService.isValidPassword(password)) errors.push('password');
-    if (phoneNumber && !AuthService.isValidPhoneNumber(phoneNumber))
+    if (email && !AuthService.validators.isValidEmail(email)) errors.push('email');
+    if (password && !AuthService.validators.isValidPassword(password))
+      errors.push('password');
+    if (phoneNumber && !AuthService.validators.isValidPhoneNumber(phoneNumber))
       errors.push('phoneNumber');
     if (
       accountType &&
@@ -360,14 +319,54 @@ export class AuthService {
       errors.push('accountType');
     if (
       graduationYear &&
-      !AuthService.isValidGraduationYear({ accountType, graduationYear })
+      !AuthService.validators.isValidGraduationYear({ accountType, graduationYear })
     )
       errors.push('graduationYear');
     if (firstName && firstName.trim().length === 0) errors.push('firstName');
     if (lastName && lastName.trim().length === 0) errors.push('lastName');
-    if (state && !AuthService.isValidState(state)) errors.push('state');
-    if (university && !AuthService.isValidUniversity(university))
+    if (state && !AuthService.validators.isValidState(state)) errors.push('state');
+    if (university && !AuthService.validators.isValidUniversity(university))
       errors.push('university');
     return errors;
+  };
+
+  private static validators = {
+    isValidEmail: (email: string) => {
+      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    },
+    isValidPassword: (password: string) => {
+      return password.length >= 8 && password !== 'password';
+    },
+    isValidPhoneNumber: (phoneNumber: string) => {
+      return /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
+    },
+    isValidState: (state: string) => {
+      return StateCodeKeys.some((stateCode) => stateCode === state);
+    },
+
+    isValidUniversity: async (universityID: string) => {
+      return await University.exists({ _id: universityID });
+    },
+
+    isValidGraduationYear: async ({
+      accountType,
+      graduationYear,
+    }: {
+      accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
+      graduationYear: number;
+    }) => {
+      const currentYear = new Date().getFullYear();
+      switch (accountType) {
+        case 'student':
+          return graduationYear >= currentYear && graduationYear <= currentYear + 6;
+        case 'alumni':
+        case 'faculty':
+        case 'recruiter':
+          return graduationYear <= currentYear && graduationYear >= 1930;
+        default:
+          return false;
+      }
+    },
   };
 }
