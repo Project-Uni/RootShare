@@ -204,7 +204,7 @@ export class AuthService {
 
     try {
       const newUser = await new User({
-        email: email.toLowerCase(),
+        email: email.toLowerCase().trim(),
         phoneNumber,
         hashedPassword: hashPassword(decryptedPassword),
         firstName: firstName.trim(),
