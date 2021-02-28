@@ -45,7 +45,7 @@ const defaultFormData = {
   company: '',
   jobTitle: '',
   major: '',
-  graduationYear: 2021,
+  graduationYear: new Date().getFullYear(),
   university: '',
   state: '',
 };
@@ -260,8 +260,8 @@ export const AccountInitializationForm = (props: Props) => {
       <RSSelect
         label="STATE"
         options={States.map((state) => ({
-          label: state.State,
-          value: state.Code,
+          label: state.state,
+          value: state.code,
         }))}
         fullWidth
         value={formFields.state}
@@ -338,7 +338,11 @@ const validateForm = (
     });
   }
 
-  if (!graduationYear || graduationYear < 1900 || graduationYear > 2026) {
+  if (
+    !graduationYear ||
+    graduationYear < 1930 ||
+    graduationYear > new Date().getFullYear() + 5
+  ) {
     hasErr = true;
     errUpdates.push({
       key: 'graduationYear',

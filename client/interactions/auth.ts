@@ -65,7 +65,8 @@ export class AuthService {
     password: string;
     phoneNumber: string;
   }) => {
-    if (AuthService.validateFields({ email, password, phoneNumber }))
+    const errors = AuthService.validateFields({ email, password, phoneNumber });
+    if (errors.length > 0)
       return { status: 400, packet: sendPacket(-1, 'Inputs are invalid') };
 
     try {
@@ -178,19 +179,22 @@ export class AuthService {
       return { status: 400, packet: sendPacket(-1, 'Failed to decrypt password') };
     }
 
-    if (
-      AuthService.validateFields({
-        email,
-        password: decryptedPassword,
-        phoneNumber,
-        firstName,
-        lastName,
-        accountType,
-        state,
-        university,
-      })
-    )
-      return { status: 400, packet: sendPacket(0, 'Invalid input fields') };
+    const errors = AuthService.validateFields({
+      email,
+      password: decryptedPassword,
+      phoneNumber,
+      firstName,
+      lastName,
+      accountType,
+      graduationYear,
+      state,
+      university,
+    });
+    if (errors.length > 0)
+      return {
+        status: 400,
+        packet: sendPacket(0, 'Invalid input fields', { errors }),
+      };
 
     if (!(await PhoneVerification.isValidated({ email, phoneNumber })))
       return {
@@ -289,7 +293,7 @@ export class AuthService {
   };
 
   private static isValidPhoneNumber = (phoneNumber: string) => {
-    return !/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
+    return /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
   };
 
   private static isValidState = (state: string) => {
@@ -300,11 +304,32 @@ export class AuthService {
     return await University.exists({ _id: universityID });
   };
 
+  private static isValidGraduationYear = async ({
+    accountType,
+    graduationYear,
+  }: {
+    accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
+    graduationYear: number;
+  }) => {
+    const currentYear = new Date().getFullYear();
+    switch (accountType) {
+      case 'student':
+        return graduationYear >= currentYear;
+      case 'alumni':
+      case 'faculty':
+      case 'recruiter':
+        return graduationYear <= currentYear;
+      default:
+        return false;
+    }
+  };
+
   private static validateFields = ({
     email,
     password,
     phoneNumber,
     accountType,
+    graduationYear,
     firstName,
     lastName,
     state,
@@ -314,15 +339,17 @@ export class AuthService {
     password?: string;
     phoneNumber?: string;
     accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
+    graduationYear?: number;
     firstName?: string;
     lastName?: string;
     state?: string;
     university?: string;
   }) => {
-    let isValid = true;
-    if (email && !AuthService.isValidEmail(email)) isValid = false;
-    if (password && !AuthService.isValidPassword(password)) isValid = false;
-    if (phoneNumber && !AuthService.isValidPhoneNumber(phoneNumber)) isValid = false;
+    let errors = [];
+    if (email && !AuthService.isValidEmail(email)) errors.push('email');
+    if (password && !AuthService.isValidPassword(password)) errors.push('password');
+    if (phoneNumber && !AuthService.isValidPhoneNumber(phoneNumber))
+      errors.push('phoneNumber');
     if (
       accountType &&
       accountType !== 'student' &&
@@ -330,11 +357,17 @@ export class AuthService {
       accountType !== 'faculty' &&
       accountType !== 'recruiter'
     )
-      isValid = false;
-    if (firstName && firstName.trim().length === 0) isValid = false;
-    if (lastName && lastName.trim().length === 0) isValid = false;
-    if (state && !AuthService.isValidState(state)) isValid = false;
-    if (university && !AuthService.isValidUniversity(university)) isValid = false;
-    return isValid;
+      errors.push('accountType');
+    if (
+      graduationYear &&
+      !AuthService.isValidGraduationYear({ accountType, graduationYear })
+    )
+      errors.push('graduationYear');
+    if (firstName && firstName.trim().length === 0) errors.push('firstName');
+    if (lastName && lastName.trim().length === 0) errors.push('lastName');
+    if (state && !AuthService.isValidState(state)) errors.push('state');
+    if (university && !AuthService.isValidUniversity(university))
+      errors.push('university');
+    return errors;
   };
 }
