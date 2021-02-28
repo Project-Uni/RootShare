@@ -338,11 +338,7 @@ const validateForm = (
     });
   }
 
-  if (
-    !graduationYear ||
-    graduationYear < 1930 ||
-    graduationYear > new Date().getFullYear() + 5
-  ) {
+  if (!graduationYear || !validateGraduationYear({ accountType, graduationYear })) {
     hasErr = true;
     errUpdates.push({
       key: 'graduationYear',
@@ -420,4 +416,24 @@ const validateForm = (
     });
   }
   return { hasErr, errUpdates };
+};
+
+const validateGraduationYear = ({
+  accountType,
+  graduationYear,
+}: {
+  accountType?: AccountType;
+  graduationYear: number;
+}) => {
+  const currentYear = new Date().getFullYear();
+  switch (accountType) {
+    case 'student':
+      return graduationYear >= currentYear && graduationYear <= currentYear + 5;
+    case 'alumni':
+    case 'faculty':
+    case 'recruiter':
+      return graduationYear <= currentYear && graduationYear >= 1930;
+    default:
+      return false;
+  }
 };

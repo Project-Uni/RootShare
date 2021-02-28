@@ -314,11 +314,11 @@ export class AuthService {
     const currentYear = new Date().getFullYear();
     switch (accountType) {
       case 'student':
-        return graduationYear >= currentYear;
+        return graduationYear >= currentYear && graduationYear <= currentYear + 5;
       case 'alumni':
       case 'faculty':
       case 'recruiter':
-        return graduationYear <= currentYear;
+        return graduationYear <= currentYear && graduationYear >= 1930;
       default:
         return false;
     }
