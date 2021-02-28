@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
  */
 export class Encryption {
   static algorithm = 'aes-256-ctr';
-  static secret = 'WoopidyScoopScoopeDeeWoopDeePoop';
+  static secret = 'WoopidyScoopScoopeDeeWoopDeePoop'; //Secret key must be exactly 32 chars long
   initializationVector: Buffer; //Randomly generated string used to increase protection of the encryption. IV must be present to decrypt a string
 
   constructor() {
