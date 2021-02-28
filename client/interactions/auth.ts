@@ -3,7 +3,7 @@ import { PhoneVerification, University, User } from '../models';
 import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
 import { getUsersByIDs } from '../models/users';
 import { log } from '../helpers/functions/logger';
-import { StateCodeKeys } from '../helpers/constants/states';
+import { StateCodeKeys, EmailRegex } from '../helpers/constants';
 import { Encryption } from '../helpers/modules';
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
@@ -331,24 +331,15 @@ export class AuthService {
   };
 
   private static validators = {
-    isValidEmail: (email: string) => {
-      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return re.test(email);
-    },
-    isValidPassword: (password: string) => {
-      return password.length >= 8 && password !== 'password';
-    },
-    isValidPhoneNumber: (phoneNumber: string) => {
-      return /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
-    },
-    isValidState: (state: string) => {
-      return StateCodeKeys.some((stateCode) => stateCode === state);
-    },
-
-    isValidUniversity: async (universityID: string) => {
-      return await University.exists({ _id: universityID });
-    },
-
+    isValidEmail: (email: string) => EmailRegex.test(email),
+    isValidPassword: (password: string) =>
+      password.length >= 8 && password !== 'password',
+    isValidPhoneNumber: (phoneNumber: string) =>
+      /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10,
+    isValidState: (state: string) =>
+      StateCodeKeys.some((stateCode) => stateCode === state),
+    isValidUniversity: async (universityID: string) =>
+      await University.exists({ _id: universityID }),
     isValidGraduationYear: async ({
       accountType,
       graduationYear,
