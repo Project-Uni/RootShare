@@ -31,6 +31,7 @@ type Props = {
   italic?: boolean;
   size?: number;
   className?: string;
+  style?: React.CSSProperties;
   color?: string;
   hoverColor?: string;
   children?: React.ReactNode;
@@ -46,6 +47,7 @@ function RSText(props: Props) {
     italic,
     size,
     className,
+    style: styleProps,
     color,
     hoverColor,
     children,
@@ -53,6 +55,7 @@ function RSText(props: Props) {
   } = props;
 
   const [style, setStyle] = useState({
+    ...styleProps,
     fontSize: `${size}pt`,
     color,
   });

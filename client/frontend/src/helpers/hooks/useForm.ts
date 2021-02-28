@@ -17,7 +17,7 @@ export default function useForm<T>(initialValues: T) {
   const [formErrors, setFormErrors] = useState(initialErrors.current);
 
   //Changes a single value from a standard input
-  const handleChange = (key: keyof T) => (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (key: keyof T) => (e: ChangeEvent<{ value: unknown }>) => {
     const value = e.target.value;
     setFormFields((prev: T) => ({ ...prev, [key]: value }));
   };

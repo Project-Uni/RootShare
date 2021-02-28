@@ -6,6 +6,9 @@ import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { SignupForm } from './registration/SignupForm';
+import { VerifyPhone } from './verification/VerifyPhone';
+import { AccountInitializationForm } from './initialization/AccountInitializationForm';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -40,7 +43,7 @@ const useStyles = makeStyles((_: any) => ({
 const MIN_WIDTH = 915;
 
 type Props = {
-  mode: 'register' | 'login' | 'additional';
+  mode: 'register' | 'login' | 'additional' | 'verify';
 };
 
 const LandingPage = (props: Props) => {
@@ -74,7 +77,13 @@ const LandingPage = (props: Props) => {
   const getLeftComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Left Component</p>;
+        return (
+          <div>
+            <RSText color={Theme.altText} size={40}>
+              Sign Up
+            </RSText>
+          </div>
+        );
       case 'login':
         return <p>Login Left Component</p>;
       case 'additional':
@@ -86,11 +95,13 @@ const LandingPage = (props: Props) => {
   const getRightComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Form and Buttons</p>;
+        return <SignupForm />;
+      case 'verify':
+        return <VerifyPhone />;
       case 'login':
         return <p>Login Form and Buttons</p>;
       case 'additional':
-        return <p>Additional Info Form and Buttons</p>;
+        return <AccountInitializationForm />;
     }
   }, [mode]);
 
@@ -124,7 +135,7 @@ const LandingPage = (props: Props) => {
         >
           {/* TODO - Fix styling to match wireframe */}
           {isMobile && (
-            <RSText color={Theme.white} size={20}>
+            <RSText color={Theme.white} size={32}>
               Sign Up
             </RSText>
           )}
