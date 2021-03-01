@@ -17,13 +17,13 @@ export const RSPhoneMask = (props: Props) => {
   const handleChange = (e: React.ChangeEvent<{ value: string }>) => {
     const { value } = e.target;
     const { length } = value;
-    if (length === addParensLen && /^\d+$/.test(value.charAt(length - 1))) {
+
+    if (length === addParensLen && isDigit(value.charAt(length - 1)))
       setChildValue((prev) => `(${prev}) ${value.charAt(length - 1)}`);
-    } else if (length === addDashLen && /^\d+$/.test(value.charAt(length - 1))) {
+    else if (length === addDashLen && isDigit(value.charAt(length - 1)))
       setChildValue((prev) => `${prev}-${value.charAt(length - 1)}`);
-    } else {
-      setChildValue(value);
-    }
+    else setChildValue(value);
+
     onChange({
       target: { value: e.target.value.replace(/\D/g, '') },
     } as React.ChangeEvent<{ value: unknown }>);
@@ -36,3 +36,5 @@ export const RSPhoneMask = (props: Props) => {
 
   return childClone;
 };
+
+const isDigit = (str: string) => /^\d+$/.test(str);
