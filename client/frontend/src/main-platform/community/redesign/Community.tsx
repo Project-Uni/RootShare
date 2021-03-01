@@ -17,7 +17,7 @@ const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {};
 
-export type CommunityTab = 'About' | 'Feed'; // For now, feed is just external
+export type CommunityTab = 'about' | 'feed'; // For now, feed is just external
 
 const Community = (props: Props) => {
   const styles = useStyles();
@@ -31,17 +31,13 @@ const Community = (props: Props) => {
 
   const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
   const [loading, setLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('About');
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
 
   useEffect(() => {
     fetchCommunityInfo().then((data) => {
       setLoading(false);
     });
   }, []);
-
-  useEffect(() => {
-    console.log(info);
-  }, [info]);
 
   const fetchCommunityInfo = useCallback(async () => {
     const data = await getCommunities([communityID], {
@@ -51,6 +47,7 @@ const Community = (props: Props) => {
         'members',
         'externalPosts',
         'description',
+        'members',
         'private',
         'type',
         'profilePicture',
@@ -79,9 +76,9 @@ const Community = (props: Props) => {
 
   const getTabContent = React.useCallback(() => {
     switch (currentTab) {
-      case 'About':
+      case 'about':
         return <CommunityAbout admin={'12345'} />;
-      case 'Feed':
+      case 'feed':
         return <p>Feed</p>;
       default:
         return <RSText>An Error Occured</RSText>;
@@ -90,7 +87,12 @@ const Community = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
-      <CommunityHead style={{ marginTop: 20 }} communityInfo={info} />
+      <CommunityHead
+        style={{ marginTop: 20 }}
+        communityInfo={info}
+        currentTab={currentTab}
+        handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
+      />
       {getTabContent()}
     </div>
   );

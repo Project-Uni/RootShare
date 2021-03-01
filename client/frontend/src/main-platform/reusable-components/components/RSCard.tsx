@@ -7,7 +7,7 @@ import Theme, { addShadow } from '../../../theme/Theme';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     margin: 10,
-    background: Theme.white,
+    background: Theme.foreground,
     boxShadow: addShadow(0, 0, 10, '#444444', 0.4),
   },
 }));

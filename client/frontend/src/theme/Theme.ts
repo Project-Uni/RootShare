@@ -7,6 +7,7 @@ type Theme = {
   secondary: string;
   accent: string;
   background: string;
+  foreground: string;
   primaryHover: string;
   primaryText: string;
   secondaryText: string;
@@ -17,7 +18,7 @@ type Theme = {
   altText: string;
   disabledButton: string;
   buttonHighlight: string;
-  universityAccent: string;
+  universityAccent: { [key: string]: string };
 };
 
 const theme: { default: Theme; dark: Theme } = {
@@ -26,7 +27,7 @@ const theme: { default: Theme; dark: Theme } = {
     dark: 'black',
     //primary: '#1D2445',
     secondary: '',
-    //background: 'rgb(227, 227, 227)',
+    // background: 'rgb(227, 227, 227)',
     //primaryText: 'black',
     //secondaryText: '#545454',
     error: '#900C1C',
@@ -34,7 +35,9 @@ const theme: { default: Theme; dark: Theme } = {
     //bright: '#6699FF',
     //altText: '#F8F8FF',
     buttonHighlight: '#3C4469',
-    universityAccent: '#CEB888',
+    universityAccent: {
+      '5eb89c308cc6636630c1311f': '#CEB888',
+    },
 
     // UPDATED COLORS
     white: '#FFFFFF',
@@ -42,10 +45,11 @@ const theme: { default: Theme; dark: Theme } = {
     primaryHover: '#C4C4C4',
     accent: '#FFF9E1',
     background: '#E3E3E3',
+    foreground: '#FBFBFB',
     bright: '#61C87F',
     brightHover: '#7BD294',
     altText: '#FFFFFF',
-    primaryText: 'black',
+    primaryText: '#000000',
     secondaryText: '#545454',
     disabledButton: 'lightgray',
   },
@@ -57,6 +61,7 @@ const theme: { default: Theme; dark: Theme } = {
     secondary: '',
     accent: '',
     background: '',
+    foreground: '',
     primaryText: '',
     secondaryText: '',
     error: '',
@@ -66,7 +71,7 @@ const theme: { default: Theme; dark: Theme } = {
     altText: '',
     disabledButton: '',
     buttonHighlight: '',
-    universityAccent: '',
+    universityAccent: {},
   },
 };
 

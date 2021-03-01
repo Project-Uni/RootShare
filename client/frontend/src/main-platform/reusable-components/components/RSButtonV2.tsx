@@ -1,11 +1,15 @@
 import React, { useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
+
 import theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
-    color: theme.altText,
+    color: theme.primaryText,
+  },
+  noCaps: {
+    textTransform: 'none',
   },
   primary: {
     background: theme.bright,
@@ -25,6 +29,15 @@ const useStyles = makeStyles((_: any) => ({
       background: theme.primaryHover,
     },
   },
+  universitySecondary: {
+    background: theme.foreground,
+    borderColor: theme.universityAccent['5eb89c308cc6636630c1311f'],
+    borderStyle: 'solid',
+    borderWidth: 1,
+    '&:hover': {
+      background: theme.primaryHover,
+    },
+  },
   disabled: {
     background: theme.disabledButton,
   },
@@ -33,16 +46,32 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   children?: React.ReactNode;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'university';
+  variant?: 'primary' | 'secondary' | 'university' | 'universitySecondary';
+  noCaps?: boolean;
+  fontSize: number;
+  borderRadius: number;
+  style: React.CSSProperties;
   className?: string;
-  style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
-const RSButton = (props: Props) => {
+const RSButtonV2 = (props: Props) => {
   const styles = useStyles();
 
-  const { children, disabled, variant, className, style, onClick } = props;
+  const {
+    children,
+    disabled,
+    variant,
+    noCaps,
+    fontSize,
+    borderRadius,
+    className,
+    onClick,
+  } = props;
+  let { style } = props;
+  style = { ...style, fontSize, borderRadius };
+
+  console.log(children);
 
   const getCoreStyle = useCallback(() => {
     switch (variant) {
@@ -50,6 +79,8 @@ const RSButton = (props: Props) => {
         return styles.secondary;
       case 'university':
         return styles.university;
+      case 'universitySecondary':
+        return styles.universitySecondary;
       case 'primary':
       default:
         return styles.primary;
@@ -64,6 +95,7 @@ const RSButton = (props: Props) => {
         className,
         styles.base,
         disabled ? styles.disabled : coreStyle.current,
+        noCaps && styles.noCaps,
       ].join(' ')}
       disabled={disabled}
       onClick={onClick}
@@ -74,8 +106,11 @@ const RSButton = (props: Props) => {
   );
 };
 
-RSButton.defaultProps = {
+RSButtonV2.defaultProps = {
   variant: 'primary',
+  fontSize: 12,
+  borderRadius: 12,
+  style: {},
 };
 
-export default RSButton;
+export default RSButtonV2;

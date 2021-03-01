@@ -311,9 +311,9 @@ export class CommunityC {
       ...(optionsParam || {}),
     };
 
-    const fields = (fieldsParam || []).filter((field) => {
-      CommunityC.AcceptedFields.includes(field);
-    });
+    const fields = (fieldsParam || []).filter((field) =>
+      CommunityC.AcceptedFields.includes(field)
+    );
 
     if (options.includeDefaultFields) {
       fields.push(

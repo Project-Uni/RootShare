@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { useHistory } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+import {
+  updateRefreshToken,
+  updateAccessToken,
+  updateUser,
+} from '../../redux/actions';
+import { makeRequest } from '../../helpers/functions';
+
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
-import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
 import { AccountInitializationForm } from './initialization/AccountInitializationForm';
@@ -50,6 +58,8 @@ const LandingPage = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
 
+  const dispatch = useDispatch();
+
   const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
   const { mode } = props;
@@ -67,6 +77,30 @@ const LandingPage = (props: Props) => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    temp();
+  });
+
+  async function temp() {
+    const { data } = await makeRequest('POST', '/api/v2/auth/login', {
+      email: 'smitdesai422@gmail.com',
+      password: 'password2',
+    });
+    const {
+      user,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    } = data['content'];
+    dispatch(
+      updateUser({
+        ...user,
+      })
+    );
+    dispatch(updateAccessToken(newAccessToken));
+    dispatch(updateRefreshToken(newRefreshToken));
+    history.push('/home');
+  }
 
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
