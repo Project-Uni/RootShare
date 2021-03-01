@@ -335,7 +335,7 @@ export class AuthService {
     isValidPassword: (password: string) =>
       password.length >= 8 && password !== 'password',
     isValidPhoneNumber: (phoneNumber: string) =>
-      /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10,
+      /^\d+$/.test(phoneNumber) && phoneNumber.length === 10,
     isValidState: (state: string) =>
       StateCodeKeys.some((stateCode) => stateCode === state),
     isValidUniversity: async (universityID: string) =>
