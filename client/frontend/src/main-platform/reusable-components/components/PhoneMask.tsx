@@ -9,7 +9,7 @@ type Props = {
 const addParensLen = '9999'.length;
 const addDashLen = '(999) 9999'.length;
 
-export const RSPhoneMask = (props: Props) => {
+export const PhoneMask = (props: Props) => {
   const { value, onChange, children } = props;
 
   const [childValue, setChildValue] = useState(value);

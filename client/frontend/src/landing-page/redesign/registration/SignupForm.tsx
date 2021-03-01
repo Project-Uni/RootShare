@@ -5,7 +5,7 @@ import {
   RSButton,
   RSCheckbox,
   RSLink,
-  RSPhoneMask,
+  PhoneMask,
   RSTextField,
 } from '../../../main-platform/reusable-components';
 import { CircularProgress } from '@material-ui/core';
@@ -120,7 +120,7 @@ export const SignupForm = (props: Props) => {
         error={formErrors.email !== ''}
         helperText={formErrors.email}
       />
-      <RSPhoneMask
+      <PhoneMask
         value={formFields.phoneNumber}
         onChange={handleChange('phoneNumber')}
       >
@@ -132,7 +132,7 @@ export const SignupForm = (props: Props) => {
           error={formErrors.phoneNumber !== ''}
           helperText={formErrors.phoneNumber}
         />
-      </RSPhoneMask>
+      </PhoneMask>
       <RSTextField
         label="PASSWORD"
         type="password"
