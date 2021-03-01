@@ -5,6 +5,7 @@ import {
   RSButton,
   RSCheckbox,
   RSLink,
+  RSPhoneMask,
   RSTextField,
 } from '../../../main-platform/reusable-components';
 import { CircularProgress } from '@material-ui/core';
@@ -119,16 +120,19 @@ export const SignupForm = (props: Props) => {
         error={formErrors.email !== ''}
         helperText={formErrors.email}
       />
-      <RSTextField
-        label="PHONE NUMBER"
-        fullWidth
-        className={styles.textfield}
-        autoComplete="tel-national"
+      <RSPhoneMask
         value={formFields.phoneNumber}
         onChange={handleChange('phoneNumber')}
-        error={formErrors.phoneNumber !== ''}
-        helperText={formErrors.phoneNumber}
-      />
+      >
+        <RSTextField
+          label="PHONE NUMBER"
+          fullWidth
+          className={styles.textfield}
+          autoComplete="tel-national"
+          error={formErrors.phoneNumber !== ''}
+          helperText={formErrors.phoneNumber}
+        />
+      </RSPhoneMask>
       <RSTextField
         label="PASSWORD"
         type="password"
