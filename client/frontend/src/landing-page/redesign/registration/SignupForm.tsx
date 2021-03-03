@@ -118,6 +118,7 @@ export const SignupForm = (props: Props) => {
         onChange={handleChange('email')}
         error={formErrors.email !== ''}
         helperText={formErrors.email}
+        fontSize={18}
       />
       <RSTextField
         label="PHONE NUMBER"
@@ -128,6 +129,7 @@ export const SignupForm = (props: Props) => {
         onChange={handleChange('phoneNumber')}
         error={formErrors.phoneNumber !== ''}
         helperText={formErrors.phoneNumber}
+        fontSize={18}
       />
       <RSTextField
         label="PASSWORD"
@@ -139,6 +141,7 @@ export const SignupForm = (props: Props) => {
         onChange={handleChange('password')}
         error={formErrors.password !== ''}
         helperText={formErrors.password}
+        fontSize={18}
       />
       <RSTextField
         label="REPEAT PASSWORD"
@@ -150,6 +153,7 @@ export const SignupForm = (props: Props) => {
         onChange={handleChange('confirmPassword')}
         error={formErrors.confirmPassword !== ''}
         helperText={formErrors.confirmPassword}
+        fontSize={18}
       />
       <div
         style={{
