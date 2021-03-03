@@ -32,12 +32,17 @@ export const UserPost = (props: Props) => {
   const { className, style } = props;
 
   const user = useSelector((state: RootshareReduxState) => state.user);
+
   const [showCommentField, setShowCommentField] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   const handleSproutClick = () => {};
 
-  const handleCommentClick = () => {
+  const handleCommentIconClick = () => {
     setShowCommentField((prev) => !prev);
+  };
+  const handleCommentTextClick = () => {
+    setShowComments((prev) => !prev);
   };
 
   return (
@@ -51,7 +56,7 @@ export const UserPost = (props: Props) => {
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           marginLeft: 30,
           marginRight: 30,
         }}
@@ -65,7 +70,11 @@ export const UserPost = (props: Props) => {
         >
           <Avatar src={undefined} style={{ height: 70, width: 70 }} />
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
-            <RSText bold>Dhruv Bhargava</RSText>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <RSText bold>Dhruv Bhargava</RSText>
+              <FaLeaf size={20} style={{ marginLeft: 15, marginRight: 15 }} />
+              <RSText bold>RootShare Developers</RSText>
+            </div>
             <RSText size={10} color={Theme.secondaryText}>
               Cybersecurity 2020 | Analyst @ Crowe
             </RSText>
@@ -125,6 +134,7 @@ export const UserPost = (props: Props) => {
           color={Theme.secondaryText}
           className={styles.likes}
           style={{ marginLeft: 15 }}
+          onClick={handleCommentTextClick}
         >
           15 Comments
         </RSText>
@@ -154,7 +164,7 @@ export const UserPost = (props: Props) => {
             </RSText>
           </div>
         </DynamicIconButton>
-        <DynamicIconButton onClick={handleCommentClick}>
+        <DynamicIconButton onClick={handleCommentIconClick}>
           <div
             style={{
               display: 'flex',
@@ -189,10 +199,14 @@ export const UserPost = (props: Props) => {
         <></>
       )}
 
-      <div id="comments">
-        <Comment />
-        <Comment style={{ marginTop: 10 }} />
-      </div>
+      {showComments ? (
+        <div id="comments">
+          <Comment />
+          <Comment style={{ marginTop: 10 }} />
+        </div>
+      ) : (
+        <></>
+      )}
       <RSText
         className={styles.likes}
         size={13}
