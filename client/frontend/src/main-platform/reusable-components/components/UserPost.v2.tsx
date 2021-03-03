@@ -9,6 +9,7 @@ import { DynamicIconButton, RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import mtgBanner from '../../../images/mtgBanner.png';
 import { RSTextField } from './RSTextField';
+import { MdSend } from 'react-icons/md';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -36,7 +37,7 @@ export const UserPost = (props: Props) => {
   const handleSproutClick = () => {};
 
   const handleCommentClick = () => {
-    setShowCommentField(true);
+    setShowCommentField((prev) => !prev);
   };
 
   return (
@@ -62,7 +63,7 @@ export const UserPost = (props: Props) => {
             alignItems: 'center',
           }}
         >
-          <Avatar src={user.profilePicture} style={{ height: 70, width: 70 }} />
+          <Avatar src={undefined} style={{ height: 70, width: 70 }} />
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <RSText bold>Dhruv Bhargava</RSText>
             <RSText size={10} color={Theme.secondaryText}>
@@ -169,13 +170,93 @@ export const UserPost = (props: Props) => {
           </div>
         </DynamicIconButton>
       </div>
-      <div style={{ marginLeft: 20, marginRight: 20 }}>
-        {showCommentField ? (
+
+      {showCommentField ? (
+        <div
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginBottom: 10,
+            display: 'flex',
+          }}
+        >
           <RSTextField label={'Add a comment...'} variant="outlined" fullWidth />
-        ) : (
-          <></>
-        )}
+          <DynamicIconButton onClick={() => {}}>
+            <MdSend size={22} color={Theme.bright} />
+          </DynamicIconButton>
+        </div>
+      ) : (
+        <></>
+      )}
+
+      <div id="comments">
+        <Comment />
+        <Comment style={{ marginTop: 10 }} />
       </div>
+      <RSText
+        className={styles.likes}
+        size={13}
+        style={{ textAlign: 'left', marginLeft: 20, marginRight: 20, marginTop: 20 }}
+        color={Theme.secondaryText}
+      >
+        Load More Comments
+      </RSText>
     </RSCard>
+  );
+};
+
+type CommentProps = {
+  className?: string;
+  style?: React.CSSProperties;
+};
+const Comment = (props: CommentProps) => {
+  const { className, style } = props;
+  const styles = useStyles();
+
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        marginLeft: 20,
+        marginRight: 20,
+        ...style,
+      }}
+    >
+      <Avatar src={undefined} style={{ height: 50, width: 50 }} />
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: Theme.background,
+          textAlign: 'left',
+          padding: 12,
+          marginLeft: 10,
+          borderTopRightRadius: 15,
+          borderBottomRightRadius: 15,
+          borderBottomLeftRadius: 15,
+        }}
+        id="comment-body"
+      >
+        <RSText size={11} bold>
+          Smit Desai
+        </RSText>
+        <RSText size={10} color={Theme.secondaryText}>
+          Computer Science 2020 | Software Development Engineer @ Amazon
+        </RSText>
+        <RSText size={10} color={Theme.secondaryText}>
+          Mar 01
+        </RSText>
+
+        <RSText size={11} color={Theme.secondaryText} style={{ marginTop: 10 }}>
+          Swine pork chop jowl pork belly boudin chuck, beef pastrami prosciutto
+          burgdoggen doner. Spare ribs boudin prosciutto tail t-bone. Leberkas tail
+          buffalo sausage kevin. Leberkas shoulder salami chislic pork loin, ham
+          jerky turkey rump tenderloin meatloaf. Chislic meatloaf spare ribs strip
+          steak hamburger bacon, pancetta burgdoggen corned beef sausage.
+        </RSText>
+      </div>
+    </div>
   );
 };
