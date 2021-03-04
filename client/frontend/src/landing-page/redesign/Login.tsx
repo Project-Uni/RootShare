@@ -101,35 +101,37 @@ const Login = () => {
     if (event.key === 'Enter') handleLogin();
   }
 
+  type ServiceResponse = {
+    user: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      _id: string;
+      accountType: string;
+      privilegeLevel: number;
+      profilePicture?: string;
+    };
+    accessToken: string;
+    refreshToken: string;
+  };
+
   async function handleLogin() {
     setLoading(true);
-    const { data } = await makeRequest('POST', '/api/v2/auth/login', {
+    const { data } = await makeRequest<ServiceResponse>('POST', '/api/v2/auth/login', {
       email: email,
       password: password,
     });
     if (data['success'] === 1) {
       setError(false);
       const {
-        firstName,
-        lastName,
-        _id,
-        email,
+        user,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        privilegeLevel,
-        accountType,
-        profilePicture,
       } = data['content'];
       dispatch(
         updateUser({
-          firstName,
-          lastName,
-          _id,
-          email,
-          privilegeLevel,
-          accountType,
-          profilePicture,
-          profilePictureLastUpdated: profilePicture ? Date.now() : undefined,
+          ...user,
+          profilePictureLastUpdated: user.profilePicture ? Date.now() : undefined,
         })
       );
       dispatch(updateAccessToken(newAccessToken));

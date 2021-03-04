@@ -39,32 +39,6 @@ const useStyles = makeStyles((_: any) => ({
     alignItems: 'center',
     minHeight: '100%',
   },
-  textBox:{
-    width: 500,
-    marginBottom: '20px',
-  },
-  externalWrapper: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  or: {
-    marginLeft: '5px',
-    marginRight: '5px',
-  },
-  button: {
-    width: 80,
-    marginTop: 20,
-    marginBottom: 20,
-    height: 40,
-    background: Theme.bright,
-    color: Theme.white,
-  },
   logo: {
     width: 300,
   },
@@ -93,17 +67,6 @@ const LandingPage = (props: Props) => {
   const { mode } = props;
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
 
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
-  const [forgotPassword, setForgotPassword] = useState(false);
-
-  // const values = queryString.parse(props.location.search);
-  const redirectUrl = '/home';
-  // const accessTokenParam = values.accessToken as string;
-  // const refreshTokenParam = values.refreshToken as string;
-
   const handleResize = () => {
     if (window.innerWidth < MIN_WIDTH && !isMobile) setIsMobile(true);
     else if (window.innerWidth >= MIN_WIDTH && isMobile) setIsMobile(false);
@@ -111,7 +74,6 @@ const LandingPage = (props: Props) => {
 
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
-    setLoading(false);
   }, [accessToken]);
 
   useEffect(() => {
