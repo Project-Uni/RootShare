@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
 import { TextField} from '@material-ui/core';
-import { RSButton, RSLink } from '../../main-platform/reusable-components';
+import { RSButton, RSLink, RSTextField } from '../../main-platform/reusable-components';
 import { makeRequest } from '../../helpers/functions';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
@@ -12,7 +12,7 @@ import Theme from '../../theme/Theme';
 import GoogleButton from '../../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../../hype-page/hype-registration/LinkedInButton';
 import { useHistory } from 'react-router-dom';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { RootshareReduxState } from '../../redux/store/stateManagement'
 
 const useStyles = makeStyles((_: any) => ({
   right: {
@@ -22,6 +22,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   wrapper: {
     width:'500px',
+    textAlign: 'left',
   },
   textBox:{
     width: 500,
@@ -145,7 +146,7 @@ const Login = () => {
 
   return (
       <div className={styles.wrapper}>
-        <TextField
+        <RSTextField
           {...textFieldProps}
           label="E-MAIL"
           autoComplete="email"
@@ -153,7 +154,7 @@ const Login = () => {
           value={email}
           helperText={error ? 'Invalid login credentials' : ''}
         />
-        <TextField
+        <RSTextField
           {...textFieldProps}
           label="PASSWORD"
           autoComplete="password"

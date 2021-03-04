@@ -34,6 +34,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   title: {
     textAlign: 'left',
+    marginBottom: '50px',
   },
   rightMiddleContent: {
     flex: 1,
