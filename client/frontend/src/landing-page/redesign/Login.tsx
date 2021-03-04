@@ -15,18 +15,12 @@ import { useHistory } from 'react-router-dom';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    height: window.innerHeight,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   right: {
     flex: 1,
     display: 'flex',
     minHeight: '100%',
   },
-  rightMiddleContent: {
+  wrapper: {
     width:'500px',
   },
   textBox:{
@@ -148,8 +142,7 @@ const Login = () => {
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.rightMiddleContent}>
+      <div className={styles.wrapper}>
         <TextField
           {...textFieldProps}
           label="E-MAIL"
@@ -196,13 +189,10 @@ const Login = () => {
             Sign-Up
           </RSLink>
         </div>
-        <div className={styles.right}>
           <RSLink className={styles.link} href={'/account/forgotPassword'}>
             Forgot Password?
           </RSLink>
-        </div>
       </div>
-    </div>
   );
 };
 export default Login;

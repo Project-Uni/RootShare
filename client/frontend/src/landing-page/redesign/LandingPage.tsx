@@ -3,20 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import LandingImg from '../../images/landingBullets.png';
 import { RSText } from '../../base-components';
-import { TextField, Link } from '@material-ui/core';
-import { RSButton } from '../../main-platform/reusable-components';
-import { makeRequest } from '../../helpers/functions';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import Theme from '../../theme/Theme';
-import GoogleButton from '../../hype-page/hype-registration/GoogleButton';
-import LinkedInButton from '../../hype-page/hype-registration/LinkedInButton';
 import { useHistory } from 'react-router-dom';
-import queryString from 'query-string';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
-import { trace } from 'console';
 import Login from './Login';
 
 const useStyles = makeStyles((_: any) => ({
@@ -36,32 +27,17 @@ const useStyles = makeStyles((_: any) => ({
     flex: 1,
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'left',
-    marginTop: '20%',
-    marginBottom: '50px',
+    alignItems: 'center',
   },
-  signUpTitle: {
-    padding: '50px',
-    marginLeft: '-40%',
-  },
-  loginTitle: {
-    padding: '50px',
-    marginLeft: '-52%',
-  },
-  leftImg: {
-    marginLeft: '50px',
-  },
-  right: {
-    flex: 1,
-    display: 'flex',
-    minHeight: '100%',
+  title: {
+    textAlign: 'left',
   },
   rightMiddleContent: {
-    height: '100%',
     flex: 1,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: '100%',
   },
   textBox:{
     width: 500,
@@ -73,9 +49,8 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 20,
   },
   buttonContainer: {
-    flex: 1,
     display: 'flex',
-    justifyContent: 'left',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   or: {
@@ -89,9 +64,6 @@ const useStyles = makeStyles((_: any) => ({
     height: 40,
     background: Theme.bright,
     color: Theme.white,
-    '&:hover': {
-      background: Theme.brightHover,
-    },
   },
   logo: {
     width: 300,
@@ -159,19 +131,19 @@ const LandingPage = (props: Props) => {
       case 'register':
         return (
           <div>
-            <RSText className={styles.signUpTitle} color={Theme.white} size={40}>
+            <RSText className={styles.title} color={Theme.white} size={40}>
               Sign Up
             </RSText>
-            <img className={styles.leftImg} src={LandingImg} />
+            <img src={LandingImg} />
           </div>
         );
       case 'login':
         return (
           <div>
-            <RSText className={styles.loginTitle} color={Theme.white} size={40}>
+            <RSText className={styles.title} color={Theme.white} size={40}>
               Login
             </RSText>
-            <img className={styles.leftImg} src={LandingImg} />
+            <img src={LandingImg} />
           </div>
         );
       case 'additional':
@@ -184,12 +156,7 @@ const LandingPage = (props: Props) => {
     switch (mode) {
       case 'register':
         return (
-          <Link
-            href={"/login"}
-            className={styles.link}
-          >
-            Login
-          </Link>
+          <p>Additional Info Form and Buttons</p>
       )
       case 'login':
         return (
@@ -241,8 +208,8 @@ const LandingPage = (props: Props) => {
           </RSText>
         </div>
       </div>
-      <div className={styles.right}>
-      <div className={styles.rightMiddleContent}>{getRightComponent()}</div>
+      <div className={styles.rightMiddleContent}>
+        <div> {getRightComponent()}</div>
       </div>
     </div>
   );
