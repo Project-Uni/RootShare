@@ -41,6 +41,9 @@ const Schema = mongoose.Schema;
  *          description:
  *            type: string
  *            description: The description for what the community is for
+ *          bio:
+ *            type: string
+ *            description: A short blurb about the community
  *          university:
  *            $ref: '#/components/schemas/University'
  *            description: The university the community belongs to
@@ -140,7 +143,10 @@ import { Types } from 'mongoose';
 type ObjectId = Types.ObjectId;
 
 import { CommunityType, CommunityMap, U2CR } from '../helpers/types';
-import { addProfilePicturesAll } from '../interactions/utilities';
+import {
+  addProfilePicturesAll,
+  addBannerPicturesAll,
+} from '../interactions/utilities';
 
 const CommunitySchema = new Schema(
   {
@@ -164,6 +170,9 @@ const CommunitySchema = new Schema(
       type: String,
       required: true,
       message: 'Description is required.',
+    },
+    bio: {
+      type: String,
     },
     university: {
       type: mongoose.Schema.ObjectId,
@@ -243,9 +252,11 @@ export class CommunityC {
   static DefaultFields = [
     'name',
     'description',
+    'bio',
     'type',
     'private',
     'profilePicture',
+    'bannerPicture',
   ] as const;
 
   static AcceptedFields = [
@@ -317,7 +328,7 @@ export class CommunityC {
 
     if (options.includeDefaultFields) {
       fields.push(
-        ...[...CommunityC.DefaultFields].filter((field) => fields.includes(field))
+        ...[...CommunityC.DefaultFields].filter((field) => !fields.includes(field))
       );
     }
     const populates = options.populates?.slice() || [];
@@ -357,7 +368,7 @@ export class CommunityC {
     if (options.getProfilePicture)
       promises.push(addProfilePicturesAll(output, 'communityProfile'));
     if (options.getBannerPicture) {
-      //TODO - Get Banner Picture
+      promises.push(addBannerPicturesAll(output, 'communityBanner'));
     }
     if (options.getRelationship)
       CommunityC.getUserToCommunityRelationship_V2(options.getRelationship, output);

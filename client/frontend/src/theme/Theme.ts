@@ -18,6 +18,7 @@ type Theme = {
   altText: string;
   disabledButton: string;
   buttonHighlight: string;
+  transparent: '#00000000';
   universityAccent: { [key: string]: string };
 };
 
@@ -38,6 +39,7 @@ const theme: { default: Theme; dark: Theme } = {
     universityAccent: {
       '5eb89c308cc6636630c1311f': '#CEB888',
     },
+    transparent: '#00000000',
 
     // UPDATED COLORS
     white: '#FFFFFF',
@@ -71,6 +73,7 @@ const theme: { default: Theme; dark: Theme } = {
     altText: '',
     disabledButton: '',
     buttonHighlight: '',
+    transparent: '#00000000',
     universityAccent: {},
   },
 };

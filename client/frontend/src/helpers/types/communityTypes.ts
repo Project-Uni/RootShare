@@ -3,6 +3,7 @@ import { UserType } from './index';
 export type Community = {
   _id: string;
   name: string;
+  bio: string;
   description: string;
   admin: string | UserType;
   university: {
@@ -18,7 +19,8 @@ export type Community = {
   numMutual?: number;
   profilePicture?: string;
   bannerPicture?: string;
-  status: UserToCommunityRelationship;
+  relationship: UserToCommunityRelationship;
+  status: UserToCommunityRelationship; // TODO: deprecate this
   isMTGFlag?: boolean; //For Meet the Greeks
 };
 

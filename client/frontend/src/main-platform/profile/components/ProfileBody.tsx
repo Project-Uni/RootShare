@@ -202,10 +202,9 @@ function ProfileBody(props: Props) {
           type="profile"
           height={200}
           editable={currentProfileState === U2UR.SELF}
-          zoomOnClick={currentProfileState !== U2UR.SELF}
+          zoomOnClick
           borderRadius={10}
           currentPicture={currentBanner}
-          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
         />
         <ProfilePicture
           type="profile"
@@ -218,7 +217,7 @@ function ProfileBody(props: Props) {
           currentPicture={
             profileID === 'user' ? props.user.profilePicture : currentPicture
           }
-          zoomOnClick={currentProfileState !== U2UR.SELF}
+          zoomOnClick
           borderWidth={8}
         />
       </div>

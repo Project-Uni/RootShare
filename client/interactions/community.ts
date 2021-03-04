@@ -9,7 +9,7 @@ import {
 } from '../helpers/functions';
 import { CommunityType, U2CR } from '../helpers/types';
 import {
-  generateSignedImagePromises,
+  generateSignedProfilePromises,
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
@@ -1006,7 +1006,7 @@ export async function getAllFollowingCommunities(communityID: string) {
       return edge.to;
     });
 
-    const profilePicturePromises = generateSignedImagePromises(
+    const profilePicturePromises = generateSignedProfilePromises(
       followingCommunities,
       'communityProfile'
     );
@@ -1053,7 +1053,7 @@ export async function getAllFollowedByCommunities(communityID: string) {
       return edge.from;
     });
 
-    const profilePicturePromises = generateSignedImagePromises(
+    const profilePicturePromises = generateSignedProfilePromises(
       followedByCommunities,
       'communityProfile'
     );
@@ -1101,7 +1101,7 @@ export async function getAllPendingFollowRequests(communityID: string) {
       return { edgeID: edge._id, ...edge.from.toObject() };
     });
 
-    const profilePicturePromises = generateSignedImagePromises(
+    const profilePicturePromises = generateSignedProfilePromises(
       pendingFollowRequests,
       'communityProfile'
     );

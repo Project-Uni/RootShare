@@ -3,13 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import theme from '../../../theme/Theme';
+import { TextTransformType } from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
     color: theme.primaryText,
-  },
-  noCaps: {
-    textTransform: 'none',
   },
   primary: {
     background: theme.bright,
@@ -30,7 +28,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   universitySecondary: {
-    background: theme.foreground,
+    background: theme.transparent,
     borderColor: theme.universityAccent['5eb89c308cc6636630c1311f'],
     borderStyle: 'solid',
     borderWidth: 1,
@@ -43,16 +41,23 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+export type RSButtonVariants =
+  | 'primary'
+  | 'secondary'
+  | 'university'
+  | 'universitySecondary';
+
 type Props = {
   children?: React.ReactNode;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'university' | 'universitySecondary';
-  noCaps?: boolean;
+  variant: RSButtonVariants;
+  caps?: TextTransformType;
   fontSize: number;
   borderRadius: number;
   style: React.CSSProperties;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onHover?: (hovering: boolean) => void;
 };
 
 const RSButtonV2 = (props: Props) => {
@@ -62,44 +67,28 @@ const RSButtonV2 = (props: Props) => {
     children,
     disabled,
     variant,
-    noCaps,
+    caps,
     fontSize,
     borderRadius,
     className,
     onClick,
+    onHover,
   } = props;
   let { style } = props;
-  style = { ...style, fontSize, borderRadius };
-
-  console.log(children);
-
-  const getCoreStyle = useCallback(() => {
-    switch (variant) {
-      case 'secondary':
-        return styles.secondary;
-      case 'university':
-        return styles.university;
-      case 'universitySecondary':
-        return styles.universitySecondary;
-      case 'primary':
-      default:
-        return styles.primary;
-    }
-  }, [variant]);
-
-  const coreStyle = useRef(getCoreStyle());
+  style = { ...style, fontSize, borderRadius, textTransform: caps };
 
   return (
     <Button
       className={[
         className,
         styles.base,
-        disabled ? styles.disabled : coreStyle.current,
-        noCaps && styles.noCaps,
+        disabled ? styles.disabled : styles[variant],
       ].join(' ')}
       disabled={disabled}
       onClick={onClick}
       style={style}
+      onMouseEnter={() => onHover && onHover(true)}
+      onMouseLeave={() => onHover && onHover(false)}
     >
       {children}
     </Button>
@@ -110,6 +99,7 @@ RSButtonV2.defaultProps = {
   variant: 'primary',
   fontSize: 12,
   borderRadius: 12,
+  caps: 'none',
   style: {},
 };
 

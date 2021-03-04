@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
@@ -79,7 +79,6 @@ type Props = {
   width: number;
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
-  updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
 };
 
@@ -95,6 +94,7 @@ function ProfilePicture(props: Props) {
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentPicture, setCurrentPicture] = useState(props.currentPicture);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -104,6 +104,10 @@ function ProfilePicture(props: Props) {
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCurrentPicture(props.currentPicture);
+  }, [props.currentPicture]);
 
   function handleMouseOver() {
     setHovering(true);
@@ -118,7 +122,7 @@ function ProfilePicture(props: Props) {
   }
 
   function handleOtherImageClick() {
-    if (props.currentPicture) setIsViewerOpen(true);
+    if (currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -185,26 +189,26 @@ function ProfilePicture(props: Props) {
     if (props.type === 'profile')
       dispatch(updateProfilePicture(imageData as string));
 
-    props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
+    setCurrentPicture(imageData as string);
   }
 
   function renderImage() {
-    let currentPicture: string = props.currentPicture;
+    let currPictureSource: string = currentPicture;
     if (
-      !currentPicture ||
-      currentPicture.length < 4 ||
-      (currentPicture.substring(0, 4) !== 'http' &&
-        currentPicture.substring(0, 4) !== 'data')
+      !currPictureSource ||
+      currPictureSource.length < 4 ||
+      (currPictureSource.substring(0, 4) !== 'http' &&
+        currPictureSource.substring(0, 4) !== 'data')
     )
-      currentPicture = DefaultProfilePicture;
+      currPictureSource = DefaultProfilePicture;
 
     return (
       <div className={props.className}>
         <img
-          src={currentPicture}
+          src={currPictureSource}
           alt="Profile Picture"
           className={[
-            props.editable || props.currentPicture ? styles.image : undefined,
+            props.editable || currentPicture ? styles.image : undefined,
             props.pictureStyle,
           ].join(' ')}
           style={{
@@ -255,7 +259,7 @@ function ProfilePicture(props: Props) {
         <ModalGateway>
           {isViewerOpen && (
             <Modal onClose={() => setIsViewerOpen(false)}>
-              <Carousel views={[{ source: props.currentPicture }]} />
+              <Carousel views={[{ source: currentPicture }]} />
             </Modal>
           )}
         </ModalGateway>

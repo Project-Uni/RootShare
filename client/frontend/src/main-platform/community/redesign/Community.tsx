@@ -47,11 +47,10 @@ const Community = (props: Props) => {
         'members',
         'externalPosts',
         'description',
+        'bio',
         'members',
         'private',
         'type',
-        'profilePicture',
-        // 'bannerPicture',
       ],
       options: {
         getProfilePicture: true,
@@ -77,7 +76,13 @@ const Community = (props: Props) => {
   const getTabContent = React.useCallback(() => {
     switch (currentTab) {
       case 'about':
-        return <CommunityAbout admin={'12345'} />;
+        return (
+          <CommunityAbout
+            admin={info.admin}
+            aboutDesc={info.description}
+            editable={info.relationship === 'admin'}
+          />
+        );
       case 'feed':
         return <p>Feed</p>;
       default:

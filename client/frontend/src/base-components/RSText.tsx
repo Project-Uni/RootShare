@@ -14,6 +14,9 @@ const useStyles = makeStyles((_: any) => ({
   normal: {
     fontFamily: 'Lato',
   },
+  light: {
+    fontWeight: 300,
+  },
   bold: {
     fontWeight: 'bold',
   },
@@ -25,10 +28,16 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+export type TextTransformType = 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+
+export type TextWeight = 'normal' | 'light' | 'bold';
+
 type Props = {
   type?: 'head' | 'subhead' | 'body' | 'other';
-  bold?: boolean;
+  bold?: boolean; // TODO: refactor this to use weight prop
+  weight: TextWeight;
   italic?: boolean;
+  caps?: TextTransformType;
   size?: number;
   className?: string;
   style?: React.CSSProperties;
@@ -44,7 +53,9 @@ function RSText(props: Props) {
   const {
     type,
     bold,
+    weight,
     italic,
+    caps,
     size,
     className,
     style: styleProps,
@@ -57,6 +68,7 @@ function RSText(props: Props) {
   const [style, setStyle] = useState({
     ...styleProps,
     fontSize: `${size}pt`,
+    textTransform: caps,
     color,
   });
 
@@ -79,7 +91,8 @@ function RSText(props: Props) {
         color ? null : styles.defaultColor,
         className,
         type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
-        bold ? styles.bold : null,
+        bold && styles.bold,
+        styles[weight],
         italic ? styles.italic : null,
       ].join(' ')}
       style={style}
@@ -94,6 +107,8 @@ function RSText(props: Props) {
 
 RSText.defaultProps = {
   type: 'body',
+  weight: 'normal',
+  caps: 'none',
   size: 12,
 };
 

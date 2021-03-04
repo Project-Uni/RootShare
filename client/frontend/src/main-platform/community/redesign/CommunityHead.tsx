@@ -1,14 +1,17 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { RSCard, RSTabsV2, RSButtonV2 } from '../../reusable-components';
+import { RSCard, RSTabsV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
 import FollowButton from './FollowButton';
+import RelationshipButton from './RelationshipButton';
 
 import Theme, { addShadow } from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
+import { FaLock } from 'react-icons/fa';
+import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,10 +40,21 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 10,
-    // borderStyle: 'solid',
   },
   name: {
     alignSelf: 'flex-start',
+  },
+  lockIcon: {
+    marginLeft: 10,
+  },
+  tag: {
+    alignSelf: 'flex-start',
+    height: 20,
+    minWidth: 80,
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginTop: 5,
+    marginBottom: 10,
   },
   description: {
     alignSelf: 'flex-start',
@@ -89,7 +103,7 @@ export const CommunityHead = (props: Props) => {
     members,
     profilePicture,
     bannerPicture,
-    status,
+    relationship,
   } = communityInfo;
 
   const numMembers = members?.length || 0;
@@ -99,13 +113,27 @@ export const CommunityHead = (props: Props) => {
       <div className={styles.center}>
         <RSText
           type="head"
+          weight="light"
           size={30}
           color={Theme.secondaryText}
           className={styles.name}
         >
           {name}
+          {isPrivate && (
+            <FaLock
+              color={Theme.primaryHover}
+              size={20}
+              className={styles.lockIcon}
+            />
+          )}
         </RSText>
-        <RSText size={14} color={Theme.secondaryText} className={styles.description}>
+        <Tag className={styles.tag} tag={type} variant="university" weight="light" />
+        <RSText
+          size={14}
+          type="body"
+          color={Theme.secondaryText}
+          className={styles.description}
+        >
           {description}
         </RSText>
         <hr
@@ -138,21 +166,9 @@ export const CommunityHead = (props: Props) => {
         <FollowButton
           communityID={communityID}
           name={name}
-          className={styles.button}
           variant="universitySecondary"
-          fontSize={13}
-          borderRadius={12}
-          noCaps
         />
-        <RSButtonV2
-          className={styles.button}
-          variant="university"
-          fontSize={13}
-          borderRadius={12}
-          noCaps
-        >
-          Join
-        </RSButtonV2>
+        <RelationshipButton communityID={communityID} relationship={relationship} />
       </div>
     );
   };
@@ -161,24 +177,26 @@ export const CommunityHead = (props: Props) => {
     <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
       <ProfileBanner
         height={225}
-        editable={false}
+        editable={relationship === 'admin'}
         type={'community'}
         borderRadius={40}
-        _id={communityInfo._id}
-        currentPicture={communityInfo.bannerPicture}
+        _id={communityID}
+        currentPicture={bannerPicture}
+        zoomOnClick
       />
       <div className={styles.horizontalDiv}>
         <ProfilePicture
-          editable
           type="community"
           height={170}
           width={170}
           pictureStyle={styles.profilePicture}
+          editable={relationship === 'admin'}
+          zoomOnClick
           className={styles.profilePictureContainer}
           borderRadius={100}
           borderWidth={0}
-          _id={communityInfo._id}
-          currentPicture={communityInfo.profilePicture}
+          _id={communityID}
+          currentPicture={profilePicture}
         />
         {renderCenter()}
         {renderRight()}

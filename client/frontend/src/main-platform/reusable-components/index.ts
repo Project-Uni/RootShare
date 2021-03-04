@@ -10,6 +10,7 @@ import MakePostContainer from './components/MakePostContainer';
 import RSTabs from './components/RSTabs';
 import RSTabsV2 from './components/RSTabsV2';
 import RSModal from './components/RSModal/RSModal';
+import RSMenu from './components/RSMenu';
 import BigButton from './components/RSModal/BigButton';
 import SearchField from './components/SearchField';
 import RSButton from './components/RSButton';
@@ -23,6 +24,7 @@ export * from './components/RSCard';
 export * from './components/RSTextField';
 export * from './components/RSSelect';
 export * from './components/RSCheckbox';
+export * from './components/RSButtonV2';
 
 export {
   MainNavigator,
@@ -36,6 +38,7 @@ export {
   RSTabs,
   RSTabsV2,
   RSModal,
+  RSMenu,
   MakePostContainer,
   BigButton,
   SearchField,

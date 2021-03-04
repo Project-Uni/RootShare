@@ -58,7 +58,7 @@ function RSTabsV2(props: Props) {
               styles.tabItem,
               isSelected ? styles.selectedTab : styles.notSelectedTab,
             ].join(' ')}
-            bold={isSelected}
+            weight={isSelected ? 'bold' : 'light'}
             color={
               isSelected ? Theme.universityAccent[university] : Theme.primaryText
             }

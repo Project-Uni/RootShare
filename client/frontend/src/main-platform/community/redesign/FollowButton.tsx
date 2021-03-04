@@ -1,38 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
-import { Button, Menu, MenuItem, Slide } from '@material-ui/core';
-import { BsFillCaretDownFill } from 'react-icons/bs';
+import { Slide, Theme as ThemeType } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 
-import RSText from '../../../base-components/RSText';
+import RSText, { TextTransformType } from '../../../base-components/RSText';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
-import { RSButtonV2 } from '../../reusable-components';
+import { RSMenu, RSButtonV2, RSButtonVariants } from '../../reusable-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { AdminCommunityServiceResponse } from '../../../helpers/types/communityTypes';
 import Theme from '../../../theme/Theme';
 
-const useStyles = makeStyles((_: any) => ({}));
+interface StyleProps {
+  university: string;
+}
+
+const useStyles = makeStyles<ThemeType, StyleProps>((_: any) => ({
+  button: {
+    height: 28,
+    marginTop: 5,
+    width: 150,
+  },
+  menuItemWrapper: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
+    paddingLeft: 12,
+    paddingRight: 12,
+    outline: 'none',
+  },
+  menuItem: {
+    '&:hover': {
+      cursor: 'pointer',
+      color: ({ university }) => Theme.universityAccent[university],
+    },
+  },
+}));
 
 type Props = {
   communityID: string;
   name: string;
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'university' | 'universitySecondary';
-  noCaps?: boolean;
-  fontSize?: number;
+  caps?: TextTransformType;
+  fontSize: number;
   borderRadius?: number;
   style?: React.CSSProperties;
-  className?: string;
-
-  user: { [key: string]: any };
 };
 
 function FollowButton(props: Props) {
-  const styles = useStyles();
+  const { _id, university } = useSelector(
+    (state: RootshareReduxState) => state.user
+  );
+
+  const styles = useStyles({ university });
 
   const [followMenuAnchorEl, setFollowMenuAnchorEl] = useState(null);
   const [adminCommunities, setAdminCommunities] = useState<
@@ -49,12 +75,10 @@ function FollowButton(props: Props) {
     name,
     disabled,
     variant,
-    noCaps,
+    caps,
     fontSize,
     borderRadius,
     style,
-    className,
-    user,
   } = props;
 
   useEffect(() => {
@@ -62,10 +86,7 @@ function FollowButton(props: Props) {
   }, [communityID]);
 
   async function getAdminCommunities() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/${user._id}/communities/admin`
-    );
+    const { data } = await makeRequest('GET', `/api/user/${_id}/communities/admin`);
 
     if (data.success === 1) {
       let communities: AdminCommunityServiceResponse[] = data.content.communities.filter(
@@ -207,10 +228,10 @@ function FollowButton(props: Props) {
         handleClose={() => setSnackbarMode(null)}
       />
       <RSButtonV2
-        className={className}
+        className={styles.button}
         fontSize={fontSize}
         borderRadius={borderRadius}
-        noCaps={noCaps}
+        caps={caps}
         disabled={disabled}
         variant={variant}
         style={style}
@@ -218,48 +239,44 @@ function FollowButton(props: Props) {
           setFollowMenuAnchorEl(event.currentTarget);
         }}
       >
-        Follow
+        <RSText size={fontSize}>Follow{Boolean(followMenuAnchorEl) && ' as'}</RSText>
       </RSButtonV2>
-      <Menu
+      <RSMenu
         open={Boolean(followMenuAnchorEl)}
         anchorEl={followMenuAnchorEl}
         onClose={() => setFollowMenuAnchorEl(null)}
+        variant="rounded"
       >
         {adminCommunities.map((community) => {
           const relationship = community.currentCommunityRelationship!;
           return (
-            <MenuItem
-              // onClick={getFollowButtonAction(community._id, relationship)}
-              key={community._id}
-            >
-              <div>
-                <RSText>{community.name}</RSText>
-                {relationship !== 'open' && (
-                  <RSText size={11} italic>
-                    {relationship.charAt(0).toUpperCase() + relationship.slice(1)}
-                  </RSText>
-                )}
-              </div>
-            </MenuItem>
+            <div className={styles.menuItemWrapper}>
+              <RSText
+                size={11}
+                className={styles.menuItem}
+                onClick={getFollowButtonAction(community._id, relationship)}
+              >
+                {community.name}
+              </RSText>
+
+              {relationship !== 'open' && (
+                <RSText size={10} color={Theme.secondaryText} italic>
+                  &nbsp;
+                  {relationship.charAt(0).toUpperCase() + relationship.slice(1)}
+                </RSText>
+              )}
+            </div>
           );
         })}
-      </Menu>
+      </RSMenu>
     </>
   ) : (
     <></>
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
+FollowButton.defaultProps = {
+  fontSize: 11,
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(FollowButton);
+export default FollowButton;

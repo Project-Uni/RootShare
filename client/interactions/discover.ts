@@ -4,7 +4,7 @@ import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
-  generateSignedImagePromises,
+  generateSignedProfilePromises,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
 
@@ -261,11 +261,11 @@ export async function exactMatchSearchFor(
 }
 
 function addCommunityAndUserImages(communities, users) {
-  const communityImagePromises = generateSignedImagePromises(
+  const communityImagePromises = generateSignedProfilePromises(
     communities,
     'communityProfile'
   );
-  const userImagePromises = generateSignedImagePromises(users, 'profile');
+  const userImagePromises = generateSignedProfilePromises(users, 'profile');
 
   return Promise.all([...communityImagePromises, ...userImagePromises])
     .then((images) => {
