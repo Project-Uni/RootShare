@@ -48,7 +48,6 @@ const Community = (props: Props) => {
         'externalPosts',
         'description',
         'bio',
-        'members',
         'private',
         'type',
       ],
@@ -58,9 +57,14 @@ const Community = (props: Props) => {
         getRelationship: true,
         limit: 1,
         includeDefaultFields: true,
+        populates: [
+          'admin:firstName lastName profilePicture',
+          'members:firstName lastName profilePicture',
+        ],
       },
     });
 
+    console.log(data.content);
     if (data.success === 1)
       return setInfo(data.content.communities[0] as CommunityFields);
 
@@ -78,8 +82,7 @@ const Community = (props: Props) => {
       case 'about':
         return (
           <CommunityAbout
-            admin={info.admin}
-            aboutDesc={info.description}
+            communityID={communityID}
             editable={info.relationship === 'admin'}
           />
         );

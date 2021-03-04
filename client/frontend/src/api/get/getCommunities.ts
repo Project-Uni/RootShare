@@ -11,7 +11,7 @@ export const getCommunities = async <T = { [k: string]: any }>(
       getRelationship?: boolean;
       limit?: number;
       includeDefaultFields?: boolean;
-      // populates?: string[];
+      populates?: string[];
     };
   }
 ) => {

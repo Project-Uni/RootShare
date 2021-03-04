@@ -56,7 +56,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 5,
     marginBottom: 10,
   },
-  description: {
+  bio: {
     alignSelf: 'flex-start',
     paddingTop: 10,
     paddingBottom: 10,
@@ -97,7 +97,7 @@ export const CommunityHead = (props: Props) => {
   const {
     _id: communityID,
     name,
-    description,
+    description: bio, // TODO: Change this to fetch bio and allow updates (backfill in DB as well)
     private: isPrivate,
     type,
     members,
@@ -132,9 +132,9 @@ export const CommunityHead = (props: Props) => {
           size={14}
           type="body"
           color={Theme.secondaryText}
-          className={styles.description}
+          className={styles.bio}
         >
-          {description}
+          {bio}
         </RSText>
         <hr
           style={{
