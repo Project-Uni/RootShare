@@ -11,6 +11,12 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  noUnderline: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 }));
 
 type Props = {
@@ -18,18 +24,24 @@ type Props = {
   className?: string;
   style?: React.CSSProperties;
   children: JSX.Element[] | JSX.Element | string;
+  underline?: boolean;
 };
 
 export const RSLink = (props: Props) => {
   const styles = useStyles();
 
-  const { href, className, style, children } = props;
+  const { href, className, style, children, underline } = props;
 
   return href ? (
     <Link
       to={href}
       style={style}
-      className={[className, styles.link, styles.pointer].join(' ')}
+      className={[
+        className,
+        styles.link,
+        styles.pointer,
+        underline ? undefined : styles.noUnderline,
+      ].join(' ')}
     >
       {children}
     </Link>
@@ -38,4 +50,8 @@ export const RSLink = (props: Props) => {
       {children}
     </a>
   );
+};
+
+RSLink.defaultProps = {
+  underline: true,
 };

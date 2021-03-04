@@ -478,7 +478,7 @@ const AdditionalPreviewData = ({
     return (
       <div style={{ marginTop: 10, maxWidth: 225 }}>
         <RSText>
-          {description.length > MAX_DESC_LEN
+          {description?.length > MAX_DESC_LEN
             ? `${description.substr(0, MAX_DESC_LEN)} ...`
             : description}
         </RSText>

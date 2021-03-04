@@ -35,13 +35,14 @@ type Props = {
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'university';
   className?: string;
+  style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 
 const RSButton = (props: Props) => {
   const styles = useStyles();
 
-  const { children, disabled, variant, className, onClick } = props;
+  const { children, disabled, variant, className, style, onClick } = props;
 
   const getCoreStyle = useCallback(() => {
     switch (variant) {
@@ -66,6 +67,7 @@ const RSButton = (props: Props) => {
       ].join(' ')}
       disabled={disabled}
       onClick={onClick}
+      style={style}
     >
       {children}
     </Button>

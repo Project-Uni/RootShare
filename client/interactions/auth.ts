@@ -1,8 +1,10 @@
 import sendPacket from '../../webinar/helpers/sendPacket';
-import { PhoneVerification, User } from '../models';
+import { PhoneVerification, University, User } from '../models';
 import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
 import { getUsersByIDs } from '../models/users';
-
+import { log } from '../helpers/functions/logger';
+import { StateCodeKeys, EmailRegex } from '../helpers/constants';
+import { Encryption } from '../helpers/modules';
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
     try {
@@ -63,13 +65,9 @@ export class AuthService {
     password: string;
     phoneNumber: string;
   }) => {
-    if (
-      !AuthService.isValidEmail(email) ||
-      !AuthService.isValidPassword(password) ||
-      !AuthService.isValidPhoneNumber(phoneNumber)
-    ) {
+    const errors = AuthService.validateFields({ email, password, phoneNumber });
+    if (errors.length > 0)
       return { status: 400, packet: sendPacket(-1, 'Inputs are invalid') };
-    }
 
     try {
       const userExists = await User.exists({
@@ -81,6 +79,17 @@ export class AuthService {
           packet: sendPacket(0, 'Account with this email already exists'),
         };
 
+      let encryptedData: { initializationVector: string; encryptedMessage: string };
+      try {
+        encryptedData = new Encryption().encrypt(password);
+      } catch (err) {
+        return { status: 400, packet: sendPacket(-1, 'Failed to encrypt password') };
+      }
+
+      const {
+        initializationVector,
+        encryptedMessage: encryptedPassword,
+      } = encryptedData;
       const code = await PhoneVerification.sendCode({
         email: email as string,
         phoneNumber: phoneNumber as string,
@@ -96,9 +105,13 @@ export class AuthService {
 
       return {
         status: 200,
-        packet: sendPacket(1, 'New account information is valid'),
+        packet: sendPacket(1, 'New account information is valid', {
+          initializationVector,
+          encryptedPassword,
+        }),
       };
     } catch (err) {
+      log('error', err.message);
       return {
         status: 500,
         packet: sendPacket(-1, 'There was an error validating the user'),
@@ -110,6 +123,7 @@ export class AuthService {
     email,
     phoneNumber,
     password,
+    initializationVector,
     accountType,
     firstName,
     lastName,
@@ -123,6 +137,7 @@ export class AuthService {
     email: string;
     phoneNumber: string;
     password: string;
+    initializationVector: string;
     accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
     firstName: string;
     lastName: string;
@@ -137,11 +152,13 @@ export class AuthService {
       !email ||
       !phoneNumber ||
       !password ||
+      !initializationVector ||
       !accountType ||
       !firstName ||
       !lastName ||
       !graduationYear ||
-      !state
+      !state ||
+      !university
     )
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
@@ -152,19 +169,53 @@ export class AuthService {
     else if (accountType === 'faculty' && !jobTitle)
       return { status: 400, packet: sendPacket(-1, 'Missing body parameters') };
 
+    let decryptedPassword: string;
+    try {
+      decryptedPassword = new Encryption().decrypt({
+        iv: initializationVector,
+        encryptedMessage: password,
+      });
+    } catch (err) {
+      return { status: 400, packet: sendPacket(-1, 'Failed to decrypt password') };
+    }
+
+    const errors = AuthService.validateFields({
+      email,
+      password: decryptedPassword,
+      phoneNumber,
+      firstName,
+      lastName,
+      accountType,
+      graduationYear,
+      state,
+      university,
+    });
+    if (errors.length > 0)
+      return {
+        status: 400,
+        packet: sendPacket(0, 'Invalid input fields', { errors }),
+      };
+
+    if (!(await PhoneVerification.isValidated({ email, phoneNumber })))
+      return {
+        status: 400,
+        packet: sendPacket(0, 'Phone number has not been validated'),
+      };
+
     try {
       const newUser = await new User({
-        email: email.toLowerCase(),
+        email: email.toLowerCase().trim(),
         phoneNumber,
-        hashedPassword: hashPassword(password),
-        firstName,
-        lastName,
+        hashedPassword: hashPassword(decryptedPassword),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         accountType,
-        major,
-        position: jobTitle,
-        work: company,
+        major: major.trim(),
+        position: jobTitle.trim(),
+        work: company.trim(),
         graduationYear,
-        // state
+        state,
+        university,
       }).save();
 
       const { accessToken, refreshToken } = generateJWT({
@@ -205,7 +256,6 @@ export class AuthService {
     const validated = await PhoneVerification.validate({ email, code });
     if (!validated) return { status: 400, packet: sendPacket(-1, 'Invalid code') };
 
-    //Update user DB
     return { status: 200, packet: sendPacket(1, 'Successfully verified account') };
   };
 
@@ -232,16 +282,82 @@ export class AuthService {
     };
   };
 
-  static isValidEmail = (email: string) => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+  private static validateFields = ({
+    email,
+    password,
+    phoneNumber,
+    accountType,
+    graduationYear,
+    firstName,
+    lastName,
+    state,
+    university,
+  }: {
+    email?: string;
+    password?: string;
+    phoneNumber?: string;
+    accountType?: 'student' | 'alumni' | 'faculty' | 'recruiter';
+    graduationYear?: number;
+    firstName?: string;
+    lastName?: string;
+    state?: string;
+    university?: string;
+  }) => {
+    let errors = [];
+    if (email && !AuthService.validators.isValidEmail(email)) errors.push('email');
+    if (password && !AuthService.validators.isValidPassword(password))
+      errors.push('password');
+    if (phoneNumber && !AuthService.validators.isValidPhoneNumber(phoneNumber))
+      errors.push('phoneNumber');
+    if (
+      accountType &&
+      accountType !== 'student' &&
+      accountType !== 'alumni' &&
+      accountType !== 'faculty' &&
+      accountType !== 'recruiter'
+    )
+      errors.push('accountType');
+    if (
+      graduationYear &&
+      !AuthService.validators.isValidGraduationYear({ accountType, graduationYear })
+    )
+      errors.push('graduationYear');
+    if (firstName && firstName.trim().length === 0) errors.push('firstName');
+    if (lastName && lastName.trim().length === 0) errors.push('lastName');
+    if (state && !AuthService.validators.isValidState(state)) errors.push('state');
+    if (university && !AuthService.validators.isValidUniversity(university))
+      errors.push('university');
+    return errors;
   };
 
-  static isValidPassword = (password: string) => {
-    return password.length >= 8 && password !== 'password';
-  };
-
-  static isValidPhoneNumber = (phoneNumber: string) => {
-    return !/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10;
+  private static validators = {
+    isValidEmail: (email: string) => EmailRegex.test(email),
+    isValidPassword: (password: string) =>
+      password.length >= 8 && password !== 'password',
+    isValidPhoneNumber: (phoneNumber: string) =>
+      /^\d+$/.test(phoneNumber) && phoneNumber.length === 10,
+    isValidState: (state: string) =>
+      StateCodeKeys.some((stateCode) => stateCode === state),
+    isValidUniversity: async (universityID: string) =>
+      await University.exists({ _id: universityID }),
+    isValidGraduationYear: async ({
+      accountType,
+      graduationYear,
+    }: {
+      accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
+      graduationYear: number;
+    }) => {
+      const currentYear = new Date().getFullYear();
+      switch (accountType) {
+        case 'student':
+          return graduationYear >= currentYear && graduationYear <= currentYear + 6;
+        case 'alumni':
+        case 'faculty':
+        case 'recruiter':
+          return graduationYear <= currentYear && graduationYear >= 1930;
+        default:
+          return false;
+      }
+    },
   };
 }

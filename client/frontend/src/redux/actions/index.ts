@@ -14,6 +14,7 @@ export * from './message';
 export * from './sockets';
 export * from './token';
 export * from './user';
+export * from './registration';
 
 export type ReduxAction = { type: string; payload?: { [k: string]: unknown } };
 export type Dispatch = ReactDispatch<ReduxAction>;
