@@ -1,7 +1,14 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSCard } from './RSCard';
-import { Avatar, Button, CircularProgress, IconButton } from '@material-ui/core';
+import {
+  Avatar,
+  Button,
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+} from '@material-ui/core';
 import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
@@ -20,7 +27,7 @@ import {
 } from '../../../redux/actions';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { useHistory } from 'react-router-dom';
-import { getCommentsForPost, putLikeStatus } from '../../../api';
+import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
@@ -62,6 +69,8 @@ export const UserPost = (props: Props) => {
   const [showCommentField, setShowCommentField] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
+  const [showLikesModal, setShowLikesModal] = useState(false);
 
   const [likeCount, setLikeCount] = useState(post.likes);
   const [liked, setLiked] = useState(post.liked);
@@ -73,9 +82,8 @@ export const UserPost = (props: Props) => {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
 
-  const [showLikesModal, setShowLikesModal] = useState(false);
-
   const isHovering = useRef(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
     const removeHistoryListen = history.listen((location, action) => {
@@ -250,7 +258,33 @@ export const UserPost = (props: Props) => {
     }
   }, [commentText, post]);
 
-  return (
+  async function handleDeletePost() {
+    setMenuAnchorEl(undefined);
+    if (
+      window.confirm(
+        'Are you sure you want to delete this post? This action cannot be undone.'
+      )
+    ) {
+      const data = await deletePost({ postID: post._id });
+      if (data.success === 1) {
+        setIsDeleted(true);
+        dispatch(
+          dispatchSnackbar({ message: 'Successfully deleted post', mode: 'notify' })
+        );
+      } else {
+        dispatch(
+          dispatchSnackbar({
+            message: 'There was an error trying to delete this post',
+            mode: 'error',
+          })
+        );
+      }
+    }
+  }
+
+  return isDeleted ? (
+    <></>
+  ) : (
     <RSCard
       variant="secondary"
       style={{ paddingTop: 20, paddingBottom: 20, ...style }}
@@ -350,9 +384,31 @@ export const UserPost = (props: Props) => {
             </RSText>
           </div>
         </div>
-        <IconButton style={{ height: '100%' }}>
+        <IconButton
+          style={{ height: '100%' }}
+          onClick={(e) => setMenuAnchorEl(e.currentTarget)}
+        >
           <FaEllipsisH size={20} />
         </IconButton>
+        <Menu
+          open={Boolean(menuAnchorEl)}
+          anchorEl={menuAnchorEl}
+          onClose={() => setMenuAnchorEl(undefined)}
+        >
+          {post.user._id === user._id && (
+            <MenuItem onClick={handleDeletePost}>
+              <RSText color={Theme.error}>Delete</RSText>
+            </MenuItem>
+          )}
+          <MenuItem
+            onClick={() => {
+              setMenuAnchorEl(undefined);
+              window.alert('This feature is still under development');
+            }}
+          >
+            <RSText color={Theme.error}>Report</RSText>
+          </MenuItem>
+        </Menu>
       </div>
       <RSText
         style={{
