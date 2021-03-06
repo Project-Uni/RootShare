@@ -117,19 +117,33 @@ export const UserPost = (props: Props) => {
     setShowComments((prev) => !prev);
   };
 
-  const anonymousCleanedData = {
-    posterName: post.anonymous
-      ? post.fromCommunity?.name
-      : `${post.user.firstName} ${post.user.lastName}`,
-    posterID: post.anonymous ? post.fromCommunity?._id : post.user._id,
-    posterNavigationURL: post.anonymous
-      ? `/community/${post.fromCommunity?._id}`
-      : `/profile/${post.user._id}`,
-    posterProfilePicture: post.anonymous
-      ? post.fromCommunity?.profilePicture
-      : post.user.profilePicture,
-    toEntityNavigationURL: `/community/${post.toCommunity?._id}`,
-  };
+  const anonymousCleanedData = useRef<{
+    posterName: string;
+    posterID: string;
+    posterNavigationURL: string;
+    posterProfilePicture?: string;
+    toEntityNavigationURL: string;
+  }>();
+
+  const createAnonymousCleanedData = useCallback(() => {
+    return {
+      posterName: post.anonymous
+        ? post.fromCommunity?.name!
+        : `${post.user.firstName} ${post.user.lastName}`,
+      posterID: post.anonymous ? post.fromCommunity?._id! : post.user._id,
+      posterNavigationURL: post.anonymous
+        ? `/community/${post.fromCommunity?._id!}`
+        : `/profile/${post.user._id}`,
+      posterProfilePicture: post.anonymous
+        ? post.fromCommunity?.profilePicture
+        : post.user.profilePicture,
+      toEntityNavigationURL: `/community/${post.toCommunity?._id}`,
+    };
+  }, [post]);
+
+  useEffect(() => {
+    anonymousCleanedData.current = createAnonymousCleanedData();
+  }, [createAnonymousCleanedData]);
 
   const getUserDescription = useCallback(() => {
     if (post.anonymous) return;
@@ -154,10 +168,10 @@ export const UserPost = (props: Props) => {
       if (isHovering.current)
         dispatch(
           dispatchHoverPreview({
-            _id: anonymousCleanedData.posterID!,
+            _id: anonymousCleanedData.current?.posterID!,
             type: post.anonymous ? 'community' : 'user',
-            profilePicture: anonymousCleanedData.posterProfilePicture,
-            name: anonymousCleanedData.posterName!,
+            profilePicture: anonymousCleanedData.current?.posterProfilePicture!,
+            name: anonymousCleanedData.current?.posterName!,
             anchorEl: currentTarget,
           })
         );
@@ -233,7 +247,10 @@ export const UserPost = (props: Props) => {
             alignItems: 'center',
           }}
         >
-          <RSLink href={anonymousCleanedData.posterNavigationURL} underline={false}>
+          <RSLink
+            href={anonymousCleanedData.current?.posterNavigationURL}
+            underline={false}
+          >
             <div
               onMouseEnter={handleMouseOverFrom}
               onMouseLeave={() => {
@@ -244,7 +261,7 @@ export const UserPost = (props: Props) => {
               }}
             >
               <Avatar
-                src={anonymousCleanedData.posterProfilePicture}
+                src={anonymousCleanedData.current?.posterProfilePicture}
                 style={{ height: 65, width: 65 }}
               />
             </div>
@@ -252,7 +269,7 @@ export const UserPost = (props: Props) => {
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <RSLink
-                href={anonymousCleanedData.posterNavigationURL}
+                href={anonymousCleanedData.current?.posterNavigationURL}
                 underline={false}
               >
                 <div
@@ -264,7 +281,7 @@ export const UserPost = (props: Props) => {
                     }, 500);
                   }}
                 >
-                  <RSText bold>{anonymousCleanedData.posterName}</RSText>
+                  <RSText bold>{anonymousCleanedData.current?.posterName}</RSText>
                 </div>
               </RSLink>
               {post.toCommunity?._id && !options?.hideToCommunity && (
@@ -275,7 +292,7 @@ export const UserPost = (props: Props) => {
                     alt="to"
                   />
                   <RSLink
-                    href={anonymousCleanedData.toEntityNavigationURL}
+                    href={anonymousCleanedData.current?.toEntityNavigationURL}
                     underline={false}
                   >
                     <div
