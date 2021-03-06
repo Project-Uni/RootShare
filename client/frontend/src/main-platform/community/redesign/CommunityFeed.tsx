@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../../redux/actions';
 import { CircularProgress } from '@material-ui/core';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
+import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
@@ -45,6 +46,7 @@ export const CommunityFeed = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
+      <MakePostContainer />
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
