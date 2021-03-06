@@ -19,6 +19,7 @@ import {
 } from '../../../redux/actions';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { useHistory } from 'react-router-dom';
+import { putLikeStatus } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -50,6 +51,10 @@ export const UserPost = (props: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
+  const [likeCount, setLikeCount] = useState(post.likes);
+  const [liked, setLiked] = useState(post.liked);
+  const [likeDisabled, setLikeDisabled] = useState(false);
+
   const isHovering = useRef(false);
 
   useEffect(() => {
@@ -59,7 +64,29 @@ export const UserPost = (props: Props) => {
     return removeHistoryListen;
   }, [history]);
 
-  const handleSproutClick = () => {};
+  const handleSproutClick = async (action: 'like' | 'unlike') => {
+    setLikeDisabled(true);
+    const data = await putLikeStatus(post._id, action);
+    //Adding the UI update before API call completes, and resetting back to original if it fails
+    if (action === 'unlike') {
+      setLiked(false);
+      setLikeCount(likeCount - 1);
+    } else {
+      setLiked(true);
+      setLikeCount(likeCount + 1);
+    }
+
+    if (data.success !== 1) {
+      if (action === 'unlike') {
+        setLiked(true);
+        setLikeCount(likeCount + 1);
+      } else {
+        setLiked(false);
+        setLikeCount(likeCount - 1);
+      }
+    }
+    setLikeDisabled(false);
+  };
 
   const handleCommentIconClick = () => {
     setShowCommentField((prev) => !prev);
@@ -267,7 +294,7 @@ export const UserPost = (props: Props) => {
         }}
       >
         <RSText color={Theme.secondaryText} className={styles.likes} size={11}>
-          {post.likes} Sprouts
+          {likeCount} Sprouts
         </RSText>
         <RSText
           color={Theme.secondaryText}
@@ -289,7 +316,10 @@ export const UserPost = (props: Props) => {
           marginRight: 20,
         }}
       >
-        <DynamicIconButton onClick={handleSproutClick}>
+        <DynamicIconButton
+          onClick={() => handleSproutClick(liked ? 'unlike' : 'like')}
+          disabled={likeDisabled}
+        >
           <div
             style={{
               display: 'flex',
@@ -298,7 +328,7 @@ export const UserPost = (props: Props) => {
               alignItems: 'center',
             }}
           >
-            <FaLeaf color={post.liked ? Theme.bright : Theme.secondaryText} />
+            <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} />
             <RSText color={Theme.secondaryText} style={{ marginLeft: 10 }}>
               Sprout
             </RSText>
