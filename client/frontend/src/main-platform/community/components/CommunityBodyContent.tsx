@@ -332,11 +332,11 @@ function CommunityBodyContent(props: Props) {
         <UserPost
           postID={posts[i]._id}
           posterID={
-            currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id
+            currPost.anonymous ? currPost.fromCommunity?._id! : currPost.user._id
           }
           name={
             anonymous
-              ? `${currPost.fromCommunity.name}`
+              ? `${currPost.fromCommunity?.name!}`
               : `${currPost.user.firstName} ${currPost.user.lastName}`
           }
           timestamp={`${formatDatePretty(
@@ -344,7 +344,7 @@ function CommunityBodyContent(props: Props) {
           )} at ${formatTime(new Date(currPost.createdAt))}`}
           profilePicture={
             anonymous
-              ? currPost.fromCommunity.profilePicture
+              ? currPost.fromCommunity?.profilePicture!
               : currPost.user.profilePicture
           }
           type={currPost.type}
@@ -355,10 +355,10 @@ function CommunityBodyContent(props: Props) {
           key={currPost._id}
           anonymous={anonymous}
           toCommunity={
-            selectedTab === 'following' ? currPost.toCommunity.name : undefined
+            selectedTab === 'following' ? currPost.toCommunity?.name! : undefined
           }
           toCommunityID={
-            selectedTab === 'following' ? currPost.toCommunity._id : undefined
+            selectedTab === 'following' ? currPost.toCommunity?._id! : undefined
           }
           liked={posts[i].liked}
           images={posts[i].images}
@@ -375,10 +375,12 @@ function CommunityBodyContent(props: Props) {
       const newPost = (
         <UserPost
           postID={newPostInfo._id}
-          posterID={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
+          posterID={
+            anonymous ? newPostInfo.fromCommunity?._id! : newPostInfo.user._id
+          }
           name={
             anonymous
-              ? `${newPostInfo.fromCommunity.name}`
+              ? `${newPostInfo.fromCommunity?.name!}`
               : `${newPostInfo.user.firstName} ${newPostInfo.user.lastName}`
           }
           timestamp={`${formatDatePretty(
