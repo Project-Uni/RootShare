@@ -46,7 +46,7 @@ export const CommunityFeed = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
-      <MakePostContainer />
+      <MakePostContainer style={{ marginTop: 15 }} />
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (

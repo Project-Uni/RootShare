@@ -27,6 +27,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   style?: React.CSSProperties;
   className?: string;
+  mode?: 'homepage' | 'profile' | 'community';
 };
 
 export const MakePostContainer = (props: Props) => {
@@ -38,10 +39,7 @@ export const MakePostContainer = (props: Props) => {
   const [message, setMessage] = useState('');
   const [imageSrc, setImageSrc] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const [serverMessage, setServerMessage] = useState<{
-    status: 0 | 1;
-    message: string;
-  }>();
+  const [serverErr, setServerErr] = useState<string>();
 
   const fileUploader = useRef<HTMLInputElement>(null);
 
@@ -52,7 +50,7 @@ export const MakePostContainer = (props: Props) => {
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files.length > 0) {
       if (event.target.files[0].size > 2440000) {
-        setServerMessage({ status: 0, message: 'The image file is too big.' });
+        setServerErr('The image file is too big.');
         event.target.value = '';
         return;
       }
@@ -66,6 +64,38 @@ export const MakePostContainer = (props: Props) => {
       imageReader.readAsDataURL(event.target.files[0]);
       event.target.value = '';
     }
+  }
+
+  async function handlePostClicked() {
+    setLoading(true);
+    setServerErr(undefined);
+
+    //TODO
+
+    // const { data } = await makeRequest('POST', '/api/posts/broadcast/user', {
+    //   message,
+    //   image: imageSrc,
+    // });
+
+    // setLoading(false);
+
+    // if (data.success === 1) {
+    //   setMessage('');
+    //   if (imageSrc) setImageSrc(undefined);
+    //   setServerMessage({ status: 1, message: 'Successfully created post.' });
+    //   setTimeout(() => {
+    //     setServerMessage(undefined);
+    //   }, 5000);
+    //   props.appendNewPost(data.content['newPost']);
+    // } else {
+    //   setServerMessage({
+    //     status: 0,
+    //     message: 'There was an error creating your post.',
+    //   });
+    //   setTimeout(() => {
+    //     setServerMessage(undefined);
+    //   }, 10000);
+    // }
   }
 
   return (
@@ -109,7 +139,13 @@ export const MakePostContainer = (props: Props) => {
           style={{ height: 70, width: 70, marginRight: 15 }}
         />
         <div style={{ flex: 1 }}>
-          <RSTextField fullWidth variant="outlined" label="Hey Purdue..." />
+          <RSTextField
+            fullWidth
+            variant="outlined"
+            label="Hey Purdue..."
+            error={Boolean(serverErr)}
+            helperText={serverErr}
+          />
           <div
             style={{
               display: 'flex',
@@ -126,6 +162,7 @@ export const MakePostContainer = (props: Props) => {
             <RSButton
               style={{ textTransform: 'none', height: '100%' }}
               disabled={loading}
+              onClick={handlePostClicked}
             >
               Post
             </RSButton>
