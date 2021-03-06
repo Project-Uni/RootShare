@@ -1111,6 +1111,10 @@ export async function retrieveComments(
             firstName: '$user.firstName',
             lastName: '$user.lastName',
             profilePicture: '$user.profilePicture',
+            major: '$user.major',
+            graduationYear: '$user.graduationYear',
+            work: '$user.work',
+            position: '$user.position',
           },
         },
       },
@@ -1212,7 +1216,7 @@ async function retrievePosts(
           major: '$user.major',
           graduationYear: '$user.graduationYear',
           work: '$user.work',
-          position: '$user.position'
+          position: '$user.position',
         },
         toCommunity: {
           _id: '$toCommunity._id',

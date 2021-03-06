@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSCard } from './RSCard';
-import { Avatar, IconButton } from '@material-ui/core';
+import { Avatar, Button, IconButton } from '@material-ui/core';
 import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
@@ -19,7 +19,8 @@ import {
 } from '../../../redux/actions';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { useHistory } from 'react-router-dom';
-import { putLikeStatus } from '../../../api';
+import { getCommentsForPost, putLikeStatus } from '../../../api';
+import LikesModal from './LikesModal';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -30,17 +31,25 @@ const useStyles = makeStyles((_: any) => ({
     },
     zIndex: 2,
   },
+  image: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
   className?: string;
   style?: React.CSSProperties;
   post: PostType;
+  options?: {
+    hideToCommunity?: boolean;
+  };
 };
 
 export const UserPost = (props: Props) => {
   const styles = useStyles();
-  const { className, style, post } = props;
+  const { className, style, post, options } = props;
 
   const history = useHistory();
 
@@ -54,6 +63,14 @@ export const UserPost = (props: Props) => {
   const [likeCount, setLikeCount] = useState(post.likes);
   const [liked, setLiked] = useState(post.liked);
   const [likeDisabled, setLikeDisabled] = useState(false);
+
+  const [commentText, setCommentText] = useState<string>();
+  const [commentCount, setCommentCount] = useState(post.comments);
+  const [commentErr, setCommentErr] = useState();
+  const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  const [showLikesModal, setShowLikesModal] = useState(false);
 
   const isHovering = useRef(false);
 
@@ -91,7 +108,12 @@ export const UserPost = (props: Props) => {
   const handleCommentIconClick = () => {
     setShowCommentField((prev) => !prev);
   };
-  const handleCommentTextClick = () => {
+  const handleCommentTextClick = async () => {
+    if (!showComments) {
+      await fetchComments();
+    } else {
+      setComments([]);
+    }
     setShowComments((prev) => !prev);
   };
 
@@ -115,8 +137,7 @@ export const UserPost = (props: Props) => {
     const { major, graduationYear, position, work } = post.user;
 
     let description = '';
-    if (major && graduationYear)
-      description += `${post.user.major} ${post.user.graduationYear}`;
+    if (major && graduationYear) description += `${major} ${graduationYear}`;
 
     if (major && graduationYear && position && work) description += '  |  ';
     if (position) description += position;
@@ -160,12 +181,35 @@ export const UserPost = (props: Props) => {
     }, 500);
   };
 
+  const fetchComments = async (startFromTimestamp?: string) => {
+    if (!loadingComments) {
+      setLoadingComments(true);
+      const data = await getCommentsForPost({
+        postID: post._id,
+        startFromTimestamp,
+      });
+      if (data.success == 1) {
+        setComments((prev) => [...prev, ...data.content['comments']]);
+      }
+      setLoadingComments(false);
+    }
+  };
+
   return (
     <RSCard
       variant="secondary"
       style={{ paddingTop: 20, paddingBottom: 20, ...style }}
-      className={className}
+      className={[className, styles.wrapper].join(' ')}
     >
+      {showLikesModal ? (
+        <LikesModal
+          open={showLikesModal}
+          onClose={() => setShowLikesModal(false)}
+          postID={post._id}
+        />
+      ) : (
+        <></>
+      )}
       <div
         id="top"
         style={{
@@ -195,7 +239,7 @@ export const UserPost = (props: Props) => {
             >
               <Avatar
                 src={anonymousCleanedData.posterProfilePicture}
-                style={{ height: 70, width: 70 }}
+                style={{ height: 65, width: 65 }}
               />
             </div>
           </RSLink>
@@ -217,7 +261,7 @@ export const UserPost = (props: Props) => {
                   <RSText bold>{anonymousCleanedData.posterName}</RSText>
                 </div>
               </RSLink>
-              {post.toCommunity && (
+              {post.toCommunity?._id && !options?.hideToCommunity && (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <img
                     src={RightArrow}
@@ -247,13 +291,7 @@ export const UserPost = (props: Props) => {
               {getUserDescription()}
             </RSText>
             <RSText size={11} color={Theme.secondaryText}>
-              {dayjs(post.createdAt).format(
-                `h:mm a on MMM D${
-                  new Date().getFullYear() !== new Date(post.createdAt).getFullYear()
-                    ? ', YYYY'
-                    : ''
-                }`
-              )}
+              {formatPostTime(post.createdAt)}
             </RSText>
           </div>
         </div>
@@ -265,8 +303,8 @@ export const UserPost = (props: Props) => {
         style={{
           marginLeft: 30,
           marginRight: 30,
-          marginTop: 20,
-          marginBottom: 25,
+          marginTop: 10,
+          marginBottom: 15,
           textAlign: 'left',
         }}
         color={Theme.secondaryText}
@@ -277,6 +315,7 @@ export const UserPost = (props: Props) => {
         <img
           src={post.images[0].fileName}
           style={{ height: 300, width: '100%', objectFit: 'cover' }}
+          className={styles.image}
           onClick={() => setIsImageViewerOpen(true)}
         />
       ) : (
@@ -293,17 +332,24 @@ export const UserPost = (props: Props) => {
           marginBottom: 5,
         }}
       >
-        <RSText color={Theme.secondaryText} className={styles.likes} size={11}>
+        <RSText
+          color={Theme.secondaryText}
+          className={styles.likes}
+          size={11}
+          onClick={() => setShowLikesModal(true)}
+          bold
+        >
           {likeCount} Sprouts
         </RSText>
         <RSText
           color={Theme.secondaryText}
           className={styles.likes}
-          style={{ marginLeft: 15 }}
+          style={{ marginLeft: 33 }}
           onClick={handleCommentTextClick}
           size={11}
+          bold
         >
-          {post.comments} Comments
+          {commentCount} Comment{commentCount !== 1 ? 's' : ''}
         </RSText>
       </div>
       <div
@@ -317,8 +363,10 @@ export const UserPost = (props: Props) => {
         }}
       >
         <DynamicIconButton
+          variant="text"
           onClick={() => handleSproutClick(liked ? 'unlike' : 'like')}
           disabled={likeDisabled}
+          style={{ textTransform: 'none' }}
         >
           <div
             style={{
@@ -328,13 +376,17 @@ export const UserPost = (props: Props) => {
               alignItems: 'center',
             }}
           >
-            <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} />
+            <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} size={20} />
             <RSText color={Theme.secondaryText} style={{ marginLeft: 10 }}>
               Sprout
             </RSText>
           </div>
         </DynamicIconButton>
-        <DynamicIconButton onClick={handleCommentIconClick}>
+        <Button
+          variant="text"
+          onClick={handleCommentIconClick}
+          style={{ textTransform: 'none' }}
+        >
           <div
             style={{
               display: 'flex',
@@ -343,12 +395,12 @@ export const UserPost = (props: Props) => {
               alignItems: 'center',
             }}
           >
-            <FaRegComment />
+            <FaRegComment size={20} />
             <RSText color={Theme.secondaryText} style={{ marginLeft: 10 }}>
               Comment
             </RSText>
           </div>
-        </DynamicIconButton>
+        </Button>
       </div>
 
       {showCommentField ? (
@@ -360,7 +412,13 @@ export const UserPost = (props: Props) => {
             display: 'flex',
           }}
         >
-          <RSTextField label={'Add a comment...'} variant="outlined" fullWidth />
+          <RSTextField
+            label={'Add a comment...'}
+            variant="outlined"
+            fullWidth
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
           <DynamicIconButton onClick={() => {}}>
             <MdSend size={22} color={Theme.bright} />
           </DynamicIconButton>
@@ -371,19 +429,30 @@ export const UserPost = (props: Props) => {
 
       {showComments ? (
         <div id="comments">
-          <Comment />
-          <Comment style={{ marginTop: 10 }} />
+          {comments.map((comment, idx) => (
+            <Comment
+              comment={comment}
+              style={{ marginTop: idx !== 0 ? 10 : undefined }}
+            />
+          ))}
+          {comments.length !== commentCount ? (
+            <RSText
+              className={styles.likes}
+              style={{ textAlign: 'left', marginLeft: 20, marginRight: 20 }}
+              color={Theme.secondaryText}
+              onClick={() =>
+                fetchComments(comments[comments?.length - 1]?.createdAt)
+              }
+            >
+              Load More Comments
+            </RSText>
+          ) : (
+            <></>
+          )}
         </div>
       ) : (
         <></>
       )}
-      <RSText
-        className={styles.likes}
-        style={{ textAlign: 'left', marginLeft: 20, marginRight: 20 }}
-        color={Theme.secondaryText}
-      >
-        Load More Comments
-      </RSText>
       <ModalGateway>
         {isImageViewerOpen && (
           <Modal onClose={() => setIsImageViewerOpen(false)}>
@@ -397,13 +466,47 @@ export const UserPost = (props: Props) => {
   );
 };
 
+type CommentResponse = {
+  createdAt: string;
+  _id: string;
+  message: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    _id: string;
+    profilePicture?: string;
+    major?: string;
+    graduationYear: number;
+    work?: string;
+    position?: string;
+  };
+  updatedAt: string;
+};
+
 type CommentProps = {
   className?: string;
   style?: React.CSSProperties;
+  comment: CommentResponse;
 };
 const Comment = (props: CommentProps) => {
-  const { className, style } = props;
+  const { className, style, comment } = props;
   const styles = useStyles();
+
+  const getUserDescription = useCallback(() => {
+    const {
+      user: { major, graduationYear, position, work },
+    } = comment;
+
+    let description = '';
+    if (major && graduationYear) description += `${major} ${graduationYear}`;
+
+    if (major && graduationYear && position && work) description += '  |  ';
+    if (position) description += position;
+    if (position && work) description += ' @ ';
+    if (work) description += work;
+
+    return description;
+  }, [comment]);
 
   return (
     <div
@@ -417,7 +520,7 @@ const Comment = (props: CommentProps) => {
         ...style,
       }}
     >
-      <Avatar src={undefined} style={{ height: 50, width: 50 }} />
+      <Avatar src={comment.user.profilePicture} style={{ height: 50, width: 50 }} />
       <div
         style={{
           flex: 1,
@@ -432,23 +535,26 @@ const Comment = (props: CommentProps) => {
         id="comment-body"
       >
         <RSText size={11} bold>
-          Smit Desai
+          {comment.user.firstName} {comment.user.lastName}
         </RSText>
         <RSText size={10} color={Theme.secondaryText}>
-          Computer Science 2020 | Software Development Engineer @ Amazon
+          {getUserDescription()}
         </RSText>
         <RSText size={10} color={Theme.secondaryText}>
-          Mar 01
+          {formatPostTime(comment.createdAt)}
         </RSText>
 
         <RSText size={11} color={Theme.secondaryText} style={{ marginTop: 10 }}>
-          Swine pork chop jowl pork belly boudin chuck, beef pastrami prosciutto
-          burgdoggen doner. Spare ribs boudin prosciutto tail t-bone. Leberkas tail
-          buffalo sausage kevin. Leberkas shoulder salami chislic pork loin, ham
-          jerky turkey rump tenderloin meatloaf. Chislic meatloaf spare ribs strip
-          steak hamburger bacon, pancetta burgdoggen corned beef sausage.
+          {comment.message}
         </RSText>
       </div>
     </div>
   );
 };
+
+const formatPostTime = (timestamp: string) =>
+  dayjs(timestamp).format(
+    `MMM D${
+      new Date().getFullYear() !== new Date(timestamp).getFullYear() ? ' YYYY' : ''
+    }, h:mm a`
+  );

@@ -48,7 +48,13 @@ export const CommunityFeed = (props: Props) => {
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
-        posts?.map((post) => <UserPost post={post} style={{ marginTop: 15 }} />)
+        posts?.map((post) => (
+          <UserPost
+            post={post}
+            style={{ marginTop: 15 }}
+            options={{ hideToCommunity: true }}
+          />
+        ))
       )}
     </div>
   );

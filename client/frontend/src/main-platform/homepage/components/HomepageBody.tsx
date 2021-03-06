@@ -8,17 +8,12 @@ import RSText from '../../../base-components/RSText';
 
 import {
   WelcomeMessage,
-  UserPost,
   RSTabs,
   MakePostContainer,
   FeaturedEvent,
 } from '../../reusable-components';
+import { UserPost } from '../../reusable-components/components/UserPost.v2';
 
-import {
-  makeRequest,
-  formatDatePretty,
-  formatTime,
-} from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
@@ -67,7 +62,7 @@ function HomepageBody(props: Props) {
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [serverErr, setServerErr] = useState(false);
-  const [feed, setFeed] = useState<JSX.Element[]>([]);
+  const [feed, setFeed] = useState<PostType[]>([]);
   const [selectedTab, setSelectedTab] = useState<'general' | 'following'>('general');
 
   useEffect(() => {
@@ -87,7 +82,7 @@ function HomepageBody(props: Props) {
   async function getFeed() {
     const data = await getPosts({ postType: { type: selectedTab } });
     if (data.success === 1) {
-      setFeed(createFeed(data.content['posts']));
+      setFeed(data.content['posts']);
       setServerErr(false);
     } else {
       setServerErr(true);
@@ -107,64 +102,7 @@ function HomepageBody(props: Props) {
   }
 
   function appendNewPost(post: PostType) {
-    setFeed((prevState) => {
-      const newEntry = (
-        <UserPost
-          postID={post._id}
-          posterID={props.user._id}
-          name={`${props.user.firstName} ${props.user.lastName}`}
-          timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
-            new Date(post.createdAt)
-          )}`}
-          profilePicture={props.user.profilePicture}
-          message={post.message}
-          likeCount={0}
-          commentCount={0}
-          style={styles.postBox}
-          images={post.images}
-          isOwnPost
-        />
-      );
-      return [newEntry].concat(prevState);
-    });
-  }
-
-  function createFeed(posts: PostType[]) {
-    const output = [];
-    for (let i = 0; i < posts.length; i++) {
-      const { anonymous } = posts[i];
-      output.push(
-        <UserPost
-          postID={posts[i]._id}
-          posterID={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
-          name={
-            anonymous
-              ? `${posts[i].fromCommunity.name}`
-              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
-          }
-          timestamp={`${formatDatePretty(
-            new Date(posts[i].createdAt)
-          )} at ${formatTime(new Date(posts[i].createdAt))}`}
-          profilePicture={
-            anonymous
-              ? posts[i].fromCommunity.profilePicture
-              : posts[i].user.profilePicture
-          }
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
-          style={styles.postBox}
-          key={posts[i]._id}
-          toCommunity={posts[i].toCommunity.name}
-          toCommunityID={posts[i].toCommunity._id}
-          anonymous={anonymous}
-          liked={posts[i].liked}
-          images={posts[i].images}
-          isOwnPost={props.user._id === posts[i].user._id}
-        />
-      );
-    }
-    return output;
+    setFeed((prev) => [post, ...prev]);
   }
 
   return (
@@ -200,7 +138,14 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        <div className={styles.posts}>{feed}</div>
+        <div className={styles.posts}>
+          {feed.map((post, idx) => (
+            <UserPost
+              post={post}
+              style={{ marginTop: idx !== 0 ? 10 : undefined }}
+            />
+          ))}
+        </div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={Theme.primary}>
