@@ -1,22 +1,22 @@
 import { makeRequest } from '../../helpers/functions';
 import { PostType } from '../../helpers/types';
 
-export const getPosts = async ({
-  postType,
-}: {
-  postType: {
-    type:
-      | 'general'
-      | 'following'
-      | 'community-external'
-      | 'community-internal-student'
-      | 'community-internal-alumni'
-      | 'community-following';
-    params?: {
-      communityID: string;
-    };
+type GetPostParams = {
+  type:
+    | 'general'
+    | 'following'
+    | 'user'
+    | 'community-external'
+    | 'community-internal-student'
+    | 'community-internal-alumni'
+    | 'community-following';
+  params?: {
+    communityID?: string;
+    userID?: string;
   };
-}) => {
+};
+
+export const getPosts = async ({ postType }: { postType: GetPostParams }) => {
   const url = getPostsURL(postType);
 
   if (!url) {
@@ -31,23 +31,14 @@ export const getPosts = async ({
   return data;
 };
 
-const getPostsURL = (postType: {
-  type:
-    | 'general'
-    | 'following'
-    | 'community-external'
-    | 'community-internal-student'
-    | 'community-internal-alumni'
-    | 'community-following';
-  params?: {
-    communityID: string;
-  };
-}) => {
+const getPostsURL = (postType: GetPostParams) => {
   switch (postType.type) {
     case 'general':
       return '/api/posts/feed/general';
     case 'following':
       return '/api/posts/feed/following';
+    case 'user':
+      return `/api/posts/user/${postType.params?.userID}/all`;
     case 'community-external':
       return `/api/posts/community/${postType.params?.communityID}/external`;
     case 'community-internal-alumni':

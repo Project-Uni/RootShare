@@ -520,7 +520,12 @@ const Comment = (props: CommentProps) => {
         ...style,
       }}
     >
-      <Avatar src={comment.user.profilePicture} style={{ height: 50, width: 50 }} />
+      <RSLink href={`/profile/${comment.user._id}`}>
+        <Avatar
+          src={comment.user.profilePicture}
+          style={{ height: 50, width: 50 }}
+        />
+      </RSLink>
       <div
         style={{
           flex: 1,
@@ -534,9 +539,11 @@ const Comment = (props: CommentProps) => {
         }}
         id="comment-body"
       >
-        <RSText size={11} bold>
-          {comment.user.firstName} {comment.user.lastName}
-        </RSText>
+        <RSLink href={`/profile/${comment.user._id}`} underline={false}>
+          <RSText size={11} bold>
+            {comment.user.firstName} {comment.user.lastName}
+          </RSText>
+        </RSLink>
         <RSText size={10} color={Theme.secondaryText}>
           {getUserDescription()}
         </RSText>

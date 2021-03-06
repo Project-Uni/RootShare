@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
 import ProfileHead from './ProfileHead';
 import ProfileEvent from './ProfileEvent';
-import { UserPost, MakePostContainer } from '../../reusable-components';
+import { MakePostContainer } from '../../reusable-components';
+import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
@@ -26,8 +27,9 @@ import {
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
-import { getProfilePictureAndBanner } from '../../../api';
+import { getPosts, getProfilePictureAndBanner } from '../../../api';
 import { useParams } from 'react-router-dom';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -102,6 +104,7 @@ function ProfileBody(props: Props) {
   const [postsFetchErr, setPostsFetchErr] = useState(false);
 
   const { profileID } = useParams<{ profileID: string }>();
+  const user = useSelector((state: RootshareReduxState) => state.user);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -111,11 +114,13 @@ function ProfileBody(props: Props) {
     if (profileID) {
       fetchProfile().then(([success, profile]) => {
         if (success) {
-          getCurrentProfilePicture();
-          updateProfileState();
-          fetchEvents();
-          getUserPosts(profile).then(() => {
-            setLoadingPosts(false);
+          getCurrentProfilePicture().then(() => {
+            updateProfileState().then(() => {
+              getUserPosts(profile).then(() => {
+                setLoadingPosts(false);
+              });
+            });
+            // fetchEvents();
           });
         }
       });
@@ -168,7 +173,9 @@ function ProfileBody(props: Props) {
   }
 
   async function getUserPosts(profile: UserType) {
-    const { data } = await makeRequest('GET', `/api/posts/user/${profileID}/all`);
+    const data = await getPosts({
+      postType: { type: 'user', params: { userID: profileID } },
+    });
 
     if (data.success === 1) {
       const { posts } = data.content;
@@ -177,8 +184,14 @@ function ProfileBody(props: Props) {
         const cleanedPost = {
           ...posts[i],
           user: {
+            ...posts[i].user,
             firstName: profile.firstName,
             lastName: profile.lastName,
+            profilePicture:
+              profileID === 'user' ? user.profilePicture : currentPicture,
+            graduationYear: profile.graduationYear,
+            position: profile.position,
+            company: profile.work,
           },
         };
         cleanedPosts.push(cleanedPost);
@@ -270,43 +283,22 @@ function ProfileBody(props: Props) {
     );
   }
 
-  function renderPosts() {
-    const output = [];
-    for (let i = 0; i < posts.length; i++) {
-      const currPost = posts[i];
-      output.push(
-        <UserPost
-          postID={currPost._id}
-          posterID={profileID}
-          name={`${currPost.user?.firstName} ${currPost.user?.lastName}`}
-          profilePicture={
-            profileID === 'user' ? props.user.profilePicture : currentPicture
-          }
-          timestamp={(function() {
-            const date = new Date(currPost.createdAt);
-            return `${formatDatePretty(date)} at ${formatTime(date)}`;
-          })()}
-          message={currPost.message}
-          likeCount={currPost.likes}
-          commentCount={currPost.comments}
-          style={styles.post}
-          liked={currPost.liked}
-          images={currPost.images}
-          isOwnPost={profileID === 'user'}
-        />
-      );
-    }
-
-    if (posts.length === 0)
-      output.push(
-        <RSText size={16} type="head" className={styles.noPosts}>
-          There are no posts yet.
-        </RSText>
-      );
+  const renderPosts = () => {
+    const jsxPosts = posts.map((post, idx) => (
+      <UserPost post={post} style={{ marginTop: idx !== 0 ? 10 : undefined }} />
+    ));
     return (
-      <div style={{ background: Theme.background, paddingTop: 1 }}>{output}</div>
+      <div style={{ background: Theme.background, paddingTop: 1 }}>
+        {posts.length === 0 ? (
+          <RSText size={16} type="head" className={styles.noPosts}>
+            There are no posts yet.
+          </RSText>
+        ) : (
+          jsxPosts
+        )}
+      </div>
     );
-  }
+  };
 
   function renderProfile() {
     const profile = profileState as UserType;
@@ -338,7 +330,7 @@ function ProfileBody(props: Props) {
             />
           </Box>
 
-          {renderRegisteredEvents()}
+          {/* {renderRegisteredEvents()} */}
           {profileID === 'user' && (
             <MakePostContainer
               appendNewPost={appendNewPost}
