@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles((_: any) => ({
   link: {
     color: 'inherit',
+    fontSize: 'inherit',
   },
   pointer: {
     '&:hover': {

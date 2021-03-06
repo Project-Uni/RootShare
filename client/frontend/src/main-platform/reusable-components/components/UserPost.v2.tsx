@@ -1,17 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSCard } from './RSCard';
 import { Avatar, IconButton } from '@material-ui/core';
 import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { DynamicIconButton, RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
-import mtgBanner from '../../../images/mtgBanner.png';
 import { RSTextField } from './RSTextField';
 import { MdSend } from 'react-icons/md';
 import { RightArrow } from '../../../images';
 import { PostType } from '../../../helpers/types';
+import { RSLink } from './RSLink';
+import dayjs from 'dayjs';
+import {
+  dispatchHoverPreview,
+  hoverPreviewTriggerComponentExit,
+} from '../../../redux/actions';
+import Carousel, { Modal, ModalGateway } from 'react-images';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -24,8 +31,6 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Post = {};
-
 type Props = {
   className?: string;
   style?: React.CSSProperties;
@@ -34,12 +39,25 @@ type Props = {
 
 export const UserPost = (props: Props) => {
   const styles = useStyles();
-  const { className, style } = props;
+  const { className, style, post } = props;
+
+  const history = useHistory();
 
   const user = useSelector((state: RootshareReduxState) => state.user);
+  const dispatch = useDispatch();
 
   const [showCommentField, setShowCommentField] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+
+  const isHovering = useRef(false);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      if (isHovering.current) isHovering.current = false;
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   const handleSproutClick = () => {};
 
@@ -48,6 +66,71 @@ export const UserPost = (props: Props) => {
   };
   const handleCommentTextClick = () => {
     setShowComments((prev) => !prev);
+  };
+
+  const anonymousCleanedData = {
+    posterName: post.anonymous
+      ? post.fromCommunity?.name
+      : `${post.user.firstName} ${post.user.lastName}`,
+    posterID: post.anonymous ? post.fromCommunity?._id : post.user._id,
+    posterNavigationURL: post.anonymous
+      ? `/community/${post.fromCommunity?._id}`
+      : `/profile/${post.user._id}`,
+    posterProfilePicture: post.anonymous
+      ? post.fromCommunity?.profilePicture
+      : post.user.profilePicture,
+    toEntityNavigationURL: `/community/${post.toCommunity?._id}`,
+  };
+
+  const getUserDescription = useCallback(() => {
+    if (post.anonymous) return;
+
+    const { major, graduationYear, position, work } = post.user;
+
+    let description = '';
+    if (major && graduationYear)
+      description += `${post.user.major} ${post.user.graduationYear}`;
+
+    if (major && graduationYear && position && work) description += '  |  ';
+    if (position) description += position;
+    if (position && work) description += ' @ ';
+    if (work) description += work;
+
+    return description;
+  }, [post]);
+
+  const handleMouseOverFrom = (e: React.MouseEvent<HTMLElement>) => {
+    isHovering.current = true;
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (isHovering.current)
+        dispatch(
+          dispatchHoverPreview({
+            _id: anonymousCleanedData.posterID!,
+            type: post.anonymous ? 'community' : 'user',
+            profilePicture: anonymousCleanedData.posterProfilePicture,
+            name: anonymousCleanedData.posterName!,
+            anchorEl: currentTarget,
+          })
+        );
+    }, 500);
+  };
+
+  const handleMouseOverTo = (e: React.MouseEvent<HTMLElement>) => {
+    isHovering.current = true;
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (isHovering.current)
+        dispatch(
+          dispatchHoverPreview({
+            _id: post.toCommunity!._id,
+            type: 'community',
+            profilePicture: post.toCommunity?.profilePicture,
+            name: post.toCommunity!.name,
+            anchorEl: currentTarget,
+          })
+        );
+    }, 500);
   };
 
   return (
@@ -73,22 +156,77 @@ export const UserPost = (props: Props) => {
             alignItems: 'center',
           }}
         >
-          <Avatar src={undefined} style={{ height: 70, width: 70 }} />
+          <RSLink href={anonymousCleanedData.posterNavigationURL} underline={false}>
+            <div
+              onMouseEnter={handleMouseOverFrom}
+              onMouseLeave={() => {
+                isHovering.current = false;
+                setTimeout(() => {
+                  dispatch(hoverPreviewTriggerComponentExit());
+                }, 500);
+              }}
+            >
+              <Avatar
+                src={anonymousCleanedData.posterProfilePicture}
+                style={{ height: 70, width: 70 }}
+              />
+            </div>
+          </RSLink>
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <RSText bold>Dhruv Bhargava</RSText>
-              <img
-                src={RightArrow}
-                style={{ marginLeft: 15, marginRight: 15, height: 12 }}
-                alt="to"
-              />
-              <RSText bold>RootShare Developers</RSText>
+              <RSLink
+                href={anonymousCleanedData.posterNavigationURL}
+                underline={false}
+              >
+                <div
+                  onMouseEnter={handleMouseOverFrom}
+                  onMouseLeave={() => {
+                    isHovering.current = false;
+                    setTimeout(() => {
+                      dispatch(hoverPreviewTriggerComponentExit());
+                    }, 500);
+                  }}
+                >
+                  <RSText bold>{anonymousCleanedData.posterName}</RSText>
+                </div>
+              </RSLink>
+              {post.toCommunity && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <img
+                    src={RightArrow}
+                    style={{ marginLeft: 15, marginRight: 15, height: 12 }}
+                    alt="to"
+                  />
+                  <RSLink
+                    href={anonymousCleanedData.toEntityNavigationURL}
+                    underline={false}
+                  >
+                    <div
+                      onMouseEnter={handleMouseOverTo}
+                      onMouseLeave={() => {
+                        isHovering.current = false;
+                        setTimeout(() => {
+                          dispatch(hoverPreviewTriggerComponentExit());
+                        }, 500);
+                      }}
+                    >
+                      <RSText bold>{post.toCommunity?.name}</RSText>
+                    </div>
+                  </RSLink>
+                </div>
+              )}
             </div>
-            <RSText size={10} color={Theme.secondaryText}>
-              Cybersecurity 2020 | Analyst @ Crowe
+            <RSText size={11} color={Theme.secondaryText}>
+              {getUserDescription()}
             </RSText>
-            <RSText size={10} color={Theme.secondaryText}>
-              Feb 28
+            <RSText size={11} color={Theme.secondaryText}>
+              {dayjs(post.createdAt).format(
+                `h:mm a on MMM D${
+                  new Date().getFullYear() !== new Date(post.createdAt).getFullYear()
+                    ? ', YYYY'
+                    : ''
+                }`
+              )}
             </RSText>
           </div>
         </div>
@@ -104,27 +242,19 @@ export const UserPost = (props: Props) => {
           marginBottom: 25,
           textAlign: 'left',
         }}
-        size={11}
         color={Theme.secondaryText}
       >
-        Bacon ipsum dolor amet beef meatloaf ribeye short ribs boudin pork. Ribeye
-        t-bone beef flank, doner hamburger kielbasa pork loin biltong chicken
-        picanha. Ground round shankle short loin, spare ribs meatloaf short ribs pig
-        tenderloin. Boudin buffalo shank brisket cupim. Pork biltong meatball, tail
-        pig shank bacon alcatra pork belly turducken fatback venison pork loin.
-        Biltong kielbasa tongue corned beef, hamburger tenderloin meatloaf drumstick
-        alcatra pork belly pork loin tail strip steak. Flank landjaeger venison spare
-        ribs andouille. <span style={{ display: 'block', marginTop: 10 }}></span>Pork
-        chop flank porchetta strip steak, boudin ground round turkey ham salami
-        chicken beef ribs hamburger. Beef ribs swine shank salami pork belly.
-        Turducken buffalo capicola fatback short loin pancetta sausage swine.
-        Porchetta ham hock meatloaf kielbasa ham jowl. Beef ribs leberkas buffalo
-        boudin rump shank bresaola pig pork chop doner ham brisket.
+        {post.message}
       </RSText>
-      <img
-        src={mtgBanner}
-        style={{ height: 300, width: '100%', objectFit: 'cover' }}
-      />
+      {post.images.length > 0 ? (
+        <img
+          src={post.images[0].fileName}
+          style={{ height: 300, width: '100%', objectFit: 'cover' }}
+          onClick={() => setIsImageViewerOpen(true)}
+        />
+      ) : (
+        <></>
+      )}
       <div
         id="likes-and-comment-counts"
         style={{
@@ -136,16 +266,17 @@ export const UserPost = (props: Props) => {
           marginBottom: 5,
         }}
       >
-        <RSText color={Theme.secondaryText} className={styles.likes}>
-          87 Sprouts
+        <RSText color={Theme.secondaryText} className={styles.likes} size={11}>
+          {post.likes} Sprouts
         </RSText>
         <RSText
           color={Theme.secondaryText}
           className={styles.likes}
           style={{ marginLeft: 15 }}
           onClick={handleCommentTextClick}
+          size={11}
         >
-          15 Comments
+          {post.comments} Comments
         </RSText>
       </div>
       <div
@@ -167,8 +298,8 @@ export const UserPost = (props: Props) => {
               alignItems: 'center',
             }}
           >
-            <FaLeaf />
-            <RSText size={12} color={Theme.secondaryText} style={{ marginLeft: 10 }}>
+            <FaLeaf color={post.liked ? Theme.bright : Theme.secondaryText} />
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 10 }}>
               Sprout
             </RSText>
           </div>
@@ -183,7 +314,7 @@ export const UserPost = (props: Props) => {
             }}
           >
             <FaRegComment />
-            <RSText size={12} color={Theme.secondaryText} style={{ marginLeft: 10 }}>
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 10 }}>
               Comment
             </RSText>
           </div>
@@ -218,12 +349,20 @@ export const UserPost = (props: Props) => {
       )}
       <RSText
         className={styles.likes}
-        size={13}
-        style={{ textAlign: 'left', marginLeft: 20, marginRight: 20, marginTop: 20 }}
+        style={{ textAlign: 'left', marginLeft: 20, marginRight: 20 }}
         color={Theme.secondaryText}
       >
         Load More Comments
       </RSText>
+      <ModalGateway>
+        {isImageViewerOpen && (
+          <Modal onClose={() => setIsImageViewerOpen(false)}>
+            <Carousel
+              views={post.images?.map((image) => ({ source: image.fileName })) || []}
+            />
+          </Modal>
+        )}
+      </ModalGateway>
     </RSCard>
   );
 };

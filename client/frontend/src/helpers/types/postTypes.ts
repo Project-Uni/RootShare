@@ -11,10 +11,14 @@ export type PostType = {
     firstName: string;
     lastName: string;
     profilePicture?: string;
+    major?: string;
+    graduationYear: number;
+    work?: string;
+    position?: string;
   };
   images: { fileName: string }[];
-  fromCommunity: { name: string; _id: string; profilePicture?: string };
-  toCommunity: { name: string; _id: string; profilePicture?: string };
+  fromCommunity?: { name: string; _id: string; profilePicture?: string };
+  toCommunity?: { name: string; _id: string; profilePicture?: string };
   type: 'broadcast' | 'external' | 'internalCurrent' | 'internalAlumni';
   anonymous?: boolean;
 };

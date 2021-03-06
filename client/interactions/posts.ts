@@ -1209,6 +1209,10 @@ async function retrievePosts(
           firstName: '$user.firstName',
           lastName: '$user.lastName',
           profilePicture: '$user.profilePicture',
+          major: '$user.major',
+          graduationYear: '$user.graduationYear',
+          work: '$user.work',
+          position: '$user.position'
         },
         toCommunity: {
           _id: '$toCommunity._id',
