@@ -654,6 +654,13 @@ export async function leaveCommentOnPost(
           post: postID,
         }).save();
 
+        await comment
+          .populate({
+            path: 'user',
+            select: 'firstName lastName email major work position graduationYear',
+          })
+          .execPopulate();
+
         await Post.updateOne(
           { _id: postID },
           { $push: { comments: comment._id } }

@@ -15,6 +15,7 @@ import { RSLink } from './RSLink';
 import dayjs from 'dayjs';
 import {
   dispatchHoverPreview,
+  dispatchSnackbar,
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions';
 import Carousel, { Modal, ModalGateway } from 'react-images';
@@ -22,6 +23,7 @@ import { useHistory } from 'react-router-dom';
 import { getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
+import { postSubmitComment } from '../../../api/post';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -65,9 +67,9 @@ export const UserPost = (props: Props) => {
   const [liked, setLiked] = useState(post.liked);
   const [likeDisabled, setLikeDisabled] = useState(false);
 
-  const [commentText, setCommentText] = useState<string>();
+  const [commentText, setCommentText] = useState('');
   const [commentCount, setCommentCount] = useState(post.comments);
-  const [commentErr, setCommentErr] = useState();
+  const [commentErr, setCommentErr] = useState<string>();
   const [comments, setComments] = useState<CommentType[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
 
@@ -118,7 +120,7 @@ export const UserPost = (props: Props) => {
     setShowComments((prev) => !prev);
   };
 
-  const anonymousCleanedData = useRef<{
+  const [anonymousCleanedData, setAnonymousCleanedData] = useState<{
     posterName: string;
     posterID: string;
     posterNavigationURL: string;
@@ -143,7 +145,7 @@ export const UserPost = (props: Props) => {
   }, [post]);
 
   useEffect(() => {
-    anonymousCleanedData.current = createAnonymousCleanedData();
+    setAnonymousCleanedData(createAnonymousCleanedData());
   }, [createAnonymousCleanedData]);
 
   const getUserDescription = useCallback(() => {
@@ -169,10 +171,10 @@ export const UserPost = (props: Props) => {
       if (isHovering.current)
         dispatch(
           dispatchHoverPreview({
-            _id: anonymousCleanedData.current?.posterID!,
+            _id: anonymousCleanedData?.posterID!,
             type: post.anonymous ? 'community' : 'user',
-            profilePicture: anonymousCleanedData.current?.posterProfilePicture!,
-            name: anonymousCleanedData.current?.posterName!,
+            profilePicture: anonymousCleanedData?.posterProfilePicture!,
+            name: anonymousCleanedData?.posterName!,
             anchorEl: currentTarget,
           })
         );
@@ -216,6 +218,38 @@ export const UserPost = (props: Props) => {
     }
   };
 
+  const submitComment = useCallback(async () => {
+    if (!commentText?.trim()) {
+      setCommentErr("That's not a comment!");
+      return;
+    }
+    setCommentErr(undefined);
+    const message = commentText!.trim();
+    const data = await postSubmitComment({ postID: post._id, message });
+    if (data.success === 1) {
+      setCommentText('');
+      const {
+        comment: { user: newCommentUser, ...commentRest },
+      } = data.content;
+      setComments((prev) => [
+        {
+          ...commentRest,
+          user: { ...newCommentUser, profilePicture: user.profilePicture },
+        },
+        ...prev,
+      ]);
+      setCommentCount((prev) => prev + 1);
+    } else {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message:
+            'Something went wrong while submitting your comment. Please try again',
+        })
+      );
+    }
+  }, [commentText, post]);
+
   return (
     <RSCard
       variant="secondary"
@@ -248,10 +282,7 @@ export const UserPost = (props: Props) => {
             alignItems: 'center',
           }}
         >
-          <RSLink
-            href={anonymousCleanedData.current?.posterNavigationURL}
-            underline={false}
-          >
+          <RSLink href={anonymousCleanedData?.posterNavigationURL} underline={false}>
             <div
               onMouseEnter={handleMouseOverFrom}
               onMouseLeave={() => {
@@ -262,7 +293,7 @@ export const UserPost = (props: Props) => {
               }}
             >
               <Avatar
-                src={anonymousCleanedData.current?.posterProfilePicture}
+                src={anonymousCleanedData?.posterProfilePicture}
                 style={{ height: 65, width: 65 }}
               />
             </div>
@@ -270,7 +301,7 @@ export const UserPost = (props: Props) => {
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <RSLink
-                href={anonymousCleanedData.current?.posterNavigationURL}
+                href={anonymousCleanedData?.posterNavigationURL}
                 underline={false}
               >
                 <div
@@ -282,7 +313,7 @@ export const UserPost = (props: Props) => {
                     }, 500);
                   }}
                 >
-                  <RSText bold>{anonymousCleanedData.current?.posterName}</RSText>
+                  <RSText bold>{anonymousCleanedData?.posterName}</RSText>
                 </div>
               </RSLink>
               {post.toCommunity?._id && !options?.hideToCommunity && (
@@ -293,7 +324,7 @@ export const UserPost = (props: Props) => {
                     alt="to"
                   />
                   <RSLink
-                    href={anonymousCleanedData.current?.toEntityNavigationURL}
+                    href={anonymousCleanedData?.toEntityNavigationURL}
                     underline={false}
                   >
                     <div
@@ -445,7 +476,7 @@ export const UserPost = (props: Props) => {
             error={Boolean(commentErr)}
             helperText={commentErr}
           />
-          <DynamicIconButton onClick={() => {}}>
+          <DynamicIconButton onClick={submitComment}>
             <MdSend size={22} color={Theme.bright} />
           </DynamicIconButton>
         </div>
