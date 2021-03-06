@@ -44,7 +44,7 @@ export const RSTextField = (props: TextFieldProps & { fontSize?: number }) => {
     {
       InputProps: {
         classes: {
-          underline: styles.underline,
+          underline: props.variant !== 'outlined' ? styles.underline : undefined,
           root: styles.root,
           focused: styles.focused,
           notchedOutline:

@@ -1,24 +1,7 @@
 import { stringify } from 'query-string';
 import { makeRequest } from '../../helpers/functions';
+import { CommentType } from '../../main-platform/reusable-components/components/Comment.v2';
 
-type CommentResponse = {
-  comments: {
-    createdAt: string;
-    _id: string;
-    message: string;
-    user: {
-      firstName: string;
-      lastName: string;
-      _id: string;
-      profilePicture?: string;
-      major?: string;
-      graduationYear: number;
-      work?: string;
-      position?: string;
-    };
-    updatedAt: string;
-  }[];
-};
 export const getCommentsForPost = async ({
   postID,
   startFromTimestamp,
@@ -29,7 +12,7 @@ export const getCommentsForPost = async ({
   let query: string | undefined = undefined;
   if (startFromTimestamp)
     query = stringify({ startingTimestamp: startFromTimestamp });
-  const { data } = await makeRequest<CommentResponse>(
+  const { data } = await makeRequest<{ comments: CommentType[] }>(
     'GET',
     `/api/posts/comments/${postID}${query ? `?${query}` : ''}`
   );

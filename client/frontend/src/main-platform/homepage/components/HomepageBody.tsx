@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import RSText from '../../../base-components/RSText';
 
@@ -20,6 +20,7 @@ import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
 import { getPosts } from '../../../api';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -49,13 +50,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-};
+type Props = {};
 
-function HomepageBody(props: Props) {
+export default function HomepageBody(props: Props) {
   const styles = useStyles();
   const history = useHistory();
 
@@ -64,6 +61,10 @@ function HomepageBody(props: Props) {
   const [serverErr, setServerErr] = useState(false);
   const [feed, setFeed] = useState<PostType[]>([]);
   const [selectedTab, setSelectedTab] = useState<'general' | 'following'>('general');
+
+  const profilePicture = useSelector(
+    (state: RootshareReduxState) => state.user.profilePicture
+  );
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -123,7 +124,7 @@ function HomepageBody(props: Props) {
       />
       <MakePostContainer
         appendNewPost={appendNewPost}
-        profilePicture={props.user.profilePicture}
+        profilePicture={profilePicture}
       />
 
       <RSTabs
@@ -143,6 +144,7 @@ function HomepageBody(props: Props) {
             <UserPost
               post={post}
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
+              key={`post_${idx}`}
             />
           ))}
         </div>
@@ -156,17 +158,3 @@ function HomepageBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);
