@@ -17,11 +17,11 @@ export class AuthService {
       if (!validation_user)
         return {
           status: 400,
-          packet: sendPacket(0, 'No user exists with this email'),
+          packet: sendPacket(0, 'Invalid credentials'),
         };
 
       if (!comparePasswords(password, validation_user.hashedPassword))
-        return { status: 400, packet: sendPacket(0, 'Invalid password') };
+        return { status: 400, packet: sendPacket(0, 'Invalid credentials') };
 
       const [user] = await getUsersByIDs([validation_user._id], {
         fields: [

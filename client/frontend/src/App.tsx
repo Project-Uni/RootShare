@@ -63,7 +63,7 @@ const App = () => {
               path="/account/initialize"
               render={() => <LandingPage mode="additional" />}
             />
-            {/* <Route exact path="/login" render={() => <LandingPage mode="login" />} /> */}
+            <Route exact path="/login" render={() => <LandingPage mode="login" />} />
             {/* <Route exact path="/" component={LandingPage} />
             <Route
               exact
@@ -75,7 +75,7 @@ const App = () => {
               path="/register/initialize"
               component={HypeAdditionalInfo}
             /> */}
-            <Route exact path="/login" component={Login} />
+            {/* <Route exact path="/login" component={Login} /> */}
 
             <Route
               exact
