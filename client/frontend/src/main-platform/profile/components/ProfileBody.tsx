@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
@@ -19,11 +19,7 @@ import {
   UserToUserRelationship,
   U2UR,
 } from '../../../helpers/types';
-import {
-  makeRequest,
-  formatDatePretty,
-  formatTime,
-} from '../../../helpers/functions';
+import { makeRequest } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
@@ -35,7 +31,8 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {},
   box: {
-    margin: 8,
+    marginTop: 8,
+    marginBottom: 8,
     background: Theme.white,
   },
   headBox: {
@@ -60,18 +57,6 @@ const useStyles = makeStyles((_: any) => ({
   eventWithBorder: {
     borderTop: `1px solid ${Theme.dark}`,
   },
-  post: {
-    margin: 8,
-  },
-  rootshares: {
-    textAlign: 'center',
-    marginTop: 10,
-    paddingTop: 15,
-    paddingBottom: 15,
-    background: Theme.primary,
-    borderBottom: `1px solid ${Theme.primary}`,
-    borderTop: `1px solid ${Theme.primary}`,
-  },
   postsLoadingIndicator: {
     marginTop: 60,
     color: Theme.bright,
@@ -81,11 +66,9 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: any;
-};
+type Props = {};
 
-function ProfileBody(props: Props) {
+export default function ProfileBody(props: Props) {
   const styles = useStyles();
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
@@ -112,32 +95,29 @@ function ProfileBody(props: Props) {
 
   useEffect(() => {
     if (profileID) {
-      fetchProfile().then(([success, profile]) => {
+      fetchProfile().then((success) => {
         if (success) {
-          getCurrentProfilePicture().then(() => {
-            updateProfileState().then(() => {
-              getUserPosts(profile).then(() => {
-                setLoadingPosts(false);
-              });
-            });
-            // fetchEvents();
-          });
+          getCurrentProfilePicture();
+          updateProfileState();
+          getUserPosts();
+          // fetchEvents();
         }
       });
     }
   }, [profileID]);
 
   async function fetchProfile() {
+    setLoading(true);
     const { data } = await makeRequest('GET', `/api/user/profile/${profileID}`);
 
     if (data['success'] === 1) {
       setProfileState(data['content']['user']);
       setLoading(false);
-      return [true, data['content']['user']];
+      return true;
     } else setFetchingErr(true);
 
     setLoading(false);
-    return [false, null];
+    return false;
   }
 
   async function updateProfileState() {
@@ -172,34 +152,19 @@ function ProfileBody(props: Props) {
     if (data['success'] === 1) setEvents(data['content']['events']);
   }
 
-  async function getUserPosts(profile: UserType) {
+  async function getUserPosts() {
+    setLoadingPosts(true);
     const data = await getPosts({
       postType: { type: 'user', params: { userID: profileID } },
     });
 
     if (data.success === 1) {
       const { posts } = data.content;
-      const cleanedPosts: PostType[] = [];
-      for (let i = 0; i < posts.length; i++) {
-        const cleanedPost = {
-          ...posts[i],
-          user: {
-            ...posts[i].user,
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            profilePicture:
-              profileID === 'user' ? user.profilePicture : currentPicture,
-            graduationYear: profile.graduationYear,
-            position: profile.position,
-            company: profile.work,
-          },
-        };
-        cleanedPosts.push(cleanedPost);
-      }
-      setPosts(cleanedPosts);
+      setPosts(posts);
     } else {
       setPostsFetchErr(true);
     }
+    setLoadingPosts(false);
   }
 
   function appendNewPost(post: PostType) {
@@ -229,7 +194,7 @@ function ProfileBody(props: Props) {
           width={150}
           borderRadius={150}
           currentPicture={
-            profileID === 'user' ? props.user.profilePicture : currentPicture
+            profileID === 'user' ? user.profilePicture : currentPicture
           }
           zoomOnClick={currentProfileState !== U2UR.SELF}
           borderWidth={8}
@@ -283,23 +248,6 @@ function ProfileBody(props: Props) {
     );
   }
 
-  const renderPosts = () => {
-    const jsxPosts = posts.map((post, idx) => (
-      <UserPost post={post} style={{ marginTop: idx !== 0 ? 10 : undefined }} />
-    ));
-    return (
-      <div style={{ background: Theme.background, paddingTop: 1 }}>
-        {posts.length === 0 ? (
-          <RSText size={16} type="head" className={styles.noPosts}>
-            There are no posts yet.
-          </RSText>
-        ) : (
-          jsxPosts
-        )}
-      </div>
-    );
-  };
-
   function renderProfile() {
     const profile = profileState as UserType;
     const university = profile.university as UniversityType;
@@ -334,13 +282,23 @@ function ProfileBody(props: Props) {
           {profileID === 'user' && (
             <MakePostContainer
               appendNewPost={appendNewPost}
-              profilePicture={props.user.profilePicture}
+              profilePicture={user.profilePicture}
             />
           )}
           {loadingPosts ? (
             <CircularProgress size={100} className={styles.postsLoadingIndicator} />
+          ) : posts.length === 0 ? (
+            <RSText size={16} type="head" className={styles.noPosts}>
+              There are no posts yet.
+            </RSText>
           ) : (
-            renderPosts()
+            posts.map((post, idx) => (
+              <UserPost
+                post={post}
+                style={{ marginTop: idx !== 0 ? 10 : undefined }}
+                key={`post_${profileID}_${idx}`}
+              />
+            ))
           )}
         </div>
       </div>
@@ -361,15 +319,3 @@ function ProfileBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileBody);

@@ -25,6 +25,10 @@ export const getPosts = async ({ postType }: { postType: GetPostParams }) => {
       success: -1,
       message: 'Invalid URL for getPosts',
       content: { posts: [] },
+    } as {
+      success: -1 | 0 | 1;
+      message: string;
+      content: { posts: PostType[] };
     };
   }
   const { data } = await makeRequest<{ posts: PostType[] }>('GET', url);
