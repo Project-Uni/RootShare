@@ -24,6 +24,7 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
+import { getPosts } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -67,7 +68,7 @@ function HomepageBody(props: Props) {
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [serverErr, setServerErr] = useState(false);
   const [feed, setFeed] = useState<JSX.Element[]>([]);
-  const [selectedTab, setSelectedTab] = useState('general');
+  const [selectedTab, setSelectedTab] = useState<'general' | 'following'>('general');
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -84,8 +85,7 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
-
+    const data = await getPosts({ postType: { type: selectedTab } });
     if (data.success === 1) {
       setFeed(createFeed(data.content['posts']));
       setServerErr(false);
@@ -102,7 +102,7 @@ function HomepageBody(props: Props) {
     history.push(`/discover`);
   }
 
-  function handleTabChange(newTab: string) {
+  function handleTabChange(newTab: 'general' | 'following') {
     setSelectedTab(newTab);
   }
 

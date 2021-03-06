@@ -1,11 +1,11 @@
 export type PostType = {
-  [key: string]: any;
   _id: string;
   createdAt: string;
   updatedAt: string;
   likes: number;
   liked: boolean;
   comments: number;
+  message: string;
   user: {
     _id: string;
     firstName: string;

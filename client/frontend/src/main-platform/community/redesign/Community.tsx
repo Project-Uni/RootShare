@@ -7,6 +7,8 @@ import { getCommunities } from '../../../api';
 import { CommunityHead } from './CommunityHead';
 import { RSText } from '../../../base-components';
 import { CommunityAbout } from './CommunityAbout';
+import { UserPost } from '../../reusable-components/components/UserPost.v2';
+import { CommunityFeed } from './CommunityFeed';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -26,7 +28,7 @@ const Community = (props: Props) => {
 
   const [info, setInfo] = useState<any>(); //Community details as a dictionary
   const [loading, setLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('About');
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('Feed');
 
   useEffect(() => {
     fetchCommunityInfo().then((data) => {
@@ -48,7 +50,7 @@ const Community = (props: Props) => {
       case 'About':
         return <CommunityAbout admin={'12345'} />;
       case 'Feed':
-        return <p>Feed</p>;
+        return <CommunityFeed communityID={communityID} />;
       default:
         return <RSText>An Error Occured</RSText>;
     }

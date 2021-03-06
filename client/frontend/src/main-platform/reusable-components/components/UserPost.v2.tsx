@@ -10,6 +10,8 @@ import Theme from '../../../theme/Theme';
 import mtgBanner from '../../../images/mtgBanner.png';
 import { RSTextField } from './RSTextField';
 import { MdSend } from 'react-icons/md';
+import { RightArrow } from '../../../images';
+import { PostType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -22,9 +24,12 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type Post = {};
+
 type Props = {
   className?: string;
   style?: React.CSSProperties;
+  post: PostType;
 };
 
 export const UserPost = (props: Props) => {
@@ -72,7 +77,11 @@ export const UserPost = (props: Props) => {
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <RSText bold>Dhruv Bhargava</RSText>
-              <FaLeaf size={20} style={{ marginLeft: 15, marginRight: 15 }} />
+              <img
+                src={RightArrow}
+                style={{ marginLeft: 15, marginRight: 15, height: 12 }}
+                alt="to"
+              />
               <RSText bold>RootShare Developers</RSText>
             </div>
             <RSText size={10} color={Theme.secondaryText}>
