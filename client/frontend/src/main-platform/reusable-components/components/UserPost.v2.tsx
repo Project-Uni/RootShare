@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSCard } from './RSCard';
-import { Avatar, Button, IconButton } from '@material-ui/core';
+import { Avatar, Button, CircularProgress, IconButton } from '@material-ui/core';
 import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
@@ -110,7 +110,7 @@ export const UserPost = (props: Props) => {
   };
   const handleCommentTextClick = async () => {
     if (!showComments) {
-      await fetchComments();
+      await fetchComments({});
     } else {
       setComments([]);
     }
@@ -161,7 +161,7 @@ export const UserPost = (props: Props) => {
             anchorEl: currentTarget,
           })
         );
-    }, 500);
+    }, 750);
   };
 
   const handleMouseOverTo = (e: React.MouseEvent<HTMLElement>) => {
@@ -178,18 +178,24 @@ export const UserPost = (props: Props) => {
             anchorEl: currentTarget,
           })
         );
-    }, 500);
+    }, 750);
   };
 
-  const fetchComments = async (startFromTimestamp?: string) => {
+  const fetchComments = async ({
+    fromLastComment,
+  }: {
+    fromLastComment?: boolean;
+  }) => {
     if (!loadingComments) {
       setLoadingComments(true);
       const data = await getCommentsForPost({
         postID: post._id,
-        startFromTimestamp,
+        startFromTimestamp: fromLastComment
+          ? comments[comments.length - 1].createdAt
+          : undefined,
       });
       if (data.success == 1) {
-        setComments((prev) => [...prev, ...data.content['comments']]);
+        setComments((prev) => [...prev, ...data.content.comments]);
       }
       setLoadingComments(false);
     }
@@ -435,14 +441,13 @@ export const UserPost = (props: Props) => {
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
             />
           ))}
-          {comments.length !== commentCount ? (
+
+          {comments.length !== commentCount && !loadingComments ? (
             <RSText
               className={styles.likes}
               style={{ textAlign: 'left', marginLeft: 20, marginRight: 20 }}
               color={Theme.secondaryText}
-              onClick={() =>
-                fetchComments(comments[comments?.length - 1]?.createdAt)
-              }
+              onClick={() => fetchComments({ fromLastComment: true })}
             >
               Load More Comments
             </RSText>
@@ -450,6 +455,11 @@ export const UserPost = (props: Props) => {
             <></>
           )}
         </div>
+      ) : (
+        <></>
+      )}
+      {loadingComments ? (
+        <CircularProgress size={40} style={{ color: Theme.bright, marginTop: 15 }} />
       ) : (
         <></>
       )}

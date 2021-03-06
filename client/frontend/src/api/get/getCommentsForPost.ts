@@ -27,7 +27,8 @@ export const getCommentsForPost = async ({
   startFromTimestamp?: string;
 }) => {
   let query: string | undefined = undefined;
-  if (startFromTimestamp) query = stringify({ from: startFromTimestamp });
+  if (startFromTimestamp)
+    query = stringify({ startingTimestamp: startFromTimestamp });
   const { data } = await makeRequest<CommentResponse>(
     'GET',
     `/api/posts/comments/${postID}${query ? `?${query}` : ''}`

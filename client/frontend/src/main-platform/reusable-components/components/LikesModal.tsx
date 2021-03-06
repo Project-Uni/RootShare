@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Button, Box } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 
-import { connect } from 'react-redux';
 import RSModal from './RSModal/RSModal';
 
 import { LeanUser } from '../../../helpers/types';
@@ -53,11 +52,9 @@ type Props = {
   open: boolean;
   postID: string;
   onClose: () => any;
-  accessToken: string;
-  refreshToken: string;
 };
 
-function LikesModal(props: Props) {
+export default function LikesModal(props: Props) {
   const styles = useStyles();
 
   const [loading, setLoading] = useState(true);
@@ -72,14 +69,7 @@ function LikesModal(props: Props) {
   }, [props.open]);
 
   async function fetchData() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/likes/${props.postID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/likes/${props.postID}`);
     if (data.success === 1) {
       setUsers(data.content.likes);
       setServerErr(false);
@@ -130,7 +120,7 @@ function LikesModal(props: Props) {
   return (
     <RSModal
       open={props.open}
-      title="Likes"
+      title="Sprouts"
       onClose={props.onClose}
       className={styles.modal}
     >
@@ -155,16 +145,3 @@ function LikesModal(props: Props) {
     </RSModal>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(LikesModal);
