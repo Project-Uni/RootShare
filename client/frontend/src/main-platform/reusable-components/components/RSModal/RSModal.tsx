@@ -5,17 +5,17 @@ import { IconButton, Modal, LinearProgress } from '@material-ui/core';
 import { colors } from '../../../../theme/Colors';
 import { FiArrowLeft } from 'react-icons/fi';
 import Theme from '../../../../theme/Theme';
+import RSButton from '../RSButton';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    borderRadius: 5,
+    borderRadius: '50px',
     outline: 'none',
   },
 
   pageTitle: {
-    marginLeft: 15,
-    marginRight: 15,
+    fontFamily: 'lato',
   },
   top: {
     textAlign: 'left',
@@ -43,6 +43,13 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     marginBottom: 10,
   },
+  windowControl: {
+    marginLeft: 50,
+    marginRight: 10,
+  },
+  saveBtn: {
+    marginRight: 75,
+  },
 }));
 
 type Props = {
@@ -56,6 +63,7 @@ type Props = {
   children?: React.ReactNode;
   onClose: () => any;
   onBackArrow?: () => void;
+  onSaveButton?: () => void;
   serverErr?: string;
 };
 
@@ -91,8 +99,13 @@ function RSModal(props: Props) {
         <div className={styles.top}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {props.onBackArrow && (
-              <IconButton onClick={props.onBackArrow} size="medium">
+              <IconButton onClick={props.onBackArrow} size="medium" className={styles.windowControl}>
                 <FiArrowLeft color={Theme.secondaryText} />
+              </IconButton>
+            )}
+            {!props.onBackArrow  && (
+              <IconButton onClick={props.onClose} size="medium" className={styles.windowControl}>
+              x
               </IconButton>
             )}
             <RSText
@@ -104,9 +117,16 @@ function RSModal(props: Props) {
               {props.title}
             </RSText>
           </div>
-          <IconButton onClick={props.onClose} size="medium">
-            X
-          </IconButton>
+          {props.onSaveButton && (
+            <div className={styles.saveBtn}>
+              <RSButton
+                variant="universityRound"
+                onClick={() => props.onSaveButton}
+              >
+              Save
+              </RSButton>
+            </div>
+          )}
         </div>
         {props.helperIcon && (
           <div

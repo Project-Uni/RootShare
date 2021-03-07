@@ -6,6 +6,7 @@ import Theme from '../../../theme/Theme';
 const useStyles = makeStyles((_: any) => ({
   root: {
     fontSize: 18,
+    borderRadius: '15px',
     '&$focused $notchedOutline': {
       borderColor: Theme.bright,
     },

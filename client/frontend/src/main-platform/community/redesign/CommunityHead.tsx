@@ -88,7 +88,7 @@ export const CommunityHead = (props: Props) => {
           <span>buttons</span>
           <div>
             <RSButton
-              variant="university"
+              variant="universityRound"
               onClick={() => setShowEditCommunityModal(true)}
               // className={styles.button}
               // disabled={loading}

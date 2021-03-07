@@ -1,17 +1,14 @@
-import { TextField } from '@material-ui/core';
-import { red } from '@material-ui/core/colors';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { ProfilePicture } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
-import { Community } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { RSButton, RSModal, RSTextField } from '../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: 600,
+    width: 650,
   },
   profilePicture: {
     border: `7px solid ${Theme.white}`,
@@ -24,24 +21,25 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
-    marginBottom: '20px',
+    marginBottom: '50px',
   },
   textbox: {
-    width: '500px',
+    width: '550px',
     marginTop: '20px',
   },
   tagContainer: {
     marginTop: '20px',
-    width: '500px',
+    width: '550px',
     flex: 1,
     display: 'flex',
     justifyContent: 'flex-start',
-    borderColor: '#FF0000',
   },
   tag:{
     height: '25px',
     marginLeft: '2px',
     marginRight: '2px',
+    fontFamily: 'lato',
+    color: Theme.primaryText,
   },
 
 }));
@@ -62,7 +60,7 @@ const styles = useStyles();
     banner,
   } = props;
 
-  function handleSave(community: Community) {
+  function handleSave() {
     return (props.onClose);
   }
 
@@ -72,12 +70,34 @@ const styles = useStyles();
       <div className={styles.tagContainer}>
         <RSButton
           variant='university'
-          disabled={true}
           className={styles.tag}>
-          Sport
+          #finance
+        </RSButton>
+        <RSButton
+          variant='university'
+          className={styles.tag}>
+          #leadership
+        </RSButton>
+        <RSButton
+          variant='university'
+          className={styles.tag}>
+          #buisness
+        </RSButton>
+        <RSButton
+          variant='university'
+          className={styles.tag}>
+          #krannert
         </RSButton>
         <RSButton
           className={styles.tag}
+          style={{
+            fontFamily: 'lato',
+            borderStyle: 'solid',
+            borderWidth: '0.5px',
+            borderColor: Theme.universityAccent,
+            color: Theme.primaryText,
+            background: Theme.white,
+          }}
         >
           Add Tag +
         </RSButton>
@@ -99,14 +119,9 @@ const [loading, setLoading] = useState(false);
         open={props.open}
         title="Edit Community Profile"
         onClose={props.onClose}
+        onSaveButton={handleSave()}
         className={styles.wrapper}
         >
-        <RSButton
-          variant="university"
-          onClick={() => handleSave}
-        >
-          Save
-        </RSButton>
         <ProfileBanner
           height={225}
           editable={false}
