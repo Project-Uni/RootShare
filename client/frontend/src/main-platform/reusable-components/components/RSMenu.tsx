@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Popper, Grow, Paper, ClickAwayListener, MenuList } from '@material-ui/core';
 
-import Theme, { addAlpha, addShadow } from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -13,16 +13,19 @@ const useStyles = makeStyles((_: any) => ({
   },
   primary: {
     backgroundColor: Theme.foreground,
-    boxShadow: addShadow(0, 0, 10, '#444444', 0.4),
+    boxShadow: Theme.fullShadow,
   },
   transparent: {
     backgroundColor: Theme.transparent,
-    boxShadow: addShadow(0, 0, 0, Theme.primary, 0),
+    boxShadow: Theme.noShadow,
   },
   rounded: {
     backgroundColor: Theme.foreground,
     borderRadius: 15,
-    boxShadow: addShadow(0, 0, 10, '#444444', 0.4),
+    boxShadow: Theme.fullShadow,
+  },
+  test: {
+    backgroundColor: Theme.error,
   },
 }));
 

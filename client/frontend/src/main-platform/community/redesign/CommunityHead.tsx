@@ -8,7 +8,7 @@ import { CommunityTab } from './Community';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
 
-import Theme, { addShadow } from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
 import { FaLock } from 'react-icons/fa';
 import Tag from './Tag';
@@ -26,7 +26,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 30,
   },
   profilePicture: {
-    boxShadow: addShadow(0, 0, 12, '#444444', 0.4),
+    boxShadow: Theme.fullShadow,
   },
   profilePictureContainer: {
     marginTop: -82,
@@ -35,7 +35,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   center: {
     display: 'flex',
-    width: '55%',
+    width: '50%',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -129,7 +129,7 @@ export const CommunityHead = (props: Props) => {
         </RSText>
         <Tag className={styles.tag} tag={type} variant="university" weight="light" />
         <RSText
-          size={14}
+          size={12}
           type="body"
           color={Theme.secondaryText}
           className={styles.bio}
@@ -168,7 +168,11 @@ export const CommunityHead = (props: Props) => {
           name={name}
           variant="universitySecondary"
         />
-        <RelationshipButton communityID={communityID} relationship={relationship} />
+        <RelationshipButton
+          communityID={communityID}
+          isPrivate={isPrivate}
+          relationship={relationship}
+        />
       </div>
     );
   };

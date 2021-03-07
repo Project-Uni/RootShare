@@ -20,6 +20,8 @@ type Theme = {
   buttonHighlight: string;
   transparent: '#00000000';
   universityAccent: { [key: string]: string };
+  fullShadow: string;
+  noShadow: string;
 };
 
 const theme: { default: Theme; dark: Theme } = {
@@ -54,6 +56,8 @@ const theme: { default: Theme; dark: Theme } = {
     primaryText: '#000000',
     secondaryText: '#545454',
     disabledButton: 'lightgray',
+    fullShadow: customShadow(0, 0, 12, '#444444', 0.4),
+    noShadow: customShadow(0, 0, 0, '#000000', 0),
   },
   dark: {
     white: '',
@@ -75,6 +79,8 @@ const theme: { default: Theme; dark: Theme } = {
     buttonHighlight: '',
     transparent: '#00000000',
     universityAccent: {},
+    fullShadow: '',
+    noShadow: '',
   },
 };
 
@@ -87,7 +93,7 @@ export function addAlpha(hex: string, alpha: number) {
   return hex.concat(alphaHex);
 }
 
-export function addShadow(
+export function customShadow(
   xOffset: number,
   yOffset: number,
   blurRadius: number,

@@ -470,6 +470,9 @@ export default function communityRoutes(app) {
         type: { type: 'string', optional: true },
         private: { type: 'boolean', optional: true },
       });
+
+      console.log(query);
+
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const packet = await updateFields(communityID, query);

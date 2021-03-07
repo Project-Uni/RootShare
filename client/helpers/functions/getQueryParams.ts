@@ -42,7 +42,9 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
       return false;
     }
 
-    //type conversation
+    //type conversion
+    if (!val) continue;
+
     try {
       if (type.startsWith('number')) {
         if (type.endsWith('[]'))

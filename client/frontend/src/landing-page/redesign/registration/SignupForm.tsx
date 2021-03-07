@@ -203,7 +203,7 @@ export const SignupForm = (props: Props) => {
         <RSLink
           style={{ color: Theme.bright, marginLeft: 5 }}
           href="/login"
-          underline={false}
+          underline="noUnderline"
         >
           <RSText bold size={16} color={Theme.bright}>
             Log in

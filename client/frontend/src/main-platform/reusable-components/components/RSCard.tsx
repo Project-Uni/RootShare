@@ -2,13 +2,13 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
 
-import Theme, { addShadow } from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     margin: 10,
     background: Theme.foreground,
-    boxShadow: addShadow(0, 0, 10, '#444444', 0.4),
+    boxShadow: Theme.fullShadow,
   },
 }));
 

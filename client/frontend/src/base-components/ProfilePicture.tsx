@@ -87,6 +87,19 @@ function ProfilePicture(props: Props) {
 
   const dispatch = useDispatch();
 
+  const {
+    type,
+    _id,
+    className,
+    pictureStyle,
+    editable,
+    height,
+    width,
+    borderRadius,
+    borderWidth,
+    zoomOnClick,
+  } = props;
+
   const [loading, setLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
@@ -172,9 +185,9 @@ function ProfilePicture(props: Props) {
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
-      props.type === 'profile'
+      type === 'profile'
         ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${props._id}/updateProfilePicture`;
+        : `/api/images/community/${_id}/updateProfilePicture`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,
@@ -186,8 +199,7 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile')
-      dispatch(updateProfilePicture(imageData as string));
+    if (type === 'profile') dispatch(updateProfilePicture(imageData as string));
 
     setCurrentPicture(imageData as string);
   }
@@ -203,25 +215,25 @@ function ProfilePicture(props: Props) {
       currPictureSource = DefaultProfilePicture;
 
     return (
-      <div className={props.className}>
+      <div className={className}>
         <img
           src={currPictureSource}
           alt="Profile Picture"
           className={[
-            props.editable || currentPicture ? styles.image : undefined,
-            props.pictureStyle,
+            editable || currentPicture ? styles.image : undefined,
+            pictureStyle,
           ].join(' ')}
           style={{
-            height: props.height,
-            width: props.width,
-            borderRadius: props.borderRadius || 0,
+            height: height,
+            width: width,
+            borderRadius: borderRadius || 0,
           }}
-          onMouseEnter={props.editable ? handleMouseOver : undefined}
-          onMouseLeave={props.editable ? handleMouseLeave : undefined}
+          onMouseEnter={editable ? handleMouseOver : undefined}
+          onMouseLeave={editable ? handleMouseLeave : undefined}
           onClick={
-            props.editable
+            editable
               ? handleSelfImageClick
-              : props.zoomOnClick
+              : zoomOnClick
               ? handleOtherImageClick
               : undefined
           }
@@ -233,15 +245,15 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
-                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
+                bottom: Math.floor(height / 2) - 16 + (borderWidth || 0),
+                left: Math.floor(width / 2) - 16 + (borderWidth || 0),
               }}
               className={styles.cameraIcon}
-              onMouseEnter={props.editable ? handleMouseOver : undefined}
+              onMouseEnter={editable ? handleMouseOver : undefined}
               onClick={
-                props.editable
+                editable
                   ? handleSelfImageClick
-                  : props.zoomOnClick
+                  : zoomOnClick
                   ? handleOtherImageClick
                   : undefined
               }

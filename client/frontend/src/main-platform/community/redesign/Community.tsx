@@ -8,7 +8,7 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { CommunityHead } from './CommunityHead';
 import { RSText } from '../../../base-components';
-import { CommunityAbout } from './CommunityAbout';
+import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 
 import { getCommunities } from '../../../api';
 import { Community as CommunityFields } from '../../../helpers/types';
@@ -30,11 +30,11 @@ const Community = (props: Props) => {
   }));
 
   const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
-  const [loading, setLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
+  const [loading, setLoading] = useState(true);
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('about');
 
   useEffect(() => {
-    fetchCommunityInfo().then((data) => {
+    fetchCommunityInfo().then(() => {
       setLoading(false);
     });
   }, []);
@@ -64,7 +64,6 @@ const Community = (props: Props) => {
       },
     });
 
-    console.log(data.content);
     if (data.success === 1)
       return setInfo(data.content.communities[0] as CommunityFields);
 
@@ -84,6 +83,10 @@ const Community = (props: Props) => {
           <CommunityAbout
             communityID={communityID}
             editable={info.relationship === 'admin'}
+            aboutDesc={info.description}
+            admin={info.admin as AboutPageUser}
+            // moderators={info.moderators as AboutPageUser[]} // TODO: add this functionality later
+            members={info.members as AboutPageUser[]}
           />
         );
       case 'feed':
@@ -91,18 +94,22 @@ const Community = (props: Props) => {
       default:
         return <RSText>An Error Occured</RSText>;
     }
-  }, [currentTab]);
+  }, [currentTab, info]);
 
   return (
-    <div className={styles.wrapper}>
-      <CommunityHead
-        style={{ marginTop: 20 }}
-        communityInfo={info}
-        currentTab={currentTab}
-        handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
-      />
-      {getTabContent()}
-    </div>
+    <>
+      {!loading && (
+        <div className={styles.wrapper}>
+          <CommunityHead
+            style={{ marginTop: 20 }}
+            communityInfo={info}
+            currentTab={currentTab}
+            handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
+          />
+          {getTabContent()}
+        </div>
+      )}
+    </>
   );
 };
 

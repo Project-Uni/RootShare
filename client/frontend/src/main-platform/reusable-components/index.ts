@@ -7,6 +7,7 @@ import Event from './components/Event';
 import UserHighlight from './components/UserHighlight';
 import CommunityHighlight from './components/CommunityHighlight';
 import MakePostContainer from './components/MakePostContainer';
+import RSAvatar from './components/RSAvatar';
 import RSTabs from './components/RSTabs';
 import RSTabsV2 from './components/RSTabsV2';
 import RSModal from './components/RSModal/RSModal';
@@ -40,6 +41,7 @@ export {
   RSModal,
   RSMenu,
   MakePostContainer,
+  RSAvatar,
   BigButton,
   SearchField,
   RSButton,

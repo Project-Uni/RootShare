@@ -10,7 +10,7 @@ export type Community = {
     _id: string;
     universityName: string;
   };
-  members: string[];
+  members: string[] | UserType[];
   pendingMembers: string[];
   private: boolean;
   type: CommunityType;

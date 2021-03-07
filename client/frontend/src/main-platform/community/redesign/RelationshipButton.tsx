@@ -20,17 +20,18 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   communityID: string;
   relationship: UserToCommunityRelationship;
+  isPrivate: boolean;
 };
 
 const RelationshipButton = (props: Props) => {
   const styles = useStyles();
 
+  const { communityID, isPrivate } = props;
+
   const [hovering, setHovering] = useState(false);
   const [relationship, setRelationship] = useState<UserToCommunityRelationship>(
     props.relationship
   );
-
-  const { communityID } = props;
 
   const dispatch = useDispatch();
 
@@ -39,6 +40,21 @@ const RelationshipButton = (props: Props) => {
   }, [props.relationship]);
 
   const handleJoin = async () => {
+    setRelationship(U2CR.JOINED);
+
+    const data = await putCommunityMembership('join', communityID);
+    if (data.success === 1) return;
+
+    setRelationship(U2CR.OPEN);
+    dispatch(
+      dispatchSnackbar({
+        message: 'There was an error joining this community',
+        mode: 'error',
+      })
+    );
+  };
+
+  const handleRequestJoin = async () => {
     setRelationship(U2CR.PENDING);
 
     const data = await putCommunityMembership('join', communityID);
@@ -87,7 +103,7 @@ const RelationshipButton = (props: Props) => {
     return (
       <RSButtonV2
         className={[styles.baseButton].join(' ')}
-        onClick={handleJoin}
+        onClick={isPrivate ? handleRequestJoin : handleJoin}
         variant="university"
       >
         <RSText size={11}>Join</RSText>
