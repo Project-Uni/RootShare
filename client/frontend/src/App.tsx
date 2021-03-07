@@ -4,31 +4,34 @@ import './App.css';
 import { Router, Route, Switch } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga';
-import { connect } from 'react-redux';
-import { updateUser } from './redux/actions/user';
 
-import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo';
-import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo';
+import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo'; //OLD COMPONENT
+import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo'; //OLD COMPONENT
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
-import Login from './login/Login';
+import Login from './login/Login'; //OLD COMPONENT
 import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
-import LandingPage from './landing-page/LandingPage';
+import LandingPage from './landing-page/LandingPage'; //OLD LANDING PAGE
+// import LandingPage from './landing-page/redesign/LandingPage'; //NEW LANDING PAGE
 
 import {
-  Events,
-  Profile,
-  CommunityDetails,
-  YourCommunities,
-  Connections,
-  MeetTheGreeks,
+  // MeetTheGreeks,
+  HomepageBody,
+  ProfileBody,
+  EventsBody,
+  ConnectionsBody,
+  CommunityBody,
+  YourCommunitiesBody,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
-import HomepageBody from './main-platform/homepage/components/HomepageBody';
+import { SnackbarNotification } from './main-platform/reusable-components';
+import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
+// import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
+// import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -40,18 +43,23 @@ history.listen((location) => {
   ReactGA.pageview(location.pathname); // Record a pageview for the given page
 });
 
-type Props = {
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
-};
-
-function App(props: Props) {
+const App = () => {
   return (
     <div className="App">
       <SocketManager />
+      <SnackbarNotification />
       <Router history={history}>
         <div className="wrapper">
           <Switch>
+            {/* <Route exact path="/" render={() => <LandingPage mode="register" />} />
+
+            <Route exact path="/account/select" component={AccountTypeSelect} />
+            <Route
+              exact
+              path="/account/initialize"
+              render={() => <LandingPage mode="additional" />}
+            />
+            <Route exact path="/login" render={() => <LandingPage mode="login" />} /> */}
             <Route exact path="/" component={LandingPage} />
             <Route
               exact
@@ -63,61 +71,69 @@ function App(props: Props) {
               path="/register/initialize"
               component={HypeAdditionalInfo}
             />
+            <Route exact path="/login" component={Login} />
+
             <Route
               exact
               path="/register/resetPassword/:emailtoken"
               component={ResetPassword}
             />
+
             <Route exact path="/event/:eventid" component={EventClientBase} />
-
-            <Route exact path="/login" component={Login} />
-
             <Route path="/admin" component={AdminRoutes} />
-
             <Route
               exact
               path="/home"
+              render={(props) => <AuthenticatedPage component={<HomepageBody />} />}
+            />
+            <Route
+              exact
+              path="/events"
+              render={(props) => <AuthenticatedPage component={<EventsBody />} />}
+            />
+            <Route
+              exact
+              path="/profile/:profileID"
+              render={(props) => <AuthenticatedPage component={<ProfileBody />} />}
+            />
+            <Route
+              exact
+              path="/communities/:userID"
+              render={(props) => (
+                <AuthenticatedPage component={<YourCommunitiesBody />} />
+              )}
+            />
+            <Route
+              exact
+              path="/community/:communityID"
               render={(props) => (
                 <AuthenticatedPage
-                  {...props}
-                  component={<HomepageBody />}
-                  selectedTab="home"
+                  // component={<Community />} //NEW COMMUNITY UI
+                  component={<CommunityBody {...props} />} //OLD COMMUNITY
+                  rightElement={<FollowSidebar />} //OLD COMMUNITY
                 />
               )}
             />
-            <Route exact path="/events" component={Events} />
-            <Route exact path="/profile/:profileID" component={Profile} />
-            <Route exact path="/communities/:userID" component={YourCommunities} />
-            <Route exact path="/community/:orgID" component={CommunityDetails} />
-            <Route exact path="/connections/:userID" component={Connections} />
             <Route
+              exact
+              path="/connections/:userID"
+              render={(props) => (
+                <AuthenticatedPage component={<ConnectionsBody />} />
+              )}
+            />
+            {/* <Route
               exact
               path="/mtg"
               render={(props) => (
                 <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
               )}
-            />
-
+            /> */}
             <Route component={PageNotFound} />
           </Switch>
         </div>
       </Router>
     </div>
   );
-}
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

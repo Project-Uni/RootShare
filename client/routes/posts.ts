@@ -1,4 +1,4 @@
-import { sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
@@ -31,10 +31,11 @@ import {
   getLikes,
   deletePost,
 } from '../interactions/posts';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 
 export default function postsRoutes(app) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
-    const userID = req.user._id;
+    const { _id: userID } = getUserFromJWT(req);
     const { message, image } = req.body;
     if (!message) return res.json(sendPacket(-1, 'message is missing from request'));
 
@@ -43,13 +44,13 @@ export default function postsRoutes(app) {
   });
 
   app.get('/api/posts/feed/general', isAuthenticatedWithJWT, async (req, res) => {
-    const userID = req.user._id;
-    const packet = await getGeneralFeed(req.user.university._id, userID);
+    const { _id: userID } = getUserFromJWT(req);
+    const packet = await getGeneralFeed(userID);
     return res.json(packet);
   });
 
   app.get('/api/posts/feed/following', isAuthenticatedWithJWT, async (req, res) => {
-    const userID = req.user._id;
+    const { _id: userID } = getUserFromJWT(req);
     const packet = await getFollowingFeed(userID);
     return res.json(packet);
   });
@@ -59,8 +60,9 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       let { userID } = req.params;
-      if (userID === 'user') userID = req.user._id;
-      const packet = await getPostsByUser(userID, req.user._id);
+      const { _id } = getUserFromJWT(req);
+      if (userID === 'user') userID = _id;
+      const packet = await getPostsByUser(userID, _id);
       return res.json(packet);
     }
   );
@@ -70,11 +72,17 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { postID } = req.params;
-      const startingTimestamp = req.query.from;
+      const query = getQueryParams(req, {
+        startingTimestamp: { type: 'string', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+      const { startingTimestamp } = query;
 
       const packet = await retrieveComments(
         postID,
-        startingTimestamp ? new Date(startingTimestamp) : new Date()
+        startingTimestamp ? new Date(startingTimestamp as string) : new Date()
       );
       return res.json(packet);
     }
@@ -86,9 +94,10 @@ export default function postsRoutes(app) {
     async (req, res) => {
       const { postID } = req.params;
       const { message } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!message)
         return res.json(sendPacket(-1, 'Message is missing from request body.'));
-      const packet = await leaveCommentOnPost(req.user._id, postID, message);
+      const packet = await leaveCommentOnPost(userID, postID, message);
       return res.json(packet);
     }
   );
@@ -98,7 +107,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID, accountType } = req.user;
+      const { _id: userID, accountType } = getUserFromJWT(req);
       const { message, image } = req.body;
 
       if (!message)
@@ -120,7 +129,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID, accountType } = req.user;
+      const { _id: userID, accountType } = getUserFromJWT(req);
       const { message, image } = req.body;
 
       if (!message)
@@ -143,7 +152,7 @@ export default function postsRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { message, image } = req.body;
 
       if (!message)
@@ -164,7 +173,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID: toCommunityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { fromCommunityID, message, image } = req.body;
 
       if (!fromCommunityID || !message)
@@ -189,7 +198,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID, accountType } = req.user;
+      const { _id: userID, accountType } = getUserFromJWT(req);
 
       const packet = await getInternalCurrentMemberPosts(
         communityID,
@@ -205,7 +214,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID, accountType } = req.user;
+      const { _id: userID, accountType } = getUserFromJWT(req);
 
       const packet = await getInternalAlumniPosts(communityID, userID, accountType);
       return res.json(packet);
@@ -217,7 +226,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       const packet = await getExternalPosts(communityID, userID);
       return res.json(packet);
@@ -229,7 +238,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       const packet = await getFollowingCommunityPosts(communityID, userID);
       return res.json(packet);
@@ -242,7 +251,7 @@ export default function postsRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { message, image } = req.body;
 
       if (!message)
@@ -263,7 +272,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { message, image } = req.body;
 
       if (!message)
@@ -279,33 +288,28 @@ export default function postsRoutes(app) {
     }
   );
 
-  app.post(
-    '/api/posts/action/:postID/like',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const userID = req.user._id;
+  app.put('/api/posts/likes', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
 
-      const packet = await likePost(postID, userID);
-      return res.json(packet);
-    }
-  );
+    const query = getQueryParams(req, {
+      action: { type: 'string' },
+      postID: { type: 'string' },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    const { action, postID } = query;
 
-  app.post(
-    '/api/posts/action/:postID/unlike',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const userID = req.user._id;
+    if (action === 'like') return res.json(await likePost(postID as string, userID));
+    else if (action === 'unlike')
+      return res.json(await unlikePost(postID as string, userID));
 
-      const packet = await unlikePost(postID, userID);
-      return res.json(packet);
-    }
-  );
+    return res.json(
+      sendPacket(0, 'action (like, unlike) missing from query params')
+    );
+  });
 
   app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {
     const { postID } = req.params;
-    const userID = req.user._id;
+    const { _id: userID } = getUserFromJWT(req);
 
     const packet = await getLikes(postID, userID);
     return res.json(packet);
@@ -316,7 +320,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { postID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       const packet = await deletePost(postID, userID);
       return res.json(packet);

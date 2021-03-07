@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { Button, Box } from '@material-ui/core';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
-import { ProfileState, ConnectionRequestType } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import { UserToUserRelationship, U2UR } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -97,7 +97,7 @@ type Props = {
   company?: string;
   mutualConnections?: number;
   mutualCommunities?: number;
-  status: ProfileState;
+  status: UserToUserRelationship;
   connectionRequestID?: string;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
@@ -112,37 +112,21 @@ type Props = {
 function UserHighlight(props: Props) {
   const styles = useStyles();
 
-  const [userStatus, setUserStatus] = useState<ProfileState>(props.status);
+  const [userStatus, setUserStatus] = useState<UserToUserRelationship>(props.status);
 
   async function requestConnection() {
-    const { data } = await makeRequest(
-      'POST',
-      '/user/requestConnection',
-      {
-        requestUserID: props.userID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] === 1) setUserStatus('TO');
+    const data = await putUpdateUserConnection('connect', props.userID);
+    if (data['success'] === 1) setUserStatus(U2UR.PENDING_TO);
     if (data.success !== 1)
       props.setNotification &&
         props.setNotification('error', 'Failed to send connection request');
   }
 
   async function respondRequest(accepted: boolean) {
-    setUserStatus(accepted ? 'CONNECTION' : 'PUBLIC');
-    const { data } = await makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID: props.connectionRequestID,
-        accepted,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
+    setUserStatus(accepted ? U2UR.CONNECTED : U2UR.OPEN);
+    const data = await putUpdateUserConnection(
+      accepted ? 'accept' : 'reject',
+      props.userID
     );
 
     if (data['success'] !== 1) {
@@ -157,23 +141,19 @@ function UserHighlight(props: Props) {
 
   function renderStatus() {
     if (props.userID === props.user._id) return;
-    else if (userStatus === 'CONNECTION')
+    else if (userStatus === U2UR.CONNECTED)
       return (
         <RSText color={Theme.secondaryText} size={11}>
           CONNECTED
         </RSText>
       );
-    else if (userStatus === 'TO')
+    else if (userStatus === U2UR.PENDING_TO)
       return (
-        <RSText
-          color={Theme.altText}
-          size={12}
-          className={styles.pendingStatus}
-        >
+        <RSText color={Theme.altText} size={12} className={styles.pendingStatus}>
           PENDING
         </RSText>
       );
-    else if (userStatus === 'FROM')
+    else if (userStatus === U2UR.PENDING_FROM)
       return (
         <div className={styles.pendingButtonContainer}>
           <Button
@@ -206,7 +186,7 @@ function UserHighlight(props: Props) {
     >
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${props.userID}`}>
+          <RSLink href={`/profile/${props.userID}`}>
             <ProfilePicture
               type="profile"
               currentPicture={props.profilePic}
@@ -215,10 +195,13 @@ function UserHighlight(props: Props) {
               borderRadius={50}
               className={styles.profilePic}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <div className={styles.nameContainer}>
-              <a href={`/profile/${props.userID}`} className={styles.noUnderline}>
+              <RSLink
+                href={`/profile/${props.userID}`}
+                className={styles.noUnderline}
+              >
                 <RSText
                   type="head"
                   size={13}
@@ -227,7 +210,7 @@ function UserHighlight(props: Props) {
                 >
                   {props.name}
                 </RSText>
-              </a>
+              </RSLink>
             </div>
             <RSText type="subhead" size={12} color={Theme.secondaryText}>
               {props.university}

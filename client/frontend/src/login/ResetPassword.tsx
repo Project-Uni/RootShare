@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
 
 import axios from 'axios';
@@ -40,10 +40,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
@@ -57,7 +53,7 @@ function ResetPassword(props: Props) {
   const [error, setError] = useState('');
   const [passwordReset, setPasswordReset] = useState('');
 
-  const emailToken = props.match.params['emailtoken'];
+  const { emailToken } = useParams<{ emailToken: string }>();
 
   useEffect(() => {}, []);
 

@@ -3,11 +3,12 @@ import {
   populateDiscoverForUser,
   exactMatchSearchFor,
 } from '../interactions/discover';
-import { sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 
 export default function discoverRoutes(app) {
   app.get('/api/discover/populate', isAuthenticatedWithJWT, async (req, res) => {
-    const userID = req.user['_id'];
+    const { _id: userID } = getUserFromJWT(req);
     const packet = await populateDiscoverForUser(userID);
     return res.json(packet);
   });
@@ -16,17 +17,19 @@ export default function discoverRoutes(app) {
     '/api/discover/search/v1/exactMatch',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { query, limit: queryLimit } = req.query;
-      if (!query) return res.json(sendPacket(0, 'No query provided'));
+      const { _id: userID } = getUserFromJWT(req);
+      const reqQuery = getQueryParams(req, {
+        query: { type: 'string' },
+        limit: { type: 'number', optional: true },
+      });
+      if (!reqQuery)
+        return res.status(500).json(sendPacket(-1, 'No query provided'));
 
-      const userID = req.user['_id'];
+      let { query, limit } = reqQuery;
+      let typedLimit: number;
+      if (limit) typedLimit = limit as number;
 
-      let limit;
-      if (queryLimit)
-        try {
-          limit = parseInt(limit);
-        } catch (err) {}
-      const packet = await exactMatchSearchFor(userID, query, limit);
+      const packet = await exactMatchSearchFor(userID, query as string, typedLimit);
       return res.json(packet);
     }
   );

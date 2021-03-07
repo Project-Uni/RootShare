@@ -4,11 +4,15 @@ import { CircularProgress, Box } from '@material-ui/core';
 
 import { connect } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 
-import { WelcomeMessage, UserPost, RSTabs } from '../../reusable-components';
-import MakePostContainer from './MakePostContainer';
+import {
+  WelcomeMessage,
+  UserPost,
+  RSTabs,
+  MakePostContainer,
+  FeaturedEvent,
+} from '../../reusable-components';
 
 import {
   makeRequest,
@@ -17,15 +21,12 @@ import {
 } from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
-import MeetTheGreeksInfoCard from '../../meet-the-greeks/MeetTheGreeksInfoCard';
 import Theme from '../../../theme/Theme';
+import { useHistory } from 'react-router-dom';
+import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
 
 const useStyles = makeStyles((_: any) => ({
-  wrapper: {
-    flex: 1,
-    background: Theme.background,
-    overflow: 'scroll',
-  },
+  wrapper: {},
   loadingIndicator: {
     color: Theme.bright,
     marginTop: 80,
@@ -47,7 +48,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
   },
   box: {
-    // background: Theme.white,
+    background: Theme.white,
     margin: 8,
   },
 }));
@@ -60,6 +61,7 @@ type Props = {
 
 function HomepageBody(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -82,14 +84,7 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/posts/feed/${selectedTab}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
 
     if (data.success === 1) {
       setFeed(createFeed(data.content['posts']));
@@ -104,7 +99,7 @@ function HomepageBody(props: Props) {
   }
 
   function handleDiscoverClick() {
-    window.location.href = `${window.location.protocol}//${window.location.host}/discover`;
+    history.push(`/discover`);
   }
 
   function handleTabChange(newTab: string) {
@@ -174,7 +169,6 @@ function HomepageBody(props: Props) {
 
   return (
     <div className={styles.wrapper} style={{ height: height }}>
-      <MeetTheGreeksInfoCard showNavigation className={styles.box} />
       {/* <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title="Welcome to RootShare!"
@@ -184,6 +178,11 @@ function HomepageBody(props: Props) {
           buttonAction={handleDiscoverClick}
         />
       </Box> */}
+      <FeaturedEvent
+        src={WinningDevPlanBanner}
+        style={{ margin: 8 }}
+        href={'/event/6026ce709a7a1f218592ea37'}
+      />
       <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={props.user.profilePicture}

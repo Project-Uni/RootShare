@@ -12,8 +12,10 @@ import {
   UserType,
   UniversityType,
 } from '../../../helpers/types';
-import { makeRequest, capitalizeFirstLetter } from '../../../helpers/functions';
+import { capitalizeFirstLetter } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
+import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '../../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -103,19 +105,11 @@ function SinglePendingConnection(props: Props) {
   const [visible, setVisible] = useState(true);
   const [accepted, setAccepted] = useState(false);
 
+  const fromUser = props.connectionRequest.from as UserType;
+
   function respondRequest(accepted: boolean) {
     const requestID = props.connectionRequest._id;
-    makeRequest(
-      'POST',
-      '/user/respondConnection',
-      {
-        requestID,
-        accepted,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    putUpdateUserConnection(accepted ? 'accept' : 'reject', fromUser._id);
 
     if (!accepted) {
       setVisible(false);
@@ -129,14 +123,13 @@ function SinglePendingConnection(props: Props) {
       }, 300);
       setTimeout(() => {
         props.removePending(requestID);
-        props.addConnection(props.connectionRequest.from as UserType);
+        props.addConnection(fromUser);
       }, 1000);
     }
   }
 
   function renderPending() {
-    const requestUser = props.connectionRequest.from as UserType;
-    const requestUserUniversity = requestUser.university as UniversityType;
+    const requestUserUniversity = fromUser.university as UniversityType;
     const universityName = requestUserUniversity.nickname
       ? requestUserUniversity.nickname
       : requestUserUniversity.universityName;
@@ -144,7 +137,7 @@ function SinglePendingConnection(props: Props) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${requestUser._id}`}>
+          <RSLink href={`/profile/${fromUser._id}`}>
             <ProfilePicture
               type="profile"
               className={styles.picture}
@@ -152,20 +145,19 @@ function SinglePendingConnection(props: Props) {
               height={35}
               width={35}
               borderRadius={35}
-              currentPicture={requestUser.profilePicture}
+              currentPicture={fromUser.profilePicture}
             />
-          </a>
+          </RSLink>
         </div>
         <div className={styles.center}>
-          <a href={`/profile/${requestUser._id}`}>
+          <RSLink href={`/profile/${fromUser._id}`}>
             <RSText bold size={12} className={styles.name}>
-              {`${requestUser.firstName} ${requestUser.lastName}`}
+              {`${fromUser.firstName} ${fromUser.lastName}`}
             </RSText>
-          </a>
+          </RSLink>
 
           <RSText size={11} italic={true} className={styles.organization}>
-            {requestUserUniversity.universityName} |{' '}
-            {capitalizeFirstLetter(requestUser.accountType)}
+            {universityName} | {capitalizeFirstLetter(fromUser.accountType)}
           </RSText>
         </div>
         <div className={styles.right}>

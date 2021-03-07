@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory, useParams } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
@@ -58,10 +58,6 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   user: { [key: string]: any };
   accessToken: string;
   refreshToken: string;
@@ -76,11 +72,11 @@ var sessionID: string;
 
 function EventClientBase(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [advertisements, setAdvertisements] = useState(['black']);
   const [adLoaded, setAdLoaded] = useState(false);
   const [eventMode, setEventMode] = useState<EventUserMode>('viewer');
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const [webinarData, setWebinarData] = useState<EventType | {}>({});
@@ -99,33 +95,18 @@ function EventClientBase(props: Props) {
   const webinarEvent = webinarData as EventType;
   const currConversationID = webinarEvent.conversation as string;
 
-  const eventID = props.match.params['eventid'];
+  const { eventid: eventID } = useParams<{ eventid: string }>();
   const minHeaderWidth = getHeaderMinWidth();
 
   useEffect(() => {
-    if (checkAuth()) {
-      fetchEventInfo();
-    }
+    checkAuth().then((authorized) => {
+      if (authorized) fetchEventInfo();
+      else history.push(`/login?redirect=/event/${eventID}`);
+    });
   }, []);
 
   async function checkAuth() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getCurrent',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
-    if (data['success'] !== 1) {
-      props.updateUser({});
-      props.updateAccessToken('');
-      props.updateRefreshToken('');
-      setLoginRedirect(true);
-      return false;
-    }
-    props.updateUser({ ...data['content'] });
-    return true;
+    return Boolean(props.accessToken);
   }
 
   async function fetchEventInfo() {
@@ -139,7 +120,6 @@ function EventClientBase(props: Props) {
     );
     if (data['success'] === 1) {
       const { webinar } = data['content'];
-      console.log(webinar);
       setWebinarData(webinar);
       fetchAds(webinar.eventBanner);
       setMuxMetaData({
@@ -258,7 +238,7 @@ function EventClientBase(props: Props) {
     });
 
     socket.on('removed-from-event', () => {
-      window.location.href = '/';
+      history.push('/');
     });
   }
 
@@ -340,8 +320,6 @@ function EventClientBase(props: Props) {
     if (eventMode === 'viewer')
       return (
         <div className={styles.wrapper}>
-          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
-
           <EventWatcherMobile
             muxPlaybackID={
               webinarEvent.muxAssetPlaybackID || webinarEvent.muxPlaybackID
@@ -364,7 +342,6 @@ function EventClientBase(props: Props) {
     else
       return (
         <div className={styles.wrapper}>
-          {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
           <HypeHeader />
           <RSText type="subhead" size={16}>
             Video conference feature is currently not available on mobile. Please
@@ -376,7 +353,6 @@ function EventClientBase(props: Props) {
 
   return (
     <div id="wrapper" className={styles.wrapper}>
-      {loginRedirect && <Redirect to={`/login?redirect=/event/${eventID}`} />}
       <ManageSpeakersSnackbar
         message={snackbarMessage}
         transition={transition}

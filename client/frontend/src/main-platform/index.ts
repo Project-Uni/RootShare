@@ -1,17 +1,17 @@
-import Homepage from './homepage/Homepage';
-import Events from './events/Events';
-import CommunityDetails from './community/Community';
-import Profile from './profile/Profile';
-import YourCommunities from './your-communities/YourCommunities';
-import Connections from './connections/Connections';
 import MeetTheGreeks from './meet-the-greeks/MeetTheGreeks';
+import HomepageBody from './homepage/components/HomepageBody';
+import CommunityBody from './community/components/CommunityBody';
+import ConnectionsBody from './connections/components/ConnectionsBody';
+import EventsBody from './events/components/EventsBody';
+import YourCommunitiesBody from './your-communities/components/YourCommunitiesBody';
+import ProfileBody from './profile/components/ProfileBody';
 
 export {
-  Homepage,
-  Events,
-  CommunityDetails,
-  Profile,
-  YourCommunities,
-  Connections,
+  HomepageBody,
+  CommunityBody,
+  ConnectionsBody,
+  EventsBody,
+  YourCommunitiesBody,
+  ProfileBody,
   MeetTheGreeks,
 };

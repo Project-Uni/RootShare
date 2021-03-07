@@ -6,8 +6,9 @@ import {
   sendPacket,
   generateJWT,
   retrieveSignedUrl,
+  getUserFromJWT,
 } from '../helpers/functions';
-var isConfirmed = require('./middleware/isConfirmed');
+import { User } from '../models';
 var {
   confirmUser,
   unsubscribeUser,
@@ -20,69 +21,24 @@ var {
 var {
   completeRegistrationDetails,
   completeRegistrationRequired,
-  userExists,
 } = require('../interactions/registration/registration-data');
 
-module.exports = (app) => {
-  app.post('/auth/login/local', (req, res) => {
-    passport.authenticate('local-login', (err, user, info) => {
-      if (user) {
-        req.login(user, async (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-            return res.json(sendPacket(-1, 'Failed to serialize user'));
-          }
-          log('info', `Successfully logged in ${user.email} locally`);
-          const profilePicture = await retrieveSignedUrl(
-            'profile',
-            user.profilePicture
-          );
-          return res.json(
-            sendPacket(1, 'Successfully logged in', {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              profilePicture,
-              _id: user._id,
-              privilegeLevel: user.privilegeLevel || 1,
-              accountType: user.accountType,
-              accessToken: info['jwtAccessToken'],
-              refreshToken: info['jwtRefreshToken'],
-            })
-          );
-        });
-      } else if (info) {
-        res.json(sendPacket(0, info.message));
-        log('error', `User local login failed`);
-      } else {
-        res.json(sendPacket(-1, err));
-        log('error', `User local login errored`);
-      }
-    })(req, res);
-  });
-
+export default function registrationInternalRoutes(app) {
   app.post('/auth/signup/local', (req, res) => {
     passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
-        req.login(user, (err) => {
-          if (err) {
-            log('error', `Failed serializing ${user.email}`);
-          }
-          log('info', `Successfully created account for ${user.email}`);
-
-          return res.json(
-            sendPacket(1, 'Successfully signed up', {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              _id: user._id,
-              privilegeLevel: 1,
-              accountType: user.accountType,
-              accessToken: info['jwtAccessToken'],
-              refreshToken: info['jwtRefreshToken'],
-            })
-          );
-        });
+        return res.json(
+          sendPacket(1, 'Successfully signed up', {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            _id: user._id,
+            privilegeLevel: 1,
+            accountType: user.accountType,
+            accessToken: info['jwtAccessToken'],
+            refreshToken: info['jwtRefreshToken'],
+          })
+        );
       } else if (info) {
         res.json(sendPacket(0, info.message));
         log('error', `User local signup failed`);
@@ -95,7 +51,7 @@ module.exports = (app) => {
 
   app.post('/auth/signup/user-exists', async (req, res) => {
     let email = req.body.email;
-    let check = await userExists(email.toLowerCase());
+    let check = await User.exists({ email: email.toLowerCase() });
     if (check) {
       res.json(sendPacket(0, 'User with this email already exists'));
       log('error', `User tried creating a duplicate account with ${email}`);
@@ -109,10 +65,11 @@ module.exports = (app) => {
     '/auth/complete-registration/required',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const result = await completeRegistrationRequired(req.body, req.user.email);
+      const { email } = getUserFromJWT(req);
+      const result = await completeRegistrationRequired(req.body, email);
 
       if (result['success'] === 1) {
-        log('info', `Completed required registration for ${req.user.email}`);
+        log('info', `Completed required registration for ${email}`);
       }
       return res.json(result);
     }
@@ -122,31 +79,41 @@ module.exports = (app) => {
     '/auth/complete-registration/details',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const result = await completeRegistrationDetails(req.body, req.user.email);
+      const { email } = getUserFromJWT(req);
+      const result = await completeRegistrationDetails(req.body, email);
 
       if (result['success'] === 1) {
-        log('info', `Completed registration details for ${req.user.email}`);
+        log('info', `Completed registration details for ${email}`);
       }
       return res.json(result);
     }
   );
 
   app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
-    const email = req.user.email;
+    const user = getUserFromJWT(req);
 
-    let check = await userExists(email.toLowerCase());
+    let check = await User.exists({ email: user.email.toLowerCase() });
+
     if (check) {
-      res.json(
-        sendPacket(1, 'Sending back current user', {
-          email,
-          regComplete: req.user.work !== undefined,
-          externalComplete: req.user.accountType !== undefined,
-          firstName: req.user.firstName,
-          lastName: req.user.lastName,
-          _id: req.user._id,
-        })
-      );
-      log('info', `Sent ${email} to frontend`);
+      try {
+        const userDB = await User.findOne(
+          { _id: user._id },
+          'work accountType'
+        ).exec();
+        res.json(
+          sendPacket(1, 'Sending back current user', {
+            email: user.email,
+            regComplete: userDB.work !== undefined,
+            externalComplete: Boolean(userDB.accountType),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id,
+          })
+        );
+        log('info', `Sent ${user.email} to frontend`);
+      } catch (err) {
+        res.json(sendPacket(0, 'Invalid user'));
+      }
     } else {
       res.json(sendPacket(0, 'There is no user currently logged in'));
       log('error', `There is no user currently logged in`);
@@ -157,16 +124,10 @@ module.exports = (app) => {
     let user = await confirmUser(req.params.token);
 
     if (user) {
-      req.login(user, (err) => {
-        if (err) {
-          log('error', `Failed serializing ${user.email}`);
-        }
-        log('info', `Confirmed user ${user.email}`);
-        const JWT = generateJWT(user);
-        return res.redirect(
-          `/register/external?accessToken=${JWT.accessToken}&refreshToken=${JWT.refreshToken}`
-        );
-      });
+      const JWT = generateJWT(user);
+      return res.redirect(
+        `/register/external?accessToken=${JWT.accessToken}&refreshToken=${JWT.refreshToken}`
+      );
     } else {
       res.json(sendPacket(-1, 'There was an error processing your request'));
       log('error', `Was not able to confirm user`);
@@ -186,7 +147,7 @@ module.exports = (app) => {
   });
 
   app.get('/auth/confirmation-resend', isAuthenticatedWithJWT, (req, res) => {
-    let email = req.user.email;
+    const { email } = getUserFromJWT(req);
     if (email) {
       sendConfirmationEmail(email);
       res.json(sendPacket(1, 'Confirmation email has been resent'));
@@ -207,21 +168,6 @@ module.exports = (app) => {
     log('info', `User accessed secure-unconfirmed endpoint`);
   });
 
-  app.get(
-    '/auth/secure-confirmed',
-    isAuthenticatedWithJWT,
-    isConfirmed,
-    (req, res) => {
-      res.json(
-        sendPacket(
-          1,
-          'Successfully accessed secure endpoint! Account has been confirmed'
-        )
-      );
-      log('info', `User accessed secure-confirmed endpoint`);
-    }
-  );
-
   app.post('/auth/sendPasswordReset', (req, res) => {
     if (!req.body.email) return res.json(sendPacket(-1, 'No email to send link to'));
 
@@ -237,9 +183,8 @@ module.exports = (app) => {
   });
 
   app.post('/auth/logout', (req, res) => {
-    let email = req.user.email;
-    req.logout();
+    // const { email } = getUserFromJWT(req);
+    //TODO - Invalidate Access and Refresh tokens
     res.json(sendPacket(1, 'Successfully logged out'));
-    log('info', `Successfully logged out ${email}`);
   });
-};
+}

@@ -9,7 +9,7 @@ const {
   changeBroadcastLayout,
 } = require('../interactions/streaming/opentok');
 
-module.exports = (app) => {
+export default function opentokRoutes(app) {
   app.post(
     '/webinar/getOpenTokSessionID',
     isAuthenticatedWithJWT,
@@ -59,4 +59,4 @@ module.exports = (app) => {
       });
     }
   );
-};
+}

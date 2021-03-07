@@ -18,6 +18,8 @@ import { colors } from '../../theme/Colors';
 
 import RSText from '../../base-components/RSText';
 import Theme from '../../theme/Theme';
+import { useHistory } from 'react-router-dom';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,8 +55,8 @@ const useStyles = makeStyles((_: any) => ({
     color: Theme.white,
     '&:hover': {
       background: Theme.brightHover,
+    },
   },
-  }
 }));
 
 type Props = {
@@ -65,6 +67,7 @@ type Props = {
 
 function HypeRegistration(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -275,7 +278,7 @@ function HypeRegistration(props: Props) {
   }
 
   function handleStep3NextButtonClick() {
-    window.location.href = '/register/initialize';
+    history.push('/register/initialize');
   }
 
   function getStepContent(step: Number) {
@@ -386,9 +389,9 @@ function HypeRegistration(props: Props) {
               bold
             >
               Already have an account?{' '}
-              <a className={styles.loginLink} href="/login">
+              <RSLink className={styles.loginLink} href="/login">
                 Login
-              </a>
+              </RSLink>
             </RSText>
           </>
         )}

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-import { colors } from '../../../theme/Colors';
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
 import CreateCommunityModal from './CreateCommunityModal';
@@ -12,13 +11,13 @@ import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
-import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    flex: 1,
-    background: Theme.background,
+    height: '100%',
     overflow: 'scroll',
   },
   body: {},
@@ -48,17 +47,13 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  requestUserID: string;
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-};
+type Props = {};
 
-function YourCommunitiesBody(props: Props) {
+export default function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
+  const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
+
   const [loading, setLoading] = useState(true);
-  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [username, setUsername] = useState('User');
 
@@ -69,47 +64,35 @@ function YourCommunitiesBody(props: Props) {
     false
   );
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    if (props.requestUserID !== 'user') fetchUserBasicInfo();
-    fetchData().then(() => {
-      setLoading(false);
-    });
-  }, []);
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     const { data } = await makeRequest(
       'GET',
       `/api/user/${
-        props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/communities/all`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+        requestUserID === 'user' ? userID : requestUserID
+      }/communities/all`
     );
     if (data.success === 1) {
       setJoinedCommunities(data.content['joinedCommunities']);
       setPendingCommunities(data.content['pendingCommunities']);
     }
-  }
+  }, [requestUserID]);
+
+  useEffect(() => {
+    if (!loading) setLoading(true);
+
+    if (requestUserID !== 'user') fetchUserBasicInfo();
+    fetchData().then(() => {
+      setLoading(false);
+    });
+  }, [fetchData]);
 
   async function fetchUserBasicInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/${props.requestUserID}/basic`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
     }
-  }
-
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function appendNewCommunity(community: Community) {
@@ -123,7 +106,7 @@ function YourCommunitiesBody(props: Props) {
       const currCommunity = joinedCommunities[i];
       output.push(
         <CommunityHighlight
-          userID={props.user._id}
+          userID={userID}
           style={styles.singleCommunity}
           communityID={currCommunity._id}
           private={currCommunity.private}
@@ -144,7 +127,7 @@ function YourCommunitiesBody(props: Props) {
       const currCommunity = pendingCommunities[i];
       output.push(
         <CommunityHighlight
-          userID={props.user._id}
+          userID={userID}
           style={styles.singleCommunity}
           communityID={currCommunity._id}
           private={currCommunity.private}
@@ -161,7 +144,7 @@ function YourCommunitiesBody(props: Props) {
     }
     if (joinedCommunities.length === 0 && pendingCommunities.length === 0) {
       const noCommunitiesMessage =
-        props.requestUserID === 'user'
+        requestUserID === 'user'
           ? `You aren't a part of any communities yet. Get involved!`
           : `${username} isn't a part of any communities yet.`;
 
@@ -175,7 +158,7 @@ function YourCommunitiesBody(props: Props) {
   }
 
   return (
-    <div className={styles.wrapper} style={{ height: height }}>
+    <div className={styles.wrapper}>
       <CreateCommunityModal
         open={showCreateCommunitiesModal}
         onClose={() => setShowCreateCommunitiesModal(false)}
@@ -184,10 +167,10 @@ function YourCommunitiesBody(props: Props) {
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
           title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+            requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}
           message={`All of the communities that ${
-            props.requestUserID === 'user' ? 'you belong' : `${username} belongs`
+            requestUserID === 'user' ? 'you belong' : `${username} belongs`
           } to will be displayed on this page.`}
           buttonText={'Create Community'}
           buttonAction={() => setShowCreateCommunitiesModal(true)}
@@ -203,17 +186,3 @@ function YourCommunitiesBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(YourCommunitiesBody);

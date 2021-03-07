@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
@@ -19,6 +20,9 @@ const useStyles = makeStyles((_: any) => ({
   italic: {
     fontStyle: 'italic',
   },
+  defaultColor: {
+    color: Theme.primaryText,
+  },
 }));
 
 type Props = {
@@ -35,38 +39,59 @@ type Props = {
 
 function RSText(props: Props) {
   const styles = useStyles();
+
+  const {
+    type,
+    bold,
+    italic,
+    size,
+    className,
+    color,
+    hoverColor,
+    children,
+    onClick,
+  } = props;
+
   const [style, setStyle] = useState({
-    fontSize: props.size ? `${props.size}pt` : '12pt',
-    color: props.color || undefined,
+    fontSize: `${size}pt`,
+    color,
   });
 
-  const type = props.type ? props.type : 'body';
-
   function handleMouseOver() {
-    setStyle({ ...style, color: props.hoverColor! });
+    setStyle({ ...style, color: hoverColor });
   }
 
   function handleMouseLeave() {
-    setStyle({ ...style, color: props.color || undefined });
+    setStyle({ ...style, color });
   }
+
+  useEffect(() => {
+    setStyle({ ...style, color });
+  }, [color]);
 
   return (
     <p
       className={[
         styles.base,
+        color ? null : styles.defaultColor,
+        className,
         type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
-        props.bold ? styles.bold : null,
-        props.italic ? styles.italic : null,
-        props.className ? props.className : null,
+        bold ? styles.bold : null,
+        italic ? styles.italic : null,
       ].join(' ')}
       style={style}
-      onMouseEnter={props.hoverColor ? handleMouseOver : undefined}
-      onMouseLeave={props.hoverColor ? handleMouseLeave : undefined}
-      onClick={props.onClick}
+      onMouseEnter={hoverColor ? handleMouseOver : undefined}
+      onMouseLeave={hoverColor ? handleMouseLeave : undefined}
+      onClick={onClick}
     >
-      {props.children}
+      {children}
     </p>
   );
 }
+
+RSText.defaultProps = {
+  type: 'body',
+  size: 12,
+};
 
 export default RSText;

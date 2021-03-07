@@ -1,4 +1,4 @@
-import { sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -18,9 +18,10 @@ export default function imageRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const packet = await updateUserProfilePicture(image, req.user._id);
+      const packet = await updateUserProfilePicture(image, userID);
       return res.json(packet);
     }
   );
@@ -30,9 +31,10 @@ export default function imageRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
+      const { _id: userID } = getUserFromJWT(req);
       if (!image) return res.json(sendPacket(-1, 'image not in request body'));
 
-      const packet = await updateUserBanner(image, req.user._id);
+      const packet = await updateUserBanner(image, userID);
       return res.json(packet);
     }
   );
@@ -66,30 +68,80 @@ export default function imageRoutes(app) {
     }
   );
 
-  app.get(
-    '/api/images/profile/:userID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      let { userID } = req.params;
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/images/profile:
+   *      get:
+   *        summary: Retrieve profile and banner for a user
+   *        tags:
+   *          - Image
+   *        parameters:
+   *          - in: query
+   *            name: _id
+   *            schema:
+   *              type: string
+   *            description: The ID of the user or community whos profile and banner you are trying to retrieve
+   *
+   *          - in: query
+   *            name: getProfile
+   *            schema:
+   *              type: boolean
+   *            description: Option to retrieve profile picture (true if you want it)
+   *
+   *          - in: query
+   *            name: getBanner
+   *            schema:
+   *              type: boolean
+   *            description: Option to retrieve banner picture (true if you want it)
+   *
+   *          - in: query
+   *            name: type
+   *            schema:
+   *               type: string
+   *            description: Entity type to retrieve information of (community or user)
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully retrieved profile picture / banner
+   *          "-1":
+   *            description: Failed to retrieve profile picture / banner
+   *
+   */
 
-      let isCurrentUser = false;
-      if (userID === 'user') {
-        userID = req.user._id;
-        isCurrentUser = true;
-      }
-      const packet = await getUserProfileAndBanner(userID, isCurrentUser);
-      return res.json(packet);
-    }
-  );
+  app.get('/api/images/profile', isAuthenticatedWithJWT, async (req, res) => {
+    const query = getQueryParams(req, {
+      _id: { type: 'string' },
+      type: { type: 'string' },
+      getBanner: { type: 'boolean', optional: true },
+      getProfile: { type: 'boolean', optional: true },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
 
-  app.get(
-    '/api/images/community/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { communityID } = req.params;
+    let { getProfile, getBanner, _id, type } = query;
 
-      const packet = await getCommunityProfileAndBanner(communityID);
-      return res.json(packet);
-    }
-  );
+    let packet: {
+      success: number;
+      message: string;
+      content: {
+        [key: string]: any;
+      };
+    };
+    if (type === 'user') {
+      if (_id === 'user') _id = getUserFromJWT(req)._id;
+
+      packet = await getUserProfileAndBanner(_id as string, {
+        getProfile: getProfile as boolean | undefined,
+        getBanner: getBanner as boolean | undefined,
+      });
+    } else if (type === 'community')
+      packet = await getCommunityProfileAndBanner(_id as string, {
+        getProfile: getProfile as boolean | undefined,
+        getBanner: getBanner as boolean | undefined,
+      });
+    else packet = sendPacket(-1, 'Invalid type');
+
+    return res.json(packet);
+  });
 }

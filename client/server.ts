@@ -1,10 +1,6 @@
+const isProd = process.env.NODE_ENV !== 'dev';
+
 const { ELASTIC_APM_SECRET_TOKEN } = require('../keys/keys.json');
-const apm = require('elastic-apm-node').start({
-  serviceName: 'rootshare-client',
-  secretToken: ELASTIC_APM_SECRET_TOKEN,
-  serverUrl:
-    'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
-});
 
 require('dotenv').config();
 
@@ -12,29 +8,24 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import cors = require('cors');
+
+const fs = require('fs');
+const http = require('http');
+const socketIO = require('socket.io');
 
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
+import RootshareRoutes from './routes';
 
-import communityRoutes from './routes/community';
-import feedbackRoutes from './routes/feedback';
-import discoverRoutes from './routes/discover';
-import postRoutes from './routes/posts';
-import imageRoutes from './routes/images';
-import mtgRoutes from './routes/meet-the-greeks';
-import webhooks from './routes/webhooks';
-import university from './routes/university';
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-const mongoConfig = require('./config/mongoConfig');
-const fs = require('fs');
-const http = require('http');
-const socketIO = require('socket.io');
+import * as mongoConfig from './config/mongoConfig';
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
@@ -46,11 +37,12 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
 });
 
-initializeDirectory();
-
 const app = express();
 const port = process.env.PORT || 8000;
 
+app.set('query parser', 'simple');
+
+app.use(cors());
 app.use(pino());
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -67,13 +59,23 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-initializeElasticSearch();
-app.use(elasticMiddleware);
+if (isProd) {
+  const apm = require('elastic-apm-node').start({
+    serviceName: 'rootshare-client',
+    secretToken: ELASTIC_APM_SECRET_TOKEN,
+    serverUrl:
+      'https://6724f1537bfa4853bdbe10cc847f5e5a.apm.us-east-1.aws.cloud.es.io:443',
+  });
+
+  initializeDirectory();
+  initializeElasticSearch();
+  app.use(elasticMiddleware);
+}
 
 // app.use(rateLimiter);
 
 //Swagger config
-if (process.env.NODE_ENV === 'dev') {
+if (!isProd) {
   const swaggerUI = require('swagger-ui-express');
   const swaggerJsdoc = require('swagger-jsdoc');
   const options = {
@@ -111,28 +113,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 const server = http.createServer(app);
 const io = socketIO(server);
-
-require('./routes/user')(app);
-require('./routes/registrationInternal')(app);
-require('./routes/registrationExternal')(app);
-require('./routes/messaging')(app, io);
-
-require('./routes/opentok')(app);
-require('./routes/event')(app);
-require('./routes/utilities')(app);
-require('./routes/mocks')(app);
-
-require('./routes/proxy')(app);
-
-//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
-communityRoutes(app);
-feedbackRoutes(app);
-discoverRoutes(app);
-postRoutes(app);
-imageRoutes(app);
-mtgRoutes(app);
-webhooks(app);
-university(app);
+RootshareRoutes(app, io); // Setup for all routes files
 
 require('./config/setup')(passport);
 

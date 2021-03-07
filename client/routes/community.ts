@@ -1,4 +1,4 @@
-import { log, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -9,7 +9,8 @@ import {
   createNewCommunity,
   retrieveAllCommunities,
   editCommunity,
-  // General Community Actions
+  deleteCommunity,
+  //General Community Actions
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -28,7 +29,12 @@ import {
   getAllFollowedByCommunities,
   getAllPendingFollowRequests,
   updateFields,
+  //generics
+  getCommunitiesGeneric,
 } from '../interactions/community';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
+import { stringify } from 'querystring';
+import { send } from 'process';
 
 /**
  *
@@ -44,7 +50,8 @@ export default function communityRoutes(app) {
     '/api/admin/community/create',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
         return res.json(
           sendPacket(-1, 'User is not authorized to perform this action')
         );
@@ -79,7 +86,8 @@ export default function communityRoutes(app) {
   );
 
   app.get('/api/admin/community/all', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const { privilegeLevel } = getUserFromJWT(req);
+    if (privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(-1, 'User is not authorized to perform this action')
       );
@@ -89,7 +97,8 @@ export default function communityRoutes(app) {
   });
 
   app.post('/api/admin/community/edit', isAuthenticatedWithJWT, async (req, res) => {
-    if (req.user.privilegeLevel < USER_LEVEL.ADMIN)
+    const { privilegeLevel } = getUserFromJWT(req);
+    if (privilegeLevel < USER_LEVEL.ADMIN)
       return res.json(
         sendPacket(-1, 'User is not authorized to perform this action')
       );
@@ -124,6 +133,33 @@ export default function communityRoutes(app) {
     return res.json(packet);
   });
 
+  app.delete(
+    '/api/admin/community/:communityID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { privilegeLevel } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.ADMIN)
+        return res.json(
+          sendPacket(-1, 'User is not authorized to perform this action')
+        );
+
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
+
+  app.delete(
+    '/api/community/:communityID',
+    isAuthenticatedWithJWT,
+    isCommunityAdmin,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const packet = await deleteCommunity(communityID);
+      return res.json(packet);
+    }
+  );
+
   app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
     const { name, description, type, isPrivate } = req.body;
 
@@ -141,7 +177,7 @@ export default function communityRoutes(app) {
         )
       );
 
-    const userID = req.user._id;
+    const { _id: userID } = getUserFromJWT(req);
     const packet = await createNewCommunity(
       name,
       description,
@@ -158,7 +194,8 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const packet = await getCommunityInformation(communityID, req.user._id);
+      const { _id } = getUserFromJWT(req);
+      const packet = await getCommunityInformation(communityID, _id);
       return res.json(packet);
     }
   );
@@ -168,7 +205,8 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const packet = await joinCommunity(communityID, req.user._id);
+      const { _id } = getUserFromJWT(req);
+      const packet = await joinCommunity(communityID, _id);
       return res.json(packet);
     }
   );
@@ -219,9 +257,9 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id } = getUserFromJWT(req);
 
-      const packet = await leaveCommunity(communityID, userID);
+      const packet = await leaveCommunity(communityID, _id);
       return res.json(packet);
     }
   );
@@ -231,7 +269,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
 
       const packet = await cancelCommunityPendingRequest(communityID, userID);
       return res.json(packet);
@@ -243,7 +281,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { followAsCommunityID } = req.body;
       if (!followAsCommunityID)
         return res.json(
@@ -292,7 +330,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { fromCommunityID } = req.body;
 
       if (!fromCommunityID)
@@ -308,7 +346,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const userID = req.user._id;
+      const { _id: userID } = getUserFromJWT(req);
       const { fromCommunityID } = req.body;
 
       const packet = await unfollowCommunity(fromCommunityID, communityID, userID);
@@ -352,10 +390,20 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID } = req.user;
-      const { skipCalculation } = req.query;
+      const { _id: userID } = getUserFromJWT(req);
+
+      const query = getQueryParams(req, {
+        skipCalculation: {
+          type: 'boolean',
+          optional: true,
+        },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+
+      const { skipCalculation } = query;
       const packet = await getCommunityMembers(userID, communityID, {
-        skipCalculation,
+        skipCalculation: (skipCalculation || false) as boolean,
       });
       return res.json(packet);
     }
@@ -416,9 +464,113 @@ export default function communityRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const { query } = req;
+      const query = getQueryParams(req, {
+        description: { type: 'string', optional: true },
+        name: { type: 'string', optional: true },
+        type: { type: 'string', optional: true },
+        private: { type: 'boolean', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const packet = await updateFields(communityID, query);
       return res.json(packet);
+    }
+  );
+
+  app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const query = getQueryParams(req, {
+      _ids: { type: 'string[]' },
+      limit: { type: 'number', optional: true },
+      fields: { type: 'string[]', optional: true },
+      populates: { type: 'string[]', optional: true },
+      getProfilePicture: { type: 'boolean', optional: true },
+      getBannerPicture: { type: 'boolean', optional: true },
+      includeDefaultFields: { type: 'boolean', optional: true },
+      getRelationship: { type: 'boolean', optional: true },
+    });
+
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    const {
+      _ids,
+      fields,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship,
+      limit,
+      includeDefaultFields,
+      populates,
+    } = query;
+
+    const options = {
+      limit,
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      getRelationship: getRelationship ? userID : undefined,
+      includeDefaultFields,
+    };
+
+    const packet = await getCommunitiesGeneric(_ids as string[], {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *   /api/v2/community/relationship:
+   *      put:
+   *        summary: Update relationship between user and a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: query
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            description: The id of the community to update relationship to
+   *
+   *          - in: query
+   *            name: action
+   *            schema:
+   *              type: string
+   *            description: Value is join, cancel, or leave
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully updated community relationship
+   *          "0":
+   *            description: User input based error
+   *          "-1":
+   *            description: Internal error
+   *
+   */
+
+  app.put(
+    '/api/v2/community/relationship',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams(req, {
+        action: { type: 'string' },
+        communityID: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+      let { action, communityID } = query;
+      (action = action as string), (communityID = communityID as string);
+
+      if (action === 'join') res.json(await joinCommunity(communityID, userID));
+      else if (action === 'leave')
+        res.json(await leaveCommunity(communityID, userID));
+      else if (action === 'cancel')
+        res.json(await cancelCommunityPendingRequest(communityID, userID));
+      else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );
 }

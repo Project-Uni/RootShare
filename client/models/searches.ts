@@ -14,20 +14,20 @@ const { Schema } = mongoose;
  *        properties:
  *          _id:
  *            type: string
- *            description: Auto-generated id
+ *            description: Auto-generated ID
  *          user:
- *            type: string
- *            description: The id of the user who made the search
+ *            $ref: '#/components/schemas/User'
+ *            description: The ID of the user who made the search
  *          query:
  *            type: string
  *            description: The message the user sent
  *          createdAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: The date of the record creation.
  *          updatedAt:
  *            type: string
- *            format: date
+ *            format: date-time
  *            description: When the record was last updated
  *        example:
  *          user: 1jknj209asd0

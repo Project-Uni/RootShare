@@ -7,3 +7,8 @@ export * from './makeRequest';
 export * from './S3';
 export * from './sendPacket';
 export * from './invalidInputsMessage';
+export * from './getUserFromJWT';
+export * from './twilio';
+export * from './elasticSearch';
+export * from './sendEmail';
+export * from './getQueryParams';

@@ -10,8 +10,13 @@ import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { cropText, makeRequest } from '../../../helpers/functions';
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '..';
 
 const MAX_DESC_LEN = 200;
 
@@ -80,7 +85,7 @@ type Props = {
   description: string;
   memberCount: number;
   mutualMemberCount: number;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   profilePicture: any;
   admin: string;
   setNotification?: (
@@ -95,9 +100,9 @@ type Props = {
 function CommunityHighlight(props: Props) {
   const styles = useStyles();
 
-  const [communityStatus, setCommunityStatus] = useState<CommunityStatus>(
-    props.status
-  );
+  const [communityStatus, setCommunityStatus] = useState<
+    UserToCommunityRelationship
+  >(props.status);
   const [numMembers, setNumMembers] = useState(props.memberCount);
 
   async function requestJoin() {
@@ -111,9 +116,9 @@ function CommunityHighlight(props: Props) {
     );
 
     if (data['success'] === 1) {
-      if (props.private) setCommunityStatus('PENDING');
+      if (props.private) setCommunityStatus(U2CR.PENDING);
       else {
-        setCommunityStatus('JOINED');
+        setCommunityStatus(U2CR.JOINED);
         setNumMembers((prevNumMembers) => prevNumMembers + 1);
       }
     } else
@@ -122,13 +127,13 @@ function CommunityHighlight(props: Props) {
   }
 
   function renderButton() {
-    if (communityStatus === 'OPEN')
+    if (communityStatus === U2CR.OPEN)
       return (
         <Button className={styles.connectButton} onClick={requestJoin}>
           Join
         </Button>
       );
-    else if (communityStatus === 'PENDING')
+    else if (communityStatus === U2CR.PENDING)
       return (
         <RSText color={Theme.altText} size={12} className={styles.pendingText}>
           PENDING
@@ -150,7 +155,7 @@ function CommunityHighlight(props: Props) {
     >
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/community/${props.communityID}`}>
+          <RSLink href={`/community/${props.communityID}`}>
             <ProfilePicture
               type="community"
               height={70}
@@ -160,12 +165,12 @@ function CommunityHighlight(props: Props) {
               currentPicture={props.profilePicture}
               pictureStyle={styles.profilePic}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <div style={{ display: 'flex', alignItems: 'center' }}></div>
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <a
+              <RSLink
                 href={`/community/${props.communityID}`}
                 className={styles.noUnderline}
               >
@@ -177,7 +182,7 @@ function CommunityHighlight(props: Props) {
                 >
                   {props.name}
                 </RSText>
-              </a>
+              </RSLink>
               {props.private && (
                 <FaLock
                   color={Theme.secondaryText}

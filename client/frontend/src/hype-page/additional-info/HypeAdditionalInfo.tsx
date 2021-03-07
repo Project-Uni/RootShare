@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Typography } from '@material-ui/core';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { checkDesktop, makeRequest } from '../../helpers/functions';
@@ -51,6 +51,7 @@ type Props = {
 
 function HypeAdditionalInfo(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [landingRedirect, setLandingRedirect] = useState(false);
   const [externalRedirect, setExternalRedirect] = useState(false);
@@ -76,9 +77,6 @@ function HypeAdditionalInfo(props: Props) {
 
   const [currentUser, setCurrentUser] = useState('');
 
-  // const redirectURL = '/home';
-  const redirectURL = checkDesktop() ? '/home' : '/event/5f89f333821f7f6046243a53';
-
   async function checkCompletedRegistration() {
     const { data } = await makeRequest(
       'POST',
@@ -95,7 +93,9 @@ function HypeAdditionalInfo(props: Props) {
         setRegCompleted(data['content']['regComplete']);
         setCurrentUser(data['content']['email']);
       }
-    } else setLandingRedirect(true);
+    } else {
+      setLandingRedirect(true);
+    }
   }
 
   useEffect(() => {
@@ -199,7 +199,7 @@ function HypeAdditionalInfo(props: Props) {
   }
 
   function handleContinue() {
-    window.location.href = redirectURL;
+    history.push('/home');
   }
 
   const mode = 'question';

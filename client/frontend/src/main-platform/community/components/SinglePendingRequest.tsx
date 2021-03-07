@@ -5,6 +5,7 @@ import { colors } from '../../../theme/Colors';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 import RSText from '../../../base-components/RSText';
 import Theme from '../../../theme/Theme';
+import { RSLink } from '../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -50,7 +51,9 @@ function SinglePendingRequest(props: Props) {
   return (
     <div className={[styles.wrapper, props.className].join(' ')}>
       <div className={styles.left}>
-        <a href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}>
+        <RSLink
+          href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}
+        >
           <ProfilePicture
             height={60}
             width={60}
@@ -58,15 +61,15 @@ function SinglePendingRequest(props: Props) {
             type="profile"
             currentPicture={props.profilePicture}
           />
-        </a>
-        <a
+        </RSLink>
+        <RSLink
           href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}
           className={styles.noDecoration}
         >
           <RSText type="body" size={14} className={styles.name}>
             {props.name}
           </RSText>
-        </a>
+        </RSLink>
       </div>
       <div className={styles.right}>
         <Button

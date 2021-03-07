@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
 import { User } from '../models';
+import { U2UR, U2CR } from '../helpers/types';
 
 export function getUserData(callback) {
   User.find(
@@ -14,6 +15,11 @@ export function getUserData(callback) {
       'email',
       'phoneNumber',
       'graduationYear',
+      'major',
+      'work',
+      'position',
+      'department',
+      'graduateSchool',
     ],
     (err, users) => {
       if (err || users === undefined || users === null) {
@@ -65,7 +71,7 @@ function countAccountType(users) {
   return retCounts;
 }
 
-// Adds profile picture, mutual members, and mutual communities
+// Adds mutual members, and mutual communities
 export async function addCalculatedUserFields(
   currentUserConnections: string[],
   currentUserJoinedCommunities: string[],
@@ -100,7 +106,7 @@ export async function addCalculatedUserFields(
 
   cleanedUser.numMutualConnections = mutualConnections.length;
   cleanedUser.numMutualCommunities = mutualCommunities.length;
-  cleanedUser.status = 'PUBLIC';
+  cleanedUser.status = U2UR.OPEN;
 
   return cleanedUser;
 }
@@ -125,7 +131,7 @@ export async function addCalculatedCommunityFields(
   const cleanedCommunity = copyObject(community, ['members']);
   cleanedCommunity.numMembers = community.members.length;
   cleanedCommunity.numMutual = mutualMembers.length;
-  cleanedCommunity.status = 'OPEN';
+  cleanedCommunity.status = U2UR.OPEN;
 
   return cleanedCommunity;
 }
@@ -156,7 +162,7 @@ export function getUserToUserRelationship(
         currentUserConnections[i]._id.toString() ===
         originalOtherUser.connections[j]._id.toString()
       )
-        return (cleanedOtherUser.status = 'CONNECTION');
+        return (cleanedOtherUser.status = U2UR.CONNECTED);
 
   for (let i = 0; i < currentUserPendingConnections.length; i++)
     if (
@@ -168,9 +174,9 @@ export function getUserToUserRelationship(
         currentUserPendingConnections[i].from.toString() ===
         cleanedOtherUser._id.toString()
       ) {
-        cleanedOtherUser.status = 'FROM';
+        cleanedOtherUser.status = U2UR.PENDING_FROM;
         cleanedOtherUser.connectionRequestID = currentUserPendingConnections[i]._id;
-      } else cleanedOtherUser.status = 'TO';
+      } else cleanedOtherUser.status = U2UR.PENDING_TO;
 }
 
 export function getUserToCommunityRelationship(
@@ -186,9 +192,9 @@ export function getUserToCommunityRelationship(
   }
 ) {
   if (currentUserJoinedCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'JOINED';
+    cleanedCommunity.status = U2CR.JOINED;
   else if (currentUserPendingCommunities.indexOf(originalCommunity._id) !== -1)
-    cleanedCommunity.status = 'PENDING';
+    cleanedCommunity.status = U2CR.PENDING;
 }
 
 function copyObject(oldObject, exclusions) {
@@ -273,6 +279,45 @@ export function addProfilePicturesAll(
           entities[i].profilePicture = undefined;
       }
       return entities;
+    });
+}
+
+export function addProfilePicturesToRequests(requests) {
+  const profilePicturePromises = [];
+  for (let i = 0; i < requests.length; i++) {
+    if (requests[i].from.profilePicture) {
+      const signedImageURLPromise = retrieveSignedUrl(
+        'profile',
+        requests[i].from.profilePicture
+      );
+      profilePicturePromises.push(signedImageURLPromise);
+    } else {
+      profilePicturePromises.push(null);
+    }
+  }
+
+  return Promise.all(profilePicturePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++) {
+        if (signedImageURLs[i]) requests[i].from.profilePicture = signedImageURLs[i];
+        else requests[i].from.profilePicture = undefined;
+      }
+
+      return requests;
+    })
+    .catch((err) => {
+      log('error', err);
+      for (let i = 0; i < requests.length; i++) {
+        const imageURL = requests[i].from.profilePicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          requests[i].from.profilePicture = undefined;
+      }
+      return requests;
     });
 }
 

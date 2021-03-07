@@ -5,9 +5,8 @@ Allow: /home
 Allow: /login
 Allow: /events
 Allow: /event/*
-Allow: /communities
-Allow: /connections
+Allow: /communities/*
+Allow: /connections/*
 Allow: /profile/*
 Allow: /community/*
-Allow: /discover
 Disallow: /admin/*

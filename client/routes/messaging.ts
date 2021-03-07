@@ -1,4 +1,4 @@
-import { log } from '../helpers/functions';
+import { getUserFromJWT, log } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 const {
@@ -11,7 +11,7 @@ const {
   connectSocketToConversations,
 } = require('../interactions/messaging');
 
-module.exports = (app, io) => {
+export default function messagingRoutes(app, io) {
   io.on('connection', (socket) => {
     log('info', 'New client connected');
 
@@ -30,8 +30,10 @@ module.exports = (app, io) => {
   });
 
   app.post('/api/messaging/sendMessage', isAuthenticatedWithJWT, (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+
     sendMessage(
-      req.user._id,
+      userID,
       req.body.conversationID,
       req.body.message,
       req.body.tempID,
@@ -49,7 +51,9 @@ module.exports = (app, io) => {
   });
 
   app.get('/api/messaging/getLatestThreads', isAuthenticatedWithJWT, (req, res) => {
-    getLatestThreads(req.user._id, (packet) => {
+    const { _id: userID } = getUserFromJWT(req);
+
+    getLatestThreads(userID, (packet) => {
       res.json(packet);
     });
   });
@@ -58,8 +62,10 @@ module.exports = (app, io) => {
     '/api/messaging/getLatestMessages',
     isAuthenticatedWithJWT,
     (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+
       getLatestMessages(
-        req.user._id,
+        userID,
         req.body.conversationID,
         req.body.maxMessages,
         (packet) => {
@@ -70,14 +76,18 @@ module.exports = (app, io) => {
   );
 
   app.post('/api/messaging/updateLike', isAuthenticatedWithJWT, (req, res) => {
-    updateLike(req.user._id, req.body.messageID, req.body.liked, io, (packet) => {
+    const { _id: userID } = getUserFromJWT(req);
+
+    updateLike(userID, req.body.messageID, req.body.liked, io, (packet) => {
       res.json(packet);
     });
   });
 
   app.post('/api/messaging/getLiked', isAuthenticatedWithJWT, (req, res) => {
-    getLiked(req.user._id, req.body.conversationID, (packet) => {
+    const { _id: userID } = getUserFromJWT(req);
+
+    getLiked(userID, req.body.conversationID, (packet) => {
       res.json(packet);
     });
   });
-};
+}

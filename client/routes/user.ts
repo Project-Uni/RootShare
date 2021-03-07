@@ -1,4 +1,5 @@
-import { log, sendPacket } from '../helpers/functions';
+import { Express } from 'express';
+import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
 import { Post, User } from '../models';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -22,46 +23,64 @@ import {
   getOtherConnectionsFullData,
   getUserAdminCommunities,
   getBasicUserInfo,
+  getUsersGeneric,
 } from '../interactions/user';
 
-module.exports = (app) => {
-  app.get('/user/getCurrent', (req, res) => {
-    return getCurrentUser(req.user, (packet) => res.json(packet));
-  });
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Users
+ *    description: API to manage User Interactions
+ *
+ */
+
+export default function userRoutes(app: Express) {
   app.get('/user/getConnections', isAuthenticatedWithJWT, (req, res) => {
-    getConnections(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getConnections(userID, (packet) => res.json(packet));
   });
 
   app.get('/api/user/profile/:userID', isAuthenticatedWithJWT, (req, res) => {
+    const { _id } = getUserFromJWT(req);
+
     if (req.params.userID === 'user')
-      getPrivateProfileInformation(req.user._id, (packet) => res.json(packet));
+      getPrivateProfileInformation(_id, (packet) => res.json(packet));
     else
-      getPublicProfileInformation(req.user._id, req.params.userID, (packet) =>
+      getPublicProfileInformation(_id, req.params.userID, (packet) =>
         res.json(packet)
       );
   });
 
   app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
     let { userID } = req.params;
-    if (userID === 'user') userID = req.user._id;
+    const { _id } = getUserFromJWT(req);
+
+    if (userID === 'user') userID = _id;
     getUserEvents(userID, (packet) => res.json(packet));
   });
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {
-    updateProfileInformation(req.user._id, req.body, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+
+    updateProfileInformation(userID, req.body, (packet) => res.json(packet));
   });
 
   app.post('/user/updateBio', isAuthenticatedWithJWT, (req, res) => {
-    updateUserBio(req.user._id, req.body.newBio, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    updateUserBio(userID, req.body.newBio, (packet) => res.json(packet));
   });
 
   app.get('/user/getConnectionSuggestions', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionSuggestions(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getConnectionSuggestions(userID, (packet) => res.json(packet));
   });
 
   app.get('/user/getPendingRequests', isAuthenticatedWithJWT, (req, res) => {
-    getPendingRequests(req.user._id, (packet) => res.json(packet));
+    const { _id: userID } = getUserFromJWT(req);
+    getPendingRequests(userID, (packet) => res.json(packet));
   });
 
   app.get(
@@ -69,37 +88,28 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
+      const { _id } = getUserFromJWT(req);
+
       let packet;
-      if (req.user._id.toString() === userID.toString())
+      if (_id.toString() === userID.toString())
         packet = await getSelfConnectionsFullData(userID);
-      else packet = await getOtherConnectionsFullData(req.user._id, userID);
+      else packet = await getOtherConnectionsFullData(_id, userID);
       return res.json(packet);
     }
   );
 
-  app.post('/user/requestConnection', isAuthenticatedWithJWT, (req, res) => {
-    requestConnection(req.user._id, req.body.requestUserID, (packet) =>
-      res.json(packet)
-    );
-  });
-
-  app.post('/user/respondConnection', isAuthenticatedWithJWT, (req, res) => {
-    respondConnection(
-      req.user._id,
-      req.body.requestID,
-      req.body.accepted,
-      (packet) => res.json(packet)
-    );
-  });
-
   app.post('/user/checkConnectedWithUser', isAuthenticatedWithJWT, (req, res) => {
-    checkConnectedWithUser(req.user._id, req.body.requestUserID, (packet) =>
+    const { _id: userID } = getUserFromJWT(req);
+
+    checkConnectedWithUser(userID, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
 
   app.post('/user/getConnectionWithUser', isAuthenticatedWithJWT, (req, res) => {
-    getConnectionWithUser(req.user._id, req.body.requestUserID, (packet) =>
+    const { _id: userID } = getUserFromJWT(req);
+
+    getConnectionWithUser(userID, req.body.requestUserID, (packet) =>
       res.json(packet)
     );
   });
@@ -146,10 +156,12 @@ module.exports = (app) => {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { userID } = req.params;
+      const { _id } = getUserFromJWT(req);
+
       let packet;
-      if (req.user._id.toString() === userID.toString())
+      if (_id.toString() === userID.toString())
         packet = await getSelfUserCommunities(userID);
-      else packet = await getOtherUserCommunities(req.user._id, userID);
+      else packet = await getOtherUserCommunities(_id, userID);
       return res.json(packet);
     }
   );
@@ -168,4 +180,144 @@ module.exports = (app) => {
     const packet = await getBasicUserInfo(userID);
     return res.json(packet);
   });
-};
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *    /api/v2/user:
+   *      get:
+   *        summary: Retrieve users by IDs
+   *        tags:
+   *          - User
+   *        parameters:
+   *          - in: query
+   *            name: _ids
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The IDs of the users you are trying to retrieve
+   *
+   *          - in: query
+   *            name: fields
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The fields you are trying to retrieve.
+   *
+   *          - in: query
+   *            name: limit
+   *            schema:
+   *              type: number
+   *            description: Max number of users to retrieve
+   *
+   *          - in: query
+   *            name: populates
+   *            schema:
+   *              type: array
+   *              items:
+   *                type: string
+   *            description: The names of the fields you are trying to populate
+   *
+   *          - in: query
+   *            name: includeDefaultFields
+   *            schema:
+   *              type: boolean
+   *            description: Option to include default fields or not
+   *            default: true
+   *
+   *          - in: query
+   *            name: getProfilePicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get profile picture from s3
+   *            default: true
+   *
+   *          - in: query
+   *            name: getBannerPicture
+   *            schema:
+   *              type: boolean
+   *            description: Option to get banner picture
+   *            default: false
+   *
+   *          - in: query
+   *            name: getRelationship
+   *            schema:
+   *              type: string
+   *            description: userID to get relationship to (connected, pending_from, pending_to, open)
+   *
+   *        responses:
+   *          "1":
+   *            description: Successfully retrieved users
+   *          "-1":
+   *            description: Failed to retrieve users
+   *
+   */
+
+  app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+
+    const query = getQueryParams(req, {
+      _ids: { type: 'string[]' },
+      limit: { type: 'number', optional: true },
+      fields: { type: 'string[]', optional: true },
+      populates: { type: 'string[]', optional: true },
+      getProfilePicture: { type: 'boolean', optional: true },
+      getBannerPicture: { type: 'boolean', optional: true },
+      includeDefaultFields: { type: 'boolean', optional: true },
+      getRelationship: { type: 'boolean', optional: true },
+    });
+
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+    const {
+      _ids,
+      limit,
+      fields,
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      includeDefaultFields,
+      getRelationship,
+    } = query;
+
+    const options = {
+      limit,
+      populates,
+      getProfilePicture,
+      getBannerPicture,
+      includeDefaultFields,
+      getRelationshipTo: getRelationship ? userID : undefined,
+    };
+    const packet = await getUsersGeneric(_ids as string[], {
+      fields: fields as any,
+      options: options as any,
+    });
+    return res.json(packet);
+  });
+
+  app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: selfUserID } = getUserFromJWT(req);
+    const query = getQueryParams(req, {
+      action: { type: 'string' },
+      otherUserID: { type: 'string' },
+    });
+    if (!query)
+      return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+
+    const { action, otherUserID } = query;
+
+    if (action === 'connect')
+      res.json(await requestConnection(selfUserID, otherUserID));
+    else if (action === 'reject' || action === 'cancel' || action === 'remove')
+      res.json(await respondConnection(selfUserID, otherUserID, false));
+    else if (action === 'accept')
+      res.json(await respondConnection(selfUserID, otherUserID, true));
+    else
+      return res.json(
+        sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
+      );
+  });
+}

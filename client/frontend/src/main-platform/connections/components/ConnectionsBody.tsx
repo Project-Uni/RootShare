@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { Autocomplete } from '@material-ui/lab';
 import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
 
 import { FaSearch } from 'react-icons/fa';
 
-import { colors } from '../../../theme/Colors';
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { DiscoverUser, UniversityType } from '../../../helpers/types';
 
-import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    flex: 1,
+    height: '100%',
     overflow: 'scroll',
   },
   body: {},
@@ -54,66 +54,46 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  requestUserID: string;
+type Props = {};
 
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-};
-
-function ConnectionsBody(props: Props) {
+export default function ConnectionsBody(props: Props) {
   const styles = useStyles();
+  const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
+
   const [loading, setLoading] = useState(true);
-  const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
   const [connections, setConnections] = useState<DiscoverUser[]>([]);
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    if (props.requestUserID !== 'user') fetchUserBasicInfo();
-    fetchData().then(() => {
-      setLoading(false);
-    });
-  }, []);
+  const { userID: requestUserID } = useParams<{ userID: string }>();
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     const { data } = await makeRequest(
       'GET',
-      `/api/user/${
-        props.requestUserID === 'user' ? props.user._id : props.requestUserID
-      }/connections`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/user/${requestUserID === 'user' ? userID : requestUserID}/connections`
     );
 
     if (data.success === 1) {
       setConnections(data.content['connections']);
       setPendingConnections(data.content['pendingConnections']);
     }
-  }
+  }, [requestUserID]);
+
+  useEffect(() => {
+    if (!loading) setLoading(true);
+    if (requestUserID !== 'user') fetchUserBasicInfo();
+    fetchData().then(() => {
+      setLoading(false);
+    });
+  }, [fetchData]);
 
   async function fetchUserBasicInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/user/${props.requestUserID}/basic`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
     }
-  }
-
-  function handleResize() {
-    setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
   function renderSearchArea() {
@@ -128,7 +108,7 @@ function ConnectionsBody(props: Props) {
             <TextField
               {...params}
               label={`Search ${
-                props.requestUserID === 'user' ? 'your' : `${username}'s`
+                requestUserID === 'user' ? 'your' : `${username}'s`
               } connections`}
               variant="outlined"
               InputProps={{ ...params.InputProps, type: 'search' }}
@@ -174,8 +154,8 @@ function ConnectionsBody(props: Props) {
     if (connections.length === 0)
       return (
         <RSText size={20} type="head" className={styles.noConnections}>
-          {props.requestUserID === 'user' ? `You don't` : `${username} doesn't`} have
-          any connections yet. Send a request!
+          {requestUserID === 'user' ? `You don't` : `${username} doesn't`} have any
+          connections yet. Send a request!
         </RSText>
       );
 
@@ -203,20 +183,14 @@ function ConnectionsBody(props: Props) {
   }
 
   return (
-    <div
-      className={styles.wrapper}
-      style={{
-        height: height,
-        background: Theme.background,
-      }}
-    >
+    <div className={styles.wrapper}>
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
           title={`${
-            props.requestUserID === 'user' ? 'Your' : `${username}\'s`
+            requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
           message={`See all of the people that ${
-            props.requestUserID === 'user' ? 'you have' : `${username} has`
+            requestUserID === 'user' ? 'you have' : `${username} has`
           } connected with!`}
         />
         {renderSearchArea()}
@@ -234,17 +208,3 @@ function ConnectionsBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ConnectionsBody);

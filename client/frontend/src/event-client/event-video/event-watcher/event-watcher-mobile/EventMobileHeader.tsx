@@ -4,6 +4,7 @@ import { AppBar, Toolbar } from '@material-ui/core';
 import RootShareLogoWhite from '../../../../images/RootShareLogoWhite.png';
 
 import { colors } from '../../../../theme/Colors';
+import { RSLink } from '../../../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: { width: '100%' },
@@ -47,13 +48,13 @@ function EventMobileHeader(props: Props) {
     <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
-          <a href="/">
+          <RSLink href="/">
             <img
               src={RootShareLogoWhite}
               alt="RootShare"
               className={styles.headerLogo}
             />
-          </a>
+          </RSLink>
         </Toolbar>
       </AppBar>
     </div>

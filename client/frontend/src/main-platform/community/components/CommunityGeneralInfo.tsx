@@ -23,10 +23,13 @@ import {
 import FollowButton from './FollowButton';
 
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { cropText } from '../../../helpers/functions';
-import { CommunityStatus, CommunityType } from '../../../helpers/types';
+import {
+  UserToCommunityRelationship,
+  CommunityType,
+  U2CR,
+} from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
 const MAX_DESC_LEN = 275;
@@ -135,7 +138,7 @@ type CommunityFlags = {
 
 type Props = {
   communityID: string;
-  status: CommunityStatus;
+  status: UserToCommunityRelationship;
   name: string;
   description: string;
   numMembers: number;
@@ -147,7 +150,7 @@ type Props = {
   isAdmin?: boolean;
   isMTG?: boolean;
 
-  updateCommunityStatus: (newStatus: CommunityStatus) => any;
+  updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   flags: CommunityFlags;
 };
 
@@ -193,7 +196,7 @@ function CommunityGeneralInfo(props: Props) {
 
     if (data.success === 1) {
       props.updateCommunityStatus(data.content['newStatus']);
-      if (data.content['newStatus'] === 'JOINED') {
+      if (data.content['newStatus'] === U2CR.JOINED) {
         updateMemberCount(1);
       }
     }
@@ -276,7 +279,7 @@ function CommunityGeneralInfo(props: Props) {
   }
 
   function renderStatusButton() {
-    if (props.status === 'OPEN')
+    if (props.status === U2CR.OPEN)
       return (
         <Button
           className={[styles.button, styles.joinButton].join(' ')}
@@ -286,7 +289,7 @@ function CommunityGeneralInfo(props: Props) {
           Join
         </Button>
       );
-    else if (props.status === 'PENDING')
+    else if (props.status === U2CR.PENDING)
       return (
         <>
           <Button
