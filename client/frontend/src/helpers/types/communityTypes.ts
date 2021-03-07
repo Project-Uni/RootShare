@@ -1,4 +1,4 @@
-import { UserType } from './index';
+import { UserType, PostType } from './index';
 
 export type Community = {
   _id: string;
@@ -22,6 +22,7 @@ export type Community = {
   relationship: UserToCommunityRelationship;
   status: UserToCommunityRelationship; // TODO: deprecate this
   isMTGFlag?: boolean; //For Meet the Greeks
+  externalPosts?: PostType[];
 };
 
 export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';

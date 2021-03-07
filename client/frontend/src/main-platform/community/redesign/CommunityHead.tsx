@@ -45,6 +45,7 @@ const useStyles = makeStyles((_: any) => ({
   name: {
     alignSelf: 'flex-start',
     textAlign: 'left',
+    wordWrap: 'break-word',
   },
   lockIcon: {
     marginLeft: 10,

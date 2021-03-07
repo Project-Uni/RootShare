@@ -9,9 +9,11 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { CommunityHead } from './CommunityHead';
 import { RSText } from '../../../base-components';
 import { CommunityAbout, AboutPageUser } from './CommunityAbout';
+import { UserPost } from '../../reusable-components';
 
 import { getCommunities } from '../../../api';
-import { Community as CommunityFields } from '../../../helpers/types';
+import { Community as CommunityFields, PostType } from '../../../helpers/types';
+import { makeRequest, formatDatePretty } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -30,8 +32,9 @@ const Community = (props: Props) => {
   }));
 
   const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
+  const [externalPosts, setExternalPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('about');
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
 
   useEffect(() => {
     fetchCommunityInfo().then(() => {
@@ -40,17 +43,8 @@ const Community = (props: Props) => {
   }, []);
 
   const fetchCommunityInfo = useCallback(async () => {
-    const data = await getCommunities([communityID], {
-      fields: [
-        'admin',
-        'name',
-        'members',
-        'externalPosts',
-        'description',
-        'bio',
-        'private',
-        'type',
-      ],
+    const communityPromise = getCommunities([communityID], {
+      fields: ['admin', 'name', 'members', 'description', 'bio', 'private', 'type'],
       options: {
         getProfilePicture: true,
         getBannerPicture: true,
@@ -64,16 +58,25 @@ const Community = (props: Props) => {
       },
     });
 
-    if (data.success === 1)
-      return setInfo(data.content.communities[0] as CommunityFields);
-
-    dispatch(
-      dispatchSnackbar({
-        message: 'There was an error retrieving this community',
-        mode: 'error',
-      })
+    const postPromise = makeRequest(
+      'GET',
+      `/api/posts/community/${communityID}/external`
     );
-    return {};
+
+    return Promise.all([communityPromise, postPromise]).then(
+      ([communityData, postData]) => {
+        if (communityData.success !== 1 || postData.data.success !== 1)
+          dispatch(
+            dispatchSnackbar({
+              message: 'There was an error retrieving this community',
+              mode: 'error',
+            })
+          );
+
+        setInfo(communityData.content.communities[0]);
+        setExternalPosts(postData.data.content.posts);
+      }
+    );
   }, [communityID, getCommunities]);
 
   const getTabContent = React.useCallback(() => {
@@ -89,12 +92,35 @@ const Community = (props: Props) => {
             members={info.members as AboutPageUser[]}
           />
         );
-      case 'feed':
-        return <p>Feed</p>;
+      case 'feed': {
+        return (
+          <>
+            {externalPosts && externalPosts.length > 0 ? (
+              externalPosts.map((post) => {
+                return (
+                  <UserPost
+                    postID={post._id}
+                    posterID={post.user._id}
+                    name={post.user.firstName}
+                    timestamp={formatDatePretty(new Date(post.createdAt))}
+                    profilePicture={post.user.profilePicture}
+                    message={post.message}
+                    likeCount={post.likes}
+                    commentCount={post.comments}
+                  />
+                );
+              })
+            ) : (
+              <div>No posts</div>
+            )}
+          </>
+        );
+      }
+
       default:
         return <RSText>An Error Occured</RSText>;
     }
-  }, [currentTab, info]);
+  }, [currentTab, info, externalPosts]);
 
   return (
     <>
