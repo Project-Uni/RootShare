@@ -17,11 +17,11 @@ export class AuthService {
       if (!validation_user)
         return {
           status: 400,
-          packet: sendPacket(0, 'No user exists with this email'),
+          packet: sendPacket(0, 'Invalid credentials'),
         };
 
       if (!comparePasswords(password, validation_user.hashedPassword))
-        return { status: 400, packet: sendPacket(0, 'Invalid password') };
+        return { status: 400, packet: sendPacket(0, 'Invalid credentials') };
 
       const [user] = await getUsersByIDs([validation_user._id], {
         fields: [
@@ -337,7 +337,7 @@ export class AuthService {
     isValidPassword: (password: string) =>
       password.length >= 8 && password !== 'password',
     isValidPhoneNumber: (phoneNumber: string) =>
-      /^\d+$/.test(phoneNumber) || phoneNumber.length !== 10,
+      /^\d+$/.test(phoneNumber) && phoneNumber.length === 10,
     isValidState: (state: string) =>
       StateCodeKeys.some((stateCode) => stateCode === state),
     isValidUniversity: async (universityID: string) =>
