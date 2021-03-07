@@ -31,8 +31,6 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-export type TextTransformType = 'none' | 'capitalize' | 'uppercase' | 'lowercase';
-
 export type TextWeight = 'normal' | 'light' | 'bold';
 
 type Props = {
@@ -41,7 +39,6 @@ type Props = {
   weight: TextWeight;
   italic?: boolean;
   multiline?: boolean;
-  caps?: TextTransformType;
   size?: number;
   className?: string;
   style?: React.CSSProperties;
@@ -60,7 +57,6 @@ function RSText(props: Props) {
     weight,
     italic,
     multiline,
-    caps,
     size,
     className,
     style: styleProps,
@@ -73,7 +69,6 @@ function RSText(props: Props) {
   const [style, setStyle] = useState({
     ...styleProps,
     fontSize: `${size}pt`,
-    textTransform: caps,
     color,
   });
 

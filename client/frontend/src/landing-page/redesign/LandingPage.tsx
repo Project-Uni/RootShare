@@ -4,11 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
-import {
-  updateRefreshToken,
-  updateAccessToken,
-  updateUser,
-} from '../../redux/actions';
 
 import Login from './Login';
 import { SignupForm } from './registration/SignupForm';
@@ -19,7 +14,6 @@ import LandingImg from '../../images/landingBullets.png';
 import { RSText } from '../../base-components';
 
 import Theme from '../../theme/Theme';
-import { makeRequest } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {

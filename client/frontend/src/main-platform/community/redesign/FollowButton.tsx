@@ -7,7 +7,7 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { Slide, Theme as ThemeType } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 
-import RSText, { TextTransformType } from '../../../base-components/RSText';
+import RSText from '../../../base-components/RSText';
 import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import { RSMenu, RSButtonV2, RSButtonVariants } from '../../reusable-components';
 
@@ -47,7 +47,6 @@ type Props = {
   name: string;
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'university' | 'universitySecondary';
-  caps?: TextTransformType;
   fontSize: number;
   borderRadius?: number;
   style?: React.CSSProperties;
@@ -75,7 +74,6 @@ function FollowButton(props: Props) {
     name,
     disabled,
     variant,
-    caps,
     fontSize,
     borderRadius,
     style,
@@ -231,7 +229,7 @@ function FollowButton(props: Props) {
         className={styles.button}
         fontSize={fontSize}
         borderRadius={borderRadius}
-        caps={caps}
+        caps="none"
         disabled={disabled}
         variant={variant}
         style={style}

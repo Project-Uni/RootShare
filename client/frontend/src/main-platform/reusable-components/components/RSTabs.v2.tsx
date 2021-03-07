@@ -39,20 +39,23 @@ type Props = {
   selected: string;
   onChange: (newTab: string | any) => any;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 function RSTabsV2(props: Props) {
   const styles = useStyles();
 
+  const { tabs, selected, onChange, className, style } = props;
+
   const { university } = useSelector((state: RootshareReduxState) => state.user);
 
   function renderTabs() {
     const output = [];
-    for (let i = 0; i < props.tabs.length; i++) {
-      const isSelected = props.selected === props.tabs[i].value;
+    for (let i = 0; i < tabs.length; i++) {
+      const isSelected = selected === tabs[i].value;
 
       output.push(
-        <div className={styles.tab} key={props.tabs[i].value}>
+        <div className={styles.tab} key={tabs[i].value}>
           <RSText
             className={[
               styles.tabItem,
@@ -64,10 +67,10 @@ function RSTabsV2(props: Props) {
             }
             size={13}
             onClick={() => {
-              props.onChange(props.tabs[i].value);
+              onChange(tabs[i].value);
             }}
           >
-            {props.tabs[i].label}
+            {tabs[i].label}
           </RSText>
         </div>
       );
@@ -75,7 +78,9 @@ function RSTabsV2(props: Props) {
     return output;
   }
   return (
-    <div className={[styles.wrapper, props.className].join(' ')}>{renderTabs()}</div>
+    <div className={[styles.wrapper, className].join(' ')} style={style}>
+      {renderTabs()}
+    </div>
   );
 }
 

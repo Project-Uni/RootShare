@@ -42,7 +42,8 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
       return false;
     }
 
-    //type conversion
+    // Type conversion
+    // Ensures that undefined optional parameters don't get cast as empty objects
     if (!val) continue;
 
     try {

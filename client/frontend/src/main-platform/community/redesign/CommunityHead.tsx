@@ -27,12 +27,11 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 30,
   },
   profilePicture: {
-    boxShadow: Theme.fullShadow,
+    border: `2px solid ${Theme.foreground}`,
   },
   profilePictureContainer: {
-    marginTop: -82,
-    padding: 10,
-    display: 'inline-block',
+    marginTop: -70,
+    alignSelf: 'start',
   },
   center: {
     display: 'flex',
@@ -190,19 +189,20 @@ export const CommunityHead = (props: Props) => {
         zoomOnClick
       />
       <div className={styles.horizontalDiv}>
-        <ProfilePicture
-          type="community"
-          height={170}
-          width={170}
-          pictureStyle={styles.profilePicture}
-          editable={relationship === 'admin'}
-          zoomOnClick
-          className={styles.profilePictureContainer}
-          borderRadius={100}
-          borderWidth={0}
-          _id={communityID}
-          currentPicture={profilePicture}
-        />
+        <div className={styles.profilePictureContainer}>
+          <ProfilePicture
+            type="community"
+            height={140}
+            width={140}
+            pictureStyle={styles.profilePicture}
+            editable={relationship === 'admin'}
+            zoomOnClick
+            borderRadius={100}
+            borderWidth={0}
+            _id={communityID}
+            currentPicture={profilePicture}
+          />
+        </div>
         {renderCenter()}
         {renderRight()}
       </div>

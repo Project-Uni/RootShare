@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Avatar } from '@material-ui/core';
@@ -22,6 +22,7 @@ type Props = {
   children?: React.ReactNode;
   variant: 'circle' | 'circular' | 'rounded' | 'square';
   className?: string;
+  style?: React.CSSProperties;
   href?: string;
 };
 
@@ -39,7 +40,7 @@ const RSAvatar = (props: Props) => {
     href,
   } = props;
 
-  const style = { height: size, width: size };
+  const [style, setStyle] = useState({ ...props.style, height: size, width: size });
 
   const renderAvatar = () => (
     <div className={styles.wrapper}>
@@ -63,7 +64,7 @@ const RSAvatar = (props: Props) => {
   return (
     <>
       {href ? (
-        <RSLink href={href} underline="noUnderline">
+        <RSLink href={href} underline="none">
           {renderAvatar()}
         </RSLink>
       ) : (

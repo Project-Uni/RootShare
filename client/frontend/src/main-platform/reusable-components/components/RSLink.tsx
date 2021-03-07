@@ -11,19 +11,19 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
-  noUnderline: {
+  none: {
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'none',
     },
   },
-  hoverUnderline: {
+  hover: {
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
     },
   },
-  staticUnderline: {},
+  static: {},
 }));
 
 type Props = {
@@ -32,7 +32,7 @@ type Props = {
   className?: string;
   style?: React.CSSProperties;
   children: JSX.Element[] | JSX.Element | string;
-  underline: 'noUnderline' | 'hoverUnderline' | 'staticUnderline';
+  underline: 'none' | 'hover' | 'static';
 };
 
 export const RSLink = (props: Props) => {
@@ -65,5 +65,5 @@ export const RSLink = (props: Props) => {
 };
 
 RSLink.defaultProps = {
-  underline: 'noUnderline',
+  underline: 'none',
 };

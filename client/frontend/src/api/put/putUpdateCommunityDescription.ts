@@ -2,7 +2,7 @@ import { makeRequest } from '../../helpers/functions';
 import { stringify } from 'query-string';
 import { CommunityType } from '../../helpers/types';
 
-export const putUpdateCommunityDescription = async (
+export const putUpdateCommunity = async (
   communityID: string,
   fields: {
     name?: string;
@@ -18,3 +18,5 @@ export const putUpdateCommunityDescription = async (
   );
   return data;
 };
+
+// TODO: Change name here

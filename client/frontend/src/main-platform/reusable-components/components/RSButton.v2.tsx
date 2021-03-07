@@ -1,9 +1,8 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import theme from '../../../theme/Theme';
-import { TextTransformType } from '../../../base-components/RSText';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
@@ -41,6 +40,8 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+type TextTransformType = 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+
 export type RSButtonVariants =
   | 'primary'
   | 'secondary'
@@ -54,7 +55,7 @@ type Props = {
   caps?: TextTransformType;
   fontSize: number;
   borderRadius: number;
-  style: React.CSSProperties;
+  style?: React.CSSProperties;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onHover?: (hovering: boolean) => void;
@@ -74,8 +75,13 @@ const RSButtonV2 = (props: Props) => {
     onClick,
     onHover,
   } = props;
-  let { style } = props;
-  style = { ...style, fontSize, borderRadius, textTransform: caps };
+
+  const [style, setStyle] = useState({
+    ...props.style,
+    fontSize,
+    borderRadius,
+    textTransform: caps,
+  });
 
   return (
     <Button
@@ -100,7 +106,6 @@ RSButtonV2.defaultProps = {
   fontSize: 12,
   borderRadius: 12,
   caps: 'none',
-  style: {},
 };
 
 export default RSButtonV2;

@@ -10,7 +10,7 @@ import { RSCard, RSAvatar, RSLink } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
 import Theme from '../../../theme/Theme';
-import { putUpdateCommunityDescription } from '../../../api/put';
+import { putUpdateCommunity } from '../../../api/put';
 
 const AVATAR_SIZE = 120;
 
@@ -129,7 +129,7 @@ const AboutCard = (props: {
   const saveDescription = async () => {
     setDescription(editDescription);
     setEditing(false);
-    const data = await putUpdateCommunityDescription(communityID, {
+    const data = await putUpdateCommunity(communityID, {
       description: editDescription,
     });
     if (data.success !== 1) {
@@ -150,7 +150,7 @@ const AboutCard = (props: {
       <div className={styles.editingButtonsWrapper}>
         <RSLink
           className={styles.editButton}
-          underline="hoverUnderline"
+          underline="hover"
           onClick={cancelEditing}
         >
           <RSText size={11} weight="light" color={Theme.error}>
@@ -159,7 +159,7 @@ const AboutCard = (props: {
         </RSLink>
         <RSLink
           className={styles.editButton}
-          underline="hoverUnderline"
+          underline="hover"
           onClick={saveDescription}
         >
           <RSText size={11} weight="light">
@@ -170,7 +170,7 @@ const AboutCard = (props: {
     ) : (
       <RSLink
         className={styles.editButton}
-        underline="hoverUnderline"
+        underline="hover"
         onClick={() => setEditing(true)}
       >
         <RSText size={11} weight="light">
@@ -223,7 +223,7 @@ const AdminsCard = (props: {
         <RSLink
           className={styles.profilePictureContainer}
           href={`/profile/${admin._id}`}
-          underline="hoverUnderline"
+          underline="hover"
         >
           <RSAvatar
             className={styles.profilePicture}
@@ -257,7 +257,7 @@ const MembersCard = (props: { members: Props['members'] }) => {
             <RSLink
               className={styles.profilePictureContainer}
               href={`/profile/${member._id}`}
-              underline="hoverUnderline"
+              underline="hover"
             >
               <RSAvatar
                 className={styles.profilePicture}
