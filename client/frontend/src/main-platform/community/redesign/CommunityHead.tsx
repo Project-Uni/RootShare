@@ -58,6 +58,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   bio: {
     alignSelf: 'flex-start',
+    textAlign: 'left',
+    wordWrap: 'break-word',
+    maxWidth: '100%',
     paddingTop: 10,
     paddingBottom: 10,
   },
@@ -128,12 +131,7 @@ export const CommunityHead = (props: Props) => {
           )}
         </RSText>
         <Tag className={styles.tag} tag={type} variant="university" weight="light" />
-        <RSText
-          size={12}
-          type="body"
-          color={Theme.secondaryText}
-          className={styles.bio}
-        >
+        <RSText size={12} color={Theme.secondaryText} className={styles.bio}>
           {bio}
         </RSText>
         <hr

@@ -38,6 +38,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   bodyText: {
     color: Theme.secondaryText,
+    wordWrap: 'break-word',
   },
   textField: {
     width: '100%',
@@ -191,12 +192,15 @@ const AboutCard = (props: {
         <TextField
           variant="outlined"
           value={editDescription}
+          multiline
           label="Edit Community Description"
           className={styles.textField}
           onChange={(e) => setEditDescription(e.target.value)}
         />
       ) : (
-        <RSText className={styles.bodyText}>{description}</RSText>
+        <RSText className={styles.bodyText} multiline>
+          {description}
+        </RSText>
       )}
     </RSCard>
   );

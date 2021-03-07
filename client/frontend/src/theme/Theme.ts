@@ -8,6 +8,7 @@ type Theme = {
   accent: string;
   background: string;
   foreground: string;
+  secondaryForeground: string;
   primaryHover: string;
   primaryText: string;
   secondaryText: string;
@@ -48,12 +49,13 @@ const theme: { default: Theme; dark: Theme } = {
     primary: '#545454',
     primaryHover: '#C4C4C4',
     accent: '#FFF9E1',
-    background: '#E3E3E3',
+    background: '#E5E5E5',
     foreground: '#FBFBFB',
+    secondaryForeground: '#F7F9FA',
     bright: '#61C87F',
     brightHover: '#7BD294',
     altText: '#FFFFFF',
-    primaryText: '#000000',
+    primaryText: '#252525',
     secondaryText: '#545454',
     disabledButton: 'lightgray',
     fullShadow: customShadow(0, 0, 12, '#444444', 0.4),
@@ -68,6 +70,7 @@ const theme: { default: Theme; dark: Theme } = {
     accent: '',
     background: '',
     foreground: '',
+    secondaryForeground: '',
     primaryText: '',
     secondaryText: '',
     error: '',

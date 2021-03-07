@@ -60,6 +60,7 @@ const RSAvatar = (props: Props) => {
 };
 
 RSAvatar.defaultProps = {
+  size: 50,
   variant: 'circle',
 };
 
