@@ -19,6 +19,7 @@ type Props = {
   size: number;
   primaryName?: string;
   secondaryName?: string;
+  children?: React.ReactNode;
   variant: 'circle' | 'circular' | 'rounded' | 'square';
   className?: string;
   href?: string;
@@ -27,7 +28,16 @@ type Props = {
 const RSAvatar = (props: Props) => {
   const styles = useStyles();
 
-  const { src, size, primaryName, secondaryName, variant, className, href } = props;
+  const {
+    src,
+    size,
+    primaryName,
+    secondaryName,
+    children,
+    variant,
+    className,
+    href,
+  } = props;
 
   const style = { height: size, width: size };
 
@@ -39,9 +49,13 @@ const RSAvatar = (props: Props) => {
         variant={variant}
         style={style}
       >
-        <RSText size={size / 3} caps="uppercase" weight="light">
-          {getInitials(primaryName, secondaryName)}
-        </RSText>
+        {children ? (
+          children
+        ) : (
+          <RSText size={size / 3} caps="uppercase" weight="light">
+            {getInitials(primaryName, secondaryName)}
+          </RSText>
+        )}
       </Avatar>
     </div>
   );

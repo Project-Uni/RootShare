@@ -1,17 +1,18 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { FaLock } from 'react-icons/fa';
+
 import { RSCard, RSTabsV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
+import Tag from './Tag';
 
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
-import { FaLock } from 'react-icons/fa';
-import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -43,6 +44,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   name: {
     alignSelf: 'flex-start',
+    textAlign: 'left',
   },
   lockIcon: {
     marginLeft: 10,
@@ -124,7 +126,7 @@ export const CommunityHead = (props: Props) => {
           {name}
           {isPrivate && (
             <FaLock
-              color={Theme.primaryHover}
+              color={Theme.secondaryText}
               size={20}
               className={styles.lockIcon}
             />

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { DiscoverUsers } from './components';
+import { DiscoverUsers, DiscoverCommunities } from './components';
 
 import Theme from '../../theme/Theme';
 import { getSidebarData } from '../../api/get';
-import { DiscoverUser } from './components';
+import { DiscoverUser, DiscoverCommunity } from './components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -37,7 +37,9 @@ export const RightSidebar = (props: Props) => {
   const { className, components } = props;
 
   const [discoverUsers, setDiscoverUsers] = useState<DiscoverUser[]>([]);
-  const [discoverCommunities, setDiscoverCommunities] = useState([]);
+  const [discoverCommunities, setDiscoverCommunities] = useState<
+    DiscoverCommunity[]
+  >([]);
   // const [pinnedCommunities, setPinnedCommunities] = useState([])
   // const [trending, setTrending] = useState([])
 
@@ -53,7 +55,6 @@ export const RightSidebar = (props: Props) => {
       pinnedCommunities,
       trending,
     } = data.content;
-    console.log(data.content);
 
     discoverUsers && setDiscoverUsers(discoverUsers);
     discoverCommunities && setDiscoverCommunities(discoverCommunities);
@@ -69,7 +70,7 @@ export const RightSidebar = (props: Props) => {
           case 'discoverUsers':
             return <DiscoverUsers users={discoverUsers} />;
           case 'discoverCommunities':
-            return <div />; //<DiscoverCommunities />;
+            return <DiscoverCommunities communities={discoverCommunities} />;
           case 'pinnedCommunities':
             return <div />; //<PinnedCommunities />;
           case 'trending':

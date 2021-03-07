@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
+import PeopleIcon from '@material-ui/icons/People';
+import { FaLock } from 'react-icons/fa';
+
 import { dispatchSnackbar } from '../../../redux/actions';
 import { useDispatch } from 'react-redux';
 
@@ -8,9 +11,8 @@ import { RSCard, RSLink, RSButtonV2, RSAvatar } from '../../reusable-components'
 import { RSText } from '../../../base-components';
 
 import Theme from '../../../theme/Theme';
-import { putUpdateUserConnection } from '../../../api';
+import { putCommunityMembership } from '../../../api';
 import { COMPONENT_WIDTH } from '../RightSidebar';
-import { capitalizeFirstLetter } from '../../../helpers/functions';
 
 const MAX_USERS = 4;
 
@@ -56,6 +58,9 @@ const useStyles = makeStyles((_: any) => ({
       color: Theme.primaryText,
     },
   },
+  lockIcon: {
+    marginLeft: 4,
+  },
   right: {
     display: 'flex',
     flexDirection: 'column',
@@ -71,103 +76,104 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-export type DiscoverUser = {
+export type DiscoverCommunity = {
   _id: string;
-  firstName: string;
+  name: string;
   lastName: string;
   profilePicture?: string;
-  accountType: string;
-  graduationYear: string;
+  private: boolean;
+  numMembers: number;
+  numMutual: number;
   numMutualConnections: number;
 };
 
 type Props = {
   // children?: JSX.Element | JSX.Element[] | string | number;
-  users: DiscoverUser[];
+  communities: DiscoverCommunity[];
   className?: string;
 };
 
-export const DiscoverUsers = (props: Props) => {
+export const DiscoverCommunities = (props: Props) => {
   const styles = useStyles();
   const { className } = props;
 
-  const [users, setUsers] = useState(props.users);
+  const [communities, setCommunities] = useState(props.communities);
 
   useEffect(() => {
-    setUsers(props.users);
-  }, [props.users]);
+    setCommunities(props.communities);
+  }, [props.communities]);
 
-  const removeUser = (userID: string) => {
-    let newUsers = users.slice();
-    for (let i = 0; i < users.length; i++) {
-      const currUser = users[i];
-      if (currUser._id === userID) {
-        newUsers.splice(i, 1);
-        setUsers(newUsers);
+  const removeCommunity = (userID: string) => {
+    let newCommunities = communities.slice();
+    for (let i = 0; i < communities.length; i++) {
+      const currCommunity = communities[i];
+      if (currCommunity._id === userID) {
+        newCommunities.splice(i, 1);
+        setCommunities(newCommunities);
         return;
       }
     }
   };
 
-  const renderUsers = () => {
+  const renderCommunities = () => {
     const output: any = [];
-    const limit = Math.min(MAX_USERS, users.length);
+    const limit = Math.min(MAX_USERS, communities.length);
 
     for (let i = 0; i < limit; i++) {
-      const currUser = users[i];
+      const currCommunity = communities[i];
       output.push(
-        <SingleDiscoverUser
-          key={currUser._id}
-          user={currUser}
-          removeUser={removeUser}
+        <SingleDiscoverCommunity
+          key={currCommunity._id}
+          community={currCommunity}
+          removeCommunity={removeCommunity}
         />
       );
     }
     return output;
   };
 
-  if (users.length === 0) return <></>;
+  if (communities.length === 0) return <></>;
 
   return (
     <RSCard className={[styles.wrapper, className].join(' ')} background="secondary">
       <RSText className={styles.cardTitle} size={16} bold>
-        People For You
+        Communities For You
       </RSText>
-      {renderUsers()}
+      {renderCommunities()}
     </RSCard>
   );
 };
 
 type SingleProps = {
-  user: DiscoverUser;
-  removeUser: (userID: string) => void;
+  community: DiscoverCommunity;
+  removeCommunity: (communityID: string) => void;
 };
 
-const SingleDiscoverUser = (props: SingleProps) => {
+const SingleDiscoverCommunity = (props: SingleProps) => {
   const styles = useStyles();
 
   const dispatch = useDispatch();
 
-  const { user, removeUser } = props;
+  const { community, removeCommunity } = props;
 
   const [visible, setVisible] = useState(true);
 
-  const requestConnection = async () => {
+  const requestJoin = async (isPrivate: boolean) => {
     removeSuggestion();
+    const data = await putCommunityMembership('join', community._id);
 
-    const data = await putUpdateUserConnection('connect', user._id);
-
+    const successMessage = isPrivate ? 'Requested to join' : 'Joined';
     if (data.success === 1)
       dispatch(
         dispatchSnackbar({
-          message: `Connection request sent to ${user.firstName} ${user.lastName}`,
+          message: `${successMessage} ${community.name}`,
           mode: 'success',
         })
       );
     else
       dispatch(
         dispatchSnackbar({
-          message: `There was an error sending a request to ${user.firstName} ${user.lastName}`,
+          message: `There was an error trying to join ${community.name}`,
           mode: 'error',
         })
       );
@@ -176,7 +182,7 @@ const SingleDiscoverUser = (props: SingleProps) => {
   const removeSuggestion = () => {
     setVisible(false);
     setTimeout(() => {
-      removeUser(user._id);
+      removeCommunity(community._id);
     }, 500);
   };
 
@@ -184,36 +190,42 @@ const SingleDiscoverUser = (props: SingleProps) => {
     <div className={[styles.singleWrapper, visible || styles.fadeOut].join(' ')}>
       <div className={styles.left}>
         <RSAvatar
-          href={`/profile/${user._id}`}
-          src={user.profilePicture}
-          primaryName={user.firstName}
-          secondaryName={user.lastName}
-        />
+          href={`/community/${community._id}`}
+          src={community.profilePicture}
+          primaryName={community.name}
+        >
+          <PeopleIcon fontSize="large" />
+        </RSAvatar>
       </div>
       <div className={styles.center}>
-        <RSLink href={`/profile/${user._id}`}>
+        <RSLink href={`/community/${community._id}`}>
           <RSText size={13} className={styles.name}>
-            {`${user.firstName} ${user.lastName}`}
+            {community.name}
+            {community.private && (
+              <FaLock
+                color={Theme.secondaryText}
+                size={12}
+                className={styles.lockIcon}
+              />
+            )}
           </RSText>
         </RSLink>
 
         <RSText size={11} italic className={styles.accountType}>
-          {capitalizeFirstLetter(user.accountType)}
-          {/* {capitalizeFirstLetter(user.accountType)} | {user.graduationYear} */}
+          {`${community.numMembers} ${
+            community.numMembers === 1 ? 'Member' : 'Members'
+          }`}
+          {/* {`${community.numMembers} Members | ${community.numMutual} Mutual`} */}
         </RSText>
-
-        {/* TODO: add mutuals to suggestions with the following format:
-            27 {people icon} | 4 {community icon}
-        */}
       </div>
 
       <div className={styles.right}>
         <RSButtonV2
           className={styles.button}
-          onClick={requestConnection}
+          onClick={() => requestJoin(community.private)}
           variant="university"
         >
-          <RSText size={10}>Connect</RSText>
+          <RSText size={10}>Join</RSText>
         </RSButtonV2>
         <RSButtonV2
           className={styles.button}
