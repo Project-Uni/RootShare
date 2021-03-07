@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { DiscoverUsers, DiscoverCommunities } from './components';
 
-import Theme from '../../theme/Theme';
 import { getSidebarData } from '../../api/get';
 import { DiscoverUser, DiscoverCommunity } from './components';
 

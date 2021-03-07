@@ -92,30 +92,6 @@ const LandingPage = (props: Props) => {
     checkAuth();
   }, [checkAuth]);
 
-  useEffect(() => {
-    temp();
-  });
-
-  async function temp() {
-    const { data } = await makeRequest('POST', '/api/v2/auth/login', {
-      email: 'smitdesai422@gmail.com',
-      password: 'password2',
-    });
-    const {
-      user,
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    } = data['content'];
-    dispatch(
-      updateUser({
-        ...user,
-      })
-    );
-    dispatch(updateAccessToken(newAccessToken));
-    dispatch(updateRefreshToken(newRefreshToken));
-    history.push('/home');
-  }
-
   useLayoutEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
