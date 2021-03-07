@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSCard } from '../../reusable-components';
+import { RSButton, RSCard, RSModal } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture } from '../../../base-components';
+import EditCommunityModal from './EditCommunityModal';
 import Theme from '../../../theme/Theme';
 import { CommunityTab } from './Community';
 
@@ -41,39 +42,62 @@ export const CommunityHead = (props: Props) => {
     onTabChange,
   } = props;
 
+  const [showEditCommunityModal, setShowEditCommunityModal] = useState(
+    false
+  );
+
   return (
-    <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
-      <ProfileBanner
-        height={225}
-        editable={false}
-        type={'community'}
-        borderRadius={40}
-        _id={communityID}
-        currentPicture={banner}
-      />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingLeft: 50,
-          paddingRight: 50,
-        }}
-      >
-        <ProfilePicture
-          editable={false}
-          type="community"
-          height={150}
-          width={150}
-          pictureStyle={styles.profilePicture}
-          className={styles.profilePictureContainer}
-          borderRadius={100}
-          _id={communityID}
-          currentPicture={profilePicture}
+    <div>
+      <EditCommunityModal
+        communityID={communityID}
+        open={showEditCommunityModal}
+        onClose={() => setShowEditCommunityModal(false)}
+        banner={banner}
+        profilePicture={profilePicture}
         />
-        <span>Title desc and tabs</span>
-        <span>buttons</span>
-      </div>
-    </RSCard>
+      <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
+        <ProfileBanner
+          height={225}
+          editable={false}
+          type={'community'}
+          borderRadius={40}
+          _id={communityID}
+          currentPicture={banner}
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingLeft: 50,
+            paddingRight: 50,
+          }}
+        >
+          <ProfilePicture
+            editable={false}
+            type="community"
+            height={150}
+            width={150}
+            pictureStyle={styles.profilePicture}
+            className={styles.profilePictureContainer}
+            borderRadius={100}
+            _id={communityID}
+            currentPicture={profilePicture}
+          />
+          <span>Title desc and tabs</span>
+          <span>buttons</span>
+          <div>
+            <RSButton
+              variant="university"
+              onClick={() => setShowEditCommunityModal(true)}
+              // className={styles.button}
+              // disabled={loading}
+            >
+              Edit Profile
+            </RSButton>
+          </div>
+        </div>
+      </RSCard>
+    </div>
   );
 };
