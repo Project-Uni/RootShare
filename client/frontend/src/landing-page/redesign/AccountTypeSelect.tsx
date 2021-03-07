@@ -4,8 +4,10 @@ import { RSText } from '../../base-components';
 import Theme from '../../theme/Theme';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { updateRegistrationAccountType } from '../../redux/actions';
+import { AccountType } from '../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -20,16 +22,19 @@ const useStyles = makeStyles((_: any) => ({
 
 const MIN_WIDTH = 915;
 
-type AccountType = 'student' | 'alumni' | 'faculty' | 'recruiter';
-
 type Props = {};
 
 const AccountTypeSelect = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
-  const { accessToken } = useSelector((state: RootshareReduxState) => ({
-    accessToken: state.accessToken,
-  }));
+  const { accessToken, registration } = useSelector(
+    (state: RootshareReduxState) => ({
+      accessToken: state.accessToken,
+      registration: state.registration,
+    })
+  );
+
+  const dispatch = useDispatch();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -52,7 +57,8 @@ const AccountTypeSelect = (props: Props) => {
 
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
-  }, [accessToken]);
+    else if (!registration?.verified) history.push('/account/verify');
+  }, [accessToken, registration]);
 
   useEffect(() => {
     checkAuth();
@@ -64,7 +70,8 @@ const AccountTypeSelect = (props: Props) => {
   }, [handleResize]);
 
   const handleClick = (type: AccountType) => {
-    console.log('Clicking on account type:', type);
+    dispatch(updateRegistrationAccountType(type));
+    history.push('/account/initialize');
   };
 
   return (

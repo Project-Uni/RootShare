@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
+import LandingImg from '../../images/landingBullets.png';
 import { RSText } from '../../base-components';
+import { useDispatch, useSelector } from 'react-redux';
+
 import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import Login from './Login';
+import { SignupForm } from './registration/SignupForm';
+import { VerifyPhone } from './verification/VerifyPhone';
+import { AccountInitializationForm } from './initialization/AccountInitializationForm';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -14,6 +20,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   left: {
     background: `linear-gradient(45deg, #555555, #61C87F);`,
+    boxShadow: '6px 0px 23px rgba(0, 0, 0, 0.3)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -25,7 +32,11 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  right: {
+  title: {
+    textAlign: 'left',
+    marginBottom: '50px',
+  },
+  rightMiddleContent: {
     flex: 1,
     display: 'flex',
     justifyContent: 'center',
@@ -35,17 +46,25 @@ const useStyles = makeStyles((_: any) => ({
   logo: {
     width: 300,
   },
+  link: {
+    color: Theme.bright,
+    fontSize: '17px',
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
 }));
 
-const MIN_WIDTH = 915;
+const MIN_WIDTH = 1000;
 
 type Props = {
-  mode: 'register' | 'login' | 'additional';
+  mode: 'register' | 'login' | 'additional' | 'verify';
 };
 
 const LandingPage = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
@@ -70,27 +89,49 @@ const LandingPage = (props: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
+  
+
   //TODO - Update with components
   const getLeftComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Left Component</p>;
+        return (
+          <div>
+            <RSText className={styles.title} color={Theme.white} size={40}>
+              Sign Up
+            </RSText>
+            <img src={LandingImg} />
+          </div>
+        );
       case 'login':
-        return <p>Login Left Component</p>;
+        return (
+          <div>
+            <RSText className={styles.title} color={Theme.white} size={40}>
+              Login
+            </RSText>
+            <img src={LandingImg} />
+          </div>
+        );
       case 'additional':
         return <p>Additional Info Left Component</p>;
     }
   }, [mode]);
 
-  //TODO - Update with components
+  //Moved RightComponent below to prevent Textfeild re-render
   const getRightComponent = useCallback(() => {
     switch (mode) {
       case 'register':
-        return <p>Register Form and Buttons</p>;
+        return <SignupForm />;
+      case 'verify':
+        return <VerifyPhone />;
       case 'login':
-        return <p>Login Form and Buttons</p>;
+        return (
+          <div className={styles.rightMiddleContent}>
+            <Login />
+          </div>
+        )
       case 'additional':
-        return <p>Additional Info Form and Buttons</p>;
+        return <AccountInitializationForm />;
     }
   }, [mode]);
 
@@ -124,17 +165,18 @@ const LandingPage = (props: Props) => {
         >
           {/* TODO - Fix styling to match wireframe */}
           {isMobile && (
-            <RSText color={Theme.white} size={20}>
-              Sign Up
-            </RSText>
+            <div className={styles.leftMiddleContent}>{getLeftComponent()}</div>
           )}
+
           <img src={RootShareLogo} className={styles.logo} />
           <RSText color={Theme.white} size={20}>
             Lets Grow Together
           </RSText>
         </div>
       </div>
-      <div className={styles.right}>{getRightComponent()}</div>
+      <div className={styles.rightMiddleContent}>
+        <div> {getRightComponent()}</div>
+      </div>
     </div>
   );
 };

@@ -26,6 +26,7 @@ export const authRoutes = (app: Express) => {
       email,
       phoneNumber,
       password,
+      initializationVector,
       accountType,
       firstName,
       lastName,
@@ -39,6 +40,7 @@ export const authRoutes = (app: Express) => {
       email: string;
       phoneNumber: string;
       password: string;
+      initializationVector: string;
       accountType: 'student' | 'alumni' | 'faculty' | 'recruiter';
       firstName: string;
       lastName: string;
@@ -54,6 +56,7 @@ export const authRoutes = (app: Express) => {
       email,
       phoneNumber,
       password,
+      initializationVector,
       accountType,
       firstName,
       lastName,

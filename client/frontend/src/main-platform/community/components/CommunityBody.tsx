@@ -96,7 +96,7 @@ function CommunityBody(props: Props) {
   const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
   const [locked, setLocked] = useState<boolean>(true);
 
-  const { orgID: communityID } = useParams<{ orgID: string }>();
+  const { communityID } = useParams<{ communityID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
