@@ -20,7 +20,7 @@ type Props = {
   primaryName?: string;
   secondaryName?: string;
   children?: React.ReactNode;
-  variant: 'circle' | 'circular' | 'rounded' | 'square';
+  variant: 'circle' | 'rounded' | 'square';
   className?: string;
   style?: React.CSSProperties;
   href?: string;
