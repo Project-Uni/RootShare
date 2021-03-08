@@ -87,7 +87,7 @@ const App = () => {
               path="/register/resetPassword/:emailtoken"
               component={ResetPassword}
             />
-            xx
+            xx xx
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route path="/admin" component={AdminRoutes} />
             <Route
