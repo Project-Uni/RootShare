@@ -1,7 +1,7 @@
 import { makeRequest } from '../../helpers/functions';
 import { PostType } from '../../helpers/types';
 
-type SubmitPostArgs = {
+export type SubmitPostArgs = {
   type:
     | 'broadcast-user'
     | 'broadcast-community'
@@ -27,7 +27,11 @@ export const postSubmitPost = async ({
   const url = getUrl({ type, params });
   if (!url) {
     console.error('Invalid Parameters for postSubmitPost');
-    return { success: -1, message: 'Invalid Parameters for postSubmitPost' };
+    return {
+      success: -1,
+      message: 'Invalid Parameters for postSubmitPost',
+      content: { post: undefined },
+    };
   }
 
   const args = {

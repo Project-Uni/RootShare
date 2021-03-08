@@ -22,7 +22,7 @@ export const CommunityFeed = (props: Props) => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<PostType[]>();
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
     fetchPosts().then(() => setLoading(false));
@@ -44,9 +44,17 @@ export const CommunityFeed = (props: Props) => {
     }
   };
 
+  const appendPost = (post: PostType) => {
+    setPosts((prev) => [post, ...prev]);
+  };
+
   return (
     <div className={styles.wrapper}>
-      <MakePostContainer style={{ marginTop: 15 }} />
+      <MakePostContainer
+        style={{ marginTop: 15 }}
+        mode={{ name: 'community-external', communityID }}
+        appendPost={appendPost}
+      />
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (

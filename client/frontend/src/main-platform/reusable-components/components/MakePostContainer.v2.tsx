@@ -4,11 +4,14 @@ import { Avatar, IconButton } from '@material-ui/core';
 import { RSTextField } from './RSTextField';
 import { ImageUploadIcon } from '../../../images';
 import { RSCard } from './RSCard';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import RSButton from './RSButton';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
+import { postSubmitPost, SubmitPostArgs } from '../../../api';
+import { PostType } from '../../../helpers/types';
+import { dispatchSnackbar } from '../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   imagePreviewWrapper: {
@@ -22,19 +25,42 @@ const useStyles = makeStyles((_: any) => ({
     maxWidth: '100%',
     objectFit: 'contain',
   },
+  textField: {
+    ['& fieldset']: {
+      borderRadius: 15,
+    },
+  },
 }));
+
+type MakePostContainerMode =
+  | {
+      name: 'homepage';
+    }
+  | { name: 'profile' }
+  | {
+      name: 'community-external';
+      communityID: string;
+      externalPostingOptions?: any;
+    }
+  | {
+      name: 'community-internal-student' | 'community-internal-alumni';
+      communityID: string;
+    };
 
 type Props = {
   style?: React.CSSProperties;
   className?: string;
-  mode?: 'homepage' | 'profile' | 'community';
+  mode: MakePostContainerMode;
+  appendPost?: (post: PostType) => void;
 };
 
 export const MakePostContainer = (props: Props) => {
-  const { style, className } = props;
+  const { style, className, mode, appendPost } = props;
 
   const styles = useStyles();
+
   const user = useSelector((state: RootshareReduxState) => state.user);
+  const dispatch = useDispatch();
 
   const [message, setMessage] = useState('');
   const [imageSrc, setImageSrc] = useState<string>();
@@ -66,36 +92,58 @@ export const MakePostContainer = (props: Props) => {
     }
   }
 
+  //Add in function args that choose how the post action is done
   async function handlePostClicked() {
     setLoading(true);
     setServerErr(undefined);
 
-    //TODO
+    if (!message.trim()) {
+      setServerErr('Enter a valid message');
+      return;
+    }
 
-    // const { data } = await makeRequest('POST', '/api/posts/broadcast/user', {
-    //   message,
-    //   image: imageSrc,
-    // });
+    let type: SubmitPostArgs['type'];
+    let toCommunityID: string | undefined = undefined;
+    if (mode.name === 'homepage' || mode.name === 'profile') type = 'broadcast-user';
+    else {
+      toCommunityID = mode.communityID;
+      //TODO - Add in other community types
+      type = 'community-external-user';
+    }
 
-    // setLoading(false);
+    const data = await postSubmitPost({
+      type,
+      message,
+      image: imageSrc,
+      params: {
+        toCommunityID,
+      },
+    });
 
-    // if (data.success === 1) {
-    //   setMessage('');
-    //   if (imageSrc) setImageSrc(undefined);
-    //   setServerMessage({ status: 1, message: 'Successfully created post.' });
-    //   setTimeout(() => {
-    //     setServerMessage(undefined);
-    //   }, 5000);
-    //   props.appendNewPost(data.content['newPost']);
-    // } else {
-    //   setServerMessage({
-    //     status: 0,
-    //     message: 'There was an error creating your post.',
-    //   });
-    //   setTimeout(() => {
-    //     setServerMessage(undefined);
-    //   }, 10000);
-    // }
+    if (data.success === 1) {
+      setMessage('');
+      const { post } = data.content;
+      if (!post) {
+        dispatch(
+          dispatchSnackbar({
+            mode: 'error',
+            message: 'There was an error updating the posts',
+          })
+        );
+        return;
+      }
+      const { user: postUser, ...rest } = post;
+      const cleanedPost = {
+        ...rest,
+        user: {
+          ...postUser,
+          profilePicture: user.profilePicture,
+        },
+      };
+      appendPost?.(cleanedPost);
+      dispatch(dispatchSnackbar({ mode: 'notify', message: 'Posted!' }));
+    }
+    setLoading(false);
   }
 
   return (
@@ -128,10 +176,10 @@ export const MakePostContainer = (props: Props) => {
       <div
         style={{
           display: 'flex',
-          paddingTop: 15,
-          paddingBottom: 15,
-          paddingLeft: 20,
-          paddingRight: 20,
+          paddingTop: 20,
+          paddingBottom: 20,
+          paddingLeft: 25,
+          paddingRight: 25,
         }}
       >
         <Avatar
@@ -145,6 +193,9 @@ export const MakePostContainer = (props: Props) => {
             label="Hey Purdue..."
             error={Boolean(serverErr)}
             helperText={serverErr}
+            className={styles.textField}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
           <div
             style={{

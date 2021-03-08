@@ -452,7 +452,11 @@ export async function createExternalPostAsMember(
     }
 
     const post = await Post.findById(raw_post._id)
-      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName profilePicture major graduationYear work position',
+      })
       .populate({ path: 'images', select: 'fileName' })
       .exec();
 
