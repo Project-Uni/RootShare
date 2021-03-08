@@ -38,9 +38,10 @@ const RSAvatar = (props: Props) => {
     variant,
     className,
     href,
+    style: styleProps,
   } = props;
 
-  const [style, setStyle] = useState({ ...props.style, height: size, width: size });
+  const [style, setStyle] = useState({ ...styleProps, height: size, width: size });
 
   const renderAvatar = () => (
     <div className={styles.wrapper}>

@@ -217,7 +217,7 @@ const AdminsCard = (props: {
 
   return (
     <RSCard className={styles.cardWrapper}>
-      <RSText className={styles.cardTitle} weight="light" size={20}>
+      <RSText className={styles.cardTitle} weight="light" size={18}>
         Admin
       </RSText>
       <div className={styles.peopleWrapper}>
@@ -249,7 +249,7 @@ const MembersCard = (props: { members: Props['members'] }) => {
 
   return (
     <RSCard className={styles.cardWrapper}>
-      <RSText className={styles.cardTitle} weight="light" size={20}>
+      <RSText className={styles.cardTitle} weight="light" size={18}>
         Members
       </RSText>
       <div className={styles.peopleWrapper}>

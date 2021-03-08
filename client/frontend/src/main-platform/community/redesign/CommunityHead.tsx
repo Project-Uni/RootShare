@@ -119,7 +119,7 @@ export const CommunityHead = (props: Props) => {
         <RSText
           type="head"
           weight="light"
-          size={26}
+          size={24}
           color={Theme.secondaryText}
           className={styles.name}
         >
