@@ -19,7 +19,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
   },
   cardWrapper: {
-    padding: 50,
+    paddingLeft: 40,
+    paddingRight: 40,
     paddingTop: 30,
     paddingBottom: 30,
     marginBottom: 30,
@@ -45,10 +46,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   peopleWrapper: {
     display: 'flex',
-    justifyContent: 'start',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    overflow: 'scroll',
-    maxWidth: 700, // TODO: FIX this going too wide
+    overflow: 'auto',
+    maxWidth: window.innerWidth - 50,
   },
   profilePictureContainer: {
     display: 'flex',
