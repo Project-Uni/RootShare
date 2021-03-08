@@ -9,10 +9,11 @@ import RSText from '../../../base-components/RSText';
 import {
   WelcomeMessage,
   RSTabs,
-  MakePostContainer,
+  // MakePostContainer,
   FeaturedEvent,
 } from '../../reusable-components';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
+import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
@@ -40,8 +41,8 @@ const useStyles = makeStyles((_: any) => ({
     margin: 8,
   },
   tabs: {
-    marginLeft: 5,
-    marginRight: 5,
+    marginLeft: 15,
+    marginRight: 15,
     marginBottom: 5,
   },
   box: {
@@ -103,7 +104,8 @@ export default function HomepageBody(props: Props) {
   }
 
   function appendNewPost(post: PostType) {
-    setFeed((prev) => [post, ...prev]);
+    const { likes, comments, ...rest } = post;
+    setFeed((prev) => [{ ...rest, likes: 0, comments: 0 }, ...prev]);
   }
 
   return (
@@ -122,10 +124,11 @@ export default function HomepageBody(props: Props) {
         style={{ margin: 8 }}
         href={'/event/6026ce709a7a1f218592ea37'}
       />
-      <MakePostContainer
+      <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
+      {/* <MakePostContainer
         appendNewPost={appendNewPost}
         profilePicture={profilePicture}
-      />
+      /> */}
 
       <RSTabs
         tabs={[
@@ -144,7 +147,7 @@ export default function HomepageBody(props: Props) {
             <UserPost
               post={post}
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
-              key={`post_${idx}`}
+              key={`post_${idx}_${post.createdAt}`}
             />
           ))}
         </div>

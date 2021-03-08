@@ -42,8 +42,16 @@ export async function createBroadcastUserPost(
       }
     }
 
+    await post
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName profilePicture major graduationYear work position',
+      })
+      .execPopulate();
+
     log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { newPost: post });
+    return sendPacket(1, 'Successfully created post', { post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);

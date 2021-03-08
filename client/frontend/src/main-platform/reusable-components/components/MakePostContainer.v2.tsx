@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Avatar, IconButton } from '@material-ui/core';
+import { Avatar, CircularProgress, IconButton } from '@material-ui/core';
 import { RSTextField } from './RSTextField';
 import { ImageUploadIcon } from '../../../images';
 import { RSCard } from './RSCard';
@@ -215,7 +215,11 @@ export const MakePostContainer = (props: Props) => {
               disabled={loading}
               onClick={handlePostClicked}
             >
-              Post
+              {loading ? (
+                <CircularProgress size={25} style={{ color: Theme.altText }} />
+              ) : (
+                'Post'
+              )}
             </RSButton>
           </div>
         </div>
