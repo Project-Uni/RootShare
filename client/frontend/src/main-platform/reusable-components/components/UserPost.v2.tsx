@@ -521,6 +521,7 @@ export const UserPost = (props: Props) => {
             marginRight: 20,
             marginBottom: 10,
             display: 'flex',
+            alignItems: 'center',
           }}
         >
           <RSTextField
@@ -532,7 +533,7 @@ export const UserPost = (props: Props) => {
             error={Boolean(commentErr)}
             helperText={commentErr}
           />
-          <DynamicIconButton onClick={submitComment}>
+          <DynamicIconButton onClick={submitComment} style={{ height: '100%' }}>
             <MdSend size={22} color={Theme.bright} />
           </DynamicIconButton>
         </div>
