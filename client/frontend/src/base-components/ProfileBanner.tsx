@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
@@ -86,7 +86,6 @@ type Props = {
   height: number;
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
-  updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
 
   user: { [key: string]: any };
@@ -103,6 +102,7 @@ function ProfileBanner(props: Props) {
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentPicture, setCurrentPicture] = useState(props.currentPicture);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 16 / 6,
@@ -113,6 +113,10 @@ function ProfileBanner(props: Props) {
   const picture = useRef<HTMLImageElement>(null);
 
   const isDesktop = checkDesktop();
+
+  useEffect(() => {
+    setCurrentPicture(props.currentPicture);
+  }, [props.currentPicture]);
 
   function handleMouseOver() {
     setHovering(true);
@@ -127,7 +131,7 @@ function ProfileBanner(props: Props) {
   }
 
   function handleOtherImageClick() {
-    if (props.currentPicture) setIsViewerOpen(true);
+    if (currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -193,15 +197,15 @@ function ProfileBanner(props: Props) {
     setUploadErr('');
     setImageSrc(undefined);
 
-    props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
+    setCurrentPicture(imageData as string);
   }
 
   function renderImage() {
     return (
       <div className={props.className}>
-        {props.currentPicture ? (
+        {currentPicture ? (
           <img
-            src={props.currentPicture}
+            src={currentPicture}
             alt="Profile Picture"
             className={[styles.image, props.pictureStyle].join(' ')}
             ref={picture}
@@ -251,7 +255,7 @@ function ProfileBanner(props: Props) {
                 bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
                 left:
                   Math.floor(
-                    ((props.currentPicture
+                    ((currentPicture
                       ? picture.current?.width
                       : placeholder.current?.clientWidth) || window.innerWidth) / 2
                   ) -
@@ -281,7 +285,7 @@ function ProfileBanner(props: Props) {
         <ModalGateway>
           {isViewerOpen && (
             <Modal onClose={() => setIsViewerOpen(false)}>
-              <Carousel views={[{ source: props.currentPicture }]} />
+              <Carousel views={[{ source: currentPicture }]} />
             </Modal>
           )}
         </ModalGateway>
@@ -342,7 +346,9 @@ function ProfileBanner(props: Props) {
             Cancel
           </Button>
           <Button
-            className={Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton}
+            className={
+              Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton
+            }
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >

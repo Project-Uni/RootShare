@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
 import { RSText } from '../../../base-components';
-import Theme from '../../../theme/Theme';
 import { useForm } from '../../../helpers/hooks';
 import {
   RSButton,
@@ -12,6 +12,7 @@ import {
   RSTextField,
 } from '../../../main-platform/reusable-components';
 import { CircularProgress } from '@material-ui/core';
+
 import { postRegisterUser } from '../../../api/post';
 import {
   updateRefreshToken,
@@ -21,6 +22,7 @@ import {
   resetRegistration,
 } from '../../../redux/actions';
 import { States } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 import { AccountType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({

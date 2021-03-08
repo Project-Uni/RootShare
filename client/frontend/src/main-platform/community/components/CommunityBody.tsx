@@ -172,10 +172,6 @@ function CommunityBody(props: Props) {
     }
   }
 
-  function updateCurrentProfilePicture(imageData: string) {
-    setCurrentProfile(imageData);
-  }
-
   function renderProfileAndBackground() {
     return (
       <div style={{ textAlign: 'left' }}>
@@ -183,10 +179,9 @@ function CommunityBody(props: Props) {
           type="community"
           height={200}
           editable={isAdmin}
-          zoomOnClick={!isAdmin}
+          zoomOnClick
           borderRadius={10}
           currentPicture={currentBanner}
-          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
           _id={communityID}
         />
         {loading ? (
@@ -203,8 +198,7 @@ function CommunityBody(props: Props) {
             editable={isAdmin}
             borderWidth={8}
             _id={communityID}
-            updateCurrentPicture={updateCurrentProfilePicture}
-            zoomOnClick={!isAdmin}
+            zoomOnClick
           />
         )}
       </div>

@@ -41,6 +41,9 @@ const Schema = mongoose.Schema;
  *          description:
  *            type: string
  *            description: The description for what the community is for
+ *          bio:
+ *            type: string
+ *            description: A short blurb about the community
  *          university:
  *            $ref: '#/components/schemas/University'
  *            description: The university the community belongs to
@@ -140,7 +143,10 @@ import { Types } from 'mongoose';
 type ObjectId = Types.ObjectId;
 
 import { CommunityType, CommunityMap, U2CR } from '../helpers/types';
-import { addProfilePicturesAll } from '../interactions/utilities';
+import {
+  addProfilePicturesAll,
+  addBannerPicturesAll,
+} from '../interactions/utilities';
 
 const CommunitySchema = new Schema(
   {
@@ -164,6 +170,9 @@ const CommunitySchema = new Schema(
       type: String,
       required: true,
       message: 'Description is required.',
+    },
+    bio: {
+      type: String,
     },
     university: {
       type: mongoose.Schema.ObjectId,
@@ -243,9 +252,11 @@ export class CommunityC {
   static DefaultFields = [
     'name',
     'description',
+    'bio',
     'type',
     'private',
     'profilePicture',
+    'bannerPicture',
   ] as const;
 
   static AcceptedFields = [
@@ -268,6 +279,7 @@ export class CommunityC {
   static Populate = [
     'admin',
     'members',
+    'pendingMembers',
     'followedByCommunities',
     'followingCommunities',
     'outgoingPendingCommunityFollowRequests',
@@ -310,12 +322,14 @@ export class CommunityC {
       ...CommunityC.DefaultOptions,
       ...(optionsParam || {}),
     };
+
     const fields = (fieldsParam || []).filter((field) =>
       CommunityC.AcceptedFields.includes(field)
     );
+
     if (options.includeDefaultFields) {
       fields.push(
-        ...[...CommunityC.DefaultFields].filter((field) => fields.includes(field))
+        ...[...CommunityC.DefaultFields].filter((field) => !fields.includes(field))
       );
     }
     const populates = options.populates?.slice() || [];
@@ -351,12 +365,16 @@ export class CommunityC {
     const output = await result.lean().exec();
 
     //Post Retrieval
+
+    //Image Retrieval
     const promises: Promise<any>[] = [];
     if (options.getProfilePicture)
       promises.push(addProfilePicturesAll(output, 'communityProfile'));
     if (options.getBannerPicture) {
-      //TODO - Get Banner Picture
+      promises.push(addBannerPicturesAll(output, 'communityBanner'));
     }
+    populateImages(promises, populates, output);
+
     if (options.getRelationship)
       CommunityC.getUserToCommunityRelationship_V2(options.getRelationship, output);
 
@@ -380,19 +398,93 @@ export class CommunityC {
     userID: string,
     communities: {
       _id: ObjectId;
-      members: ObjectId[];
-      pendingMembers: ObjectId[];
-      admin: ObjectId;
+      members: ObjectId[] | any[];
+      pendingMembers: ObjectId[] | any[];
+      admin: ObjectId | any;
       [k: string]: unknown;
     }[]
   ) => {
+    const checkAdmin = (userID, admin) => {
+      if (typeof admin === 'object') return admin._id.equals(userID);
+
+      return admin.equals(userID);
+    };
+    const checkMember = (userID, members) => {
+      if (members.length === 0) return false;
+      if (typeof members[0] === 'object')
+        return members.some((member) => member._id.equals(userID));
+
+      return members.some((memberID) => memberID.equals(userID));
+    };
+
     communities.forEach((community) => {
-      if (community.admin.equals(userID)) community.relationship = U2CR.ADMIN;
-      else if (community.members.some((memberID) => memberID.equals(userID)))
+      if (checkAdmin(userID, community.admin)) community.relationship = U2CR.ADMIN;
+      else if (checkMember(userID, community.members))
         community.relationship = U2CR.JOINED;
-      else if (community.pendingMembers.some((memberID) => memberID.equals(userID)))
+      else if (checkMember(userID, community.pendingMembers))
         community.relationship = U2CR.PENDING;
       else community.relationship = U2CR.OPEN;
     });
   };
+}
+
+function populateImages(promises, populates, output) {
+  output.forEach((community) => {
+    populates.forEach((populateAction) => {
+      if (populateAction.select.includes('profilePicture')) {
+        if (populateAction.path === 'admin' && community.admin)
+          promises.push(addProfilePicturesAll([community.admin], 'profile'));
+        else if (populateAction.path === 'members' && community.members)
+          promises.push(addProfilePicturesAll(community.members, 'profile'));
+        else if (
+          populateAction.path === 'pendingMembers' &&
+          community.pendingMembers
+        )
+          promises.push(addProfilePicturesAll(community.pendingMembers, 'profile'));
+        else if (
+          populateAction.path === 'followedByCommunities' &&
+          community.followedByCommunities
+        )
+          promises.push(
+            addProfilePicturesAll(
+              community.followedByCommunities,
+              'communityProfile'
+            )
+          );
+        else if (
+          populateAction.path === 'followingCommunities' &&
+          community.followingCommunities
+        )
+          promises.push(
+            addProfilePicturesAll(community.followingCommunities, 'communityProfile')
+          );
+      } else if (populateAction.select.includes('bannerPicture')) {
+        if (populateAction.path === 'admin' && community.admin)
+          promises.push(addBannerPicturesAll([community.admin], 'profileBanner'));
+        else if (populateAction.path === 'members' && community.members)
+          promises.push(addBannerPicturesAll(community.members, 'profileBanner'));
+        else if (
+          populateAction.path === 'pendingMembers' &&
+          community.pendingMembers
+        )
+          promises.push(
+            addBannerPicturesAll(community.pendingMembers, 'profileBanner')
+          );
+        else if (
+          populateAction.path === 'followedByCommunities' &&
+          community.followedByCommunities
+        )
+          promises.push(
+            addBannerPicturesAll(community.followedByCommunities, 'communityBanner')
+          );
+        else if (
+          populateAction.path === 'followingCommunities' &&
+          community.followingCommunities
+        )
+          promises.push(
+            addBannerPicturesAll(community.followingCommunities, 'communityBanner')
+          );
+      }
+    });
+  });
 }
