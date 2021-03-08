@@ -4,9 +4,10 @@ import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,
-  generateSignedImagePromises,
+  generateSignedProfilePromises,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
+import { SidebarData } from '../helpers/types';
 
 import { User, Community } from '../models';
 import { createSearch } from '../models/searches';
@@ -71,6 +72,7 @@ export async function populateDiscoverForUser(userID: string) {
             universityName: '$university.universityName',
           },
           work: '$work',
+          accountType: '$accountType',
           position: '$position',
           graduationYear: '$graduationYear',
           profilePicture: '$profilePicture',
@@ -147,20 +149,16 @@ export async function populateDiscoverForUser(userID: string) {
           communities[i] = cleanedCommunity;
         }
 
-        const imageInfo = await addCommunityAndUserImages(communities, users);
-
-        return sendPacket(1, `Pre-populated discovery page for user ${userID}`, {
-          communities: imageInfo['communities'],
-          users: imageInfo['users'],
-        });
+        const fullInfo = await addCommunityAndUserImages(communities, users);
+        return fullInfo;
       })
       .catch((err) => {
         log('error', err);
-        return sendPacket(-1, err);
+        return false;
       });
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return false;
   }
 }
 
@@ -261,11 +259,11 @@ export async function exactMatchSearchFor(
 }
 
 function addCommunityAndUserImages(communities, users) {
-  const communityImagePromises = generateSignedImagePromises(
+  const communityImagePromises = generateSignedProfilePromises(
     communities,
     'communityProfile'
   );
-  const userImagePromises = generateSignedImagePromises(users, 'profile');
+  const userImagePromises = generateSignedProfilePromises(users, 'profile');
 
   return Promise.all([...communityImagePromises, ...userImagePromises])
     .then((images) => {
@@ -306,4 +304,43 @@ function addCommunityAndUserImages(communities, users) {
 
       return { communities, users };
     });
+}
+
+export async function getSidebarData(userID: string, dataSources: SidebarData[]) {
+  const promises = [];
+
+  if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
+    promises.push(populateDiscoverForUser(userID));
+
+  // dataSources.forEach((dataSource) => {
+  //   switch (dataSource) {
+  //     case 'pinnedCommunities':
+  //       promises.push(getPinnedCommunities(userID));
+  //     case 'trending':
+  //       promises.push(getTrending(userID));
+  //   }
+  // });
+
+  let output: { [key in SidebarData]?: any } = {};
+  return Promise.all(promises).then((data) => {
+    if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
+      const discoverData = data[0];
+      if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
+      output.discoverUsers = discoverData['users'];
+      output.discoverCommunities = discoverData['communities'];
+    }
+
+    // let count = 1;
+    // for (let i = 0; i < dataSources.length; i++) {
+    //   if (count === data.length) return;
+    //   switch (dataSources[i]) {
+    //     case 'pinnedCommunities':
+    //       output.pinnedCommunities = data[count++];
+    //     case 'trending':
+    //       output.pinnedCommunities = data[count++];
+    //   }
+    // }
+
+    return sendPacket(1, 'Retrieved Sidebar data', { ...output });
+  });
 }

@@ -20,7 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   university: {
-    background: theme.universityAccent,
+    background: theme.universityAccent['5eb89c308cc6636630c1311f'],
     '&:hover': {
       background: theme.primaryHover,
     },

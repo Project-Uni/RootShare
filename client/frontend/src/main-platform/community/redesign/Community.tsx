@@ -1,20 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, useParams } from 'react-router-dom';
+
+import { dispatchSnackbar } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { getCommunities } from '../../../api';
+
 import { CommunityHead } from './CommunityHead';
 import { RSText } from '../../../base-components';
-import { CommunityAbout } from './CommunityAbout';
-import { UserPost } from '../../reusable-components/components/UserPost.v2';
+import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
+import { getCommunities } from '../../../api';
+import { Community as CommunityFields } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {};
 
-export type CommunityTab = 'About' | 'Feed'; //For now, feed is just external
+export type CommunityTab = 'about' | 'feed'; // For now, feed is just external
 
 const Community = (props: Props) => {
   const styles = useStyles();
@@ -26,48 +29,84 @@ const Community = (props: Props) => {
     //Necessary state variables
   }));
 
-  const [info, setInfo] = useState<any>(); //Community details as a dictionary
-  const [loading, setLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('Feed');
+  const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
+  const [loading, setLoading] = useState(true);
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
 
   useEffect(() => {
-    fetchCommunityInfo().then((data) => {
-      setInfo(data);
+    fetchCommunityInfo().then(() => {
       setLoading(false);
     });
   }, []);
 
   const fetchCommunityInfo = useCallback(async () => {
     const data = await getCommunities([communityID], {
-      fields: [],
-      options: {},
+      fields: ['admin', 'name', 'members', 'description', 'bio', 'private', 'type'],
+      options: {
+        getProfilePicture: true,
+        getBannerPicture: true,
+        getRelationship: true,
+        limit: 1,
+        includeDefaultFields: true,
+        populates: [
+          'admin:firstName lastName profilePicture',
+          'members:firstName lastName profilePicture',
+        ],
+      },
     });
-    return data;
+    if (data.success !== 1) {
+      dispatch(
+        dispatchSnackbar({
+          message: 'There was an error retrieving this community',
+          mode: 'error',
+        })
+      );
+      return;
+    }
+    setInfo(data.content.communities[0]);
   }, [communityID, getCommunities]);
 
   const getTabContent = React.useCallback(() => {
     switch (currentTab) {
-      case 'About':
-        return <CommunityAbout admin={'12345'} />;
-      case 'Feed':
+      case 'about':
+        return (
+          <CommunityAbout
+            communityID={communityID}
+            editable={info.relationship === 'admin'}
+            aboutDesc={info.description}
+            admin={info.admin as AboutPageUser}
+            // moderators={info.moderators as AboutPageUser[]} // TODO: add this functionality later
+            members={info.members as AboutPageUser[]}
+          />
+        );
+      case 'feed': {
         return <CommunityFeed communityID={communityID} />;
+      }
+
       default:
         return <RSText>An Error Occured</RSText>;
     }
-  }, [currentTab]);
+  }, [
+    currentTab,
+    info,
+    // externalPosts
+  ]);
 
   return (
-    <div className={styles.wrapper}>
-      <CommunityHead
-        style={{ marginTop: 20 }}
-        communityID={communityID}
-        tab={currentTab}
-        onTabChange={setCurrentTab}
-        profilePicture={undefined}
-        banner={undefined}
-      />
-      {getTabContent()}
-    </div>
+    <>
+      {!loading && (
+        <div className={styles.wrapper}>
+          <CommunityHead
+            style={{ marginTop: 20 }}
+            communityInfo={info}
+            currentTab={currentTab}
+            handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
+          />
+          {getTabContent()}
+        </div>
+      )}
+    </>
   );
 };
+
 export default Community;

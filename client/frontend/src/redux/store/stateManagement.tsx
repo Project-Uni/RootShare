@@ -10,6 +10,7 @@ export type RootshareReduxState = {
     email: string;
     privilegeLevel: number;
     accountType: string;
+    university: string;
     profilePicture?: string;
     profilePictureLastUpdated?: number;
   };
@@ -39,6 +40,7 @@ export const initializeState = (): RootshareReduxState => ({
     email: '',
     privilegeLevel: 0,
     accountType: '',
+    university: '',
   },
   accessToken: '',
   refreshToken: '',

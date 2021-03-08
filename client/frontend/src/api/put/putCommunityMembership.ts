@@ -1,7 +1,7 @@
 import { makeRequest } from '../../helpers/functions';
 import { stringify } from 'query-string';
 
-export const putUserToCommunityRelationship = async (
+export const putCommunityMembership = async (
   action: 'join' | 'cancel' | 'leave',
   communityID: string
 ) => {

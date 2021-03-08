@@ -316,7 +316,7 @@ export const UserPost = (props: Props) => {
             alignItems: 'center',
           }}
         >
-          <RSLink href={anonymousCleanedData?.posterNavigationURL} underline={false}>
+          <RSLink href={anonymousCleanedData?.posterNavigationURL} underline="hover">
             <div
               onMouseEnter={handleMouseOverFrom}
               onMouseLeave={() => {
@@ -336,7 +336,7 @@ export const UserPost = (props: Props) => {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <RSLink
                 href={anonymousCleanedData?.posterNavigationURL}
-                underline={false}
+                underline="hover"
               >
                 <div
                   onMouseEnter={handleMouseOverFrom}
@@ -359,7 +359,7 @@ export const UserPost = (props: Props) => {
                   />
                   <RSLink
                     href={anonymousCleanedData?.toEntityNavigationURL}
-                    underline={false}
+                    underline="hover"
                   >
                     <div
                       onMouseEnter={handleMouseOverTo}

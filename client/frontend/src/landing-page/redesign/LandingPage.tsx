@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RootShareLogo from '../../images/RootShareLogoFull.png';
-import LandingImg from '../../images/landingBullets.png';
-import { RSText } from '../../base-components';
-import { useDispatch, useSelector } from 'react-redux';
 
-import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+
 import Login from './Login';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
 import { AccountInitializationForm } from './initialization/AccountInitializationForm';
+import RootShareLogo from '../../images/RootShareLogoFull.png';
+import LandingImg from '../../images/landingBullets.png';
+import { RSText } from '../../base-components';
+
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -89,8 +91,6 @@ const LandingPage = (props: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  
-
   //TODO - Update with components
   const getLeftComponent = useCallback(() => {
     switch (mode) {
@@ -129,7 +129,7 @@ const LandingPage = (props: Props) => {
           <div className={styles.rightMiddleContent}>
             <Login />
           </div>
-        )
+        );
       case 'additional':
         return <AccountInitializationForm />;
     }

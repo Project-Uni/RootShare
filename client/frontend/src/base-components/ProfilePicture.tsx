@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
@@ -79,7 +79,6 @@ type Props = {
   width: number;
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
-  updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
 };
 
@@ -88,6 +87,19 @@ function ProfilePicture(props: Props) {
 
   const dispatch = useDispatch();
 
+  const {
+    type,
+    _id,
+    className,
+    pictureStyle,
+    editable,
+    height,
+    width,
+    borderRadius,
+    borderWidth,
+    zoomOnClick,
+  } = props;
+
   const [loading, setLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
@@ -95,6 +107,7 @@ function ProfilePicture(props: Props) {
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentPicture, setCurrentPicture] = useState(props.currentPicture);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -104,6 +117,10 @@ function ProfilePicture(props: Props) {
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCurrentPicture(props.currentPicture);
+  }, [props.currentPicture]);
 
   function handleMouseOver() {
     setHovering(true);
@@ -118,7 +135,7 @@ function ProfilePicture(props: Props) {
   }
 
   function handleOtherImageClick() {
-    if (props.currentPicture) setIsViewerOpen(true);
+    if (currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -168,9 +185,9 @@ function ProfilePicture(props: Props) {
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
-      props.type === 'profile'
+      type === 'profile'
         ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${props._id}/updateProfilePicture`;
+        : `/api/images/community/${_id}/updateProfilePicture`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,
@@ -182,42 +199,41 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile')
-      dispatch(updateProfilePicture(imageData as string));
+    if (type === 'profile') dispatch(updateProfilePicture(imageData as string));
 
-    props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
+    setCurrentPicture(imageData as string);
   }
 
   function renderImage() {
-    let currentPicture: string = props.currentPicture;
+    let currPictureSource: string = currentPicture;
     if (
-      !currentPicture ||
-      currentPicture.length < 4 ||
-      (currentPicture.substring(0, 4) !== 'http' &&
-        currentPicture.substring(0, 4) !== 'data')
+      !currPictureSource ||
+      currPictureSource.length < 4 ||
+      (currPictureSource.substring(0, 4) !== 'http' &&
+        currPictureSource.substring(0, 4) !== 'data')
     )
-      currentPicture = DefaultProfilePicture;
+      currPictureSource = DefaultProfilePicture;
 
     return (
-      <div className={props.className}>
+      <div className={className}>
         <img
-          src={currentPicture}
+          src={currPictureSource}
           alt="Profile Picture"
           className={[
-            props.editable || props.currentPicture ? styles.image : undefined,
-            props.pictureStyle,
+            editable || currentPicture ? styles.image : undefined,
+            pictureStyle,
           ].join(' ')}
           style={{
-            height: props.height,
-            width: props.width,
-            borderRadius: props.borderRadius || 0,
+            height: height,
+            width: width,
+            borderRadius: borderRadius || 0,
           }}
-          onMouseEnter={props.editable ? handleMouseOver : undefined}
-          onMouseLeave={props.editable ? handleMouseLeave : undefined}
+          onMouseEnter={editable ? handleMouseOver : undefined}
+          onMouseLeave={editable ? handleMouseLeave : undefined}
           onClick={
-            props.editable
+            editable
               ? handleSelfImageClick
-              : props.zoomOnClick
+              : zoomOnClick
               ? handleOtherImageClick
               : undefined
           }
@@ -229,15 +245,15 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
-                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
+                bottom: Math.floor(height / 2) - 16 + (borderWidth || 0),
+                left: Math.floor(width / 2) - 16 + (borderWidth || 0),
               }}
               className={styles.cameraIcon}
-              onMouseEnter={props.editable ? handleMouseOver : undefined}
+              onMouseEnter={editable ? handleMouseOver : undefined}
               onClick={
-                props.editable
+                editable
                   ? handleSelfImageClick
-                  : props.zoomOnClick
+                  : zoomOnClick
                   ? handleOtherImageClick
                   : undefined
               }
@@ -255,7 +271,7 @@ function ProfilePicture(props: Props) {
         <ModalGateway>
           {isViewerOpen && (
             <Modal onClose={() => setIsViewerOpen(false)}>
-              <Carousel views={[{ source: props.currentPicture }]} />
+              <Carousel views={[{ source: currentPicture }]} />
             </Modal>
           )}
         </ModalGateway>

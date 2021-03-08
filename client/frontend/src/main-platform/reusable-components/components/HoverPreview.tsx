@@ -29,7 +29,7 @@ import {
   putUpdateUserConnection,
   getCommunities,
   getUsers,
-  putUserToCommunityRelationship,
+  putCommunityMembership,
 } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { RSLink } from '../';
@@ -246,10 +246,7 @@ const HoverPreview = () => {
   const handleCommunityButtonAction = useCallback(
     async (action: 'join' | 'cancel' | 'leave') => {
       setActionLoading(true);
-      const data: { success: number } = await putUserToCommunityRelationship(
-        action,
-        _id
-      );
+      const data: { success: number } = await putCommunityMembership(action, _id);
       if (data.success === 1) {
         let newRelationship: UserToCommunityRelationship;
         switch (action) {

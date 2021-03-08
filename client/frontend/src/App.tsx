@@ -114,7 +114,7 @@ const App = () => {
                 <AuthenticatedPage
                   component={<Community />} //NEW COMMUNITY UI
                   // component={<CommunityBody {...props} />} //OLD COMMUNITY
-                  rightElement={<FollowSidebar />} //OLD COMMUNITY
+                  // rightElement={<FollowSidebar />} //OLD COMMUNITY
                 />
               )}
             />

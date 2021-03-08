@@ -470,6 +470,7 @@ export default function communityRoutes(app) {
         type: { type: 'string', optional: true },
         private: { type: 'boolean', optional: true },
       });
+
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const packet = await updateFields(communityID, query);
@@ -499,8 +500,18 @@ export default function communityRoutes(app) {
       getRelationship,
       limit,
       includeDefaultFields,
-      populates,
+      populates: populatesRaw,
     } = query;
+
+    const populates = [];
+    try {
+      (populatesRaw as string[]).forEach((populateRaw) => {
+        const split = populateRaw.split(':');
+        populates.push({ path: split[0], select: split[1] });
+      });
+    } catch (err) {
+      return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    }
 
     const options = {
       limit,

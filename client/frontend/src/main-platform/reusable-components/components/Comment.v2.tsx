@@ -81,7 +81,7 @@ export const Comment = (props: CommentProps) => {
         }}
         id="comment-body"
       >
-        <RSLink href={`/profile/${comment.user._id}`} underline={false}>
+        <RSLink href={`/profile/${comment.user._id}`} underline="hover">
           <RSText size={11} bold>
             {comment.user.firstName} {comment.user.lastName}
           </RSText>
