@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
-import { TextField} from '@material-ui/core';
-import { RSButton, RSLink, RSTextField } from '../../main-platform/reusable-components';
+import { TextField } from '@material-ui/core';
+import {
+  RSButton,
+  RSLink,
+  RSTextField,
+} from '../../main-platform/reusable-components';
 import { makeRequest } from '../../helpers/functions';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
@@ -12,7 +16,7 @@ import Theme from '../../theme/Theme';
 import GoogleButton from '../../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../../hype-page/hype-registration/LinkedInButton';
 import { useHistory } from 'react-router-dom';
-import { RootshareReduxState } from '../../redux/store/stateManagement'
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   right: {
@@ -21,10 +25,10 @@ const useStyles = makeStyles((_: any) => ({
     minHeight: '100%',
   },
   wrapper: {
-    width:'500px',
+    width: '500px',
     textAlign: 'left',
   },
-  textBox:{
+  textBox: {
     width: 500,
     marginBottom: '20px',
   },
@@ -118,10 +122,14 @@ const Login = () => {
 
   async function handleLogin() {
     setLoading(true);
-    const { data } = await makeRequest<ServiceResponse>('POST', '/api/v2/auth/login', {
-      email: email,
-      password: password,
-    });
+    const { data } = await makeRequest<ServiceResponse>(
+      'POST',
+      '/api/v2/auth/login',
+      {
+        email: email,
+        password: password,
+      }
+    );
     if (data['success'] === 1) {
       setError(false);
       const {
@@ -145,25 +153,25 @@ const Login = () => {
   }
 
   return (
-      <div className={styles.wrapper}>
-        <RSTextField
-          {...textFieldProps}
-          label="E-MAIL"
-          autoComplete="email"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
-          helperText={error ? 'Invalid login credentials' : ''}
-        />
-        <RSTextField
-          {...textFieldProps}
-          label="PASSWORD"
-          autoComplete="password"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
-          type="password"
-        />
+    <div className={styles.wrapper}>
+      <RSTextField
+        {...textFieldProps}
+        label="E-MAIL"
+        autoComplete="email"
+        onChange={(e) => setEmail(e.target.value)}
+        value={email}
+        helperText={error ? 'Invalid login credentials' : ''}
+      />
+      <RSTextField
+        {...textFieldProps}
+        label="PASSWORD"
+        autoComplete="password"
+        onChange={(e) => setPassword(e.target.value)}
+        value={password}
+        type="password"
+      />
 
-        {/* <div className={styles.externalWrapper}>
+      {/* <div className={styles.externalWrapper}>
           <GoogleButton messageType={'login'} width={500} redirect={redirectUrl} />
         </div>
         <div className={styles.externalWrapper}>
@@ -173,29 +181,26 @@ const Login = () => {
           redirect={redirectUrl}
         />
         </div> */}
-        <div className={styles.buttonContainer}>
-          <RSButton
-            variant="primary"
-            onClick={handleLogin}
-            className={styles.button}
-            disabled={loading}
-          >
-            Login
-          </RSButton>
-          <RSText color={Theme.secondaryText} className={styles.or} size={12}>
-            or
-          </RSText>
-          <RSLink
-            href={"/"}
-            className={styles.link}
-          >
-            Sign-Up
-          </RSLink>
-        </div>
-          <RSLink className={styles.link} href={'/account/forgotPassword'}>
-            Forgot Password?
-          </RSLink>
+      <div className={styles.buttonContainer}>
+        <RSButton
+          variant="primary"
+          onClick={handleLogin}
+          className={styles.button}
+          disabled={loading}
+        >
+          Login
+        </RSButton>
+        <RSText color={Theme.secondaryText} className={styles.or} size={12}>
+          or
+        </RSText>
+        <RSLink href={'/'} className={styles.link}>
+          Sign Up
+        </RSLink>
       </div>
+      <RSLink className={styles.link} href={'/account/forgotPassword'}>
+        Forgot Password?
+      </RSLink>
+    </div>
   );
 };
 export default Login;

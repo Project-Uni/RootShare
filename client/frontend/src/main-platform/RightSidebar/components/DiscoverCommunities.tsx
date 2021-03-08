@@ -12,7 +12,7 @@ import { RSText } from '../../../base-components';
 
 import Theme from '../../../theme/Theme';
 import { putCommunityMembership } from '../../../api';
-import { COMPONENT_WIDTH } from '../RightSidebar';
+import { RIGHT_BAR_WIDTH } from '../RightSidebar';
 
 const MAX_USERS = 4;
 
@@ -21,7 +21,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    width: COMPONENT_WIDTH - 20,
+    width: RIGHT_BAR_WIDTH - 20,
     padding: 10,
     marginBottom: 20,
   },
@@ -30,7 +30,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   singleWrapper: {
     display: 'flex',
-    width: COMPONENT_WIDTH - 20,
+    width: RIGHT_BAR_WIDTH - 20,
     paddingTop: 5,
     paddingBottom: 5,
   },

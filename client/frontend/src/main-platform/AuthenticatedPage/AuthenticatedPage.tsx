@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
-import { RightSidebar } from '../RightSidebar/RightSidebar';
+import { RightSidebar, RIGHT_BAR_WIDTH } from '../RightSidebar/RightSidebar';
 import {
   MainNavigator,
   DiscoverySidebar,
@@ -20,6 +20,7 @@ import {
 } from '../../helpers/constants';
 import Theme from '../../theme/Theme';
 import { checkProfilePictureExpired } from '../../helpers/functions';
+import { NAVIGATOR_WIDTH } from '../reusable-components/components/MainNavigator';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -29,8 +30,8 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 1500,
     flex: 1,
+    maxWidth: 1500,
   },
   bodyContainer: {
     display: 'flex',
@@ -69,6 +70,10 @@ function AuthenticatedPage(props: Props) {
 
   const showLeftEl = useRef(showLeftElementWidth || SHOW_HEADER_NAVIGATION_WIDTH);
   const showRightEl = useRef(showRightElementWidth || SHOW_DISCOVERY_SIDEBAR_WIDTH);
+  // const maxWidth =
+  //   window.innerWidth -
+  //   (showLeftEl ? NAVIGATOR_WIDTH : 0) -
+  //   (showRightEl ? RIGHT_BAR_WIDTH : 0);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -99,7 +104,11 @@ function AuthenticatedPage(props: Props) {
             {width > showLeftEl.current &&
               (leftElement ? leftElement : <MainNavigator />)}
             <div
-              style={{ flex: 1, overflow: 'scroll', background: Theme.background }}
+              style={{
+                flex: 1,
+                overflow: 'scroll',
+                background: Theme.background,
+              }}
               id="mainComponent"
             >
               <HoverPreview />

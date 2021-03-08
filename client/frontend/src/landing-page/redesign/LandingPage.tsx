@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useHistory } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { useDispatch, useSelector } from 'react-redux';
 
+import TwitterIcon from '@material-ui/icons/Twitter';
+import FacebookIcon from '@material-ui/icons/Facebook';
+import InstagramIcon from '@material-ui/icons/Instagram';
+import { Link } from 'react-router-dom';
+
+import { RSText } from '../../base-components';
 import Login from './Login';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
 import { AccountInitializationForm } from './initialization/AccountInitializationForm';
-import RootShareLogo from '../../images/RootShareLogoFull.png';
-import LandingImg from '../../images/landingBullets.png';
-import { RSText } from '../../base-components';
 
 import Theme from '../../theme/Theme';
+import { useHistory } from 'react-router-dom';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+import RootShareLogo from '../../images/RootShareLogoFull.png';
+import LandingImg from '../../images/landingBullets.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -54,6 +59,15 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
     },
+  },
+  socialLinks: {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  icon: {
+    fontSize: 35,
+    paddingRight: 20,
   },
 }));
 
@@ -117,7 +131,7 @@ const LandingPage = (props: Props) => {
     }
   }, [mode]);
 
-  //Moved RightComponent below to prevent Textfeild re-render
+  //Moved RightComponent below to prevent Textfield re-render
   const getRightComponent = useCallback(() => {
     switch (mode) {
       case 'register':
@@ -172,11 +186,25 @@ const LandingPage = (props: Props) => {
           <RSText color={Theme.white} size={20}>
             Lets Grow Together
           </RSText>
+          <div className={styles.socialLinks}>
+            <a href="https://twitter.com/root_share" target="_blank">
+              <TwitterIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            <a href="https://www.facebook.com/rootshareplatform" target="_blank">
+              <FacebookIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            <a href="https://www.instagram.com/rootshare/" target="_blank">
+              <InstagramIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            {/* <RSLink>
+              <RSText size={14} weight="bold">
+                Privacy Policy
+              </RSText>
+            </RSLink> */}
+          </div>
         </div>
       </div>
-      <div className={styles.rightMiddleContent}>
-        <div> {getRightComponent()}</div>
-      </div>
+      <div className={styles.rightMiddleContent}>{getRightComponent()}</div>
     </div>
   );
 };
