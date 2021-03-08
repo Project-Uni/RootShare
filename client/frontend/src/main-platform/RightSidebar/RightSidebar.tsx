@@ -16,7 +16,7 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-export const COMPONENT_WIDTH = 300;
+export const RIGHT_BAR_WIDTH = 300;
 
 export type SidebarComponents =
   | 'discoverUsers'

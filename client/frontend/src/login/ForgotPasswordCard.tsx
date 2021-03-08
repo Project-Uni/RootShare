@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Link } from '@material-ui/core';
+import { TextField, Button } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 
 import axios from 'axios';
 
 import HypeCard from '../hype-page/hype-card/HypeCard';
+
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -23,7 +26,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
     marginBottom: 20,
     height: 40,
-    background: 'rgb(30, 67, 201)',
+    background: Theme.bright,
     color: 'white',
     '&:hover': {
       background: 'lightblue',
@@ -31,12 +34,12 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  goBackToLogin: () => void;
-};
+type Props = {};
 
 function ForgotPasswordCard(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -72,7 +75,7 @@ function ForgotPasswordCard(props: Props) {
         loading={loading}
         headerText="Reset Password"
         backArrow="action"
-        backArrowAction={() => props.goBackToLogin()}
+        backArrowAction={() => history.push('/login')}
       >
         <TextField
           variant="outlined"

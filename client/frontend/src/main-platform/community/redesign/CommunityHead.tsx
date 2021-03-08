@@ -126,7 +126,7 @@ export const CommunityHead = (props: Props) => {
           {isPrivate && (
             <FaLock
               color={Theme.secondaryText}
-              size={20}
+              size={18}
               className={styles.lockIcon}
             />
           )}

@@ -210,7 +210,7 @@ export const SignupForm = (props: Props) => {
           underline="none"
         >
           <RSText bold size={16} color={Theme.bright}>
-            Log in
+            Log In
           </RSText>
         </RSLink>
       </div>

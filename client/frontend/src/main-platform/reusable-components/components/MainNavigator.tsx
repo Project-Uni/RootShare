@@ -13,13 +13,14 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import { RSLink } from '../';
 import { useHistory } from 'react-router-dom';
 
+export const NAVIGATOR_WIDTH = 310;
 const TEXT_SIZE = 22;
 const ICON_SIZE = 32;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: theme.background,
-    width: 310,
+    width: NAVIGATOR_WIDTH,
   },
   linkContainer: {
     marginLeft: 30,

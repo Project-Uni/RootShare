@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
-import { CircularProgress, TextField } from '@material-ui/core';
+import { CircularProgress, TextFieldProps } from '@material-ui/core';
 import {
   RSButton,
   RSLink,
@@ -26,11 +26,11 @@ const useStyles = makeStyles((_: any) => ({
     minHeight: '100%',
   },
   wrapper: {
-    width: '500px',
+    maxWidth: 500,
+    width: '100%',
     textAlign: 'left',
   },
   textBox: {
-    width: 500,
     marginBottom: '20px',
   },
   externalWrapper: {
@@ -68,7 +68,19 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-const MIN_WIDTH = 1000;
+type ServiceResponse = {
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    _id: string;
+    accountType: string;
+    privilegeLevel: number;
+    profilePicture?: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+};
 
 const Login = () => {
   const styles = useStyles();
@@ -77,13 +89,10 @@ const Login = () => {
 
   const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
-
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const [forgotPassword, setForgotPassword] = useState(false);
 
   const params = qs.parse(history.location.search);
   const redirectUrl = (params.redirect as string) || '/home';
@@ -97,30 +106,17 @@ const Login = () => {
     checkAuth();
   }, [checkAuth]);
 
-  const textFieldProps: any = {
+  const textFieldProps: TextFieldProps = {
     variant: 'standard',
     error,
     onKeyDown: handleEnterCheck,
     className: styles.textBox,
+    fullWidth: true,
   };
 
   function handleEnterCheck(event: any) {
     if (event.key === 'Enter') handleLogin();
   }
-
-  type ServiceResponse = {
-    user: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      _id: string;
-      accountType: string;
-      privilegeLevel: number;
-      profilePicture?: string;
-    };
-    accessToken: string;
-    refreshToken: string;
-  };
 
   async function handleLogin() {
     setLoading(true);

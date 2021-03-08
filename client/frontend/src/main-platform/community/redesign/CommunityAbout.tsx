@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { TextField } from '@material-ui/core';
@@ -19,7 +19,8 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 20,
   },
   cardWrapper: {
-    padding: 50,
+    paddingLeft: 40,
+    paddingRight: 40,
     paddingTop: 30,
     paddingBottom: 30,
     marginBottom: 30,
@@ -45,9 +46,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   peopleWrapper: {
     display: 'flex',
-    justifyContent: 'start',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    overflow: 'scroll',
+    overflow: 'auto',
+    maxWidth: window.innerWidth - 50,
   },
   profilePictureContainer: {
     display: 'flex',

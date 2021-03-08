@@ -15,6 +15,7 @@ import SocketManager from './main-platform/SocketManager';
 
 // import LandingPage from './landing-page/LandingPage'; //OLD LANDING PAGE
 import LandingPage from './landing-page/redesign/LandingPage'; //NEW LANDING PAGE
+import ForgotPasswordCard from './login/ForgotPasswordCard';
 
 import {
   // MeetTheGreeks,
@@ -64,6 +65,11 @@ const App = () => {
               render={() => <LandingPage mode="additional" />}
             />
             <Route exact path="/login" render={() => <LandingPage mode="login" />} />
+            <Route
+              exact
+              path="/account/forgotPassword"
+              render={() => <ForgotPasswordCard />}
+            />
             {/* <Route exact path="/" component={LandingPage} />
             <Route
               exact
