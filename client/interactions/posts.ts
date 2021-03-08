@@ -21,6 +21,13 @@ export async function createBroadcastUserPost(
   try {
     let post = await new Post({ message, user: userID, type: 'broadcast' }).save();
     await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
+    await post
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName profilePicture major graduationYear work position',
+      })
+      .execPopulate();
 
     if (image) {
       const result = await uploadPostImage(image, post._id, userID);
@@ -43,7 +50,7 @@ export async function createBroadcastUserPost(
     }
 
     log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { newPost: post });
+    return sendPacket(1, 'Successfully created post', { post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);
@@ -452,7 +459,11 @@ export async function createExternalPostAsMember(
     }
 
     const post = await Post.findById(raw_post._id)
-      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName profilePicture major graduationYear work position',
+      })
       .populate({ path: 'images', select: 'fileName' })
       .exec();
 
@@ -515,7 +526,20 @@ export async function createBroadcastCommunityPost(
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
+      .populate({
+        path: 'user',
+        select: 'firstName lastName major position work graduationYear',
+      })
       .exec();
+
+    const communityProfilePicture = post.fromCommunity.profilePicture
+      ? await retrieveSignedUrl(
+          'communityProfile',
+          post.fromCommunity.profilePicture
+        )
+      : undefined;
+
+    post.fromCommunity.profilePicture = communityProfilePicture;
 
     if (post.images && post.images.length > 0) {
       try {
@@ -653,6 +677,13 @@ export async function leaveCommentOnPost(
           message: cleanedMessage,
           post: postID,
         }).save();
+
+        await comment
+          .populate({
+            path: 'user',
+            select: 'firstName lastName email major work position graduationYear',
+          })
+          .execPopulate();
 
         await Post.updateOne(
           { _id: postID },
@@ -1111,6 +1142,10 @@ export async function retrieveComments(
             firstName: '$user.firstName',
             lastName: '$user.lastName',
             profilePicture: '$user.profilePicture',
+            major: '$user.major',
+            graduationYear: '$user.graduationYear',
+            work: '$user.work',
+            position: '$user.position',
           },
         },
       },
@@ -1209,6 +1244,10 @@ async function retrievePosts(
           firstName: '$user.firstName',
           lastName: '$user.lastName',
           profilePicture: '$user.profilePicture',
+          major: '$user.major',
+          graduationYear: '$user.graduationYear',
+          work: '$user.work',
+          position: '$user.position',
         },
         toCommunity: {
           _id: '$toCommunity._id',

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../base-components';
-import { TextFieldProps } from '@material-ui/core';
+import { CircularProgress, TextFieldProps } from '@material-ui/core';
 import {
   RSButton,
   RSLink,
@@ -17,6 +17,7 @@ import GoogleButton from '../../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../../hype-page/hype-registration/LinkedInButton';
 import { useHistory } from 'react-router-dom';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
+import qs from 'query-string';
 
 const useStyles = makeStyles((_: any) => ({
   right: {
@@ -26,6 +27,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   wrapper: {
     maxWidth: 500,
+    width: '100%',
     textAlign: 'left',
   },
   textBox: {
@@ -92,7 +94,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
 
-  const redirectUrl = '/home';
+  const params = qs.parse(history.location.search);
+  const redirectUrl = (params.redirect as string) || '/home';
 
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
@@ -183,13 +186,17 @@ const Login = () => {
           className={styles.button}
           disabled={loading}
         >
-          Login
+          {loading ? (
+            <CircularProgress size={20} style={{ color: Theme.altText }} />
+          ) : (
+            'Login'
+          )}
         </RSButton>
         <RSText color={Theme.secondaryText} className={styles.or} size={12}>
           or
         </RSText>
         <RSLink href={'/'} className={styles.link}>
-          Sign Up
+          Sign-Up
         </RSLink>
       </div>
       <RSLink className={styles.link} href={'/account/forgotPassword'}>

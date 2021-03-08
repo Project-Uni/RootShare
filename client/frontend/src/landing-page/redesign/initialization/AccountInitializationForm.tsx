@@ -157,6 +157,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('major')}
             error={formErrors.major !== ''}
             helperText={formErrors.major}
+            fontSize={18}
           />
         );
       case 'alumni':
@@ -170,6 +171,7 @@ export const AccountInitializationForm = (props: Props) => {
               onChange={handleChange('company')}
               error={formErrors.company !== ''}
               helperText={formErrors.company}
+              fontSize={18}
             />
             <RSTextField
               label="JOB TITLE"
@@ -179,6 +181,7 @@ export const AccountInitializationForm = (props: Props) => {
               onChange={handleChange('jobTitle')}
               error={formErrors.jobTitle !== ''}
               helperText={formErrors.jobTitle}
+              fontSize={18}
             />
           </>
         );
@@ -192,6 +195,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('jobTitle')}
             error={formErrors.jobTitle !== ''}
             helperText={formErrors.jobTitle}
+            fontSize={18}
           />
         );
       case 'recruiter':
@@ -204,6 +208,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('company')}
             error={formErrors.company !== ''}
             helperText={formErrors.company}
+            fontSize={18}
           />
         );
       default:
@@ -225,6 +230,7 @@ export const AccountInitializationForm = (props: Props) => {
         onChange={handleChange('firstName')}
         error={formErrors.firstName !== ''}
         helperText={formErrors.firstName}
+        fontSize={18}
       />
       <RSTextField
         label="LAST NAME"
@@ -235,6 +241,7 @@ export const AccountInitializationForm = (props: Props) => {
         onChange={handleChange('lastName')}
         error={formErrors.lastName !== ''}
         helperText={formErrors.lastName}
+        fontSize={18}
       />
       {renderExtraFields()}
       <RSTextField
@@ -246,6 +253,7 @@ export const AccountInitializationForm = (props: Props) => {
         error={formErrors.graduationYear !== ''}
         helperText={formErrors.graduationYear}
         type="number"
+        fontSize={18}
       />
       <RSSelect
         label="UNIVERSITY"

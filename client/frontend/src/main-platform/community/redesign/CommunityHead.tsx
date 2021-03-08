@@ -16,7 +16,6 @@ import { Community } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    marginBottom: 50,
     paddingBottom: 20,
   },
   horizontalDiv: {

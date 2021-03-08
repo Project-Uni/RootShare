@@ -81,8 +81,7 @@ const App = () => {
               path="/register/initialize"
               component={HypeAdditionalInfo}
             /> */}
-
-            <Route exact path="/login" component={Login} />
+            {/* <Route exact path="/login" component={Login} /> */}
 
             <Route
               exact

@@ -402,6 +402,7 @@ function ProfileHead(props: Props) {
           size={12}
           color={Theme.primary}
           className={styles.bio}
+          style={{ marginTop: 8 }}
         >
           {originalBio}
         </RSText>
@@ -416,7 +417,13 @@ function ProfileHead(props: Props) {
 
   function renderOtherBio() {
     return (
-      <RSText type="subhead" size={14} color={Theme.primary} className={styles.bio}>
+      <RSText
+        type="subhead"
+        size={12}
+        color={Theme.primary}
+        className={styles.bio}
+        style={{ marginTop: 8 }}
+      >
         {originalBio}
       </RSText>
     );
@@ -425,18 +432,20 @@ function ProfileHead(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
-        <RSText type="head" size={18} bold color={Theme.primaryText}>
+        <RSText type="head" size={14} bold color={Theme.primaryText}>
           {props.name}
         </RSText>
-        {props.university && (
+        <div style={{ marginTop: 4 }}>
+          {props.university && (
+            <RSText type="subhead" size={12} color={Theme.secondaryText}>
+              {`${props.university} ${props.graduationYear || ''}`}
+            </RSText>
+          )}
           <RSText type="subhead" size={12} color={Theme.secondaryText}>
-            {`${props.university} ${props.graduationYear || ''}`}
+            {`${(props.position && `${props.position}, `) || ''} ${props.company ||
+              ''}`}
           </RSText>
-        )}
-        <RSText type="subhead" size={12} color={Theme.secondaryText}>
-          {`${(props.position && `${props.position}, `) || ''} ${props.company ||
-            ''}`}
-        </RSText>
+        </div>
         {editBio ? (
           <div className={styles.bioEditContainer}>
             {renderEditTextField()}
