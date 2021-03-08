@@ -97,7 +97,7 @@ const AccountTypeSelect = (props: Props) => {
 
   const checkAuth = useCallback(() => {
     if (Boolean(accessToken)) history.push('/home');
-    // else if (!registration?.verified) history.push('/account/verify');
+    else if (!registration?.verified) history.push('/account/verify');
   }, [accessToken, registration]);
 
   useEffect(() => {

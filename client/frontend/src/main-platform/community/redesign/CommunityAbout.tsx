@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { TextField } from '@material-ui/core';
@@ -48,6 +48,7 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'start',
     alignItems: 'flex-start',
     overflow: 'scroll',
+    maxWidth: 700, // TODO: FIX this going too wide
   },
   profilePictureContainer: {
     display: 'flex',

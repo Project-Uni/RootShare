@@ -111,7 +111,9 @@ const Community = (props: Props) => {
                 );
               })
             ) : (
-              <div>No posts</div>
+              <div style={{ overflow: 'scroll' }}>
+                <div style={{ width: 1500, height: 400 }}>No posts</div>
+              </div>
             )}
           </>
         );
