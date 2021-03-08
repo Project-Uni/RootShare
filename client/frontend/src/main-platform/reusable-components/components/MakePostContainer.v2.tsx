@@ -41,6 +41,7 @@ type MakePostContainerMode =
       name: 'community-external';
       communityID: string;
       externalPostingOptions?: any;
+      admin?: boolean;
     }
   | {
       name: 'community-internal-student' | 'community-internal-alumni';
@@ -93,7 +94,7 @@ export const MakePostContainer = (props: Props) => {
   }
 
   //Add in function args that choose how the post action is done
-  async function handlePostClicked() {
+  async function handlePostClicked(params?: { communityBroadcast?: boolean }) {
     setLoading(true);
     setServerErr(undefined);
 
@@ -106,9 +107,11 @@ export const MakePostContainer = (props: Props) => {
     let toCommunityID: string | undefined = undefined;
     if (mode.name === 'homepage' || mode.name === 'profile') type = 'broadcast-user';
     else {
-      toCommunityID = mode.communityID;
       //TODO - Add in other community types
-      type = 'community-external-user';
+      toCommunityID = mode.communityID;
+
+      if (params?.communityBroadcast) type = 'broadcast-community';
+      else type = 'community-external-user';
     }
 
     const data = await postSubmitPost({
@@ -122,6 +125,7 @@ export const MakePostContainer = (props: Props) => {
 
     if (data.success === 1) {
       setMessage('');
+      setImageSrc(undefined);
       const { post } = data.content;
       if (!post) {
         dispatch(
@@ -210,17 +214,41 @@ export const MakePostContainer = (props: Props) => {
                 <img src={ImageUploadIcon} style={{ height: 20 }} />
               </IconButton>
             </div>
-            <RSButton
-              style={{ textTransform: 'none', height: '100%' }}
-              disabled={loading}
-              onClick={handlePostClicked}
-            >
-              {loading ? (
-                <CircularProgress size={25} style={{ color: Theme.altText }} />
+            <div>
+              {(props.mode as any)['admin'] ? (
+                <RSButton
+                  style={{ textTransform: 'none', height: '100%', marginRight: 15 }}
+                  disabled={loading}
+                  onClick={(e) => {
+                    if (
+                      window.confirm(
+                        'This announcement will be visible university-wide. Confirm to continue'
+                      )
+                    )
+                      handlePostClicked({ communityBroadcast: true });
+                  }}
+                >
+                  {loading ? (
+                    <CircularProgress size={25} style={{ color: Theme.altText }} />
+                  ) : (
+                    'Announce'
+                  )}
+                </RSButton>
               ) : (
-                'Post'
+                <></>
               )}
-            </RSButton>
+              <RSButton
+                style={{ textTransform: 'none', height: '100%' }}
+                disabled={loading}
+                onClick={(e) => handlePostClicked()}
+              >
+                {loading ? (
+                  <CircularProgress size={25} style={{ color: Theme.altText }} />
+                ) : (
+                  'Post'
+                )}
+              </RSButton>
+            </div>
           </div>
         </div>
       </div>

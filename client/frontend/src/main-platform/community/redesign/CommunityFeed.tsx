@@ -2,24 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { getPosts } from '../../../api';
 import { PostType } from '../../../helpers/types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../../redux/actions';
 import { CircularProgress } from '@material-ui/core';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 import Theme from '../../../theme/Theme';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {
   communityID: string;
+  admin: string;
 };
 
 export const CommunityFeed = (props: Props) => {
   const styles = useStyles();
-  const { communityID } = props;
+  const { communityID, admin } = props;
 
   const dispatch = useDispatch();
+  const user = useSelector((state: RootshareReduxState) => state.user);
 
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -52,7 +55,7 @@ export const CommunityFeed = (props: Props) => {
     <div className={styles.wrapper}>
       <MakePostContainer
         style={{ marginTop: 15 }}
-        mode={{ name: 'community-external', communityID }}
+        mode={{ name: 'community-external', communityID, admin: user._id === admin }}
         appendPost={appendPost}
       />
       {loading ? (

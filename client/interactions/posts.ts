@@ -21,6 +21,13 @@ export async function createBroadcastUserPost(
   try {
     let post = await new Post({ message, user: userID, type: 'broadcast' }).save();
     await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
+    await post
+      .populate({
+        path: 'user',
+        select:
+          'firstName lastName profilePicture major graduationYear work position',
+      })
+      .execPopulate();
 
     if (image) {
       const result = await uploadPostImage(image, post._id, userID);
@@ -41,14 +48,6 @@ export async function createBroadcastUserPost(
         log('error', err);
       }
     }
-
-    await post
-      .populate({
-        path: 'user',
-        select:
-          'firstName lastName profilePicture major graduationYear work position',
-      })
-      .execPopulate();
 
     log('info', `Successfully created for user ${userID}`);
     return sendPacket(1, 'Successfully created post', { post });
@@ -527,7 +526,20 @@ export async function createBroadcastCommunityPost(
     const post = await Post.findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
+      .populate({
+        path: 'user',
+        select: 'firstName lastName major position work graduationYear',
+      })
       .exec();
+
+    const communityProfilePicture = post.fromCommunity.profilePicture
+      ? await retrieveSignedUrl(
+          'communityProfile',
+          post.fromCommunity.profilePicture
+        )
+      : undefined;
+
+    post.fromCommunity.profilePicture = communityProfilePicture;
 
     if (post.images && post.images.length > 0) {
       try {

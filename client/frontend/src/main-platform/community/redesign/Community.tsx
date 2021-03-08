@@ -80,7 +80,12 @@ const Community = (props: Props) => {
           />
         );
       case 'feed': {
-        return <CommunityFeed communityID={communityID} />;
+        return (
+          <CommunityFeed
+            communityID={communityID}
+            admin={(info.admin as AboutPageUser)._id}
+          />
+        );
       }
 
       default:
