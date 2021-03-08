@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RootShareLogo from '../../images/RootShareLogoFull.png';
-import LandingImg from '../../images/landingBullets.png';
-import { RSText } from '../../base-components';
+
 import { useDispatch, useSelector } from 'react-redux';
 
-import Theme from '../../theme/Theme';
-import { useHistory } from 'react-router-dom';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import FacebookIcon from '@material-ui/icons/Facebook';
+import InstagramIcon from '@material-ui/icons/Instagram';
+
+import { RSText } from '../../base-components';
+import { RSLink } from '../../main-platform/reusable-components';
 import Login from './Login';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
 import { AccountInitializationForm } from './initialization/AccountInitializationForm';
+
+import Theme from '../../theme/Theme';
+import { useHistory } from 'react-router-dom';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+import RootShareLogo from '../../images/RootShareLogoFull.png';
+import LandingImg from '../../images/landingBullets.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,6 +60,14 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  socialLinks: {
+    display: 'flex',
+    marginTop: 15,
+  },
+  icon: {
+    fontSize: 35,
+    paddingRight: 20,
+  },
 }));
 
 const MIN_WIDTH = 1000;
@@ -89,8 +104,6 @@ const LandingPage = (props: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  
-
   //TODO - Update with components
   const getLeftComponent = useCallback(() => {
     switch (mode) {
@@ -117,7 +130,7 @@ const LandingPage = (props: Props) => {
     }
   }, [mode]);
 
-  //Moved RightComponent below to prevent Textfeild re-render
+  //Moved RightComponent below to prevent Textfield re-render
   const getRightComponent = useCallback(() => {
     switch (mode) {
       case 'register':
@@ -129,7 +142,7 @@ const LandingPage = (props: Props) => {
           <div className={styles.rightMiddleContent}>
             <Login />
           </div>
-        )
+        );
       case 'additional':
         return <AccountInitializationForm />;
     }
@@ -172,11 +185,17 @@ const LandingPage = (props: Props) => {
           <RSText color={Theme.white} size={20}>
             Lets Grow Together
           </RSText>
+          <div className={styles.socialLinks}>
+            <TwitterIcon htmlColor={'#222222'} className={styles.icon} />
+            <FacebookIcon htmlColor={'#222222'} className={styles.icon} />
+            <InstagramIcon htmlColor={'#222222'} className={styles.icon} />
+            <RSLink>
+              <RSText></RSText>
+            </RSLink>
+          </div>
         </div>
       </div>
-      <div className={styles.rightMiddleContent}>
-        <div> {getRightComponent()}</div>
-      </div>
+      <div className={styles.rightMiddleContent}>{getRightComponent()}</div>
     </div>
   );
 };
