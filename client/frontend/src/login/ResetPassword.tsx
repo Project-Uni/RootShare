@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Redirect, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { TextField, Button } from '@material-ui/core';
 
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
+import { RSLink } from '../main-platform/reusable-components';
 import HypeCard from '../hype-page/hype-card/HypeCard';
 import RSText from '../base-components/RSText';
-import { colors } from '../theme/Colors';
+
+import Theme from '../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -27,7 +29,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 300,
     marginTop: 20,
     height: 40,
-    background: 'rgb(30, 67, 201)',
+    background: Theme.bright,
     color: 'white',
     '&:hover': {
       background: 'lightblue',
@@ -35,7 +37,10 @@ const useStyles = makeStyles((_: any) => ({
   },
   confirmation: {
     marginTop: 15,
-    color: colors.secondaryText,
+    color: Theme.secondaryText,
+  },
+  link: {
+    paddingTop: 10,
   },
 }));
 
@@ -124,14 +129,19 @@ function ResetPassword(props: Props) {
           className={styles.button}
           disabled={loading}
         >
-          Login
+          Reset Password
         </Button>
         {passwordReset === '' ? (
           <span />
         ) : (
-          <RSText size={12} className={styles.confirmation}>
-            {passwordReset}
-          </RSText>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <RSText size={12} className={styles.confirmation}>
+              {passwordReset}
+            </RSText>
+            <RSLink href="/login" className={styles.link} underline="hover">
+              <RSText>Back to Login</RSText>
+            </RSLink>
+          </div>
         )}
       </HypeCard>
     </div>

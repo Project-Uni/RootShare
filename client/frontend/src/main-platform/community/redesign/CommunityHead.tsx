@@ -119,7 +119,7 @@ export const CommunityHead = (props: Props) => {
         <RSText
           type="head"
           weight="light"
-          size={30}
+          size={26}
           color={Theme.secondaryText}
           className={styles.name}
         >
@@ -127,7 +127,7 @@ export const CommunityHead = (props: Props) => {
           {isPrivate && (
             <FaLock
               color={Theme.secondaryText}
-              size={20}
+              size={18}
               className={styles.lockIcon}
             />
           )}
