@@ -82,13 +82,12 @@ const App = () => {
               component={HypeAdditionalInfo}
             /> */}
             {/* <Route exact path="/login" component={Login} /> */}
-
             <Route
               exact
               path="/register/resetPassword/:emailtoken"
               component={ResetPassword}
             />
-
+            xx xx
             <Route exact path="/event/:eventid" component={EventClientBase} />
             <Route path="/admin" component={AdminRoutes} />
             <Route
