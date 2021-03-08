@@ -76,3 +76,9 @@ const U2CR = {
 export { U2UR, U2CR };
 
 export type IRequest = Express['request'];
+
+export type SidebarData =
+  | 'discoverUsers'
+  | 'discoverCommunities'
+  | 'pinnedCommunities'
+  | 'trending';

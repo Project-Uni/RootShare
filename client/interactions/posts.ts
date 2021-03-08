@@ -7,7 +7,7 @@ import {
   deleteFile,
 } from '../helpers/functions';
 import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
-import { generateSignedImagePromises } from './utilities';
+import { generateSignedProfilePromises } from './utilities';
 
 const mongoose = require('mongoose');
 
@@ -888,7 +888,7 @@ export async function getLikes(postID: string, userID: string) {
     if (!post) return sendPacket(0, 'Could not find post');
 
     const { likes } = post;
-    const signedImagePromises = generateSignedImagePromises(likes, 'profile');
+    const signedImagePromises = generateSignedProfilePromises(likes, 'profile');
 
     return Promise.all(signedImagePromises)
       .then((signedImageURLs) => {

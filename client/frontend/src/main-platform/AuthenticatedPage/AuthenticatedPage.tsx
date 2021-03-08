@@ -3,19 +3,22 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 
 import { useSelector, useDispatch } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
-import { MainNavigator, DiscoverySidebar } from '../reusable-components';
+import { RightSidebar } from '../RightSidebar/RightSidebar';
+import {
+  MainNavigator,
+  DiscoverySidebar,
+  HoverPreview,
+} from '../reusable-components';
 
 import {
   SHOW_HEADER_NAVIGATION_WIDTH,
   SHOW_DISCOVERY_SIDEBAR_WIDTH,
   HEADER_HEIGHT,
 } from '../../helpers/constants';
-
 import Theme from '../../theme/Theme';
-import { HoverPreview } from '../reusable-components';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { checkProfilePictureExpired } from '../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
@@ -26,7 +29,7 @@ const useStyles = makeStyles((_: any) => ({
   body: {
     display: 'flex',
     justifyContent: 'space-between',
-    maxWidth: 1300,
+    maxWidth: 1500,
     flex: 1,
   },
   bodyContainer: {
@@ -107,7 +110,10 @@ function AuthenticatedPage(props: Props) {
                 rightElement
               ) : (
                 // <DiscoverySidebar />
-                <span style={{ width: 270 }}></span>
+                <RightSidebar
+                  components={['discoverUsers', 'discoverCommunities']}
+                />
+                // <span style={{ width: 270 }}></span>
               ))}
           </div>
         )}

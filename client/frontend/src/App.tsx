@@ -113,9 +113,9 @@ const App = () => {
               path="/community/:communityID"
               render={(props) => (
                 <AuthenticatedPage
-                  // component={<Community />} //NEW COMMUNITY UI
-                  component={<CommunityBody {...props} />} //OLD COMMUNITY
-                  rightElement={<FollowSidebar />} //OLD COMMUNITY
+                  component={<Community />} //NEW COMMUNITY UI
+                  // component={<CommunityBody {...props} />} //OLD COMMUNITY
+                  // rightElement={<FollowSidebar />} //OLD COMMUNITY
                 />
               )}
             />

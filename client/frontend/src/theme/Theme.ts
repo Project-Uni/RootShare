@@ -7,7 +7,9 @@ type Theme = {
   secondary: string;
   accent: string;
   background: string;
-  primaryHover: string,
+  foreground: string;
+  secondaryForeground: string;
+  primaryHover: string;
   primaryText: string;
   secondaryText: string;
   error: string;
@@ -17,7 +19,10 @@ type Theme = {
   altText: string;
   disabledButton: string;
   buttonHighlight: string;
-  universityAccent: string;
+  transparent: '#00000000';
+  universityAccent: { [key: string]: string };
+  fullShadow: string;
+  noShadow: string;
 };
 
 const theme: { default: Theme; dark: Theme } = {
@@ -26,7 +31,7 @@ const theme: { default: Theme; dark: Theme } = {
     dark: 'black',
     //primary: '#1D2445',
     secondary: '',
-    //background: 'rgb(227, 227, 227)',
+    // background: 'rgb(227, 227, 227)',
     //primaryText: 'black',
     //secondaryText: '#545454',
     error: '#900C1C',
@@ -34,21 +39,27 @@ const theme: { default: Theme; dark: Theme } = {
     //bright: '#6699FF',
     //altText: '#F8F8FF',
     buttonHighlight: '#3C4469',
-    universityAccent: '#CEB888',
+    universityAccent: {
+      '5eb89c308cc6636630c1311f': '#CEB888',
+    },
+    transparent: '#00000000',
 
     // UPDATED COLORS
     white: '#FFFFFF',
     primary: '#545454',
     primaryHover: '#C4C4C4',
     accent: '#FFF9E1',
-    background: '#E3E3E3',
+    background: '#E5E5E5',
+    foreground: '#FBFBFB',
+    secondaryForeground: '#F7F9FA',
     bright: '#61C87F',
     brightHover: '#7BD294',
     altText: '#FFFFFF',
-    primaryText: 'black',
+    primaryText: '#252525',
     secondaryText: '#545454',
     disabledButton: 'lightgray',
-
+    fullShadow: customShadow(0, 0, 12, '#444444', 0.4),
+    noShadow: customShadow(0, 0, 0, '#000000', 0),
   },
   dark: {
     white: '',
@@ -58,6 +69,8 @@ const theme: { default: Theme; dark: Theme } = {
     secondary: '',
     accent: '',
     background: '',
+    foreground: '',
+    secondaryForeground: '',
     primaryText: '',
     secondaryText: '',
     error: '',
@@ -67,7 +80,10 @@ const theme: { default: Theme; dark: Theme } = {
     altText: '',
     disabledButton: '',
     buttonHighlight: '',
-    universityAccent: '',
+    transparent: '#00000000',
+    universityAccent: {},
+    fullShadow: '',
+    noShadow: '',
   },
 };
 
@@ -78,6 +94,16 @@ export function addAlpha(hex: string, alpha: number) {
   if (alphaHex.length === 1) alphaHex = '0'.concat(alphaHex);
 
   return hex.concat(alphaHex);
+}
+
+export function customShadow(
+  xOffset: number,
+  yOffset: number,
+  blurRadius: number,
+  color: string,
+  opacity: number
+) {
+  return `${xOffset}px ${yOffset}px ${blurRadius}px ${addAlpha(color, opacity)}`;
 }
 
 export default theme[currentTheme];
