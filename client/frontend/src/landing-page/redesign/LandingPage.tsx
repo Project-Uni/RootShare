@@ -6,9 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import InstagramIcon from '@material-ui/icons/Instagram';
+import { Link } from 'react-router-dom';
 
 import { RSText } from '../../base-components';
-import { RSLink } from '../../main-platform/reusable-components';
 import Login from './Login';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
@@ -62,6 +62,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   socialLinks: {
     display: 'flex',
+    alignItems: 'center',
     marginTop: 15,
   },
   icon: {
@@ -186,12 +187,20 @@ const LandingPage = (props: Props) => {
             Lets Grow Together
           </RSText>
           <div className={styles.socialLinks}>
-            <TwitterIcon htmlColor={'#222222'} className={styles.icon} />
-            <FacebookIcon htmlColor={'#222222'} className={styles.icon} />
-            <InstagramIcon htmlColor={'#222222'} className={styles.icon} />
-            <RSLink>
-              <RSText></RSText>
-            </RSLink>
+            <a href="https://twitter.com/root_share" target="_blank">
+              <TwitterIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            <a href="https://www.facebook.com/rootshareplatform" target="_blank">
+              <FacebookIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            <a href="https://www.instagram.com/rootshare/" target="_blank">
+              <InstagramIcon htmlColor={'#222222'} className={styles.icon} />
+            </a>
+            {/* <RSLink>
+              <RSText size={14} weight="bold">
+                Privacy Policy
+              </RSText>
+            </RSLink> */}
           </div>
         </div>
       </div>
