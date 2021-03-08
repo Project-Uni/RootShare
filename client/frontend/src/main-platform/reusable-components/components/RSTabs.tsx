@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -26,7 +25,6 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       background: Theme.primary,
       color: Theme.white,
-
     },
   },
   tab: {
@@ -65,11 +63,7 @@ function RSTabs(props: Props) {
             props.onChange(props.tabs[i].value);
           }}
         >
-          <RSText
-            size={11}
-          >
-            {props.tabs[i].label.toUpperCase()}
-          </RSText>
+          <RSText size={11}>{props.tabs[i].label.toUpperCase()}</RSText>
         </div>
       );
     }

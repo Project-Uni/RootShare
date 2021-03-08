@@ -2,28 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import RSText from '../../../base-components/RSText';
 
 import {
   WelcomeMessage,
-  UserPost,
   RSTabs,
-  MakePostContainer,
+  // MakePostContainer,
   FeaturedEvent,
 } from '../../reusable-components';
+import { UserPost } from '../../reusable-components/components/UserPost.v2';
+import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 
-import {
-  makeRequest,
-  formatDatePretty,
-  formatTime,
-} from '../../../helpers/functions';
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
+import { getPosts } from '../../../api';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -43,8 +41,8 @@ const useStyles = makeStyles((_: any) => ({
     margin: 8,
   },
   tabs: {
-    marginLeft: 5,
-    marginRight: 5,
+    marginLeft: 15,
+    marginRight: 15,
     marginBottom: 5,
   },
   box: {
@@ -53,21 +51,21 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-};
+type Props = {};
 
-function HomepageBody(props: Props) {
+export default function HomepageBody(props: Props) {
   const styles = useStyles();
   const history = useHistory();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
   const [serverErr, setServerErr] = useState(false);
-  const [feed, setFeed] = useState<JSX.Element[]>([]);
-  const [selectedTab, setSelectedTab] = useState('general');
+  const [feed, setFeed] = useState<PostType[]>([]);
+  const [selectedTab, setSelectedTab] = useState<'general' | 'following'>('general');
+
+  const profilePicture = useSelector(
+    (state: RootshareReduxState) => state.user.profilePicture
+  );
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -84,10 +82,9 @@ function HomepageBody(props: Props) {
   }, [selectedTab]);
 
   async function getFeed() {
-    const { data } = await makeRequest('GET', `/api/posts/feed/${selectedTab}`);
-
+    const data = await getPosts({ postType: { type: selectedTab } });
     if (data.success === 1) {
-      setFeed(createFeed(data.content['posts']));
+      setFeed(data.content['posts']);
       setServerErr(false);
     } else {
       setServerErr(true);
@@ -102,69 +99,13 @@ function HomepageBody(props: Props) {
     history.push(`/discover`);
   }
 
-  function handleTabChange(newTab: string) {
+  function handleTabChange(newTab: 'general' | 'following') {
     setSelectedTab(newTab);
   }
 
   function appendNewPost(post: PostType) {
-    setFeed((prevState) => {
-      const newEntry = (
-        <UserPost
-          postID={post._id}
-          posterID={props.user._id}
-          name={`${props.user.firstName} ${props.user.lastName}`}
-          timestamp={`${formatDatePretty(new Date(post.createdAt))} at ${formatTime(
-            new Date(post.createdAt)
-          )}`}
-          profilePicture={props.user.profilePicture}
-          message={post.message}
-          likeCount={0}
-          commentCount={0}
-          style={styles.postBox}
-          images={post.images}
-          isOwnPost
-        />
-      );
-      return [newEntry].concat(prevState);
-    });
-  }
-
-  function createFeed(posts: PostType[]) {
-    const output = [];
-    for (let i = 0; i < posts.length; i++) {
-      const { anonymous } = posts[i];
-      output.push(
-        <UserPost
-          postID={posts[i]._id}
-          posterID={anonymous ? posts[i].fromCommunity._id : posts[i].user._id}
-          name={
-            anonymous
-              ? `${posts[i].fromCommunity.name}`
-              : `${posts[i].user.firstName} ${posts[i].user.lastName}`
-          }
-          timestamp={`${formatDatePretty(
-            new Date(posts[i].createdAt)
-          )} at ${formatTime(new Date(posts[i].createdAt))}`}
-          profilePicture={
-            anonymous
-              ? posts[i].fromCommunity.profilePicture
-              : posts[i].user.profilePicture
-          }
-          message={posts[i].message}
-          likeCount={posts[i].likes}
-          commentCount={posts[i].comments}
-          style={styles.postBox}
-          key={posts[i]._id}
-          toCommunity={posts[i].toCommunity.name}
-          toCommunityID={posts[i].toCommunity._id}
-          anonymous={anonymous}
-          liked={posts[i].liked}
-          images={posts[i].images}
-          isOwnPost={props.user._id === posts[i].user._id}
-        />
-      );
-    }
-    return output;
+    const { likes, comments, ...rest } = post;
+    setFeed((prev) => [{ ...rest, likes: 0, comments: 0 }, ...prev]);
   }
 
   return (
@@ -183,10 +124,11 @@ function HomepageBody(props: Props) {
         style={{ margin: 8 }}
         href={'/event/6026ce709a7a1f218592ea37'}
       />
-      <MakePostContainer
+      <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
+      {/* <MakePostContainer
         appendNewPost={appendNewPost}
-        profilePicture={props.user.profilePicture}
-      />
+        profilePicture={profilePicture}
+      /> */}
 
       <RSTabs
         tabs={[
@@ -200,7 +142,15 @@ function HomepageBody(props: Props) {
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />
       ) : !serverErr ? (
-        <div className={styles.posts}>{feed}</div>
+        <div className={styles.posts}>
+          {feed.map((post, idx) => (
+            <UserPost
+              post={post}
+              style={{ marginTop: idx !== 0 ? 10 : undefined }}
+              key={`post_${idx}_${post.createdAt}`}
+            />
+          ))}
+        </div>
       ) : (
         <div style={{ marginTop: 10 }}>
           <RSText size={18} bold type="head" color={Theme.primary}>
@@ -211,17 +161,3 @@ function HomepageBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomepageBody);

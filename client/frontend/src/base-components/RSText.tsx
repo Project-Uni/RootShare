@@ -6,6 +6,9 @@ const useStyles = makeStyles((_: any) => ({
   base: {
     margin: 0,
   },
+  multiline: {
+    whiteSpace: 'pre-wrap',
+  },
   title: {
     // fontFamily: 'Lora, serif',
     fontFamily: 'Lato',
@@ -13,6 +16,9 @@ const useStyles = makeStyles((_: any) => ({
   },
   normal: {
     fontFamily: 'Lato',
+  },
+  light: {
+    fontWeight: 300,
   },
   bold: {
     fontWeight: 'bold',
@@ -25,12 +31,17 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
+export type TextWeight = 'normal' | 'light' | 'bold';
+
 type Props = {
   type?: 'head' | 'subhead' | 'body' | 'other';
-  bold?: boolean;
+  bold?: boolean; // TODO: refactor this to use weight prop
+  weight: TextWeight;
   italic?: boolean;
+  multiline?: boolean;
   size?: number;
   className?: string;
+  style?: React.CSSProperties;
   color?: string;
   hoverColor?: string;
   children?: React.ReactNode;
@@ -43,9 +54,12 @@ function RSText(props: Props) {
   const {
     type,
     bold,
+    weight,
     italic,
+    multiline,
     size,
     className,
+    style: styleProps,
     color,
     hoverColor,
     children,
@@ -53,6 +67,7 @@ function RSText(props: Props) {
   } = props;
 
   const [style, setStyle] = useState({
+    ...styleProps,
     fontSize: `${size}pt`,
     color,
   });
@@ -76,8 +91,10 @@ function RSText(props: Props) {
         color ? null : styles.defaultColor,
         className,
         type === 'head' ? styles.title : type === 'other' ? null : styles.normal,
-        bold ? styles.bold : null,
-        italic ? styles.italic : null,
+        bold && styles.bold,
+        styles[weight],
+        multiline && styles.multiline,
+        italic && styles.italic,
       ].join(' ')}
       style={style}
       onMouseEnter={hoverColor ? handleMouseOver : undefined}
@@ -91,6 +108,8 @@ function RSText(props: Props) {
 
 RSText.defaultProps = {
   type: 'body',
+  weight: 'normal',
+  caps: 'none',
   size: 12,
 };
 

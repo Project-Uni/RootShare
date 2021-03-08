@@ -84,3 +84,5 @@ export type SearchUserType = {
   numMutualConnections: number;
   status: UserToUserRelationship;
 };
+
+export type AccountType = 'student' | 'alumni' | 'faculty' | 'recruiter';

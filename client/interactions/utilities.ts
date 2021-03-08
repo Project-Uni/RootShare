@@ -222,7 +222,7 @@ export async function addProfilePictureToUser(user) {
   user.profilePicture = profilePicture;
 }
 
-export function generateSignedImagePromises(
+export function generateSignedProfilePromises(
   entityList: {
     [key: string]: any;
     profilePicture?: string;
@@ -255,7 +255,7 @@ export function addProfilePicturesAll(
   entities,
   imageReason: 'profile' | 'communityProfile'
 ) {
-  const imagePromises = generateSignedImagePromises(entities, imageReason);
+  const imagePromises = generateSignedProfilePromises(entities, imageReason);
 
   return Promise.all(imagePromises)
     .then((signedImageURLs) => {
@@ -277,6 +277,66 @@ export function addProfilePicturesAll(
           imageURL.substring(0, 4) !== 'http'
         )
           entities[i].profilePicture = undefined;
+      }
+      return entities;
+    });
+}
+
+export function generateSignedBannerPromises(
+  entityList: {
+    [key: string]: any;
+    bannerPicture?: string;
+  },
+  imageType: 'profileBanner' | 'communityBanner'
+) {
+  const bannerPicturePromises = [];
+
+  for (let i = 0; i < entityList.length; i++) {
+    if (entityList[i].bannerPicture) {
+      try {
+        const signedImageURLPromise = retrieveSignedUrl(
+          imageType,
+          entityList[i].bannerPicture
+        );
+        bannerPicturePromises.push(signedImageURLPromise);
+      } catch (err) {
+        bannerPicturePromises.push(null);
+        log('error', 'There was an error retrieving a signed url from S3');
+      }
+    } else {
+      bannerPicturePromises.push(null);
+    }
+  }
+
+  return bannerPicturePromises;
+}
+
+export function addBannerPicturesAll(
+  entities,
+  imageReason: 'profileBanner' | 'communityBanner'
+) {
+  const imagePromises = generateSignedBannerPromises(entities, imageReason);
+
+  return Promise.all(imagePromises)
+    .then((signedImageURLs) => {
+      for (let i = 0; i < signedImageURLs.length; i++) {
+        if (signedImageURLs[i]) entities[i].bannerPicture = signedImageURLs[i];
+        else entities[i].bannerPicture = undefined;
+      }
+
+      return entities;
+    })
+    .catch((err) => {
+      log('error', err);
+      for (let i = 0; i < entities.length; i++) {
+        const imageURL = entities[i].bannerPicture;
+        if (
+          !imageURL ||
+          typeof imageURL !== 'string' ||
+          imageURL.length < 4 ||
+          imageURL.substring(0, 4) !== 'http'
+        )
+          entities[i].bannerPicture = undefined;
       }
       return entities;
     });

@@ -32,15 +32,20 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
 
     const { type, optional } = fields[field];
 
-    if (type.endsWith('[]')) val = query.getAll(field);
-    else val = query.get(field);
+    if (type.endsWith('[]')) {
+      // val = query.getAll(field);
+      val = req.query[field] as any; //TODO - Arrays arent working with URLSearchParams for some reason
+    } else val = query.get(field);
 
     if (!val && !optional) {
       log('error', `Missing parameter: ${field}`);
       return false;
     }
 
-    //type conversation
+    // Type conversion
+    // Ensures that undefined optional parameters don't get cast as empty objects
+    if (!val) continue;
+
     try {
       if (type.startsWith('number')) {
         if (type.endsWith('[]'))

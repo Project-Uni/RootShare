@@ -1,7 +1,6 @@
-import { log } from '../../helpers/functions';
+import { AccountType } from '../../helpers/types';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
-const STATE_NAME = 'RootShare:state';
 
 export type RootshareReduxState = {
   user: {
@@ -11,6 +10,7 @@ export type RootshareReduxState = {
     email: string;
     privilegeLevel: number;
     accountType: string;
+    university: string;
     profilePicture?: string;
     profilePictureLastUpdated?: number;
   };
@@ -22,6 +22,14 @@ export type RootshareReduxState = {
   newMessage: { [k: string]: any };
   hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
+  registration: null | {
+    email?: string;
+    password?: string; //Password is encrypted
+    initializationVector?: string; //Random bytes Used to decrypt the password
+    phoneNumber?: string;
+    accountType?: AccountType;
+    verified?: boolean;
+  };
 };
 
 export const initializeState = (): RootshareReduxState => ({
@@ -31,7 +39,8 @@ export const initializeState = (): RootshareReduxState => ({
     _id: '',
     email: '',
     privilegeLevel: 0,
-    accountType: 'fan',
+    accountType: '',
+    university: '',
   },
   accessToken: '',
   refreshToken: '',
@@ -49,28 +58,5 @@ export const initializeState = (): RootshareReduxState => ({
     mode: null,
     message: '',
   },
+  registration: null,
 });
-
-const saveState = (state: RootshareReduxState) => {
-  try {
-    let serializedState = JSON.stringify(state);
-    localStorage.setItem(STATE_NAME, serializedState);
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to save state.');
-  }
-};
-
-const loadState = (): RootshareReduxState => {
-  try {
-    let serializedState = localStorage.getItem(STATE_NAME);
-    if (serializedState == null) {
-      return initializeState();
-    }
-    return JSON.parse(serializedState) as RootshareReduxState;
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to load state');
-    return initializeState();
-  }
-};
-
-export { saveState, loadState };

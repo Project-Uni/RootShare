@@ -11,6 +11,7 @@ import {
   hoverPreviewReducer,
   snackbarNotificationReducer,
 } from './interactionsReducers';
+import { registrationReducer } from './registrationReducer';
 
 const allReducers = combineReducers({
   user: userReducer,
@@ -22,6 +23,7 @@ const allReducers = combineReducers({
   newMessage: newMessageReducer,
   hoverPreview: hoverPreviewReducer,
   snackbarNotification: snackbarNotificationReducer,
+  registration: registrationReducer,
 });
 
 export default allReducers;
