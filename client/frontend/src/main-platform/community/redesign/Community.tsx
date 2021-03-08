@@ -91,11 +91,7 @@ const Community = (props: Props) => {
       default:
         return <RSText>An Error Occured</RSText>;
     }
-  }, [
-    currentTab,
-    info,
-    // externalPosts
-  ]);
+  }, [currentTab, info]);
 
   return (
     <>
