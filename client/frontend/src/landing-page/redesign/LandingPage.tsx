@@ -19,6 +19,7 @@ import { useHistory } from 'react-router-dom';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import RootShareLogo from '../../images/RootShareLogoFull.png';
 import LandingImg from '../../images/landingBullets.png';
+import { horizontal_line, vertical_line } from '../../images/registration';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -106,30 +107,56 @@ const LandingPage = (props: Props) => {
   }, [handleResize]);
 
   //TODO - Update with components
-  const getLeftComponent = useCallback(() => {
-    switch (mode) {
-      case 'register':
-        return (
-          <div>
-            <RSText className={styles.title} color={Theme.white} size={40}>
-              Sign Up
-            </RSText>
-            <img src={LandingImg} />
-          </div>
-        );
-      case 'login':
-        return (
-          <div>
-            <RSText className={styles.title} color={Theme.white} size={40}>
-              Login
-            </RSText>
-            <img src={LandingImg} />
-          </div>
-        );
-      case 'additional':
-        return <p>Additional Info Left Component</p>;
-    }
-  }, [mode]);
+  const getLeftComponent = useCallback(
+    (onlyText?: boolean) => {
+      switch (mode) {
+        case 'register':
+          if (onlyText) return 'Sign Up';
+          return (
+            // <LeftGraphic title="Sign Up" />
+            <div>
+              <RSText className={styles.title} color={Theme.white} size={40}>
+                Sign Up
+              </RSText>
+              <img src={LandingImg} />
+            </div>
+          );
+        case 'login':
+          if (onlyText) return 'Login';
+          return (
+            <div>
+              <RSText className={styles.title} color={Theme.white} size={40}>
+                Login
+              </RSText>
+              <img src={LandingImg} />
+            </div>
+          );
+        case 'additional':
+          if (onlyText) return 'Complete Registration';
+          return (
+            // <LeftGraphic title="Sign Up" />
+            <div>
+              <RSText className={styles.title} color={Theme.white} size={40}>
+                Complete Registration
+              </RSText>
+              <img src={LandingImg} />
+            </div>
+          );
+        case 'verify':
+          if (onlyText) return 'Verify Account';
+          return (
+            // <LeftGraphic title="Sign Up" />
+            <div>
+              <RSText className={styles.title} color={Theme.white} size={40}>
+                Verify Account
+              </RSText>
+              <img src={LandingImg} />
+            </div>
+          );
+      }
+    },
+    [mode]
+  );
 
   //Moved RightComponent below to prevent Textfield re-render
   const getRightComponent = useCallback(() => {
@@ -178,14 +205,16 @@ const LandingPage = (props: Props) => {
           }}
         >
           {/* TODO - Fix styling to match wireframe */}
-          {isMobile && (
+          {/* {isMobile && (
             <div className={styles.leftMiddleContent}>{getLeftComponent()}</div>
-          )}
+          )} */}
 
           <img src={RootShareLogo} className={styles.logo} />
-          <RSText color={Theme.white} size={20}>
-            Lets Grow Together
-          </RSText>
+          {!isMobile && (
+            <RSText color={Theme.white} size={20}>
+              Lets Grow Together
+            </RSText>
+          )}
           <div className={styles.socialLinks}>
             <a href="https://twitter.com/root_share" target="_blank">
               <TwitterIcon htmlColor={'#222222'} className={styles.icon} />
@@ -202,6 +231,11 @@ const LandingPage = (props: Props) => {
               </RSText>
             </RSLink> */}
           </div>
+          {isMobile && (
+            <RSText size={24} color={Theme.altText}>
+              {getLeftComponent(true)}
+            </RSText>
+          )}
         </div>
       </div>
       <div className={styles.rightMiddleContent}>{getRightComponent()}</div>
@@ -209,3 +243,35 @@ const LandingPage = (props: Props) => {
   );
 };
 export default LandingPage;
+
+const LeftGraphic = ({ title, mobile }: { title: string; mobile?: boolean }) => {
+  const styles = useStyles();
+
+  return (
+    <div>
+      <RSText className={styles.title} color={Theme.white} size={40}>
+        {title}
+      </RSText>
+      <div style={{ display: mobile ? undefined : 'flex' }}>
+        <img
+          src={mobile ? horizontal_line : vertical_line}
+          style={{ height: mobile ? undefined : 500 }}
+        />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: mobile ? 'row' : 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <RSText color={Theme.altText}>
+            Build community to community relationships
+          </RSText>
+          <RSText color={Theme.altText}>Connect Students & Alumni</RSText>
+          <RSText color={Theme.altText}>Live Your university online</RSText>
+        </div>
+      </div>
+      {/* <img src={LandingImg} /> */}
+    </div>
+  );
+};
