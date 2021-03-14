@@ -274,6 +274,7 @@ export default class Notification {
       ])
       .exec();
 
+    await Notification.addImages(notifications);
     return notifications;
   };
 
@@ -284,7 +285,7 @@ export default class Notification {
     return true;
   };
 
-  private static addImages = async () => {};
+  private static addImages = async (notifications) => {};
 
   private static getUserImages = async () => {};
   private static getCommunityImages = async () => {};
