@@ -116,7 +116,7 @@ type IFindNotificationsForUser = {
 export default class Notification {
   static model = NotificationsModel;
 
-  create = async ({
+  static create = async ({
     variant,
     message,
     forUser,
@@ -153,7 +153,7 @@ export default class Notification {
     return newNotification;
   };
 
-  findForUser = async ({
+  static findForUser = async ({
     userID,
   }: {
     userID: string;
@@ -278,9 +278,9 @@ export default class Notification {
     return notifications;
   };
 
-  markAsSeen = async ({ _ids }: { _ids: string[] }) => {
+  static markAsSeen = async ({ _ids }: { _ids: string[] }) => {
     await Notification.model
-      .updateMany({ _id: { $in: _ids } }, { seen: true })
+      .updateMany({ _id: { $in: _ids }, seen: false }, { seen: true })
       .exec();
     return true;
   };
