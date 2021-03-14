@@ -25,12 +25,9 @@ import {
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-import * as mongoConfig from './config/mongoConfig';
+import { connect as connectToDB } from './config/mongoConfig';
 
-// Use mongoose to connect to MongoDB
-mongoConfig.connectDB(function (err, client) {
-  if (err) log('MONGO ERROR', err);
-});
+connectToDB();
 
 // Load all files in models directory
 fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {

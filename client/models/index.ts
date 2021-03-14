@@ -15,6 +15,7 @@ import MeetTheGreekInterest from './meet_the_greek_interest';
 import ExternalCommunication from './external_communication';
 import Search from './searches';
 import PhoneVerification from './phoneVerification';
+import Notification from './notifications';
 
 export {
   Comment,
@@ -32,4 +33,5 @@ export {
   ExternalCommunication,
   Search,
   PhoneVerification,
+  Notification,
 };

@@ -1,20 +1,31 @@
-var mongoose = require('mongoose');
+import mongoose = require('mongoose');
 const { DB_KEY } = require('../../keys/keys.json');
-import { log } from '../helpers/functions';
 
 const uri = `mongodb+srv://dbUser1:${DB_KEY}@clusteru-xuq4v.mongodb.net/test?retryWrites=true&w=majority`;
+let database: mongoose.Connection;
 
-export function connectDB(callback) {
-  mongoose
-    .connect(uri, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-      useCreateIndex: true,
-    })
-    .then(() => {
-      log('info', 'Connected to Database');
-    })
-    .catch((err) => {
-      log('error', err.message);
-    });
-}
+export const connect = () => {
+  if (database) return;
+
+  mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useFindAndModify: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  });
+
+  database = mongoose.connection;
+
+  database.once('open', () => {
+    console.log('Connected to database');
+  });
+  database.on('error', () => {
+    console.error('Error connecting to database');
+  });
+};
+
+export const disconnect = () => {
+  if (!database) return;
+
+  mongoose.disconnect();
+};
