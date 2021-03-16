@@ -1,5 +1,6 @@
-import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
+import { Types } from 'mongoose';
 
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
@@ -11,6 +12,8 @@ import {
   getUserProfileAndBanner,
   getCommunityProfileAndBanner,
 } from '../interactions/images';
+
+const ObjectIdVal = Types.ObjectId;
 
 export default function imageRoutes(app) {
   app.post(
@@ -128,15 +131,16 @@ export default function imageRoutes(app) {
         [key: string]: any;
       };
     };
-    if (type === 'user') {
-      if (_id === 'user') _id = getUserFromJWT(req)._id;
 
-      packet = await getUserProfileAndBanner(_id as string, {
+    let entityID =
+      _id === 'user' ? getUserFromJWT(req)._id : ObjectIdVal(_id as string);
+    if (type === 'user')
+      packet = await getUserProfileAndBanner(entityID, {
         getProfile: getProfile as boolean | undefined,
         getBanner: getBanner as boolean | undefined,
       });
-    } else if (type === 'community')
-      packet = await getCommunityProfileAndBanner(_id as string, {
+    else if (type === 'community')
+      packet = await getCommunityProfileAndBanner(entityID, {
         getProfile: getProfile as boolean | undefined,
         getBanner: getBanner as boolean | undefined,
       });

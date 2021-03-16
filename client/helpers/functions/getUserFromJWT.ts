@@ -1,4 +1,8 @@
 import jwt = require('jsonwebtoken');
+import { Types } from 'mongoose';
+
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
 /**
  * @description Extracts the user from a valid access token
@@ -8,7 +12,7 @@ import jwt = require('jsonwebtoken');
 export const getUserFromJWT = (
   req
 ): {
-  _id: string;
+  _id: ObjectIdType;
   firstName: string;
   lastName: string;
   email: string;
@@ -20,7 +24,7 @@ export const getUserFromJWT = (
 
   try {
     const user: {
-      _id: string;
+      _id: ObjectIdType;
       firstName: string;
       lastName: string;
       email: string;
@@ -30,7 +34,7 @@ export const getUserFromJWT = (
     return user;
   } catch (err) {
     return {
-      _id: '',
+      _id: ObjectIdVal(''),
       firstName: '',
       lastName: '',
       email: '',

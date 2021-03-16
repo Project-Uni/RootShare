@@ -1,3 +1,18 @@
+import { Types } from 'mongoose';
+
+import {
+  Community,
+  CommunityEdge,
+  Comment,
+  Post,
+  User,
+  Image,
+  IImage,
+  ICommunity,
+  IConnection,
+  ICommunityEdge,
+  IUser,
+} from '../rootshare_db/models';
 import {
   log,
   sendPacket,
@@ -6,21 +21,28 @@ import {
   decodeBase64Image,
   deleteFile,
 } from '../helpers/functions';
-import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
 import { generateSignedProfilePromises } from './utilities';
 
-const mongoose = require('mongoose');
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
 const NUM_POSTS_RETRIEVED = 40;
 
 export async function createBroadcastUserPost(
   message: string,
-  userID: string,
+  userID: ObjectIdType,
   image?: string
 ) {
   try {
-    let post = await new Post({ message, user: userID, type: 'broadcast' }).save();
-    await User.updateOne({ _id: userID }, { $push: { broadcastedPosts: post._id } });
+    let post = await new Post.model({
+      message,
+      user: userID,
+      type: 'broadcast',
+    }).save();
+    await User.model.updateOne(
+      { _id: userID },
+      { $push: { broadcastedPosts: post._id } }
+    );
     await post
       .populate({
         path: 'user',
@@ -38,12 +60,12 @@ export async function createBroadcastUserPost(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne({ _id: post._id }, { $push: { images: imageID } });
       try {
         const imageURL = await retrieveSignedUrl('postImage', fileName);
         post = post.toObject();
-        post.images = [{ fileName: imageURL }];
+        post.images = [{ fileName: imageURL || '' } as IImage];
       } catch (err) {
         log('error', err);
       }
@@ -58,8 +80,8 @@ export async function createBroadcastUserPost(
 }
 
 export async function createInternalCurrentMemberCommunityPost(
-  communityID: string,
-  userID: string,
+  communityID: ObjectIdType,
+  userID: ObjectIdType,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
   message: string,
   image?: string
@@ -78,7 +100,7 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   //Checking if person is a student or admin
-  if (accountType !== 'student' && community.admin.toString() != userID) {
+  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
     log(
       'info',
       `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
@@ -90,7 +112,7 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   try {
-    const raw_post = await new Post({
+    const raw_post = await new Post.model({
       user: userID,
       message,
       toCommunity: communityID,
@@ -107,28 +129,33 @@ export async function createInternalCurrentMemberCommunityPost(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne(
+        { _id: raw_post._id },
+        { $push: { images: imageID } }
+      );
     }
 
-    const post = await Post.findById(raw_post._id)
+    const post = await Post.model
+      .findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
       .exec();
 
     if (post.images && post.images.length > 0) {
       try {
+        post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
           'postImage',
           post.images[0].fileName
         );
-        post.images[0].fileName = imageURL;
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    await Community.updateOne(
+    await Community.model.updateOne(
       { _id: communityID },
       { $push: { internalCurrentMemberPosts: post._id } }
     );
@@ -145,8 +172,8 @@ export async function createInternalCurrentMemberCommunityPost(
 }
 
 export async function createInternalAlumniPost(
-  communityID: string,
-  userID: string,
+  communityID: ObjectIdType,
+  userID: ObjectIdType,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan',
   message: string,
   image?: string
@@ -165,7 +192,7 @@ export async function createInternalAlumniPost(
   }
 
   //Validating that user is allowed to post into alumni code
-  if (accountType === 'student' && community.admin.toString() != userID) {
+  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
     log(
       'info',
       `User ${userID} who is student attempted to post into alumni feed for ${communityID}`
@@ -177,7 +204,7 @@ export async function createInternalAlumniPost(
   }
 
   try {
-    const raw_post = await new Post({
+    const raw_post = await new Post.model({
       user: userID,
       message,
       toCommunity: communityID,
@@ -194,28 +221,33 @@ export async function createInternalAlumniPost(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne(
+        { _id: raw_post._id },
+        { $push: { images: imageID } }
+      );
     }
 
-    const post = await Post.findById(raw_post._id)
+    const post = await Post.model
+      .findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
       .exec();
 
     if (post.images && post.images.length > 0) {
       try {
+        post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
           'postImage',
           post.images[0].fileName
         );
-        post.images[0].fileName = imageURL;
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    await Community.updateOne(
+    await Community.model.updateOne(
       { _id: communityID },
       { $push: { internalAlumniPosts: post._id } }
     );
@@ -234,19 +266,19 @@ export async function createInternalAlumniPost(
 }
 
 export async function createExternalPostAsFollowingCommunityAdmin(
-  userID: string,
-  fromCommunityID: string,
-  toCommunityID: string,
+  userID: ObjectIdType,
+  fromCommunityID: ObjectIdType,
+  toCommunityID: ObjectIdType,
   message: string,
   image?: string
 ) {
   try {
-    const isCommunityAdminPromise = Community.exists({
+    const isCommunityAdminPromise = Community.model.exists({
       _id: fromCommunityID,
       admin: userID,
     });
 
-    const isFollowingPromise = CommunityEdge.exists({
+    const isFollowingPromise = CommunityEdge.model.exists({
       from: fromCommunityID,
       to: toCommunityID,
       accepted: true,
@@ -272,7 +304,7 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           return sendPacket(0, 'Your community is not following this community');
         }
 
-        const raw_post = await new Post({
+        const raw_post = await new Post.model({
           user: userID,
           message,
           toCommunity: toCommunityID,
@@ -293,35 +325,37 @@ export async function createExternalPostAsFollowingCommunityAdmin(
               'Successfully created post, but the image was invalid'
             );
           }
-          const [imageID, fileName] = result;
-          await Post.updateOne(
+          const { imageID, fileName } = result;
+          await Post.model.updateOne(
             { _id: raw_post._id },
             { $push: { images: imageID } }
           );
         }
 
-        const post = await Post.findById(raw_post._id)
+        const post = await Post.model
+          .findById(raw_post._id)
           .populate({ path: 'fromCommunity', select: 'name profilePicture' })
           .populate({ path: 'images', select: 'fileName' })
           .exec();
 
         if (post.images && post.images.length > 0) {
           try {
+            post.images = post.images as IImage[];
             const imageURL = await retrieveSignedUrl(
               'postImage',
               post.images[0].fileName
             );
-            post.images[0].fileName = imageURL;
+            post.images[0].fileName = imageURL || '';
           } catch (err) {
             log('error', err);
           }
         }
 
-        const fromCommunityUpdate = Community.updateOne(
+        const fromCommunityUpdate = Community.model.updateOne(
           { _id: fromCommunityID },
           { $push: { postsToOtherCommunities: post._id } }
         );
-        const toCommunityUpdate = Community.updateOne(
+        const toCommunityUpdate = Community.model.updateOne(
           { _id: toCommunityID },
           { $push: { externalPosts: post._id } }
         );
@@ -353,13 +387,13 @@ export async function createExternalPostAsFollowingCommunityAdmin(
 }
 
 export async function createExternalPostAsCommunityAdmin(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   message: string,
   image?: string
 ) {
   try {
-    const raw_post = await new Post({
+    const raw_post = await new Post.model({
       user: userID,
       message,
       fromCommunity: communityID,
@@ -377,28 +411,33 @@ export async function createExternalPostAsCommunityAdmin(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne(
+        { _id: raw_post._id },
+        { $push: { images: imageID } }
+      );
     }
 
-    const post = await Post.findById(raw_post._id)
+    const post = await Post.model
+      .findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
       .exec();
 
     if (post.images && post.images.length > 0) {
       try {
+        post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
           'postImage',
           post.images[0].fileName
         );
-        post.images[0].fileName = imageURL;
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    await Community.updateOne(
+    await Community.model.updateOne(
       { _id: communityID },
       { $push: { externalPosts: post._id } }
     );
@@ -415,19 +454,19 @@ export async function createExternalPostAsCommunityAdmin(
 }
 
 export async function createExternalPostAsMember(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   message: string,
   image?: string
 ) {
   try {
-    const communityExists = await Community.exists({
+    const communityExists = await Community.model.exists({
       $and: [
         { _id: communityID },
         {
           $or: [
             { private: { $eq: false } },
-            { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } },
+            { members: { $elemMatch: { $eq: userID } } },
           ],
         },
       ],
@@ -438,7 +477,7 @@ export async function createExternalPostAsMember(
         'The community does not exist or the user is not a member of the community'
       );
 
-    const raw_post = await new Post({
+    const raw_post = await new Post.model({
       user: userID,
       message,
       toCommunity: communityID,
@@ -454,11 +493,15 @@ export async function createExternalPostAsMember(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne(
+        { _id: raw_post._id },
+        { $push: { images: imageID } }
+      );
     }
 
-    const post = await Post.findById(raw_post._id)
+    const post = await Post.model
+      .findById(raw_post._id)
       .populate({
         path: 'user',
         select:
@@ -469,17 +512,18 @@ export async function createExternalPostAsMember(
 
     if (post.images && post.images.length > 0) {
       try {
+        post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
           'postImage',
           post.images[0].fileName
         );
-        post.images[0].fileName = imageURL;
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    await Community.updateOne(
+    await Community.model.updateOne(
       { _id: communityID },
       { $push: { externalPosts: post._id } }
     );
@@ -496,13 +540,13 @@ export async function createExternalPostAsMember(
 }
 
 export async function createBroadcastCommunityPost(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   message: string,
   image?: string
 ) {
   try {
-    const raw_post = await new Post({
+    const raw_post = await new Post.model({
       user: userID,
       message,
       fromCommunity: communityID,
@@ -519,11 +563,15 @@ export async function createBroadcastCommunityPost(
         );
         return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const [imageID, fileName] = result;
-      await Post.updateOne({ _id: raw_post._id }, { $push: { images: imageID } });
+      const { imageID, fileName } = result;
+      await Post.model.updateOne(
+        { _id: raw_post._id },
+        { $push: { images: imageID } }
+      );
     }
 
-    const post = await Post.findById(raw_post._id)
+    const post = await Post.model
+      .findById(raw_post._id)
       .populate({ path: 'fromCommunity', select: 'name profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
       .populate({
@@ -532,6 +580,7 @@ export async function createBroadcastCommunityPost(
       })
       .exec();
 
+    post.fromCommunity = post.fromCommunity as ICommunity;
     const communityProfilePicture = post.fromCommunity.profilePicture
       ? await retrieveSignedUrl(
           'communityProfile',
@@ -539,21 +588,22 @@ export async function createBroadcastCommunityPost(
         )
       : undefined;
 
-    post.fromCommunity.profilePicture = communityProfilePicture;
+    post.fromCommunity.profilePicture = communityProfilePicture || '';
 
     if (post.images && post.images.length > 0) {
       try {
+        post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
           'postImage',
           post.images[0].fileName
         );
-        post.images[0].fileName = imageURL;
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    await Community.updateOne(
+    await Community.model.updateOne(
       { _id: communityID },
       { $push: { broadcastedPosts: post._id } }
     );
@@ -568,12 +618,10 @@ export async function createBroadcastCommunityPost(
 
 // GETTERS
 
-export async function getGeneralFeed(userID: string = '') {
+export async function getGeneralFeed(userID: ObjectIdType) {
   try {
-    const { university: universityID } = await User.findOne(
-      { _id: userID },
-      'university'
-    )
+    const { university: universityID } = await User.model
+      .findOne({ _id: userID }, 'university')
       .lean()
       .exec();
     const condition = {
@@ -591,11 +639,12 @@ export async function getGeneralFeed(userID: string = '') {
   }
 }
 
-export async function getFollowingFeed(userID: string) {
+export async function getFollowingFeed(userID: ObjectIdType) {
   const numSkipped = 0;
   try {
     //Get users connections, communities, and all communities that those communities are following
-    const user = await User.findById(userID)
+    const user = await User.model
+      .findById(userID)
       .select(['joinedCommunities', 'connections', 'accountType'])
       .populate({ path: 'connections', select: 'from to' })
       .populate({
@@ -609,8 +658,11 @@ export async function getFollowingFeed(userID: string) {
       .exec();
     if (!user) return sendPacket(0, 'No user found with this ID');
 
-    const connections = extractOtherUserFromConnections(user.connections, userID);
-    const joinedCommunities = user.joinedCommunities.map(
+    const connections = extractOtherUserFromConnections(
+      user.connections as IConnection[],
+      userID
+    );
+    const joinedCommunities = (user.joinedCommunities as ICommunity[]).map(
       (community) => community._id
     );
     const followingCommunities = [];
@@ -637,9 +689,15 @@ export async function getFollowingFeed(userID: string) {
   }
 }
 
-export async function getPostsByUser(userID: string, currUserID: string) {
+export async function getPostsByUser(
+  userID: ObjectIdType,
+  currUserID: ObjectIdType
+) {
   try {
-    const user = await User.findById(userID).select(['broadcastedPosts']).exec();
+    const user = await User.model
+      .findById(userID)
+      .select(['broadcastedPosts'])
+      .exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
     const condition = { _id: { $in: user.broadcastedPosts } };
@@ -655,8 +713,8 @@ export async function getPostsByUser(userID: string, currUserID: string) {
 }
 
 export async function leaveCommentOnPost(
-  userID: string,
-  postID: string,
+  userID: ObjectIdType,
+  postID: ObjectIdType,
   message: string
 ) {
   const cleanedMessage = message.trim();
@@ -664,15 +722,15 @@ export async function leaveCommentOnPost(
     return sendPacket(0, 'Message is empty');
   }
   try {
-    const userExistsPromise = await User.exists({ _id: userID });
-    const postExistsPromise = await Post.exists({ _id: postID });
+    const userExistsPromise = await User.model.exists({ _id: userID });
+    const postExistsPromise = await Post.model.exists({ _id: postID });
 
     return Promise.all([userExistsPromise, postExistsPromise])
       .then(async ([userExists, postExists]) => {
         if (!userExists) return sendPacket(0, 'Invalid userID provided');
         if (!postExists) return sendPacket(0, 'Invalid PostID provided');
 
-        const comment = await new Comment({
+        const comment = await new Comment.model({
           user: userID,
           message: cleanedMessage,
           post: postID,
@@ -685,10 +743,9 @@ export async function leaveCommentOnPost(
           })
           .execPopulate();
 
-        await Post.updateOne(
-          { _id: postID },
-          { $push: { comments: comment._id } }
-        ).exec();
+        await Post.model
+          .updateOne({ _id: postID }, { $push: { comments: comment._id } })
+          .exec();
 
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
           comment,
@@ -705,8 +762,8 @@ export async function leaveCommentOnPost(
 }
 
 export async function getInternalCurrentMemberPosts(
-  communityID: string,
-  userID: string,
+  communityID: ObjectIdType,
+  userID: ObjectIdType,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan'
 ) {
   //Validate that community exists with user as member
@@ -723,7 +780,7 @@ export async function getInternalCurrentMemberPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType !== 'student' && community.admin.toString() != userID) {
+  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
     log(
       'info',
       `User ${userID} who is not a student attempted to retrieve current member feed for ${communityID}`
@@ -748,8 +805,8 @@ export async function getInternalCurrentMemberPosts(
 }
 
 export async function getInternalAlumniPosts(
-  communityID: string,
-  userID: string,
+  communityID: ObjectIdType,
+  userID: ObjectIdType,
   accountType: 'student' | 'alumni' | 'faculty' | 'fan'
 ) {
   //Validate that community exists with user as member
@@ -767,7 +824,7 @@ export async function getInternalAlumniPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType === 'student' && community.admin.toString() != userID) {
+  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
     log(
       'info',
       `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`
@@ -788,13 +845,19 @@ export async function getInternalAlumniPosts(
   }
 }
 
-export async function getExternalPosts(communityID: string, userID: string) {
+export async function getExternalPosts(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const user = await User.findById(userID).select(['joinedCommunities']).exec();
+    const user = await User.model
+      .findById(userID)
+      .select(['joinedCommunities'])
+      .exec();
     if (!user) return sendPacket(0, 'Could not find user');
 
     // user is a member of the community itself
-    if (user.joinedCommunities.indexOf(communityID) !== -1)
+    if ((user.joinedCommunities as ObjectIdType[]).indexOf(communityID) !== -1)
       return getExternalPostsMember_Helper(communityID, userID);
 
     // user is a member of one of the communities that is following this community
@@ -806,11 +869,12 @@ export async function getExternalPosts(communityID: string, userID: string) {
 }
 
 export async function getFollowingCommunityPosts(
-  communityID: string,
-  userID: string
+  communityID: ObjectIdType,
+  userID: ObjectIdType
 ) {
   try {
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select(['followingCommunities'])
       .populate({
         path: 'followingCommunities',
@@ -824,7 +888,10 @@ export async function getFollowingCommunityPosts(
     const postIDs = [];
 
     for (let i = 0; i < community.followingCommunities.length; i++) {
-      postIDs.push(...community.followingCommunities[i].to.externalPosts);
+      postIDs.push(
+        ...((community.followingCommunities[i] as ICommunityEdge).to as ICommunity)
+          .externalPosts
+      );
     }
 
     const condition = { _id: { $in: postIDs } };
@@ -840,24 +907,22 @@ export async function getFollowingCommunityPosts(
 }
 
 //Actions
-export async function likePost(postID: string, userID: string) {
+export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
   try {
-    const postExistsPromise = Post.exists({ _id: postID });
-    const userExistsPromise = User.exists({ _id: userID });
+    const postExistsPromise = Post.model.exists({ _id: postID });
+    const userExistsPromise = User.model.exists({ _id: userID });
 
     return Promise.all([postExistsPromise, userExistsPromise]).then(
       ([postExists, userExists]) => {
         if (!postExists) return sendPacket(0, 'Post does not exist');
         if (!userExists) return sendPacket(0, 'User does not exist');
 
-        const postUpdate = Post.updateOne(
-          { _id: postID },
-          { $addToSet: { likes: userID } }
-        ).exec();
-        const userUpdate = User.updateOne(
-          { _id: userID },
-          { $addToSet: { likes: postID } }
-        ).exec();
+        const postUpdate = Post.model
+          .updateOne({ _id: postID }, { $addToSet: { likes: userID } })
+          .exec();
+        const userUpdate = User.model
+          .updateOne({ _id: userID }, { $addToSet: { likes: postID } })
+          .exec();
 
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log('info', `User ${userID} successfully liked post ${postID}`);
@@ -873,24 +938,22 @@ export async function likePost(postID: string, userID: string) {
   }
 }
 
-export async function unlikePost(postID: string, userID: string) {
+export async function unlikePost(postID: ObjectIdType, userID: ObjectIdType) {
   try {
-    const postExistsPromise = Post.exists({ _id: postID });
-    const userExistsPromise = User.exists({ _id: userID });
+    const postExistsPromise = Post.model.exists({ _id: postID });
+    const userExistsPromise = User.model.exists({ _id: userID });
 
     return Promise.all([postExistsPromise, userExistsPromise]).then(
       ([postExists, userExists]) => {
         if (!postExists) return sendPacket(0, 'Post does not exist');
         if (!userExists) return sendPacket(0, 'User does not exist');
 
-        const postUpdate = Post.updateOne(
-          { _id: postID },
-          { $pull: { likes: userID } }
-        ).exec();
-        const userUpdate = User.updateOne(
-          { _id: userID },
-          { $pull: { likes: postID } }
-        ).exec();
+        const postUpdate = Post.model
+          .updateOne({ _id: postID }, { $pull: { likes: userID } })
+          .exec();
+        const userUpdate = User.model
+          .updateOne({ _id: userID }, { $pull: { likes: postID } })
+          .exec();
 
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log(
@@ -909,16 +972,17 @@ export async function unlikePost(postID: string, userID: string) {
   }
 }
 
-export async function getLikes(postID: string, userID: string) {
+export async function getLikes(postID: ObjectIdType, userID: ObjectIdType) {
   try {
-    const post = await Post.findById(postID)
+    const post = await Post.model
+      .findById(postID)
       .select('likes')
       .populate({ path: 'likes', select: 'firstName lastName profilePicture' })
       .exec();
 
     if (!post) return sendPacket(0, 'Could not find post');
 
-    const { likes } = post;
+    const { likes } = post as { likes: IUser[] };
     const signedImagePromises = generateSignedProfilePromises(likes, 'profile');
 
     return Promise.all(signedImagePromises)
@@ -947,13 +1011,14 @@ export async function getLikes(postID: string, userID: string) {
 
 //REMOVERS
 
-export async function deletePost(postID: string, userID: string) {
+export async function deletePost(postID: ObjectIdType, userID: ObjectIdType) {
   try {
-    const postExists = await Post.exists({ _id: postID, user: userID });
+    const postExists = await Post.model.exists({ _id: postID, user: userID });
     if (!postExists)
       return sendPacket(0, 'Post does not exist or user did not create post');
 
-    const post = await Post.findById(postID)
+    const post = await Post.model
+      .findById(postID)
       .select(['comments', 'toCommunity', 'fromCommunity', 'type', 'images'])
       .populate({ path: 'images', select: 'fileName' })
       .exec();
@@ -961,68 +1026,77 @@ export async function deletePost(postID: string, userID: string) {
     //Actions:
     //1 - Delete Comments
     const promises = [];
-    const commentDeletion = Comment.deleteMany({
-      _id: { $in: post.comments },
-    }).exec();
+    const commentDeletion = Comment.model
+      .deleteMany({
+        _id: { $in: post.comments },
+      })
+      .exec();
     promises.push(commentDeletion);
     //2 - Pull post from user if broadcast
     if (post.type === 'broadcast') {
       if (!post.fromCommunity) {
-        const userPromise = User.updateOne(
-          { _id: userID },
-          { $pull: { broadcastedPosts: postID } }
-        ).exec();
+        const userPromise = User.model
+          .updateOne({ _id: userID }, { $pull: { broadcastedPosts: postID } })
+          .exec();
         promises.push(userPromise);
       } else {
-        const communityPromise = Community.updateOne(
-          { _id: post.fromCommunity },
-          { $pull: { broadcastedPosts: postID } }
-        ).exec();
+        const communityPromise = Community.model
+          .updateOne(
+            { _id: post.fromCommunity },
+            { $pull: { broadcastedPosts: postID } }
+          )
+          .exec();
         promises.push(communityPromise);
       }
     }
     //3 - Pull post from community based on relations
     else if (post.type === 'external') {
-      const toCommunityPromise = Community.updateOne(
-        { _id: post.toCommunity },
-        { $pull: { externalPosts: postID } }
-      ).exec();
+      const toCommunityPromise = Community.model
+        .updateOne({ _id: post.toCommunity }, { $pull: { externalPosts: postID } })
+        .exec();
       promises.push(toCommunityPromise);
       if (post.fromCommunity !== post.toCommunity) {
-        const fromCommunityPromise = Community.updateOne(
-          { _id: post.fromCommunity },
-          { $pull: { postsToOtherCommunities: postID } }
-        ).exec();
+        const fromCommunityPromise = Community.model
+          .updateOne(
+            { _id: post.fromCommunity },
+            { $pull: { postsToOtherCommunities: postID } }
+          )
+          .exec();
         promises.push(fromCommunityPromise);
       }
     } else if (post.type === 'internalCurrent') {
-      const communityPromise = Community.updateOne(
-        { _id: post.toCommunity },
-        { $pull: { internalCurrentMemberPosts: postID } }
-      ).exec();
+      const communityPromise = Community.model
+        .updateOne(
+          { _id: post.toCommunity },
+          { $pull: { internalCurrentMemberPosts: postID } }
+        )
+        .exec();
       promises.push(communityPromise);
     } else {
       //post.type === 'internalAlumni'
-      const communityPromise = Community.updateOne(
-        { _id: post.toCommunity },
-        { $pull: { internalAlumniPosts: postID } }
-      ).exec();
+      const communityPromise = Community.model
+        .updateOne(
+          { _id: post.toCommunity },
+          { $pull: { internalAlumniPosts: postID } }
+        )
+        .exec();
       promises.push(communityPromise);
     }
 
     //4 - Delete images
     if (post.images && post.images.length > 0) {
+      post.images = post.images as IImage[];
       const imageIDs = post.images.map((image) => image._id);
       const imageS3Promises = post.images.map((image) =>
         deleteFile('postImage', image.fileName)
       );
-      const imageDBPromise = Image.deleteMany({ _id: { $in: imageIDs } }).exec;
+      const imageDBPromise = Image.model.deleteMany({ _id: { $in: imageIDs } }).exec;
 
       promises.push(imageDBPromise);
       promises.push(...imageS3Promises);
     }
     //5 - Delete post
-    const postPromise = Post.deleteOne({ _id: postID }).exec();
+    const postPromise = Post.model.deleteOne({ _id: postID }).exec();
     promises.push(postPromise);
 
     return Promise.all([promises]).then((values) => {
@@ -1037,15 +1111,17 @@ export async function deletePost(postID: string, userID: string) {
 
 //HELPERS
 async function getValidatedCommunity(
-  communityID: string,
-  userID: string,
+  communityID: ObjectIdType,
+  userID: ObjectIdType,
   retrievedFields: string[]
 ) {
   try {
-    const community = await Community.findOne({
-      _id: communityID,
-      members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
-    }).select(retrievedFields);
+    const community = await Community.model
+      .findOne({
+        _id: communityID,
+        members: { $elemMatch: { $eq: userID } },
+      })
+      .select(retrievedFields);
 
     if (!community) {
       return false;
@@ -1060,7 +1136,7 @@ async function getValidatedCommunity(
 function generatePostSignedImagePromises(
   posts: {
     [key: string]: any;
-    _id: string;
+    _id: ObjectIdType;
     user: { [key: string]: any; profilePicture?: string };
     images: [{ fileName: string }];
   },
@@ -1101,11 +1177,11 @@ function generatePostSignedImagePromises(
 }
 
 export async function retrieveComments(
-  postID: string,
+  postID: ObjectIdType,
   startingTimestamp: Date = new Date()
 ) {
   try {
-    const post = await Post.findOne({ _id: postID }, ['comments']).exec();
+    const post = await Post.model.findOne({ _id: postID }, ['comments']).exec();
 
     if (!post) return sendPacket(0, 'Post not found');
 
@@ -1118,38 +1194,40 @@ export async function retrieveComments(
       ],
     };
 
-    const comments = await Comment.aggregate([
-      { $match: conditions },
-      { $sort: { createdAt: -1 } },
-      { $limit: 10 },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'user',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          message: '$message',
-          likes: { $size: '$likes' },
-          createdAt: '$createdAt',
-          updatedAt: '$updatedAt',
-          user: {
-            _id: '$user._id',
-            firstName: '$user.firstName',
-            lastName: '$user.lastName',
-            profilePicture: '$user.profilePicture',
-            major: '$user.major',
-            graduationYear: '$user.graduationYear',
-            work: '$user.work',
-            position: '$user.position',
+    const comments = await Comment.model
+      .aggregate([
+        { $match: conditions },
+        { $sort: { createdAt: -1 } },
+        { $limit: 10 },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user',
           },
         },
-      },
-    ]).exec();
+        { $unwind: '$user' },
+        {
+          $project: {
+            message: '$message',
+            likes: { $size: '$likes' },
+            createdAt: '$createdAt',
+            updatedAt: '$updatedAt',
+            user: {
+              _id: '$user._id',
+              firstName: '$user.firstName',
+              lastName: '$user.lastName',
+              profilePicture: '$user.profilePicture',
+              major: '$user.major',
+              graduationYear: '$user.graduationYear',
+              work: '$user.work',
+              position: '$user.position',
+            },
+          },
+        },
+      ])
+      .exec();
 
     const imagePromises = generatePostSignedImagePromises(comments);
 
@@ -1183,97 +1261,99 @@ export async function retrieveComments(
 async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
-  userID: string,
+  userID: ObjectIdType,
   numSkipped: number = 0, //Used when we're loading more, we can just update this count to get the next previous
   //TODO - Also possibly, start with the time of final post, ie {$le: {createdAt: timeOfLastElemement_FromPrevRetrieve}}
   withProfileImage: boolean = true
 ) {
-  const posts = await Post.aggregate([
-    { $match: condition },
-    { $sort: { createdAt: -1 } },
-    { $skip: numSkipped },
-    { $limit: numRetrieved },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'user',
-        foreignField: '_id',
-        as: 'user',
+  const posts = await Post.model
+    .aggregate([
+      { $match: condition },
+      { $sort: { createdAt: -1 } },
+      { $skip: numSkipped },
+      { $limit: numRetrieved },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: 'communities',
-        localField: 'fromCommunity',
-        foreignField: '_id',
-        as: 'fromCommunity',
+      {
+        $lookup: {
+          from: 'communities',
+          localField: 'fromCommunity',
+          foreignField: '_id',
+          as: 'fromCommunity',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: 'communities',
-        localField: 'toCommunity',
-        foreignField: '_id',
-        as: 'toCommunity',
+      {
+        $lookup: {
+          from: 'communities',
+          localField: 'toCommunity',
+          foreignField: '_id',
+          as: 'toCommunity',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: 'images',
-        localField: 'images',
-        foreignField: '_id',
-        as: 'images',
+      {
+        $lookup: {
+          from: 'images',
+          localField: 'images',
+          foreignField: '_id',
+          as: 'images',
+        },
       },
-    },
-    { $unwind: '$user' },
-    { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
-    { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        message: '$message',
-        likes: { $size: '$likes' },
-        comments: {
-          $size: { $ifNull: ['$comments', []] },
-        },
-        createdAt: '$createdAt',
-        updatedAt: '$updatedAt',
-        type: '$type',
-        anonymous: '$anonymous',
-        user: {
-          _id: '$user._id',
-          firstName: '$user.firstName',
-          lastName: '$user.lastName',
-          profilePicture: '$user.profilePicture',
-          major: '$user.major',
-          graduationYear: '$user.graduationYear',
-          work: '$user.work',
-          position: '$user.position',
-        },
-        toCommunity: {
-          _id: '$toCommunity._id',
-          name: '$toCommunity.name',
-          profilePicture: '$toCommunity.profilePicture',
-        },
-        fromCommunity: {
-          _id: '$fromCommunity._id',
-          name: '$fromCommunity.name',
-          profilePicture: '$fromCommunity.profilePicture',
-        },
-        liked: {
-          $in: [mongoose.Types.ObjectId(userID), '$likes'],
-        },
-        images: {
-          $map: {
-            input: '$images',
-            as: 'image',
-            in: {
-              fileName: '$$image.fileName',
+      { $unwind: '$user' },
+      { $unwind: { path: '$fromCommunity', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$toCommunity', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          message: '$message',
+          likes: { $size: '$likes' },
+          comments: {
+            $size: { $ifNull: ['$comments', []] },
+          },
+          createdAt: '$createdAt',
+          updatedAt: '$updatedAt',
+          type: '$type',
+          anonymous: '$anonymous',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            profilePicture: '$user.profilePicture',
+            major: '$user.major',
+            graduationYear: '$user.graduationYear',
+            work: '$user.work',
+            position: '$user.position',
+          },
+          toCommunity: {
+            _id: '$toCommunity._id',
+            name: '$toCommunity.name',
+            profilePicture: '$toCommunity.profilePicture',
+          },
+          fromCommunity: {
+            _id: '$fromCommunity._id',
+            name: '$fromCommunity.name',
+            profilePicture: '$fromCommunity.profilePicture',
+          },
+          liked: {
+            $in: [ObjectIdVal(userID.toString()), '$likes'],
+          },
+          images: {
+            $map: {
+              input: '$images',
+              as: 'image',
+              in: {
+                fileName: '$$image.fileName',
+              },
             },
           },
         },
       },
-    },
-  ]).exec();
+    ])
+    .exec();
 
   if (!withProfileImage) return posts;
 
@@ -1302,15 +1382,23 @@ async function retrievePosts(
     });
 }
 
-async function getExternalPostsMember_Helper(communityID: string, userID: string) {
+async function getExternalPostsMember_Helper(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select(['externalPosts', 'broadcastedPosts'])
       .exec();
     if (!community) return sendPacket(0, 'Community does not exist');
 
     const condition = {
-      _id: { $in: community.externalPosts.concat(community.broadcastedPosts) },
+      _id: {
+        $in: (community.externalPosts as ObjectIdType[]).concat(
+          community.broadcastedPosts as ObjectIdType[]
+        ),
+      },
     };
 
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, userID);
@@ -1324,11 +1412,12 @@ async function getExternalPostsMember_Helper(communityID: string, userID: string
 }
 
 async function getExternalPostsNonMember_Helper(
-  communityID: string,
+  communityID: ObjectIdType,
   user: { [key: string]: any; joinedCommunities }
 ) {
   try {
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select('followedByCommunities private externalPosts')
       .populate({ path: 'followedByCommunities', select: 'from' })
       .exec();
@@ -1336,7 +1425,7 @@ async function getExternalPostsNonMember_Helper(
     if (!community) return sendPacket(0, 'Community does not exist');
 
     if (community.private) {
-      const followedByCommunities = community.followedByCommunities.map(
+      const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
         (community) => community.from.toString()
       );
       const communityIntersections = user.joinedCommunities.filter((community) =>
@@ -1358,21 +1447,21 @@ async function getExternalPostsNonMember_Helper(
 }
 
 function extractOtherUserFromConnections(
-  connections: { [key: string]: any; from: string; to: string }[],
-  userID: string
+  connections: IConnection[],
+  userID: ObjectIdType
 ) {
-  const output = connections.map((connection) => {
-    return connection.from.toString() != userID ? connection.from : connection.to;
-  });
-
-  return output;
+  return connections.map((connection) =>
+    connection.from.toString() !== userID.toString()
+      ? (connection.from as ObjectIdType)
+      : (connection.to as ObjectIdType)
+  );
 }
 
 function getFollowingFeedConditions(
   user: { [key: string]: any; accountType: string },
-  connections: string[],
-  joinedCommunities: string[],
-  followingCommunities: string[]
+  connections: ObjectIdType[],
+  joinedCommunities: ObjectIdType[],
+  followingCommunities: ObjectIdType[]
 ) {
   // retrieve all posts from these groups. Sort by timestamp.
   const conditions = [];
@@ -1458,7 +1547,11 @@ function getFollowingFeedConditions(
   return finalConditions;
 }
 
-async function uploadPostImage(image: string, postID: string, userID: string) {
+async function uploadPostImage(
+  image: string,
+  postID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
     const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
     if (!imageBuffer.data) return -1;
@@ -1468,12 +1561,12 @@ async function uploadPostImage(image: string, postID: string, userID: string) {
     const success = await uploadFile('postImage', fileName, imageBuffer.data);
     if (!success) return -1;
 
-    const imageObj = await new Image({
+    const imageObj = await new Image.model({
       user: userID,
       post: postID,
       fileName,
     }).save();
-    return [imageObj._id, fileName];
+    return { imageID: imageObj._id, fileName };
   } catch (err) {
     log('error', err);
     return -1;

@@ -1,8 +1,7 @@
-import { getUserFromJWT, log, makeRequest } from '../helpers/functions';
+import { User } from '../rootshare_db/models';
+import { getUserFromJWT, log, makeRequest, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import sendPacket from '../../webinar/helpers/sendPacket';
 import { isEventHost } from './middleware/eventAuthentication';
-import { User } from '../models';
 
 export default function proxyRoutes(app) {
   app.get(
@@ -29,7 +28,7 @@ export default function proxyRoutes(app) {
         return res.json(data);
       }
 
-      User.find(
+      User.model.find(
         { _id: { $in: data['content']['activeUserIDs'] } },
         ['_id', 'firstName', 'lastName', 'email'],
         (err, users) => {

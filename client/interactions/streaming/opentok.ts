@@ -1,7 +1,10 @@
 const OpenTok = require('opentok');
-import { Webinar } from '../../models';
-import axios from 'axios';
 const jwt = require('njwt');
+import axios from 'axios';
+import { Types } from 'mongoose';
+
+import { Webinar } from '../../rootshare_db/models';
+import { log, sendPacket } from '../../helpers/functions';
 
 const {
   OPENTOK_API_KEY,
@@ -13,10 +16,10 @@ const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
 const BASE_64_MUX = IN_DEV ? DEV_BASE_64_MUX : PROD_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 
-import { log, sendPacket } from '../../helpers/functions';
+type ObjectIdType = Types.ObjectId;
 
 module.exports = {
-  createNewOpenTokSession: (webinar, callback) => {
+  createNewOpenTokSession: (webinar: any, callback) => {
     if (!webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
 
     if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000)
@@ -48,8 +51,8 @@ module.exports = {
   },
 
   // Retrive Session ID from DB
-  getOpenTokSessionID: async (webinarID, callback) => {
-    Webinar.findById(webinarID, (err, webinar) => {
+  getOpenTokSessionID: async (webinarID: ObjectIdType, callback) => {
+    Webinar.model.findById(webinarID, (err, webinar) => {
       if (err) return callback(sendPacket(-1, err));
       if (!webinar)
         return callback(sendPacket(-1, 'Could not send OpenTok SessionID'));
@@ -67,7 +70,7 @@ module.exports = {
   },
 
   // Generate Token for each Publisher/Host client
-  getOpenTokToken: async (sessionID) => {
+  getOpenTokToken: async (sessionID: string) => {
     let token = await opentok.generateToken(sessionID, {
       //TODO - Deliver moderator to host, publisher to remaining
       role: 'moderator',
@@ -77,8 +80,8 @@ module.exports = {
     return sendPacket(1, 'Sending Token', { token });
   },
 
-  getMuxPlaybackID: async (webinarID) => {
-    const currWebinar = await Webinar.findById(webinarID);
+  getMuxPlaybackID: async (webinarID: ObjectIdType) => {
+    const currWebinar = await Webinar.model.findById(webinarID);
 
     if (!currWebinar) {
       return sendPacket(-1, 'No Webinar exists with this ID');
@@ -94,8 +97,8 @@ module.exports = {
     return sendPacket(1, 'Sending Mux Playback ID', { muxPlaybackID });
   },
 
-  stopStreaming: async (webinarID) => {
-    let currWebinar = await Webinar.findById(webinarID);
+  stopStreaming: async (webinarID: ObjectIdType) => {
+    let currWebinar = await Webinar.model.findById(webinarID);
     if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     const { opentokBroadcastID } = currWebinar;
@@ -131,10 +134,10 @@ module.exports = {
     // Mux Live Stream will go IDLE after reconnect window ends (60 seconds)
   },
 
-  startStreaming: async (webinarID) => {
+  startStreaming: async (webinarID: ObjectIdType) => {
     await module.exports.stopStreaming(webinarID);
 
-    const webinar = await Webinar.findById(webinarID);
+    const webinar = await Webinar.model.findById(webinarID);
     if (!webinar) return sendPacket(-1, 'Could not get session ID');
 
     const opentokSessionID = webinar.opentokSessionID;
@@ -154,7 +157,7 @@ module.exports = {
     }
     const { opentokBroadcastID } = broadcastPacket.content;
 
-    let currWebinar = await Webinar.findById(webinarID);
+    let currWebinar = await Webinar.model.findById(webinarID);
     if (!currWebinar) return sendPacket(-1, 'Could not find webinar');
 
     currWebinar.muxStreamKey = muxStreamKey;
@@ -205,7 +208,7 @@ module.exports = {
     }
   },
 
-  createOpenTokStream: async (sessionID, muxStreamKey) => {
+  createOpenTokStream: async (sessionID: string, muxStreamKey: string) => {
     let opentokBroadcastID;
     const JWT = module.exports.createOpenTokJWT();
     const options = {
@@ -260,13 +263,18 @@ module.exports = {
     return jwt.create(claims, OPENTOK_API_SECRET).compact();
   },
 
-  changeBroadcastLayout: (webinarID, type, streamID, callback) => {
+  changeBroadcastLayout: (
+    webinarID: ObjectIdType,
+    type: 'bestFit' | 'horizontalPresentation',
+    streamID: string,
+    callback
+  ) => {
     let layoutClass;
     if (type === 'bestFit') layoutClass = 'full';
     else if (type === 'horizontalPresentation') layoutClass = 'focus';
     else return callback(sendPacket(-1, 'Invalid Layout Type'));
 
-    Webinar.findById(webinarID, (err, currWebinar) => {
+    Webinar.model.findById(webinarID, (err, currWebinar) => {
       if (err) return callback(sendPacket(-1, err));
       if (!currWebinar) {
         log('ERROR', 'Cannot find current Webinar');

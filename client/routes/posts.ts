@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
@@ -32,6 +34,8 @@ import {
   deletePost,
 } from '../interactions/posts';
 import { getQueryParams } from '../helpers/functions/getQueryParams';
+
+const ObjectIdVal = Types.ObjectId;
 
 export default function postsRoutes(app) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
@@ -298,9 +302,10 @@ export default function postsRoutes(app) {
     if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
     const { action, postID } = query;
 
-    if (action === 'like') return res.json(await likePost(postID as string, userID));
+    if (action === 'like')
+      return res.json(await likePost(ObjectIdVal(postID as string), userID));
     else if (action === 'unlike')
-      return res.json(await unlikePost(postID as string, userID));
+      return res.json(await unlikePost(ObjectIdVal(postID as string), userID));
 
     return res.json(
       sendPacket(0, 'action (like, unlike) missing from query params')

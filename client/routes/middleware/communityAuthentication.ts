@@ -1,5 +1,5 @@
 import { getUserFromJWT, log, sendPacket } from '../../helpers/functions';
-import { Community } from '../../models';
+import { Community } from '../../rootshare_db/models';
 
 const mongoose = require('mongoose');
 
@@ -7,7 +7,7 @@ export async function isCommunityAdmin(req, res, next) {
   const { communityID } = req.params;
   const user = getUserFromJWT(req);
   try {
-    const community = await Community.findById(communityID);
+    const community = await Community.model.findById(communityID);
     if (!community.admin.equals(user._id)) {
       log(
         'info',
@@ -29,7 +29,7 @@ export async function isCommunityMember(req, res, next) {
   const { communityID } = req.params;
   const { _id: userID } = getUserFromJWT(req);
 
-  const isMember = await Community.exists(
+  const isMember = await Community.model.exists(
     { _id: communityID },
     { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } }
   );

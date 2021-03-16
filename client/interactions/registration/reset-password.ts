@@ -1,12 +1,7 @@
-import { User } from '../../models';
-
 const Cryptr = require('cryptr');
-const { CRYPT_SECRET } = require('../../../keys/keys.json');
-const cryptr = new Cryptr(CRYPT_SECRET);
-
 const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
 
+import { User } from '../../rootshare_db/models';
 import {
   log,
   sendPacket,
@@ -15,13 +10,17 @@ import {
   convertTokenToEmail,
 } from '../../helpers/functions';
 
+const { CRYPT_SECRET } = require('../../../keys/keys.json');
+const cryptr = new Cryptr(CRYPT_SECRET);
+
+aws.config.loadFromPath('../keys/aws_key.json');
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-export function updatePassword(emailToken, newPassword, callback) {
+export function updatePassword(emailToken: string, newPassword: string, callback) {
   let emailAddress = convertTokenToEmail(emailToken);
-  User.findOne({ email: emailAddress }, (err, currUser) => {
+  User.model.findOne({ email: emailAddress }, (err, currUser) => {
     if (err) return callback(-1, err);
     if (!currUser) return callback(sendPacket(0, 'User code invalid'));
 
@@ -33,7 +32,7 @@ export function updatePassword(emailToken, newPassword, callback) {
   });
 }
 
-export function sendPasswordResetLink(emailAddress, callback) {
+export function sendPasswordResetLink(emailAddress: string, callback) {
   emailIsValid(emailAddress, (valid) => {
     if (!valid)
       return callback(sendPacket(0, "Can't reset password for this email"));
@@ -66,8 +65,8 @@ export function sendPasswordResetLink(emailAddress, callback) {
   });
 }
 
-export function emailIsValid(emailAddress, callback) {
-  User.findOne({ email: emailAddress }, ['hashedPassword'], (err, user) => {
+export function emailIsValid(emailAddress: string, callback) {
+  User.model.findOne({ email: emailAddress }, ['hashedPassword'], (err, user) => {
     return callback(
       !err &&
         user !== undefined &&

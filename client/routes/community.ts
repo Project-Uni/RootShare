@@ -1,4 +1,6 @@
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
+import { Types } from 'mongoose';
+
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
@@ -32,9 +34,8 @@ import {
   //generics
   getCommunitiesGeneric,
 } from '../interactions/community';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
-import { stringify } from 'querystring';
-import { send } from 'process';
+
+const ObjectIdVal = Types.ObjectId;
 
 /**
  *
@@ -576,11 +577,14 @@ export default function communityRoutes(app) {
       let { action, communityID } = query;
       (action = action as string), (communityID = communityID as string);
 
-      if (action === 'join') res.json(await joinCommunity(communityID, userID));
+      if (action === 'join')
+        res.json(await joinCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'leave')
-        res.json(await leaveCommunity(communityID, userID));
+        res.json(await leaveCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'cancel')
-        res.json(await cancelCommunityPendingRequest(communityID, userID));
+        res.json(
+          await cancelCommunityPendingRequest(ObjectIdVal(communityID), userID)
+        );
       else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );

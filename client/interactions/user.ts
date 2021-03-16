@@ -1,12 +1,15 @@
-const mongoose = require('mongoose');
-import { User, Connection, Webinar } from '../models';
-import {
-  AcceptedFields as AcceptedUserFields,
-  getUsersByIDs,
-  GetUsersByIDsOptions,
-} from '../models/users';
+import { Types } from 'mongoose';
 
+import {
+  User,
+  Connection,
+  Webinar,
+  IConnection,
+  ICommunity,
+} from '../rootshare_db/models';
+import { GetUsersByIDsOptions } from '../rootshare_db/models/users';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { U2UR, U2CR } from '../helpers/types';
 import {
   addCalculatedUserFields,
   getUserToUserRelationship,
@@ -18,9 +21,11 @@ import {
   addProfilePicturesAll,
   addProfilePicturesToRequests,
 } from './utilities';
-import { U2UR, U2CR } from '../helpers/types';
 
-export async function getCurrentUser(user, callback) {
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
+
+export async function getCurrentUser(user: any, callback) {
   if (Object.keys(user).some((key) => !user[key]))
     return callback(sendPacket(0, 'User not found'));
 
@@ -36,67 +41,10 @@ export async function getCurrentUser(user, callback) {
   );
 }
 
-export async function getPrivateProfileInformation(userID, callback) {
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'universities',
-        localField: 'university',
-        foreignField: '_id',
-        as: 'university',
-      },
-    },
-    { $unwind: '$university' },
-    {
-      $project: {
-        email: '$email',
-        firstName: '$firstName',
-        lastName: '$lastName',
-        major: '$major',
-        graduationYear: '$graduationYear',
-        work: '$work',
-        position: '$position',
-        department: '$department',
-        interests: '$interests',
-        organizations: '$organizations',
-        graduateSchool: '$graduateSchool',
-        bio: '$bio',
-        phoneNumber: '$phoneNumber',
-        discoveryMethod: '$discoveryMethod',
-        numConnections: { $size: '$connections' },
-        numCommunities: { $size: '$joinedCommunities' },
-        university: {
-          _id: '$university._id',
-          universityName: '$university.universityName',
-        },
-      },
-    },
-  ])
-    .then((users) => {
-      if (!users || users.length === 0)
-        return callback(sendPacket(0, "Couldn't find user"));
-      return callback(
-        sendPacket(1, 'Sending personal user information', { user: users[0] })
-      );
-    })
-    .catch((err) => callback(sendPacket(-1, err)));
-}
-
-export async function getPublicProfileInformation(selfUserID, userID, callback) {
-  try {
-    mongoose.Types.ObjectId(userID);
-    mongoose.Types.ObjectId(selfUserID);
-
-    const selfUserPromise = User.findById(selfUserID, [
-      'connections',
-      'joinedCommunities',
-    ])
-      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
-      .exec();
-
-    const otherUserPromise = User.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(userID) } },
+export async function getPrivateProfileInformation(userID: ObjectIdType, callback) {
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
       {
         $lookup: {
           from: 'universities',
@@ -106,14 +54,6 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
         },
       },
       { $unwind: '$university' },
-      {
-        $lookup: {
-          from: 'connections',
-          localField: 'connections',
-          foreignField: '_id',
-          as: 'connections',
-        },
-      },
       {
         $project: {
           email: '$email',
@@ -128,8 +68,8 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
           organizations: '$organizations',
           graduateSchool: '$graduateSchool',
           bio: '$bio',
-          connections: '$connections',
-          joinedCommunities: '$joinedCommunities',
+          phoneNumber: '$phoneNumber',
+          discoveryMethod: '$discoveryMethod',
           numConnections: { $size: '$connections' },
           numCommunities: { $size: '$joinedCommunities' },
           university: {
@@ -138,7 +78,77 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
           },
         },
       },
-    ]).exec();
+    ])
+    .then((users) => {
+      if (!users || users.length === 0)
+        return callback(sendPacket(0, "Couldn't find user"));
+      return callback(
+        sendPacket(1, 'Sending personal user information', { user: users[0] })
+      );
+    })
+    .catch((err) => {
+      log('err', err);
+      callback(sendPacket(-1, err));
+    });
+}
+
+export async function getPublicProfileInformation(
+  selfUserID: ObjectIdType,
+  userID: ObjectIdType,
+  callback
+) {
+  try {
+    const selfUserPromise = User.model
+      .findById(selfUserID, ['connections', 'joinedCommunities'])
+      .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
+      .exec();
+
+    const otherUserPromise = User.model
+      .aggregate([
+        { $match: { _id: ObjectIdVal(userID.toString()) } },
+        {
+          $lookup: {
+            from: 'universities',
+            localField: 'university',
+            foreignField: '_id',
+            as: 'university',
+          },
+        },
+        { $unwind: '$university' },
+        {
+          $lookup: {
+            from: 'connections',
+            localField: 'connections',
+            foreignField: '_id',
+            as: 'connections',
+          },
+        },
+        {
+          $project: {
+            email: '$email',
+            firstName: '$firstName',
+            lastName: '$lastName',
+            major: '$major',
+            graduationYear: '$graduationYear',
+            work: '$work',
+            position: '$position',
+            department: '$department',
+            interests: '$interests',
+            organizations: '$organizations',
+            graduateSchool: '$graduateSchool',
+            bio: '$bio',
+            connections: '$connections',
+            joinedCommunities: '$joinedCommunities',
+            numConnections: { $size: '$connections' },
+            numCommunities: { $size: '$joinedCommunities' },
+            university: {
+              _id: '$university._id',
+              universityName: '$university.universityName',
+            },
+          },
+        },
+      ])
+      .exec();
 
     Promise.all([selfUserPromise, otherUserPromise]).then(
       async ([selfUser, otherUserOutput]) => {
@@ -148,7 +158,7 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
         let otherUser = otherUserOutput[0];
         const selfConnections = connectionsToUserIDStrings(
           selfUserID,
-          selfUser.connections
+          selfUser.connections as IConnection[]
         );
 
         otherUser.connections = connectionsToUserIDStrings(
@@ -158,7 +168,7 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
 
         otherUser = await addCalculatedUserFields(
           selfConnections,
-          selfUser.joinedCommunities,
+          selfUser.joinedCommunities as ObjectIdType[],
           otherUser
         );
 
@@ -168,66 +178,68 @@ export async function getPublicProfileInformation(selfUserID, userID, callback) 
       }
     );
   } catch (err) {
+    log('err', err);
     return callback(sendPacket(-1, err));
   }
 }
 
-export function getUserEvents(userID, callback) {
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'webinars',
-        let: { attended: '$attendedWebinars', rsvps: '$RSVPWebinars' },
-        pipeline: [
-          {
-            $match: {
-              $and: [
-                {
-                  $or: [
-                    { $expr: { $in: ['$_id', '$$rsvps'] } },
-                    { $expr: { $in: ['$_id', '$$attended'] } },
-                  ],
-                },
-                { isDev: { $ne: true } },
-              ],
-            },
-          },
-          { $sort: { dateTime: 1 } },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'host',
-              foreignField: '_id',
-              as: 'host',
-            },
-          },
-          { $unwind: '$host' },
-          {
-            $project: {
-              _id: '$_id',
-              title: '$title',
-              brief_description: '$brief_description',
-              full_description: '$full_description',
-              dateTime: '$dateTime',
-              userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
-              host: {
-                _id: '$host._id',
-                firstName: '$host.firstName',
-                lastName: '$host.lastName',
+export function getUserEvents(userID: ObjectIdType, callback) {
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
+      {
+        $lookup: {
+          from: 'webinars',
+          let: { attended: '$attendedWebinars', rsvps: '$RSVPWebinars' },
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      { $expr: { $in: ['$_id', '$$rsvps'] } },
+                      { $expr: { $in: ['$_id', '$$attended'] } },
+                    ],
+                  },
+                  { isDev: { $ne: true } },
+                ],
               },
             },
-          },
-        ],
-        as: 'RSVPWebinars',
+            { $sort: { dateTime: 1 } },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'host',
+                foreignField: '_id',
+                as: 'host',
+              },
+            },
+            { $unwind: '$host' },
+            {
+              $project: {
+                _id: '$_id',
+                title: '$title',
+                brief_description: '$brief_description',
+                full_description: '$full_description',
+                dateTime: '$dateTime',
+                userSpeaker: { $in: [userID, '$speakers'] },
+                host: {
+                  _id: '$host._id',
+                  firstName: '$host.firstName',
+                  lastName: '$host.lastName',
+                },
+              },
+            },
+          ],
+          as: 'RSVPWebinars',
+        },
       },
-    },
-    {
-      $project: {
-        RSVPWebinars: '$RSVPWebinars',
+      {
+        $project: {
+          RSVPWebinars: '$RSVPWebinars',
+        },
       },
-    },
-  ])
+    ])
     .exec()
     .then((users) => {
       if (!users || users.length === 0)
@@ -239,8 +251,12 @@ export function getUserEvents(userID, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export function updateProfileInformation(userID, profileData, callback) {
-  User.findById(
+export function updateProfileInformation(
+  userID: ObjectIdType,
+  profileData: any,
+  callback
+) {
+  User.model.findById(
     userID,
     [
       'firstName',
@@ -286,8 +302,8 @@ export function updateProfileInformation(userID, profileData, callback) {
   );
 }
 
-export function updateUserBio(userID, newBio, callback) {
-  User.updateOne({ _id: userID }, { bio: newBio }, (err, update) => {
+export function updateUserBio(userID: ObjectIdType, newBio: string, callback) {
+  User.model.updateOne({ _id: userID }, { bio: newBio }, (err, update) => {
     if (err) return callback(sendPacket(-1, err));
     if (update.n === 0) return callback(sendPacket(0, 'Could not find User'));
     return callback(sendPacket(1, "Updated user's bio"));
@@ -295,7 +311,7 @@ export function updateUserBio(userID, newBio, callback) {
 }
 
 // TODO: either send these in chunks or store all connections in redux when user logs in
-export function getConnections(userID, callback) {
+export function getConnections(userID: ObjectIdType, callback) {
   const lookupConnections = {
     $lookup: {
       from: 'connections',
@@ -327,7 +343,7 @@ export function getConnections(userID, callback) {
           input: '$connections',
           as: 'connection',
           cond: {
-            $ne: ['$$connection', mongoose.Types.ObjectId(userID)],
+            $ne: ['$$connection', ObjectIdVal(userID.toString())],
           },
         },
       },
@@ -366,14 +382,15 @@ export function getConnections(userID, callback) {
       as: 'connections',
     },
   };
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    lookupConnections,
-    transformToArray,
-    squashToSingleArray,
-    removeSelf,
-    lookupConnectionUsers,
-  ])
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
+      lookupConnections,
+      transformToArray,
+      squashToSingleArray,
+      removeSelf,
+      lookupConnectionUsers,
+    ])
     .exec()
     .then(async (user) => {
       if (!user || user.length === 0)
@@ -391,66 +408,68 @@ export function getConnections(userID, callback) {
     });
 }
 
-export function getConnectionSuggestions(userID, callback) {
-  User.aggregate([
-    { $sample: { size: 15 } },
-    {
-      $lookup: {
-        from: 'universities',
-        localField: 'university',
-        foreignField: '_id',
-        as: 'university',
-      },
-    },
-    { $unwind: '$university' },
-    {
-      $project: {
-        _id: '$_id',
-        firstName: '$firstName',
-        lastName: '$lastName',
-        accountType: '$accountType',
-        connections: '$connections',
-        joinedCommunities: '$joinedCommunities',
-        profilePicture: '$profilePicture',
-        university: {
-          _id: '$university._id',
-          universityName: '$university.universityName',
-          nickname: '$university.nickname',
+export function getConnectionSuggestions(userID: ObjectIdType, callback) {
+  User.model
+    .aggregate([
+      { $sample: { size: 15 } },
+      {
+        $lookup: {
+          from: 'universities',
+          localField: 'university',
+          foreignField: '_id',
+          as: 'university',
         },
       },
-    },
-  ])
+      { $unwind: '$university' },
+      {
+        $project: {
+          _id: '$_id',
+          firstName: '$firstName',
+          lastName: '$lastName',
+          accountType: '$accountType',
+          connections: '$connections',
+          joinedCommunities: '$joinedCommunities',
+          profilePicture: '$profilePicture',
+          university: {
+            _id: '$university._id',
+            universityName: '$university.universityName',
+            nickname: '$university.nickname',
+          },
+        },
+      },
+    ])
     .exec()
     .then((rawSuggestions) => {
       if (!rawSuggestions)
         return callback(sendPacket(-1, "Couldn't get suggestions"));
-      User.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(userID) } },
-        {
-          $lookup: {
-            from: 'connections',
-            localField: 'connections',
-            foreignField: '_id',
-            as: 'connections',
+      User.model
+        .aggregate([
+          { $match: { _id: ObjectIdVal(userID.toString()) } },
+          {
+            $lookup: {
+              from: 'connections',
+              localField: 'connections',
+              foreignField: '_id',
+              as: 'connections',
+            },
           },
-        },
-        {
-          $lookup: {
-            from: 'connections',
-            localField: 'pendingConnections',
-            foreignField: '_id',
-            as: 'pendingConnections',
+          {
+            $lookup: {
+              from: 'connections',
+              localField: 'pendingConnections',
+              foreignField: '_id',
+              as: 'pendingConnections',
+            },
           },
-        },
-        {
-          $project: {
-            _id: '$_id',
-            connections: '$connections',
-            pendingConnections: '$pendingConnections',
-            joinedCommunities: '$joinedCommunities',
+          {
+            $project: {
+              _id: '$_id',
+              connections: '$connections',
+              pendingConnections: '$pendingConnections',
+              joinedCommunities: '$joinedCommunities',
+            },
           },
-        },
-      ])
+        ])
         .exec()
         .then(async (user) => {
           if (!user || user.length === 0)
@@ -478,7 +497,7 @@ export function getConnectionSuggestions(userID, callback) {
 }
 
 // Removes suggestions that are already pending or connected
-function filterSuggestions(user, suggestions) {
+function filterSuggestions(user: any, suggestions: any[]) {
   let excludedUsers = new Set();
   excludedUsers.add(user._id.toString());
   user.connections.forEach((connection) => {
@@ -495,87 +514,88 @@ function filterSuggestions(user, suggestions) {
   );
 }
 
-export function getPendingRequests(userID, callback) {
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    {
-      $lookup: {
-        from: 'connections',
-        let: { pendingConnections: '$pendingConnections' },
-        pipeline: [
-          { $match: { $expr: { $in: ['$_id', '$$pendingConnections'] } } },
-          {
-            $lookup: {
-              from: 'users',
-              let: { from: '$from' },
-              pipeline: [
-                { $match: { $expr: { $eq: ['$_id', '$$from'] } } },
-                {
-                  $lookup: {
-                    from: 'universities',
-                    localField: 'university',
-                    foreignField: '_id',
-                    as: 'university',
-                  },
-                },
-                { $unwind: '$university' },
-                {
-                  $project: {
-                    _id: '$_id',
-                    firstName: '$firstName',
-                    lastName: '$lastName',
-                    accountType: '$accountType',
-                    connections: '$connections',
-                    joinedCommunities: '$joinedCommunities',
-                    profilePicture: '$profilePicture',
-                    university: {
-                      _id: '$university._id',
-                      universityName: '$university.universityName',
-                      nickname: '$university.nickname',
+export function getPendingRequests(userID: ObjectIdType, callback) {
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
+      {
+        $lookup: {
+          from: 'connections',
+          let: { pendingConnections: '$pendingConnections' },
+          pipeline: [
+            { $match: { $expr: { $in: ['$_id', '$$pendingConnections'] } } },
+            {
+              $lookup: {
+                from: 'users',
+                let: { from: '$from' },
+                pipeline: [
+                  { $match: { $expr: { $eq: ['$_id', '$$from'] } } },
+                  {
+                    $lookup: {
+                      from: 'universities',
+                      localField: 'university',
+                      foreignField: '_id',
+                      as: 'university',
                     },
                   },
-                },
-              ],
-              as: 'from',
+                  { $unwind: '$university' },
+                  {
+                    $project: {
+                      _id: '$_id',
+                      firstName: '$firstName',
+                      lastName: '$lastName',
+                      accountType: '$accountType',
+                      connections: '$connections',
+                      joinedCommunities: '$joinedCommunities',
+                      profilePicture: '$profilePicture',
+                      university: {
+                        _id: '$university._id',
+                        universityName: '$university.universityName',
+                        nickname: '$university.nickname',
+                      },
+                    },
+                  },
+                ],
+                as: 'from',
+              },
             },
-          },
-          { $unwind: '$from' },
-          {
-            $project: {
-              _id: '$_id',
-              from: '$from',
-              to: '$to',
-              accepted: '$accepted',
-              createdAt: '$createdAt',
+            { $unwind: '$from' },
+            {
+              $project: {
+                _id: '$_id',
+                from: '$from',
+                to: '$to',
+                accepted: '$accepted',
+                createdAt: '$createdAt',
+              },
             },
-          },
-        ],
-        as: 'pendingConnections',
+          ],
+          as: 'pendingConnections',
+        },
       },
-    },
-    {
-      $project: {
-        connections: '$connections',
-        joinedCommunities: '$joinedCommunities',
-        pendingConnections: {
-          $filter: {
-            input: '$pendingConnections',
-            as: 'pendingConnection',
-            cond: {
-              $and: [
-                {
-                  $eq: ['$$pendingConnection.to', mongoose.Types.ObjectId(userID)],
-                },
-                {
-                  $eq: ['$$pendingConnection.accepted', false],
-                },
-              ],
+      {
+        $project: {
+          connections: '$connections',
+          joinedCommunities: '$joinedCommunities',
+          pendingConnections: {
+            $filter: {
+              input: '$pendingConnections',
+              as: 'pendingConnection',
+              cond: {
+                $and: [
+                  {
+                    $eq: ['$$pendingConnection.to', ObjectIdVal(userID.toString())],
+                  },
+                  {
+                    $eq: ['$$pendingConnection.accepted', false],
+                  },
+                ],
+              },
             },
           },
         },
       },
-    },
-  ])
+    ])
     .exec()
     .then(async (user) => {
       if (!user || user.length === 0)
@@ -602,12 +622,15 @@ export function getPendingRequests(userID, callback) {
     });
 }
 
-export async function requestConnection(userID, requestUserID) {
+export async function requestConnection(
+  userID: ObjectIdType,
+  requestUserID: ObjectIdType
+) {
   try {
     const connectionPromise = Connection.getConnectionStatuses(userID, [
       requestUserID,
     ]);
-    const userPromise = User.exists({ _id: requestUserID });
+    const userPromise = User.model.exists({ _id: requestUserID });
 
     return Promise.all([connectionPromise, userPromise]).then(
       async ([connection, userExists]) => {
@@ -624,12 +647,12 @@ export async function requestConnection(userID, requestUserID) {
         if (!newConnectionRequest)
           return sendPacket(-1, 'There was an error creating the request');
 
-        const userFromPromise = User.updateOne(
+        const userFromPromise = User.model.updateOne(
           { _id: userID },
           { $addToSet: { pendingConnections: newConnectionRequest._id } }
         );
 
-        const userToPromise = User.updateOne(
+        const userToPromise = User.model.updateOne(
           { _id: requestUserID },
           { $addToSet: { pendingConnections: newConnectionRequest._id } }
         );
@@ -650,7 +673,11 @@ export async function requestConnection(userID, requestUserID) {
   }
 }
 
-export async function respondConnection(selfUserID, otherUserID, accepted) {
+export async function respondConnection(
+  selfUserID: ObjectIdType,
+  otherUserID: ObjectIdType,
+  accepted: boolean
+) {
   try {
     const request = await Connection.model.findOne({
       $or: [
@@ -660,8 +687,8 @@ export async function respondConnection(selfUserID, otherUserID, accepted) {
     });
     if (!request) return sendPacket(0, 'Could not find Connection Request');
 
-    const isRequestee = selfUserID.toString().localeCompare(request['to']) === 0;
-    const isRequester = selfUserID.toString().localeCompare(request['from']) === 0;
+    const isRequestee = selfUserID === request.to;
+    const isRequester = selfUserID === request.from;
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request);
     if (accepted && isRequestee) return acceptConnectionRequest(request);
@@ -677,27 +704,31 @@ async function acceptConnectionRequest(request) {
     const userOneID = request['from'];
     const userTwoID = request['to'];
 
-    const userOneExistsPromise = User.exists({ _id: userOneID });
-    const userTwoExistsPromise = User.exists({ _id: userTwoID });
+    const userOneExistsPromise = User.model.exists({ _id: userOneID });
+    const userTwoExistsPromise = User.model.exists({ _id: userTwoID });
     return Promise.all([userOneExistsPromise, userTwoExistsPromise]).then(
       ([userOneExists, userTwoExists]) => {
         if (!userOneExists || !userTwoExists)
           return sendPacket(0, 'Could not find Users to connect');
 
-        const userOneUpdate = User.updateOne(
-          { _id: userOneID },
-          {
-            $addToSet: { connections: request._id },
-            $pull: { pendingConnections: request._id },
-          }
-        ).exec();
-        const userTwoUpdate = User.updateOne(
-          { _id: userTwoID },
-          {
-            $addToSet: { connections: request._id },
-            $pull: { pendingConnections: request._id },
-          }
-        ).exec();
+        const userOneUpdate = User.model
+          .updateOne(
+            { _id: userOneID },
+            {
+              $addToSet: { connections: request._id },
+              $pull: { pendingConnections: request._id },
+            }
+          )
+          .exec();
+        const userTwoUpdate = User.model
+          .updateOne(
+            { _id: userTwoID },
+            {
+              $addToSet: { connections: request._id },
+              $pull: { pendingConnections: request._id },
+            }
+          )
+          .exec();
         const connectionPromise = Connection.update(request._id, { accepted: true });
 
         return Promise.all([userOneUpdate, userTwoUpdate, connectionPromise]).then(
@@ -719,21 +750,25 @@ function removeConnectionRequest(request) {
     const userOneID = request['from'];
     const userTwoID = request['to'];
 
-    const userOneExistsPromise = User.exists({ _id: userOneID });
-    const userTwoExistsPromise = User.exists({ _id: userTwoID });
+    const userOneExistsPromise = User.model.exists({ _id: userOneID });
+    const userTwoExistsPromise = User.model.exists({ _id: userTwoID });
     return Promise.all([userOneExistsPromise, userTwoExistsPromise]).then(
       ([userOneExists, userTwoExists]) => {
         if (!userOneExists || !userTwoExists)
           return sendPacket(0, 'Could not find Users to connect');
 
-        const userOneUpdate = User.updateOne(
-          { _id: userOneID },
-          { $pull: { connections: request._id, pendingConnections: request._id } }
-        ).exec();
-        const userTwoUpdate = User.updateOne(
-          { _id: userTwoID },
-          { $pull: { connections: request._id, pendingConnections: request._id } }
-        ).exec();
+        const userOneUpdate = User.model
+          .updateOne(
+            { _id: userOneID },
+            { $pull: { connections: request._id, pendingConnections: request._id } }
+          )
+          .exec();
+        const userTwoUpdate = User.model
+          .updateOne(
+            { _id: userTwoID },
+            { $pull: { connections: request._id, pendingConnections: request._id } }
+          )
+          .exec();
         const connectionPromise = Connection.model.deleteOne({ _id: request._id });
 
         return Promise.all([userOneUpdate, userTwoUpdate, connectionPromise]).then(
@@ -827,8 +862,8 @@ export function getConnectionWithUser(userID, requestUserID, callback) {
 }
 
 export async function updateAttendingList(
-  userID: string,
-  webinarID: string,
+  userID: ObjectIdType,
+  webinarID: ObjectIdType,
   callback: (packet: {
     success: number;
     message: string;
@@ -836,14 +871,12 @@ export async function updateAttendingList(
   }) => any
 ) {
   try {
-    const userPromise = User.updateOne(
-      { _id: userID },
-      { $addToSet: { attendedWebinars: webinarID } }
-    ).exec();
-    const webinarPromise = Webinar.updateOne(
-      { _id: webinarID },
-      { $addToSet: { attendees_V2: userID } }
-    ).exec();
+    const userPromise = User.model
+      .updateOne({ _id: userID }, { $addToSet: { attendedWebinars: webinarID } })
+      .exec();
+    const webinarPromise = Webinar.model
+      .updateOne({ _id: webinarID }, { $addToSet: { attendees_V2: userID } })
+      .exec();
 
     return Promise.all([userPromise, webinarPromise]).then((values) => {
       return callback(
@@ -856,7 +889,7 @@ export async function updateAttendingList(
   }
 }
 
-export async function getSelfUserCommunities(userID: string) {
+export async function getSelfUserCommunities(userID: ObjectIdType) {
   try {
     //Getting correct values from database
     const communitySelectFields = [
@@ -869,7 +902,8 @@ export async function getSelfUserCommunities(userID: string) {
       'admin',
     ];
 
-    const user = await User.findById(userID)
+    const user = await User.model
+      .findById(userID)
       .select(['joinedCommunities', 'pendingCommunities', 'connections'])
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .populate({ path: 'joinedCommunities', select: communitySelectFields })
@@ -882,14 +916,25 @@ export async function getSelfUserCommunities(userID: string) {
         `Couldn't find user with id ${userID} to get communities for`
       );
 
-    let { joinedCommunities, pendingCommunities } = user;
-    const connections = connectionsToUserIDStrings(userID, user['connections']);
+    let { joinedCommunities, pendingCommunities } = user as {
+      joinedCommunities: { [key: string]: any & ICommunity }[];
+      pendingCommunities: { [key: string]: any & ICommunity }[];
+    };
+    const connections = connectionsToUserIDStrings(
+      userID,
+      user.connections as IConnection[]
+    );
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < joinedCommunities.length; i++) {
       joinedCommunities[i] = await addCalculatedCommunityFields(
         connections,
-        joinedCommunities[i].toObject()
+        joinedCommunities[i].toObject() as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          admin: ObjectIdType;
+          members: ObjectIdType[];
+        }
       );
 
       joinedCommunities[i].status = U2CR.JOINED;
@@ -924,7 +969,10 @@ export async function getSelfUserCommunities(userID: string) {
   }
 }
 
-export async function getOtherUserCommunities(selfID: string, userID: string) {
+export async function getOtherUserCommunities(
+  selfID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
     //Getting correct values from database
     const communitySelectFields = [
@@ -937,12 +985,14 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
       'admin',
     ];
 
-    const selfUser = await User.findById(selfID)
+    const selfUser = await User.model
+      .findById(selfID)
       .select(['joinedCommunities', 'pendingCommunities', 'connections'])
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .exec();
 
-    const otherUser = await User.findById(userID)
+    const otherUser = await User.model
+      .findById(userID)
       .select(['joinedCommunities'])
       .populate({ path: 'joinedCommunities', select: communitySelectFields })
       .exec();
@@ -952,20 +1002,25 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
 
     const selfUserConnections = connectionsToUserIDStrings(
       selfID,
-      selfUser['connections']
+      selfUser.connections as IConnection[]
     );
 
     //Cleaning up joined and pending communities
     for (let i = 0; i < otherUser.joinedCommunities.length; i++) {
       const cleanedCommunity = await addCalculatedCommunityFields(
         selfUserConnections,
-        otherUser.joinedCommunities[i].toObject()
+        (otherUser.joinedCommunities[i] as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          admin: ObjectIdType;
+          members: ObjectIdType[];
+        }).toObject()
       );
 
       getUserToCommunityRelationship(
-        selfUser.joinedCommunities,
-        selfUser.pendingCommunities,
-        otherUser.joinedCommunities[i],
+        selfUser.joinedCommunities as ObjectIdType[],
+        selfUser.pendingCommunities as ObjectIdType[],
+        otherUser.joinedCommunities[i] as ICommunity,
         cleanedCommunity
       );
 
@@ -990,12 +1045,13 @@ export async function getOtherUserCommunities(selfID: string, userID: string) {
 
 export async function getSelfConnectionsFullData(selfID: string) {
   try {
-    const currUser = await User.findOne({ _id: selfID }, [
-      'connections',
-      'pendingConnections',
-      'joinedCommunities',
-      'firstName',
-    ])
+    const currUser = await User.model
+      .findOne({ _id: selfID }, [
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'firstName',
+      ])
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .populate({ path: 'pendingConnections', select: ['from', 'to'] });
 
@@ -1003,33 +1059,35 @@ export async function getSelfConnectionsFullData(selfID: string) {
 
     const pendingUserIDs = pendingToUserIDs(selfID, currUser.pendingConnections);
 
-    let connectionsWithData = await User.find({ _id: { $in: connectionUserIDs } }, [
-      'firstName',
-      'lastName',
-      'graduationYear',
-      'university',
-      'work',
-      'position',
-      'connections',
-      'pendingConnections',
-      'joinedCommunities',
-      'profilePicture',
-    ])
+    let connectionsWithData = await User.model
+      .find({ _id: { $in: connectionUserIDs } }, [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'profilePicture',
+      ])
       .populate({ path: 'university', select: ['universityName'] })
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
-    let pendingWithData = await User.find({ _id: { $in: pendingUserIDs } }, [
-      'firstName',
-      'lastName',
-      'graduationYear',
-      'university',
-      'work',
-      'position',
-      'connections',
-      'pendingConnections',
-      'joinedCommunities',
-      'profilePicture',
-    ])
+    let pendingWithData = await User.model
+      .find({ _id: { $in: pendingUserIDs } }, [
+        'firstName',
+        'lastName',
+        'graduationYear',
+        'university',
+        'work',
+        'position',
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'profilePicture',
+      ])
       .populate({ path: 'university', select: ['universityName'] })
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
@@ -1037,11 +1095,11 @@ export async function getSelfConnectionsFullData(selfID: string) {
       let cleanedConnection = connectionsWithData[i].toObject();
       cleanedConnection.connections = connectionsToUserIDStrings(
         connectionsWithData[i]._id,
-        connectionsWithData[i].connections
+        connectionsWithData[i].connections as IConnection[]
       );
       cleanedConnection = await addCalculatedUserFields(
         connectionUserIDs,
-        currUser.joinedCommunities,
+        currUser.joinedCommunities as ObjectIdType[],
         cleanedConnection
       );
 
@@ -1053,18 +1111,24 @@ export async function getSelfConnectionsFullData(selfID: string) {
       let cleanedPending = pendingWithData[i].toObject();
       cleanedPending.connections = connectionsToUserIDStrings(
         pendingWithData[i]._id,
-        pendingWithData[i].connections
+        pendingWithData[i].connections as IConnection[]
       );
       cleanedPending = await addCalculatedUserFields(
         connectionUserIDs,
-        currUser.joinedCommunities,
+        currUser.joinedCommunities as ObjectIdType[],
         cleanedPending
       );
 
       getUserToUserRelationship(
-        currUser.connections,
-        currUser.pendingConnections,
-        pendingWithData[i],
+        currUser.connections as IConnection[],
+        currUser.pendingConnections as IConnection[],
+        pendingWithData[i] as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          connections: IConnection[];
+          pendingConnections: ObjectIdType[];
+          joinedCommunities: ObjectIdType[];
+        },
         cleanedPending
       );
 
@@ -1087,37 +1151,39 @@ export async function getSelfConnectionsFullData(selfID: string) {
   }
 }
 
-export async function getOtherConnectionsFullData(selfID: string, userID: string) {
+export async function getOtherConnectionsFullData(
+  selfID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const selfUser = await User.findOne({ _id: selfID }, [
-      'connections',
-      'pendingConnections',
-      'joinedCommunities',
-      'firstName',
-    ])
+    const selfUser = await User.model
+      .findOne({ _id: selfID }, [
+        'connections',
+        'pendingConnections',
+        'joinedCommunities',
+        'firstName',
+      ])
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] })
       .populate({ path: 'pendingConnections', select: ['from', 'to'] });
 
-    const otherUser = await User.findOne({ _id: userID }, [
-      'connections',
-      'firstName',
-    ]).populate({
-      path: 'connections',
-      select: ['accepted', 'from', 'to'],
-    });
+    const otherUser = await User.model
+      .findOne({ _id: userID }, ['connections', 'firstName'])
+      .populate({
+        path: 'connections',
+        select: ['accepted', 'from', 'to'],
+      });
 
     const selfConnectionUserIDStrings = connectionsToUserIDStrings(
       selfID,
-      selfUser.connections
+      selfUser.connections as IConnection[]
     );
     const otherConnectionUserIDs = connectionsToUserIDs(
       userID,
       otherUser.connections
     );
 
-    let connectionsWithData = await User.find(
-      { _id: { $in: otherConnectionUserIDs } },
-      [
+    let connectionsWithData = await User.model
+      .find({ _id: { $in: otherConnectionUserIDs } }, [
         'firstName',
         'lastName',
         'graduationYear',
@@ -1128,8 +1194,7 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
         'pendingConnections',
         'joinedCommunities',
         'profilePicture',
-      ]
-    )
+      ])
       .populate({ path: 'university', select: ['universityName'] })
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
@@ -1137,18 +1202,24 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
       let cleanedConnection = connectionsWithData[i].toObject();
       cleanedConnection.connections = connectionsToUserIDStrings(
         connectionsWithData[i]._id,
-        connectionsWithData[i].connections
+        connectionsWithData[i].connections as IConnection[]
       );
       cleanedConnection = await addCalculatedUserFields(
         selfConnectionUserIDStrings,
-        selfUser.joinedCommunities,
+        selfUser.joinedCommunities as ObjectIdType[],
         cleanedConnection
       );
 
       getUserToUserRelationship(
-        selfUser.connections,
-        selfUser.pendingConnections,
-        connectionsWithData[i],
+        selfUser.connections as IConnection[],
+        selfUser.pendingConnections as IConnection[],
+        connectionsWithData[i] as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          connections: IConnection[];
+          pendingConnections: ObjectIdType[];
+          joinedCommunities: ObjectIdType[];
+        },
         cleanedConnection
       );
 
@@ -1171,7 +1242,8 @@ export async function getOtherConnectionsFullData(selfID: string, userID: string
 
 export async function getUserAdminCommunities(userID: string) {
   try {
-    const user = await User.findById(userID)
+    const user = await User.model
+      .findById(userID)
       .select(['joinedCommunities'])
       .populate({
         path: 'joinedCommunities',
@@ -1191,7 +1263,7 @@ export async function getUserAdminCommunities(userID: string) {
       });
     if (!user) return sendPacket(0, 'Could not find user');
 
-    const communities = user.joinedCommunities.filter(
+    const communities = (user.joinedCommunities as ICommunity[]).filter(
       (community) => community.admin.toString() === userID
     );
 
@@ -1213,22 +1285,25 @@ export async function getUserAdminCommunities(userID: string) {
 }
 
 export async function getBasicUserInfo(userID: string) {
-  const user = await User.findById(userID).select(['firstName', 'lastName']).exec();
+  const user = await User.model
+    .findById(userID)
+    .select(['firstName', 'lastName'])
+    .exec();
   if (!user) return sendPacket(-1, 'Could not find user');
   log('info', `Retrieved basic info for user ${userID}`);
   return sendPacket(1, 'Found user info', { user });
 }
 
 export async function getUsersGeneric(
-  _ids: string[],
+  _ids: ObjectIdType[],
   params: {
-    fields?: typeof AcceptedUserFields[number][];
+    fields?: typeof User.AcceptedFields[number][];
     options?: GetUsersByIDsOptions;
   }
 ) {
   const { fields, options } = params;
   try {
-    const users = await getUsersByIDs(_ids, { fields, options });
+    const users = await User.getUsersByIDs(_ids, { fields, options });
     return sendPacket(1, 'Successfully retrieved users', { users });
   } catch (err) {
     log('error', err);

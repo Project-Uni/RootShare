@@ -1,4 +1,4 @@
-import { User } from '../../models';
+import { User } from '../../rootshare_db/models';
 
 const aws = require('aws-sdk');
 aws.config.loadFromPath('../keys/aws_key.json');
@@ -13,11 +13,11 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-export async function confirmUser(emailToken) {
+export async function confirmUser(emailToken: string) {
   let emailAddress = convertTokenToEmail(emailToken);
   let currUser;
   try {
-    currUser = await User.findOne({ email: emailAddress });
+    currUser = await User.model.findOne({ email: emailAddress });
   } catch (error) {
     log('MONGO ERROR', error);
   }
@@ -31,11 +31,11 @@ export async function confirmUser(emailToken) {
   return currUser;
 }
 
-export async function unsubscribeUser(emailToken) {
+export async function unsubscribeUser(emailToken: string) {
   let emailAddress = convertTokenToEmail(emailToken);
   let currUser;
   try {
-    currUser = await User.findOne({ email: emailAddress });
+    currUser = await User.model.findOne({ email: emailAddress });
   } catch (error) {
     log('MONGO ERROR', error);
   }
@@ -50,13 +50,13 @@ export async function unsubscribeUser(emailToken) {
 }
 
 export function resetLockAuth(
-  emailToken,
+  emailToken: string,
   method: 'Reset' | 'Locked',
   provider: 'Google' | 'LinkedIn',
   callback
 ) {
   let emailAddress = convertTokenToEmail(emailToken);
-  User.findOne({ email: emailAddress }, ['_id'], (err, user) => {
+  User.model.findOne({ email: emailAddress }, ['_id'], (err, user) => {
     if (err) return callback(sendPacket(-1, err));
     if (!user) return callback(sendPacket(0, 'Could not find User'));
 
@@ -73,7 +73,7 @@ export function resetLockAuth(
   });
 }
 
-export function sendConfirmationEmail(emailAddress) {
+export function sendConfirmationEmail(emailAddress: string) {
   const emailToken = convertEmailToToken(emailAddress);
   const confirmationLink = `https://rootshare.io/auth/confirmation/${emailToken}`;
   const unsubscribeLink = `https://rootshare.io/auth/unsubscribe/${emailToken}`;
@@ -100,7 +100,7 @@ export function sendConfirmationEmail(emailAddress) {
 }
 
 export function sendExternalAdditionConfirmation(
-  emailAddress,
+  emailAddress: string,
   provider: 'Google' | 'LinkedIn'
 ) {
   const emailToken = convertEmailToToken(emailAddress);

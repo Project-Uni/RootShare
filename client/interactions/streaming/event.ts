@@ -1,8 +1,15 @@
-const mongoose = require('mongoose');
-import { Webinar, Connection, Conversation, User } from '../../models';
-
+import { Types } from 'mongoose';
 const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
+
+import {
+  Webinar,
+  Connection,
+  Conversation,
+  User,
+  IUser,
+  IConnection,
+  IWebinar,
+} from '../../rootshare_db/models';
 
 import {
   log,
@@ -14,6 +21,10 @@ import {
   retrieveSignedUrl,
 } from '../../helpers/functions';
 
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
+
+aws.config.loadFromPath('../keys/aws_key.json');
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
@@ -25,14 +36,14 @@ export async function createEvent(
 ) {
   if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
 
-  const newEventConversation = new Conversation({
+  const newEventConversation = new Conversation.model({
     participants: [],
   });
   newEventConversation.save((err, conversation) => {
     if (err || conversation === undefined || conversation === null)
       return callback(sendPacket(-1, 'Failed to create event conversation'));
 
-    const newWebinar = new Webinar({
+    const newWebinar = new Webinar.model({
       title: eventBody['title'],
       brief_description: eventBody['brief_description'],
       full_description: eventBody['full_description'],
@@ -57,19 +68,21 @@ export async function createEvent(
   });
 }
 
-async function updateEvent(eventBody, callback) {
+async function updateEvent(eventBody: any, callback: (packet: any) => void) {
   try {
-    const webinar = await Webinar.findById(eventBody['editEvent'])
+    const webinar = await Webinar.model
+      .findById(eventBody['editEvent'])
       .populate('speakers', 'email')
       .populate('host', 'email');
     if (!webinar) return callback(sendPacket(-1, "Couldn't find event to update"));
 
+    webinar.host = webinar.host as IUser;
     const oldSpeakers = formatSpeakers(
-      webinar.speakers.map((speaker) => speaker._id),
+      (webinar.speakers as IUser[]).map((speaker) => speaker._id),
       webinar.host._id
     );
     const oldSpeakerEmails = formatSpeakers(
-      webinar.speakers.map((speaker) => speaker.email),
+      (webinar.speakers as IUser[]).map((speaker) => speaker.email),
       webinar.host.email
     );
     const newSpeakers = formatSpeakers(
@@ -112,16 +125,16 @@ async function updateEvent(eventBody, callback) {
   }
 }
 
-function addRSVPs(webinarID, speakers) {
-  const speakerIDs = formatElementsToObjectIds(speakers);
-  const webinarPromise = Webinar.updateOne(
-    { _id: webinarID },
-    { $addToSet: { RSVPs: { $each: speakers } } }
-  ).exec();
-  const userPromise = User.updateMany(
-    { _id: { $in: speakerIDs } },
-    { $addToSet: { RSVPWebinars: webinarID.toString() } }
-  ).exec();
+function addRSVPs(webinarID: ObjectIdType, speakers: ObjectIdType[]) {
+  const webinarPromise = Webinar.model
+    .updateOne({ _id: webinarID }, { $addToSet: { RSVPs: { $each: speakers } } })
+    .exec();
+  const userPromise = User.model
+    .updateMany(
+      { _id: { $in: speakers } },
+      { $addToSet: { RSVPWebinars: webinarID } }
+    )
+    .exec();
   return Promise.all([webinarPromise, userPromise])
     .then(([webinar, user]) => {
       log('info', 'Successfully added RSVPs');
@@ -129,17 +142,18 @@ function addRSVPs(webinarID, speakers) {
     .catch((err) => log('err', err));
 }
 
-function removeRSVPs(webinarID, oldSpeakers) {
-  const oldSpeakerIDs = formatElementsToObjectIds(oldSpeakers);
+function removeRSVPs(webinarID: ObjectIdType, oldSpeakers: ObjectIdType[]) {
+  const temp: any[] = [];
 
-  const webinarPromise = Webinar.updateOne(
-    { _id: webinarID },
-    { $pull: { RSVPs: { $in: oldSpeakers } } }
-  ).exec();
-  const userPromise = User.updateMany(
-    { _id: { $in: oldSpeakerIDs } },
-    { $pull: { RSVPWebinars: webinarID.toString() } }
-  ).exec();
+  const webinarPromise = Webinar.model
+    .updateOne({ _id: webinarID }, { $pull: { RSVPs: oldSpeakers } })
+    .exec();
+  const userPromise = User.model
+    .updateMany(
+      { _id: { $in: oldSpeakers } },
+      { $pull: { RSVPWebinars: webinarID.toString() } }
+    )
+    .exec();
 
   return Promise.all([webinarPromise, userPromise])
     .then(([webinar, user]) => {
@@ -148,7 +162,10 @@ function removeRSVPs(webinarID, oldSpeakers) {
     .catch((err) => log('err', err));
 }
 
-export function timeStampCompare(ObjectA, ObjectB) {
+export function timeStampCompare(
+  ObjectA: { dateTime: Date },
+  ObjectB: { dateTime: Date }
+) {
   const a = ObjectA.dateTime !== undefined ? ObjectA.dateTime : new Date();
   const b = ObjectB.dateTime !== undefined ? ObjectB.dateTime : new Date();
 
@@ -157,33 +174,36 @@ export function timeStampCompare(ObjectA, ObjectB) {
   return 0;
 }
 
-export async function getAllRecentEvents(userID: string, callback) {
-  let events = await Webinar.find(
-    {
-      $and: [
-        { isDev: false },
-        {
-          $or: [{ isMTG: false }, { isMTG: undefined }],
-        },
-        {
-          $or: [
-            { muxAssetPlaybackID: { $ne: undefined } },
-            { dateTime: { $gte: new Date().getTime() - 240 * 60 * 1000 } },
-          ],
-        },
-      ],
-    },
-    [
-      'title',
-      'brief_description',
-      'full_description',
-      'RSVPs',
-      'dateTime',
-      'hostCommunity',
-      'muxAssetPlaybackID',
-      'eventBanner',
-    ]
-  )
+export async function getAllRecentEvents(userID: ObjectIdType, callback) {
+  let events = await Webinar.model
+    .find(
+      {
+        $and: [
+          { isDev: false },
+          {
+            $or: [{ isMTG: false }, { isMTG: undefined }],
+          },
+          {
+            $or: [
+              { muxAssetPlaybackID: { $ne: undefined } },
+              {
+                dateTime: { $gte: new Date(new Date().getTime() - 240 * 60 * 1000) },
+              },
+            ],
+          },
+        ],
+      },
+      [
+        'title',
+        'brief_description',
+        'full_description',
+        'RSVPs',
+        'dateTime',
+        'hostCommunity',
+        'muxAssetPlaybackID',
+        'eventBanner',
+      ]
+    )
     .populate({ path: 'hostCommunity', select: ['_id', 'name'] })
     .sort({ dateTime: 1 })
     .exec();
@@ -191,20 +211,23 @@ export async function getAllRecentEvents(userID: string, callback) {
   events = await addEventImagesAll(events, 'eventBanner');
   if (!events) return callback(sendPacket(-1, `Couldn't get recent events`));
 
-  const { connections } = await User.findOne({ _id: userID }, [
-    'connections',
-  ]).populate({ path: 'connections', select: ['from', 'to'] });
+  const { connections } = await User.model
+    .findOne({ _id: userID }, ['connections'])
+    .populate({ path: 'connections', select: ['from', 'to'] });
 
-  const connectionIDs = connections.reduce((output, connection) => {
-    const otherID =
-      connection['from'].toString() != userID.toString()
-        ? connection['from']
-        : connection['to'];
+  const connectionIDs = (connections as IConnection[]).reduce(
+    (output, connection) => {
+      const otherID =
+        connection['from'].toString() != userID.toString()
+          ? connection['from']
+          : connection['to'];
 
-    output.push(otherID);
+      output.push(otherID);
 
-    return output;
-  }, []);
+      return output;
+    },
+    []
+  );
 
   return callback(
     sendPacket(1, 'Successfully retrieved recent events', { events, connectionIDs })
@@ -212,61 +235,62 @@ export async function getAllRecentEvents(userID: string, callback) {
 }
 
 export async function getAllEventsAdmin(callback) {
-  Webinar.aggregate([
-    // { $match: { dateTime: { $gt: new Date() } } },
-    { $sort: { createdAt: -1 } },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'host',
-        foreignField: '_id',
-        as: 'host',
+  Webinar.model
+    .aggregate([
+      // { $match: { dateTime: { $gt: new Date() } } },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'host',
+          foreignField: '_id',
+          as: 'host',
+        },
       },
-    },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'speakers',
-        foreignField: '_id',
-        as: 'speakers',
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'speakers',
+          foreignField: '_id',
+          as: 'speakers',
+        },
       },
-    },
-    { $unwind: '$host' },
-    {
-      $addFields: {
-        speakers: {
-          $map: {
-            input: '$speakers',
-            in: {
-              _id: '$$this._id',
-              firstName: '$$this.firstName',
-              lastName: '$$this.lastName',
-              email: '$$this.email',
+      { $unwind: '$host' },
+      {
+        $addFields: {
+          speakers: {
+            $map: {
+              input: '$speakers',
+              in: {
+                _id: '$$this._id',
+                firstName: '$$this.firstName',
+                lastName: '$$this.lastName',
+                email: '$$this.email',
+              },
             },
           },
         },
       },
-    },
-    {
-      $project: {
-        host: {
-          _id: '$host._id',
-          firstName: '$host.firstName',
-          lastName: '$host.lastName',
-          email: '$host.email',
+      {
+        $project: {
+          host: {
+            _id: '$host._id',
+            firstName: '$host.firstName',
+            lastName: '$host.lastName',
+            email: '$host.email',
+          },
+          speakers: '$speakers',
+          title: '$title',
+          brief_description: '$brief_description',
+          full_description: '$full_description',
+          dateTime: '$dateTime',
+          isDev: '$isDev',
+          isPrivate: '$isPrivate',
+          eventImage: '$eventImage',
+          eventBanner: '$eventBanner',
         },
-        speakers: '$speakers',
-        title: '$title',
-        brief_description: '$brief_description',
-        full_description: '$full_description',
-        dateTime: '$dateTime',
-        isDev: '$isDev',
-        isPrivate: '$isPrivate',
-        eventImage: '$eventImage',
-        eventBanner: '$eventBanner',
       },
-    },
-  ])
+    ])
     .exec()
     .then(async (webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
@@ -287,36 +311,37 @@ export async function getAllEventsAdmin(callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function getAllEventsUser(userID, callback) {
-  Webinar.aggregate([
-    { $match: { dateTime: { $gt: new Date() }, isDev: { $ne: true } } },
-    { $sort: { createdAt: 1 } },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'host',
-        foreignField: '_id',
-        as: 'host',
-      },
-    },
-    { $unwind: '$host' },
-    {
-      $project: {
-        userSpeaker: { $in: [mongoose.Types.ObjectId(userID), '$speakers'] },
-        host: {
-          _id: '$host._id',
-          firstName: '$host.firstName',
-          lastName: '$host.lastName',
+export async function getAllEventsUser(userID: ObjectIdType, callback) {
+  Webinar.model
+    .aggregate([
+      { $match: { dateTime: { $gt: new Date() }, isDev: { $ne: true } } },
+      { $sort: { createdAt: 1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'host',
+          foreignField: '_id',
+          as: 'host',
         },
-        title: '$title',
-        brief_description: '$brief_description',
-        full_description: '$full_description',
-        availableCommunities: '$availableCommunities',
-        conversation: '$conversation',
-        dateTime: '$dateTime',
       },
-    },
-  ])
+      { $unwind: '$host' },
+      {
+        $project: {
+          userSpeaker: { $in: [ObjectIdVal(userID.toString()), '$speakers'] },
+          host: {
+            _id: '$host._id',
+            firstName: '$host.firstName',
+            lastName: '$host.lastName',
+          },
+          title: '$title',
+          brief_description: '$brief_description',
+          full_description: '$full_description',
+          availableCommunities: '$availableCommunities',
+          conversation: '$conversation',
+          dateTime: '$dateTime',
+        },
+      },
+    ])
     .exec()
     .then((webinars) => {
       if (!webinars) return callback(sendPacket(-1, 'Could not find Events'));
@@ -326,22 +351,24 @@ export async function getAllEventsUser(userID, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-function addUserDidRSVP(userID, webinars, callback) {
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    { $project: { RSVPWebinars: '$RSVPWebinars' } },
-  ])
+function addUserDidRSVP(
+  userID: ObjectIdType,
+  webinars: { _id: ObjectIdType; userRSVP: boolean }[],
+  callback
+) {
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
+      { $project: { RSVPWebinars: '$RSVPWebinars' } },
+    ])
     .exec()
     .then((users) => {
       if (!users || users.length === 0)
         return callback(sendPacket(-1, 'Could not find User'));
-      let RSVPWebinars = users[0].RSVPWebinars;
-      for (let i = 0; i < RSVPWebinars.length; i++) {
-        RSVPWebinars[i] = RSVPWebinars[i].toString();
-      }
+      let RSVPWebinars: ObjectIdType[] = users[0].RSVPWebinars;
+
       webinars.forEach((webinar) => {
-        webinar.userRSVP =
-          RSVPWebinars && RSVPWebinars.includes(webinar._id.toString());
+        webinar.userRSVP = RSVPWebinars && RSVPWebinars.includes(webinar._id);
       });
 
       return callback(sendPacket(1, 'Sending Events', { webinars }));
@@ -349,19 +376,27 @@ function addUserDidRSVP(userID, webinars, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function deleteEvent(userID, eventID, callback) {
+export async function deleteEvent(
+  userID: ObjectIdType,
+  eventID: ObjectIdType,
+  callback
+) {
   try {
-    const deletePromise = Webinar.deleteOne({ _id: eventID });
+    const deletePromise = Webinar.model.deleteOne({ _id: eventID });
     // const deletePromise = Webinar.deleteOne({ _id: eventID, host: userID });
     // USE THIS ONCE WE SETUP COMMUNITY EVENT CREATION AND DELETION
-    const attendedPromise = User.updateMany(
-      { attendedWebinars: eventID },
-      { $pullAll: { attendedWebinars: [eventID] } }
-    ).exec();
-    const RSVPPromise = User.updateMany(
-      { RSVPWebinars: eventID },
-      { $pullAll: { RSVPWebinars: [eventID] } }
-    ).exec();
+    const attendedPromise = User.model
+      .updateMany(
+        { attendedWebinars: eventID },
+        { $pullAll: { attendedWebinars: [eventID] } }
+      )
+      .exec();
+    const RSVPPromise = User.model
+      .updateMany(
+        { RSVPWebinars: eventID },
+        { $pullAll: { RSVPWebinars: [eventID] } }
+      )
+      .exec();
 
     await Promise.all([deletePromise, attendedPromise, RSVPPromise]).then(
       ([deleteData, attendedData, RSVPData]) => {
@@ -379,8 +414,12 @@ export async function deleteEvent(userID, eventID, callback) {
   }
 }
 
-export async function getWebinarDetails(userID, webinarID, callback) {
-  Webinar.findById(
+export async function getWebinarDetails(
+  userID: ObjectIdType,
+  webinarID: ObjectIdType,
+  callback
+) {
+  Webinar.model.findById(
     webinarID,
     [
       'title',
@@ -424,19 +463,24 @@ export async function getWebinarDetails(userID, webinarID, callback) {
   );
 }
 
-export function updateRSVP(userID, webinarID, didRSVP, callback) {
+export function updateRSVP(
+  userID: ObjectIdType,
+  webinarID: ObjectIdType,
+  didRSVP,
+  callback
+) {
   canUpdateRSVP(userID, webinarID, (packet) => {
     if (packet.success !== 1) return callback(packet);
 
-    User.findById(userID, ['RSVPWebinars'], (err, user) => {
+    User.model.findById(userID, ['RSVPWebinars'], (err, user) => {
       if (err) return callback(sendPacket(-1, err));
       if (!user)
         return callback(
           sendPacket(-1, 'Could not find user to RSVP to the webinar')
         );
 
-      let RSVPWebinars = formatElementsToStrings(user.RSVPWebinars);
-      const alreadyRSVPUser = RSVPWebinars.includes(webinarID);
+      user.RSVPWebinars = user.RSVPWebinars as ObjectIdType[];
+      const alreadyRSVPUser = user.RSVPWebinars.includes(webinarID);
 
       if (didRSVP && !alreadyRSVPUser) user.RSVPWebinars.push(webinarID);
       else if (!didRSVP && alreadyRSVPUser)
@@ -457,14 +501,14 @@ export function updateRSVP(userID, webinarID, didRSVP, callback) {
   });
 }
 
-function canUpdateRSVP(userID, webinarID, callback) {
-  Webinar.findById(webinarID, ['host', 'speakers'], (err, webinar) => {
+function canUpdateRSVP(userID: ObjectIdType, webinarID: ObjectIdType, callback) {
+  Webinar.model.findById(webinarID, ['host', 'speakers'], (err, webinar) => {
     if (err) return callback(sendPacket(-1, err));
     if (!webinar) return callback(sendPacket(0, "Webinar doesn't exist"));
 
     if (
-      webinar.speakers.includes(userID) ||
-      userID.toString() === webinar.host.toString()
+      (webinar.speakers as ObjectIdType[]).includes(userID) ||
+      userID === (webinar.host as ObjectIdType)
     )
       return callback(sendPacket(0, 'User cannot update RSVP'));
 
@@ -472,11 +516,11 @@ function canUpdateRSVP(userID, webinarID, callback) {
   });
 }
 
-export async function addEventImage(eventID, image) {
+export async function addEventImage(eventID: ObjectIdType, image: string) {
   if (image === undefined) return sendPacket(1, 'No image was provided');
 
   if (image === '') {
-    const remove = await Webinar.updateOne(
+    const remove = await Webinar.model.updateOne(
       { _id: eventID },
       { eventImage: undefined }
     );
@@ -492,7 +536,7 @@ export async function addEventImage(eventID, image) {
   const success = await uploadFile('eventImage', imageName, imageBuffer.data);
   if (!success) return sendPacket(-1, 'Could not upload event image');
 
-  const upload = await Webinar.updateOne(
+  const upload = await Webinar.model.updateOne(
     { _id: eventID },
     { eventImage: imageName }
   );
@@ -500,11 +544,11 @@ export async function addEventImage(eventID, image) {
   return sendPacket(1, 'Successfully uploaded event image');
 }
 
-export async function addEventBanner(eventID, image) {
+export async function addEventBanner(eventID: ObjectIdType, image: string) {
   if (image === undefined) return sendPacket(1, 'No image was provided');
 
   if (image === '') {
-    const remove = await Webinar.updateOne(
+    const remove = await Webinar.model.updateOne(
       { _id: eventID },
       { eventBanner: undefined }
     );
@@ -520,7 +564,7 @@ export async function addEventBanner(eventID, image) {
   const success = await uploadFile('eventBanner', imageName, imageBuffer.data);
   if (!success) return sendPacket(-1, 'Could not upload event banner');
 
-  const upload = await Webinar.updateOne(
+  const upload = await Webinar.model.updateOne(
     { _id: eventID },
     { eventBanner: imageName }
   );
@@ -528,7 +572,10 @@ export async function addEventBanner(eventID, image) {
   return sendPacket(1, 'Successfully uploaded event banner');
 }
 
-function addEventImagesAll(events, imageReason: 'eventImage' | 'eventBanner') {
+function addEventImagesAll(
+  events: IWebinar[],
+  imageReason: 'eventImage' | 'eventBanner'
+) {
   const imagePromises = [];
 
   for (let i = 0; i < events.length; i++) {
@@ -557,27 +604,10 @@ function addEventImagesAll(events, imageReason: 'eventImage' | 'eventBanner') {
     })
     .catch((err) => {
       log('error', err);
-      return false;
+      return undefined;
     });
 }
 
-function formatElementsToStrings(array) {
-  let newArray = [];
-  array.forEach((element) => {
-    newArray.push(element.toString());
-  });
-
-  return newArray;
-}
-
-function formatElementsToObjectIds(array) {
-  let newArray = [];
-  array.forEach((element) => {
-    newArray.push(mongoose.Types.ObjectId(element));
-  });
-
-  return newArray;
-}
 function formatSpeakers(speakers, host) {
   if (speakers.includes(host)) return speakers;
   else return speakers.concat(host);

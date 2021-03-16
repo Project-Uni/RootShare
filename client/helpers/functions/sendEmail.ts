@@ -4,7 +4,7 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-const sendEmail = async (email: string, subject: string, message: string) => {
+export const sendEmail = async (email: string, subject: string, message: string) => {
   const params = {
     Destination: {
       ToAddresses: [email],
@@ -30,5 +30,3 @@ const sendEmail = async (email: string, subject: string, message: string) => {
     return { success: false, message: err.message };
   }
 };
-
-export default sendEmail;

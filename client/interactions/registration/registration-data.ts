@@ -1,10 +1,9 @@
-import { User, University } from '../../models';
-
+import { User, University } from '../../rootshare_db/models';
 import { log, sendPacket, hashPassword, generateJWT } from '../../helpers/functions';
 
 module.exports = {
-  completeRegistrationDetails: async (userData, email) => {
-    const user = await User.findOne({ email: email });
+  completeRegistrationDetails: async (userData: any, email: string) => {
+    const user = await User.model.findOne({ email });
     if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
       return sendPacket(0, 'Unable to find user.');
@@ -34,7 +33,7 @@ module.exports = {
   },
 
   completeRegistrationRequired: async (userData, email) => {
-    const user = await User.findOne({ email: email });
+    const user = await User.model.findOne({ email: email });
 
     if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
@@ -42,7 +41,7 @@ module.exports = {
     }
 
     const universityName = userData['university'];
-    const university = await University.findOne({
+    const university = await University.model.findOne({
       universityName: universityName,
     });
 
