@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, IconButton, Menu, MenuItem } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Badge,
+  Theme as MuiTheme,
+} from '@material-ui/core';
 import RootShareLogo from '../images/RootShareLogoFullbeta.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
@@ -23,8 +31,10 @@ import { checkDesktop } from '../helpers/functions';
 import { RSLink, SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 import { useHistory } from 'react-router-dom';
+import { NotificationIcon } from '../images';
+import Theme from '../theme/Theme';
 
-const useStyles = makeStyles((_: any) => ({
+const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
   header: {
     background: theme.white,
@@ -138,6 +148,17 @@ function EventClientHeader(props: Props) {
           </IconButton>
           <IconButton onClick={handleProfileClick}>
             <MdAccountCircle {...iconProps} />
+          </IconButton>
+          <IconButton>
+            <Badge
+              variant="dot"
+              style={{ color: Theme.bright }}
+              color="error"
+              invisible={false}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+              <img src={NotificationIcon} style={{ height: 25 }} />
+            </Badge>
           </IconButton>
         </div>
       );

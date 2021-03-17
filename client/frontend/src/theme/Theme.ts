@@ -1,3 +1,5 @@
+import { createMuiTheme } from '@material-ui/core';
+
 const currentTheme = 'default'; //TODO - In the future, we can get the theme from redux and export the correct one from here using store.getState
 
 type Theme = {
@@ -18,7 +20,7 @@ type Theme = {
   brightHover: string;
   altText: string;
   disabledButton: string;
-  buttonHighlight: string;
+  // buttonHighlight: string;
   transparent: '#00000000';
   universityAccent: { [key: string]: string };
   fullShadow: string;
@@ -38,7 +40,7 @@ const theme: { default: Theme; dark: Theme } = {
     success: '#4BB543',
     //bright: '#6699FF',
     //altText: '#F8F8FF',
-    buttonHighlight: '#3C4469',
+    // buttonHighlight: '#3C4469',
     universityAccent: {
       '5eb89c308cc6636630c1311f': '#CEB888',
     },
@@ -79,7 +81,7 @@ const theme: { default: Theme; dark: Theme } = {
     brightHover: '',
     altText: '',
     disabledButton: '',
-    buttonHighlight: '',
+    // buttonHighlight: '',
     transparent: '#00000000',
     universityAccent: {},
     fullShadow: '',
@@ -107,3 +109,67 @@ export function customShadow(
 }
 
 export default theme[currentTheme];
+
+declare module '@material-ui/core/styles/createMuiTheme' {
+  interface Theme {
+    text: {
+      primary: string;
+      secondary: string;
+      alt: string;
+    };
+    shadow: {
+      full: string;
+      none: string;
+    };
+    background: {
+      primary: string;
+      secondary: string;
+      tertiary: string;
+    };
+    branding: {
+      primary: string;
+      primaryHover: string;
+      university: { [k: string]: string };
+      accent: string;
+    };
+    status: {
+      success: string;
+      error: string;
+      disabledButton: string;
+    };
+    colors: {
+      white: string;
+      dark: string;
+      transparent: string;
+    };
+  }
+  interface ThemeOptions extends Theme {}
+}
+
+export const muiTheme = createMuiTheme({
+  palette: { primary: { main: '#61C87F' }, error: { main: '#FA8072' } },
+  text: {
+    primary: '#252525',
+    secondary: '#545454',
+    alt: '#FFFFFF',
+  },
+  shadow: {
+    full: customShadow(0, 0, 12, '#444444', 0.4),
+    none: customShadow(0, 0, 0, '#000000', 0),
+  },
+  background: {
+    primary: '#E5E5E5',
+    secondary: '#FBFBFB',
+    tertiary: '#F7F9FA',
+  },
+  branding: {
+    primary: '#61C87F',
+    primaryHover: '#7BD294',
+    university: {
+      '5eb89c308cc6636630c1311f': '#CEB888',
+    },
+    accent: '#FFF9E1',
+  },
+  status: { error: '#900C1C', success: '#4BB543', disabledButton: 'lightgray' },
+  colors: { white: '#FFFFFF', dark: 'black', transparent: '#00000000' },
+});
