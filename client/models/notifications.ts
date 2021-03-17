@@ -284,9 +284,18 @@ export default class Notifications {
     return notifications;
   };
 
-  static markAsSeen = async ({ _ids }: { _ids: string[] }) => {
+  static markAsSeen = async ({
+    _ids,
+    userID,
+  }: {
+    _ids: string[];
+    userID: string;
+  }) => {
     await Notifications.model
-      .updateMany({ _id: { $in: _ids }, seen: false }, { seen: true })
+      .updateMany(
+        { $and: [{ _id: { $in: _ids } }, { forUser: userID }], seen: false },
+        { seen: true }
+      )
       .exec();
     return true;
   };

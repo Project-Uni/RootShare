@@ -107,7 +107,9 @@ export default class NotificationService {
         actionProviderId: fromUser,
         message: `${fromUserName.firstName} ${fromUserName.lastName} connected with you!`,
       });
-    } catch (err) {}
+    } catch (err) {
+      log('error', err.message);
+    }
   };
 
   communityAccept = async ({
@@ -137,11 +139,21 @@ export default class NotificationService {
 
   rootshare = async ({}: {}) => {};
 
-  markAsSeen = async ({ _ids }: { _ids: string[] }) => {
+  markAsSeen = async ({ _ids, userID }: { _ids: string[]; userID: string }) => {
     try {
-      await Notifications.markAsSeen({ _ids });
+      await Notifications.markAsSeen({ _ids, userID });
     } catch (err) {
       log('error', err);
+    }
+  };
+
+  getForUser = async ({ userID }: { userID: string }) => {
+    try {
+      const notifications = await Notifications.findForUser({ userID });
+      return notifications;
+    } catch (err) {
+      log('error', err.message);
+      return false;
     }
   };
 }
