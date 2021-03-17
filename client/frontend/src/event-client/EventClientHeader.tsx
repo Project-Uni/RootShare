@@ -31,8 +31,8 @@ import { checkDesktop } from '../helpers/functions';
 import { RSLink, SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 import { useHistory } from 'react-router-dom';
-import { NotificationIcon } from '../images';
 import Theme from '../theme/Theme';
+import { NotificationButton } from '../header';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -149,17 +149,7 @@ function EventClientHeader(props: Props) {
           <IconButton onClick={handleProfileClick}>
             <MdAccountCircle {...iconProps} />
           </IconButton>
-          <IconButton>
-            <Badge
-              variant="dot"
-              style={{ color: Theme.bright }}
-              color="error"
-              invisible={false}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-              <img src={NotificationIcon} style={{ height: 25 }} />
-            </Badge>
-          </IconButton>
+          <NotificationButton />
         </div>
       );
     }
