@@ -7,6 +7,7 @@ import {
   deleteFile,
 } from '../helpers/functions';
 import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
+import NotificationService from './notification';
 import { generateSignedProfilePromises } from './utilities';
 
 const mongoose = require('mongoose');
@@ -690,6 +691,12 @@ export async function leaveCommentOnPost(
           { $push: { comments: comment._id } }
         ).exec();
 
+        new NotificationService().comment({
+          fromUser: userID,
+          postID,
+          comment: message,
+        });
+
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
           comment,
         });
@@ -859,6 +866,7 @@ export async function likePost(postID: string, userID: string) {
           { $addToSet: { likes: postID } }
         ).exec();
 
+        new NotificationService().like({ fromUser: userID, postID });
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log('info', `User ${userID} successfully liked post ${postID}`);
           return sendPacket(1, 'Successfully liked post');

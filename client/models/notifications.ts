@@ -3,7 +3,13 @@ import { model, Schema, Document, Types } from 'mongoose';
 const ObjectIdVar = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
-type NotificationVariant = 'like' | 'comment' | 'connection' | 'general'; //Add other types here
+type NotificationVariant =
+  | 'like'
+  | 'comment'
+  | 'connection-accept'
+  | 'community-invite'
+  | 'community-accept'
+  | 'general'; //Add other types here
 
 type NotificationRelatedItem = 'post' | 'event' | 'community' | 'connection';
 type NotificationActionProvider = 'user' | 'community' | 'rootshare';
@@ -113,7 +119,7 @@ type IFindNotificationsForUser = {
   };
 };
 
-export default class Notification {
+export default class Notifications {
   static model = NotificationsModel;
 
   static create = async ({
@@ -133,7 +139,7 @@ export default class Notification {
     actionProviderType: NotificationActionProvider;
     actionProviderId: string;
   }) => {
-    const newNotification = await new Notification.model({
+    const newNotification = await new Notifications.model({
       message,
       forUser,
       relatedItemType,
@@ -158,7 +164,7 @@ export default class Notification {
   }: {
     userID: string;
   }): Promise<IFindNotificationsForUser[]> => {
-    const notifications = await Notification.model
+    const notifications = await Notifications.model
       .aggregate([
         { $match: { forUser: userID } },
         { $sort: { createdAt: -1 } },
@@ -274,12 +280,12 @@ export default class Notification {
       ])
       .exec();
 
-    await Notification.addImages(notifications);
+    await Notifications.addImages(notifications);
     return notifications;
   };
 
   static markAsSeen = async ({ _ids }: { _ids: string[] }) => {
-    await Notification.model
+    await Notifications.model
       .updateMany({ _id: { $in: _ids }, seen: false }, { seen: true })
       .exec();
     return true;

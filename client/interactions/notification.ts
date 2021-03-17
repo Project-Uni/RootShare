@@ -1,22 +1,24 @@
-import { Notification } from '../models';
+import { Community, Notifications, Post, User } from '../models';
 import { log } from '../helpers/functions';
 
 export default class NotificationService {
-  forUser: string;
-  constructor(forUser: string) {
-    this.forUser = forUser;
-  }
-
-  like = async ({ fromUser, post }: { fromUser: string; post: string }) => {
+  like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
     try {
-      await Notification.create({
+      const [forUser, fromUserName] = await Promise.all([
+        getUserIDForPost(postID),
+        getUsername(fromUser),
+      ]);
+
+      if (!forUser || !fromUserName || forUser === fromUser) return;
+
+      await Notifications.create({
         variant: 'like',
-        forUser: this.forUser,
+        forUser,
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',
-        relatedItemId: post,
-        message: '{actionProviderUser.firstName} liked your post',
+        relatedItemId: postID,
+        message: `${fromUserName.firstName} ${fromUserName.lastName} liked your post`,
       });
     } catch (err) {
       log('error', err.message);
@@ -25,22 +27,29 @@ export default class NotificationService {
 
   comment = async ({
     fromUser,
-    post,
+    postID,
     comment,
   }: {
     fromUser: string;
-    post: string;
+    postID: string;
     comment: string;
   }) => {
     try {
-      await Notification.create({
+      const [forUser, fromUserName] = await Promise.all([
+        getUserIDForPost(postID),
+        getUsername(fromUser),
+      ]);
+
+      if (!forUser || !fromUserName || forUser === fromUser) return;
+
+      await Notifications.create({
         variant: 'comment',
-        forUser: this.forUser,
+        forUser,
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',
-        relatedItemId: post,
-        message: `{actionProvider.firstName} commented on your post: ${comment}`,
+        relatedItemId: postID,
+        message: `${fromUserName.firstName} ${fromUserName.lastName} commented on your post: ${comment}`,
       });
     } catch (err) {
       log('error', err.message);
@@ -49,20 +58,122 @@ export default class NotificationService {
 
   communityInvite = async ({
     fromUser,
-    community,
+    communityID,
+    forUser,
   }: {
     fromUser: string;
-    community: string;
-  }) => {};
-  connectionAccept = async ({ fromUser }: { fromUser: string }) => {};
-  communityAccept = async ({ community }: { community: string }) => {};
+    communityID: string;
+    forUser: string;
+  }) => {
+    if (fromUser === forUser) return;
+    const [communityName, fromUserName] = await Promise.all([
+      getCommunityName(communityID),
+      getUsername(fromUser),
+    ]);
+    if (!communityName || !fromUserName) return;
+
+    try {
+      await Notifications.create({
+        variant: 'community-invite',
+        forUser,
+        relatedItemType: 'community',
+        relatedItemId: communityID,
+        actionProviderType: 'user',
+        actionProviderId: fromUser,
+        message: `${fromUserName.firstName} ${fromUserName.lastName} invited you to join ${communityName.name}`,
+      });
+    } catch (err) {
+      log('error', err.message);
+    }
+  };
+
+  connectionAccept = async ({
+    fromUser,
+    forUser,
+  }: {
+    fromUser: string;
+    forUser: string;
+  }) => {
+    const fromUserName = await getUsername(fromUser);
+    if (!fromUserName) return;
+
+    try {
+      await Notifications.create({
+        variant: 'connection-accept',
+        forUser,
+        relatedItemType: 'connection',
+        relatedItemId: fromUser,
+        actionProviderType: 'user',
+        actionProviderId: fromUser,
+        message: `${fromUserName.firstName} ${fromUserName.lastName} connected with you!`,
+      });
+    } catch (err) {}
+  };
+
+  communityAccept = async ({
+    communityID,
+    forUser,
+  }: {
+    communityID: string;
+    forUser: string;
+  }) => {
+    const communityName = await getCommunityName(communityID);
+    if (!communityName) return;
+
+    try {
+      await Notifications.create({
+        variant: 'community-accept',
+        forUser,
+        relatedItemType: 'community',
+        relatedItemId: communityID,
+        actionProviderType: 'community',
+        actionProviderId: communityID,
+        message: `${communityName} accepted your request.`,
+      });
+    } catch (err) {
+      log('error', err.message);
+    }
+  };
+
   rootshare = async ({}: {}) => {};
 
   markAsSeen = async ({ _ids }: { _ids: string[] }) => {
     try {
-      await Notification.markAsSeen({ _ids });
+      await Notifications.markAsSeen({ _ids });
     } catch (err) {
       log('error', err);
     }
   };
 }
+
+//Helpers
+const getUserIDForPost = async (postID: string): Promise<string> => {
+  try {
+    const post = await Post.findById(postID, 'user anonymous').lean().exec();
+    if (!post || post.anonymous) return '';
+
+    return post.user;
+  } catch (err) {
+    return '';
+  }
+};
+
+const getUsername = async (userID: string) => {
+  try {
+    const user = await User.findById(userID, 'firstName lastName').lean().exec();
+    if (!user) return false;
+    return { firstName: user.firstName, lastName: user.lastName };
+  } catch (err) {
+    return false;
+  }
+};
+
+const getCommunityName = async (communityID: string) => {
+  try {
+    const community = await Community.findById(communityID, 'name').lean().exec();
+    if (!community) return false;
+    return { name: community.name };
+  } catch (err) {
+    return false;
+  }
+};
