@@ -7,6 +7,7 @@ import { Notifications } from './Notifications';
 import { getNotifications, UnifiedNotification } from '../../api';
 import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
+import { makeRequest } from '../../helpers/functions';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -40,9 +41,23 @@ export const NotificationButton = (props: Props) => {
       );
     } else {
       setNotifications(data);
+      const hasNewNotifications = data.some((n) => n.seen === false);
+      setBadgeHidden(!hasNewNotifications);
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    //If open, wait 5 seconds, mark all as seen
+    if (open) {
+      const timeout = setTimeout(() => {
+        if (open) {
+          //Mark all as seen
+        }
+      }, 5000);
+      return clearTimeout(timeout);
+    }
+  }, [open]);
 
   return (
     <>
@@ -52,7 +67,7 @@ export const NotificationButton = (props: Props) => {
             variant="dot"
             style={{ color: Theme.bright }}
             color="error"
-            invisible={!badgeHidden}
+            invisible={badgeHidden}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
             <img src={NotificationIcon} style={{ height: 25 }} />
