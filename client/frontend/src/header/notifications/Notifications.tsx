@@ -1,19 +1,21 @@
 import React from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import { Popper } from '@material-ui/core';
+import { CircularProgress, Popper } from '@material-ui/core';
 import { RSCard } from '../../main-platform/reusable-components';
 import { RSText } from '../../base-components';
+import { NotificationType, UnifiedNotification } from '../../api';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
 type Props = {
   open: boolean;
   anchorEl: null | HTMLElement;
-  onClose: () => void;
+  notifications: UnifiedNotification[];
+  loading: boolean;
 };
 
 export const Notifications = (props: Props) => {
-  const { open, anchorEl, onClose } = props;
+  const { open, anchorEl, notifications, loading } = props;
   const styles = useStyles();
 
   return (
@@ -22,25 +24,21 @@ export const Notifications = (props: Props) => {
         <RSText bold size={13}>
           Notifications
         </RSText>
+        {loading ? (
+          <CircularProgress color="primary" style={{ height: 40 }} />
+        ) : (
+          <>
+            {notifications.map((n, i) => {
+              return <Notification {...n} key={`notification_${i}`} />;
+            })}
+          </>
+        )}
       </RSCard>
     </Popper>
   );
 };
 
-type NotificationProps = {
-  message: string;
-  variant: string;
-  createdAt: string;
-  updatedAt: string;
-  forUser: string;
-  seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'connection';
-  actionProviderType: 'user' | 'community' | 'rootshare';
-  actionProvider: { [key: string]: any };
-  relatedItem: { [key: string]: any };
-};
-
-const Notification = (props: NotificationProps) => {
+const Notification = (props: UnifiedNotification) => {
   const {
     message,
     variant,
@@ -54,100 +52,5 @@ const Notification = (props: NotificationProps) => {
     relatedItem,
   } = props;
 
-  return <div></div>;
-};
-
-type NotificationResponse = {
-  message: string;
-  variant: string;
-  createdAt: string;
-  updatedAt: string;
-  forUser: string;
-  seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'connection';
-  relatedPost?: {
-    _id: string;
-    message: string;
-  };
-  relatedCommunity?: {
-    _id: string;
-    name: string;
-    type: string;
-    profilePicture?: string;
-  };
-  relatedEvent?: {
-    _id: string;
-    title: string;
-    dateTime: string;
-    eventImage?: string;
-    eventBanner?: string;
-  };
-  relatedConnection?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    profilePicture?: string;
-  };
-  actionProviderType: 'user' | 'community' | 'rootshare';
-  actionProviderUser?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    profilePicture?: string;
-  };
-  actionProviderCommunity?: {
-    _id: string;
-    name: string;
-    type: string;
-    profilePicture?: string;
-  };
-};
-
-const unifyNotifications = (notifications: NotificationResponse[]) => {
-  return notifications.map((n) => {
-    const {
-      relatedCommunity,
-      relatedPost,
-      relatedEvent,
-      relatedConnection,
-      actionProviderCommunity,
-      actionProviderUser,
-      ...rest
-    } = n;
-    let relatedItem:
-      | NotificationResponse['relatedCommunity']
-      | NotificationResponse['relatedEvent']
-      | NotificationResponse['relatedPost']
-      | NotificationResponse['relatedConnection'];
-    switch (n.relatedItemType) {
-      case 'community':
-        relatedItem = n.relatedCommunity;
-        break;
-      case 'connection':
-        relatedItem = n.relatedConnection;
-        break;
-      case 'event':
-        relatedItem = n.relatedEvent;
-        break;
-      case 'post':
-        relatedItem = n.relatedPost;
-        break;
-      default:
-    }
-
-    let actionProvider:
-      | NotificationResponse['actionProviderUser']
-      | NotificationResponse['actionProviderCommunity'];
-
-    switch (n.actionProviderType) {
-      case 'user':
-        actionProvider = n.actionProviderUser;
-      case 'community':
-        actionProvider = n.actionProviderCommunity;
-      case 'rootshare':
-      default:
-    }
-
-    return Object.assign({}, { actionProvider, relatedItem }, rest);
-  });
+  return <div>{message}</div>;
 };
