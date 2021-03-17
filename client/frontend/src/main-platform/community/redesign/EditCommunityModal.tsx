@@ -34,13 +34,17 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'flex-start',
   },
-  tag:{
+  tag: {
     height: '25px',
     marginLeft: '2px',
     marginRight: '2px',
     fontFamily: 'lato',
     color: Theme.primaryText,
   },
+  saveBtn: {
+    marginLeft: '550px',
+    marginBottom: '20px',
+  }
 
 }));
 
@@ -65,7 +69,8 @@ const styles = useStyles();
   }
 
   function renderTags() {
-    //TODO add tag functionality
+    //TODO add tag functionality 
+    //filler to test formating for now
     return (
       <div className={styles.tagContainer}>
         <RSButton
@@ -117,9 +122,8 @@ const [loading, setLoading] = useState(false);
     <>
       <RSModal
         open={props.open}
-        title="Edit Community Profile"
+        title="Edit Profile"
         onClose={props.onClose}
-        onSaveButton={handleSave()}
         className={styles.wrapper}
         >
         <ProfileBanner
@@ -164,6 +168,14 @@ const [loading, setLoading] = useState(false);
               multiline
             />
             {renderTags()}
+          </div>
+          <div className={styles.saveBtn}>
+            <RSButton
+              variant="universityRound"
+              onClick={handleSave()}
+            >
+              Save
+            </RSButton>
           </div>
       </RSModal>
     </>

@@ -13,9 +13,10 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: '50px',
     outline: 'none',
   },
-
   pageTitle: {
     fontFamily: 'lato',
+    marginRight: 15,
+    marginLeft: 30,
   },
   top: {
     textAlign: 'left',
@@ -43,13 +44,6 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 10,
     marginBottom: 10,
   },
-  windowControl: {
-    marginLeft: 50,
-    marginRight: 10,
-  },
-  saveBtn: {
-    marginRight: 75,
-  },
 }));
 
 type Props = {
@@ -63,7 +57,6 @@ type Props = {
   children?: React.ReactNode;
   onClose: () => any;
   onBackArrow?: () => void;
-  onSaveButton?: () => void;
   serverErr?: string;
 };
 
@@ -99,13 +92,8 @@ function RSModal(props: Props) {
         <div className={styles.top}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {props.onBackArrow && (
-              <IconButton onClick={props.onBackArrow} size="medium" className={styles.windowControl}>
+              <IconButton onClick={props.onBackArrow} size="medium">
                 <FiArrowLeft color={Theme.secondaryText} />
-              </IconButton>
-            )}
-            {!props.onBackArrow  && (
-              <IconButton onClick={props.onClose} size="medium" className={styles.windowControl}>
-              x
               </IconButton>
             )}
             <RSText
@@ -117,16 +105,9 @@ function RSModal(props: Props) {
               {props.title}
             </RSText>
           </div>
-          {props.onSaveButton && (
-            <div className={styles.saveBtn}>
-              <RSButton
-                variant="universityRound"
-                onClick={() => props.onSaveButton}
-              >
-              Save
-              </RSButton>
-            </div>
-          )}
+          <IconButton onClick={props.onClose} size="medium">
+            x
+          </IconButton>
         </div>
         {props.helperIcon && (
           <div
