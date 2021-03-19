@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
 
 import { User, Community, Search, IConnection } from '../rootshare_db/models';
+import { SidebarData } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
-import { SidebarData } from '../helpers/types';
 import {
   addCalculatedCommunityFields,
   addCalculatedUserFields,

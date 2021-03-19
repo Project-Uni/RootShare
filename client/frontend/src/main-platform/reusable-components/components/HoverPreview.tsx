@@ -1,13 +1,30 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { Avatar, Popper, Box } from '@material-ui/core';
 
+import { Avatar, Popper, Box } from '@material-ui/core';
 import { GiGraduateCap } from 'react-icons/gi';
 import { FaUserTie } from 'react-icons/fa';
 
 import { useSelector, useDispatch } from 'react-redux';
+import {
+  clearHoverPreview,
+  dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
+  mouseEnteredHoverPreview,
+} from '../../../redux/actions/interactions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
+import { RSText } from '../../../base-components';
+import Theme from '../../../theme/Theme';
+import RSButton from './RSButton';
+import { RSLink } from '../';
+import {
+  putUpdateUserConnection,
+  getCommunities,
+  getUsers,
+  putCommunityMembership,
+} from '../../../api';
 import {
   CommunityType,
   UserToUserRelationship,
@@ -15,25 +32,6 @@ import {
   U2UR,
   U2CR,
 } from '../../../helpers/types';
-
-import {
-  clearHoverPreview,
-  dispatchSnackbar,
-  hoverPreviewTriggerComponentExit,
-  mouseEnteredHoverPreview,
-} from '../../../redux/actions/interactions';
-import { RSText } from '../../../base-components';
-import Theme from '../../../theme/Theme';
-import RSButton from './RSButton';
-import {
-  putUpdateUserConnection,
-  getCommunities,
-  getUsers,
-  putCommunityMembership,
-} from '../../../api';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { RSLink } from '../';
-import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   paper: {
@@ -119,8 +117,9 @@ const HoverPreview = () => {
   anchorElRef.current = anchorEl;
 
   useEffect(() => {
-    if (anchorEl && !loading) fetchData();
-    else if (open) setOpen(false);
+    if (anchorEl && !loading) {
+      fetchData();
+    } else if (open) setOpen(false);
   }, [anchorEl]);
 
   const handleCloseOnScroll = useCallback(() => {
@@ -147,6 +146,7 @@ const HoverPreview = () => {
   }, [history]);
 
   const fetchData = useCallback(async () => {
+    console.log('TESTT1');
     const data =
       type === 'user'
         ? await getUsers<UserResponse>([_id], {
@@ -166,6 +166,10 @@ const HoverPreview = () => {
               includeDefaultFields: false,
             },
           });
+
+    alert('TESTTT');
+    console.log(data);
+
     if (data.success === 1) {
       if (type === 'user') {
         const user = (data.content as UserResponse).users[0];

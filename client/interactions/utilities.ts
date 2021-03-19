@@ -1,13 +1,13 @@
 import { Types } from 'mongoose';
 
 import { User, IConnection } from '../rootshare_db/models';
+import { packetParams, U2UR, U2CR } from '../rootshare_db/types';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { U2UR, U2CR } from '../helpers/types';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
-export function getUserData(callback) {
+export function getUserData(callback: (packet: packetParams) => void) {
   User.model.find(
     {},
     [
@@ -24,6 +24,7 @@ export function getUserData(callback) {
       'department',
       'graduateSchool',
     ],
+    {},
     (err, users) => {
       if (err || users === undefined || users === null) {
         return callback(sendPacket(-1, 'Could not find users'));

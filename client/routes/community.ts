@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
+import { USER_LEVEL } from '../rootshare_db/types';
 import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
-import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';

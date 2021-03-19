@@ -31,6 +31,7 @@ export default function proxyRoutes(app) {
       User.model.find(
         { _id: { $in: data['content']['activeUserIDs'] } },
         ['_id', 'firstName', 'lastName', 'email'],
+        {},
         (err, users) => {
           if (err) {
             log('error', err);

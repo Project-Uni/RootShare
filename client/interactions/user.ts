@@ -8,8 +8,8 @@ import {
   ICommunity,
 } from '../rootshare_db/models';
 import { GetUsersByIDsOptions } from '../rootshare_db/models/users';
+import { U2UR, U2CR, packetParams } from '../rootshare_db/types';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
-import { U2UR, U2CR } from '../helpers/types';
 import {
   addCalculatedUserFields,
   getUserToUserRelationship,
@@ -25,7 +25,10 @@ import {
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
-export async function getCurrentUser(user: any, callback) {
+export async function getCurrentUser(
+  user: any,
+  callback: (packet: packetParams) => void
+) {
   if (Object.keys(user).some((key) => !user[key]))
     return callback(sendPacket(0, 'User not found'));
 
@@ -41,7 +44,10 @@ export async function getCurrentUser(user: any, callback) {
   );
 }
 
-export async function getPrivateProfileInformation(userID: ObjectIdType, callback) {
+export async function getPrivateProfileInformation(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   User.model
     .aggregate([
       { $match: { _id: ObjectIdVal(userID.toString()) } },
@@ -95,7 +101,7 @@ export async function getPrivateProfileInformation(userID: ObjectIdType, callbac
 export async function getPublicProfileInformation(
   selfUserID: ObjectIdType,
   userID: ObjectIdType,
-  callback
+  callback: (packet: packetParams) => void
 ) {
   try {
     const selfUserPromise = User.model
@@ -183,7 +189,10 @@ export async function getPublicProfileInformation(
   }
 }
 
-export function getUserEvents(userID: ObjectIdType, callback) {
+export function getUserEvents(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   User.model
     .aggregate([
       { $match: { _id: ObjectIdVal(userID.toString()) } },
@@ -254,7 +263,7 @@ export function getUserEvents(userID: ObjectIdType, callback) {
 export function updateProfileInformation(
   userID: ObjectIdType,
   profileData: any,
-  callback
+  callback: (packet: packetParams) => void
 ) {
   User.model.findById(
     userID,
@@ -273,8 +282,9 @@ export function updateProfileInformation(
       'phoneNumber',
       'discoveryMethod',
     ],
+    {},
     (err, user) => {
-      if (err) return callback(sendPacket(-1, err));
+      if (err) return callback(sendPacket(-1, err.message));
       if (!user) return callback(sendPacket(0, 'Could not find user'));
 
       if (profileData['firstName']) user.firstName = profileData['firstName'];
@@ -295,15 +305,19 @@ export function updateProfileInformation(
       if (profileData['discoveryMethod'])
         user.discoveryMethod = profileData['discoveryMethod'];
       user.save((err) => {
-        if (err) return callback(sendPacket(-1, err));
+        if (err) return callback(sendPacket(-1, err.message));
         return callback(sendPacket(1, 'Successfully updated user profile!'));
       });
     }
   );
 }
 
-export function updateUserBio(userID: ObjectIdType, newBio: string, callback) {
-  User.model.updateOne({ _id: userID }, { bio: newBio }, (err, update) => {
+export function updateUserBio(
+  userID: ObjectIdType,
+  newBio: string,
+  callback: (packet: packetParams) => void
+) {
+  User.model.updateOne({ _id: userID }, { bio: newBio }, {}, (err, update) => {
     if (err) return callback(sendPacket(-1, err));
     if (update.n === 0) return callback(sendPacket(0, 'Could not find User'));
     return callback(sendPacket(1, "Updated user's bio"));
@@ -311,7 +325,10 @@ export function updateUserBio(userID: ObjectIdType, newBio: string, callback) {
 }
 
 // TODO: either send these in chunks or store all connections in redux when user logs in
-export function getConnections(userID: ObjectIdType, callback) {
+export function getConnections(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   const lookupConnections = {
     $lookup: {
       from: 'connections',
@@ -408,7 +425,10 @@ export function getConnections(userID: ObjectIdType, callback) {
     });
 }
 
-export function getConnectionSuggestions(userID: ObjectIdType, callback) {
+export function getConnectionSuggestions(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   User.model
     .aggregate([
       { $sample: { size: 15 } },
@@ -514,7 +534,10 @@ function filterSuggestions(user: any, suggestions: any[]) {
   );
 }
 
-export function getPendingRequests(userID: ObjectIdType, callback) {
+export function getPendingRequests(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   User.model
     .aggregate([
       { $match: { _id: ObjectIdVal(userID.toString()) } },
@@ -785,7 +808,11 @@ function removeConnectionRequest(request) {
   }
 }
 
-export function checkConnectedWithUser(userID, requestUserID, callback) {
+export function checkConnectedWithUser(
+  userID,
+  requestUserID,
+  callback: (packet: packetParams) => void
+) {
   try {
     userID = userID.toString();
     requestUserID = requestUserID.toString();
@@ -836,7 +863,11 @@ export function checkConnectedWithUser(userID, requestUserID, callback) {
   }
 }
 
-export function getConnectionWithUser(userID, requestUserID, callback) {
+export function getConnectionWithUser(
+  userID,
+  requestUserID,
+  callback: (packet: packetParams) => void
+) {
   userID = userID.toString();
   requestUserID = requestUserID.toString();
   if (requestUserID.localeCompare(userID) === 0)
@@ -864,11 +895,7 @@ export function getConnectionWithUser(userID, requestUserID, callback) {
 export async function updateAttendingList(
   userID: ObjectIdType,
   webinarID: ObjectIdType,
-  callback: (packet: {
-    success: number;
-    message: string;
-    content?: { [key: string]: any };
-  }) => any
+  callback: (packet: packetParams) => void
 ) {
   try {
     const userPromise = User.model
@@ -1092,7 +1119,7 @@ export async function getSelfConnectionsFullData(selfID: string) {
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      let cleanedConnection = connectionsWithData[i].toObject();
+      let cleanedConnection: any = connectionsWithData[i].toObject();
       cleanedConnection.connections = connectionsToUserIDStrings(
         connectionsWithData[i]._id,
         connectionsWithData[i].connections as IConnection[]
@@ -1108,7 +1135,7 @@ export async function getSelfConnectionsFullData(selfID: string) {
     }
 
     for (let i = 0; i < pendingWithData.length; i++) {
-      let cleanedPending = pendingWithData[i].toObject();
+      let cleanedPending: any = pendingWithData[i].toObject();
       cleanedPending.connections = connectionsToUserIDStrings(
         pendingWithData[i]._id,
         pendingWithData[i].connections as IConnection[]
@@ -1199,7 +1226,7 @@ export async function getOtherConnectionsFullData(
       .populate({ path: 'connections', select: ['accepted', 'from', 'to'] });
 
     for (let i = 0; i < connectionsWithData.length; i++) {
-      let cleanedConnection = connectionsWithData[i].toObject();
+      let cleanedConnection: any = connectionsWithData[i].toObject();
       cleanedConnection.connections = connectionsToUserIDStrings(
         connectionsWithData[i]._id,
         connectionsWithData[i].connections as IConnection[]

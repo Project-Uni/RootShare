@@ -11,13 +11,13 @@ import {
   IConnection,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
+import { CommunityType, U2CR } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
   retrieveSignedUrl,
   deleteFile,
 } from '../helpers/functions';
-import { CommunityType, U2CR } from '../helpers/types';
 import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
@@ -1250,7 +1250,6 @@ export async function getCommunityMembers(
           { path: 'connections', select: 'from to accepted' },
         ],
       })
-      .lean()
       .exec();
 
     const userPromise = User.model

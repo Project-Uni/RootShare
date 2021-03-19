@@ -5,7 +5,6 @@ import {
   log,
   sendPacket,
   uploadFile,
-  retrieveFile,
   retrieveSignedUrl,
   decodeBase64Image,
 } from '../helpers/functions';

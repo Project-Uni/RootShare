@@ -1,6 +1,6 @@
+import { USER_LEVEL } from '../rootshare_db/types';
 import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-
 import {
   createEvent,
   deleteEvent,
@@ -13,10 +13,7 @@ import {
   addEventBanner,
   sendEventEmailConfirmation,
 } from '../interactions/streaming/event';
-
 import { updateAttendingList } from '../interactions/user';
-
-import { USER_LEVEL } from '../helpers/types';
 
 export default function eventRoutes(app) {
   app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {

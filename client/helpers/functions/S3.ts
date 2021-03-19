@@ -4,7 +4,7 @@ const AWSKeys = require('../../../keys/aws_key.json');
 
 import { log } from './logger';
 
-import { ImageReason } from '../types';
+import { ImageReason } from '../../rootshare_db/types';
 
 const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,

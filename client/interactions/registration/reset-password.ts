@@ -1,7 +1,7 @@
-const Cryptr = require('cryptr');
 const aws = require('aws-sdk');
 
 import { User } from '../../rootshare_db/models';
+import { packetParams } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -10,18 +10,19 @@ import {
   convertTokenToEmail,
 } from '../../helpers/functions';
 
-const { CRYPT_SECRET } = require('../../../keys/keys.json');
-const cryptr = new Cryptr(CRYPT_SECRET);
-
 aws.config.loadFromPath('../keys/aws_key.json');
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-export function updatePassword(emailToken: string, newPassword: string, callback) {
+export function updatePassword(
+  emailToken: string,
+  newPassword: string,
+  callback: (packet: packetParams) => void
+) {
   let emailAddress = convertTokenToEmail(emailToken);
-  User.model.findOne({ email: emailAddress }, (err, currUser) => {
-    if (err) return callback(-1, err);
+  User.model.findOne({ email: emailAddress }, [], {}, (err, currUser) => {
+    if (err) return callback(sendPacket(-1, err.message));
     if (!currUser) return callback(sendPacket(0, 'User code invalid'));
 
     currUser.hashedPassword = hashPassword(newPassword);
@@ -32,7 +33,10 @@ export function updatePassword(emailToken: string, newPassword: string, callback
   });
 }
 
-export function sendPasswordResetLink(emailAddress: string, callback) {
+export function sendPasswordResetLink(
+  emailAddress: string,
+  callback: (packet: packetParams) => void
+) {
   emailIsValid(emailAddress, (valid) => {
     if (!valid)
       return callback(sendPacket(0, "Can't reset password for this email"));
@@ -65,13 +69,21 @@ export function sendPasswordResetLink(emailAddress: string, callback) {
   });
 }
 
-export function emailIsValid(emailAddress: string, callback) {
-  User.model.findOne({ email: emailAddress }, ['hashedPassword'], (err, user) => {
-    return callback(
-      !err &&
-        user !== undefined &&
-        user !== null &&
-        user.hashedPassword !== undefined
-    );
-  });
+export function emailIsValid(
+  emailAddress: string,
+  callback: (valid: boolean) => void
+) {
+  User.model.findOne(
+    { email: emailAddress },
+    ['hashedPassword'],
+    {},
+    (err, user) => {
+      return callback(
+        !err &&
+          user !== undefined &&
+          user !== null &&
+          user.hashedPassword !== undefined
+      );
+    }
+  );
 }

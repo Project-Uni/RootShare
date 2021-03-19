@@ -1,4 +1,7 @@
-import { JWT_TOKEN_FIELDS, JWT_ACCESS_TOKEN_TIMEOUT } from '../types';
+import {
+  JWT_TOKEN_FIELDS,
+  JWT_ACCESS_TOKEN_TIMEOUT,
+} from '../../rootshare_db/types';
 import jwt = require('jsonwebtoken');
 import { Types } from 'mongoose';
 

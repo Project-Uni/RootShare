@@ -3,14 +3,13 @@ const aws = require('aws-sdk');
 
 import {
   Webinar,
-  Connection,
   Conversation,
   User,
   IUser,
   IConnection,
   IWebinar,
 } from '../../rootshare_db/models';
-
+import { packetParams } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -32,7 +31,7 @@ let ses = new aws.SES({
 export async function createEvent(
   eventBody: { [key: string]: any },
   user: { [key: string]: any },
-  callback: (packet: any) => void
+  callback: (packet: packetParams) => void
 ) {
   if (eventBody['editEvent'] !== '') return updateEvent(eventBody, callback);
 
@@ -68,7 +67,10 @@ export async function createEvent(
   });
 }
 
-async function updateEvent(eventBody: any, callback: (packet: any) => void) {
+async function updateEvent(
+  eventBody: any,
+  callback: (packet: packetParams) => void
+) {
   try {
     const webinar = await Webinar.model
       .findById(eventBody['editEvent'])
@@ -174,7 +176,10 @@ export function timeStampCompare(
   return 0;
 }
 
-export async function getAllRecentEvents(userID: ObjectIdType, callback) {
+export async function getAllRecentEvents(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   let events = await Webinar.model
     .find(
       {
@@ -234,7 +239,7 @@ export async function getAllRecentEvents(userID: ObjectIdType, callback) {
   );
 }
 
-export async function getAllEventsAdmin(callback) {
+export async function getAllEventsAdmin(callback: (packet: packetParams) => void) {
   Webinar.model
     .aggregate([
       // { $match: { dateTime: { $gt: new Date() } } },
@@ -311,7 +316,10 @@ export async function getAllEventsAdmin(callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function getAllEventsUser(userID: ObjectIdType, callback) {
+export async function getAllEventsUser(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   Webinar.model
     .aggregate([
       { $match: { dateTime: { $gt: new Date() }, isDev: { $ne: true } } },
@@ -354,7 +362,7 @@ export async function getAllEventsUser(userID: ObjectIdType, callback) {
 function addUserDidRSVP(
   userID: ObjectIdType,
   webinars: { _id: ObjectIdType; userRSVP: boolean }[],
-  callback
+  callback: (packet: packetParams) => void
 ) {
   User.model
     .aggregate([
@@ -379,7 +387,7 @@ function addUserDidRSVP(
 export async function deleteEvent(
   userID: ObjectIdType,
   eventID: ObjectIdType,
-  callback
+  callback: (packet: packetParams) => void
 ) {
   try {
     const deletePromise = Webinar.model.deleteOne({ _id: eventID });
@@ -417,7 +425,7 @@ export async function deleteEvent(
 export async function getWebinarDetails(
   userID: ObjectIdType,
   webinarID: ObjectIdType,
-  callback
+  callback: (packet: packetParams) => void
 ) {
   Webinar.model.findById(
     webinarID,
@@ -435,27 +443,33 @@ export async function getWebinarDetails(
       'eventImage',
       'eventBanner',
     ],
+    {},
     async (err, webinar) => {
       if (err) {
-        log('error', err);
+        log('error', err.message);
         return callback(sendPacket(-1, 'There was an error finding webinar'));
       } else if (!webinar || webinar === undefined || webinar == null) {
         return callback(sendPacket(0, 'No webinar exists with this ID'));
       }
 
-      webinar = webinar.toObject();
-      const eventImagePromise = retrieveSignedUrl('eventImage', webinar.eventImage);
+      let webinarObj = webinar.toObject();
+      const eventImagePromise = retrieveSignedUrl(
+        'eventImage',
+        webinarObj.eventImage
+      );
       const eventBannerPromise = retrieveSignedUrl(
         'eventBanner',
-        webinar.eventBanner
+        webinarObj.eventBanner
       );
       Promise.all([eventImagePromise, eventBannerPromise]).then(
         ([eventImage, eventBanner]) => {
-          webinar.eventImage = eventImage || undefined;
-          webinar.eventBanner = eventBanner || undefined;
+          webinarObj.eventImage = eventImage || undefined;
+          webinarObj.eventBanner = eventBanner || undefined;
 
           return callback(
-            sendPacket(1, 'Succesfully found webinar details', { webinar })
+            sendPacket(1, 'Succesfully found webinar details', {
+              webinar: webinarObj,
+            })
           );
         }
       );
@@ -466,14 +480,14 @@ export async function getWebinarDetails(
 export function updateRSVP(
   userID: ObjectIdType,
   webinarID: ObjectIdType,
-  didRSVP,
-  callback
+  didRSVP: boolean,
+  callback: (packet: packetParams) => void
 ) {
   canUpdateRSVP(userID, webinarID, (packet) => {
     if (packet.success !== 1) return callback(packet);
 
-    User.model.findById(userID, ['RSVPWebinars'], (err, user) => {
-      if (err) return callback(sendPacket(-1, err));
+    User.model.findById(userID, ['RSVPWebinars'], {}, (err, user) => {
+      if (err) return callback(sendPacket(-1, err.message));
       if (!user)
         return callback(
           sendPacket(-1, 'Could not find user to RSVP to the webinar')
@@ -487,7 +501,7 @@ export function updateRSVP(
         user.RSVPWebinars.splice(user.RSVPWebinars.indexOf(webinarID), 1);
 
       user.save((err, user) => {
-        if (err) return callback(sendPacket(-1, err));
+        if (err) return callback(sendPacket(-1, err.message));
         if (!user)
           return callback(sendPacket(-1, 'Could not save user RSVP to the webinar'));
 
@@ -501,9 +515,13 @@ export function updateRSVP(
   });
 }
 
-function canUpdateRSVP(userID: ObjectIdType, webinarID: ObjectIdType, callback) {
-  Webinar.model.findById(webinarID, ['host', 'speakers'], (err, webinar) => {
-    if (err) return callback(sendPacket(-1, err));
+function canUpdateRSVP(
+  userID: ObjectIdType,
+  webinarID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
+  Webinar.model.findById(webinarID, ['host', 'speakers'], {}, (err, webinar) => {
+    if (err) return callback(sendPacket(-1, err.message));
     if (!webinar) return callback(sendPacket(0, "Webinar doesn't exist"));
 
     if (
@@ -608,7 +626,7 @@ function addEventImagesAll(
     });
 }
 
-function formatSpeakers(speakers, host) {
+function formatSpeakers(speakers: any[], host: any) {
   if (speakers.includes(host)) return speakers;
   else return speakers.concat(host);
 }
@@ -616,7 +634,7 @@ function formatSpeakers(speakers, host) {
 export function sendEventEmailConfirmation(
   webinarData: { [key: string]: any },
   speakerEmails: string[],
-  callback?: any
+  callback?: (packet: packetParams) => void
 ) {
   if (!webinarData || speakerEmails.length === 0)
     return callback && callback(sendPacket(0, 'Invalid inputs'));

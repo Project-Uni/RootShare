@@ -1,4 +1,4 @@
-import { IRequest } from '../types';
+import { IRequest } from '../../rootshare_db/types';
 import { log } from './';
 
 type QueryValue = string | string[] | number | number[] | boolean | boolean[];

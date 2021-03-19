@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Types } from 'mongoose';
 
 import { Webinar } from '../../rootshare_db/models';
+import { packetParams } from '../../rootshare_db/types';
 import { log, sendPacket } from '../../helpers/functions';
 
 const {
@@ -19,7 +20,10 @@ const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
 type ObjectIdType = Types.ObjectId;
 
 module.exports = {
-  createNewOpenTokSession: (webinar: any, callback) => {
+  createNewOpenTokSession: (
+    webinar: any,
+    callback: (packet: packetParams) => void
+  ) => {
     if (!webinar) return callback(sendPacket(-1, 'Could not retrieve webinar'));
 
     if (webinar.dateTime.getTime() > new Date().getTime() + 30 * 60 * 1000)
@@ -51,7 +55,10 @@ module.exports = {
   },
 
   // Retrive Session ID from DB
-  getOpenTokSessionID: async (webinarID: ObjectIdType, callback) => {
+  getOpenTokSessionID: async (
+    webinarID: ObjectIdType,
+    callback: (packet: packetParams) => void
+  ) => {
     Webinar.model.findById(webinarID, (err, webinar) => {
       if (err) return callback(sendPacket(-1, err));
       if (!webinar)
@@ -267,7 +274,7 @@ module.exports = {
     webinarID: ObjectIdType,
     type: 'bestFit' | 'horizontalPresentation',
     streamID: string,
-    callback
+    callback: (packet: packetParams) => void
   ) => {
     let layoutClass;
     if (type === 'bestFit') layoutClass = 'full';

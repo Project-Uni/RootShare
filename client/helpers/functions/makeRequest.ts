@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Types } from 'mongoose';
 
 import { log } from './logger';
-import { JWT_TOKEN_FIELDS } from '../types';
+import { JWT_TOKEN_FIELDS } from '../../rootshare_db/types';
 
 type ObjectIdType = Types.ObjectId;
 

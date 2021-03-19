@@ -1,12 +1,11 @@
+import { SidebarData } from '../rootshare_db/types';
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   populateDiscoverForUser,
   exactMatchSearchFor,
   getSidebarData,
 } from '../interactions/discover';
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
-import { SidebarData } from '../helpers/types';
 
 export default function discoverRoutes(app) {
   app.get('/api/discover/populate', isAuthenticatedWithJWT, async (req, res) => {

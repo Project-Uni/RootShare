@@ -11,6 +11,7 @@ import {
   ExternalCommunication,
   Webinar,
 } from '../rootshare_db/models';
+import { packetParams } from '../rootshare_db/types';
 import {
   decodeBase64Image,
   log,
@@ -222,7 +223,11 @@ export async function sendMTGCommunications(
   }
 }
 
-export async function updateUserInfo(userID: ObjectIdType, userInfo: any, callback) {
+export async function updateUserInfo(
+  userID: ObjectIdType,
+  userInfo: any,
+  callback: (packet: packetParams) => void
+) {
   try {
     let updateObj = {};
     if (userInfo.firstName) updateObj['firstName'] = userInfo.firstName;

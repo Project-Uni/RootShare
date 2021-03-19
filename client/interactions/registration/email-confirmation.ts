@@ -1,7 +1,7 @@
-import { User } from '../../rootshare_db/models';
-
 const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
+
+import { User } from '../../rootshare_db/models';
+import { packetParams } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -9,6 +9,7 @@ import {
   convertTokenToEmail,
 } from '../../helpers/functions';
 
+aws.config.loadFromPath('../keys/aws_key.json');
 let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
@@ -53,11 +54,11 @@ export function resetLockAuth(
   emailToken: string,
   method: 'Reset' | 'Locked',
   provider: 'Google' | 'LinkedIn',
-  callback
+  callback: (packet: packetParams) => void
 ) {
   let emailAddress = convertTokenToEmail(emailToken);
-  User.model.findOne({ email: emailAddress }, ['_id'], (err, user) => {
-    if (err) return callback(sendPacket(-1, err));
+  User.model.findOne({ email: emailAddress }, ['_id'], {}, (err, user) => {
+    if (err) return callback(sendPacket(-1, err.message));
     if (!user) return callback(sendPacket(0, 'Could not find User'));
 
     const field = provider === 'Google' ? 'googleID' : 'linkedinID';
@@ -65,7 +66,7 @@ export function resetLockAuth(
     user[field] = newValue;
 
     user.save((err) => {
-      if (err) return callback(sendPacket(-1, err));
+      if (err) return callback(sendPacket(-1, err.message));
       return callback(
         sendPacket(1, `Successfully ${method} ${provider} Registration`)
       );

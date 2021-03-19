@@ -64,15 +64,15 @@ export async function createBroadcastUserPost(
       await Post.model.updateOne({ _id: post._id }, { $push: { images: imageID } });
       try {
         const imageURL = await retrieveSignedUrl('postImage', fileName);
-        post = post.toObject();
-        post.images = [{ fileName: imageURL || '' } as IImage];
+        var postObj = post.toObject();
+        postObj.images = [{ fileName: imageURL || '' } as IImage];
       } catch (err) {
         log('error', err);
       }
     }
 
     log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { post });
+    return sendPacket(1, 'Successfully created post', { post: postObj });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);

@@ -32,8 +32,8 @@ module.exports = {
     }
   },
 
-  completeRegistrationRequired: async (userData, email) => {
-    const user = await User.model.findOne({ email: email });
+  completeRegistrationRequired: async (userData: any, email: string) => {
+    const user = await User.model.findOne({ email });
 
     if (!user) {
       log('USER ERROR', `User Not Found with email address: ${email}`);
