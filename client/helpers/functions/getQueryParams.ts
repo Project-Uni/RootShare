@@ -21,7 +21,6 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
   req: IRequest,
   fields: T
 ) => {
-  console.log(req.query);
   const query = new URLSearchParams((req.query as unknown) as string);
   const output: { [k: string]: QueryValue } = {};
   const keys = Object.keys(fields);
@@ -37,7 +36,6 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
       // val = query.getAll(field);
       val = req.query[field] as any; //TODO - Arrays arent working with URLSearchParams for some reason
     } else val = query.get(field);
-    console.log(val);
 
     if (!val && !optional) {
       log('error', `Missing parameter: ${field}`);
@@ -51,12 +49,16 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
     try {
       if (type.startsWith('number')) {
         if (type.endsWith('[]'))
-          val = (val as Array<string>).map((arrVal) => parseFloat(arrVal));
+          if (typeof val === 'string') val = [parseFloat(val)];
+          else val = (val as Array<string>).map((arrVal) => parseFloat(arrVal));
         else val = parseInt(val as string);
       } else if (type.startsWith('boolean')) {
         if (type.endsWith('[]'))
-          val = (val as Array<string>).map((arrVal) => arrVal === 'true');
+          if (typeof val === 'string') val = [val === 'true'];
+          else val = (val as Array<string>).map((arrVal) => arrVal === 'true');
         else val = val === 'true';
+      } else if (type.startsWith('string')) {
+        if (type.endsWith('[]')) if (typeof val === 'string') val = [val];
       }
     } catch (err) {
       log('error', `Type Mismatch: ${err.message}`);

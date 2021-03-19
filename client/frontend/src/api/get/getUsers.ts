@@ -23,8 +23,6 @@ export const getUsers = async <T = { [k: string]: unknown }>(
     },
     { arrayFormat: 'repeat' }
   );
-  console.log(query);
-  console.log(_ids);
   const { data } = await makeRequest<T>('GET', `/api/v2/users?${query}`);
   return data;
 };

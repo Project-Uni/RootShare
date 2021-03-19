@@ -1,7 +1,12 @@
 import { Types } from 'mongoose';
 
 import { USER_LEVEL } from '../rootshare_db/types';
-import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
+import {
+  getUserFromJWT,
+  sendPacket,
+  getQueryParams,
+  log,
+} from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -505,14 +510,16 @@ export default function communityRoutes(app) {
     } = query;
 
     const populates = [];
-    try {
-      (populatesRaw as string[]).forEach((populateRaw) => {
-        const split = populateRaw.split(':');
-        populates.push({ path: split[0], select: split[1] });
-      });
-    } catch (err) {
-      return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-    }
+    if (populatesRaw)
+      try {
+        (populatesRaw as string[]).forEach((populateRaw) => {
+          const split = populateRaw.split(':');
+          populates.push({ path: split[0], select: split[1] });
+        });
+      } catch (err) {
+        log('err', err);
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      }
 
     const options = {
       limit,

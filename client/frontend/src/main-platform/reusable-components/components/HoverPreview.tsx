@@ -146,7 +146,6 @@ const HoverPreview = () => {
   }, [history]);
 
   const fetchData = useCallback(async () => {
-    console.log('TESTT1');
     const data =
       type === 'user'
         ? await getUsers<UserResponse>([_id], {
@@ -166,9 +165,6 @@ const HoverPreview = () => {
               includeDefaultFields: false,
             },
           });
-
-    alert('TESTTT');
-    console.log(data);
 
     if (data.success === 1) {
       if (type === 'user') {
