@@ -292,6 +292,7 @@ export default function userRoutes(app: Express) {
       includeDefaultFields,
       getRelationship,
     } = query;
+    console.log(_ids);
     const userIDs = (_ids as string[]).map((_id) => ObjectIdVal(_id));
 
     const options = {

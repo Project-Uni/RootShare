@@ -21,6 +21,7 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
   req: IRequest,
   fields: T
 ) => {
+  console.log(req.query);
   const query = new URLSearchParams((req.query as unknown) as string);
   const output: { [k: string]: QueryValue } = {};
   const keys = Object.keys(fields);
@@ -36,6 +37,7 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
       // val = query.getAll(field);
       val = req.query[field] as any; //TODO - Arrays arent working with URLSearchParams for some reason
     } else val = query.get(field);
+    console.log(val);
 
     if (!val && !optional) {
       log('error', `Missing parameter: ${field}`);
