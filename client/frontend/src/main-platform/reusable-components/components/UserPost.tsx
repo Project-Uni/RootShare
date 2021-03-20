@@ -432,10 +432,6 @@ function UserPost(props: Props) {
                   props.posterID
                 }`}
                 className={styles.noUnderline}
-                onMouseEnter={handleMouseOver}
-                onMouseLeave={() => {
-                  isHovering.current = false;
-                }}
               >
                 <div
                   onMouseEnter={handleMouseOver}

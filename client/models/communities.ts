@@ -41,12 +41,9 @@ const Schema = mongoose.Schema;
  *          description:
  *            type: string
  *            description: The description for what the community is for
-<<<<<<< HEAD
-=======
  *          bio:
  *            type: string
  *            description: A short blurb about the community
->>>>>>> master
  *          university:
  *            $ref: '#/components/schemas/University'
  *            description: The university the community belongs to
