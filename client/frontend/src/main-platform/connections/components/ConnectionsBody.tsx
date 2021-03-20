@@ -16,9 +16,6 @@ import { DiscoverUser, UniversityType, U2UR } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 
-import { MdGroup } from 'react-icons/md';
-import theme from '../../../theme/Theme';
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   body: {},
