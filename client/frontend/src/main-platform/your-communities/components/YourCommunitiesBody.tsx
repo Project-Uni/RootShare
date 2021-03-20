@@ -166,6 +166,7 @@ export default function YourCommunitiesBody(props: Props) {
       />
       <Box boxShadow={2} borderRadius={8} className={styles.box}>
         <WelcomeMessage
+          counter={joinedCommunities.length}
           title={`${
             requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Communities`}

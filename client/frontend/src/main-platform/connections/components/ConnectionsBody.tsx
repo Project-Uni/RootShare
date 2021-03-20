@@ -11,7 +11,7 @@ import { WelcomeMessage, UserHighlight } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
-import { DiscoverUser, UniversityType } from '../../../helpers/types';
+import { DiscoverUser, UniversityType, U2UR } from '../../../helpers/types';
 
 import Theme from '../../../theme/Theme';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
@@ -62,7 +62,7 @@ export default function ConnectionsBody(props: Props) {
 
   const [loading, setLoading] = useState(true);
 
-  const [autocompleteResults, setAutocompleteResults] = useState(['Smit Desai']);
+  const [autocompleteResults, setAutocompleteResults] = useState(['']);
   const [connections, setConnections] = useState<DiscoverUser[]>([]);
   const [pendingConnections, setPendingConnections] = useState<DiscoverUser[]>([]);
   const [username, setUsername] = useState('User');
@@ -93,6 +93,26 @@ export default function ConnectionsBody(props: Props) {
     const { data } = await makeRequest('GET', `/api/user/${requestUserID}/basic`);
     if (data.success === 1) {
       setUsername(`${data.content.user?.firstName}`);
+    }
+  }
+
+  function updateConnectionStatus(connectionRequestID: string) {
+    for (let i = 0; i < pendingConnections.length; i++) {
+      let currPending = pendingConnections[i];
+      if (currPending.connectionRequestID === connectionRequestID) {
+        currPending.status = U2UR.CONNECTED;
+        setConnections((prevConnections) => prevConnections.concat(currPending));
+        setPendingConnections((prevPending) => {
+          let newPending = prevPending;
+          for (let i = 0; i < newPending.length; i++)
+            if (newPending[i].connectionRequestID === connectionRequestID)
+              newPending.splice(i, 1);
+
+          return newPending;
+        });
+
+        return;
+      }
     }
   }
 
@@ -142,6 +162,7 @@ export default function ConnectionsBody(props: Props) {
           style={styles.connectionStyle}
           status={currPending.status}
           connectionRequestID={currPending.connectionRequestID}
+          updateConnectionStatus={updateConnectionStatus}
         />
       );
     }
@@ -160,7 +181,8 @@ export default function ConnectionsBody(props: Props) {
       );
 
     //TODO: Add logic in case an optional field does not exist
-    for (let i = 0; i < connections.length; i++) {
+    let i = 0;
+    for (; i < connections.length; i++) {
       const currConnection: DiscoverUser = connections[i];
       output.push(
         <UserHighlight
@@ -179,6 +201,7 @@ export default function ConnectionsBody(props: Props) {
         />
       );
     }
+
     return output;
   }
 
@@ -186,6 +209,7 @@ export default function ConnectionsBody(props: Props) {
     <div className={styles.wrapper}>
       <Box boxShadow={2} borderRadius={10} className={styles.box}>
         <WelcomeMessage
+          counter={connections.length}
           title={`${
             requestUserID === 'user' ? 'Your' : `${username}\'s`
           } Connections`}
