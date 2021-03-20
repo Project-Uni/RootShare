@@ -21,6 +21,8 @@ import { HEADER_HEIGHT } from '../../../helpers/constants';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 import { connect } from 'react-redux';
+import { getProfilePictureAndBanner } from '../../../api';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -72,10 +74,6 @@ export type CommunityFlags = {
 };
 
 type Props = {
-  match: {
-    params: { [key: string]: any };
-    [key: string]: any;
-  };
   user: { [k: string]: any };
 };
 
@@ -98,7 +96,7 @@ function CommunityBody(props: Props) {
   const [hasFollowingAccess, setHasFollowingAccess] = useState(false);
   const [locked, setLocked] = useState<boolean>(true);
 
-  const communityID = props.match.params['orgID'];
+  const { communityID } = useParams<{ communityID: string }>();
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -163,19 +161,15 @@ function CommunityBody(props: Props) {
   }
 
   async function getProfilePicture() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/images/community/${communityID}`
-    );
+    const data = await getProfilePictureAndBanner('community', communityID, {
+      getProfile: true,
+      getBanner: true,
+    });
 
     if (data['success'] === 1) {
       setCurrentProfile(data.content.profile);
       setCurrentBanner(data.content.banner);
     }
-  }
-
-  function updateCurrentProfilePicture(imageData: string) {
-    setCurrentProfile(imageData);
   }
 
   function renderProfileAndBackground() {
@@ -185,10 +179,9 @@ function CommunityBody(props: Props) {
           type="community"
           height={200}
           editable={isAdmin}
-          zoomOnClick={!isAdmin}
+          zoomOnClick
           borderRadius={10}
           currentPicture={currentBanner}
-          updateCurrentPicture={(imageData: string) => setCurrentBanner(imageData)}
           _id={communityID}
         />
         {loading ? (
@@ -205,8 +198,7 @@ function CommunityBody(props: Props) {
             editable={isAdmin}
             borderWidth={8}
             _id={communityID}
-            updateCurrentPicture={updateCurrentProfilePicture}
-            zoomOnClick={!isAdmin}
+            zoomOnClick
           />
         )}
       </div>

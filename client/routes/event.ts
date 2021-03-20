@@ -1,8 +1,9 @@
-import { getUserFromJWT, log, makeRequest, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
   createEvent,
+  deleteEvent,
   getAllRecentEvents,
   getAllEventsAdmin,
   getAllEventsUser,
@@ -16,9 +17,8 @@ import {
 import { updateAttendingList } from '../interactions/user';
 
 import { USER_LEVEL } from '../helpers/types';
-import User from '../models/users';
 
-module.exports = (app) => {
+export default function eventRoutes(app) {
   app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
     const user = getUserFromJWT(req);
     if (user.privilegeLevel < USER_LEVEL.ADMIN)
@@ -27,6 +27,20 @@ module.exports = (app) => {
       );
     await createEvent(req.body, user, (packet) => res.json(packet));
   });
+
+  app.delete(
+    '/api/webinar/event/:eventID',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { privilegeLevel, _id: userID } = getUserFromJWT(req);
+      if (privilegeLevel < USER_LEVEL.SUPER_ADMIN)
+        return res.json(
+          sendPacket(0, 'User is not authorized to perform this action')
+        );
+
+      deleteEvent(userID, req.params.eventID, (packet) => res.json(packet));
+    }
+  );
 
   app.post(
     '/api/webinar/uploadEventImage',
@@ -111,4 +125,4 @@ module.exports = (app) => {
       await updateAttendingList(userID, webinarID, (packet) => res.json(packet));
     }
   );
-};
+}

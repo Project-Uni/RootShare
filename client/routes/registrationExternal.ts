@@ -1,19 +1,31 @@
+import { Express } from 'express';
 var passport = require('passport');
 
 import { log, sendPacket } from '../helpers/functions';
+import { getQueryParams } from '../helpers/functions/getQueryParams';
 import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
-module.exports = (app) => {
+export default function registrationExternalRoutes(app: Express) {
   app.get('/auth/login/linkedin', (req, res, next) => {
-    const redirect = req.query.redirect || '/home';
+    const query = getQueryParams(req, {
+      redirect: { type: 'string', optional: true },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    const redirect = query.redirect || '/home';
     const state = Buffer.from(JSON.stringify({ redirect })).toString('base64');
     passport.authenticate('linkedin-login', { state })(req, res, next);
   });
 
   app.get('/auth/callback/linkedin', (req, res) => {
     passport.authenticate('linkedin-login', (err, user, info) => {
-      const { state } = req.query;
-      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
+      const query = getQueryParams(req, { state: { type: 'string' } });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { state } = query;
+
+      const { redirect } = JSON.parse(
+        Buffer.from(state as string, 'base64').toString()
+      );
       if (typeof redirect !== 'string' || !redirect.startsWith('/'))
         return res.redirect('/');
 
@@ -36,7 +48,12 @@ module.exports = (app) => {
   });
 
   app.get('/auth/login/google', (req, res, next) => {
-    const redirect = req.query.redirect || '/home';
+    const query = getQueryParams(req, {
+      redirect: { type: 'string', optional: true },
+    });
+    if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+    const redirect = query.redirect || '/home';
+
     const state = Buffer.from(JSON.stringify({ redirect })).toString('base64');
     passport.authenticate('google-login', { scope: ['profile', 'email'], state })(
       req,
@@ -47,8 +64,14 @@ module.exports = (app) => {
 
   app.get('/auth/callback/google', (req, res) => {
     passport.authenticate('google-login', (err, user, info) => {
-      const { state } = req.query;
-      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
+      const query = getQueryParams(req, { state: { type: 'string' } });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { state } = query;
+
+      const { redirect } = JSON.parse(
+        Buffer.from(state as any, 'base64').toString()
+      );
       if (typeof redirect !== 'string' || !redirect.startsWith('/'))
         return res.redirect('/');
 
@@ -93,4 +116,4 @@ module.exports = (app) => {
       res.json(packet);
     });
   });
-};
+}

@@ -1,3 +1,5 @@
+import { Express } from 'express';
+
 export const USER_LEVEL = {
   SUPER_ADMIN: 9,
   ADMIN: 6,
@@ -53,7 +55,7 @@ export type UserToUserRelationship =
   | 'open'
   | 'pending';
 
-export const U2UR = {
+const U2UR = {
   SELF: 'self',
   CONNECTED: 'connected',
   PENDING_TO: 'pending_to',
@@ -64,9 +66,19 @@ export const U2UR = {
 
 export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
 
-export const U2CR = {
+const U2CR = {
   PENDING: 'pending',
   JOINED: 'joined',
   OPEN: 'open',
   ADMIN: 'admin',
 } as const;
+
+export { U2UR, U2CR };
+
+export type IRequest = Express['request'];
+
+export type SidebarData =
+  | 'discoverUsers'
+  | 'discoverCommunities'
+  | 'pinnedCommunities'
+  | 'trending';

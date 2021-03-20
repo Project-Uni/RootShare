@@ -23,37 +23,7 @@ var {
   completeRegistrationRequired,
 } = require('../interactions/registration/registration-data');
 
-module.exports = (app) => {
-  app.post('/auth/login/local', (req, res) => {
-    passport.authenticate('local-login', async (err, user, info) => {
-      if (user) {
-        const profilePicture = await retrieveSignedUrl(
-          'profile',
-          user.profilePicture
-        );
-        return res.json(
-          sendPacket(1, 'Successfully logged in', {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            profilePicture,
-            _id: user._id,
-            privilegeLevel: user.privilegeLevel || 1,
-            accountType: user.accountType,
-            accessToken: info['jwtAccessToken'],
-            refreshToken: info['jwtRefreshToken'],
-          })
-        );
-      } else if (info) {
-        res.json(sendPacket(0, info.message));
-        log('error', `User local login failed`);
-      } else {
-        res.json(sendPacket(-1, err));
-        log('error', `User local login errored`);
-      }
-    })(req, res);
-  });
-
+export default function registrationInternalRoutes(app) {
   app.post('/auth/signup/local', (req, res) => {
     passport.authenticate('local-signup', (err, user, info) => {
       if (user) {
@@ -217,4 +187,4 @@ module.exports = (app) => {
     //TODO - Invalidate Access and Refresh tokens
     res.json(sendPacket(1, 'Successfully logged out'));
   });
-};
+}

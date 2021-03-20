@@ -1,51 +1,62 @@
-import { log } from '../../helpers/functions';
+import { AccountType } from '../../helpers/types';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
-const STATE_NAME = 'RootShare:state';
 
 export type RootshareReduxState = {
-  user: { [k: string]: any };
+  user: {
+    firstName: string;
+    lastName: string;
+    _id: string;
+    email: string;
+    privilegeLevel: number;
+    accountType: string;
+    university: string;
+    profilePicture?: string;
+    profilePictureLastUpdated?: number;
+  };
   accessToken: string;
   refreshToken: string;
   messageSocket: { [k: string]: any };
   conversations: any[];
   currConversationID: string;
   newMessage: { [k: string]: any };
-  hoverPreview: HoverProps;
+  hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
+  registration: null | {
+    email?: string;
+    password?: string; //Password is encrypted
+    initializationVector?: string; //Random bytes Used to decrypt the password
+    phoneNumber?: string;
+    accountType?: AccountType;
+    verified?: boolean;
+  };
 };
 
-const initializeState = () => ({
-  user: {},
+export const initializeState = (): RootshareReduxState => ({
+  user: {
+    firstName: '',
+    lastName: '',
+    _id: '',
+    email: '',
+    privilegeLevel: 0,
+    accountType: '',
+    university: '',
+  },
   accessToken: '',
   refreshToken: '',
   messageSocket: {},
   conversations: [],
   currConversationID: '',
   newMessage: {},
-  hoverPreview: {},
-  snackbarNotification: {},
+  hoverPreview: {
+    _id: '',
+    type: 'user',
+    anchorEl: undefined,
+    name: '',
+  },
+  snackbarNotification: {
+    mode: null,
+    message: '',
+  },
+  registration: null,
 });
-
-const saveState = (state: { [key: string]: any }) => {
-  try {
-    let serializedState = JSON.stringify(state);
-    localStorage.setItem(STATE_NAME, serializedState);
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to save state.');
-  }
-};
-
-const loadState = () => {
-  try {
-    let serializedState = localStorage.getItem(STATE_NAME);
-    if (serializedState == null) {
-      return initializeState();
-    }
-    return JSON.parse(serializedState);
-  } catch (err) {
-    log('error', 'There was an unexpected error while trying to load state');
-  }
-};
-
-export { saveState, loadState };

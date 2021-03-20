@@ -11,7 +11,7 @@ const {
   connectSocketToConversations,
 } = require('../interactions/messaging');
 
-module.exports = (app, io) => {
+export default function messagingRoutes(app, io) {
   io.on('connection', (socket) => {
     log('info', 'New client connected');
 
@@ -90,4 +90,4 @@ module.exports = (app, io) => {
       res.json(packet);
     });
   });
-};
+}

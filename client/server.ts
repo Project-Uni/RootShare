@@ -8,30 +8,24 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import cors = require('cors');
+
+const fs = require('fs');
+const http = require('http');
+const socketIO = require('socket.io');
 
 import passport = require('passport');
 import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
+import RootshareRoutes from './routes';
 
-import communityRoutes from './routes/community';
-import feedbackRoutes from './routes/feedback';
-import discoverRoutes from './routes/discover';
-import postRoutes from './routes/posts';
-import imageRoutes from './routes/images';
-import mtgRoutes from './routes/meet-the-greeks';
-import webhooks from './routes/webhooks';
-import university from './routes/university';
-import utilityRoutes from './routes/utilities';
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-const mongoConfig = require('./config/mongoConfig');
-const fs = require('fs');
-const http = require('http');
-const socketIO = require('socket.io');
+import * as mongoConfig from './config/mongoConfig';
 
 // Use mongoose to connect to MongoDB
 mongoConfig.connectDB(function (err, client) {
@@ -46,6 +40,9 @@ fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
 const app = express();
 const port = process.env.PORT || 8000;
 
+app.set('query parser', 'simple');
+
+app.use(cors());
 app.use(pino());
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -116,26 +113,7 @@ if (!isProd) {
 
 const server = http.createServer(app);
 const io = socketIO(server);
-
-require('./routes/user')(app);
-require('./routes/registrationInternal')(app);
-require('./routes/registrationExternal')(app);
-require('./routes/messaging')(app, io);
-
-require('./routes/opentok')(app);
-require('./routes/event')(app);
-require('./routes/proxy')(app);
-
-//TODO - Replace all routes to match formatting of communityRoutes (export function instead of module.exports = {})
-communityRoutes(app);
-feedbackRoutes(app);
-discoverRoutes(app);
-postRoutes(app);
-imageRoutes(app);
-mtgRoutes(app);
-webhooks(app);
-university(app);
-utilityRoutes(app);
+RootshareRoutes(app, io); // Setup for all routes files
 
 require('./config/setup')(passport);
 

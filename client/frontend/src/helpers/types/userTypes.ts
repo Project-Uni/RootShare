@@ -50,7 +50,7 @@ export type UserToUserRelationship =
   | 'open'
   | 'pending';
 
-export const U2UR = {
+const U2UR = {
   SELF: 'self',
   CONNECTED: 'connected',
   PENDING_TO: 'pending_to',
@@ -58,6 +58,7 @@ export const U2UR = {
   OPEN: 'open',
   PENDING: 'pending',
 } as const;
+export { U2UR };
 
 //NOTE - Pending added for general display when figuring out from / to not needed
 
@@ -83,3 +84,5 @@ export type SearchUserType = {
   numMutualConnections: number;
   status: UserToUserRelationship;
 };
+
+export type AccountType = 'student' | 'alumni' | 'faculty' | 'recruiter';

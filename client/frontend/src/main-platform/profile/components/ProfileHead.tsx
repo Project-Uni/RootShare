@@ -14,6 +14,7 @@ import {
 } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '../../reusable-components';
 
 const ITEM_HEIGHT = 28;
 
@@ -57,7 +58,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   acceptConnectionButton: {
     color: Theme.white,
-    background: Theme.primary,
+    background: Theme.bright,
     marginLeft: 7,
   },
   pendingConnectionButton: {
@@ -401,6 +402,7 @@ function ProfileHead(props: Props) {
           size={12}
           color={Theme.primary}
           className={styles.bio}
+          style={{ marginTop: 8 }}
         >
           {originalBio}
         </RSText>
@@ -415,7 +417,13 @@ function ProfileHead(props: Props) {
 
   function renderOtherBio() {
     return (
-      <RSText type="subhead" size={14} color={Theme.primary} className={styles.bio}>
+      <RSText
+        type="subhead"
+        size={12}
+        color={Theme.primary}
+        className={styles.bio}
+        style={{ marginTop: 8 }}
+      >
         {originalBio}
       </RSText>
     );
@@ -424,18 +432,20 @@ function ProfileHead(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headLeft}>
-        <RSText type="head" size={18} bold color={Theme.primaryText}>
+        <RSText type="head" size={14} bold color={Theme.primaryText}>
           {props.name}
         </RSText>
-        {props.university && (
+        <div style={{ marginTop: 4 }}>
+          {props.university && (
+            <RSText type="subhead" size={12} color={Theme.secondaryText}>
+              {`${props.university} ${props.graduationYear || ''}`}
+            </RSText>
+          )}
           <RSText type="subhead" size={12} color={Theme.secondaryText}>
-            {`${props.university} ${props.graduationYear || ''}`}
+            {`${(props.position && `${props.position}, `) || ''} ${props.company ||
+              ''}`}
           </RSText>
-        )}
-        <RSText type="subhead" size={12} color={Theme.secondaryText}>
-          {`${(props.position && `${props.position}, `) || ''} ${props.company ||
-            ''}`}
-        </RSText>
+        </div>
         {editBio ? (
           <div className={styles.bioEditContainer}>
             {renderEditTextField()}
@@ -456,7 +466,7 @@ function ProfileHead(props: Props) {
       </div>
       <div className={styles.headRight}>
         {renderConnectionButton()}
-        <a
+        <RSLink
           href={`/connections/${
             props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
@@ -470,8 +480,8 @@ function ProfileHead(props: Props) {
           >
             {numConnections || 0} Connections {mutualConnections}
           </RSText>
-        </a>
-        <a
+        </RSLink>
+        <RSLink
           href={`/communities/${
             props.currentProfileState === U2UR.SELF ? 'user' : props.profileID
           }`}
@@ -485,7 +495,7 @@ function ProfileHead(props: Props) {
           >
             {props.numCommunities || 0} Communities {mutualCommunities}
           </RSText>
-        </a>
+        </RSLink>
       </div>
     </div>
   );

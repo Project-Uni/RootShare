@@ -1,15 +1,16 @@
-import { UserType } from './index';
+import { UserType, PostType } from './index';
 
 export type Community = {
   _id: string;
   name: string;
+  bio: string;
   description: string;
   admin: string | UserType;
   university: {
     _id: string;
     universityName: string;
   };
-  members: string[];
+  members: string[] | UserType[];
   pendingMembers: string[];
   private: boolean;
   type: CommunityType;
@@ -17,18 +18,22 @@ export type Community = {
   numMembers?: number;
   numMutual?: number;
   profilePicture?: string;
-  status: UserToCommunityRelationship;
+  bannerPicture?: string;
+  relationship: UserToCommunityRelationship;
+  status: UserToCommunityRelationship; // TODO: deprecate this
   isMTGFlag?: boolean; //For Meet the Greeks
+  externalPosts?: PostType[];
 };
 
 export type UserToCommunityRelationship = 'pending' | 'joined' | 'open' | 'admin';
 
-export const U2CR = {
+const U2CR = {
   PENDING: 'pending',
   JOINED: 'joined',
   OPEN: 'open',
   ADMIN: 'admin',
 } as const;
+export { U2CR };
 
 export type CommunityType =
   | 'Social'

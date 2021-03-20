@@ -142,9 +142,7 @@ function CommunityBodyContent(props: Props) {
   useEffect(() => {
     setLoading(true);
     fetchData().then(() => {
-      if (selectedTab === 'external')
-        fetchCurrentEventInformation().then(() => setLoading(false));
-      else setLoading(false);
+      setLoading(false);
     });
   }, [selectedTab]);
 
@@ -152,28 +150,28 @@ function CommunityBodyContent(props: Props) {
     updatePostingOptions();
   }, [selectedTab, props.communityProfilePicture]);
 
-  const fetchCurrentEventInformation = useCallback(async () => {
-    const { data } = await makeRequest<EventInformationServiceResponse>(
-      'GET',
-      `/api/mtg/event/${props.communityID}`
-    );
-    if (data.success === 1) {
-      const { mtgEvent: mtgEvent_raw } = data.content;
+  // const fetchMTGEventInformation = useCallback(async () => {
+  //   const { data } = await makeRequest<EventInformationServiceResponse>(
+  //     'GET',
+  //     `/api/mtg/event/${props.communityID}`
+  //   );
+  //   if (data.success === 1) {
+  //     const { mtgEvent: mtgEvent_raw } = data.content;
 
-      setMtgEvent({
-        _id: mtgEvent_raw._id,
-        description: mtgEvent_raw.description,
-        introVideoURL: mtgEvent_raw.introVideoURL,
-        dateTime: mtgEvent_raw.dateTime,
-        eventBanner: mtgEvent_raw.eventBanner,
-        community: {
-          _id: props.communityID,
-          profilePicture: props.communityProfilePicture,
-          name: props.name,
-        },
-      });
-    }
-  }, []);
+  //     setMtgEvent({
+  //       _id: mtgEvent_raw._id,
+  //       description: mtgEvent_raw.description,
+  //       introVideoURL: mtgEvent_raw.introVideoURL,
+  //       dateTime: mtgEvent_raw.dateTime,
+  //       eventBanner: mtgEvent_raw.eventBanner,
+  //       community: {
+  //         _id: props.communityID,
+  //         profilePicture: props.communityProfilePicture,
+  //         name: props.communityName,
+  //       },
+  //     });
+  //   }
+  // }, []);
 
   async function fetchData() {
     if (selectedTab !== 'members') {
@@ -334,11 +332,11 @@ function CommunityBodyContent(props: Props) {
         <UserPost
           postID={posts[i]._id}
           posterID={
-            currPost.anonymous ? currPost.fromCommunity._id : currPost.user._id
+            currPost.anonymous ? currPost.fromCommunity?._id! : currPost.user._id
           }
           name={
             anonymous
-              ? `${currPost.fromCommunity.name}`
+              ? `${currPost.fromCommunity?.name!}`
               : `${currPost.user.firstName} ${currPost.user.lastName}`
           }
           timestamp={`${formatDatePretty(
@@ -346,7 +344,7 @@ function CommunityBodyContent(props: Props) {
           )} at ${formatTime(new Date(currPost.createdAt))}`}
           profilePicture={
             anonymous
-              ? currPost.fromCommunity.profilePicture
+              ? currPost.fromCommunity?.profilePicture!
               : currPost.user.profilePicture
           }
           type={currPost.type}
@@ -357,10 +355,10 @@ function CommunityBodyContent(props: Props) {
           key={currPost._id}
           anonymous={anonymous}
           toCommunity={
-            selectedTab === 'following' ? currPost.toCommunity.name : undefined
+            selectedTab === 'following' ? currPost.toCommunity?.name! : undefined
           }
           toCommunityID={
-            selectedTab === 'following' ? currPost.toCommunity._id : undefined
+            selectedTab === 'following' ? currPost.toCommunity?._id! : undefined
           }
           liked={posts[i].liked}
           images={posts[i].images}
@@ -377,10 +375,12 @@ function CommunityBodyContent(props: Props) {
       const newPost = (
         <UserPost
           postID={newPostInfo._id}
-          posterID={anonymous ? newPostInfo.fromCommunity._id : newPostInfo.user._id}
+          posterID={
+            anonymous ? newPostInfo.fromCommunity?._id! : newPostInfo.user._id
+          }
           name={
             anonymous
-              ? `${newPostInfo.fromCommunity.name}`
+              ? `${newPostInfo.fromCommunity?.name!}`
               : `${newPostInfo.user.firstName} ${newPostInfo.user.lastName}`
           }
           timestamp={`${formatDatePretty(

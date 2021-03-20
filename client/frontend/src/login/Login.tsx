@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Link } from '@material-ui/core';
-import { useLocation, Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../redux/actions/token';
 import { makeRequest } from '../helpers/functions';
@@ -13,8 +13,8 @@ import HypeCard from '../hype-page/hype-card/HypeCard';
 import ForgotPasswordCard from './ForgotPasswordCard';
 import GoogleButton from '../hype-page/hype-registration/GoogleButton';
 import LinkedInButton from '../hype-page/hype-registration/LinkedInButton';
-import { colors } from '../theme/Colors';
 import Theme from '../theme/Theme';
+import { RootshareReduxState } from '../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,84 +51,87 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
-
   location: any;
 };
 
-// TODO - Set up login, signup and reset password to work with chrome’s credential standards
+type LoginServiceResponse = {
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    _id: string;
+    accountType: string;
+    privilegeLevel: number;
+    profilePicture?: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+};
+
 function Login(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+  const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const [redirectHome, setRedirectHome] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
   const values = queryString.parse(props.location.search);
   const redirectUrl = (values.redirect as string) || '/home';
-  const accessToken = values.accessToken as string;
-  const refreshToken = values.refreshToken as string;
+  const accessTokenParam = values.accessToken as string;
+  const refreshTokenParam = values.refreshToken as string;
+
+  const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
   useEffect(() => {
     checkAuth();
-  }, [props.accessToken]);
+  }, [accessToken]);
+
+  const textFieldProps: any = {
+    variant: 'outlined',
+    error,
+    onKeyDown: handleEnterCheck,
+    className: styles.textField,
+  };
 
   async function checkAuth() {
     setLoading(true);
-    if (accessToken) props.updateAccessToken(accessToken);
-    if (refreshToken) props.updateRefreshToken(refreshToken);
-    if (props.accessToken) setRedirectHome(true);
+    if (accessTokenParam) dispatch(updateAccessToken(accessTokenParam));
+    if (refreshTokenParam) dispatch(updateRefreshToken(refreshTokenParam));
+    if (accessToken) history.push(redirectUrl);
     setLoading(false);
   }
 
-  function handleEmailChange(event: any) {
-    setEmail(event.target.value);
-  }
-  function handlePasswordChange(event: any) {
-    setPassword(event.target.value);
-  }
   function handleEnterCheck(event: any) {
     if (event.key === 'Enter') handleLogin();
   }
 
   async function handleLogin() {
     setLoading(true);
-    const { data } = await makeRequest('POST', '/auth/login/local', {
-      email: email,
-      password: password,
-    });
+    const { data } = await makeRequest<LoginServiceResponse>(
+      'POST',
+      '/api/v2/auth/login',
+      { email, password }
+    );
     if (data['success'] === 1) {
       setError(false);
       const {
-        firstName,
-        lastName,
-        _id,
-        email,
-        accessToken,
-        refreshToken,
-        privilegeLevel,
-        accountType,
-        profilePicture,
+        user,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
       } = data['content'];
-      props.updateUser({
-        firstName,
-        lastName,
-        _id,
-        email,
-        privilegeLevel,
-        accountType,
-        profilePicture,
-      });
-      props.updateAccessToken(accessToken);
-      props.updateRefreshToken(refreshToken);
-      setRedirectHome(true);
+      dispatch(
+        updateUser({
+          ...user,
+          profilePictureLastUpdated: user.profilePicture ? Date.now() : undefined,
+        })
+      );
+      dispatch(updateAccessToken(newAccessToken));
+      dispatch(updateRefreshToken(newRefreshToken));
+      history.push(redirectUrl);
     } else {
       setError(true);
     }
@@ -137,32 +140,25 @@ function Login(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {redirectHome && <Redirect to={redirectUrl} />}
       {forgotPassword ? (
-        <ForgotPasswordCard goBackToLogin={() => setForgotPassword(false)} />
+        <ForgotPasswordCard />
       ) : (
         <HypeCard width={375} loading={loading} headerText="Login">
           <TextField
-            variant="outlined"
-            error={error}
+            {...textFieldProps}
             label="Email"
             autoComplete="email"
-            onChange={handleEmailChange}
-            onKeyDown={handleEnterCheck}
+            onChange={(e) => setEmail(e.target.value)}
             value={email}
-            className={styles.textField}
             helperText={error ? 'Invalid login credentials' : ''}
           />
           <TextField
-            variant="outlined"
-            error={error}
+            {...textFieldProps}
             label="Password"
             autoComplete="password"
-            onChange={handlePasswordChange}
-            onKeyDown={handleEnterCheck}
+            onChange={(e) => setPassword(e.target.value)}
             value={password}
             type="password"
-            className={styles.textField}
           />
           <Button
             variant="contained"
@@ -195,30 +191,4 @@ function Login(props: Props) {
   );
 }
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;

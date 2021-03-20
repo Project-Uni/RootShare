@@ -10,6 +10,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { UserToUserRelationship, U2UR } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   box: {
@@ -202,7 +203,7 @@ function UserHighlight(props: Props) {
     <Box boxShadow={2} borderRadius={10} className={[style, styles.box].join(' ')}>
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <a href={`/profile/${userID}`}>
+          <RSLink href={`/profile/${userID}`}>
             <ProfilePicture
               type="profile"
               currentPicture={profilePic}
@@ -211,10 +212,10 @@ function UserHighlight(props: Props) {
               borderRadius={50}
               className={styles.profilePic}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <div className={styles.nameContainer}>
-              <a href={`/profile/${userID}`} className={styles.noUnderline}>
+              <RSLink href={`/profile/${userID}`} className={styles.noUnderline}>
                 <RSText
                   type="head"
                   size={13}
@@ -223,7 +224,7 @@ function UserHighlight(props: Props) {
                 >
                   {name}
                 </RSText>
-              </a>
+              </RSLink>
             </div>
             <RSText type="subhead" size={12} color={Theme.secondaryText}>
               {university}

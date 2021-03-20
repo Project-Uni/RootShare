@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { FaCamera } from 'react-icons/fa';
@@ -15,11 +15,10 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { connect } from 'react-redux';
-import { updateUser } from '../redux/actions/user';
+import { useDispatch } from 'react-redux';
+import { updateProfilePicture } from '../redux/actions/user';
 
 import DefaultProfilePicture from '../images/defaultProfilePicture.png';
-import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
@@ -72,8 +71,6 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   type: 'profile' | 'community';
   _id?: string; //Required for community
-  accessToken: string;
-  refreshToken: string;
   className?: string; //Use this for margin and positioning
   pictureStyle?: string; //The only thing this should be used for is adding border
   currentPicture?: any;
@@ -82,15 +79,26 @@ type Props = {
   width: number;
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
-  updateCurrentPicture?: (imageData: string) => any;
   zoomOnClick?: boolean;
-
-  user: { [key: string]: any };
-  updateUser: (userInfo: { [key: string]: any }) => void;
 };
 
 function ProfilePicture(props: Props) {
   const styles = useStyles();
+
+  const dispatch = useDispatch();
+
+  const {
+    type,
+    _id,
+    className,
+    pictureStyle,
+    editable,
+    height,
+    width,
+    borderRadius,
+    borderWidth,
+    zoomOnClick,
+  } = props;
 
   const [loading, setLoading] = useState(false);
   const [hovering, setHovering] = useState(false);
@@ -99,6 +107,7 @@ function ProfilePicture(props: Props) {
   const [imageRef, setImageRef] = useState<HTMLImageElement>();
   const [uploadErr, setUploadErr] = useState('');
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [currentPicture, setCurrentPicture] = useState(props.currentPicture);
 
   const [crop, setCrop] = useState<{ [key: string]: any }>({
     aspect: 1,
@@ -108,6 +117,10 @@ function ProfilePicture(props: Props) {
   });
 
   const fileUploader = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCurrentPicture(props.currentPicture);
+  }, [props.currentPicture]);
 
   function handleMouseOver() {
     setHovering(true);
@@ -122,7 +135,7 @@ function ProfilePicture(props: Props) {
   }
 
   function handleOtherImageClick() {
-    if (props.currentPicture) setIsViewerOpen(true);
+    if (currentPicture) setIsViewerOpen(true);
   }
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -172,20 +185,13 @@ function ProfilePicture(props: Props) {
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
-      props.type === 'profile'
+      type === 'profile'
         ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${props._id}/updateProfilePicture`;
+        : `/api/images/community/${_id}/updateProfilePicture`;
 
-    const { data } = await makeRequest(
-      'POST',
-      path,
-      {
-        image: imageData,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', path, {
+      image: imageData,
+    });
     setLoading(false);
     if (data['success'] !== 1) {
       setUploadErr(data.message);
@@ -193,44 +199,41 @@ function ProfilePicture(props: Props) {
     }
     setUploadErr('');
     setImageSrc(undefined);
-    if (props.type === 'profile') {
-      let currUser = { ...props.user };
-      currUser.profilePicture = imageData as string;
-      props.updateUser(currUser);
-    }
-    props.updateCurrentPicture && props.updateCurrentPicture(imageData as string);
+    if (type === 'profile') dispatch(updateProfilePicture(imageData as string));
+
+    setCurrentPicture(imageData as string);
   }
 
   function renderImage() {
-    let currentPicture: string = props.currentPicture;
+    let currPictureSource: string = currentPicture;
     if (
-      !currentPicture ||
-      currentPicture.length < 4 ||
-      (currentPicture.substring(0, 4) !== 'http' &&
-        currentPicture.substring(0, 4) !== 'data')
+      !currPictureSource ||
+      currPictureSource.length < 4 ||
+      (currPictureSource.substring(0, 4) !== 'http' &&
+        currPictureSource.substring(0, 4) !== 'data')
     )
-      currentPicture = DefaultProfilePicture;
+      currPictureSource = DefaultProfilePicture;
 
     return (
-      <div className={props.className}>
+      <div className={className}>
         <img
-          src={currentPicture}
+          src={currPictureSource}
           alt="Profile Picture"
           className={[
-            props.editable || props.currentPicture ? styles.image : undefined,
-            props.pictureStyle,
+            editable || currentPicture ? styles.image : undefined,
+            pictureStyle,
           ].join(' ')}
           style={{
-            height: props.height,
-            width: props.width,
-            borderRadius: props.borderRadius || 0,
+            height: height,
+            width: width,
+            borderRadius: borderRadius || 0,
           }}
-          onMouseEnter={props.editable ? handleMouseOver : undefined}
-          onMouseLeave={props.editable ? handleMouseLeave : undefined}
+          onMouseEnter={editable ? handleMouseOver : undefined}
+          onMouseLeave={editable ? handleMouseLeave : undefined}
           onClick={
-            props.editable
+            editable
               ? handleSelfImageClick
-              : props.zoomOnClick
+              : zoomOnClick
               ? handleOtherImageClick
               : undefined
           }
@@ -242,15 +245,15 @@ function ProfilePicture(props: Props) {
               size={32}
               style={{
                 position: 'absolute',
-                bottom: Math.floor(props.height / 2) - 16 + (props.borderWidth || 0),
-                left: Math.floor(props.width / 2) - 16 + (props.borderWidth || 0),
+                bottom: Math.floor(height / 2) - 16 + (borderWidth || 0),
+                left: Math.floor(width / 2) - 16 + (borderWidth || 0),
               }}
               className={styles.cameraIcon}
-              onMouseEnter={props.editable ? handleMouseOver : undefined}
+              onMouseEnter={editable ? handleMouseOver : undefined}
               onClick={
-                props.editable
+                editable
                   ? handleSelfImageClick
-                  : props.zoomOnClick
+                  : zoomOnClick
                   ? handleOtherImageClick
                   : undefined
               }
@@ -268,7 +271,7 @@ function ProfilePicture(props: Props) {
         <ModalGateway>
           {isViewerOpen && (
             <Modal onClose={() => setIsViewerOpen(false)}>
-              <Carousel views={[{ source: props.currentPicture }]} />
+              <Carousel views={[{ source: currentPicture }]} />
             </Modal>
           )}
         </ModalGateway>
@@ -326,7 +329,9 @@ function ProfilePicture(props: Props) {
             Cancel
           </Button>
           <Button
-            className={Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton}
+            className={
+              Boolean(croppedImageURL) ? styles.saveButton : styles.disabledButton
+            }
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >
@@ -345,23 +350,7 @@ function ProfilePicture(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePicture);
+export default ProfilePicture;
 
 function PaperComponent(props: PaperProps) {
   const styles = useStyles();

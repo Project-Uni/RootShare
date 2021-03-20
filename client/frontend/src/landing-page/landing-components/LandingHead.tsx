@@ -4,10 +4,10 @@ import { AppBar, Toolbar } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { Link } from 'react-router-dom';
 
-import RootShareLogo from '../../images/RootShareLogoFull.png';
+import RootShareLogo from '../../images/RootShareLogoFullbeta.png';
 
-import { colors } from '../../theme/Colors';
 import Theme from '../../theme/Theme';
+import { RSLink } from '../../main-platform/reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   header: {
@@ -39,13 +39,9 @@ function LandingHead(props: Props) {
     <AppBar position="static" className={styles.header}>
       <Toolbar>
         <div className={styles.headerTitle}>
-          <a href="/">
-            <img
-              src={RootShareLogo}
-              alt="RootShare"
-              className={styles.headerLogo}
-            />
-          </a>
+          <RSLink href="/">
+            <img src={RootShareLogo} alt="RootShare" className={styles.headerLogo} />
+          </RSLink>
         </div>
         <div className={styles.loginButton}>
           <Link to="/login" style={{ textDecoration: 'none' }}>

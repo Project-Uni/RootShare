@@ -1,7 +1,7 @@
 import { makeRequest } from '../../helpers/functions';
 import { stringify } from 'qs';
 
-export const getCommunities = async <T = { [k: string]: unknown }>(
+export const getCommunities = async <T = { [k: string]: any }>(
   _ids: string[],
   params: {
     fields?: string[];
@@ -11,15 +11,18 @@ export const getCommunities = async <T = { [k: string]: unknown }>(
       getRelationship?: boolean;
       limit?: number;
       includeDefaultFields?: boolean;
-      // populates?: string[];
+      populates?: string[];
     };
   }
 ) => {
-  const query = stringify({
-    _ids,
-    fields: params.fields,
-    ...params.options,
-  });
+  const query = stringify(
+    {
+      _ids,
+      fields: params.fields,
+      ...params.options,
+    },
+    { arrayFormat: 'repeat' }
+  );
   const { data } = await makeRequest<T>('GET', `/api/v2/community?${query}`);
   return data;
 };

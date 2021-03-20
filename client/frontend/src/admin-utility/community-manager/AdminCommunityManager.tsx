@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { CircularProgress } from '@material-ui/core';
 
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { updateUser } from '../../redux/actions/user';
@@ -63,9 +63,9 @@ type Props = {
 
 function AdminCommunityManager(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
 
   const [loading, setLoading] = useState(true);
-  const [loginRedirect, setLoginRedirect] = useState(false);
   const [showInvalid, setShowInvalid] = useState(false);
 
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -86,7 +86,7 @@ function AdminCommunityManager(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(props.accessToken)) {
-      setLoginRedirect(true);
+      history.push('/login?redirect=/admin/community');
       return false;
     } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
@@ -131,6 +131,19 @@ function AdminCommunityManager(props: Props) {
     });
   }
 
+  function onDeleteCommunity(communityID: string) {
+    setCommunities((prevCommunities) => {
+      let newCommunities = prevCommunities.slice();
+      for (let i = 0; i < newCommunities.length; i++) {
+        if (newCommunities[i]._id === communityID) {
+          newCommunities.splice(i, 1);
+          return newCommunities;
+        }
+      }
+      return prevCommunities;
+    });
+  }
+
   function renderInvalid() {
     return (
       <RSText type="subhead" size={32} bold>
@@ -160,6 +173,7 @@ function AdminCommunityManager(props: Props) {
             }
             onCancelEdit={onCancelEdit}
             onUpdateCommunity={onUpdateCommunity}
+            onDeleteCommunity={onDeleteCommunity}
           />
           <div className={styles.contentBodyRight}>
             <AdminCommunitiesList
@@ -175,7 +189,6 @@ function AdminCommunityManager(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      {loginRedirect && <Redirect to="/login?redirect=/admin/community" />}
       <EventClientHeader showNavigationMenuDefault minWidth={MIN_PAGE_WIDTH} />
       {loading ? (
         <CircularProgress

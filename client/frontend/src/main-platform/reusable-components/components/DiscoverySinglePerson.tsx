@@ -4,17 +4,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
-import theme from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
 
 import { makeRequest } from '../../../helpers/functions';
 import { putUpdateUserConnection } from '../../../api';
+import { RSLink } from '..';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 15,
-    borderBottom: `1px solid ${theme.dark}`,
+    borderBottom: `1px solid ${Theme.dark}`,
     paddingBottom: 15,
   },
   lastWrapper: {
@@ -32,23 +33,23 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: theme.primary,
+      color: Theme.primary,
     },
   },
   removeButton: {
-    color: theme.altText,
-    background: theme.primary,
+    color: Theme.altText,
+    background: Theme.primary,
     marginRight: 7,
     '&:hover': {
-      background: theme.primaryHover,
+      background: Theme.primaryHover,
     },
   },
   connectButton: {
-    color: theme.altText,
-    background: theme.bright,
+    color: Theme.altText,
+    background: Theme.bright,
     marginLeft: 7,
     '&:hover': {
-      background: theme.brightHover,
+      background: Theme.brightHover,
     },
   },
   buttonContainer: {
@@ -132,7 +133,7 @@ function DiscoverySinglePerson(props: Props) {
     <div className={props.isLast ? styles.lastWrapper : styles.wrapper}>
       <div className={visible ? '' : styles.fadeOut}>
         <div className={styles.profileInfo}>
-          <a href={`/profile/${props.userID}`} className={styles.personLink}>
+          <RSLink href={`/profile/${props.userID}`} className={styles.personLink}>
             <ProfilePicture
               editable={false}
               type={'profile'}
@@ -141,20 +142,20 @@ function DiscoverySinglePerson(props: Props) {
               borderRadius={50}
               currentPicture={props.profilePicture}
             />
-          </a>
+          </RSLink>
           <div className={styles.textContainer}>
             <a href={`/profile/${props.userID}`} className={styles.personLink}>
-              <RSText type="body" color={theme.primaryText} size={13} bold>
+              <RSText type="body" color={Theme.primaryText} size={13} bold>
                 {props.name}
               </RSText>
             </a>
-            <RSText type="body" color={theme.secondaryText} italic size={11}>
+            <RSText type="body" color={Theme.secondaryText} italic size={11}>
               {props.position}
             </RSText>
-            <RSText type="body" color={theme.secondaryText} italic size={11}>
+            <RSText type="body" color={Theme.secondaryText} italic size={11}>
               {props.company}
             </RSText>
-            <RSText type="body" color={theme.secondaryText} size={10}>
+            <RSText type="body" color={Theme.secondaryText} size={10}>
               {numMutualConnections} Mutual Connections
             </RSText>
           </div>

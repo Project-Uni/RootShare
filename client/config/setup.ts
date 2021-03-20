@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
 
-const localLogin = require('../passport/localLogin');
 const localSignup = require('../passport/localSignup');
 const linkedinLoginSignup = require('../passport/linkedinLoginSignup');
 const googleLoginSignup = require('../passport/googleLoginSignup');
@@ -21,7 +20,6 @@ module.exports = function (passport: PassportStatic) {
   });
 
   // Setting up Passport Strategies for Login and SignUp/Registration
-  localLogin(passport);
   localSignup(passport);
   linkedinLoginSignup(passport);
   googleLoginSignup(passport);
