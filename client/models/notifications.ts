@@ -1,6 +1,6 @@
 import { model, Schema, Document, Types } from 'mongoose';
 
-const ObjectIdVar = Types.ObjectId;
+const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
 type NotificationVariant =
@@ -56,15 +56,15 @@ const NotificationSchema = new Schema(
   {
     variant: { type: String, required: true },
     seen: { type: Boolean, default: false },
-    forUser: { type: ObjectIdVar, ref: 'users', required: true },
+    forUser: { type: ObjectIdVal, ref: 'users', required: true },
     relatedItemType: { type: String, required: true },
-    relatedPost: { type: ObjectIdVar, ref: 'posts' },
-    relatedCommunity: { type: ObjectIdVar, ref: 'communities' },
-    relatedEvent: { type: ObjectIdVar, ref: 'webinars' },
-    relatedConnection: { type: ObjectIdVar, ref: 'users' },
+    relatedPost: { type: ObjectIdVal, ref: 'posts' },
+    relatedCommunity: { type: ObjectIdVal, ref: 'communities' },
+    relatedEvent: { type: ObjectIdVal, ref: 'webinars' },
+    relatedConnection: { type: ObjectIdVal, ref: 'users' },
     actionProviderType: { type: String, required: true, default: 'rootshare' },
-    actionProviderUser: { type: ObjectIdVar, ref: 'users' },
-    actionProviderCommunity: { type: ObjectIdVar, ref: 'communities' },
+    actionProviderUser: { type: ObjectIdVal, ref: 'users' },
+    actionProviderCommunity: { type: ObjectIdVal, ref: 'communities' },
     message: { type: String, required: true },
   },
   { timestamps: true }
@@ -165,150 +165,174 @@ export default class Notifications {
     userID: string;
   }): Promise<IFindNotificationsForUser[]> => {
     console.log('UserID:', userID);
-    const notifications = ((await Notifications.model
-      .find({ forUser: userID })
-      .sort({ createdAt: -1 })
-      .limit(30)
-      .populate({
-        path: 'actionProviderUser',
-        select: 'firstName lastName profilePicture',
-      })
-      .populate({
-        path: 'relatedUser',
-        select: 'firstName lastName profilePicture',
-      })
-      .populate({
-        path: 'actionProviderCommuntiy',
-        select: 'name type profilePicture',
-      })
-      .populate({ path: 'relatedCommunity', select: 'name type profilePicture' })
-      .populate({
-        path: 'relatedEvent',
-        select: 'title dateTime eventBanner eventImage',
-      })
-      .populate({ path: 'relatedPost', select: 'message' })
-      .exec()) as unknown) as IFindNotificationsForUser[];
+    // const notifications = ((await Notifications.model
+    //   .find({ forUser: userID })
+    //   .sort({ createdAt: -1 })
+    //   .limit(30)
+    //   .populate({
+    //     path: 'actionProviderUser',
+    //     select: 'firstName lastName profilePicture',
+    //   })
+    //   .populate({
+    //     path: 'relatedUser',
+    //     select: 'firstName lastName profilePicture',
+    //   })
+    //   .populate({
+    //     path: 'actionProviderCommuntiy',
+    //     select: 'name type profilePicture',
+    //   })
+    //   .populate({ path: 'relatedCommunity', select: 'name type profilePicture' })
+    //   .populate({
+    //     path: 'relatedEvent',
+    //     select: 'title dateTime eventBanner eventImage',
+    //   })
+    //   .populate({ path: 'relatedPost', select: 'message' })
+    //   .exec()) as unknown) as IFindNotificationsForUser[];
 
     //TODO - Lookup on a field that doesnt exist shouldnt not work
 
-    // const notifications = await Notifications.model
-    //   .aggregate([
-    //     {
-    //       $match: {
-    //         forUser: ObjectIdVar(userID),
-    //       },
-    //     },
-    //     { $sort: { createdAt: -1 } },
-    //     { $limit: 30 },
-    //     {
-    //       $lookup: {
-    //         from: 'users',
-    //         localField: 'actionProviderUser',
-    //         foreignField: '_id',
-    //         as: 'actionProviderUser',
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         from: 'communities',
-    //         localField: 'actionProviderCommunity',
-    //         foreignField: '_id',
-    //         as: 'actionProviderCommunity',
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: 'relatedPost',
-    //         foreignField: '_id',
-    //         from: 'posts',
-    //         as: 'relatedPost',
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: 'relatedCommunity',
-    //         foreignField: '_id',
-    //         from: 'communities',
-    //         as: 'relatedCommunity',
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: 'relatedEvent',
-    //         foreignField: '_id',
-    //         from: 'webinars',
-    //         as: 'relatedEvent',
-    //       },
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: 'relatedConnection',
-    //         foreignField: '_id',
-    //         from: 'users',
-    //         as: 'relatedConnection',
-    //       },
-    //     },
-    //     {
-    //       $unwind: { path: '$actionProviderUser' },
-    //     },
-    //     {
-    //       $unwind: {
-    //         path: '$actionProviderCommunity',
-    //       },
-    //     },
-    //     { $unwind: { path: '$relatedPost' } },
-    //     { $unwind: { path: '$relatedCommunity' } },
-    //     { $unwind: { path: '$relatedEvent' } },
-    //     { $unwind: { path: '$relatedConnection' } },
-    //     {
-    //       $project: {
-    //         message: '$message',
-    //         variant: '$variant',
-    //         createdAt: '$createdAt',
-    //         updatedAt: '$updatedAt',
-    //         forUser: '$forUser',
-    //         seen: '$seen',
-    //         relatedItemType: '$relatedItemType',
-    //         relatedPost: {
-    //           _id: '$relatedPost._id',
-    //           message: '$relatedPost.message',
-    //         },
-    //         relatedCommunity: {
-    //           _id: '$relatedCommunity._id',
-    //           name: '$relatedCommunity.name',
-    //           type: '$relatedCommunity.type',
-    //           profilePicture: '$relatedCommunity.profilePicture',
-    //         },
-    //         relatedEvent: {
-    //           _id: '$relatedEvent._id',
-    //           title: '$relatedEvent.title',
-    //           dateTime: '$relatedEvent.dateTime',
-    //           eventImage: '$relatedEvent.eventImage',
-    //           eventBanner: '$relatedEvent.banner',
-    //         },
-    //         relatedConnection: {
-    //           _id: '$relatedConnection._id',
-    //           firstName: '$relatedConnection.firstName',
-    //           lastName: '$relatedConnection.lastName',
-    //           profilePicture: '$relatedConnection.profilePicture',
-    //         },
-    //         actionProviderType: '$actionProviderType',
-    //         actionProviderUser: {
-    //           _id: '$actionProviderUser._id',
-    //           firstName: '$actionProviderUser.firstName',
-    //           lastName: '$actionProviderUser.lastName',
-    //           profilePicture: '$actionProviderUser.profilePicture',
-    //         },
-    //         actionProviderCommunity: {
-    //           _id: '$actionProviderCommunity._id',
-    //           name: '$actionProviderCommunity.name',
-    //           type: '$actionProviderCommunity.type',
-    //           profilePicture: '$actionProviderCommunity.profilePicture',
-    //         },
-    //       },
-    //     },
-    //   ])
-    //   .exec();
+    const notifications = await Notifications.model
+      .aggregate([
+        {
+          $match: {
+            forUser: ObjectIdVal(userID),
+          },
+        },
+        { $sort: { createdAt: -1 } },
+        { $limit: 30 },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'actionProviderUser',
+            foreignField: '_id',
+            as: 'actionProviderUser',
+          },
+        },
+        {
+          $lookup: {
+            from: 'communities',
+            localField: 'actionProviderCommunity',
+            foreignField: '_id',
+            as: 'actionProviderCommunity',
+          },
+        },
+        {
+          $lookup: {
+            localField: 'relatedPost',
+            foreignField: '_id',
+            from: 'posts',
+            as: 'relatedPost',
+          },
+        },
+        {
+          $lookup: {
+            localField: 'relatedCommunity',
+            foreignField: '_id',
+            from: 'communities',
+            as: 'relatedCommunity',
+          },
+        },
+        {
+          $lookup: {
+            localField: 'relatedEvent',
+            foreignField: '_id',
+            from: 'webinars',
+            as: 'relatedEvent',
+          },
+        },
+        {
+          $lookup: {
+            localField: 'relatedConnection',
+            foreignField: '_id',
+            from: 'users',
+            as: 'relatedConnection',
+          },
+        },
+        {
+          $unwind: {
+            path: '$actionProviderUser',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$actionProviderCommunity',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$relatedPost',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$relatedCommunity',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$relatedEvent',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: '$relatedConnection',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            message: '$message',
+            variant: '$variant',
+            createdAt: '$createdAt',
+            updatedAt: '$updatedAt',
+            forUser: '$forUser',
+            seen: '$seen',
+            relatedItemType: '$relatedItemType',
+            relatedPost: {
+              _id: '$relatedPost._id',
+              message: '$relatedPost.message',
+            },
+            relatedCommunity: {
+              _id: '$relatedCommunity._id',
+              name: '$relatedCommunity.name',
+              type: '$relatedCommunity.type',
+              profilePicture: '$relatedCommunity.profilePicture',
+            },
+            relatedEvent: {
+              _id: '$relatedEvent._id',
+              title: '$relatedEvent.title',
+              dateTime: '$relatedEvent.dateTime',
+              eventImage: '$relatedEvent.eventImage',
+              eventBanner: '$relatedEvent.banner',
+            },
+            relatedConnection: {
+              _id: '$relatedConnection._id',
+              firstName: '$relatedConnection.firstName',
+              lastName: '$relatedConnection.lastName',
+              profilePicture: '$relatedConnection.profilePicture',
+            },
+            actionProviderType: '$actionProviderType',
+            actionProviderUser: {
+              _id: '$actionProviderUser._id',
+              firstName: '$actionProviderUser.firstName',
+              lastName: '$actionProviderUser.lastName',
+              profilePicture: '$actionProviderUser.profilePicture',
+            },
+            actionProviderCommunity: {
+              _id: '$actionProviderCommunity._id',
+              name: '$actionProviderCommunity.name',
+              type: '$actionProviderCommunity.type',
+              profilePicture: '$actionProviderCommunity.profilePicture',
+            },
+          },
+        },
+      ])
+      .exec();
 
     await Notifications.addImages(notifications);
     return notifications;
