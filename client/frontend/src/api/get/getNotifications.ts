@@ -1,13 +1,14 @@
 import { makeRequest } from '../../helpers/functions';
 
 export type NotificationType = {
+  _id: string;
   message: string;
   variant: string;
   createdAt: string;
   updatedAt: string;
   forUser: string;
   seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'connection';
+  relatedItemType: 'post' | 'event' | 'community' | 'user';
   relatedPost?: {
     _id: string;
     message: string;
@@ -25,7 +26,7 @@ export type NotificationType = {
     eventImage?: string;
     eventBanner?: string;
   };
-  relatedConnection?: {
+  relatedUser?: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -47,13 +48,14 @@ export type NotificationType = {
 };
 
 export type UnifiedNotification = {
+  _id: string;
   message: string;
   variant: string;
   createdAt: string;
   updatedAt: string;
   forUser: string;
   seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'connection';
+  relatedItemType: 'post' | 'event' | 'community' | 'user';
   actionProviderType: 'user' | 'community' | 'rootshare';
   actionProvider?: { [key: string]: any };
   relatedItem?: { [key: string]: any };
@@ -83,7 +85,7 @@ const unifyNotifications = (
       relatedCommunity,
       relatedPost,
       relatedEvent,
-      relatedConnection,
+      relatedUser,
       actionProviderCommunity,
       actionProviderUser,
       ...rest
@@ -92,13 +94,13 @@ const unifyNotifications = (
       | NotificationType['relatedCommunity']
       | NotificationType['relatedEvent']
       | NotificationType['relatedPost']
-      | NotificationType['relatedConnection'];
+      | NotificationType['relatedUser'];
     switch (n.relatedItemType) {
       case 'community':
         relatedItem = n.relatedCommunity;
         break;
-      case 'connection':
-        relatedItem = n.relatedConnection;
+      case 'user':
+        relatedItem = n.relatedUser;
         break;
       case 'event':
         relatedItem = n.relatedEvent;

@@ -4,7 +4,11 @@ import { IconButton, Badge, ClickAwayListener } from '@material-ui/core';
 import Theme from '../../theme/Theme';
 import { NotificationIcon } from '../../images';
 import { Notifications } from './Notifications';
-import { getNotifications, UnifiedNotification } from '../../api';
+import {
+  getNotifications,
+  putNotificationsSeen,
+  UnifiedNotification,
+} from '../../api';
 import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
 import { makeRequest } from '../../helpers/functions';
@@ -41,21 +45,21 @@ export const NotificationButton = (props: Props) => {
       );
     } else {
       setNotifications(data);
-      const hasNewNotifications = data.some((n) => n.seen === false);
+      const hasNewNotifications = data.some((n) => !n.seen);
       setBadgeHidden(!hasNewNotifications);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    //If open, wait 5 seconds, mark all as seen
-    if (open) {
+    if (open && notifications.some((n) => !n.seen)) {
       const timeout = setTimeout(() => {
-        if (open) {
-          //Mark all as seen
-        }
-      }, 5000);
-      return clearTimeout(timeout);
+        if (open)
+          putNotificationsSeen({
+            notifications: notifications.filter((n) => !n.seen),
+          });
+      }, 3000);
+      return () => clearTimeout(timeout);
     }
   }, [open]);
 

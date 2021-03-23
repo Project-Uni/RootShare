@@ -11,7 +11,7 @@ type NotificationVariant =
   | 'community-accept'
   | 'general'; //Add other types here
 
-type NotificationRelatedItem = 'post' | 'event' | 'community' | 'connection';
+type NotificationRelatedItem = 'post' | 'event' | 'community' | 'user';
 type NotificationActionProvider = 'user' | 'community' | 'rootshare';
 
 type IUser = {
@@ -43,7 +43,7 @@ export interface INotification extends Document {
   relatedPost: undefined | IPost | IPost['_id'];
   relatedCommunity: undefined | ICommunity | ICommunity['_id'];
   relatedEvent: undefined | IEvent | IEvent['_id'];
-  relatedConnection: undefined | IUser | IUser['_id'];
+  relatedUser: undefined | IUser | IUser['_id'];
   actionProviderType: NotificationActionProvider;
   actionProviderUser: undefined | IUser | IUser['_id'];
   actionProviderCommunity: undefined | ICommunity | ICommunity['_id'];
@@ -61,7 +61,7 @@ const NotificationSchema = new Schema(
     relatedPost: { type: ObjectIdVal, ref: 'posts' },
     relatedCommunity: { type: ObjectIdVal, ref: 'communities' },
     relatedEvent: { type: ObjectIdVal, ref: 'webinars' },
-    relatedConnection: { type: ObjectIdVal, ref: 'users' },
+    relatedUser: { type: ObjectIdVal, ref: 'users' },
     actionProviderType: { type: String, required: true, default: 'rootshare' },
     actionProviderUser: { type: ObjectIdVal, ref: 'users' },
     actionProviderCommunity: { type: ObjectIdVal, ref: 'communities' },
@@ -98,7 +98,7 @@ type IFindNotificationsForUser = {
     eventImage?: string;
     eventBanner?: string;
   };
-  relatedConnection?: {
+  relatedUser?: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -148,8 +148,7 @@ export default class Notifications {
       relatedPost: relatedItemType === 'post' ? relatedItemId : undefined,
       relatedCommunity: relatedItemType === 'community' ? relatedItemId : undefined,
       relatedEvent: relatedItemType === 'event' ? relatedItemId : undefined,
-      relatedConnection:
-        relatedItemType === 'connection' ? relatedItemId : undefined,
+      relatedUser: relatedItemType === 'user' ? relatedItemId : undefined,
       actionProviderUser:
         actionProviderType === 'user' ? actionProviderId : undefined,
       actionProviderCommunity:
@@ -164,34 +163,7 @@ export default class Notifications {
   }: {
     userID: string;
   }): Promise<IFindNotificationsForUser[]> => {
-    console.log('UserID:', userID);
-    // const notifications = ((await Notifications.model
-    //   .find({ forUser: userID })
-    //   .sort({ createdAt: -1 })
-    //   .limit(30)
-    //   .populate({
-    //     path: 'actionProviderUser',
-    //     select: 'firstName lastName profilePicture',
-    //   })
-    //   .populate({
-    //     path: 'relatedUser',
-    //     select: 'firstName lastName profilePicture',
-    //   })
-    //   .populate({
-    //     path: 'actionProviderCommuntiy',
-    //     select: 'name type profilePicture',
-    //   })
-    //   .populate({ path: 'relatedCommunity', select: 'name type profilePicture' })
-    //   .populate({
-    //     path: 'relatedEvent',
-    //     select: 'title dateTime eventBanner eventImage',
-    //   })
-    //   .populate({ path: 'relatedPost', select: 'message' })
-    //   .exec()) as unknown) as IFindNotificationsForUser[];
-
-    //TODO - Lookup on a field that doesnt exist shouldnt not work
-
-    const notifications = await Notifications.model
+    const notifications = ((await Notifications.model
       .aggregate([
         {
           $match: {
@@ -242,10 +214,10 @@ export default class Notifications {
         },
         {
           $lookup: {
-            localField: 'relatedConnection',
+            localField: 'relatedUser',
             foreignField: '_id',
             from: 'users',
-            as: 'relatedConnection',
+            as: 'relatedUser',
           },
         },
         {
@@ -280,12 +252,13 @@ export default class Notifications {
         },
         {
           $unwind: {
-            path: '$relatedConnection',
+            path: '$relatedUser',
             preserveNullAndEmptyArrays: true,
           },
         },
         {
           $project: {
+            _id: '$_id',
             message: '$message',
             variant: '$variant',
             createdAt: '$createdAt',
@@ -310,11 +283,11 @@ export default class Notifications {
               eventImage: '$relatedEvent.eventImage',
               eventBanner: '$relatedEvent.banner',
             },
-            relatedConnection: {
-              _id: '$relatedConnection._id',
-              firstName: '$relatedConnection.firstName',
-              lastName: '$relatedConnection.lastName',
-              profilePicture: '$relatedConnection.profilePicture',
+            relatedUser: {
+              _id: '$relatedUser._id',
+              firstName: '$relatedUser.firstName',
+              lastName: '$relatedUser.lastName',
+              profilePicture: '$relatedUser.profilePicture',
             },
             actionProviderType: '$actionProviderType',
             actionProviderUser: {
@@ -332,7 +305,7 @@ export default class Notifications {
           },
         },
       ])
-      .exec();
+      .exec()) as unknown) as IFindNotificationsForUser[];
 
     await Notifications.addImages(notifications);
     return notifications;

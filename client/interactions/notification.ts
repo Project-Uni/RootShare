@@ -101,7 +101,7 @@ export default class NotificationService {
       await Notifications.create({
         variant: 'connection-accept',
         forUser,
-        relatedItemType: 'connection',
+        relatedItemType: 'user',
         relatedItemId: fromUser,
         actionProviderType: 'user',
         actionProviderId: fromUser,
