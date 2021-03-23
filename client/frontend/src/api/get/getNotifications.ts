@@ -102,6 +102,8 @@ const unifyNotifications = (
         relatedItem = n.relatedUser;
         break;
       case 'event':
+        // const { eventImage, ...rest } = n.relatedEvent!;
+        // relatedItem = Object.assign({ profilePicture: eventImage }, rest);
         relatedItem = n.relatedEvent;
         break;
       case 'post':
