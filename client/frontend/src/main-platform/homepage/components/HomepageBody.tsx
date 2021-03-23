@@ -19,7 +19,7 @@ import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
-import WinningDevPlanBanner from '../../../images/eventBanner/winningDevPlan.png';
+import Banner from '../../../images/eventBanner/financialPlanBanner.png';
 import { getPosts } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
@@ -120,7 +120,7 @@ export default function HomepageBody(props: Props) {
         />
       </Box> */}
       <FeaturedEvent
-        src={WinningDevPlanBanner}
+        src={Banner}
         style={{ margin: 8 }}
         href={'/event/6026ce709a7a1f218592ea37'}
       />
