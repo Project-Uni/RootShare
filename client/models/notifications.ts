@@ -1,4 +1,5 @@
 import { model, Schema, Document, Types } from 'mongoose';
+import { retrieveSignedUrl } from '../helpers/functions';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -96,7 +97,6 @@ type IFindNotificationsForUser = {
     title: string;
     dateTime: Date;
     eventImage?: string;
-    eventBanner?: string;
   };
   relatedUser?: {
     _id: string;
@@ -281,7 +281,6 @@ export default class Notifications {
               title: '$relatedEvent.title',
               dateTime: '$relatedEvent.dateTime',
               eventImage: '$relatedEvent.eventImage',
-              eventBanner: '$relatedEvent.banner',
             },
             relatedUser: {
               _id: '$relatedUser._id',
@@ -327,9 +326,59 @@ export default class Notifications {
     return true;
   };
 
-  private static addImages = async (notifications) => {};
+  private static addImages = async (notifications: IFindNotificationsForUser[]) => {
+    const promises = notifications.map((n) => {
+      switch (n.relatedItemType) {
+        case 'user':
+          return Notifications.getImage.user(n);
+        case 'community':
+          return Notifications.getImage.community(n);
+        case 'event':
+          return Notifications.getImage.event(n);
+        case 'post':
+        default:
+          return null;
+      }
+    });
+    const images = await Promise.all(promises);
+    for (let i = 0; i < notifications.length; i++) {
+      const n = notifications[i];
+      if (images[i]) {
+        const img = images[i] as string;
+        switch (n.relatedItemType) {
+          case 'user':
+            if (n.relatedUser) n.relatedUser.profilePicture = img;
+            break;
+          case 'community':
+            if (n.relatedCommunity) n.relatedCommunity.profilePicture = img;
+            break;
+          case 'event':
+            if (n.relatedEvent) n.relatedEvent.eventImage = img;
+            break;
+          case 'post':
+          default:
+        }
+      }
+    }
+  };
 
-  private static getUserImages = async () => {};
-  private static getCommunityImages = async () => {};
-  private static getEventImages = async () => {};
+  private static getImage = {
+    user: async (notification: IFindNotificationsForUser) => {
+      if (notification.relatedUser?.profilePicture)
+        return retrieveSignedUrl('profile', notification.relatedUser.profilePicture);
+    },
+
+    community: async (notification: IFindNotificationsForUser) => {
+      if (notification.relatedCommunity?.profilePicture)
+        return retrieveSignedUrl(
+          'communityProfile',
+          notification.relatedCommunity.profilePicture
+        );
+    },
+
+    event: async (notification: IFindNotificationsForUser) => {
+      if (notification.relatedEvent?.eventImage)
+        return retrieveSignedUrl('eventImage', notification.relatedEvent.eventImage);
+    },
+  };
 }

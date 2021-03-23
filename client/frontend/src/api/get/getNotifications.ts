@@ -24,7 +24,6 @@ export type NotificationType = {
     title: string;
     dateTime: string;
     eventImage?: string;
-    eventBanner?: string;
   };
   relatedUser?: {
     _id: string;
