@@ -19,6 +19,7 @@ import {
   addProfilePicturesToRequests,
 } from './utilities';
 import { U2UR, U2CR } from '../helpers/types';
+import NotificationService from './notification';
 
 export async function getCurrentUser(user, callback) {
   if (Object.keys(user).some((key) => !user[key]))
@@ -700,6 +701,10 @@ async function acceptConnectionRequest(request) {
         ).exec();
         const connectionPromise = Connection.update(request._id, { accepted: true });
 
+        new NotificationService().connectionAccept({
+          fromUser: userTwoID,
+          forUser: userOneID,
+        });
         return Promise.all([userOneUpdate, userTwoUpdate, connectionPromise]).then(
           ([userOne, userTwo, connection]) => {
             log('info', `Accepted connection ${request._id}`);

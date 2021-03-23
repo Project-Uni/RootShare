@@ -17,6 +17,7 @@ import {
 } from '../interactions/utilities';
 import { deletePost } from './posts';
 import { CommunityC, CommunityGetOptions } from '../models/communities';
+import NotificationService from './notification';
 
 export async function createNewCommunity(
   name: string,
@@ -590,6 +591,7 @@ export async function acceptPendingMember(communityID: string, userID: string) {
       }
     ).exec();
 
+    new NotificationService().communityAccept({ communityID, forUser: userID });
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `Accepted user ${userID} into community ${communityID}`);
