@@ -122,7 +122,7 @@ export default function HomepageBody(props: Props) {
       <FeaturedEvent
         src={Banner}
         style={{ margin: 8 }}
-        href={'/event/6026ce709a7a1f218592ea37'}
+        href={'/event/6058db7add0bb42382a5dd37'}
       />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
       {/* <MakePostContainer
