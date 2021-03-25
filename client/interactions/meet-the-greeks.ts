@@ -1,11 +1,8 @@
-import {
-  decodeBase64Image,
-  log,
-  retrieveSignedUrl,
-  sendPacket,
-  uploadFile,
-} from '../helpers/functions';
-import { sendSMS } from '../helpers/functions/twilio';
+import { Types } from 'mongoose';
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
 import {
   Conversation,
   User,
@@ -13,38 +10,47 @@ import {
   MeetTheGreekInterest,
   ExternalCommunication,
   Webinar,
-} from '../models';
+} from '../rootshare_db/models';
+import { packetParams } from '../rootshare_db/types';
+import {
+  decodeBase64Image,
+  log,
+  retrieveSignedUrl,
+  sendPacket,
+  uploadFile,
+  sendSMS,
+  sendEmail,
+} from '../helpers/functions';
 
 import { addProfilePicturesAll } from './utilities';
 
-import sendEmail from '../helpers/functions/sendEmail';
+type ObjectIdType = Types.ObjectId;
 
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export async function createMTGEvent(
-  communityID: string,
+  communityID: ObjectIdType,
   description: string,
-  speakers: string[],
+  speakers: ObjectIdType[],
   introVideoURL?: string
   // eventTime: string,
 ) {
   if (speakers.length < 1) return sendPacket(-1, 'At least one speaker is required');
 
   try {
-    let event = await Webinar.findOne({
-      hostCommunity: communityID,
-      isMTG: true,
-    }).exec();
+    let event = await Webinar.model
+      .findOne({
+        hostCommunity: communityID,
+        isMTG: true,
+      })
+      .exec();
 
     try {
       if (event) {
         //Edit Mode
         event.full_description = description;
-        event.introVideoURL = introVideoURL;
+        // event.introVideoURL = introVideoURL;
         // event.dateTime = eventTime;
         event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
         event.speakers = speakers;
@@ -54,11 +60,11 @@ export async function createMTGEvent(
       }
       //Creating new event
       else {
-        const conversation = await new Conversation({
+        const conversation = await new Conversation.model({
           participants: [],
         }).save();
 
-        event = await new Webinar({
+        event = await new Webinar.model({
           // title: 'TBD',
           hostCommunity: communityID,
           full_description: description,
@@ -73,13 +79,19 @@ export async function createMTGEvent(
         }).save();
       }
 
-      const users = await User.find({ _id: { $in: speakers } }, [
-        'email',
-        'firstName',
-        'lastName',
-      ]).exec();
+      const users = await User.model
+        .find({ _id: { $in: speakers } }, ['email', 'firstName', 'lastName'])
+        .exec();
 
-      sendMTGEventEmails(users, event);
+      sendMTGEventEmails(
+        users,
+        event as {
+          _id: ObjectIdType;
+          hostCommunity: ObjectIdType;
+          dateTime: Date;
+          full_description: string;
+        }
+      );
       return sendPacket(1, 'Successfully updated MTG event', { event });
     } catch (err) {
       log('error', err.message);
@@ -95,7 +107,7 @@ export async function createMTGEvent(
   }
 }
 
-export async function uploadMTGBanner(communityID: string, image: string) {
+export async function uploadMTGBanner(communityID: ObjectIdType, image: string) {
   try {
     const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
     if (!imageBuffer.data) return -1;
@@ -105,10 +117,11 @@ export async function uploadMTGBanner(communityID: string, image: string) {
     const success = await uploadFile('mtgBanner', fileName, imageBuffer.data);
     if (!success) return sendPacket(-1, 'There was an error uploading the image');
 
-    await Webinar.updateOne(
-      { hostCommunity: communityID, isMTG: true },
-      { eventBanner: fileName }
-    )
+    await Webinar.model
+      .updateOne(
+        { hostCommunity: communityID, isMTG: true },
+        { eventBanner: fileName }
+      )
       .sort({
         updatedAt: -1,
       })
@@ -121,11 +134,10 @@ export async function uploadMTGBanner(communityID: string, image: string) {
   }
 }
 
-export async function retrieveMTGEventInfo(communityID: string) {
+export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
   try {
-    const mtgEvent = await Webinar.findOne(
-      { hostCommunity: communityID, isMTG: true },
-      [
+    const mtgEvent = await Webinar.model
+      .findOne({ hostCommunity: communityID, isMTG: true }, [
         'title',
         'full_description',
         'introVideoURL',
@@ -133,8 +145,7 @@ export async function retrieveMTGEventInfo(communityID: string) {
         'host',
         'dateTime',
         'eventBanner',
-      ]
-    )
+      ])
       .populate({
         path: 'speakers',
         select: 'firstName lastName email _id profilePicture',
@@ -150,10 +161,8 @@ export async function retrieveMTGEventInfo(communityID: string) {
 
     const { speakers } = mtgEvent;
     mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
-    mtgEvent.eventBanner = await retrieveSignedUrl(
-      'mtgBanner',
-      mtgEvent.eventBanner
-    );
+    mtgEvent.eventBanner =
+      (await retrieveSignedUrl('mtgBanner', mtgEvent.eventBanner)) || '';
 
     let cleanedData = Object.assign({}, mtgEvent, {
       description: mtgEvent.full_description,
@@ -170,16 +179,18 @@ export async function retrieveMTGEventInfo(communityID: string) {
 }
 
 export async function sendMTGCommunications(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   mode: 'text' | 'email',
   message: string
 ) {
   try {
-    const community = await Community.findOne({ _id: communityID }, ['name']).exec();
+    const community = await Community.model
+      .findOne({ _id: communityID }, ['name'])
+      .exec();
     if (!community) return sendPacket(0, 'Could not find community');
 
-    await new ExternalCommunication({
+    await new ExternalCommunication.model({
       mode,
       message,
       community: communityID,
@@ -189,9 +200,10 @@ export async function sendMTGCommunications(
     const selection = mode === 'text' ? 'phoneNumber' : 'email';
 
     const interestedUsers = (
-      await MeetTheGreekInterest.find({
-        community: communityID,
-      })
+      await MeetTheGreekInterest.model
+        .find({
+          community: communityID,
+        })
         .populate({ path: 'user', select: [selection] })
         .exec()
     ).map((interestedResponse) => interestedResponse.user[selection]);
@@ -211,7 +223,11 @@ export async function sendMTGCommunications(
   }
 }
 
-export async function updateUserInfo(userID, userInfo, callback) {
+export async function updateUserInfo(
+  userID: ObjectIdType,
+  userInfo: any,
+  callback: (packet: packetParams) => void
+) {
   try {
     let updateObj = {};
     if (userInfo.firstName) updateObj['firstName'] = userInfo.firstName;
@@ -222,10 +238,9 @@ export async function updateUserInfo(userID, userInfo, callback) {
     if (userInfo.phoneNumber) updateObj['phoneNumber'] = userInfo.phoneNumber;
     if (userInfo.interests) updateObj['interests'] = userInfo.interests;
 
-    const userUpdate = await User.updateOne(
-      { _id: userID },
-      { $set: updateObj }
-    ).exec();
+    const userUpdate = await User.model
+      .updateOne({ _id: userID }, { $set: updateObj })
+      .exec();
 
     if (userUpdate.nModified !== 1)
       return callback(sendPacket(-1, 'Failed to update user information'));
@@ -237,14 +252,18 @@ export async function updateUserInfo(userID, userInfo, callback) {
   }
 }
 
-export async function getInterestAnswers(userID: string, communityID: string) {
+export async function getInterestAnswers(
+  userID: ObjectIdType,
+  communityID: ObjectIdType
+) {
   try {
     // Checks first for matching interest to update or get latest interest submitted by User
     let interest =
-      (await MeetTheGreekInterest.findOne({ user: userID, community: communityID }, [
-        'answers',
-      ])) ||
-      (await MeetTheGreekInterest.findOne({ user: userID }, ['answers']).sort({
+      (await MeetTheGreekInterest.model.findOne(
+        { user: userID, community: communityID },
+        ['answers']
+      )) ||
+      (await MeetTheGreekInterest.model.findOne({ user: userID }, ['answers']).sort({
         updatedAt: -1,
       }));
 
@@ -262,24 +281,26 @@ export async function getInterestAnswers(userID: string, communityID: string) {
 }
 
 export async function updateInterestAnswers(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   answers: string
 ) {
   try {
-    const userPromise = User.exists({ _id: userID });
-    const communityPromise = Community.exists({ _id: communityID });
+    const userPromise = User.model.exists({ _id: userID });
+    const communityPromise = Community.model.exists({ _id: communityID });
 
     return Promise.all([userPromise, communityPromise]).then(
       async ([userExists, communityExists]) => {
         if (!userExists) return sendPacket(0, `User doesn't exist`);
         if (!communityExists) return sendPacket(0, `Community doesn't exist`);
 
-        await MeetTheGreekInterest.updateOne(
-          { user: userID, community: communityID },
-          { $set: { answers } },
-          { upsert: true }
-        ).exec();
+        await MeetTheGreekInterest.model
+          .updateOne(
+            { user: userID, community: communityID },
+            { $set: { answers } },
+            { upsert: true }
+          )
+          .exec();
 
         return sendPacket(1, 'Updated Interest for Community');
       }
@@ -296,32 +317,34 @@ export async function getMTGEvents() {
   );
 
   try {
-    const events = await Webinar.aggregate([
-      { $match: condition },
-      {
-        $lookup: {
-          from: 'communities',
-          localField: 'hostCommunity',
-          foreignField: '_id',
-          as: 'community',
-        },
-      },
-      { $unwind: '$community' },
-      {
-        $project: {
-          _id: '$_id',
-          description: '$full_description',
-          dateTime: '$dateTime',
-          community: {
-            _id: '$community._id',
-            name: '$community.name',
-            profilePicture: '$community.profilePicture',
+    const events = await Webinar.model
+      .aggregate([
+        { $match: condition },
+        {
+          $lookup: {
+            from: 'communities',
+            localField: 'hostCommunity',
+            foreignField: '_id',
+            as: 'community',
           },
-          introVideoURL: '$introVideoURL',
-          eventBanner: '$eventBanner',
         },
-      },
-    ]).exec();
+        { $unwind: '$community' },
+        {
+          $project: {
+            _id: '$_id',
+            description: '$full_description',
+            dateTime: '$dateTime',
+            community: {
+              _id: '$community._id',
+              name: '$community.name',
+              profilePicture: '$community.profilePicture',
+            },
+            introVideoURL: '$introVideoURL',
+            eventBanner: '$eventBanner',
+          },
+        },
+      ])
+      .exec();
 
     const imagePromises = [];
     for (let i = 0; i < events.length; i++) {
@@ -346,12 +369,10 @@ export async function getMTGEvents() {
   }
 }
 
-export async function getInterestedUsers(communityID: string) {
+export async function getInterestedUsers(communityID: ObjectIdType) {
   try {
-    const interestedUsers = await MeetTheGreekInterest.find(
-      { community: communityID },
-      ['answers', 'user']
-    )
+    const interestedUsers = await MeetTheGreekInterest.model
+      .find({ community: communityID }, ['answers', 'user'])
       .populate({
         path: 'user',
         select:
@@ -377,16 +398,23 @@ export async function getInterestedUsers(communityID: string) {
 }
 
 async function sendMTGEventEmails(
-  recipients: [{ firstName: string; lastName: string; email: string; _id: string }],
+  recipients: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    _id: ObjectIdType;
+  }[],
   event: {
-    _id: string;
-    hostCommunity: string;
+    _id: ObjectIdType;
+    hostCommunity: ObjectIdType;
     dateTime: Date;
     full_description: string;
   }
 ) {
   try {
-    const community = await Community.findById(event.hostCommunity, 'name').exec();
+    const community = await Community.model
+      .findById(event.hostCommunity, 'name')
+      .exec();
     const timestamp = convertEST(event.dateTime);
     recipients.forEach((recipient) => {
       sendEmail(

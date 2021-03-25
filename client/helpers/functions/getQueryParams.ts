@@ -1,4 +1,4 @@
-import { IRequest } from '../types';
+import { IRequest } from '../../rootshare_db/types';
 import { log } from './';
 
 type QueryValue = string | string[] | number | number[] | boolean | boolean[];
@@ -49,12 +49,16 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
     try {
       if (type.startsWith('number')) {
         if (type.endsWith('[]'))
-          val = (val as Array<string>).map((arrVal) => parseFloat(arrVal));
+          if (typeof val === 'string') val = [parseFloat(val)];
+          else val = (val as Array<string>).map((arrVal) => parseFloat(arrVal));
         else val = parseInt(val as string);
       } else if (type.startsWith('boolean')) {
         if (type.endsWith('[]'))
-          val = (val as Array<string>).map((arrVal) => arrVal === 'true');
+          if (typeof val === 'string') val = [val === 'true'];
+          else val = (val as Array<string>).map((arrVal) => arrVal === 'true');
         else val = val === 'true';
+      } else if (type.startsWith('string')) {
+        if (type.endsWith('[]')) if (typeof val === 'string') val = [val];
       }
     } catch (err) {
       log('error', `Type Mismatch: ${err.message}`);

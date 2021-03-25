@@ -10,6 +10,7 @@ import bodyParser = require('body-parser');
 import expressSession = require('express-session');
 import cors = require('cors');
 
+const mongoConfig = require('./rootshare_db/config/mongoConfig');
 const fs = require('fs');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -25,17 +26,11 @@ import {
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-import * as mongoConfig from './config/mongoConfig';
-
-// Use mongoose to connect to MongoDB
-mongoConfig.connectDB(function (err, client) {
-  if (err) log('MONGO ERROR', err);
-});
-
 // Load all files in models directory
-fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
-  if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
-});
+// fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
+//   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
+// });
+mongoConfig.connectDB();
 
 const app = express();
 const port = process.env.PORT || 8000;

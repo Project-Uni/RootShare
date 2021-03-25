@@ -1,5 +1,12 @@
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
-import { USER_LEVEL } from '../helpers/types';
+import { Types } from 'mongoose';
+
+import { USER_LEVEL } from '../rootshare_db/types';
+import {
+  getUserFromJWT,
+  sendPacket,
+  getQueryParams,
+  log,
+} from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -32,9 +39,8 @@ import {
   //generics
   getCommunitiesGeneric,
 } from '../interactions/community';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
-import { stringify } from 'querystring';
-import { send } from 'process';
+
+const ObjectIdVal = Types.ObjectId;
 
 /**
  *
@@ -504,14 +510,16 @@ export default function communityRoutes(app) {
     } = query;
 
     const populates = [];
-    try {
-      (populatesRaw as string[]).forEach((populateRaw) => {
-        const split = populateRaw.split(':');
-        populates.push({ path: split[0], select: split[1] });
-      });
-    } catch (err) {
-      return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-    }
+    if (populatesRaw)
+      try {
+        (populatesRaw as string[]).forEach((populateRaw) => {
+          const split = populateRaw.split(':');
+          populates.push({ path: split[0], select: split[1] });
+        });
+      } catch (err) {
+        log('err', err);
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      }
 
     const options = {
       limit,
@@ -576,11 +584,14 @@ export default function communityRoutes(app) {
       let { action, communityID } = query;
       (action = action as string), (communityID = communityID as string);
 
-      if (action === 'join') res.json(await joinCommunity(communityID, userID));
+      if (action === 'join')
+        res.json(await joinCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'leave')
-        res.json(await leaveCommunity(communityID, userID));
+        res.json(await leaveCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'cancel')
-        res.json(await cancelCommunityPendingRequest(communityID, userID));
+        res.json(
+          await cancelCommunityPendingRequest(ObjectIdVal(communityID), userID)
+        );
       else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );

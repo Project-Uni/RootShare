@@ -1,14 +1,17 @@
+import { Types } from 'mongoose';
+
+import { User, Community } from '../rootshare_db/models';
 import {
   log,
   sendPacket,
   uploadFile,
-  retrieveFile,
   retrieveSignedUrl,
   decodeBase64Image,
 } from '../helpers/functions';
-import { User, Community } from '../models';
 
-export async function updateUserProfilePicture(image: string, userID: string) {
+type ObjectIdType = Types.ObjectId;
+
+export async function updateUserProfilePicture(image: string, userID: ObjectIdType) {
   const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
   if (!imageBuffer.data) return sendPacket(0, 'Invalid base64 image');
 
@@ -20,7 +23,7 @@ export async function updateUserProfilePicture(image: string, userID: string) {
     );
     if (!success) return sendPacket(0, 'Failed to upload image');
 
-    const user = await User.findById(userID);
+    const user = await User.model.findById(userID);
     user.profilePicture = `${userID}_profile.jpeg`;
     user.save();
     log('info', `Updated profile picture for ${user.firstName} ${user.lastName}`);
@@ -31,7 +34,7 @@ export async function updateUserProfilePicture(image: string, userID: string) {
   }
 }
 
-export async function updateUserBanner(image: string, userID: string) {
+export async function updateUserBanner(image: string, userID: ObjectIdType) {
   const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
   if (!imageBuffer.data) return sendPacket(0, 'Invalid base64 image');
 
@@ -40,7 +43,7 @@ export async function updateUserBanner(image: string, userID: string) {
     const success = await uploadFile('profileBanner', fileName, imageBuffer.data);
     if (!success) return sendPacket(0, 'Failed to upload image');
 
-    await User.updateOne({ _id: userID }, { bannerPicture: fileName });
+    await User.model.updateOne({ _id: userID }, { bannerPicture: fileName });
     log('info', `Updated banner for ${userID}`);
     return sendPacket(1, 'Successfully uploaded image');
   } catch (err) {
@@ -51,7 +54,7 @@ export async function updateUserBanner(image: string, userID: string) {
 
 export async function updateCommunityProfilePicture(
   image: string,
-  communityID: string
+  communityID: ObjectIdType
 ) {
   const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
   if (!imageBuffer.data) return sendPacket(0, 'Invalid base64 image');
@@ -64,10 +67,11 @@ export async function updateCommunityProfilePicture(
     );
     if (!success) return sendPacket(0, 'Failed to upload image');
 
-    Community.updateOne(
-      { _id: communityID },
-      { profilePicture: `${communityID}_profile.jpeg` }
-    )
+    Community.model
+      .updateOne(
+        { _id: communityID },
+        { profilePicture: `${communityID}_profile.jpeg` }
+      )
       .exec()
       .then(() => {
         log(
@@ -86,7 +90,10 @@ export async function updateCommunityProfilePicture(
   return sendPacket(1, 'Successfully updated profile picture for community.');
 }
 
-export async function updateCommunityBanner(image: string, communityID: string) {
+export async function updateCommunityBanner(
+  image: string,
+  communityID: ObjectIdType
+) {
   const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
   if (!imageBuffer.data) return sendPacket(0, 'Invalid base64 image');
 
@@ -95,7 +102,10 @@ export async function updateCommunityBanner(image: string, communityID: string) 
     const success = await uploadFile('communityBanner', fileName, imageBuffer.data);
     if (!success) return sendPacket(0, 'Failed to upload image');
 
-    await Community.updateOne({ _id: communityID }, { bannerPicture: fileName });
+    await Community.model.updateOne(
+      { _id: communityID },
+      { bannerPicture: fileName }
+    );
     log('info', `Updated banner for ${communityID}`);
     return sendPacket(1, 'Successfully uploaded image');
   } catch (err) {
@@ -107,11 +117,12 @@ export async function updateCommunityBanner(image: string, communityID: string) 
 //GETTERS
 
 export async function getUserProfileAndBanner(
-  userID: string,
+  userID: ObjectIdType,
   options: { getProfile?: boolean; getBanner?: boolean }
 ) {
   try {
-    const user = await User.findById(userID)
+    const user = await User.model
+      .findById(userID)
       .select('profilePicture bannerPicture')
       .exec();
 
@@ -139,13 +150,13 @@ export async function getUserProfileAndBanner(
 }
 
 export async function getCommunityProfileAndBanner(
-  communityID: string,
+  communityID: ObjectIdType,
   options: { getProfile?: boolean; getBanner?: boolean }
 ) {
   try {
-    const community = await Community.findById(communityID).select(
-      'profilePicture bannerPicture'
-    );
+    const community = await Community.model
+      .findById(communityID)
+      .select('profilePicture bannerPicture');
     if (!community) return sendPacket(0, 'Could not find this community');
 
     const imagePromises = [];
