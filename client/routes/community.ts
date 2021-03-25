@@ -9,7 +9,10 @@ import {
 } from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { isCommunityAdmin } from './middleware/communityAuthentication';
+import {
+  isCommunityAdmin,
+  isCommunityMember,
+} from './middleware/communityAuthentication';
 
 import {
   // Admin Routes
@@ -26,6 +29,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
+  getCommunityMedia,
   // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
@@ -412,6 +416,18 @@ export default function communityRoutes(app) {
         skipCalculation: (skipCalculation || false) as boolean,
       });
       return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/media',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { _id: userID } = getUserFromJWT(req);
+
+      const packet = await getCommunityMedia(userID, communityID);
+      res.json(packet);
     }
   );
 

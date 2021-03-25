@@ -27,7 +27,6 @@ import {
 } from '../interactions/utilities';
 import { deletePost } from './posts';
 
-const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
 export async function createNewCommunity(
@@ -1311,6 +1310,15 @@ export async function getCommunityMembers(
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+export async function getCommunityMedia(
+  userID: ObjectIdType,
+  communityID: ObjectIdType
+) {
+  Community.getUserToCommunityRelationship_V2(userID, [communityID]);
+  console.log(communityID);
+  Community.model.findById(communityID);
 }
 
 export async function updateFields(

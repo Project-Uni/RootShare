@@ -1424,16 +1424,18 @@ async function getExternalPostsNonMember_Helper(
 
     if (!community) return sendPacket(0, 'Community does not exist');
 
-    if (community.private) {
-      const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
-        (community) => community.from.toString()
-      );
-      const communityIntersections = user.joinedCommunities.filter((community) =>
-        followedByCommunities.includes(community.toString())
-      );
-      if (communityIntersections.length === 0)
-        return sendPacket(0, 'User does not have access to this feed');
-    }
+    // disabling so anyone can view the external feed of a community
+
+    // if (community.private) {
+    //   const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
+    //     (community) => community.from.toString()
+    //   );
+    //   const communityIntersections = user.joinedCommunities.filter((community) =>
+    //     followedByCommunities.includes(community.toString())
+    //   );
+    //   if (communityIntersections.length === 0)
+    //     return sendPacket(0, 'User does not have access to this feed');
+    // }
 
     const condition = { _id: { $in: community.externalPosts } };
     const posts = await retrievePosts(condition, NUM_POSTS_RETRIEVED, user._id);
