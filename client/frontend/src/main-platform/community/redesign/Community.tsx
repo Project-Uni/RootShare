@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { CommunityHead } from './CommunityHead';
+import { CommunityMedia } from './CommunityMedia';
 import { RSText } from '../../../base-components';
 import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
@@ -17,7 +18,7 @@ const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {};
 
-export type CommunityTab = 'about' | 'feed'; // For now, feed is just external
+export type CommunityTab = 'about' | 'feed' | 'media'; // For now, feed is just external
 
 const Community = (props: Props) => {
   const styles = useStyles();
@@ -82,6 +83,14 @@ const Community = (props: Props) => {
       case 'feed': {
         return (
           <CommunityFeed
+            communityID={communityID}
+            admin={(info.admin as AboutPageUser)._id}
+          />
+        );
+      }
+      case 'media': {
+        return (
+          <CommunityMedia
             communityID={communityID}
             admin={(info.admin as AboutPageUser)._id}
           />

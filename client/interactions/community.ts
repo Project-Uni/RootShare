@@ -1375,7 +1375,9 @@ export async function getCommunityMedia(
           path: 'images',
           select: 'fileName',
         },
-      })) as {
+      })
+      .lean<ICommunity>()
+      .exec()) as {
       externalPosts: IPost[];
       broadcastedPosts: IPost[];
       internalAlumniPosts: IPost[];
@@ -1391,14 +1393,16 @@ export async function getCommunityMedia(
     let images = [];
     posts.forEach((post) =>
       images.push(
-        ...(post.images as IImage[]).map((image) => {
-          return { reason: 'postImage', fileName: image.fileName };
+        ...(post.images as IImage[])?.map((image) => {
+          return { ...image, reason: 'postImage' };
         })
       )
     );
-    const imageURLs = await retrieveAllUrls(images);
-    return sendPacket(1, 'Sending images', { imageURLs });
+
+    await retrieveAllUrls(images);
+    return sendPacket(1, 'Sending images', { images });
   } catch (err) {
+    log('err', err.stack);
     return sendPacket(-1, err);
   }
 }

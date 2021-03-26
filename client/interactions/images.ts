@@ -186,12 +186,15 @@ export async function getCommunityProfileAndBanner(
 }
 
 export async function retrieveAllUrls(
-  images: { fileName: string; reason: ImageReason }[]
+  images: { fileName: string; reason: ImageReason; [key: string]: any }[]
 ) {
   const urlPromises = [];
   images.forEach((image) => {
     urlPromises.push(retrieveSignedUrl(image.reason, image.fileName));
   });
 
-  return Promise.all(urlPromises);
+  return Promise.all(urlPromises).then((urls) => {
+    for (let i = 0; i < urls.length; i++) images[i].fileName = urls[i];
+    return images;
+  });
 }

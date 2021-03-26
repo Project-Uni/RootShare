@@ -147,6 +147,7 @@ export const CommunityHead = (props: Props) => {
           tabs={[
             { label: 'Feed', value: 'feed' },
             { label: 'About', value: 'about' },
+            { label: 'Media', value: 'media' },
           ]}
           onChange={handleTabChange}
           selected={currentTab}
