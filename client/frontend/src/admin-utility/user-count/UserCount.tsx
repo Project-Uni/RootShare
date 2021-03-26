@@ -92,7 +92,7 @@ function UserCount(props: Props) {
     student: 0,
     alumni: 0,
     faculty: 0,
-    fan: 0,
+    recruiter: 0,
   });
   const [searched, setSearched] = useState('');
   const [performDownload, setPerformDownload] = useState(false);
@@ -133,7 +133,7 @@ function UserCount(props: Props) {
         student: data['content']['studentCount'],
         alumni: data['content']['alumniCount'],
         faculty: data['content']['facultyCount'],
-        fan: data['content']['fanCount'],
+        recruiter: data['content']['recruiterCount'],
       });
       calculateJoinedToday(data['content']['users']);
     }
@@ -224,7 +224,7 @@ function UserCount(props: Props) {
             {typeCount['student']} Students | {typeCount['alumni']} Alumni
           </RSText>
           <RSText type="subhead" className={styles.textStyle} size={14}>
-            {typeCount['faculty']} Faculty | {typeCount['fan']} Fans
+            {typeCount['faculty']} Faculty | {typeCount['recruiter']} Recruiters
           </RSText>
         </div>
 

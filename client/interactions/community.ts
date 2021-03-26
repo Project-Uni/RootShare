@@ -5,13 +5,16 @@ import {
   CommunityEdge,
   User,
   University,
+  Post,
   ICommunity,
   IUser,
   ICommunityEdge,
   IConnection,
+  IPost,
+  IImage,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
-import { CommunityType, U2CR } from '../rootshare_db/types';
+import { CommunityType, U2CR, AccountType } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -24,7 +27,8 @@ import {
   getUserToUserRelationship,
   addCalculatedUserFields,
   addProfilePicturesAll,
-} from '../interactions/utilities';
+} from './utilities';
+import { retrieveAllUrls } from './images';
 import { deletePost } from './posts';
 
 type ObjectIdType = Types.ObjectId;
@@ -1314,11 +1318,89 @@ export async function getCommunityMembers(
 
 export async function getCommunityMedia(
   userID: ObjectIdType,
+  userAccountType: AccountType,
   communityID: ObjectIdType
 ) {
-  Community.getUserToCommunityRelationship_V2(userID, [communityID]);
-  console.log(communityID);
-  Community.model.findById(communityID);
+  try {
+    const communityRelationship = (
+      await Community.getUserToCommunityRelationship_V2({
+        userID,
+        communityIDs: [communityID],
+      })
+    )[0].relationship;
+
+    let fields = ['externalPosts', 'broadcastedPosts'];
+    if (communityRelationship === U2CR.JOINED)
+      if (userAccountType === 'alumni') fields.push('internalAlumniPosts');
+      else if (userAccountType === 'student')
+        fields.push('internalCurrentMemberPosts');
+      else if (communityRelationship === U2CR.ADMIN)
+        fields.push('internalAlumniPosts', 'internalCurrentMemberPosts');
+
+    const {
+      externalPosts,
+      broadcastedPosts,
+      internalAlumniPosts = [],
+      internalCurrentMemberPosts = [],
+    } = (await Community.model
+      .findById(communityID, fields)
+      .populate({
+        path: 'externalPosts',
+        select: 'images',
+        populate: {
+          path: 'images',
+          select: 'fileName',
+        },
+      })
+      .populate({
+        path: 'broadcastedPosts',
+        select: 'images',
+        populate: {
+          path: 'images',
+          select: 'fileName',
+        },
+      })
+      .populate({
+        path: 'internalAlumniPosts',
+        select: 'images',
+        populate: {
+          path: 'images',
+          select: 'fileName',
+        },
+      })
+      .populate({
+        path: 'internalCurrentMemberPosts',
+        select: 'images',
+        populate: {
+          path: 'images',
+          select: 'fileName',
+        },
+      })) as {
+      externalPosts: IPost[];
+      broadcastedPosts: IPost[];
+      internalAlumniPosts: IPost[];
+      internalCurrentMemberPosts: IPost[];
+    };
+
+    const posts = externalPosts.concat(
+      broadcastedPosts,
+      internalAlumniPosts,
+      internalCurrentMemberPosts
+    );
+
+    let images = [];
+    posts.forEach((post) =>
+      images.push(
+        ...(post.images as IImage[]).map((image) => {
+          return { reason: 'postImage', fileName: image.fileName };
+        })
+      )
+    );
+    const imageURLs = await retrieveAllUrls(images);
+    return sendPacket(1, 'Sending images', { imageURLs });
+  } catch (err) {
+    return sendPacket(-1, err);
+  }
 }
 
 export async function updateFields(
@@ -1344,7 +1426,7 @@ export async function updateFields(
 }
 
 export const getCommunitiesGeneric = async (
-  _ids: string[],
+  _ids: ObjectIdType[],
   params: {
     fields?: typeof Community.AcceptedFields[number][];
     options?: CommunityGetOptions;

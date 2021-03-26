@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 import { User, Community } from '../rootshare_db/models';
+import { ImageReason } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -182,4 +183,15 @@ export async function getCommunityProfileAndBanner(
     log('error', err);
     return sendPacket(-1, err);
   }
+}
+
+export async function retrieveAllUrls(
+  images: { fileName: string; reason: ImageReason }[]
+) {
+  const urlPromises = [];
+  images.forEach((image) => {
+    urlPromises.push(retrieveSignedUrl(image.reason, image.fileName));
+  });
+
+  return Promise.all(urlPromises);
 }

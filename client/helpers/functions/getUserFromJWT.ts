@@ -1,6 +1,8 @@
 import jwt = require('jsonwebtoken');
 import { Types } from 'mongoose';
 
+import { AccountType } from '../../rootshare_db/types';
+
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
@@ -17,7 +19,7 @@ export const getUserFromJWT = (
   lastName: string;
   email: string;
   privilegeLevel: number;
-  accountType: 'student' | 'alumni' | 'faculty' | 'fan';
+  accountType: AccountType;
 } => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
@@ -29,7 +31,7 @@ export const getUserFromJWT = (
       lastName: string;
       email: string;
       privilegeLevel: number;
-      accountType: 'student' | 'alumni' | 'faculty' | 'fan';
+      accountType: AccountType;
     } = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     return user;
   } catch (err) {
@@ -39,7 +41,7 @@ export const getUserFromJWT = (
       lastName: '',
       email: '',
       privilegeLevel: 0,
-      accountType: 'fan',
+      accountType: 'student',
     };
   }
 };

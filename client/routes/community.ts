@@ -45,6 +45,7 @@ import {
 } from '../interactions/community';
 
 const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
 /**
  *
@@ -424,9 +425,9 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { communityID } = req.params;
-      const { _id: userID } = getUserFromJWT(req);
+      const { _id: userID, accountType } = getUserFromJWT(req);
 
-      const packet = await getCommunityMedia(userID, communityID);
+      const packet = await getCommunityMedia(userID, accountType, communityID);
       res.json(packet);
     }
   );
@@ -546,10 +547,13 @@ export default function communityRoutes(app) {
       includeDefaultFields,
     };
 
-    const packet = await getCommunitiesGeneric(_ids as string[], {
-      fields: fields as any,
-      options: options as any,
-    });
+    const packet = await getCommunitiesGeneric(
+      (_ids as unknown[]) as ObjectIdType[],
+      {
+        fields: fields as any,
+        options: options as any,
+      }
+    );
     return res.json(packet);
   });
 

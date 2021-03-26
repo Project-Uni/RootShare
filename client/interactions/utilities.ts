@@ -30,16 +30,19 @@ export function getUserData(callback: (packet: packetParams) => void) {
         return callback(sendPacket(-1, 'Could not find users'));
       }
 
-      const { studentCount, alumniCount, facultyCount, fanCount } = countAccountType(
-        users
-      );
+      const {
+        studentCount,
+        alumniCount,
+        facultyCount,
+        recruiterCount,
+      } = countAccountType(users);
       return callback(
         sendPacket(1, 'Found users', {
           users,
           studentCount,
           alumniCount,
           facultyCount,
-          fanCount,
+          recruiterCount,
         })
       );
     }
@@ -47,7 +50,7 @@ export function getUserData(callback: (packet: packetParams) => void) {
 }
 
 function countAccountType(users) {
-  const accountTypes = ['student', 'alumni', 'faculty', 'fan'];
+  const accountTypes = ['student', 'alumni', 'faculty', 'recruiter'];
   let accountCounts = [0, 0, 0, 0];
   const numTypes = accountTypes.length;
 
@@ -65,7 +68,7 @@ function countAccountType(users) {
     studentCount: 0,
     alumniCount: 0,
     facultyCount: 0,
-    fanCount: 0,
+    recruiterCount: 0,
   };
 
   for (let i = 0; i < numTypes; i++) {

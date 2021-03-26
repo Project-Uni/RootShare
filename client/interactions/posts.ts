@@ -13,6 +13,7 @@ import {
   ICommunityEdge,
   IUser,
 } from '../rootshare_db/models';
+import { AccountType } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -82,7 +83,7 @@ export async function createBroadcastUserPost(
 export async function createInternalCurrentMemberCommunityPost(
   communityID: ObjectIdType,
   userID: ObjectIdType,
-  accountType: 'student' | 'alumni' | 'faculty' | 'fan',
+  accountType: AccountType,
   message: string,
   image?: string
 ) {
@@ -174,7 +175,7 @@ export async function createInternalCurrentMemberCommunityPost(
 export async function createInternalAlumniPost(
   communityID: ObjectIdType,
   userID: ObjectIdType,
-  accountType: 'student' | 'alumni' | 'faculty' | 'fan',
+  accountType: AccountType,
   message: string,
   image?: string
 ) {
@@ -764,7 +765,7 @@ export async function leaveCommentOnPost(
 export async function getInternalCurrentMemberPosts(
   communityID: ObjectIdType,
   userID: ObjectIdType,
-  accountType: 'student' | 'alumni' | 'faculty' | 'fan'
+  accountType: AccountType
 ) {
   //Validate that community exists with user as member
   const community = await getValidatedCommunity(communityID, userID, [
@@ -807,7 +808,7 @@ export async function getInternalCurrentMemberPosts(
 export async function getInternalAlumniPosts(
   communityID: ObjectIdType,
   userID: ObjectIdType,
-  accountType: 'student' | 'alumni' | 'faculty' | 'fan'
+  accountType: AccountType
 ) {
   //Validate that community exists with user as member
   const community = await getValidatedCommunity(communityID, userID, [

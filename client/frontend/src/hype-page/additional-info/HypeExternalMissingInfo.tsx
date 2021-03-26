@@ -228,7 +228,7 @@ function HypeExternalMissingInfo(props: Props) {
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="alumni">Alumni</MenuItem>
               <MenuItem value="faculty">Faculty</MenuItem>
-              <MenuItem value="fan">Fan</MenuItem>
+              <MenuItem value="recruiter">Recruiter</MenuItem>
             </Select>
             <FormHelperText>{standingErr}</FormHelperText>
           </FormControl>
