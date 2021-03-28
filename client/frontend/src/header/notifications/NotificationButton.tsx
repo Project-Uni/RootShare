@@ -11,7 +11,7 @@ import {
 } from '../../api';
 import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
-import { makeRequest } from '../../helpers/functions';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -19,6 +19,8 @@ type Props = {};
 
 export const NotificationButton = (props: Props) => {
   const styles = useStyles();
+
+  const history = useHistory();
 
   const dispatch = useDispatch();
 
@@ -28,10 +30,6 @@ export const NotificationButton = (props: Props) => {
   const [loading, setLoading] = useState(false);
 
   const open = Boolean(anchorEl);
-
-  useEffect(() => {
-    if (!open && !loading) fetchNotifications();
-  }, [open]);
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -50,6 +48,17 @@ export const NotificationButton = (props: Props) => {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      fetchNotifications();
+    });
+    return removeHistoryListen;
+  }, [history]);
 
   useEffect(() => {
     if (open && notifications.some((n) => !n.seen)) {
@@ -82,7 +91,7 @@ export const NotificationButton = (props: Props) => {
         open={open}
         anchorEl={anchorEl}
         notifications={notifications}
-        loading={false}
+        loading={loading}
       />
     </>
   );
