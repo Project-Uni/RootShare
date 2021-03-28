@@ -31,6 +31,17 @@ export const NotificationButton = (props: Props) => {
 
   const open = Boolean(anchorEl);
 
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const removeHistoryListen = history.listen((location, action) => {
+      fetchNotifications();
+    });
+    return removeHistoryListen;
+  }, [history]);
+
   const fetchNotifications = async () => {
     setLoading(true);
     const data = await getNotifications();
@@ -48,17 +59,6 @@ export const NotificationButton = (props: Props) => {
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
-
-  useEffect(() => {
-    const removeHistoryListen = history.listen((location, action) => {
-      fetchNotifications();
-    });
-    return removeHistoryListen;
-  }, [history]);
 
   useEffect(() => {
     if (open && notifications.some((n) => !n.seen)) {

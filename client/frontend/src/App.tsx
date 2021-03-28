@@ -25,6 +25,7 @@ import {
   ConnectionsBody,
   CommunityBody,
   YourCommunitiesBody,
+  PostPage,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
@@ -77,18 +78,6 @@ const App = () => {
                 path="/account/forgotPassword"
                 render={() => <ForgotPasswordCard />}
               />
-              {/* <Route exact path="/" component={LandingPage} />
-            <Route
-              exact
-              path="/register/external"
-              component={HypeExternalMissingInfo}
-            />
-            <Route
-              exact
-              path="/register/initialize"
-              component={HypeAdditionalInfo}
-            /> */}
-              {/* <Route exact path="/login" component={Login} /> */}
 
               <Route
                 exact
@@ -125,13 +114,7 @@ const App = () => {
               <Route
                 exact
                 path="/community/:communityID"
-                render={(props) => (
-                  <AuthenticatedPage
-                    component={<Community />} //NEW COMMUNITY UI
-                    // component={<CommunityBody {...props} />} //OLD COMMUNITY
-                    // rightElement={<FollowSidebar />} //OLD COMMUNITY
-                  />
-                )}
+                render={(props) => <AuthenticatedPage component={<Community />} />}
               />
               <Route
                 exact
@@ -147,6 +130,11 @@ const App = () => {
                 <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
               )}
             /> */}
+              <Route
+                exact
+                path="/post/:postID"
+                render={(props) => <AuthenticatedPage component={<PostPage />} />}
+              />
               <Route component={PageNotFound} />
             </Switch>
           </ThemeProvider>

@@ -9,6 +9,8 @@ import {
 import { Community, CommunityEdge, Comment, Post, User, Image } from '../models';
 import NotificationService from './notification';
 import { generateSignedProfilePromises } from './utilities';
+import { Types } from 'mongoose';
+const ObjectIdVal = Types.ObjectId;
 
 const mongoose = require('mongoose');
 
@@ -1187,6 +1189,26 @@ export async function retrieveComments(
     return sendPacket(-1, err);
   }
 }
+
+export const getPost = async ({
+  userID,
+  postID,
+}: {
+  postID: string;
+  userID: string;
+}) => {
+  //TODO - Determine if user has access to get post
+  const hasAccess = true;
+  try {
+    const post = await retrievePosts({ _id: ObjectIdVal(postID) }, 1, userID);
+    if (!post) return false;
+
+    return post[0];
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+};
 
 async function retrievePosts(
   condition: { [key: string]: any },

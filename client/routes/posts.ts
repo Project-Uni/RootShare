@@ -1,3 +1,4 @@
+import { Express } from 'express';
 import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
@@ -30,10 +31,11 @@ import {
   unlikePost,
   getLikes,
   deletePost,
+  getPost,
 } from '../interactions/posts';
 import { getQueryParams } from '../helpers/functions/getQueryParams';
 
-export default function postsRoutes(app) {
+export default function postsRoutes(app: Express) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const { message, image } = req.body;
@@ -326,4 +328,19 @@ export default function postsRoutes(app) {
       return res.json(packet);
     }
   );
+
+  app.get('/api/post', isAuthenticatedWithJWT, async (req, res) => {
+    const query = getQueryParams(req, {
+      _id: { type: 'string' },
+    });
+    if (!query)
+      return res.status(400).json(sendPacket(-1, 'Missing query param _id'));
+
+    const { _id: postID } = query;
+    const { _id: userID } = getUserFromJWT(req);
+    const post = await getPost({ postID: postID as string, userID });
+    if (!post)
+      return res.status(400).json(sendPacket(-1, 'Could not retrieve post'));
+    return res.status(200).json(sendPacket(1, 'Retrieved post', { post }));
+  });
 }
