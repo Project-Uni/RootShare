@@ -7,7 +7,7 @@ let ses = new aws.SES({
   apiVersion: '2010-12-01',
 });
 
-import { log, sendPacket } from '../helpers/functions';
+import { hashPassword, log, sendPacket, sendSMS } from '../helpers/functions';
 
 import { getUserData } from '../interactions/utilities';
 
@@ -46,14 +46,14 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/utilities/events/viewers', async (req, res) => {
-    // const eventsCSV = await getViewersForEvents([]);
-    // if (eventsCSV) {
-    //   res.attachment('events_aggregation.csv');
-    //   res.status(200).send(eventsCSV);
-    // } else {
-    //   res.status(500).send('Failed to retrieve information and convert to CSV');
-    // }
-    res.status(401).send('Re-activate this route if you want this data');
+    const eventsCSV = await getViewersForEvents(['6058db7add0bb42382a5dd37']);
+    if (eventsCSV) {
+      res.attachment('events_aggregation.csv');
+      res.status(200).send(eventsCSV);
+    } else {
+      res.status(500).send('Failed to retrieve information and convert to CSV');
+    }
+    // res.status(401).send('Re-activate this route if you want this data');
   });
 
   app.get('/api/utilities/growth', async (req, res) => {
@@ -85,6 +85,31 @@ export default function utilityRoutes(app) {
     // const response = await phasedEmergencyEmailRollout(subject, message);
     // return res.send(response);
     res.status(401).send('Re-activate this route if you want this data');
+  });
+
+  app.get('/api/sms', async (req, res) => {
+    // const users = await User.find({
+    //   $and: [{ phoneNumber: { $exists: true } }, { phoneNumber: { $ne: '' } }],
+    // }).exec();
+    // const phoneNumbers = users.map((u) => u.phoneNumber);
+
+    sendSMS(
+      // phoneNumbers,
+      ['6308159044'],
+      'Hey it’s Chris Hartley, CEO of 🌱RootShare! I wanted to remind you that we are hosting an EXCLUSIVE event with Northwestern Mutual for Purdue students and alumni TONIGHT! Tune with your Rootshare account using the link below. \n\nhttps://RootShare.io/event/6058db7add0bb42382a5dd37',
+      'https://rootshare-profile-images.s3.us-east-2.amazonaws.com/images/messaging/nwm_Graphic.png'
+    );
+
+    return res.json(
+      sendPacket(1, 'Users', {
+        // phoneNumbers,
+      })
+    );
+  });
+
+  app.get('/api/reset', async (req, res) => {
+    const password = hashPassword('password1');
+    return res.json(sendPacket(1, password));
   });
 }
 

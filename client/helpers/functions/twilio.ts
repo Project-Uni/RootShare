@@ -3,7 +3,11 @@ const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = require('../../../keys/keys.js
 const twilio_client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const TWILIO_PHONE_NUMBER = '+17652343229';
 
-export async function sendSMS(recipients: string[], message: string) {
+export async function sendSMS(
+  recipients: string[],
+  message: string,
+  imageURL?: string
+) {
   const formattedNumbers: (string | null)[] = [];
   for (let i = 0; i < recipients.length; i++) {
     formattedNumbers.push(formatSMSRecipients(recipients[i]));
@@ -15,12 +19,19 @@ export async function sendSMS(recipients: string[], message: string) {
       to: phoneNumber,
       from: TWILIO_PHONE_NUMBER,
       body: message,
+      mediaUrl: imageURL,
     });
   });
 
   return Promise.all(smsPromises)
-    .then((values) => ({ success: 1, message: 'Successfully sent all messages' }))
-    .catch((err) => ({ success: -1, message: err.message }));
+    .then((values) => {
+      console.log('Twilio success values:', values);
+      return { success: 1, message: 'Successfully sent all messages' };
+    })
+    .catch((err) => {
+      console.log('Twilio IO Error:', err);
+      return { success: -1, message: err.message };
+    });
 }
 
 function formatSMSRecipients(phoneNumber: string) {
