@@ -45,7 +45,7 @@ export const PostPage = (props: Props) => {
       ) : loading || !post ? (
         <CircularProgress style={{ marginTop: 50 }} size={80} />
       ) : (
-        <UserPost post={post!} />
+        <UserPost post={post} />
       )}
     </div>
   );

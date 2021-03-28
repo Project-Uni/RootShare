@@ -17,6 +17,7 @@ const AVATAR_SIZE = 120;
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     marginTop: 20,
+    maxWidth: '100vw',
   },
   cardWrapper: {
     paddingLeft: 40,
@@ -48,8 +49,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    overflow: 'auto',
-    maxWidth: window.innerWidth - 50,
+    overflowX: 'scroll',
   },
   profilePictureContainer: {
     display: 'flex',
