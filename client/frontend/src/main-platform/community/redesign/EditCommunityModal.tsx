@@ -59,6 +59,7 @@ type Props = {
   onClose: () => any;
   profilePicture?: string;
   banner?: string;
+  editable: boolean;
 };
 
 export const EditCommunityModal = (props: Props) => {

@@ -10,6 +10,7 @@ import { CommunityTab } from './Community';
 import EditCommunityModal from './EditCommunityModal';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
+import { UserToCommunityRelationship, U2CR } from '../../../helpers/types';
 import Tag from './Tag';
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
@@ -160,13 +161,14 @@ export const CommunityHead = (props: Props) => {
   const renderRight = () => {
     return (
       <div className={styles.right}>
-        <RSButtonV2
-          variant="universitySecondary"
-          className={styles.button}
-          onClick={() => setShowEditCommunityModal(true)}
-        >
+        {relationship == U2CR.ADMIN ?
+          <RSButtonV2
+            variant="universitySecondary"
+            className={styles.button}
+            onClick={() => setShowEditCommunityModal(true)}
+          >
               <RSText size={11}>Edit Community</RSText>
-            </RSButtonV2>
+            </RSButtonV2> : ""}
         <RSText size={11}>{`${numMembers} ${
           numMembers === 1 ? 'Member' : 'Members'
         }`}</RSText>
@@ -190,13 +192,15 @@ export const CommunityHead = (props: Props) => {
 
   return (
     <div>
+      {relationship == U2CR.ADMIN ?
       <EditCommunityModal
         communityID={communityID}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
+        editable={relationship === 'admin'}
         banner={bannerPicture}
         profilePicture={profilePicture}
-        />
+        /> : ""}
       <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
         <ProfileBanner
           height={225}
