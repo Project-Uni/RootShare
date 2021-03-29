@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { ProfilePicture, RSText } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
-import { RSButton, RSButtonV2, RSModal, RSTextField } from '../../reusable-components';
+import { RSButtonV2, RSModal, RSTabsV2, RSTextField } from '../../reusable-components';
+import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -35,11 +36,16 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'flex-start',
   },
   tag: {
-    height: '25px',
-    marginLeft: '2px',
-    marginRight: '2px',
+    alignSelf: 'flex-start',
+    height: 25,
+    minWidth: 80,
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginTop: 5,
+    marginBottom: 10,
+    marginLeft: 2,
+    marginRight: 2,
     fontFamily: 'lato',
-    color: Theme.primaryText,
   },
   saveBtn: {
     marginLeft: '450px',
@@ -60,6 +66,8 @@ type Props = {
   profilePicture?: string;
   banner?: string;
   editable: boolean;
+  name: string;
+  bio: string;
 };
 
 export const EditCommunityModal = (props: Props) => {
@@ -70,6 +78,9 @@ const styles = useStyles();
     banner,
   } = props;
 
+  const [communityName, setCommunityName] = useState<string>(props.name);
+  const [communityBio, setCommunityBio] = useState<string>(props.bio);
+
   function handleSave() {
     return (props.onClose);
   }
@@ -79,39 +90,15 @@ const styles = useStyles();
     //filler to test formating for now
     return (
       <div className={styles.tagContainer}>
-        <RSButton
-          variant='university'
-          className={styles.tag}>
-          #finance
-        </RSButton>
-        <RSButton
-          variant='university'
-          className={styles.tag}>
-          #leadership
-        </RSButton>
-        <RSButton
-          variant='university'
-          className={styles.tag}>
-          #buisness
-        </RSButton>
-        <RSButton
-          variant='university'
-          className={styles.tag}>
-          #krannert
-        </RSButton>
-        <RSButton
+        <Tag className={styles.tag} tag={"#finance"} variant="university" weight="light" />
+        <Tag className={styles.tag} tag={"#krannet"} variant="university" weight="light" />
+        <Tag className={styles.tag} tag={"#managment"} variant="university" weight="light" />
+        <RSButtonV2
           className={styles.tag}
-          style={{
-            fontFamily: 'lato',
-            borderStyle: 'solid',
-            borderWidth: '0.5px',
-            // borderColor: Theme.universityAccent,
-            color: Theme.primaryText,
-            background: Theme.white,
-          }}
+          variant="universitySecondary"
         >
-          Add Tag +
-        </RSButton>
+          <RSText> Add Tag + </RSText>
+        </RSButtonV2>
       </div>
     );
   }
@@ -134,7 +121,7 @@ const [loading, setLoading] = useState(false);
         >
         <ProfileBanner
           height={225}
-          editable={false}
+          editable={props.editable}
           type={'community'}
           _id={communityID}
           currentPicture={banner}
@@ -149,7 +136,8 @@ const [loading, setLoading] = useState(false);
           }}
         >
           <ProfilePicture
-            editable={false}
+            editable={props.editable}
+            zoomOnClick
             type="community"
             height={150}
             width={150}
@@ -164,12 +152,16 @@ const [loading, setLoading] = useState(false);
             <RSTextField
               variant="outlined"
               label="Community Name"
+              defaultValue={communityName}
+              onChange={(e) => setCommunityName(e.target.value)}
               className={styles.textbox}
             />
             <RSTextField
               variant="outlined"
               label="Bio"
               className={styles.textbox}
+              defaultValue={communityBio}
+              onChange={(e) => setCommunityBio(e.target.value)}
               rows={3}
               multiline
             />

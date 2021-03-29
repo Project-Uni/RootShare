@@ -195,6 +195,8 @@ export const CommunityHead = (props: Props) => {
       {relationship == U2CR.ADMIN ?
       <EditCommunityModal
         communityID={communityID}
+        name={name}
+        bio={bio}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
         editable={relationship === 'admin'}
@@ -204,7 +206,6 @@ export const CommunityHead = (props: Props) => {
       <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
         <ProfileBanner
           height={225}
-          editable={relationship === 'admin'}
           type={'community'}
           borderRadius={40}
           _id={communityID}
@@ -218,7 +219,6 @@ export const CommunityHead = (props: Props) => {
               height={140}
               width={140}
               pictureStyle={styles.profilePicture}
-              editable={relationship === 'admin'}
               zoomOnClick
               borderRadius={100}
               borderWidth={0}
