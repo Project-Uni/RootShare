@@ -1,10 +1,10 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { ProfilePicture } from '../../../base-components';
+import { ProfilePicture, RSText } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
-import { RSButton, RSModal, RSTextField } from '../../reusable-components';
+import { RSButton, RSButtonV2, RSModal, RSTextField } from '../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -42,10 +42,15 @@ const useStyles = makeStyles((_: any) => ({
     color: Theme.primaryText,
   },
   saveBtn: {
-    marginLeft: '550px',
+    marginLeft: '450px',
     marginBottom: '20px',
-  }
-
+  },
+  button: {
+    height: 28,
+    marginTop: 5,
+    width: 150,
+    marginBottom: 10,
+  },
 }));
 
 type Props = {
@@ -99,7 +104,7 @@ const styles = useStyles();
             fontFamily: 'lato',
             borderStyle: 'solid',
             borderWidth: '0.5px',
-            borderColor: Theme.universityAccent,
+            // borderColor: Theme.universityAccent,
             color: Theme.primaryText,
             background: Theme.white,
           }}
@@ -170,12 +175,13 @@ const [loading, setLoading] = useState(false);
             {renderTags()}
           </div>
           <div className={styles.saveBtn}>
-            <RSButton
-              variant="universityRound"
+            <RSButtonV2
+              variant="universitySecondary"
+              className={styles.button}
               onClick={handleSave()}
             >
-              Save
-            </RSButton>
+              <RSText size={11}>Save</RSText>
+            </RSButtonV2>
           </div>
       </RSModal>
     </>

@@ -11,7 +11,7 @@ export async function isCommunityAdmin(req, res, next) {
     if (!community.admin.equals(user._id)) {
       log(
         'info',
-        `${user.firstName} ${user.lastName} tried to update the profile picture for community ${community.name}, but failed because they are not the admin`
+        `${user.firstName} ${user.lastName} tried to update the community ${community.name}, but failed because they are not the admin`
       );
       return res.json(
         sendPacket(0, 'User is not authorized to perform this request')

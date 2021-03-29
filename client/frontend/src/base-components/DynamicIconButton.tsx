@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { IconButton } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
 import { colors } from '../theme/Colors';
 
 import * as mojs from '@mojs/core';
@@ -13,6 +13,8 @@ type Props = {
   disabled?: boolean;
   className?: string;
   children: JSX.Element;
+  variant?: 'icon' | 'text';
+  style?: React.CSSProperties;
 };
 
 function DynamicIconButton(props: Props) {
@@ -65,16 +67,34 @@ function DynamicIconButton(props: Props) {
     props.onClick();
   }
 
+  if (props.variant === 'text')
+    return (
+      <Button
+        onClick={handleClick}
+        disabled={props.disabled}
+        ref={buttonRef}
+        className={props.className}
+        style={props.style}
+      >
+        {props.children}
+      </Button>
+    );
+
   return (
     <IconButton
       onClick={handleClick}
       disabled={props.disabled}
       ref={buttonRef}
       className={props.className}
+      style={props.style}
     >
       {props.children}
     </IconButton>
   );
 }
+
+DynamicIconButton.defaultProps = {
+  variant: 'icon',
+};
 
 export default DynamicIconButton;

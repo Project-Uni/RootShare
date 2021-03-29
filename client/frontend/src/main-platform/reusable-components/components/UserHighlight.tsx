@@ -99,18 +99,36 @@ type Props = {
   mutualCommunities?: number;
   status: UserToUserRelationship;
   connectionRequestID?: string;
+  updateConnectionStatus?: (connectionRequestID: string) => void;
   setNotification?: (
     successMode: 'success' | 'notify' | 'error',
     message: string
   ) => void;
 
   user: any;
-  accessToken: string;
-  refreshToken: string;
 };
 
 function UserHighlight(props: Props) {
   const styles = useStyles();
+
+  const {
+    style,
+    userID,
+    profilePic,
+    name,
+    university,
+    graduationYear,
+    position,
+    company,
+    mutualConnections,
+    mutualCommunities,
+    status,
+    connectionRequestID,
+    updateConnectionStatus,
+    setNotification,
+
+    user,
+  } = props;
 
   const [userStatus, setUserStatus] = useState<UserToUserRelationship>(props.status);
 
@@ -129,18 +147,21 @@ function UserHighlight(props: Props) {
       props.userID
     );
 
-    if (data['success'] !== 1) {
-      setUserStatus(props.status);
-      props.setNotification &&
-        props.setNotification(
-          'error',
-          `Failed to ${accepted ? 'accept' : 'remove'} connection request`
-        );
-    }
+    // if (data['success'] === 1 && updateConnectionStatus && connectionRequestID)
+    if (updateConnectionStatus && connectionRequestID)
+      updateConnectionStatus(connectionRequestID);
+    // else {
+    //   setUserStatus(status);
+    //   setNotification &&
+    //     setNotification(
+    //       'error',
+    //       `Failed to ${accepted ? 'accept' : 'remove'} connection request`
+    //     );
+    // }
   }
 
   function renderStatus() {
-    if (props.userID === props.user._id) return;
+    if (userID === user._id) return;
     else if (userStatus === U2UR.CONNECTED)
       return (
         <RSText color={Theme.secondaryText} size={11}>
@@ -179,17 +200,13 @@ function UserHighlight(props: Props) {
   }
 
   return (
-    <Box
-      boxShadow={2}
-      borderRadius={10}
-      className={[props.style, styles.box].join(' ')}
-    >
+    <Box boxShadow={2} borderRadius={10} className={[style, styles.box].join(' ')}>
       <div className={styles.wrapper}>
         <div className={styles.left}>
-          <RSLink href={`/profile/${props.userID}`}>
+          <RSLink href={`/profile/${userID}`}>
             <ProfilePicture
               type="profile"
-              currentPicture={props.profilePic}
+              currentPicture={profilePic}
               height={70}
               width={70}
               borderRadius={50}
@@ -198,23 +215,20 @@ function UserHighlight(props: Props) {
           </RSLink>
           <div className={styles.textContainer}>
             <div className={styles.nameContainer}>
-              <RSLink
-                href={`/profile/${props.userID}`}
-                className={styles.noUnderline}
-              >
+              <RSLink href={`/profile/${userID}`} className={styles.noUnderline}>
                 <RSText
                   type="head"
                   size={13}
                   color={Theme.primaryText}
                   className={styles.name}
                 >
-                  {props.name}
+                  {name}
                 </RSText>
               </RSLink>
             </div>
             <RSText type="subhead" size={12} color={Theme.secondaryText}>
-              {props.university}
-              {props.graduationYear ? ' ' + props.graduationYear : null}
+              {university}
+              {graduationYear ? ' ' + graduationYear : null}
             </RSText>
             <RSText
               type="subhead"
@@ -222,14 +236,14 @@ function UserHighlight(props: Props) {
               color={Theme.secondaryText}
               className={styles.work}
             >
-              {props.position ? props.position : null}
-              {props.position && props.company ? ', ' : null}
-              {props.company ? props.company : null}
+              {position ? position : null}
+              {position && company ? ', ' : null}
+              {company ? company : null}
             </RSText>
-            {props.userID === props.user._id || (
+            {userID === user._id || (
               <RSText type="subhead" size={12} color={Theme.primaryText}>
-                {props.mutualConnections || 0} Mutual Connections |{' '}
-                {props.mutualCommunities || 0} Mutual Communities
+                {mutualConnections || 0} Mutual Connections |{' '}
+                {mutualCommunities || 0} Mutual Communities
               </RSText>
             )}
           </div>
@@ -245,8 +259,6 @@ function UserHighlight(props: Props) {
 const mapStateToProps = (state: { [key: string]: any }) => {
   return {
     user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
   };
 };
 

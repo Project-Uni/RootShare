@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
 import { RSText } from '../../../base-components';
-import Theme from '../../../theme/Theme';
 import { useForm } from '../../../helpers/hooks';
 import {
   RSButton,
@@ -12,6 +12,7 @@ import {
   RSTextField,
 } from '../../../main-platform/reusable-components';
 import { CircularProgress } from '@material-ui/core';
+
 import { postRegisterUser } from '../../../api/post';
 import {
   updateRefreshToken,
@@ -21,6 +22,7 @@ import {
   resetRegistration,
 } from '../../../redux/actions';
 import { States } from '../../../helpers/constants';
+import Theme from '../../../theme/Theme';
 import { AccountType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
@@ -155,6 +157,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('major')}
             error={formErrors.major !== ''}
             helperText={formErrors.major}
+            fontSize={18}
           />
         );
       case 'alumni':
@@ -168,6 +171,7 @@ export const AccountInitializationForm = (props: Props) => {
               onChange={handleChange('company')}
               error={formErrors.company !== ''}
               helperText={formErrors.company}
+              fontSize={18}
             />
             <RSTextField
               label="JOB TITLE"
@@ -177,6 +181,7 @@ export const AccountInitializationForm = (props: Props) => {
               onChange={handleChange('jobTitle')}
               error={formErrors.jobTitle !== ''}
               helperText={formErrors.jobTitle}
+              fontSize={18}
             />
           </>
         );
@@ -190,6 +195,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('jobTitle')}
             error={formErrors.jobTitle !== ''}
             helperText={formErrors.jobTitle}
+            fontSize={18}
           />
         );
       case 'recruiter':
@@ -202,6 +208,7 @@ export const AccountInitializationForm = (props: Props) => {
             onChange={handleChange('company')}
             error={formErrors.company !== ''}
             helperText={formErrors.company}
+            fontSize={18}
           />
         );
       default:
@@ -223,6 +230,7 @@ export const AccountInitializationForm = (props: Props) => {
         onChange={handleChange('firstName')}
         error={formErrors.firstName !== ''}
         helperText={formErrors.firstName}
+        fontSize={18}
       />
       <RSTextField
         label="LAST NAME"
@@ -233,6 +241,7 @@ export const AccountInitializationForm = (props: Props) => {
         onChange={handleChange('lastName')}
         error={formErrors.lastName !== ''}
         helperText={formErrors.lastName}
+        fontSize={18}
       />
       {renderExtraFields()}
       <RSTextField
@@ -244,6 +253,7 @@ export const AccountInitializationForm = (props: Props) => {
         error={formErrors.graduationYear !== ''}
         helperText={formErrors.graduationYear}
         type="number"
+        fontSize={18}
       />
       <RSSelect
         label="UNIVERSITY"

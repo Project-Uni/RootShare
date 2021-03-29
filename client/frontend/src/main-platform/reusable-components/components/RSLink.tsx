@@ -5,53 +5,66 @@ import { Link } from 'react-router-dom';
 const useStyles = makeStyles((_: any) => ({
   link: {
     color: 'inherit',
+    fontSize: 'inherit',
   },
   pointer: {
     '&:hover': {
       cursor: 'pointer',
     },
   },
-  noUnderline: {
+  none: {
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'none',
+    },
+  },
+  hover: {
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
     },
   },
+  static: {},
 }));
 
 type Props = {
   href?: string;
+  onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
   children: JSX.Element[] | JSX.Element | string;
-  underline?: boolean;
+  underline: 'none' | 'hover' | 'static';
 };
 
 export const RSLink = (props: Props) => {
   const styles = useStyles();
 
-  const { href, className, style, children, underline } = props;
+  const { href, onClick, className, style, children, underline } = props;
 
   return href ? (
     <Link
       to={href}
       style={style}
-      className={[
-        className,
-        styles.link,
-        styles.pointer,
-        underline ? undefined : styles.noUnderline,
-      ].join(' ')}
+      className={[className, styles.link, styles.pointer, styles[underline]].join(
+        ' '
+      )}
     >
       {children}
     </Link>
   ) : (
-    <a href={undefined} style={style} className={[className, styles.link].join(' ')}>
+    <a
+      href={undefined}
+      onClick={onClick}
+      style={style}
+      className={[className, styles.link, styles.pointer, styles[underline]].join(
+        ' '
+      )}
+    >
       {children}
     </a>
   );
 };
 
 RSLink.defaultProps = {
-  underline: true,
+  underline: 'none',
 };

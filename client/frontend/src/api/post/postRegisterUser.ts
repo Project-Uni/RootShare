@@ -25,6 +25,7 @@ type ServiceResponse = {
     _id: string;
     accountType: string;
     privilegeLevel: number;
+    university: string;
     profilePicture?: string;
   };
   accessToken: string;

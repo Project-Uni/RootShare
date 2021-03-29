@@ -20,19 +20,7 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   university: {
-    background: theme.universityAccent,
-    '&:hover': {
-      background: theme.primaryHover,
-    },
-  },
-  universityRound: {
-    borderRadius: '20px',
-    fontFamily: 'lato',
-    borderStyle: 'solid',
-    borderWidth: '0.5px',
-    borderColor: theme.universityAccent,
-    color: theme.primaryText,
-    background: theme.white,
+    background: theme.universityAccent['5eb89c308cc6636630c1311f'],
     '&:hover': {
       background: theme.primaryHover,
     },
@@ -62,8 +50,6 @@ const RSButton = (props: Props) => {
         return styles.secondary;
       case 'university':
         return styles.university;
-      case 'universityRound':
-        return styles.universityRound;
       case 'primary':
       default:
         return styles.primary;
