@@ -18,7 +18,6 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
-import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,

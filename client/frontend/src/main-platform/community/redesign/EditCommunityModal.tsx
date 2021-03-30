@@ -3,8 +3,9 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { ProfilePicture, RSText } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
+import { makeRequest } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
-import { RSButtonV2, RSModal, RSTabsV2, RSTextField } from '../../reusable-components';
+import { RSButtonV2, RSModal, RSTextField } from '../../reusable-components';
 import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
@@ -52,7 +53,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: '20px',
   },
   button: {
-    height: 28,
+    height: 25,
     marginTop: 5,
     width: 150,
     marginBottom: 10,
@@ -80,9 +81,46 @@ const styles = useStyles();
 
   const [communityName, setCommunityName] = useState<string>(props.name);
   const [communityBio, setCommunityBio] = useState<string>(props.bio);
+  const [loading, setLoading] = useState(false);
+  const [editNameErr, setEditNameErr] = useState('');
+  const [editBioErr, setEditBioErr] = useState('');
 
-  function handleSave() {
+
+  async function handleSave() {
+    await handleUpdate().then(props.onClose);
+  }
+
+  function handleClose() {
     return (props.onClose);
+  }
+
+  async function handleUpdate() {
+    setLoading(true);
+    handleName();
+    handleBio();
+    setLoading(false);
+  }
+
+  async function handleName() {
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/community/${props.communityID}/update?name=${communityName}`
+    );
+
+    if (data.success != 1) {
+      setEditNameErr('There was an error updating the name');
+    }
+  }
+
+  async function handleBio() {
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/community/${props.communityID}/update?description=${communityBio}`
+    );
+
+    if (data.success != 1) {
+      setEditBioErr('There was an error updating the description');
+    }
   }
 
   function renderTags() {
@@ -102,7 +140,6 @@ const styles = useStyles();
       </div>
     );
   }
-const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (props.open) {
@@ -116,7 +153,7 @@ const [loading, setLoading] = useState(false);
       <RSModal
         open={props.open}
         title="Edit Profile"
-        onClose={props.onClose}
+        onClose={handleClose()}
         className={styles.wrapper}
         >
         <ProfileBanner
@@ -171,7 +208,7 @@ const [loading, setLoading] = useState(false);
             <RSButtonV2
               variant="universitySecondary"
               className={styles.button}
-              onClick={handleSave()}
+              onClick={() => handleSave()}
             >
               <RSText size={11}>Save</RSText>
             </RSButtonV2>
