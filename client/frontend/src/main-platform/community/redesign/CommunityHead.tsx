@@ -14,6 +14,7 @@ import { UserToCommunityRelationship, U2CR } from '../../../helpers/types';
 import Tag from './Tag';
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
+import CommunityGeneralInfo from '../components/CommunityGeneralInfo';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -114,6 +115,17 @@ export const CommunityHead = (props: Props) => {
 
   const numMembers = members?.length || 0;
 
+  const [stateBio, setStateBio] = useState(bio);
+  const [stateName, setStateName] = useState(name);
+
+  function updateName(name: string){
+    setStateName(name);
+  }
+
+  function updateBio(bio: string){
+    setStateBio(bio);
+  }
+
   const renderCenter = () => {
     return (
       <div className={styles.center}>
@@ -124,7 +136,7 @@ export const CommunityHead = (props: Props) => {
           color={Theme.secondaryText}
           className={styles.name}
         >
-          {name}
+          {stateName}
           {isPrivate && (
             <FaLock
               color={Theme.secondaryText}
@@ -135,7 +147,7 @@ export const CommunityHead = (props: Props) => {
         </RSText>
         <Tag className={styles.tag} tag={type} variant="university" weight="light" />
         <RSText size={12} color={Theme.secondaryText} className={styles.bio}>
-          {bio}
+          {stateBio}
         </RSText>
         <hr
           style={{
@@ -199,6 +211,8 @@ export const CommunityHead = (props: Props) => {
         bio={bio}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
+        updateName={updateName}
+        updateBio={updateBio}
         editable={relationship === 'admin'}
         banner={bannerPicture}
         profilePicture={profilePicture}

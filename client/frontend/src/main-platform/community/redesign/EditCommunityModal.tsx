@@ -1,3 +1,4 @@
+import { CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useEffect, useState } from 'react';
@@ -64,6 +65,8 @@ type Props = {
   communityID: string;
   open: boolean;
   onClose: () => any;
+  updateName: (name: string) => any;
+  updateBio: (bio: string) => any;
   profilePicture?: string;
   banner?: string;
   editable: boolean;
@@ -88,6 +91,16 @@ const styles = useStyles();
 
   async function handleSave() {
     await handleUpdate().then(props.onClose);
+    handleCallback();
+  }
+
+  function handleCallback() {
+    if (props.name != communityName) {
+      props.updateName(communityName);
+    }
+    if (props.bio != communityBio) {
+      props.updateBio(communityBio);
+    }
   }
 
   function handleClose() {
@@ -210,7 +223,7 @@ const styles = useStyles();
               className={styles.button}
               onClick={() => handleSave()}
             >
-              <RSText size={11}>Save</RSText>
+              {loading ? <CircularProgress size={30} /> : 'Save'}
             </RSButtonV2>
           </div>
       </RSModal>
