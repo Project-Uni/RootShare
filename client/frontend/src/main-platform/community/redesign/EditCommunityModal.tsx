@@ -12,7 +12,8 @@ import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: 650,
+    minWidth: 575,
+    maxWidth: 750,
   },
   profilePicture: {
     border: `2px solid ${Theme.foreground}`,
@@ -57,7 +58,7 @@ const useStyles = makeStyles((_: any) => ({
   button: {
     height: 25,
     marginTop: 5,
-    width: 150,
+    width: 100,
     marginBottom: 10,
   },
 }));
@@ -298,7 +299,7 @@ const styles = useStyles();
               className={styles.button}
               onClick={() => handleSave()}
             >
-              {loading ? <CircularProgress size={30} /> : 'Save'}
+              {loading ? <CircularProgress size={30} /> : <RSText>Save</RSText>}
             </RSButtonV2>
           </div>
       </RSModal>
