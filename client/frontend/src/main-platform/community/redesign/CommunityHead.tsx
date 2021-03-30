@@ -10,7 +10,7 @@ import { CommunityTab } from './Community';
 import EditCommunityModal from './EditCommunityModal';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
-import { UserToCommunityRelationship, U2CR } from '../../../helpers/types';
+import { UserToCommunityRelationship, U2CR, CommunityType } from '../../../helpers/types';
 import Tag from './Tag';
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
@@ -115,8 +115,9 @@ export const CommunityHead = (props: Props) => {
 
   const numMembers = members?.length || 0;
 
-  const [stateBio, setStateBio] = useState(bio);
   const [stateName, setStateName] = useState(name);
+  const [stateBio, setStateBio] = useState(bio);
+  const [stateType, setStateType] = useState(type);
 
   function updateName(name: string){
     setStateName(name);
@@ -124,6 +125,10 @@ export const CommunityHead = (props: Props) => {
 
   function updateBio(bio: string){
     setStateBio(bio);
+  }
+
+  function updateType(type: CommunityType){
+    setStateType(type);
   }
 
   const renderCenter = () => {
@@ -145,7 +150,7 @@ export const CommunityHead = (props: Props) => {
             />
           )}
         </RSText>
-        <Tag className={styles.tag} tag={type} variant="university" weight="light" />
+        <Tag className={styles.tag} tag={stateType} variant="university" weight="light" />
         <RSText size={12} color={Theme.secondaryText} className={styles.bio}>
           {stateBio}
         </RSText>
@@ -209,10 +214,12 @@ export const CommunityHead = (props: Props) => {
         communityID={communityID}
         name={name}
         bio={bio}
+        type={type}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
         updateName={updateName}
         updateBio={updateBio}
+        updateType={updateType}
         editable={relationship === 'admin'}
         banner={bannerPicture}
         profilePicture={profilePicture}

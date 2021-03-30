@@ -1,12 +1,13 @@
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { ProfilePicture, RSText } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { makeRequest } from '../../../helpers/functions';
+import { CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
-import { RSButtonV2, RSModal, RSTextField } from '../../reusable-components';
+import { RSButtonV2, RSModal, RSSelect, RSTextField } from '../../reusable-components';
 import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
@@ -14,11 +15,11 @@ const useStyles = makeStyles((_: any) => ({
     width: 650,
   },
   profilePicture: {
-    border: `7px solid ${Theme.white}`,
+    border: `2px solid ${Theme.foreground}`,
   },
   profilePictureContainer: {
-    marginTop: -82,
-    display: 'inline-block',
+    marginTop: -70,
+    alignSelf: 'start',
   },
   form: {
     display: 'flex',
@@ -26,7 +27,7 @@ const useStyles = makeStyles((_: any) => ({
     flexDirection: 'column',
     marginBottom: '50px',
   },
-  textbox: {
+  feild: {
     width: '550px',
     marginTop: '20px',
   },
@@ -67,11 +68,13 @@ type Props = {
   onClose: () => any;
   updateName: (name: string) => any;
   updateBio: (bio: string) => any;
+  updateType: (type: CommunityType) => any;
   profilePicture?: string;
   banner?: string;
   editable: boolean;
   name: string;
   bio: string;
+  type: CommunityType;
 };
 
 export const EditCommunityModal = (props: Props) => {
@@ -84,10 +87,9 @@ const styles = useStyles();
 
   const [communityName, setCommunityName] = useState<string>(props.name);
   const [communityBio, setCommunityBio] = useState<string>(props.bio);
+  const [communityType, setCommunityType] = useState<CommunityType>(props.type);
   const [loading, setLoading] = useState(false);
-  const [editNameErr, setEditNameErr] = useState('');
-  const [editBioErr, setEditBioErr] = useState('');
-
+  const [editErr, setEditErr] = useState('');
 
   async function handleSave() {
     await handleUpdate().then(props.onClose);
@@ -101,6 +103,9 @@ const styles = useStyles();
     if (props.bio != communityBio) {
       props.updateBio(communityBio);
     }
+    if (props.type != communityType) {
+      props.updateType(communityType);
+    }
   }
 
   function handleClose() {
@@ -109,31 +114,53 @@ const styles = useStyles();
 
   async function handleUpdate() {
     setLoading(true);
-    handleName();
-    handleBio();
+    if (props.name != communityName) {
+      SaveName();
+    }
+    if (props.bio != communityBio) {
+      SaveBio();
+    }
+    if (props.type != communityType) {
+      SaveType();
+    }
     setLoading(false);
   }
 
-  async function handleName() {
+  async function SaveName() {
     const { data } = await makeRequest(
       'PUT',
       `/api/community/${props.communityID}/update?name=${communityName}`
     );
 
     if (data.success != 1) {
-      setEditNameErr('There was an error updating the name');
+      setEditErr('There was an error updating the name');
     }
   }
 
-  async function handleBio() {
+  async function SaveBio() {
     const { data } = await makeRequest(
       'PUT',
       `/api/community/${props.communityID}/update?description=${communityBio}`
     );
 
     if (data.success != 1) {
-      setEditBioErr('There was an error updating the description');
+      setEditErr('There was an error updating the description');
     }
+  }
+
+  async function SaveType() {
+    const { data } = await makeRequest(
+      'PUT',
+      `/api/community/${props.communityID}/update?type=${communityType}`
+    );
+
+    if (data.success != 1) {
+      setEditErr('There was an error updating the type');
+    }
+  }
+
+  function handleTypeChange(type: any) {
+    setCommunityType(type.target.value);
   }
 
   function renderTags() {
@@ -204,18 +231,26 @@ const styles = useStyles();
               label="Community Name"
               defaultValue={communityName}
               onChange={(e) => setCommunityName(e.target.value)}
-              className={styles.textbox}
+              className={styles.feild}
             />
             <RSTextField
               variant="outlined"
               label="Bio"
-              className={styles.textbox}
+              className={styles.feild}
               defaultValue={communityBio}
               onChange={(e) => setCommunityBio(e.target.value)}
               rows={3}
               multiline
             />
-            {renderTags()}
+            <RSSelect
+              label={props.type}
+              options={COMMUNITY_TYPES.map((type) => ({
+                label: type,
+                value: type,
+              }))}
+              onChange={handleTypeChange}
+              className={styles.feild}/>
+            {/* {renderTags()} PLACEHOLDER FUNCTION*/}
           </div>
           <div className={styles.saveBtn}>
             <RSButtonV2
