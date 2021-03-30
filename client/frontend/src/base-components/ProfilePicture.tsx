@@ -348,7 +348,7 @@ function ProfilePicture(props: Props) {
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >
-            Save
+            {props.preview == true ? "Select" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
