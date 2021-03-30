@@ -115,47 +115,25 @@ const styles = useStyles();
   async function handleUpdate() {
     setLoading(true);
     if (props.name != communityName) {
-      SaveName();
+      saveValue("name", communityName);
     }
     if (props.bio != communityBio) {
-      SaveBio();
+      saveValue("description", communityBio);
     }
     if (props.type != communityType) {
-      SaveType();
+      saveValue("type", communityType);
     }
     setLoading(false);
   }
 
-  async function SaveName() {
+  async function saveValue(type: string, value: string | CommunityType) {
     const { data } = await makeRequest(
       'PUT',
-      `/api/community/${props.communityID}/update?name=${communityName}`
+      `/api/community/${props.communityID}/update?${type}=${value}`
     );
 
     if (data.success != 1) {
-      setEditErr('There was an error updating the name');
-    }
-  }
-
-  async function SaveBio() {
-    const { data } = await makeRequest(
-      'PUT',
-      `/api/community/${props.communityID}/update?description=${communityBio}`
-    );
-
-    if (data.success != 1) {
-      setEditErr('There was an error updating the description');
-    }
-  }
-
-  async function SaveType() {
-    const { data } = await makeRequest(
-      'PUT',
-      `/api/community/${props.communityID}/update?type=${communityType}`
-    );
-
-    if (data.success != 1) {
-      setEditErr('There was an error updating the type');
+      setEditErr(`There was an error updating the ${type}`);
     }
   }
 
@@ -243,11 +221,12 @@ const styles = useStyles();
               multiline
             />
             <RSSelect
-              label={props.type}
+              label="Type"
               options={COMMUNITY_TYPES.map((type) => ({
                 label: type,
                 value: type,
               }))}
+              defaultValue={props.type}
               onChange={handleTypeChange}
               className={styles.feild}/>
             {/* {renderTags()} PLACEHOLDER FUNCTION*/}
