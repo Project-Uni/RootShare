@@ -118,6 +118,8 @@ export const CommunityHead = (props: Props) => {
   const [stateName, setStateName] = useState(name);
   const [stateBio, setStateBio] = useState(bio);
   const [stateType, setStateType] = useState(type);
+  const [stateBanner, setStateBanner] = useState<string | undefined>(bannerPicture);
+  const [stateProfile, setStateProfile] = useState<string | undefined>(profilePicture);
 
   function updateName(name: string){
     setStateName(name);
@@ -129,6 +131,14 @@ export const CommunityHead = (props: Props) => {
 
   function updateType(type: CommunityType){
     setStateType(type);
+  }
+
+  function updateBanner(banner: string | undefined){
+    setStateBanner(banner);
+  }
+
+  function updateProfile(profile: string | undefined){
+    setStateProfile(profile);
   }
 
   const renderCenter = () => {
@@ -220,6 +230,8 @@ export const CommunityHead = (props: Props) => {
         updateName={updateName}
         updateBio={updateBio}
         updateType={updateType}
+        updateBanner={updateBanner}
+        updateProfile={updateProfile}
         editable={relationship === 'admin'}
         banner={bannerPicture}
         profilePicture={profilePicture}
@@ -230,7 +242,7 @@ export const CommunityHead = (props: Props) => {
           type={'community'}
           borderRadius={40}
           _id={communityID}
-          currentPicture={bannerPicture}
+          currentPicture={stateBanner}
           zoomOnClick
         />
         <div className={styles.horizontalDiv}>
@@ -244,7 +256,7 @@ export const CommunityHead = (props: Props) => {
               borderRadius={100}
               borderWidth={0}
               _id={communityID}
-              currentPicture={profilePicture}
+              currentPicture={stateProfile}
             />
           </div>
           {renderCenter()}

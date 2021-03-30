@@ -69,6 +69,8 @@ type Props = {
   updateName: (name: string) => any;
   updateBio: (bio: string) => any;
   updateType: (type: CommunityType) => any;
+  updateBanner: (banner: string | undefined) => any;
+  updateProfile: (profile: string | undefined) => any;
   profilePicture?: string;
   banner?: string;
   editable: boolean;
@@ -88,12 +90,43 @@ const styles = useStyles();
   const [communityName, setCommunityName] = useState<string>(props.name);
   const [communityBio, setCommunityBio] = useState<string>(props.bio);
   const [communityType, setCommunityType] = useState<CommunityType>(props.type);
+  const [communityBanner, setCommunityBanner] = useState<string | undefined>(banner);
+  const [communityProfile, setCommunityProfile] = useState<string | undefined>(profilePicture);
   const [loading, setLoading] = useState(false);
   const [editErr, setEditErr] = useState('');
+  const [nameErr, setNameErr] = useState('');
+  const [bioErr, setBioErr] = useState('');
+  const [typeErr, setTypeErr] = useState('');
 
   async function handleSave() {
+    const hasErrors = validateInput();
+    if (hasErrors) {
+      setLoading(false);
+      return;
+    }
+
     await handleUpdate().then(props.onClose);
     handleCallback();
+  }
+
+  function validateInput() {
+    let hasErr = false;
+    if (communityName === '') {
+      setNameErr('Name is required.');
+      hasErr = true;
+    } else setNameErr('');
+
+    if (communityBio === '') {
+      setBioErr('Description is required.');
+      hasErr = true;
+    } else setBioErr('');
+
+    if (!communityType) {
+      setTypeErr('Community type is required.');
+      hasErr = true;
+    } else setTypeErr('');
+
+    return hasErr;
   }
 
   function handleCallback() {
@@ -105,6 +138,12 @@ const styles = useStyles();
     }
     if (props.type != communityType) {
       props.updateType(communityType);
+    }
+    if (props.banner != communityBanner) {
+      props.updateBanner(communityBanner);
+    }
+    if (props.profilePicture != communityProfile) {
+      props.updateProfile(communityProfile);
     }
   }
 
@@ -123,14 +162,27 @@ const styles = useStyles();
     if (props.type != communityType) {
       saveValue("type", communityType);
     }
+    if (props.banner != communityBanner) {
+      saveValue("banner", communityBanner);
+    }
+    if (props.profilePicture != communityProfile) {
+      saveValue("updateProfilePicture", communityProfile);
+    }
     setLoading(false);
   }
 
-  async function saveValue(type: string, value: string | CommunityType) {
-    const { data } = await makeRequest(
-      'PUT',
-      `/api/community/${props.communityID}/update?${type}=${value}`
-    );
+  async function saveValue(type: string, value: string | CommunityType | undefined) {
+    const { data } =
+      type === 'banner' || type === 'updateProfilePicture'
+      ? await makeRequest(
+        'POST',
+        `/api/images/community/${props.communityID}/${type}`,
+        {image: value,}
+      )
+      : await makeRequest(
+        'PUT',
+        `/api/community/${props.communityID}/update?${type}=${value}`
+      )
 
     if (data.success != 1) {
       setEditErr(`There was an error updating the ${type}`);
@@ -179,7 +231,9 @@ const styles = useStyles();
           editable={props.editable}
           type={'community'}
           _id={communityID}
-          currentPicture={banner}
+          currentPicture={communityBanner}
+          preview={true}
+          callback={setCommunityBanner}
         />
         <div
           style={{
@@ -200,7 +254,9 @@ const styles = useStyles();
             className={styles.profilePictureContainer}
             borderRadius={100}
             _id={communityID}
-            currentPicture={profilePicture}
+            currentPicture={communityProfile}
+            preview={true}
+            callback={setCommunityProfile}
           />
           </div>
           <div className={styles.form}>
@@ -209,6 +265,8 @@ const styles = useStyles();
               label="Community Name"
               defaultValue={communityName}
               onChange={(e) => setCommunityName(e.target.value)}
+              error={nameErr !== ''}
+              helperText={nameErr !== '' ? nameErr : null}
               className={styles.feild}
             />
             <RSTextField
@@ -217,6 +275,8 @@ const styles = useStyles();
               className={styles.feild}
               defaultValue={communityBio}
               onChange={(e) => setCommunityBio(e.target.value)}
+              error={bioErr !== ''}
+              helperText={bioErr !== '' ? bioErr : null}
               rows={3}
               multiline
             />
@@ -230,6 +290,7 @@ const styles = useStyles();
               onChange={handleTypeChange}
               className={styles.feild}/>
             {/* {renderTags()} PLACEHOLDER FUNCTION*/}
+            <RSText color={Theme.error}>{editErr}</RSText>
           </div>
           <div className={styles.saveBtn}>
             <RSButtonV2
