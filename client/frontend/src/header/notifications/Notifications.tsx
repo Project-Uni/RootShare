@@ -3,8 +3,7 @@ import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
 import { Avatar, CircularProgress, Popper } from '@material-ui/core';
 import { RSCard, RSLink } from '../../main-platform/reusable-components';
 import { RSText } from '../../base-components';
-import { NotificationType, UnifiedNotification } from '../../api';
-import dayjs from 'dayjs';
+import { UnifiedNotification } from '../../api';
 import Theme from '../../theme/Theme';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useSelector } from 'react-redux';
@@ -27,19 +26,10 @@ export const Notifications = (props: Props) => {
 
   return (
     <Popper open={open} anchorEl={anchorEl} placement="bottom-end">
-      <RSCard style={{ width: 375 }} variant="secondary">
-        <RSText
-          bold
-          size={13}
-          style={{
-            paddingTop: 10,
-            marginLeft: 15,
-            marginRight: 15,
-            marginBottom: 10,
-          }}
-        >
-          Notifications
-        </RSText>
+      <RSCard
+        style={{ width: 375, maxHeight: 500, overflowY: 'scroll' }}
+        variant="secondary"
+      >
         {loading ? (
           <CircularProgress color="primary" style={{ height: 40 }} />
         ) : (
@@ -52,6 +42,8 @@ export const Notifications = (props: Props) => {
                   style={
                     i === notifications.length - 1
                       ? { borderBottomLeftRadius: 30, borderBottomRightRadius: 30 }
+                      : i === 0
+                      ? { borderTopLeftRadius: 30, borderTopRightRadius: 30 }
                       : undefined
                   }
                 />
@@ -151,8 +143,8 @@ const Notification = (
   return (
     <div
       style={{
-        paddingTop: 7,
-        paddingBottom: 7,
+        paddingTop: 10,
+        paddingBottom: 10,
         paddingLeft: 15,
         paddingRight: 15,
         background: seen ? undefined : green[100],
@@ -162,41 +154,22 @@ const Notification = (
     >
       <RSLink href={data?.href}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar src={data?.image} style={{ marginRight: 7 }} />
+          <Avatar
+            src={data?.image}
+            style={{ marginRight: 15, height: 50, width: 50 }}
+          />
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
               borderBottom: `1px solid ${Theme.primaryText}`,
-              alignItems: 'flex-start',
               paddingBottom: 10,
               flex: 1,
             }}
           >
-            <RSText size={11}>
-              {data?.message}
-              {/* <RSText
-                color={Theme.secondaryText}
-                size={9}
-                style={{ display: 'inline-block' }}
-              >
-                {data?.timestamp}
-              </RSText> */}
-            </RSText>
-            <RSText
-              color={Theme.secondaryText}
-              size={9}
-              style={{ textAlign: 'right' }}
-            >
+            <RSText size={11}>{data?.message}</RSText>
+            <RSText color={Theme.secondaryText} size={9}>
               {data?.timestamp}
             </RSText>
           </div>
-          {/* <div>
-            <RSText>{data?.message}</RSText>
-            <RSText color={Theme.secondaryText} size={10}>
-              {data?.timestamp}
-            </RSText>
-          </div> */}
         </div>
       </RSLink>
     </div>
