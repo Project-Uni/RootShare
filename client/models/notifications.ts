@@ -96,7 +96,7 @@ type IFindNotificationsForUser = {
     _id: ObjectIdType;
     title: string;
     dateTime: Date;
-    eventImage?: string;
+    profilePicture?: string;
   };
   relatedUser?: {
     _id: string;
@@ -280,7 +280,7 @@ export default class Notifications {
               _id: '$relatedEvent._id',
               title: '$relatedEvent.title',
               dateTime: '$relatedEvent.dateTime',
-              eventImage: '$relatedEvent.eventImage',
+              profilePicture: '$relatedEvent.eventImage',
             },
             relatedUser: {
               _id: '$relatedUser._id',
@@ -328,14 +328,17 @@ export default class Notifications {
 
   private static addImages = async (notifications: IFindNotificationsForUser[]) => {
     const promises = notifications.map((n) => {
-      switch (n.relatedItemType) {
+      switch (n.actionProviderType) {
         case 'user':
-          return Notifications.getImage.user(n);
+          return Notifications.getImage.user(n.actionProviderUser?.profilePicture);
         case 'community':
-          return Notifications.getImage.community(n);
-        case 'event':
-          return Notifications.getImage.event(n);
-        case 'post':
+          return Notifications.getImage.community(
+            n.actionProviderCommunity?.profilePicture
+          );
+        case 'rootshare':
+          if (n.relatedItemType === 'event')
+            return Notifications.getImage.event(n.relatedEvent?.profilePicture);
+        // else return Rootshare image
         default:
           return null;
       }
@@ -345,17 +348,19 @@ export default class Notifications {
       const n = notifications[i];
       if (images[i]) {
         const img = images[i] as string;
-        switch (n.relatedItemType) {
+        switch (n.actionProviderType) {
           case 'user':
-            if (n.relatedUser) n.relatedUser.profilePicture = img;
+            if (n.actionProviderUser) n.actionProviderUser.profilePicture = img;
             break;
           case 'community':
-            if (n.relatedCommunity) n.relatedCommunity.profilePicture = img;
+            if (n.actionProviderCommunity)
+              n.actionProviderCommunity.profilePicture = img;
             break;
-          case 'event':
-            if (n.relatedEvent) n.relatedEvent.eventImage = img;
+          case 'rootshare':
+            if (n.relatedItemType === 'event')
+              if (n.relatedEvent) n.relatedEvent.profilePicture = img;
+            // else use rootshare profile picture
             break;
-          case 'post':
           default:
         }
       }
@@ -363,22 +368,16 @@ export default class Notifications {
   };
 
   private static getImage = {
-    user: async (notification: IFindNotificationsForUser) => {
-      if (notification.relatedUser?.profilePicture)
-        return retrieveSignedUrl('profile', notification.relatedUser.profilePicture);
+    user: async (imageName: string | undefined) => {
+      if (imageName) return retrieveSignedUrl('profile', imageName);
     },
 
-    community: async (notification: IFindNotificationsForUser) => {
-      if (notification.relatedCommunity?.profilePicture)
-        return retrieveSignedUrl(
-          'communityProfile',
-          notification.relatedCommunity.profilePicture
-        );
+    community: async (imageName: string | undefined) => {
+      if (imageName) return retrieveSignedUrl('communityProfile', imageName);
     },
 
-    event: async (notification: IFindNotificationsForUser) => {
-      if (notification.relatedEvent?.eventImage)
-        return retrieveSignedUrl('eventImage', notification.relatedEvent.eventImage);
+    event: async (imageName: string | undefined) => {
+      if (imageName) return retrieveSignedUrl('eventImage', imageName);
     },
   };
 }

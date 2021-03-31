@@ -56,7 +56,7 @@ export type UnifiedNotification = {
   seen: boolean;
   relatedItemType: 'post' | 'event' | 'community' | 'user';
   actionProviderType: 'user' | 'community' | 'rootshare';
-  actionProvider?: { [key: string]: any };
+  actionProvider?: { [key: string]: any; profilePicture?: string };
   relatedItem?: { [key: string]: any };
 };
 
@@ -102,8 +102,6 @@ const unifyNotifications = (
         relatedItem = n.relatedUser;
         break;
       case 'event':
-        // const { eventImage, ...rest } = n.relatedEvent!;
-        // relatedItem = Object.assign({ profilePicture: eventImage }, rest);
         relatedItem = n.relatedEvent;
         break;
       case 'post':
@@ -119,8 +117,10 @@ const unifyNotifications = (
     switch (n.actionProviderType) {
       case 'user':
         actionProvider = n.actionProviderUser!;
+        break;
       case 'community':
         actionProvider = n.actionProviderCommunity!;
+        break;
       case 'rootshare':
       default:
     }

@@ -9,6 +9,7 @@ import Theme from '../../theme/Theme';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useSelector } from 'react-redux';
 import { green } from '@material-ui/core/colors';
+import GreyRootshareIcon from '../../images/icongray.png';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -94,10 +95,23 @@ const Notification = (
   }, []);
 
   const shapeProps = (): ShapedNotification | undefined => {
+    let image: string | undefined;
+    switch (actionProviderType) {
+      case 'user':
+      case 'community':
+        image = actionProvider?.profilePicture;
+        break;
+      case 'rootshare':
+        if (relatedItemType === 'event') image = relatedItem?.profilePicture;
+        else image = GreyRootshareIcon;
+        break;
+      default:
+    }
+
     switch (relatedItemType) {
       case 'user':
         return {
-          image: relatedItem!.profilePicture,
+          image,
           timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
           seen,
           message,
@@ -105,7 +119,7 @@ const Notification = (
         };
       case 'community':
         return {
-          image: relatedItem!.profilePicture,
+          image,
           timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
           seen,
           message,
@@ -113,7 +127,7 @@ const Notification = (
         };
       case 'event':
         return {
-          image: relatedItem!.profilePicture,
+          image,
           timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
           seen,
           message,
@@ -121,7 +135,7 @@ const Notification = (
         };
       case 'post':
         return {
-          image: undefined,
+          image,
           timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
           seen,
           message,
