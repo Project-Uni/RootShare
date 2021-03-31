@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Grid } from '@material-ui/core';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../../redux/actions';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
-import { RSCard } from '../../reusable-components';
+import { RSCard, RSTabsV2 } from '../../reusable-components';
 
 import { getCommunityMedia } from '../../../api';
 import { ImageType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
-// const IMAGE_SIZE = 150;
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   cardWrapper: {
-    display: 'flex',
-    flexWrap: 'wrap',
-
     paddingLeft: 40,
     paddingRight: 40,
     paddingTop: 30,
@@ -29,9 +24,16 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 30,
     textAlign: 'left',
   },
+  tabs: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5,
+    width: '100%',
+  },
+  imageContainer: {
+    padding: 15,
+  },
   image: {
-    height: '33%',
-    width: '33%',
     objectFit: 'cover',
     '&:hover': {
       cursor: 'pointer',
@@ -53,11 +55,26 @@ export const CommunityMedia = (props: Props) => {
 
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<ImageType[]>([]);
+  const [imageWidth, setImageWidth] = useState(0);
   const [imageViewerIndex, setImageViewerIndex] = useState(-1);
 
+  const [currentTab, setCurrentTab] = useState('photos');
+
   useEffect(() => {
-    fetchMedia().then(() => setLoading(false));
+    window.addEventListener('resize', handleResize);
+    fetchMedia().then(() => {
+      setLoading(false);
+      handleResize();
+    });
   }, []);
+
+  const handleResize = () => {
+    setImageWidth(document.getElementById('image')?.offsetWidth || 0);
+  };
+
+  const getColSize = () => {
+    return window.innerWidth < 700 ? 6 : 4;
+  };
 
   const fetchMedia = async () => {
     const data = await getCommunityMedia({ communityID });
@@ -79,14 +96,42 @@ export const CommunityMedia = (props: Props) => {
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
         <RSCard className={styles.cardWrapper}>
-          {images?.map((image, i) => (
-            <img
-              src={image.fileName}
-              // style={{ height: IMAGE_SIZE, width: IMAGE_SIZE, objectFit: 'cover' }}
-              className={styles.image}
-              onClick={() => setImageViewerIndex(i)}
-            />
-          ))}
+          <RSTabsV2
+            tabs={[
+              { label: 'Photos', value: 'photos' },
+              { label: 'Links', value: 'links' },
+              { label: 'Files', value: 'files' },
+            ]}
+            size={18}
+            variant="underlined"
+            onChange={(newTab) => setCurrentTab(newTab)}
+            selected={currentTab}
+            className={styles.tabs}
+          />
+
+          <Grid container>
+            {images?.map((image, i) => (
+              <Grid
+                item
+                xs={getColSize()}
+                justify="center"
+                alignContent="center"
+                alignItems="center"
+                className={styles.imageContainer}
+              >
+                <img
+                  src={image.fileName}
+                  id="image"
+                  style={{
+                    width: '100%',
+                    height: imageWidth,
+                  }}
+                  className={styles.image}
+                  onClick={() => setImageViewerIndex(i)}
+                />
+              </Grid>
+            ))}
+          </Grid>
         </RSCard>
       )}
       <ModalGateway>

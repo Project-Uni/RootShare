@@ -32,7 +32,7 @@ const Community = (props: Props) => {
 
   const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
   const [loading, setLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
+  const [currentTab, setCurrentTab] = useState<CommunityTab>('media');
 
   useEffect(() => {
     fetchCommunityInfo().then(() => {

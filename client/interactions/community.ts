@@ -5,13 +5,11 @@ import {
   CommunityEdge,
   User,
   University,
-  Post,
+  Image,
   ICommunity,
   IUser,
   ICommunityEdge,
   IConnection,
-  IPost,
-  IImage,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
 import { CommunityType, U2CR, AccountType } from '../rootshare_db/types';
@@ -1344,62 +1342,32 @@ export async function getCommunityMedia(
       internalCurrentMemberPosts = [],
     } = (await Community.model
       .findById(communityID, fields)
-      .populate({
-        path: 'externalPosts',
-        select: 'images',
-        populate: {
-          path: 'images',
-          select: 'fileName',
-        },
-      })
-      .populate({
-        path: 'broadcastedPosts',
-        select: 'images',
-        populate: {
-          path: 'images',
-          select: 'fileName',
-        },
-      })
-      .populate({
-        path: 'internalAlumniPosts',
-        select: 'images',
-        populate: {
-          path: 'images',
-          select: 'fileName',
-        },
-      })
-      .populate({
-        path: 'internalCurrentMemberPosts',
-        select: 'images',
-        populate: {
-          path: 'images',
-          select: 'fileName',
-        },
-      })
       .lean<ICommunity>()
       .exec()) as {
-      externalPosts: IPost[];
-      broadcastedPosts: IPost[];
-      internalAlumniPosts: IPost[];
-      internalCurrentMemberPosts: IPost[];
+      externalPosts: ObjectIdType[];
+      broadcastedPosts: ObjectIdType[];
+      internalAlumniPosts: ObjectIdType[];
+      internalCurrentMemberPosts: ObjectIdType[];
     };
 
-    const posts = externalPosts.concat(
+    const postIDs = externalPosts.concat(
       broadcastedPosts,
       internalAlumniPosts,
       internalCurrentMemberPosts
     );
 
-    let images = [];
-    posts.forEach((post) =>
-      images.push(
-        ...(post.images as IImage[])?.map((image) => {
-          return { ...image, reason: 'postImage' };
-        })
-      )
-    );
+    const imageDocs = await Image.model
+      .find({ post: { $in: postIDs } }, ['fileName'])
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean()
+      .exec();
 
-    await retrieveAllUrls(images);
+    const images = await retrieveAllUrls(
+      imageDocs.map((image) => {
+        return { ...image, reason: 'postImage' };
+      })
+    );
     return sendPacket(1, 'Sending images', { images });
   } catch (err) {
     log('err', err.stack);

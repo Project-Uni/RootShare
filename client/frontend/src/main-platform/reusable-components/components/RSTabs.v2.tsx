@@ -6,12 +6,15 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import RSText from '../../../base-components/RSText';
 
-import Theme from '../../../theme/Theme';
+import Theme, { addAlpha } from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
     display: 'flex',
+  },
+  underlineWrapper: {
+    boxShadow: `0px 3px 3px -3px ${addAlpha(Theme.primaryText, 0.5)}`,
   },
   tab: {
     flexBasis: '100%',
@@ -28,16 +31,20 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
-  selectedTab: {},
-  notSelectedTab: {
-    '&:hover': {},
+  selectedTab: {
+    borderBottomStyle: 'solid',
+    borderBottomWidth: 1,
+    borderBottomColor: addAlpha('#000000', 0.5),
   },
+  notSelectedTab: {},
 }));
 
 type Props = {
   tabs: { label: string; value: string }[];
   selected: string;
   onChange: (newTab: string | any) => any;
+  size: number;
+  variant: 'primary' | 'underlined';
   className?: string;
   style?: React.CSSProperties;
 };
@@ -45,7 +52,7 @@ type Props = {
 function RSTabsV2(props: Props) {
   const styles = useStyles();
 
-  const { tabs, selected, onChange, className, style } = props;
+  const { tabs, selected, onChange, size, variant, className, style } = props;
 
   const { university } = useSelector((state: RootshareReduxState) => state.user);
 
@@ -55,17 +62,21 @@ function RSTabsV2(props: Props) {
       const isSelected = selected === tabs[i].value;
 
       output.push(
-        <div className={styles.tab} key={tabs[i].value}>
+        <div
+          className={[
+            styles.tab,
+            variant === 'underlined' &&
+              (isSelected ? styles.selectedTab : styles.notSelectedTab),
+          ].join(' ')}
+          key={tabs[i].value}
+        >
           <RSText
-            className={[
-              styles.tabItem,
-              isSelected ? styles.selectedTab : styles.notSelectedTab,
-            ].join(' ')}
+            className={styles.tabItem}
             weight={isSelected ? 'bold' : 'light'}
             color={
               isSelected ? Theme.universityAccent[university] : Theme.primaryText
             }
-            size={13}
+            size={size}
             onClick={() => {
               onChange(tabs[i].value);
             }}
@@ -78,10 +89,22 @@ function RSTabsV2(props: Props) {
     return output;
   }
   return (
-    <div className={[styles.wrapper, className].join(' ')} style={style}>
+    <div
+      className={[
+        styles.wrapper,
+        variant === 'underlined' && styles.underlineWrapper,
+        className,
+      ].join(' ')}
+      style={style}
+    >
       {renderTabs()}
     </div>
   );
 }
+
+RSTabsV2.defaultProps = {
+  size: 13,
+  variant: 'primary',
+};
 
 export default RSTabsV2;
