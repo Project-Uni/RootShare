@@ -10,6 +10,7 @@ import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useSelector } from 'react-redux';
 import { green } from '@material-ui/core/colors';
 import GreyRootshareIcon from '../../images/icongray.png';
+import { formatTimestamp } from '../../helpers/functions';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -26,7 +27,7 @@ export const Notifications = (props: Props) => {
 
   return (
     <Popper open={open} anchorEl={anchorEl} placement="bottom-end">
-      <RSCard style={{ width: 300 }} variant="secondary">
+      <RSCard style={{ width: 375 }} variant="secondary">
         <RSText
           bold
           size={13}
@@ -95,6 +96,7 @@ const Notification = (
   }, []);
 
   const shapeProps = (): ShapedNotification | undefined => {
+    const timestamp = formatTimestamp(createdAt, 'MMM D h:mm A');
     let image: string | undefined;
     switch (actionProviderType) {
       case 'user':
@@ -112,7 +114,7 @@ const Notification = (
       case 'user':
         return {
           image,
-          timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
+          timestamp,
           seen,
           message,
           href: `/profile/${relatedItem!._id}`,
@@ -120,7 +122,7 @@ const Notification = (
       case 'community':
         return {
           image,
-          timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
+          timestamp,
           seen,
           message,
           href: `/community/${relatedItem!._id}`,
@@ -128,7 +130,7 @@ const Notification = (
       case 'event':
         return {
           image,
-          timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
+          timestamp,
           seen,
           message,
           href: `/event/${relatedItem!._id}`,
@@ -136,7 +138,7 @@ const Notification = (
       case 'post':
         return {
           image,
-          timestamp: dayjs(createdAt).format('MMM D YYYY h:mm A'),
+          timestamp,
           seen,
           message,
           href: `/post/${relatedItem!._id}`,
@@ -151,8 +153,8 @@ const Notification = (
       style={{
         paddingTop: 7,
         paddingBottom: 7,
-        paddingLeft: 7,
-        paddingRight: 7,
+        paddingLeft: 15,
+        paddingRight: 15,
         background: seen ? undefined : green[100],
         ...style,
       }}
@@ -161,12 +163,40 @@ const Notification = (
       <RSLink href={data?.href}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar src={data?.image} style={{ marginRight: 7 }} />
-          <div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              borderBottom: `1px solid ${Theme.primaryText}`,
+              alignItems: 'flex-start',
+              paddingBottom: 10,
+              flex: 1,
+            }}
+          >
+            <RSText size={11}>
+              {data?.message}
+              {/* <RSText
+                color={Theme.secondaryText}
+                size={9}
+                style={{ display: 'inline-block' }}
+              >
+                {data?.timestamp}
+              </RSText> */}
+            </RSText>
+            <RSText
+              color={Theme.secondaryText}
+              size={9}
+              style={{ textAlign: 'right' }}
+            >
+              {data?.timestamp}
+            </RSText>
+          </div>
+          {/* <div>
             <RSText>{data?.message}</RSText>
             <RSText color={Theme.secondaryText} size={10}>
               {data?.timestamp}
             </RSText>
-          </div>
+          </div> */}
         </div>
       </RSLink>
     </div>
