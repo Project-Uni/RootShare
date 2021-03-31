@@ -1,11 +1,14 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Button } from '@material-ui/core';
+import { Button, Icon } from '@material-ui/core';
 
 import { colors } from '../../../theme/Colors';
 import RSText from '../../../base-components/RSText';
 import Theme from '../../../theme/Theme';
+
+import { MdGroup } from 'react-icons/md';
+import theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   welcomeMessage: {
@@ -43,6 +46,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   title: string;
   message: string;
+  counter?: number;
   buttonText?: string;
   buttonAction?: () => any;
 };
@@ -54,6 +58,7 @@ function WelcomeMessage(props: Props) {
       <div className={styles.welcomeTextContainer}>
         <RSText type="head" size={24} color={Theme.primaryText} bold>
           {props.title}
+          {props.counter && props.counter !== 0 ? ` | ${props.counter}` : ''}
         </RSText>
         <RSText
           type="subhead"
@@ -63,6 +68,7 @@ function WelcomeMessage(props: Props) {
         >
           {props.message}
         </RSText>
+        <RSText type="other" size={10} color={colors.secondaryText}></RSText>
         {props.buttonText && (
           <Button className={styles.discoverButton} onClick={props.buttonAction}>
             {props.buttonText}

@@ -5,15 +5,11 @@ import { Router, Route, Switch } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import ReactGA from 'react-ga';
 
-import HypeExternalMissingInfo from './hype-page/additional-info/HypeExternalMissingInfo'; //OLD COMPONENT
-import HypeAdditionalInfo from './hype-page/additional-info/HypeAdditionalInfo'; //OLD COMPONENT
 import EventClientBase from './event-client/EventClientBase';
 import PageNotFound from './not-found-page/PageNotFound';
-import Login from './login/Login'; //OLD COMPONENT
 import ResetPassword from './login/ResetPassword';
 import SocketManager from './main-platform/SocketManager';
 
-// import LandingPage from './landing-page/LandingPage'; //OLD LANDING PAGE
 import LandingPage from './landing-page/redesign/LandingPage'; //NEW LANDING PAGE
 import ForgotPasswordCard from './login/ForgotPasswordCard';
 
@@ -23,7 +19,6 @@ import {
   ProfileBody,
   EventsBody,
   ConnectionsBody,
-  CommunityBody,
   YourCommunitiesBody,
   PostPage,
 } from './main-platform';
@@ -31,7 +26,6 @@ import {
 import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import { SnackbarNotification } from './main-platform/reusable-components';
-import FollowSidebar from './main-platform/community/components/Sidebar/FollowSidebar';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
 import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
 import { ThemeProvider } from '@material-ui/styles';
