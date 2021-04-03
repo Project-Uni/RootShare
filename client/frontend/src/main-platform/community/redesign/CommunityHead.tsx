@@ -15,6 +15,7 @@ import Tag from './Tag';
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
 import CommunityGeneralInfo from '../components/CommunityGeneralInfo';
+import { red } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -25,7 +26,6 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingLeft: 30,
-    paddingRight: 30,
   },
   profilePicture: {
     border: `2px solid ${Theme.foreground}`,
@@ -73,19 +73,37 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 5,
     width: '100%',
   },
-  right: {
+  btnContainer: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: 10,
-    marginBottom: -20,
+    marginRight: 20,
   },
   button: {
     height: 28,
     marginTop: 5,
     width: 150,
     marginBottom: 10,
+  },
+  right:{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginRight: 10,
+    marginLeft: 10,
+    marginBottom: 20,
+  },
+  editBtnContainer: {
+    display: 'flex',
+    marginBottom: 30,
+    marginRight: 10,
+  },
+  editButton: {
+    display: 'flex',
+    height: 35,
+    width: 120,
   },
 }));
 
@@ -188,27 +206,33 @@ export const CommunityHead = (props: Props) => {
   const renderRight = () => {
     return (
       <div className={styles.right}>
-        {relationship == U2CR.ADMIN ?
-          <RSButtonV2
+        <div className={styles.editBtnContainer}>
+          {relationship == U2CR.ADMIN ?
+            <RSButtonV2
+              variant="universitySecondary"
+              className={styles.editButton}
+              onClick={() => setShowEditCommunityModal(true)}
+              borderRadius={25}
+            >
+              <RSText size={10} bold={false}>Edit Profile</RSText>
+            </RSButtonV2> : <br/>}
+        </div>
+        <div className={styles.btnContainer}>
+          
+          <RSText size={11}>{`${numMembers} ${
+            numMembers === 1 ? 'Member' : 'Members'
+          }`}</RSText>
+          <FollowButton
+            communityID={communityID}
+            name={name}
             variant="universitySecondary"
-            className={styles.button}
-            onClick={() => setShowEditCommunityModal(true)}
-          >
-              <RSText size={11}>Edit Community</RSText>
-            </RSButtonV2> : ""}
-        <RSText size={11}>{`${numMembers} ${
-          numMembers === 1 ? 'Member' : 'Members'
-        }`}</RSText>
-        <FollowButton
-          communityID={communityID}
-          name={name}
-          variant="universitySecondary"
-        />
-        <RelationshipButton
-          communityID={communityID}
-          isPrivate={isPrivate}
-          relationship={relationship}
-        />
+          />
+          <RelationshipButton
+            communityID={communityID}
+            isPrivate={isPrivate}
+            relationship={relationship}
+          />
+        </div>
       </div>
     );
   };
@@ -245,7 +269,8 @@ export const CommunityHead = (props: Props) => {
           currentPicture={stateBanner}
           zoomOnClick
         />
-        <div className={styles.horizontalDiv}>
+         
+        <div className={styles.horizontalDiv}>         
           <div className={styles.profilePictureContainer}>
             <ProfilePicture
               type="community"
