@@ -1213,6 +1213,7 @@ export async function updateFields(
 ) {
   const updates: {
     description?: string;
+    bio?: string;
     private?: boolean;
     type?: CommunityType;
     name?: string;

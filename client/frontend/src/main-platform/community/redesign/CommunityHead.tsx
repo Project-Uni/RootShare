@@ -134,7 +134,7 @@ export const CommunityHead = (props: Props) => {
 
   const [stateName, setStateName] = useState(name);
   const [stateBio, setStateBio] = useState(bio);
-  const [stateDesc, setStateDesc] = useState(description);
+  const [statePrivate, setStatePrivate] = useState(isPrivate);
   const [stateType, setStateType] = useState(type);
   const [stateBanner, setStateBanner] = useState<string | undefined>(bannerPicture);
   const [stateProfile, setStateProfile] = useState<string | undefined>(profilePicture);
@@ -147,8 +147,8 @@ export const CommunityHead = (props: Props) => {
     setStateBio(bio);
   }
 
-  function updateDesc(desc: string){
-    setStateDesc(desc);
+  function updatePrivate(isPrivate: boolean){
+    setStatePrivate(isPrivate);
   }
 
   function updateType(type: CommunityType){
@@ -174,7 +174,7 @@ export const CommunityHead = (props: Props) => {
           className={styles.name}
         >
           {stateName}
-          {isPrivate && (
+          {statePrivate && (
             <FaLock
               color={Theme.secondaryText}
               size={18}
@@ -250,15 +250,15 @@ export const CommunityHead = (props: Props) => {
       {relationship == U2CR.ADMIN ?
       <EditCommunityModal
         communityID={communityID}
-        name={name}
-        bio={bio}
-        desc={description}
-        type={type}
+        name={stateName}
+        bio={stateBio}
+        private={statePrivate}
+        type={stateType}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
         updateName={updateName}
         updateBio={updateBio}
-        updateDesc={updateDesc}
+        updatePrivate={updatePrivate}
         updateType={updateType}
         updateBanner={updateBanner}
         updateProfile={updateProfile}

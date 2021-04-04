@@ -2,12 +2,13 @@ import { CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useEffect, useState } from 'react';
+import { FaLock, FaUnlock } from 'react-icons/fa';
 import { ProfilePicture, RSText } from '../../../base-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { makeRequest } from '../../../helpers/functions';
 import { CommunityType, COMMUNITY_TYPES } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
-import { RSButtonV2, RSModal, RSSelect, RSTextField } from '../../reusable-components';
+import { RSButton, RSButtonV2, RSModal, RSSelect, RSTextField } from '../../reusable-components';
 import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
@@ -59,9 +60,12 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: '20px',
   },
   button: {
-    height: 25,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 30,
     marginTop: 5,
-    width: 100,
+    width: 120,
     marginBottom: 10,
   },
 }));
@@ -72,8 +76,8 @@ type Props = {
   onClose: () => any;
   updateName: (name: string) => any;
   updateBio: (bio: string) => any;
-  updateDesc: (desc: string) => any;
   updateType: (type: CommunityType) => any;
+  updatePrivate: (type: boolean) => any;
   updateBanner: (banner: string | undefined) => any;
   updateProfile: (profile: string | undefined) => any;
   profilePicture?: string;
@@ -81,7 +85,7 @@ type Props = {
   editable: boolean;
   name: string;
   bio: string;
-  desc: string;
+  private: boolean;
   type: CommunityType;
 };
 
@@ -95,7 +99,7 @@ const styles = useStyles();
 
   const [communityName, setCommunityName] = useState<string>(props.name);
   const [communityBio, setCommunityBio] = useState<string>(props.bio);
-  const [communityDesc, setCommunityDesc] = useState<string>(props.desc);
+  const [communityPrivate, setCommunityPrivate] = useState<boolean>(props.private);
   const [communityType, setCommunityType] = useState<CommunityType>(props.type);
   const [communityBanner, setCommunityBanner] = useState<string | undefined>(banner);
   const [communityProfile, setCommunityProfile] = useState<string | undefined>(profilePicture);
@@ -103,8 +107,10 @@ const styles = useStyles();
   const [editErr, setEditErr] = useState('');
   const [nameErr, setNameErr] = useState('');
   const [bioErr, setBioErr] = useState('');
-  const [DescErr, setDescErr] = useState('');
+  const [PrivateErr, setPrivateErr] = useState('');
   const [typeErr, setTypeErr] = useState('');
+
+  const MAX_BIO_LENGTH = 150;
 
   async function handleSave() {
     const hasErrors = validateInput();
@@ -124,15 +130,13 @@ const styles = useStyles();
       hasErr = true;
     } else setNameErr('');
 
-    if (communityBio === '') {
+    if (communityBio.length >= MAX_BIO_LENGTH) {
+      setBioErr(`Bio is too long. (${communityBio.length + 1}/${MAX_BIO_LENGTH})`);
+      hasErr = true;
+    } else if (communityBio === '') {
       setBioErr('Bio is required.');
       hasErr = true;
     } else setBioErr('');
-
-    if (communityDesc === '') {
-      setDescErr('Description is required.');
-      hasErr = true;
-    } else setDescErr('');
 
     if (!communityType) {
       setTypeErr('Community type is required.');
@@ -149,8 +153,8 @@ const styles = useStyles();
     if (props.bio != communityBio) {
       props.updateBio(communityBio);
     }
-    if (props.desc != communityDesc) {
-      props.updateDesc(communityDesc);
+    if (props.private != communityPrivate) {
+      props.updatePrivate(communityPrivate);
     }
     if (props.type != communityType) {
       props.updateType(communityType);
@@ -175,8 +179,8 @@ const styles = useStyles();
     if (props.bio != communityBio) {
       saveValue("bio", communityBio);
     }
-    if (props.desc != communityDesc) {
-      saveValue("description", communityDesc);
+    if (props.private != communityPrivate) {
+      saveValue("private", communityPrivate);
     }
     if (props.type != communityType) {
       saveValue("type", communityType);
@@ -190,7 +194,7 @@ const styles = useStyles();
     setLoading(false);
   }
 
-  async function saveValue(type: string, value: string | CommunityType | undefined) {
+  async function saveValue(type: string, value: string | CommunityType | undefined | boolean) {
     const { data } =
       type === 'banner' || type === 'updateProfilePicture'
       ? await makeRequest(
@@ -277,6 +281,29 @@ const styles = useStyles();
             preview={true}
             callback={setCommunityProfile}
           />
+          <RSButtonV2
+              onClick={() => setCommunityPrivate(!communityPrivate)}
+              variant="university"
+              className={styles.button}
+            >
+            {communityPrivate ? (
+              <RSText size={12}>
+                {"Private "}
+                <FaLock
+                  color={Theme.secondaryText}
+                  size={14}
+                />
+              </RSText>
+            ) :(
+              <RSText size={12}>
+                {"Public  "}
+                <FaUnlock
+                  color={Theme.secondaryText}
+                  size={14}
+                />
+              </RSText>
+            )}
+          </RSButtonV2>
           </div>
           <div className={styles.form}>
             <RSTextField
@@ -287,17 +314,6 @@ const styles = useStyles();
               error={nameErr !== ''}
               helperText={nameErr !== '' ? nameErr : null}
               className={styles.feild}
-            />
-            <RSTextField
-              variant="outlined"
-              label="Bio"
-              className={styles.feild}
-              defaultValue={communityBio}
-              onChange={(e) => setCommunityBio(e.target.value)}
-              error={bioErr !== ''}
-              helperText={bioErr !== '' ? bioErr : null}
-              rows={2}
-              multiline
             />
             <RSSelect
               label="Type"
@@ -310,13 +326,13 @@ const styles = useStyles();
               className={styles.feild}/>
             <RSTextField
               variant="outlined"
-              label="Description"
+              label="Bio"
               className={styles.feild}
-              defaultValue={communityDesc}
-              onChange={(e) => setCommunityDesc(e.target.value)}
-              error={DescErr !== ''}
-              helperText={DescErr !== '' ? DescErr : null}
-              rows={3}
+              defaultValue={communityBio}
+              onChange={(e) => setCommunityBio(e.target.value)}
+              error={bioErr !== ''}
+              helperText={bioErr !== '' ? bioErr : null}
+              rows={2}
               multiline
             />
             {/* {renderTags()} PLACEHOLDER FUNCTION*/}
