@@ -10,12 +10,10 @@ import { CommunityTab } from './Community';
 import EditCommunityModal from './EditCommunityModal';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
-import { UserToCommunityRelationship, U2CR, CommunityType } from '../../../helpers/types';
+import { U2CR, CommunityType } from '../../../helpers/types';
 import Tag from './Tag';
 import Theme from '../../../theme/Theme';
 import { Community } from '../../../helpers/types';
-import CommunityGeneralInfo from '../components/CommunityGeneralInfo';
-import { red } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -122,7 +120,8 @@ export const CommunityHead = (props: Props) => {
   const {
     _id: communityID,
     name,
-    description: bio, // TODO: Change this to fetch bio and allow updates (backfill in DB as well)
+    description,
+    bio, // TODO: Change this to fetch bio and allow updates (backfill in DB as well)
     private: isPrivate,
     type,
     members,
@@ -135,6 +134,7 @@ export const CommunityHead = (props: Props) => {
 
   const [stateName, setStateName] = useState(name);
   const [stateBio, setStateBio] = useState(bio);
+  const [stateDesc, setStateDesc] = useState(description);
   const [stateType, setStateType] = useState(type);
   const [stateBanner, setStateBanner] = useState<string | undefined>(bannerPicture);
   const [stateProfile, setStateProfile] = useState<string | undefined>(profilePicture);
@@ -145,6 +145,10 @@ export const CommunityHead = (props: Props) => {
 
   function updateBio(bio: string){
     setStateBio(bio);
+  }
+
+  function updateDesc(desc: string){
+    setStateDesc(desc);
   }
 
   function updateType(type: CommunityType){
@@ -248,11 +252,13 @@ export const CommunityHead = (props: Props) => {
         communityID={communityID}
         name={name}
         bio={bio}
+        desc={description}
         type={type}
         open={showEditCommunityModal}
         onClose={() => setShowEditCommunityModal(false)}
         updateName={updateName}
         updateBio={updateBio}
+        updateDesc={updateDesc}
         updateType={updateType}
         updateBanner={updateBanner}
         updateProfile={updateProfile}

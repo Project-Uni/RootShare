@@ -12,8 +12,10 @@ import Tag from './Tag';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    minWidth: 575,
-    maxWidth: 750,
+    minWidth: 450,
+    maxWidth: 600,
+    maxHeight: '90%',
+    overflow: 'scroll',
   },
   profilePicture: {
     border: `2px solid ${Theme.foreground}`,
@@ -29,7 +31,7 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: '50px',
   },
   feild: {
-    width: '550px',
+    width: '450px',
     marginTop: '20px',
   },
   tagContainer: {
@@ -52,7 +54,8 @@ const useStyles = makeStyles((_: any) => ({
     fontFamily: 'lato',
   },
   saveBtn: {
-    marginLeft: '450px',
+    marginLeft: '400px',
+    marginRight: '50px',
     marginBottom: '20px',
   },
   button: {
@@ -69,6 +72,7 @@ type Props = {
   onClose: () => any;
   updateName: (name: string) => any;
   updateBio: (bio: string) => any;
+  updateDesc: (desc: string) => any;
   updateType: (type: CommunityType) => any;
   updateBanner: (banner: string | undefined) => any;
   updateProfile: (profile: string | undefined) => any;
@@ -77,6 +81,7 @@ type Props = {
   editable: boolean;
   name: string;
   bio: string;
+  desc: string;
   type: CommunityType;
 };
 
@@ -90,6 +95,7 @@ const styles = useStyles();
 
   const [communityName, setCommunityName] = useState<string>(props.name);
   const [communityBio, setCommunityBio] = useState<string>(props.bio);
+  const [communityDesc, setCommunityDesc] = useState<string>(props.desc);
   const [communityType, setCommunityType] = useState<CommunityType>(props.type);
   const [communityBanner, setCommunityBanner] = useState<string | undefined>(banner);
   const [communityProfile, setCommunityProfile] = useState<string | undefined>(profilePicture);
@@ -97,6 +103,7 @@ const styles = useStyles();
   const [editErr, setEditErr] = useState('');
   const [nameErr, setNameErr] = useState('');
   const [bioErr, setBioErr] = useState('');
+  const [DescErr, setDescErr] = useState('');
   const [typeErr, setTypeErr] = useState('');
 
   async function handleSave() {
@@ -118,9 +125,14 @@ const styles = useStyles();
     } else setNameErr('');
 
     if (communityBio === '') {
-      setBioErr('Description is required.');
+      setBioErr('Bio is required.');
       hasErr = true;
     } else setBioErr('');
+
+    if (communityDesc === '') {
+      setDescErr('Description is required.');
+      hasErr = true;
+    } else setDescErr('');
 
     if (!communityType) {
       setTypeErr('Community type is required.');
@@ -136,6 +148,9 @@ const styles = useStyles();
     }
     if (props.bio != communityBio) {
       props.updateBio(communityBio);
+    }
+    if (props.desc != communityDesc) {
+      props.updateDesc(communityDesc);
     }
     if (props.type != communityType) {
       props.updateType(communityType);
@@ -158,7 +173,10 @@ const styles = useStyles();
       saveValue("name", communityName);
     }
     if (props.bio != communityBio) {
-      saveValue("description", communityBio);
+      saveValue("bio", communityBio);
+    }
+    if (props.desc != communityDesc) {
+      saveValue("description", communityDesc);
     }
     if (props.type != communityType) {
       saveValue("type", communityType);
@@ -278,7 +296,7 @@ const styles = useStyles();
               onChange={(e) => setCommunityBio(e.target.value)}
               error={bioErr !== ''}
               helperText={bioErr !== '' ? bioErr : null}
-              rows={3}
+              rows={2}
               multiline
             />
             <RSSelect
@@ -290,6 +308,17 @@ const styles = useStyles();
               defaultValue={props.type}
               onChange={handleTypeChange}
               className={styles.feild}/>
+            <RSTextField
+              variant="outlined"
+              label="Description"
+              className={styles.feild}
+              defaultValue={communityDesc}
+              onChange={(e) => setCommunityDesc(e.target.value)}
+              error={DescErr !== ''}
+              helperText={DescErr !== '' ? DescErr : null}
+              rows={3}
+              multiline
+            />
             {/* {renderTags()} PLACEHOLDER FUNCTION*/}
             <RSText color={Theme.error}>{editErr}</RSText>
           </div>
