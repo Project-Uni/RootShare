@@ -31,6 +31,9 @@ import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
+import { IoTrashBinOutline } from 'react-icons/io5';
+import { RiPushpin2Line } from 'react-icons/ri';
+import { MdReportProblem } from 'react-icons/md';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -45,6 +48,14 @@ const useStyles = makeStyles((_: any) => ({
     '&:hover': {
       cursor: 'pointer',
     },
+  },
+  menuItem: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
 }));
 
@@ -395,9 +406,18 @@ export const UserPost = (props: Props) => {
           anchorEl={menuAnchorEl}
           onClose={() => setMenuAnchorEl(undefined)}
         >
+          <MenuItem onClick={() => {}} className={styles.menuItem}>
+            <RiPushpin2Line color={Theme.secondaryText} size={18} />
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+              Pin
+            </RSText>
+          </MenuItem>
           {post.user._id === user._id && (
-            <MenuItem onClick={handleDeletePost}>
-              <RSText color={Theme.error}>Delete</RSText>
+            <MenuItem onClick={handleDeletePost} className={styles.menuItem}>
+              <IoTrashBinOutline color={Theme.secondaryText} size={15} />
+              <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+                Delete
+              </RSText>
             </MenuItem>
           )}
           <MenuItem
@@ -405,8 +425,12 @@ export const UserPost = (props: Props) => {
               setMenuAnchorEl(undefined);
               window.alert('This feature is still under development');
             }}
+            className={styles.menuItem}
           >
-            <RSText color={Theme.error}>Report</RSText>
+            <MdReportProblem color={Theme.error} size={15} />
+            <RSText color={Theme.error} style={{ marginLeft: 5 }}>
+              Report
+            </RSText>
           </MenuItem>
         </Menu>
       </div>
