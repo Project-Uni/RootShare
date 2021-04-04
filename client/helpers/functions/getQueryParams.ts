@@ -17,12 +17,12 @@ type DefaultQueryType = {
  * @param fields - Fields to test for. If it is an array, end the field with []
  * @returns False OR Dictionary with query params
  */
-export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
+export const getQueryParams = <T>(
   req: IRequest,
-  fields: T
-) => {
+  fields: DefaultQueryType
+): T | false => {
   const query = new URLSearchParams((req.query as unknown) as string);
-  const output: { [k: string]: QueryValue } = {};
+  let output = {};
   const keys = Object.keys(fields);
 
   for (let i = 0; i < keys.length; i++) {
@@ -67,8 +67,6 @@ export const getQueryParams = <T extends DefaultQueryType = DefaultQueryType>(
 
     output[field] = val;
   }
-  const typedOutput = Object.assign({}, output) as {
-    [k in keyof T]?: QueryValue;
-  };
-  return typedOutput;
+
+  return output as T;
 };

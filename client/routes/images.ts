@@ -114,7 +114,12 @@ export default function imageRoutes(app) {
    */
 
   app.get('/api/images/profile', isAuthenticatedWithJWT, async (req, res) => {
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      _id: string;
+      type: string;
+      getBanner?: boolean;
+      getProfile?: boolean;
+    }>(req, {
       _id: { type: 'string' },
       type: { type: 'string' },
       getBanner: { type: 'boolean', optional: true },
@@ -132,17 +137,16 @@ export default function imageRoutes(app) {
       };
     };
 
-    let entityID =
-      _id === 'user' ? getUserFromJWT(req)._id : ObjectIdVal(_id as string);
+    let entityID = _id === 'user' ? getUserFromJWT(req)._id : ObjectIdVal(_id);
     if (type === 'user')
       packet = await getUserProfileAndBanner(entityID, {
-        getProfile: getProfile as boolean | undefined,
-        getBanner: getBanner as boolean | undefined,
+        getProfile,
+        getBanner,
       });
     else if (type === 'community')
       packet = await getCommunityProfileAndBanner(entityID, {
-        getProfile: getProfile as boolean | undefined,
-        getBanner: getBanner as boolean | undefined,
+        getProfile,
+        getBanner,
       });
     else packet = sendPacket(-1, 'Invalid type');
 

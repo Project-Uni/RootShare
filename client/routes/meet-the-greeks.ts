@@ -222,7 +222,9 @@ export default function meetTheGreekRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const query = getQueryParams(req, { mode: { type: 'string' } });
+      const query = getQueryParams<{ mode: string }>(req, {
+        mode: { type: 'string' },
+      });
 
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));

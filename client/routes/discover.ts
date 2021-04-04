@@ -19,7 +19,10 @@ export default function discoverRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const reqQuery = getQueryParams(req, {
+      const reqQuery = getQueryParams<{
+        query: string;
+        limit?: number;
+      }>(req, {
         query: { type: 'string' },
         limit: { type: 'number', optional: true },
       });
@@ -27,17 +30,17 @@ export default function discoverRoutes(app) {
         return res.status(500).json(sendPacket(-1, 'No query provided'));
 
       let { query, limit } = reqQuery;
-      let typedLimit: number;
-      if (limit) typedLimit = limit as number;
 
-      const packet = await exactMatchSearchFor(userID, query as string, typedLimit);
+      const packet = await exactMatchSearchFor(userID, query, limit);
       return res.json(packet);
     }
   );
 
   app.get('/api/v2/discover/sidebar', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      dataSources: string[];
+    }>(req, {
       dataSources: { type: 'string[]' },
     });
 

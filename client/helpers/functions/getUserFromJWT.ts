@@ -25,6 +25,8 @@ export const getUserFromJWT = (
   const token = authHeader && authHeader.split(' ')[1];
 
   try {
+    const rawUser = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    rawUser._id = ObjectIdVal(rawUser._id);
     const user: {
       _id: ObjectIdType;
       firstName: string;
@@ -32,7 +34,7 @@ export const getUserFromJWT = (
       email: string;
       privilegeLevel: number;
       accountType: AccountType;
-    } = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    } = rawUser;
     return user;
   } catch (err) {
     return {

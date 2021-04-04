@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
+import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
@@ -33,7 +33,6 @@ import {
   getLikes,
   deletePost,
 } from '../interactions/posts';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
 
 const ObjectIdVal = Types.ObjectId;
 
@@ -76,7 +75,7 @@ export default function postsRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { postID } = req.params;
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{ startingTimestamp?: string }>(req, {
         startingTimestamp: { type: 'string', optional: true },
       });
       if (!query)
@@ -86,7 +85,7 @@ export default function postsRoutes(app) {
 
       const packet = await retrieveComments(
         postID,
-        startingTimestamp ? new Date(startingTimestamp as string) : new Date()
+        startingTimestamp ? new Date(startingTimestamp) : new Date()
       );
       return res.json(packet);
     }
@@ -295,7 +294,10 @@ export default function postsRoutes(app) {
   app.put('/api/posts/likes', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
 
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      action: string;
+      postID: string;
+    }>(req, {
       action: { type: 'string' },
       postID: { type: 'string' },
     });
@@ -303,9 +305,9 @@ export default function postsRoutes(app) {
     const { action, postID } = query;
 
     if (action === 'like')
-      return res.json(await likePost(ObjectIdVal(postID as string), userID));
+      return res.json(await likePost(ObjectIdVal(postID), userID));
     else if (action === 'unlike')
-      return res.json(await unlikePost(ObjectIdVal(postID as string), userID));
+      return res.json(await unlikePost(ObjectIdVal(postID), userID));
 
     return res.json(
       sendPacket(0, 'action (like, unlike) missing from query params')

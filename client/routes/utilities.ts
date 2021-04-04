@@ -54,7 +54,7 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/utilities/growth', async (req, res) => {
-    // const query = getQueryParams(req, { period: { type: 'string' } });
+    // const query = getQueryParams<{period: string}>(req, { period: { type: 'string' } });
     // if (!query) return res.status(500).send('Invalid query');
     // const growthCSV = await getUserGrowthByPeriod('month');
     // if (growthCSV) {

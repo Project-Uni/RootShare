@@ -403,7 +403,9 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const { _id: userID } = getUserFromJWT(req);
 
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        skipCalculation?: boolean;
+      }>(req, {
         skipCalculation: {
           type: 'boolean',
           optional: true,
@@ -414,7 +416,7 @@ export default function communityRoutes(app) {
 
       const { skipCalculation } = query;
       const packet = await getCommunityMembers(userID, communityID, {
-        skipCalculation: (skipCalculation || false) as boolean,
+        skipCalculation,
       });
       return res.json(packet);
     }
@@ -487,7 +489,12 @@ export default function communityRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        description?: string;
+        name?: string;
+        type?: string;
+        private?: boolean;
+      }>(req, {
         description: { type: 'string', optional: true },
         name: { type: 'string', optional: true },
         type: { type: 'string', optional: true },
@@ -503,7 +510,16 @@ export default function communityRoutes(app) {
 
   app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      _ids: string[];
+      limit?: number;
+      fields?: string[];
+      populates?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+      getRelationship?: boolean;
+    }>(req, {
       _ids: { type: 'string[]' },
       limit: { type: 'number', optional: true },
       fields: { type: 'string[]', optional: true },
@@ -529,7 +545,7 @@ export default function communityRoutes(app) {
     const populates = [];
     if (populatesRaw)
       try {
-        (populatesRaw as string[]).forEach((populateRaw) => {
+        populatesRaw.forEach((populateRaw) => {
           const split = populateRaw.split(':');
           populates.push({ path: split[0], select: split[1] });
         });
@@ -594,7 +610,10 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        action: string;
+        communityID: string;
+      }>(req, {
         action: { type: 'string' },
         communityID: { type: 'string' },
       });
@@ -602,7 +621,6 @@ export default function communityRoutes(app) {
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
 
       let { action, communityID } = query;
-      (action = action as string), (communityID = communityID as string);
 
       if (action === 'join')
         res.json(await joinCommunity(ObjectIdVal(communityID), userID));

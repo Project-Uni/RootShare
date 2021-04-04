@@ -269,7 +269,16 @@ export default function userRoutes(app: Express) {
   app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
 
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      _ids: string[];
+      limit?: number;
+      fields?: string[];
+      populates?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+      getRelationship?: boolean;
+    }>(req, {
       _ids: { type: 'string[]' },
       limit: { type: 'number', optional: true },
       fields: { type: 'string[]', optional: true },
@@ -286,13 +295,25 @@ export default function userRoutes(app: Express) {
       _ids,
       limit,
       fields,
-      populates,
+      populates: populatesRaw,
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
       getRelationship,
     } = query;
-    const userIDs = (_ids as string[]).map((_id) => ObjectIdVal(_id));
+    const userIDs = _ids.map((_id) => ObjectIdVal(_id));
+
+    const populates = [];
+    if (populatesRaw)
+      try {
+        populatesRaw.forEach((populateRaw) => {
+          const split = populateRaw.split(':');
+          populates.push({ path: split[0], select: split[1] });
+        });
+      } catch (err) {
+        log('err', err);
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      }
 
     const options = {
       limit,
@@ -303,15 +324,18 @@ export default function userRoutes(app: Express) {
       getRelationshipTo: getRelationship ? userID : undefined,
     };
     const packet = await getUsersGeneric(userIDs, {
-      fields: fields as any,
-      options: options as any,
+      fields: fields as any[],
+      options: options,
     });
     return res.json(packet);
   });
 
   app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: selfUserID } = getUserFromJWT(req);
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      action: string;
+      otherUserID: string;
+    }>(req, {
       action: { type: 'string' },
       otherUserID: { type: 'string' },
     });
@@ -321,21 +345,11 @@ export default function userRoutes(app: Express) {
     const { action, otherUserID } = query;
 
     if (action === 'connect')
-      res.json(
-        await requestConnection(selfUserID, ObjectIdVal(otherUserID as string))
-      );
+      res.json(await requestConnection(selfUserID, ObjectIdVal(otherUserID)));
     else if (action === 'reject' || action === 'cancel' || action === 'remove')
-      res.json(
-        await respondConnection(
-          selfUserID,
-          ObjectIdVal(otherUserID as string),
-          false
-        )
-      );
+      res.json(await respondConnection(selfUserID, ObjectIdVal(otherUserID), false));
     else if (action === 'accept')
-      res.json(
-        await respondConnection(selfUserID, ObjectIdVal(otherUserID as string), true)
-      );
+      res.json(await respondConnection(selfUserID, ObjectIdVal(otherUserID), true));
     else
       return res.json(
         sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')
