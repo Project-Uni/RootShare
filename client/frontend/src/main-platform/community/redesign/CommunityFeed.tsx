@@ -47,6 +47,8 @@ export const CommunityFeed = (props: Props) => {
     }
   };
 
+  const handlePinPostClicked = async (postID: string) => {};
+
   const appendPost = (post: PostType) => {
     setPosts((prev) => [post, ...prev]);
   };
@@ -65,7 +67,14 @@ export const CommunityFeed = (props: Props) => {
           <UserPost
             post={post}
             style={{ marginTop: 15 }}
-            options={{ hideToCommunity: true }}
+            options={{
+              hideToCommunity: true,
+              pinToCommunityMenuItem:
+                admin === user._id
+                  ? { value: true, onPin: handlePinPostClicked }
+                  : undefined,
+              pinned: true,
+            }}
           />
         ))
       )}

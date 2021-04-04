@@ -32,7 +32,7 @@ import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
 import { IoTrashBinOutline } from 'react-icons/io5';
-import { RiPushpin2Line } from 'react-icons/ri';
+import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
 import { MdReportProblem } from 'react-icons/md';
 
 const useStyles = makeStyles((_: any) => ({
@@ -65,6 +65,11 @@ type Props = {
   post: PostType;
   options?: {
     hideToCommunity?: boolean;
+    pinToCommunityMenuItem?: {
+      value: boolean;
+      onPin: (postID: string) => any;
+    };
+    pinned?: boolean;
   };
 };
 
@@ -345,6 +350,13 @@ export const UserPost = (props: Props) => {
           </RSLink>
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
+              {options?.pinned && (
+                <RiPushpin2Fill
+                  color={Theme.secondaryText}
+                  size={18}
+                  style={{ marginRight: 5 }}
+                />
+              )}
               <RSLink
                 href={anonymousCleanedData?.posterNavigationURL}
                 underline="hover"
@@ -406,12 +418,17 @@ export const UserPost = (props: Props) => {
           anchorEl={menuAnchorEl}
           onClose={() => setMenuAnchorEl(undefined)}
         >
-          <MenuItem onClick={() => {}} className={styles.menuItem}>
-            <RiPushpin2Line color={Theme.secondaryText} size={18} />
-            <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
-              Pin
-            </RSText>
-          </MenuItem>
+          {options?.pinToCommunityMenuItem?.value && (
+            <MenuItem
+              onClick={options.pinToCommunityMenuItem.onPin?.(post._id)}
+              className={styles.menuItem}
+            >
+              <RiPushpin2Line color={Theme.secondaryText} size={18} />
+              <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+                Pin
+              </RSText>
+            </MenuItem>
+          )}
           {post.user._id === user._id && (
             <MenuItem onClick={handleDeletePost} className={styles.menuItem}>
               <IoTrashBinOutline color={Theme.secondaryText} size={15} />
