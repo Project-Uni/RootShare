@@ -1,5 +1,5 @@
 import { Community, Notifications, Post, User } from '../models';
-import { log } from '../helpers/functions';
+import { log, sendPacket } from '../helpers/functions';
 
 export default class NotificationService {
   like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
@@ -137,7 +137,38 @@ export default class NotificationService {
     }
   };
 
-  rootshare = async ({}: {}) => {};
+  promoteEvent = async ({
+    eventID,
+    message,
+    createdByAdmin,
+  }: {
+    eventID: string;
+    message: string;
+    createdByAdmin: string;
+  }) => {
+    try {
+      const users = await User.find({}, '_id').exec();
+      const promises = users.map((user) => {
+        return Notifications.create({
+          variant: 'general',
+          forUser: user,
+          relatedItemType: 'event',
+          relatedItemId: eventID,
+          actionProviderType: 'rootshare',
+          actionProviderId: createdByAdmin,
+          message,
+        });
+      });
+
+      const values = await Promise.all(promises);
+      return sendPacket(1, 'Successfully promoted post');
+    } catch (err) {
+      log('error', err.message);
+      return sendPacket(-1, err.message);
+    }
+  };
+
+  rootshareMessage = async ({}: {}) => {};
 
   markAsSeen = async ({ _ids, userID }: { _ids: string[]; userID: string }) => {
     try {

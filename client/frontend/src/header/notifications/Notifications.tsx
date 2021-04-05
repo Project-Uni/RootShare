@@ -7,9 +7,11 @@ import { UnifiedNotification } from '../../api';
 import Theme from '../../theme/Theme';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useSelector } from 'react-redux';
-import { green } from '@material-ui/core/colors';
+import { green, grey } from '@material-ui/core/colors';
 import GreyRootshareIcon from '../../images/icongray.png';
 import { formatTimestamp } from '../../helpers/functions';
+
+import RootShareLogo_Small from '../../images/RootShareLogoFull_Small.png';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -96,8 +98,9 @@ const Notification = (
         image = actionProvider?.profilePicture;
         break;
       case 'rootshare':
-        if (relatedItemType === 'event') image = relatedItem?.profilePicture;
-        else image = GreyRootshareIcon;
+        // if (relatedItemType === 'event') image = relatedItem?.profilePicture;
+        // else image = GreyRootshareIcon;
+        image = GreyRootshareIcon;
         break;
       default:
     }
@@ -165,6 +168,17 @@ const Notification = (
               flex: 1,
             }}
           >
+            {actionProviderType === 'rootshare' && (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <RSText bold size={11} style={{ marginBottom: 5 }}>
+                  Message From
+                </RSText>
+                <img
+                  src={RootShareLogo_Small}
+                  style={{ height: 18, marginBottom: 5, marginLeft: 3 }}
+                />
+              </div>
+            )}
             <RSText size={11}>{data?.message}</RSText>
             <RSText color={Theme.secondaryText} size={9}>
               {data?.timestamp}
