@@ -12,6 +12,7 @@ import { CircularProgress } from '@material-ui/core';
 import { postPromoteEvent } from '../../api';
 import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
+import { RSText } from '../../base-components';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {
@@ -35,12 +36,25 @@ export const AdminPromoteModal = (props: Props) => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string>();
 
+  const [remainingTime, setRemainingTime] = useState(90);
+
   useEffect(() => {
     if (open) {
       setMessage('');
       setError(undefined);
+      setRemainingTime(90);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => {
+        setRemainingTime((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setRemainingTime(90);
+    }
+  }, [remainingTime, loading]);
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -105,7 +119,7 @@ export const AdminPromoteModal = (props: Props) => {
           onClick={handleSubmit}
         >
           {loading ? (
-            <CircularProgress style={{ color: Theme.altText }} />
+            <CircularProgress style={{ color: Theme.altText }} size={30} />
           ) : (
             <>
               Submit
@@ -117,6 +131,11 @@ export const AdminPromoteModal = (props: Props) => {
             </>
           )}
         </RSButton>
+        {loading && (
+          <RSText style={{ marginBottom: 20 }}>
+            Time Remaining: <b>{remainingTime} seconds</b>
+          </RSText>
+        )}
       </div>
     </RSModal>
   );

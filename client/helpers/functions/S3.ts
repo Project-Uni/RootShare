@@ -84,7 +84,6 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
 
     return signedURL;
   } catch (err) {
-    log('err', err);
     return false;
   }
 }
