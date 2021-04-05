@@ -1,5 +1,12 @@
-import { getUserFromJWT, log, sendPacket } from '../../helpers/functions';
+import {
+  getQueryParams,
+  getUserFromJWT,
+  log,
+  sendPacket,
+} from '../../helpers/functions';
 import { Community } from '../../models';
+import { Request, Response, NextFunction } from 'express';
+import { CommunityC } from '../../models/communities';
 
 const mongoose = require('mongoose');
 
@@ -37,3 +44,30 @@ export async function isCommunityMember(req, res, next) {
   if (isMember) return next();
   else return res.json(sendPacket(-1, 'User is not a member of this community'));
 }
+
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+export const isCommunityAdminFromQueryParams = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { _id: userID } = getUserFromJWT(req);
+  const query = getQueryParams(req, {
+    communityID: { type: 'string' },
+  });
+  if (!query)
+    return res.status(500).json(sendPacket(-1, 'Missing query params communityID'));
+
+  let { communityID } = query;
+  communityID = communityID as string;
+
+  //TODO - Might need to update to use objectID here
+  const isAdmin = await CommunityC.model.exists({ _id: communityID, admin: userID });
+  if (isAdmin) next();
+  else res.status(401).json(sendPacket(-1, 'User is not community admin'));
+};

@@ -1180,7 +1180,7 @@ export async function retrieveComments(
   }
 }
 
-async function retrievePosts(
+export async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
   userID: string,

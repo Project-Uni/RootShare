@@ -9,6 +9,7 @@ import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 import Theme from '../../../theme/Theme';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { putPinPost } from '../../../api/put/putPinPost';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -47,7 +48,21 @@ export const CommunityFeed = (props: Props) => {
     }
   };
 
-  const handlePinPostClicked = async (postID: string) => {};
+  const handlePinPostClicked = async (postID: string) => {
+    const data = await putPinPost({ postID, communityID });
+    if (data.success === 1) {
+      dispatch(
+        dispatchSnackbar({ mode: 'notify', message: 'Successfully pinned post' })
+      );
+    } else {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'Failed to pin post. Please try again later',
+        })
+      );
+    }
+  };
 
   const appendPost = (post: PostType) => {
     setPosts((prev) => [post, ...prev]);

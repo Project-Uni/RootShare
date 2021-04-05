@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-import { Community, CommunityEdge, User, University } from '../models';
+import { Community, CommunityEdge, User, University, Post } from '../models';
 import {
   log,
   sendPacket,
@@ -15,7 +15,7 @@ import {
   addCalculatedUserFields,
   addProfilePicturesAll,
 } from '../interactions/utilities';
-import { deletePost } from './posts';
+import { deletePost, retrievePosts } from './posts';
 import { CommunityC, CommunityGetOptions } from '../models/communities';
 
 export async function createNewCommunity(
@@ -1242,5 +1242,66 @@ export const getCommunitiesGeneric = async (
   } catch (err) {
     log('error', err);
     return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
+  }
+};
+
+export const pinPost = async ({
+  postID,
+  communityID,
+}: {
+  postID: string;
+  communityID: string;
+}) => {
+  //Steps
+  //1) Check if post is sent to community
+  //2) Check if post is currently pinned
+  //3) If pinned, unpin
+  //4) If not pinned, pin
+  const postBelongsToCommunity = await Post.exists({
+    _id: postID,
+    toCommunity: communityID,
+  });
+  if (!postBelongsToCommunity)
+    return sendPacket(-1, 'Post does not belong to community');
+
+  try {
+    const isPinned = await CommunityC.model.exists({
+      _id: communityID,
+      pinnedPosts: { $elemMatch: { $eq: mongoose.Types.ObjectId(postID) } },
+    });
+
+    const update = isPinned
+      ? { $pull: { pinnedPosts: postID } }
+      : { $addToSet: { pinnedPosts: postID } };
+
+    await CommunityC.model.updateOne({ _id: communityID }, update).exec();
+    return sendPacket(1, `Successfully ${isPinned ? 'unpinned' : 'pinned'} post`);
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+};
+
+export const getPinnedPosts = async ({
+  communityID,
+  userID,
+}: {
+  communityID: string;
+  userID: string;
+}) => {
+  try {
+    const community = await CommunityC.model
+      .findById({ _id: communityID }, 'pinnedPosts')
+      .exec();
+
+    const posts = await retrievePosts(
+      { _id: { $in: community.pinnedPosts } },
+      10,
+      userID
+    );
+    return sendPacket(1, 'Retrieved pinned posts', { posts });
+  } catch (err) {
+    log('error', err.message);
+    return sendPacket(-1, err.message);
   }
 };

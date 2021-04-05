@@ -2,7 +2,10 @@ import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { USER_LEVEL } from '../helpers/types';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { isCommunityAdmin } from './middleware/communityAuthentication';
+import {
+  isCommunityAdmin,
+  isCommunityAdminFromQueryParams,
+} from './middleware/communityAuthentication';
 
 import {
   // Admin Routes
@@ -31,6 +34,8 @@ import {
   updateFields,
   //generics
   getCommunitiesGeneric,
+  pinPost,
+  getPinnedPosts,
 } from '../interactions/community';
 import { getQueryParams } from '../helpers/functions/getQueryParams';
 import { stringify } from 'querystring';
@@ -582,6 +587,83 @@ export default function communityRoutes(app) {
       else if (action === 'cancel')
         res.json(await cancelCommunityPendingRequest(communityID, userID));
       else res.json(sendPacket(0, 'Invalid action provided'));
+    }
+  );
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *   /api/v2/community/pin:
+   *      put:
+   *        summary: Pin or unpin a post to a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: query
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            description: The id of the community to pin post
+   *
+   *          - in: query
+   *            name: postID
+   *            schema:
+   *              type: string
+   *            description: Id of the post to pin
+   *
+   *        responses:
+   *          "200":
+   *            description: Successfully pinned / unpinned post
+   *          "500":
+   *            description: There was an error pinning the post
+   *
+   */
+
+  app.put(
+    '/api/v2/community/pin',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      const query = getQueryParams(req, {
+        communityID: { type: 'string' },
+        postID: { type: 'string' },
+      });
+
+      if (!query)
+        res
+          .status(500)
+          .json(sendPacket(-1, 'Missing query params communityID or postID'));
+      else {
+        let { postID, communityID } = query;
+        postID = postID as string;
+        communityID = communityID as string;
+
+        const packet = await pinPost({ postID, communityID });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
+    }
+  );
+
+  app.get(
+    '/api/v2/community/pinnedPosts',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams(req, {
+        communityID: { type: 'string' },
+      });
+
+      if (!query)
+        res.status(500).json(sendPacket(-1, 'Missing query param: communityID'));
+      else {
+        let { communityID } = query;
+        communityID = communityID as string;
+        const packet = await getPinnedPosts({ communityID, userID });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
     }
   );
 }

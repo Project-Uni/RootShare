@@ -420,7 +420,10 @@ export const UserPost = (props: Props) => {
         >
           {options?.pinToCommunityMenuItem?.value && (
             <MenuItem
-              onClick={options.pinToCommunityMenuItem.onPin?.(post._id)}
+              onClick={() => {
+                setMenuAnchorEl(undefined);
+                options?.pinToCommunityMenuItem?.onPin?.(post._id);
+              }}
               className={styles.menuItem}
             >
               <RiPushpin2Line color={Theme.secondaryText} size={18} />
