@@ -121,7 +121,7 @@ export const CommunityHead = (props: Props) => {
     _id: communityID,
     name,
     description,
-    bio, // TODO: Change this to fetch bio and allow updates (backfill in DB as well)
+    bio,
     private: isPrivate,
     type,
     members,

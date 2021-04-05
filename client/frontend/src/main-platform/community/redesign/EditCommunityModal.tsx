@@ -332,7 +332,6 @@ const styles = useStyles();
               onChange={(e) => setCommunityBio(e.target.value)}
               error={bioErr !== ''}
               helperText={bioErr !== '' ? bioErr : null}
-              rows={2}
               multiline
             />
             {/* {renderTags()} PLACEHOLDER FUNCTION*/}
