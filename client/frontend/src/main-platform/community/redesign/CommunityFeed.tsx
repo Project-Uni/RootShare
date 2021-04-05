@@ -80,11 +80,6 @@ export const CommunityFeed = (props: Props) => {
     setPosts((prev) => [post, ...prev]);
   };
 
-  const filterPosts = useCallback(() => {
-    const pinnedIds = pinnedPosts.map((p) => p._id);
-    return posts.filter((post) => !pinnedIds.includes(post._id));
-  }, [posts, pinnedPosts]);
-
   return (
     <div className={styles.wrapper}>
       <MakePostContainer
@@ -110,19 +105,24 @@ export const CommunityFeed = (props: Props) => {
               }}
             />
           ))}
-          {filterPosts().map((post) => (
-            <UserPost
-              post={post}
-              style={{ marginTop: 15 }}
-              options={{
-                hideToCommunity: true,
-                pinToCommunityMenuItem:
-                  admin === user._id
-                    ? { value: true, onPin: handlePinPostClicked }
-                    : undefined,
-              }}
-            />
-          ))}
+          {posts
+            .filter(
+              (post) =>
+                !pinnedPosts.some((pinnedPost) => pinnedPost._id === post._id)
+            )
+            .map((post) => (
+              <UserPost
+                post={post}
+                style={{ marginTop: 15 }}
+                options={{
+                  hideToCommunity: true,
+                  pinToCommunityMenuItem:
+                    admin === user._id
+                      ? { value: true, onPin: handlePinPostClicked }
+                      : undefined,
+                }}
+              />
+            ))}
         </>
       )}
     </div>
