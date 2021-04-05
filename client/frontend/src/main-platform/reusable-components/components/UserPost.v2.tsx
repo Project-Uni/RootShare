@@ -67,7 +67,7 @@ type Props = {
     hideToCommunity?: boolean;
     pinToCommunityMenuItem?: {
       value: boolean;
-      onPin: (postID: string) => any;
+      onPin: (postID: string) => Promise<boolean>;
     };
     pinned?: boolean;
   };
@@ -100,6 +100,8 @@ export const UserPost = (props: Props) => {
 
   const isHovering = useRef(false);
   const [isDeleted, setIsDeleted] = useState(false);
+
+  const [pinned, setPinned] = useState(options?.pinned || false);
 
   useEffect(() => {
     const removeHistoryListen = history.listen((location, action) => {
@@ -350,7 +352,7 @@ export const UserPost = (props: Props) => {
           </RSLink>
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              {options?.pinned && (
+              {pinned && (
                 <RiPushpin2Fill
                   color={Theme.secondaryText}
                   size={18}
@@ -420,15 +422,19 @@ export const UserPost = (props: Props) => {
         >
           {options?.pinToCommunityMenuItem?.value && (
             <MenuItem
-              onClick={() => {
+              onClick={async () => {
                 setMenuAnchorEl(undefined);
-                options?.pinToCommunityMenuItem?.onPin(post._id);
+                setPinned((prev) => !prev);
+                const success = await options?.pinToCommunityMenuItem?.onPin(
+                  post._id
+                );
+                if (!success) setPinned((prev) => !prev);
               }}
               className={styles.menuItem}
             >
               <RiPushpin2Line color={Theme.secondaryText} size={18} />
               <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
-                {options.pinned ? 'Unpin' : 'Pin'}
+                {pinned ? 'Unpin' : 'Pin'}
               </RSText>
             </MenuItem>
           )}

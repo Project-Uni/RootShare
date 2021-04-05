@@ -66,6 +66,7 @@ export const CommunityFeed = (props: Props) => {
       dispatch(
         dispatchSnackbar({ mode: 'notify', message: 'Successfully pinned post' })
       );
+      return true;
     } else {
       dispatch(
         dispatchSnackbar({
@@ -73,6 +74,7 @@ export const CommunityFeed = (props: Props) => {
           message: 'Failed to pin post. Please try again later',
         })
       );
+      return false;
     }
   };
 
