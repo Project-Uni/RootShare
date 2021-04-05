@@ -63,7 +63,7 @@ type ShapedNotification = {
   timestamp: string;
   message: string;
   seen: boolean;
-  href: string;
+  href?: string;
 };
 
 const Notification = (
@@ -139,7 +139,13 @@ const Notification = (
           href: `/post/${relatedItem!._id}`,
         };
       default:
-        return undefined;
+        return {
+          image,
+          timestamp,
+          seen,
+          message,
+          href: undefined,
+        };
     }
   };
 
