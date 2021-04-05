@@ -422,13 +422,13 @@ export const UserPost = (props: Props) => {
             <MenuItem
               onClick={() => {
                 setMenuAnchorEl(undefined);
-                options?.pinToCommunityMenuItem?.onPin?.(post._id);
+                options?.pinToCommunityMenuItem?.onPin(post._id);
               }}
               className={styles.menuItem}
             >
               <RiPushpin2Line color={Theme.secondaryText} size={18} />
               <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
-                Pin
+                {options.pinned ? 'Unpin' : 'Pin'}
               </RSText>
             </MenuItem>
           )}
