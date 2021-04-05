@@ -1252,11 +1252,6 @@ export const pinPost = async ({
   postID: string;
   communityID: string;
 }) => {
-  //Steps
-  //1) Check if post is sent to community
-  //2) Check if post is currently pinned
-  //3) If pinned, unpin
-  //4) If not pinned, pin
   const postBelongsToCommunity = await Post.exists({
     _id: postID,
     toCommunity: communityID,

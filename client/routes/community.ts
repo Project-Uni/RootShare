@@ -5,6 +5,7 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
   isCommunityAdminFromQueryParams,
+  isCommunityMemberFromQueryParams,
 } from './middleware/communityAuthentication';
 
 import {
@@ -649,6 +650,7 @@ export default function communityRoutes(app) {
   app.get(
     '/api/v2/community/pinnedPosts',
     isAuthenticatedWithJWT,
+    isCommunityMemberFromQueryParams,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
       const query = getQueryParams(req, {

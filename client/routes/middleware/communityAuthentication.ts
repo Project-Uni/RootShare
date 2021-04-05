@@ -51,6 +51,7 @@ export async function isCommunityMember(req, res, next) {
  * @param res
  * @param next
  */
+
 export const isCommunityAdminFromQueryParams = async (
   req: Request,
   res: Response,
@@ -61,7 +62,7 @@ export const isCommunityAdminFromQueryParams = async (
     communityID: { type: 'string' },
   });
   if (!query)
-    return res.status(500).json(sendPacket(-1, 'Missing query params communityID'));
+    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
 
   let { communityID } = query;
   communityID = communityID as string;
@@ -70,4 +71,28 @@ export const isCommunityAdminFromQueryParams = async (
   const isAdmin = await CommunityC.model.exists({ _id: communityID, admin: userID });
   if (isAdmin) next();
   else res.status(401).json(sendPacket(-1, 'User is not community admin'));
+};
+
+export const isCommunityMemberFromQueryParams = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { _id: userID } = getUserFromJWT(req);
+  const query = getQueryParams(req, {
+    communityID: { type: 'string' },
+  });
+  if (!query)
+    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
+
+  let { communityID } = query;
+  communityID = communityID as string;
+
+  const isMember = await CommunityC.model.exists({
+    _id: communityID,
+    members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+  });
+
+  if (isMember) next();
+  else res.status(401).json(sendPacket(-1, 'User is not community member'));
 };
