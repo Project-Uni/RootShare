@@ -1296,6 +1296,7 @@ export async function getUserAdminCommunities(userID: string) {
 
     for (let i = 0; i < communities.length; i++) {
       const profilePicture = await retrieveSignedUrl(
+        'images',
         'communityProfile',
         communities[i].profilePicture
       );

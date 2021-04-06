@@ -218,7 +218,11 @@ export async function addProfilePictureToUser(user) {
   let profilePicture = undefined;
   if (user.profilePicture) {
     try {
-      const signedImageURL = await retrieveSignedUrl('profile', user.profilePicture);
+      const signedImageURL = await retrieveSignedUrl(
+        'images',
+        'profile',
+        user.profilePicture
+      );
       if (signedImageURL) profilePicture = signedImageURL;
     } catch (err) {
       log('error', err);
@@ -241,6 +245,7 @@ export function generateSignedProfilePromises(
     if (entityList[i].profilePicture) {
       try {
         const signedImageURLPromise = retrieveSignedUrl(
+          'images',
           imageType,
           entityList[i].profilePicture
         );
@@ -301,6 +306,7 @@ export function generateSignedBannerPromises(
     if (entityList[i].bannerPicture) {
       try {
         const signedImageURLPromise = retrieveSignedUrl(
+          'images',
           imageType,
           entityList[i].bannerPicture
         );
@@ -353,6 +359,7 @@ export function addProfilePicturesToRequests(requests) {
   for (let i = 0; i < requests.length; i++) {
     if (requests[i].from.profilePicture) {
       const signedImageURLPromise = retrieveSignedUrl(
+        'images',
         'profile',
         requests[i].from.profilePicture
       );

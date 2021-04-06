@@ -64,7 +64,7 @@ export async function createBroadcastUserPost(
       const { imageID, fileName } = result;
       await Post.model.updateOne({ _id: post._id }, { $push: { images: imageID } });
       try {
-        const imageURL = await retrieveSignedUrl('postImage', fileName);
+        const imageURL = await retrieveSignedUrl('images', 'postImage', fileName);
         var postObj = post.toObject();
         postObj.images = [{ fileName: imageURL || '' } as IImage];
       } catch (err) {
@@ -147,6 +147,7 @@ export async function createInternalCurrentMemberCommunityPost(
       try {
         post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
+          'images',
           'postImage',
           post.images[0].fileName
         );
@@ -239,6 +240,7 @@ export async function createInternalAlumniPost(
       try {
         post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
+          'images',
           'postImage',
           post.images[0].fileName
         );
@@ -343,6 +345,7 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           try {
             post.images = post.images as IImage[];
             const imageURL = await retrieveSignedUrl(
+              'images',
               'postImage',
               post.images[0].fileName
             );
@@ -429,6 +432,7 @@ export async function createExternalPostAsCommunityAdmin(
       try {
         post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
+          'images',
           'postImage',
           post.images[0].fileName
         );
@@ -515,6 +519,7 @@ export async function createExternalPostAsMember(
       try {
         post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
+          'images',
           'postImage',
           post.images[0].fileName
         );
@@ -584,6 +589,7 @@ export async function createBroadcastCommunityPost(
     post.fromCommunity = post.fromCommunity as ICommunity;
     const communityProfilePicture = post.fromCommunity.profilePicture
       ? await retrieveSignedUrl(
+          'images',
           'communityProfile',
           post.fromCommunity.profilePicture
         )
@@ -595,6 +601,7 @@ export async function createBroadcastCommunityPost(
       try {
         post.images = post.images as IImage[];
         const imageURL = await retrieveSignedUrl(
+          'images',
           'postImage',
           post.images[0].fileName
         );
@@ -1089,7 +1096,7 @@ export async function deletePost(postID: ObjectIdType, userID: ObjectIdType) {
       post.images = post.images as IImage[];
       const imageIDs = post.images.map((image) => image._id);
       const imageS3Promises = post.images.map((image) =>
-        deleteFile('postImage', image.fileName)
+        deleteFile('images', 'postImage', image.fileName)
       );
       const imageDBPromise = Image.model.deleteMany({ _id: { $in: imageIDs } }).exec;
 
@@ -1155,7 +1162,11 @@ function generatePostSignedImagePromises(
 
     if (picturePath) {
       try {
-        const signedImageUrlPromise = retrieveSignedUrl(pictureType, picturePath);
+        const signedImageUrlPromise = retrieveSignedUrl(
+          'images',
+          pictureType,
+          picturePath
+        );
         profilePicturePromises.push(signedImageUrlPromise);
       } catch (err) {
         log('error', err);
@@ -1169,7 +1180,11 @@ function generatePostSignedImagePromises(
     if (hasImages) {
       for (let j = 0; j < posts[i].images.length; j++) {
         const image = posts[i].images[j];
-        const signedImagePromise = retrieveSignedUrl('postImage', image.fileName);
+        const signedImagePromise = retrieveSignedUrl(
+          'images',
+          'postImage',
+          image.fileName
+        );
         profilePicturePromises.push(signedImagePromise);
       }
     }
@@ -1561,7 +1576,12 @@ async function uploadPostImage(
 
     const fileName = `${postID}_image_01.jpeg`;
 
-    const success = await uploadFile('postImage', fileName, imageBuffer.data);
+    const success = await uploadFile(
+      'images',
+      'postImage',
+      fileName,
+      imageBuffer.data
+    );
     if (!success) return -1;
 
     const imageObj = await new Image.model({

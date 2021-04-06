@@ -1,13 +1,7 @@
 const passport = require('passport');
 
 import { User } from '../rootshare_db/models';
-import {
-  log,
-  sendPacket,
-  generateJWT,
-  retrieveSignedUrl,
-  getUserFromJWT,
-} from '../helpers/functions';
+import { log, sendPacket, generateJWT, getUserFromJWT } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 var {

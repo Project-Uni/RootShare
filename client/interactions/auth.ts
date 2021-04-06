@@ -35,7 +35,6 @@ export class AuthService {
         ],
         options: {
           includeDefaultFields: false,
-          getProfilePicture: true,
           limit: 1,
         },
       });

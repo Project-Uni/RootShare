@@ -42,10 +42,18 @@ const Community = (props: Props) => {
 
   const fetchCommunityInfo = useCallback(async () => {
     const data = await getCommunities([communityID], {
-      fields: ['admin', 'name', 'members', 'description', 'bio', 'private', 'type'],
+      fields: [
+        'admin',
+        'name',
+        'members',
+        'description',
+        'bio',
+        'private',
+        'type',
+        'profilePicture',
+        'bannerPicture',
+      ],
       options: {
-        getProfilePicture: true,
-        getBannerPicture: true,
         getRelationship: true,
         limit: 1,
         includeDefaultFields: true,
@@ -64,6 +72,7 @@ const Community = (props: Props) => {
       );
       return;
     }
+
     setInfo(data.content.communities[0]);
   }, [communityID, getCommunities]);
 

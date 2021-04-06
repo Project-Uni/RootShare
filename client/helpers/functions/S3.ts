@@ -4,7 +4,7 @@ const AWSKeys = require('../../../keys/aws_key.json');
 
 import { log } from './logger';
 
-import { ImageReason } from '../../rootshare_db/types';
+import { S3FileType, ImageReason, DocumentReason } from '../../rootshare_db/types';
 
 const s3 = new AWS.S3({
   accessKeyId: AWSKeys.accessKeyId,
@@ -13,10 +13,16 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
-const BUCKET = 'rootshare-profile-images';
+const BUCKET = 'rootshare-platform-files';
 
-export async function uploadFile(reason: ImageReason, fileName: string, file: any) {
-  const prefix = getPathPrefix(reason);
+export async function uploadFile(
+  fileType: S3FileType,
+  reason: ImageReason | DocumentReason,
+  fileName: string,
+  file: any,
+  entityID?: string
+) {
+  const prefix = getPathPrefix(fileType, reason, entityID);
   if (!prefix) return false;
 
   const params = {
@@ -35,8 +41,13 @@ export async function uploadFile(reason: ImageReason, fileName: string, file: an
   }
 }
 
-export async function deleteFile(reason: ImageReason, fileName: string) {
-  const prefix = getPathPrefix(reason);
+export async function deleteFile(
+  fileType: S3FileType,
+  reason: ImageReason,
+  fileName: string,
+  entityID?: string
+) {
+  const prefix = getPathPrefix(fileType, reason, entityID);
   if (!prefix) return false;
 
   const params = { Bucket: BUCKET, Key: prefix + fileName };
@@ -50,8 +61,13 @@ export async function deleteFile(reason: ImageReason, fileName: string) {
   }
 }
 
-export async function retrieveFile(reason: ImageReason, fileName: string) {
-  const prefix = getPathPrefix(reason);
+export async function retrieveFile(
+  fileType: S3FileType,
+  reason: ImageReason,
+  fileName: string,
+  entityID?: string
+) {
+  const prefix = getPathPrefix(fileType, reason, entityID);
   if (!prefix) return false;
 
   const params = { Bucket: BUCKET, Key: prefix + fileName };
@@ -65,8 +81,13 @@ export async function retrieveFile(reason: ImageReason, fileName: string) {
   }
 }
 
-export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
-  const prefix = getPathPrefix(reason);
+export async function retrieveSignedUrl(
+  fileType: S3FileType,
+  reason: ImageReason,
+  fileName: string,
+  entityID?: string
+) {
+  const prefix = getPathPrefix(fileType, reason, entityID);
   if (!prefix) return false;
 
   const headParams = {
@@ -89,28 +110,35 @@ export async function retrieveSignedUrl(reason: ImageReason, fileName: string) {
   }
 }
 
-function getPathPrefix(imageType: ImageReason) {
-  let base = 'images/';
-  switch (imageType) {
-    case 'profile':
-      return base + 'user/profile/';
-    case 'profileBanner':
-      return base + 'user/banner/';
-    case 'communityProfile':
-      return base + 'community/profile/';
-    case 'communityBanner':
-      return base + 'community/banner/';
-    case 'eventImage':
-      return base + 'event/image/';
-    case 'eventBanner':
-      return base + 'event/banner/';
-    case 'postImage':
-      return base + 'post/';
-    case 'mtgBanner':
-      return base + 'mtg/banner/';
-    default:
-      return null;
-  }
+function getPathPrefix(
+  fileType: S3FileType,
+  reason: ImageReason | DocumentReason,
+  entityID?: string
+) {
+  const base = `${fileType}/`;
+  if (fileType === 'images')
+    switch (reason) {
+      case 'profile':
+        return base + 'user/profile/';
+      case 'profileBanner':
+        return base + 'user/banner/';
+      case 'communityProfile':
+        return base + 'community/profile/';
+      case 'communityBanner':
+        return base + 'community/banner/';
+      case 'eventImage':
+        return base + 'event/image/';
+      case 'eventBanner':
+        return base + 'event/banner/';
+      case 'postImage':
+        return base + 'post/';
+      case 'mtgBanner':
+        return base + 'mtg/banner/';
+      default:
+        return null;
+    }
+  else if (fileType === 'documents' && entityID)
+    return `${base}${reason}/${entityID}/`;
 }
 
 export function decodeBase64Image(dataString: string) {

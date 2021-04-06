@@ -151,16 +151,14 @@ const HoverPreview = () => {
         ? await getUsers<UserResponse>([_id], {
             fields: ['work', 'position', 'major', 'graduationYear', 'accountType'],
             options: {
-              getProfilePicture: false,
               getRelationship: true,
               limit: 1,
             },
           })
         : await getCommunities<CommunityResponse>([_id], {
-            fields: ['description', 'type', 'private'],
+            fields: ['description', 'type', 'private', 'profilePicture'],
             options: {
               limit: 1,
-              getProfilePicture: false,
               getRelationship: true,
               includeDefaultFields: false,
             },

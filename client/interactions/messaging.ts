@@ -184,6 +184,7 @@ async function emitPicturedConversation(
     if (otherPerson.profilePicture) {
       try {
         const signedImageUrlPromise = retrieveSignedUrl(
+          'images',
           'profile',
           otherPerson.profilePicture
         );
@@ -229,6 +230,7 @@ function addProfilePictureToConversations(
       if (otherPerson.profilePicture) {
         try {
           const signedImageUrlPromise = retrieveSignedUrl(
+            'images',
             'profile',
             otherPerson.profilePicture
           );

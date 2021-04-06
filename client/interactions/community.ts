@@ -213,9 +213,13 @@ export async function deleteCommunity(communityID: ObjectIdType) {
     );
     //6 - Delete images
     if (community.profilePicture)
-      promises.push(deleteFile('communityProfile', community.profilePicture));
+      promises.push(
+        deleteFile('images', 'communityProfile', community.profilePicture)
+      );
     if (community.bannerPicture)
-      promises.push(deleteFile('communityBanner', community.bannerPicture));
+      promises.push(
+        deleteFile('images', 'communityBanner', community.bannerPicture)
+      );
     //7 - Delete community
     promises.push(Community.model.deleteOne({ _id: communityID }).exec());
 
@@ -564,7 +568,7 @@ export async function getAllPendingMembers(communityID: ObjectIdType) {
         log('err', err);
       }
 
-      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+      const imageURL = await retrieveSignedUrl('images', 'profile', pictureFileName);
       if (imageURL) {
         pendingMembers[i].profilePicture = imageURL;
       }

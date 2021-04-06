@@ -18,6 +18,7 @@ export async function updateUserProfilePicture(image: string, userID: ObjectIdTy
 
   try {
     const success = await uploadFile(
+      'images',
       'profile',
       `${userID}_profile.jpeg`,
       imageBuffer.data
@@ -41,7 +42,12 @@ export async function updateUserBanner(image: string, userID: ObjectIdType) {
 
   const fileName = `${userID}_banner.jpeg`;
   try {
-    const success = await uploadFile('profileBanner', fileName, imageBuffer.data);
+    const success = await uploadFile(
+      'images',
+      'profileBanner',
+      fileName,
+      imageBuffer.data
+    );
     if (!success) return sendPacket(0, 'Failed to upload image');
 
     await User.model.updateOne({ _id: userID }, { bannerPicture: fileName });
@@ -62,6 +68,7 @@ export async function updateCommunityProfilePicture(
 
   try {
     const success = await uploadFile(
+      'images',
       'communityProfile',
       `${communityID}_profile.jpeg`,
       imageBuffer.data
@@ -100,7 +107,12 @@ export async function updateCommunityBanner(
 
   const fileName = `${communityID}_banner.jpeg`;
   try {
-    const success = await uploadFile('communityBanner', fileName, imageBuffer.data);
+    const success = await uploadFile(
+      'images',
+      'communityBanner',
+      fileName,
+      imageBuffer.data
+    );
     if (!success) return sendPacket(0, 'Failed to upload image');
 
     await Community.model.updateOne(
@@ -131,11 +143,15 @@ export async function getUserProfileAndBanner(
 
     const imagePromises = [];
     if (options.getProfile && user.profilePicture)
-      imagePromises.push(retrieveSignedUrl('profile', user.profilePicture));
+      imagePromises.push(
+        retrieveSignedUrl('images', 'profile', user.profilePicture)
+      );
     else imagePromises.push(null);
 
     if (options.getBanner && user.bannerPicture)
-      imagePromises.push(retrieveSignedUrl('profileBanner', user.bannerPicture));
+      imagePromises.push(
+        retrieveSignedUrl('images', 'profileBanner', user.bannerPicture)
+      );
     else imagePromises.push(null);
 
     return Promise.all(imagePromises).then(([profile, banner]) => {
@@ -163,13 +179,13 @@ export async function getCommunityProfileAndBanner(
     const imagePromises = [];
     if (options.getProfile && community.profilePicture)
       imagePromises.push(
-        retrieveSignedUrl('communityProfile', community.profilePicture)
+        retrieveSignedUrl('images', 'communityProfile', community.profilePicture)
       );
     else imagePromises.push(null);
 
     if (options.getBanner && community.bannerPicture)
       imagePromises.push(
-        retrieveSignedUrl('communityBanner', community.bannerPicture)
+        retrieveSignedUrl('images', 'communityBanner', community.bannerPicture)
       );
     else imagePromises.push(null);
 
@@ -190,7 +206,7 @@ export async function retrieveAllUrls(
 ) {
   const urlPromises = [];
   images.forEach((image) => {
-    urlPromises.push(retrieveSignedUrl(image.reason, image.fileName));
+    urlPromises.push(retrieveSignedUrl('images', image.reason, image.fileName));
   });
 
   return Promise.all(urlPromises).then((urls) => {

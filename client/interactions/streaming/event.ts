@@ -454,10 +454,12 @@ export async function getWebinarDetails(
 
       let webinarObj = webinar.toObject();
       const eventImagePromise = retrieveSignedUrl(
+        'images',
         'eventImage',
         webinarObj.eventImage
       );
       const eventBannerPromise = retrieveSignedUrl(
+        'images',
         'eventBanner',
         webinarObj.eventBanner
       );
@@ -551,7 +553,12 @@ export async function addEventImage(eventID: ObjectIdType, image: string) {
   if (!imageBuffer.data) return sendPacket(-1, 'Could not decode event image');
 
   const imageName = `${eventID}_eventImage.jpeg`;
-  const success = await uploadFile('eventImage', imageName, imageBuffer.data);
+  const success = await uploadFile(
+    'images',
+    'eventImage',
+    imageName,
+    imageBuffer.data
+  );
   if (!success) return sendPacket(-1, 'Could not upload event image');
 
   const upload = await Webinar.model.updateOne(
@@ -579,7 +586,12 @@ export async function addEventBanner(eventID: ObjectIdType, image: string) {
   if (!imageBuffer.data) return sendPacket(-1, 'Could not decode event banner');
 
   const imageName = `${eventID}_eventBanner.jpeg`;
-  const success = await uploadFile('eventBanner', imageName, imageBuffer.data);
+  const success = await uploadFile(
+    'images',
+    'eventBanner',
+    imageName,
+    imageBuffer.data
+  );
   if (!success) return sendPacket(-1, 'Could not upload event banner');
 
   const upload = await Webinar.model.updateOne(
@@ -600,6 +612,7 @@ function addEventImagesAll(
     if (events[i][imageReason]) {
       try {
         const signedImageURLPromise = retrieveSignedUrl(
+          'images',
           imageReason,
           events[i][imageReason]
         );

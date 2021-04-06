@@ -114,7 +114,12 @@ export async function uploadMTGBanner(communityID: ObjectIdType, image: string) 
 
     const fileName = `${communityID}_mtg_banner.jpeg`;
 
-    const success = await uploadFile('mtgBanner', fileName, imageBuffer.data);
+    const success = await uploadFile(
+      'images',
+      'mtgBanner',
+      fileName,
+      imageBuffer.data
+    );
     if (!success) return sendPacket(-1, 'There was an error uploading the image');
 
     await Webinar.model
@@ -162,7 +167,7 @@ export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
     const { speakers } = mtgEvent;
     mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
     mtgEvent.eventBanner =
-      (await retrieveSignedUrl('mtgBanner', mtgEvent.eventBanner)) || '';
+      (await retrieveSignedUrl('images', 'mtgBanner', mtgEvent.eventBanner)) || '';
 
     let cleanedData = Object.assign({}, mtgEvent, {
       description: mtgEvent.full_description,
@@ -348,9 +353,15 @@ export async function getMTGEvents() {
 
     const imagePromises = [];
     for (let i = 0; i < events.length; i++) {
-      imagePromises.push(retrieveSignedUrl('mtgBanner', events[i].eventBanner));
       imagePromises.push(
-        retrieveSignedUrl('communityProfile', events[i].community.profilePicture)
+        retrieveSignedUrl('images', 'mtgBanner', events[i].eventBanner)
+      );
+      imagePromises.push(
+        retrieveSignedUrl(
+          'images',
+          'communityProfile',
+          events[i].community.profilePicture
+        )
       );
     }
 
