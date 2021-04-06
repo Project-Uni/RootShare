@@ -1,4 +1,4 @@
-const aws = require('aws-sdk');
+import aws = require('aws-sdk');
 
 import { User } from '../rootshare_db/models';
 import { log, sendPacket, getQueryParams } from '../helpers/functions';
@@ -11,9 +11,14 @@ import { getUserGrowthByPeriod } from '../helpers/data_aggregation/getUserGrowth
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { getUserData } from '../interactions/utilities';
 
-aws.config.loadFromPath('../keys/aws_key.json');
-let ses = new aws.SES({
+const AWSKeys = require('../../keys/aws_key.json');
+
+const ses = new aws.SES({
+  accessKeyId: AWSKeys.ses.accessKeyId,
+  secretAccessKey: AWSKeys.ses.secretAccessKey,
+  region: AWSKeys.ses.region,
   apiVersion: '2010-12-01',
+  signatureVersion: 'v4',
 });
 
 export default function utilityRoutes(app) {

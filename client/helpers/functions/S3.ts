@@ -1,14 +1,13 @@
-import AWS = require('aws-sdk');
+import aws = require('aws-sdk');
+
+import { log } from './logger';
+import { S3FileType, ImageReason, DocumentReason } from '../../rootshare_db/types';
 
 const AWSKeys = require('../../../keys/aws_key.json');
 
-import { log } from './logger';
-
-import { S3FileType, ImageReason, DocumentReason } from '../../rootshare_db/types';
-
-const s3 = new AWS.S3({
-  accessKeyId: AWSKeys.accessKeyId,
-  secretAccessKey: AWSKeys.secretAccessKey,
+const s3 = new aws.S3({
+  accessKeyId: AWSKeys.s3.accessKeyId,
+  secretAccessKey: AWSKeys.s3.secretAccessKey,
   apiVersion: '2006-03-01',
   signatureVersion: 'v4',
 });

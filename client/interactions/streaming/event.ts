@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-const aws = require('aws-sdk');
+import aws = require('aws-sdk');
 
 import {
   Webinar,
@@ -20,12 +20,17 @@ import {
   retrieveSignedUrl,
 } from '../../helpers/functions';
 
+const AWSKeys = require('../../../keys/aws_key.json');
+
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
-aws.config.loadFromPath('../keys/aws_key.json');
-let ses = new aws.SES({
+const ses = new aws.SES({
+  accessKeyId: AWSKeys.ses.accessKeyId,
+  secretAccessKey: AWSKeys.ses.secretAccessKey,
+  region: AWSKeys.ses.region,
   apiVersion: '2010-12-01',
+  signatureVersion: 'v4',
 });
 
 export async function createEvent(
