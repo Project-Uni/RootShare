@@ -7,8 +7,7 @@ import { RSCard, RSTabsV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
-import FollowButton from './FollowButton';
-import RelationshipButton from './RelationshipButton';
+import { FollowButton, RelationshipButton, InviteButton } from './buttons';
 import Tag from './Tag';
 
 import Theme from '../../../theme/Theme';
@@ -162,6 +161,7 @@ export const CommunityHead = (props: Props) => {
         <RSText size={11}>{`${numMembers} ${
           numMembers === 1 ? 'Member' : 'Members'
         }`}</RSText>
+        <InviteButton communityName={name} />
         <FollowButton
           communityID={communityID}
           name={name}

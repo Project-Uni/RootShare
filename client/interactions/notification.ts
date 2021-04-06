@@ -65,12 +65,12 @@ export default class NotificationService {
     communityID: string;
     forUser: string;
   }) => {
-    if (fromUser === forUser) return;
+    if (fromUser === forUser) return false;
     const [communityName, fromUserName] = await Promise.all([
       getCommunityName(communityID),
       getUsername(fromUser),
     ]);
-    if (!communityName || !fromUserName) return;
+    if (!communityName || !fromUserName) return false;
 
     try {
       await Notifications.create({
@@ -82,8 +82,10 @@ export default class NotificationService {
         actionProviderId: fromUser,
         message: `${fromUserName.firstName} ${fromUserName.lastName} invited you to join ${communityName.name}`,
       });
+      return true;
     } catch (err) {
       log('error', err.message);
+      return false;
     }
   };
 

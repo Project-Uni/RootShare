@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { RootshareReduxState } from '../../../../redux/store/stateManagement';
 
 import { Slide, Theme as ThemeType } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 
-import RSText from '../../../base-components/RSText';
-import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
-import { RSMenu, RSButtonV2, RSButtonVariants } from '../../reusable-components';
+import RSText from '../../../../base-components/RSText';
+import ManageSpeakersSnackbar from '../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
+import { RSMenu, RSButtonV2, RSButtonVariants } from '../../../reusable-components';
 
-import { makeRequest } from '../../../helpers/functions';
-import { AdminCommunityServiceResponse } from '../../../helpers/types/communityTypes';
-import Theme from '../../../theme/Theme';
+import { makeRequest } from '../../../../helpers/functions';
+import { AdminCommunityServiceResponse } from '../../../../helpers/types/communityTypes';
+import Theme from '../../../../theme/Theme';
 
 interface StyleProps {
   university: string;

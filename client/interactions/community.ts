@@ -1246,3 +1246,45 @@ export const getCommunitiesGeneric = async (
     return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
   }
 };
+
+export const inviteUser = async ({
+  fromUserID,
+  toUserIDs,
+  communityID,
+}: {
+  fromUserID: string;
+  toUserID: string;
+  communityID: string;
+}) => {
+  try {
+    const userIsAlreadyMember = await CommunityC.model.exists({
+      $and: [
+        { _id: communityID },
+        {
+          $or: [
+            { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(toUserID) } } },
+            {
+              pendingMembers: {
+                $elemMatch: { $eq: mongoose.Types.ObjectId(toUserID) },
+              },
+            },
+          ],
+        },
+      ],
+    });
+    if (userIsAlreadyMember)
+      return sendPacket(0, 'User is already a member in the community');
+
+    const success = await new NotificationService().communityInvite({
+      fromUser: fromUserID,
+      communityID,
+      forUser: toUserID,
+    });
+
+    if (success) return sendPacket(1, 'Successfully invited user to commnunity');
+    return sendPacket(-1, 'Failed to invite user');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err.message);
+  }
+};
