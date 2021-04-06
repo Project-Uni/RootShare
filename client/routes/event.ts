@@ -12,6 +12,7 @@ import {
   addEventImage,
   addEventBanner,
   sendEventEmailConfirmation,
+  getPromotedEvents,
 } from '../interactions/streaming/event';
 
 import { updateAttendingList } from '../interactions/user';
@@ -61,6 +62,11 @@ export default function eventRoutes(app) {
   app.get('/api/webinar/recents', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getAllRecentEvents(userID, (packet) => res.json(packet));
+  });
+
+  app.get('/api/webinar/promoted', isAuthenticatedWithJWT, (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    getPromotedEvents(userID, (packet) => res.json(packet));
   });
 
   app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
