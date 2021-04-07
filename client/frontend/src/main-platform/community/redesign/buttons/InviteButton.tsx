@@ -14,11 +14,12 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
 
 type Props = {
   communityName: string;
+  communityID: string;
 };
 
 export const InviteButton = (props: Props) => {
   const styles = useStyles();
-  const { communityName } = props;
+  const { communityName, communityID } = props;
 
   const [open, setOpen] = useState(false);
 
@@ -28,6 +29,7 @@ export const InviteButton = (props: Props) => {
         open={open}
         onClose={() => setOpen(false)}
         communityName={communityName}
+        communityID={communityID}
       />
       <RSButtonV2
         className={styles.wrapper}

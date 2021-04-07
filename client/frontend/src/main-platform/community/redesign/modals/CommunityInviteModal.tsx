@@ -15,11 +15,12 @@ type Props = {
   open: boolean;
   onClose: () => void;
   communityName: string;
+  communityID: string;
 };
 
 export const CommunityInviteModal = (props: Props) => {
   const styles = useStyles();
-  const { open, onClose, communityName } = props;
+  const { open, onClose, communityName, communityID } = props;
 
   return (
     <RSModal
@@ -41,6 +42,8 @@ export const CommunityInviteModal = (props: Props) => {
           adornment={<FaSearch size={24} color={Theme.secondaryText} />}
           renderLimit={15}
           mode="user"
+          fetchDataURL="/api/discover/communityInvite"
+          fetchDataAdditionalParams={{ communityID }}
         />
         {/* <SearchField
           style={{

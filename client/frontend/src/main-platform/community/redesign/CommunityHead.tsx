@@ -161,7 +161,7 @@ export const CommunityHead = (props: Props) => {
         <RSText size={11}>{`${numMembers} ${
           numMembers === 1 ? 'Member' : 'Members'
         }`}</RSText>
-        <InviteButton communityName={name} />
+        <InviteButton communityName={name} communityID={communityID} />
         <FollowButton
           communityID={communityID}
           name={name}

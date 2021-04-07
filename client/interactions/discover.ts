@@ -167,11 +167,81 @@ export async function exactMatchSearchFor(
   query: string,
   limit: number = 20
 ) {
-  const cleanedQuery = query.trim();
-
   createSearch(userID, query);
 
-  const terms = query.split(' ');
+  const usersPromise = userSearch({ query, limit });
+  const communitiesPromise = communitySearch({ query, limit });
+
+  const [users, communities] = await Promise.all([usersPromise, communitiesPromise]);
+
+  if (users && communities)
+    return sendPacket(1, 'Successfully searched', { users, communities });
+  return sendPacket(-1, 'There was an error searching');
+}
+
+export async function getSidebarData(userID: string, dataSources: SidebarData[]) {
+  const promises = [];
+
+  if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
+    promises.push(populateDiscoverForUser(userID));
+
+  // dataSources.forEach((dataSource) => {
+  //   switch (dataSource) {
+  //     case 'pinnedCommunities':
+  //       promises.push(getPinnedCommunities(userID));
+  //     case 'trending':
+  //       promises.push(getTrending(userID));
+  //   }
+  // });
+
+  let output: { [key in SidebarData]?: any } = {};
+  return Promise.all(promises).then((data) => {
+    if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
+      const discoverData = data[0];
+      if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
+      output.discoverUsers = discoverData['users'];
+      output.discoverCommunities = discoverData['communities'];
+    }
+
+    // let count = 1;
+    // for (let i = 0; i < dataSources.length; i++) {
+    //   if (count === data.length) return;
+    //   switch (dataSources[i]) {
+    //     case 'pinnedCommunities':
+    //       output.pinnedCommunities = data[count++];
+    //     case 'trending':
+    //       output.pinnedCommunities = data[count++];
+    //   }
+    // }
+
+    return sendPacket(1, 'Retrieved Sidebar data', { ...output });
+  });
+}
+
+export const communityInviteSearch = async ({
+  query,
+  limit,
+}: {
+  query: string;
+  limit?: number;
+}) => {
+  const users = await userSearch({ query, limit });
+  if (!users) return sendPacket(-1, 'Failed to get users');
+  return sendPacket(1, 'Retrieved users', { users });
+  //Prioritize connections
+};
+
+export const userSearch = async ({
+  query,
+  limit,
+}: {
+  query: string;
+  limit?: number;
+}) => {
+  const defaultLimit = 20;
+  const cleanedQuery = query.trim();
+
+  const terms = cleanedQuery.split(' ');
   const userSearchConditions: { [key: string]: any }[] = [];
   if (terms.length === 1) {
     try {
@@ -183,10 +253,7 @@ export async function exactMatchSearchFor(
         'error',
         `There was an error with the regular expression made from the query: ${err}`
       );
-      return sendPacket(
-        -1,
-        'There was an error with the regular expression made from the query'
-      );
+      return false;
     }
   } else {
     try {
@@ -201,26 +268,44 @@ export async function exactMatchSearchFor(
         'error',
         `There was an error with the regular expression made from the query: ${err}`
       );
-      return sendPacket(
-        -1,
-        'There was an error with the regular expression made from the query'
-      );
+      return false;
     }
   }
 
   try {
-    const userPromise = User.find({
-      $and: [
-        // { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
-        { $or: userSearchConditions },
-      ],
+    const users = await User.find({
+      $and: [{ $or: userSearchConditions }],
     })
       .select(['firstName', 'lastName', 'email', 'profilePicture'])
-      .limit(limit)
+      .limit(limit || defaultLimit)
       .lean()
       .exec();
 
-    const communityPromise = Community.find({
+    const images = await Promise.all(
+      generateSignedProfilePromises(users, 'profile')
+    );
+    for (let i = 0; i < users.length; i++)
+      if (images[i]) users[i].profilePicture = images[i];
+
+    return users;
+  } catch (err) {
+    log('error', err);
+    return false;
+  }
+};
+
+export const communitySearch = async ({
+  query,
+  limit,
+}: {
+  query: string;
+  limit?: number;
+}) => {
+  const defaultLimit = 20;
+  const cleanedQuery = query.trim();
+
+  try {
+    const communities = await Community.find({
       name: new RegExp(cleanedQuery, 'gi'),
     })
       .select([
@@ -231,32 +316,23 @@ export async function exactMatchSearchFor(
         'profilePicture',
         'university',
       ])
-      .limit(limit)
+      .limit(limit || defaultLimit)
       .lean()
       .exec();
 
-    return Promise.all([userPromise, communityPromise])
-      .then(async ([users, communities]) => {
-        const imageInfo = await addCommunityAndUserImages(communities, users);
+    const images = await Promise.all(
+      generateSignedProfilePromises(communities, 'communityProfile')
+    );
 
-        return sendPacket(
-          1,
-          `Successfully retrieved all matching users and communities for query: ${query}`,
-          {
-            communities: imageInfo['communities'],
-            users: imageInfo['users'],
-          }
-        );
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    for (let i = 0; i < communities.length; i++)
+      if (images[i]) communities[i].profilePicture = images[i];
+
+    return communities;
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return false;
   }
-}
+};
 
 function addCommunityAndUserImages(communities, users) {
   const communityImagePromises = generateSignedProfilePromises(
@@ -304,43 +380,4 @@ function addCommunityAndUserImages(communities, users) {
 
       return { communities, users };
     });
-}
-
-export async function getSidebarData(userID: string, dataSources: SidebarData[]) {
-  const promises = [];
-
-  if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
-    promises.push(populateDiscoverForUser(userID));
-
-  // dataSources.forEach((dataSource) => {
-  //   switch (dataSource) {
-  //     case 'pinnedCommunities':
-  //       promises.push(getPinnedCommunities(userID));
-  //     case 'trending':
-  //       promises.push(getTrending(userID));
-  //   }
-  // });
-
-  let output: { [key in SidebarData]?: any } = {};
-  return Promise.all(promises).then((data) => {
-    if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
-      const discoverData = data[0];
-      if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
-      output.discoverUsers = discoverData['users'];
-      output.discoverCommunities = discoverData['communities'];
-    }
-
-    // let count = 1;
-    // for (let i = 0; i < dataSources.length; i++) {
-    //   if (count === data.length) return;
-    //   switch (dataSources[i]) {
-    //     case 'pinnedCommunities':
-    //       output.pinnedCommunities = data[count++];
-    //     case 'trending':
-    //       output.pinnedCommunities = data[count++];
-    //   }
-    // }
-
-    return sendPacket(1, 'Retrieved Sidebar data', { ...output });
-  });
 }

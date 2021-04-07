@@ -13,6 +13,7 @@ import { debounce } from 'lodash';
 import { makeRequest } from '../../../helpers/functions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
+import { stringify } from 'qs';
 
 const useStyles = makeStyles((_: any) => ({
   text: {
@@ -83,6 +84,8 @@ type Props<T extends SearchOption> = {
   initialValue?: string;
   ref?: React.MutableRefObject<HTMLDivElement | null> | null | undefined;
   style?: React.CSSProperties;
+  fetchDataAdditionalParams?: { [k: string]: any };
+  fetchLimit?: number;
 };
 function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
@@ -91,6 +94,8 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     className,
     options: optionsProps,
     fetchDataURL,
+    fetchDataAdditionalParams,
+    fetchLimit,
     name,
     label,
     helperText,
@@ -165,9 +170,14 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     if (fetchDataURL) {
       const cleanedQuery = query.replace(/\?/g, ' ').trim();
       setLoading(true);
+      const params = stringify({
+        query: cleanedQuery,
+        limit: fetchLimit || 10,
+        ...fetchDataAdditionalParams,
+      });
       const { data } = await makeRequest<ServiceResponse>(
         'GET',
-        `${fetchDataURL}?query=${cleanedQuery}&limit=10`
+        `${fetchDataURL}?${params}`
       );
       if (data.success === 1) {
         const { users, communities } = data.content;

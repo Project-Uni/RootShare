@@ -1,14 +1,16 @@
+import { Express } from 'express';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   populateDiscoverForUser,
   exactMatchSearchFor,
   getSidebarData,
+  communityInviteSearch,
 } from '../interactions/discover';
 import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { getQueryParams } from '../helpers/functions/getQueryParams';
 import { SidebarData } from '../helpers/types';
 
-export default function discoverRoutes(app) {
+export default function discoverRoutes(app: Express) {
   app.get('/api/discover/populate', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const packet = await populateDiscoverForUser(userID);
@@ -48,4 +50,29 @@ export default function discoverRoutes(app) {
     const packet = await getSidebarData(userID, dataSources as SidebarData[]);
     return res.json(packet);
   });
+
+  //TODO - Use community member from query params middleware
+  app.get(
+    '/api/discover/communityInvite',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const reqQuery = getQueryParams(req, {
+        query: { type: 'string' },
+        communityID: { type: 'string' },
+        limit: { type: 'number', optional: true },
+      });
+      if (!reqQuery)
+        return res.status(500).json(sendPacket(-1, 'No query provided'));
+
+      let { query, communityID, limit } = reqQuery;
+      communityID = communityID as string;
+      query = query as string;
+      limit = limit as number;
+
+      const packet = await communityInviteSearch({ query, limit });
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
+    }
+  );
 }
