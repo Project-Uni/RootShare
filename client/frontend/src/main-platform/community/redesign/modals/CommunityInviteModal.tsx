@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import { RSButton, RSModal, SearchField } from '../../../reusable-components';
+import {
+  RSAvatar,
+  RSButton,
+  RSModal,
+  SearchField,
+} from '../../../reusable-components';
 import { FaSearch } from 'react-icons/fa';
 import Theme from '../../../../theme/Theme';
 import { FcInvite } from 'react-icons/fc';
+import { SearchOption } from '../../../reusable-components/components/SearchField';
+import { RSText } from '../../../../base-components';
+import { putCommunityInvite } from '../../../../api';
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../../../redux/actions';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {
@@ -22,6 +32,38 @@ export const CommunityInviteModal = (props: Props) => {
   const styles = useStyles();
   const { open, onClose, communityName, communityID } = props;
 
+  const dispatch = useDispatch();
+
+  const [selectedUsers, setSelectedUsers] = useState<SearchOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) setSelectedUsers([]);
+  }, [open]);
+
+  const onInvite = async () => {
+    setLoading(true);
+    const invitedIDs = selectedUsers.map((s) => s._id);
+    const data = await putCommunityInvite({ invitedIDs, communityID });
+    if (data.success === 1) {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'notify',
+          message: 'Selected users have been invited!',
+        })
+      );
+      onClose();
+    } else {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error trying to invite the users',
+        })
+      );
+    }
+    setLoading(false);
+  };
+
   return (
     <RSModal
       open={open}
@@ -34,48 +76,32 @@ export const CommunityInviteModal = (props: Props) => {
       <div
         style={{ marginTop: 30, marginBottom: 30, marginLeft: 20, marginRight: 20 }}
       >
+        {selectedUsers.map((selectedUser) => (
+          <div style={{ display: 'flex' }}>
+            <RSAvatar src={selectedUser.profilePicture} />
+            <RSText>{selectedUser.label}</RSText>
+          </div>
+        ))}
         <SearchField
           fullWidth
           label="Invite Users"
-          freeSolo
           variant="outlined"
           adornment={<FaSearch size={24} color={Theme.secondaryText} />}
-          renderLimit={15}
+          renderLimit={10}
           mode="user"
           fetchDataURL="/api/discover/communityInvite"
           fetchDataAdditionalParams={{ communityID }}
+          onAutocomplete={(selected) =>
+            setSelectedUsers((prev) => [...prev, selected])
+          }
         />
-        {/* <SearchField
-          style={{
-            // transition: `max-width 0.75s ease, opacity ${
-            //   showSearch ? 0.2 : 0.6
-            // }s ease`,
-            marginLeft: window.innerWidth >= 767 ? 55 : undefined,
-          }}
-          mode="both"
-          name="header-search"
-          placeholder="Search RootShare..."
-          className={[
-            styles.searchbar,
-            // showSearch ? styles.visibleSearch : styles.collapsedSearch,
-          ].join(' ')}
-          fetchDataURL="/api/discover/search/v1/exactMatch"
-          renderLimit={10}
-          onAutocomplete={(selectedOption) => {
-            history.push(
-              `/${selectedOption.type === 'community' ? 'community' : 'profile'}/${
-                selectedOption._id
-              }`
-            );
-          }}
-          fullWidth
-          freeSolo
-          groupByType
-          variant="standard"
-          bigText
-          adornment={<FaSearch size={24} color={theme.secondaryText} />}
-        /> */}
-        <RSButton style={{ width: '100%', marginTop: 20 }}>Invite</RSButton>
+        <RSButton
+          style={{ width: '100%', marginTop: 20 }}
+          disabled={loading || selectedUsers.length === 0}
+          onClick={onInvite}
+        >
+          Invite
+        </RSButton>
       </div>
     </RSModal>
   );

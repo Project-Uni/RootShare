@@ -229,7 +229,7 @@ export function generateSignedProfilePromises(
   },
   imageType: 'profile' | 'communityProfile'
 ) {
-  const profilePicturePromises = [];
+  const profilePicturePromises: Promise<string | boolean | null>[] = [];
 
   for (let i = 0; i < entityList.length; i++) {
     if (entityList[i].profilePicture) {
@@ -241,7 +241,6 @@ export function generateSignedProfilePromises(
         profilePicturePromises.push(signedImageURLPromise);
       } catch (err) {
         profilePicturePromises.push(null);
-        log('error', 'There was an error retrieving a signed url from S3');
       }
     } else {
       profilePicturePromises.push(null);
