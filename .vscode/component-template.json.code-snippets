@@ -12,5 +12,10 @@
       "};"
     ],
     "description": "Quick template for new react component"
+  },
+  "Async Export Function Template": {
+    "prefix": "fn",
+    "body": ["export const $1 = async ({}:{}) => {\n}"],
+    "description": "Returns an async function template"
   }
 }

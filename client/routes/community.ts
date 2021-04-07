@@ -590,13 +590,25 @@ export default function communityRoutes(app) {
   app.put('/api/v2/community/invite', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const {
-      toUserID,
+      invitedIDs,
       communityID,
-    }: { toUserID: string; communityID: string } = req.body;
-    if (!toUserID)
-      res.status(500).json(sendPacket(-1, 'Missing body param: toUserID'));
+    }: { invitedIDs: string[]; communityID: string } = req.body;
+
+    if (!invitedIDs || !Array.isArray(invitedIDs) || !communityID)
+      res
+        .status(500)
+        .json(
+          sendPacket(
+            -1,
+            'Missing body params: invitedIDs:string[] or communityID: string'
+          )
+        );
     else {
-      const packet = await inviteUser({ communityID, toUserID, fromUserID: userID });
+      const packet = await inviteUser({
+        communityID,
+        invitedIDs,
+        fromUserID: userID,
+      });
       const status = (() => {
         switch (packet.success) {
           case 1:

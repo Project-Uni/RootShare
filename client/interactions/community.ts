@@ -1249,36 +1249,52 @@ export const getCommunitiesGeneric = async (
 
 export const inviteUser = async ({
   fromUserID,
-  toUserIDs,
+  invitedIDs,
   communityID,
 }: {
   fromUserID: string;
-  toUserID: string;
+  invitedIDs: string[];
   communityID: string;
 }) => {
   try {
-    const userIsAlreadyMember = await CommunityC.model.exists({
-      $and: [
-        { _id: communityID },
-        {
-          $or: [
-            { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(toUserID) } } },
+    const isMemberPromises: Promise<boolean>[] = invitedIDs.map((invitedID) => {
+      try {
+        return CommunityC.model.exists({
+          $and: [
+            { _id: communityID },
             {
-              pendingMembers: {
-                $elemMatch: { $eq: mongoose.Types.ObjectId(toUserID) },
-              },
+              $or: [
+                {
+                  members: {
+                    $elemMatch: { $eq: mongoose.Types.ObjectId(invitedID) },
+                  },
+                },
+                {
+                  pendingMembers: {
+                    $elemMatch: { $eq: mongoose.Types.ObjectId(invitedID) },
+                  },
+                },
+              ],
             },
           ],
-        },
-      ],
+        });
+      } catch (err) {
+        return false;
+      }
     });
-    if (userIsAlreadyMember)
-      return sendPacket(0, 'User is already a member in the community');
 
-    const success = await new NotificationService().communityInvite({
-      fromUser: fromUserID,
-      communityID,
-      forUser: toUserID,
+    const isMemberArr = await Promise.all(isMemberPromises);
+
+    let success = true;
+    isMemberArr.forEach(async (isMember, idx) => {
+      if (!isMember) {
+        const attempt = await new NotificationService().communityInvite({
+          fromUser: fromUserID,
+          communityID,
+          forUser: invitedIDs[idx],
+        });
+        if (!attempt) success = false;
+      }
     });
 
     if (success) return sendPacket(1, 'Successfully invited user to commnunity');
