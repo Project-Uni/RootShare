@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from "@material-ui/core";
-import Theme from '../../../theme/Theme';
-import { RSCard } from './RSCard';
-import { formatDateMonth, formatDatePretty, formatTime, makeRequest } from '../../../helpers/functions';
+import { formatDateMonth, formatTime, makeRequest } from '../../../helpers/functions';
 import { LeanEventType } from '../../../helpers/types';
-import { RSText } from '../../../base-components';
 import { EventWidget } from './EventWidget';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%'
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 30,
   },
   event: {
     height: 150,
     width: '33%',
+    marginLeft: 20,
+    marginRight: 15,
   }
   
 }));
@@ -59,6 +59,7 @@ export const PromotedEvents = (props: Props) => {
           title={currEvent.title}
           date={eventDate}
           banner={currEvent.eventBanner}
+          link
         />
       );
     }

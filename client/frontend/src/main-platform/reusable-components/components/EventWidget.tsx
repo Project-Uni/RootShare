@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from "@material-ui/core";
 import Theme from '../../../theme/Theme';
 import { RSLink } from '..';
@@ -20,14 +20,19 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 40,
     height: '100%',
     width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   text: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     flexDirection: 'column',
     height: '100%',
+    width: '80%',
+    marginLeft: 20,
+  },
+  title:{
+    marginTop: 10,
   },
   
 }));
@@ -40,11 +45,23 @@ type Props = {
   title?: string,
   location?: string,
   hover?: boolean,
+  link?: boolean,
   breif_description?: string,
 };
 
 export const EventWidget = (props: Props) => {
   const styles = useStyles();
+
+  const [textColor, setTextColor] = useState(Theme.white)
+
+  function handleMouseOver() {
+    setTextColor(Theme.bright);
+  }
+
+  function handleMouseLeave() {
+    setTextColor(Theme.white);
+  }
+
 
   return (
     <>
@@ -57,11 +74,27 @@ export const EventWidget = (props: Props) => {
               backgroundImage: `url(${props.banner})`,
             }}
             className={styles.banner}
+            onMouseEnter={Theme.bright ? handleMouseOver : undefined}
+            onMouseLeave={Theme.bright ? handleMouseLeave : undefined}
           >
             <div className={styles.bannerFilter}>
               <div className={styles.text}>
-                <RSText color={Theme.white} size={18} bold={true}>{props.date}</RSText>
-                <RSText color={Theme.white} size={14} bold={true}>{props.title}</RSText>
+                <RSText
+                  color={textColor}
+                  size={18}
+                  bold={true}
+                  className={styles.title}>
+                  {props.date}
+                </RSText>
+                <RSText 
+                  color={textColor}
+                  size={14}
+                  bold={true}
+                  type="subhead"
+                  className={styles.title}
+                  multiline={true}>
+                  {props.title}
+                </RSText>
               </div>
             </div>
           </div>
