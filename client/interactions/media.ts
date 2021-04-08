@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import { User, Community } from '../rootshare_db/models';
+import { User, Community, ExternalLink } from '../rootshare_db/models';
 import { ImageReason } from '../rootshare_db/types';
 import {
   log,
@@ -9,6 +9,7 @@ import {
   retrieveSignedUrl,
   decodeBase64Image,
 } from '../helpers/functions';
+import { ALLOWED_FILE_TYPES } from '../helpers/constants';
 
 type ObjectIdType = Types.ObjectId;
 
@@ -212,5 +213,100 @@ export async function retrieveAllUrls(
   return Promise.all(urlPromises).then((urls) => {
     for (let i = 0; i < urls.length; i++) images[i].fileName = urls[i];
     return images;
+  });
+}
+
+export async function uploadLinks(
+  userID: ObjectIdType,
+  entityID: ObjectIdType,
+  entityType: string,
+  links: string[]
+) {
+  if (entityType !== 'user' && entityType !== 'community')
+    return sendPacket(0, 'Invalid type');
+  if (entityType === 'user' && !userID.equals(entityID))
+    return sendPacket(0, `User ID doesn't match`);
+  if (
+    entityType === 'community' &&
+    !(await Community.model.exists({ _id: entityID, admin: userID }))
+  )
+    return sendPacket(0, `Community doesn't exist or user is not admin`);
+
+  const linkIDs = await ExternalLink.createLinks(entityID, entityType, links);
+
+  if (entityType === 'user')
+    await User.model.updateOne(
+      { _id: userID },
+      { $push: { links: { $each: linkIDs } } }
+    );
+  else
+    await Community.model.updateOne(
+      { _id: entityID },
+      { $push: { links: { $each: linkIDs } } }
+    );
+
+  return sendPacket(1, `Added links to ${entityType}`);
+}
+
+export async function uploadDocuments(
+  userID: ObjectIdType,
+  entityID: ObjectIdType,
+  entityType: string,
+  documents: any[]
+) {
+  if (entityType !== 'user' && entityType !== 'community')
+    return sendPacket(0, 'Invalid type');
+  if (entityType === 'user' && !userID.equals(entityID))
+    return sendPacket(0, `User ID doesn't match`);
+  if (
+    entityType === 'community' &&
+    !(await Community.model.exists({ _id: entityID, admin: userID }))
+  )
+    return sendPacket(0, `Community doesn't exist or user is not admin`);
+
+  documents = documents.filter((document) =>
+    ALLOWED_FILE_TYPES.includes(document.mimetype)
+  );
+
+  if (documents.length === 0) return sendPacket(0, `No valid files to upload`);
+
+  const uploadPromises = [];
+  documents.forEach((document) => {
+    uploadPromises.push(
+      uploadFile(
+        'documents',
+        'user',
+        document.name,
+        document.data,
+        entityID.toString()
+      )
+    );
+  });
+
+  return Promise.all(uploadPromises).then(async (uploads) => {
+    const documentNames = [];
+    for (let i = 0; i < uploads.length; i++)
+      if (uploads[i]) documentNames.push(documents[i].name);
+    if (documentNames.length === 0)
+      return sendPacket(-1, 'There was an error processing the files');
+
+    if (entityType === 'user')
+      await User.model.updateOne(
+        { _id: userID },
+        { $addToSet: { documents: { $each: documentNames } } }
+      );
+    else
+      await Community.model.updateOne(
+        { _id: entityID },
+        { $addToSet: { documents: { $each: documentNames } } }
+      );
+
+    if (documentNames.length < documents.length)
+      return sendPacket(1, 'There was an error processing some of the documents', {
+        documents: documentNames,
+      });
+    return sendPacket(1, 'Uploaded all documents successfully', {
+      documents: documentNames,
+    });
   });
 }

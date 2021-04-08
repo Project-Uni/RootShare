@@ -8,6 +8,7 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import fileUpload = require('express-fileupload');
 import cors = require('cors');
 
 const mongoConfig = require('./rootshare_db/config/mongoConfig');
@@ -39,6 +40,7 @@ app.set('query parser', 'simple');
 
 app.use(cors());
 app.use(pino());
+app.use(fileUpload({ createParentPath: true }));
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(

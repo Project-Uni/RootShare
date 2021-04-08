@@ -5,19 +5,26 @@ import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
 import {
+  //Images
   updateUserProfilePicture,
   updateUserBanner,
   updateCommunityProfilePicture,
   updateCommunityBanner,
   getUserProfileAndBanner,
   getCommunityProfileAndBanner,
-} from '../interactions/images';
+
+  //Links
+  uploadLinks,
+
+  //Documents
+  uploadDocuments,
+} from '../interactions/media';
 
 const ObjectIdVal = Types.ObjectId;
 
-export default function imageRoutes(app) {
+export default function mediaRoutes(app) {
   app.post(
-    '/api/images/profile/updateProfilePicture',
+    '/api/media/images/profile/updateProfilePicture',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
@@ -30,7 +37,7 @@ export default function imageRoutes(app) {
   );
 
   app.post(
-    '/api/images/profile/banner',
+    '/api/media/images/profile/banner',
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { image } = req.body;
@@ -43,7 +50,7 @@ export default function imageRoutes(app) {
   );
 
   app.post(
-    '/api/images/community/:communityID/updateProfilePicture',
+    '/api/media/images/community/:communityID/updateProfilePicture',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
@@ -58,7 +65,7 @@ export default function imageRoutes(app) {
   );
 
   app.post(
-    '/api/images/community/:communityID/banner',
+    '/api/media/images/community/:communityID/banner',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
@@ -75,7 +82,7 @@ export default function imageRoutes(app) {
    *
    * @swagger
    * paths:
-   *    /api/images/profile:
+   *    /api/media/images/profile:
    *      get:
    *        summary: Retrieve profile and banner for a user
    *        tags:
@@ -113,7 +120,7 @@ export default function imageRoutes(app) {
    *
    */
 
-  app.get('/api/images/profile', isAuthenticatedWithJWT, async (req, res) => {
+  app.get('/api/media/images/profile', isAuthenticatedWithJWT, async (req, res) => {
     const query = getQueryParams<{
       _id: string;
       type: string;
@@ -151,5 +158,64 @@ export default function imageRoutes(app) {
     else packet = sendPacket(-1, 'Invalid type');
 
     return res.json(packet);
+  });
+
+  app.post('/api/media/links', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const { _id: userID } = getUserFromJWT(req);
+
+      const query = getQueryParams<{
+        entityID: string;
+        entityType: string;
+        links: string[];
+      }>(req, {
+        entityID: { type: 'string' },
+        entityType: { type: 'string' },
+        links: { type: 'string[]' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { entityID, entityType, links } = query;
+
+      const packet = await uploadLinks(
+        userID,
+        ObjectIdVal(entityID),
+        entityType,
+        links
+      );
+      return res.json(packet);
+    } catch (err) {
+      res.json(sendPacket(-1, err.message));
+    }
+  });
+
+  app.post('/api/media/documents', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const documents = req.files.documents;
+      if (!documents || !Array.isArray(documents))
+        return res.json(sendPacket(0, 'No documents to upload'));
+
+      const query = getQueryParams<{
+        entityID: string;
+        entityType: string;
+      }>(req, {
+        entityID: { type: 'string' },
+        entityType: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { entityID, entityType } = query;
+
+      const { _id: userID } = getUserFromJWT(req);
+      const packet = await uploadDocuments(
+        userID,
+        ObjectIdVal(entityID),
+        entityType,
+        documents
+      );
+      return res.json(packet);
+    } catch (err) {
+      res.json(sendPacket(-1, err.message));
+    }
   });
 }

@@ -48,6 +48,8 @@ export const RightSidebar = (props: Props) => {
 
   const fetchData = async () => {
     const data = await getSidebarData(components);
+    if (!data.content) return;
+
     const {
       discoverUsers,
       discoverCommunities,

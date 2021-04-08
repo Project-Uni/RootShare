@@ -5,7 +5,7 @@ import communityRoutes from './community';
 import discoverRoutes from './discover';
 import eventRoutes from './event';
 import feedbackRoutes from './feedback';
-import imageRoutes from './images';
+import mediaRoutes from './media';
 // import mtgRoutes from './meet-the-greeks';
 import messagingRoutes from './messaging';
 import opentokRoutes from './opentok';
@@ -18,14 +18,13 @@ import userRoutes from './user';
 import utilityRoutes from './utilities';
 import webhookRoutes from './webhooks';
 import { authRoutes } from './newAuth';
-import externalLinkRoutes from './external-link';
 
 export default function RootshareRoutes(app: Express, io) {
   communityRoutes(app);
   discoverRoutes(app);
   eventRoutes(app);
   feedbackRoutes(app);
-  imageRoutes(app);
+  mediaRoutes(app);
   // mtgRoutes(app);
   messagingRoutes(app, io);
   opentokRoutes(app);
@@ -38,7 +37,6 @@ export default function RootshareRoutes(app: Express, io) {
   utilityRoutes(app);
   webhookRoutes(app);
   authRoutes(app);
-  externalLinkRoutes(app);
 
   app.all('/api/*', async (req, res) => {
     return res.status(404).json(sendPacket(-1, 'Path not found'));

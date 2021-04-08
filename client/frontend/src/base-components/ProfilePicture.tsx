@@ -186,8 +186,8 @@ function ProfilePicture(props: Props) {
     setLoading(true);
     const path =
       type === 'profile'
-        ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${_id}/updateProfilePicture`;
+        ? '/api/media/images/profile/updateProfilePicture'
+        : `/api/media/images/community/${_id}/updateProfilePicture`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,

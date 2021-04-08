@@ -26,7 +26,7 @@ import {
   addCalculatedUserFields,
   addProfilePicturesAll,
 } from './utilities';
-import { retrieveAllUrls } from './images';
+import { retrieveAllUrls } from './media';
 import { deletePost } from './posts';
 
 type ObjectIdType = Types.ObjectId;
