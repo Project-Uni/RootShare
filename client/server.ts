@@ -21,6 +21,7 @@ import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
 import RootshareRoutes from './routes';
+import { MAX_FILE_SIZE_MBS } from './helpers/constants';
 
 import {
   elasticMiddleware,
@@ -40,7 +41,15 @@ app.set('query parser', 'simple');
 
 app.use(cors());
 app.use(pino());
-app.use(fileUpload({ createParentPath: true }));
+app.use(
+  fileUpload({
+    limits: {
+      abortOnLimit: true,
+      responseOnLimit: 'LIMIT',
+      fileSize: MAX_FILE_SIZE_MBS * 1024 * 1024,
+    },
+  })
+);
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(

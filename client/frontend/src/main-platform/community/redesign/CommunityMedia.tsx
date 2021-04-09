@@ -80,6 +80,7 @@ export const CommunityMedia = (props: Props) => {
     const data = await getCommunityMedia({ communityID });
     if (data.success === 1) {
       setImages(data.content.images);
+      console.log(data);
     } else {
       dispatch(
         dispatchSnackbar({

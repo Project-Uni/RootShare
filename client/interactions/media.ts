@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
-import { User, Community, ExternalLink } from '../rootshare_db/models';
-import { ImageReason } from '../rootshare_db/types';
+import { User, Community, ExternalLink, Document } from '../rootshare_db/models';
+import { S3FileType, ImageReason, DocumentReason } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -203,16 +203,24 @@ export async function getCommunityProfileAndBanner(
 }
 
 export async function retrieveAllUrls(
-  images: { fileName: string; reason: ImageReason; [key: string]: any }[]
+  files: {
+    fileType: S3FileType;
+    reason: ImageReason | DocumentReason;
+    fileName: string;
+    entityID?: string;
+    [key: string]: any;
+  }[]
 ) {
   const urlPromises = [];
-  images.forEach((image) => {
-    urlPromises.push(retrieveSignedUrl('images', image.reason, image.fileName));
+  files.forEach((image) => {
+    urlPromises.push(
+      retrieveSignedUrl(image.fileType, image.reason, image.fileName, image.entityID)
+    );
   });
 
   return Promise.all(urlPromises).then((urls) => {
-    for (let i = 0; i < urls.length; i++) images[i].fileName = urls[i];
-    return images;
+    for (let i = 0; i < urls.length; i++) files[i].url = urls[i];
+    return files;
   });
 }
 
@@ -275,7 +283,7 @@ export async function uploadDocuments(
     uploadPromises.push(
       uploadFile(
         'documents',
-        'user',
+        entityType,
         document.name,
         document.data,
         entityID.toString()
@@ -284,29 +292,58 @@ export async function uploadDocuments(
   });
 
   return Promise.all(uploadPromises).then(async (uploads) => {
-    const documentNames = [];
+    const uploadedDocs = [];
     for (let i = 0; i < uploads.length; i++)
-      if (uploads[i]) documentNames.push(documents[i].name);
-    if (documentNames.length === 0)
+      if (uploads[i])
+        uploadedDocs.push({
+          fileName: documents[i].name,
+          mimeType: documents[i].mimetype,
+        });
+
+    if (uploadedDocs.length === 0)
       return sendPacket(-1, 'There was an error processing the files');
 
-    if (entityType === 'user')
-      await User.model.updateOne(
-        { _id: userID },
-        { $addToSet: { documents: { $each: documentNames } } }
-      );
-    else
-      await Community.model.updateOne(
-        { _id: entityID },
-        { $addToSet: { documents: { $each: documentNames } } }
-      );
+    const documentURLPromise = retrieveAllUrls(
+      uploadedDocs.map((doc) => {
+        return {
+          fileType: 'documents',
+          reason: entityType,
+          fileName: doc.fileName,
+          entityID: entityID.toString(),
+        };
+      })
+    );
+    const documentIDPromise = Document.createDocuments(
+      entityID,
+      entityType,
+      uploadedDocs
+    );
 
-    if (documentNames.length < documents.length)
-      return sendPacket(1, 'There was an error processing some of the documents', {
-        documents: documentNames,
-      });
-    return sendPacket(1, 'Uploaded all documents successfully', {
-      documents: documentNames,
-    });
+    return Promise.all([documentURLPromise, documentIDPromise]).then(
+      async ([documentURLs, documentIDs]) => {
+        if (entityType === 'user')
+          await User.model.updateOne(
+            { _id: userID },
+            { $push: { documents: { $each: documentIDs } } }
+          );
+        else
+          await Community.model.updateOne(
+            { _id: entityID },
+            { $push: { documents: { $each: documentIDs } } }
+          );
+
+        if (uploadedDocs.length < documents.length)
+          return sendPacket(
+            1,
+            'There was an error processing some of the documents',
+            {
+              documents: documentURLs,
+            }
+          );
+        return sendPacket(1, 'Uploaded all documents successfully', {
+          documents: documentURLs,
+        });
+      }
+    );
   });
 }

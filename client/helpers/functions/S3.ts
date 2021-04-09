@@ -42,7 +42,7 @@ export async function uploadFile(
 
 export async function deleteFile(
   fileType: S3FileType,
-  reason: ImageReason,
+  reason: ImageReason | DocumentReason,
   fileName: string,
   entityID?: string
 ) {
@@ -62,7 +62,7 @@ export async function deleteFile(
 
 export async function retrieveFile(
   fileType: S3FileType,
-  reason: ImageReason,
+  reason: ImageReason | DocumentReason,
   fileName: string,
   entityID?: string
 ) {
@@ -82,7 +82,7 @@ export async function retrieveFile(
 
 export async function retrieveSignedUrl(
   fileType: S3FileType,
-  reason: ImageReason,
+  reason: ImageReason | DocumentReason,
   fileName: string,
   entityID?: string
 ) {

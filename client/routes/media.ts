@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
+import { MAX_FILE_SIZE_MBS } from '../helpers/constants';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 
@@ -192,8 +193,17 @@ export default function mediaRoutes(app) {
   app.post('/api/media/documents', isAuthenticatedWithJWT, async (req, res) => {
     try {
       const documents = req.files.documents;
+      console.log(documents);
       if (!documents || !Array.isArray(documents))
         return res.json(sendPacket(0, 'No documents to upload'));
+      for (let i = 0; i < documents.length; i++)
+        if (documents[i].truncated)
+          return res.json(
+            sendPacket(
+              0,
+              `File: ${documents[i].name} is over size limit of ${MAX_FILE_SIZE_MBS}MB`
+            )
+          );
 
       const query = getQueryParams<{
         entityID: string;

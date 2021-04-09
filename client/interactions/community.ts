@@ -10,6 +10,7 @@ import {
   IUser,
   ICommunityEdge,
   IConnection,
+  IDocument,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
 import { CommunityType, U2CR, AccountType } from '../rootshare_db/types';
@@ -1331,7 +1332,7 @@ export async function getCommunityMedia(
       })
     )[0].relationship;
 
-    let fields = ['externalPosts', 'broadcastedPosts'];
+    let fields = ['links', 'documents', 'externalPosts', 'broadcastedPosts'];
     if (communityRelationship === U2CR.JOINED)
       if (userAccountType === 'alumni') fields.push('internalAlumniPosts');
       else if (userAccountType === 'student')
@@ -1340,14 +1341,20 @@ export async function getCommunityMedia(
         fields.push('internalAlumniPosts', 'internalCurrentMemberPosts');
 
     const {
+      links,
+      documents: documentDocs,
       externalPosts,
       broadcastedPosts,
       internalAlumniPosts = [],
       internalCurrentMemberPosts = [],
     } = (await Community.model
       .findById(communityID, fields)
+      .populate('links', 'linkType url')
+      .populate('documents', 'fileName')
       .lean<ICommunity>()
       .exec()) as {
+      links: ObjectIdType[];
+      documents: IDocument[];
       externalPosts: ObjectIdType[];
       broadcastedPosts: ObjectIdType[];
       internalAlumniPosts: ObjectIdType[];
@@ -1367,12 +1374,28 @@ export async function getCommunityMedia(
       .lean()
       .exec();
 
-    const images = await retrieveAllUrls(
+    const imagePromise = retrieveAllUrls(
       imageDocs.map((image) => {
-        return { ...image, reason: 'postImage' };
+        return { ...image, fileType: 'images', reason: 'postImage' };
       })
     );
-    return sendPacket(1, 'Sending images', { images });
+
+    const documentPromise = retrieveAllUrls(
+      documentDocs.map((doc) => {
+        return {
+          fileType: 'documents',
+          reason: 'community',
+          fileName: doc.fileName,
+          entityID: communityID.toString(),
+        };
+      })
+    );
+
+    return Promise.all([imagePromise, documentPromise]).then(
+      ([images, documents]) => {
+        return sendPacket(1, 'Sending media', { images, links, documents });
+      }
+    );
   } catch (err) {
     log('err', err.stack);
     return sendPacket(-1, err);
