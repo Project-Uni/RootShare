@@ -11,6 +11,7 @@ import { SidebarData } from '../helpers/types';
 
 import { User, Community } from '../models';
 import { createSearch } from '../models/searches';
+import { getUserToUserRelationship_V2 } from '../models/users';
 
 const MAX_RETRIEVED = 20;
 
@@ -222,9 +223,11 @@ export const communityInviteSearch = async ({
   query,
   limit,
   communityID,
+  userID,
 }: {
   query: string;
   communityID: string;
+  userID: string;
   limit?: number;
 }) => {
   const additionalFilter = {
@@ -241,8 +244,15 @@ export const communityInviteSearch = async ({
       },
     ],
   };
-  const users = await userSearch({ query, limit, additionalFilter });
+  const users = await userSearch({
+    query,
+    limit,
+    additionalFilter,
+    getRelationship: { toUserID: userID },
+  });
   if (!users) return sendPacket(-1, 'Failed to get users');
+
+  console.log('Users:', users);
   return sendPacket(1, 'Retrieved users', { users });
   //Prioritize connections
 };
@@ -251,10 +261,12 @@ export const userSearch = async ({
   query,
   limit,
   additionalFilter,
+  getRelationship,
 }: {
   query: string;
   limit?: number;
   additionalFilter?: { [k: string]: unknown };
+  getRelationship?: { toUserID: string };
 }) => {
   const defaultLimit = 20;
   const cleanedQuery = query.trim();
@@ -294,17 +306,27 @@ export const userSearch = async ({
     const andCondition: { [k: string]: unknown }[] = [{ $or: userSearchConditions }];
     if (additionalFilter) andCondition.push(additionalFilter);
 
-    const users = await User.find({
+    const selectFields = ['firstName', 'lastName', 'email', 'profilePicture'];
+    if (getRelationship) selectFields.push('connections', 'pendingConnections');
+
+    const usersPromise = User.find({
       $and: andCondition,
     })
-      .select(['firstName', 'lastName', 'email', 'profilePicture'])
-      .limit(limit || defaultLimit)
-      .lean()
-      .exec();
+      .select(selectFields)
+      .limit(limit || defaultLimit);
+
+    if (getRelationship)
+      usersPromise.populate({ path: 'pendingConnections', select: 'from to' });
+
+    const users = await usersPromise.lean().exec();
+
+    if (getRelationship)
+      getUserToUserRelationship_V2(getRelationship.toUserID, users);
 
     const images = await Promise.all(
       generateSignedProfilePromises(users, 'profile')
     );
+
     for (let i = 0; i < users.length; i++)
       if (images[i]) users[i].profilePicture = images[i];
 

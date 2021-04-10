@@ -70,7 +70,12 @@ export default function discoverRoutes(app: Express) {
       query = query as string;
       limit = limit as number;
 
-      const packet = await communityInviteSearch({ query, limit, communityID });
+      const packet = await communityInviteSearch({
+        query,
+        limit,
+        communityID,
+        userID,
+      });
       const status = packet.success === 1 ? 200 : 500;
       res.status(status).json(packet);
     }
