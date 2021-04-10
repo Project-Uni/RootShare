@@ -221,11 +221,27 @@ export async function getSidebarData(userID: string, dataSources: SidebarData[])
 export const communityInviteSearch = async ({
   query,
   limit,
+  communityID,
 }: {
   query: string;
+  communityID: string;
   limit?: number;
 }) => {
-  const users = await userSearch({ query, limit });
+  const additionalFilter = {
+    $and: [
+      {
+        joinedCommunities: {
+          $not: { $elemMatch: { $eq: mongoose.Types.ObjectId(communityID) } },
+        },
+      },
+      {
+        pendingCommunities: {
+          $not: { $elemMatch: { $eq: mongoose.Types.ObjectId(communityID) } },
+        },
+      },
+    ],
+  };
+  const users = await userSearch({ query, limit, additionalFilter });
   if (!users) return sendPacket(-1, 'Failed to get users');
   return sendPacket(1, 'Retrieved users', { users });
   //Prioritize connections
@@ -234,9 +250,11 @@ export const communityInviteSearch = async ({
 export const userSearch = async ({
   query,
   limit,
+  additionalFilter,
 }: {
   query: string;
   limit?: number;
+  additionalFilter?: { [k: string]: unknown };
 }) => {
   const defaultLimit = 20;
   const cleanedQuery = query.trim();
@@ -273,8 +291,11 @@ export const userSearch = async ({
   }
 
   try {
+    const andCondition: { [k: string]: unknown }[] = [{ $or: userSearchConditions }];
+    if (additionalFilter) andCondition.push(additionalFilter);
+
     const users = await User.find({
-      $and: [{ $or: userSearchConditions }],
+      $and: andCondition,
     })
       .select(['firstName', 'lastName', 'email', 'profilePicture'])
       .limit(limit || defaultLimit)
@@ -297,17 +318,24 @@ export const userSearch = async ({
 export const communitySearch = async ({
   query,
   limit,
+  additionalFilter,
 }: {
   query: string;
   limit?: number;
+  additionalFilter?: { [k: string]: unknown };
 }) => {
   const defaultLimit = 20;
   const cleanedQuery = query.trim();
 
   try {
-    const communities = await Community.find({
-      name: new RegExp(cleanedQuery, 'gi'),
-    })
+    const searchConditions: { [k: string]: unknown }[] = [
+      {
+        name: new RegExp(cleanedQuery, 'gi'),
+      },
+    ];
+    if (additionalFilter) searchConditions.push(additionalFilter);
+
+    const communities = await Community.find({ $and: searchConditions })
       .select([
         'name',
         'type',
