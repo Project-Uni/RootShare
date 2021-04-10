@@ -6,18 +6,22 @@ import {
   RSModal,
   SearchField,
 } from '../../../reusable-components';
+
 import { FaSearch } from 'react-icons/fa';
-import Theme from '../../../../theme/Theme';
 import { FcInvite } from 'react-icons/fc';
+import { IoRemove } from 'react-icons/io5';
+
+import Theme from '../../../../theme/Theme';
 import { SearchOption } from '../../../reusable-components/components/SearchField';
 import { RSText } from '../../../../base-components';
 import { putCommunityInvite } from '../../../../api';
 import { useDispatch } from 'react-redux';
 import { dispatchSnackbar } from '../../../../redux/actions';
+import { IconButton } from '@material-ui/core';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {
-    width: 450,
+    width: 400,
   },
 }));
 
@@ -64,6 +68,13 @@ export const CommunityInviteModal = (props: Props) => {
     setLoading(false);
   };
 
+  const removeUser = (_id: string) => {
+    const idx = selectedUsers.findIndex((u) => u._id === _id);
+    const clone = [...selectedUsers];
+    clone.splice(idx, 1);
+    setSelectedUsers(clone);
+  };
+
   return (
     <RSModal
       open={open}
@@ -74,12 +85,31 @@ export const CommunityInviteModal = (props: Props) => {
       helperIcon={<FcInvite size={80} />}
     >
       <div
-        style={{ marginTop: 30, marginBottom: 30, marginLeft: 20, marginRight: 20 }}
+        style={{ marginTop: 10, marginBottom: 30, marginLeft: 20, marginRight: 20 }}
       >
-        {selectedUsers.map((selectedUser) => (
-          <div style={{ display: 'flex' }}>
-            <RSAvatar src={selectedUser.profilePicture} />
-            <RSText>{selectedUser.label}</RSText>
+        {selectedUsers.map((selectedUser, idx) => (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+            key={selectedUser._id}
+          >
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <RSAvatar
+                src={selectedUser.profilePicture}
+                size={30}
+                primaryName={selectedUser.label.split(' ')[0]}
+                secondaryName={selectedUser.label.split(' ')[1]}
+              />
+              <RSText bold style={{ marginLeft: 10 }}>
+                {selectedUser.label}
+              </RSText>
+            </div>
+            <IconButton onClick={() => removeUser(selectedUser._id)}>
+              <IoRemove color={Theme.secondaryText} />
+            </IconButton>
           </div>
         ))}
         <SearchField
@@ -94,6 +124,7 @@ export const CommunityInviteModal = (props: Props) => {
           onAutocomplete={(selected) =>
             setSelectedUsers((prev) => [...prev, selected])
           }
+          style={{ marginTop: 20 }}
         />
         <RSButton
           style={{ width: '100%', marginTop: 20 }}
