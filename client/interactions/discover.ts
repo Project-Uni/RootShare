@@ -253,10 +253,23 @@ export const communityInviteSearch = async ({
   });
   if (!users) return sendPacket(-1, 'Failed to get users');
 
+  const valuedRelationship = {
+    [U2UR.SELF]: -1,
+    [U2UR.CONNECTED]: 0,
+    [U2UR.PENDING_FROM]: 1,
+    [U2UR.PENDING_TO]: 2,
+    [U2UR.PENDING]: 3,
+    [U2UR.OPEN]: 4,
+  };
+
   users.sort((a, b) => {
-    if (a.relationship === U2UR.CONNECTED && b.relationship === U2UR.CONNECTED)
+    if (
+      valuedRelationship[a.relationship] === 0 &&
+      valuedRelationship[b.relationship] === 0
+    )
       return 0;
-    else if (a.relationship === U2UR.CONNECTED) return -1;
+    else if (valuedRelationship[a.relationship] < valuedRelationship[b.relationship])
+      return -1;
     return 1;
   });
   return sendPacket(1, 'Retrieved users', { users });
@@ -278,7 +291,13 @@ export const userSearch = async ({
       lastName: string;
       email: string;
       profilePicture?: string;
-      relationship: string;
+      relationship:
+        | typeof U2UR.SELF
+        | typeof U2UR.CONNECTED
+        | typeof U2UR.PENDING_FROM
+        | typeof U2UR.PENDING_TO
+        | typeof U2UR.PENDING
+        | typeof U2UR.OPEN;
     }[]
   | false
 > => {
