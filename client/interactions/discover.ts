@@ -12,6 +12,7 @@ import { SidebarData } from '../helpers/types';
 import { User, Community } from '../models';
 import { createSearch } from '../models/searches';
 import { getUserToUserRelationship_V2 } from '../models/users';
+import { U2UR } from '../helpers/types';
 
 const MAX_RETRIEVED = 20;
 
@@ -244,7 +245,7 @@ export const communityInviteSearch = async ({
       },
     ],
   };
-  const users = await userSearch({
+  let users = await userSearch({
     query,
     limit,
     additionalFilter,
@@ -252,9 +253,13 @@ export const communityInviteSearch = async ({
   });
   if (!users) return sendPacket(-1, 'Failed to get users');
 
-  console.log('Users:', users);
+  users.sort((a, b) => {
+    if (a.relationship === U2UR.CONNECTED && b.relationship === U2UR.CONNECTED)
+      return 0;
+    else if (a.relationship === U2UR.CONNECTED) return -1;
+    return 1;
+  });
   return sendPacket(1, 'Retrieved users', { users });
-  //Prioritize connections
 };
 
 export const userSearch = async ({
@@ -267,7 +272,16 @@ export const userSearch = async ({
   limit?: number;
   additionalFilter?: { [k: string]: unknown };
   getRelationship?: { toUserID: string };
-}) => {
+}): Promise<
+  | {
+      firstName: string;
+      lastName: string;
+      email: string;
+      profilePicture?: string;
+      relationship: string;
+    }[]
+  | false
+> => {
   const defaultLimit = 20;
   const cleanedQuery = query.trim();
 
@@ -320,8 +334,13 @@ export const userSearch = async ({
 
     const users = await usersPromise.lean().exec();
 
-    if (getRelationship)
-      getUserToUserRelationship_V2(getRelationship.toUserID, users);
+    if (getRelationship) {
+      await getUserToUserRelationship_V2(getRelationship.toUserID, users);
+      users.forEach((user) => {
+        delete user['connections'];
+        delete user['pendingConnections'];
+      });
+    }
 
     const images = await Promise.all(
       generateSignedProfilePromises(users, 'profile')
