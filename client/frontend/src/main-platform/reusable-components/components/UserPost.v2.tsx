@@ -31,7 +31,7 @@ import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
-import { IoTrashBinOutline } from 'react-icons/io5';
+import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
 import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
 import { MdReportProblem } from 'react-icons/md';
 
@@ -300,6 +300,12 @@ export const UserPost = (props: Props) => {
     }
   }
 
+  const handleCopy = async () => {
+    setMenuAnchorEl(undefined);
+    await navigator.clipboard.writeText(`https://rootshare.io/post/${post._id}`);
+    dispatch(dispatchSnackbar({ mode: 'notify', message: 'Copied post link!' }));
+  };
+
   return isDeleted ? (
     <></>
   ) : (
@@ -438,6 +444,12 @@ export const UserPost = (props: Props) => {
               </RSText>
             </MenuItem>
           )}
+          <MenuItem className={styles.menuItem} onClick={handleCopy}>
+            <IoCopyOutline color={Theme.secondaryText} size={15} />
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+              Copy Link
+            </RSText>
+          </MenuItem>
           {post.user._id === user._id && (
             <MenuItem onClick={handleDeletePost} className={styles.menuItem}>
               <IoTrashBinOutline color={Theme.secondaryText} size={15} />
