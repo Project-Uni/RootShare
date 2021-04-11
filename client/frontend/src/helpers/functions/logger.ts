@@ -1,5 +1,3 @@
-function log(title: String, message: String) {
+export function log(title: String, message: String) {
   console.log(`[${title.toUpperCase()}] ${message}`);
 }
-
-export default log;

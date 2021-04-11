@@ -33,13 +33,8 @@ const Community = (props: Props) => {
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
 
-  useEffect(() => {
-    fetchCommunityInfo().then(() => {
-      setLoading(false);
-    });
-  }, []);
-
   const fetchCommunityInfo = useCallback(async () => {
+    setLoading(true);
     const data = await getCommunities([communityID], {
       fields: ['admin', 'name', 'members', 'description', 'bio', 'private', 'type'],
       options: {
@@ -64,7 +59,12 @@ const Community = (props: Props) => {
       return;
     }
     setInfo(data.content.communities[0]);
-  }, [communityID, getCommunities]);
+    setLoading(false);
+  }, [communityID]);
+
+  useEffect(() => {
+    fetchCommunityInfo();
+  }, [fetchCommunityInfo]);
 
   const getTabContent = React.useCallback(() => {
     switch (currentTab) {
@@ -84,6 +84,10 @@ const Community = (props: Props) => {
           <CommunityFeed
             communityID={communityID}
             admin={(info.admin as AboutPageUser)._id}
+            isPrivate={info.private}
+            isMember={
+              info.relationship === 'joined' || info.relationship === 'admin'
+            }
           />
         );
       }

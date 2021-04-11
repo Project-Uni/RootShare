@@ -10,17 +10,28 @@ import { MakePostContainer } from '../../reusable-components/components/MakePost
 import Theme from '../../../theme/Theme';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { putPinPost } from '../../../api/put';
+import { RSTabs } from '../../reusable-components';
+import { insertArray } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {
   communityID: string;
   admin: string;
+  isMember: boolean;
+  isPrivate?: boolean;
 };
+
+const TabValues = [
+  'community-external',
+  'community-internal-student',
+  'community-internal-alumni',
+  'community-following',
+] as const;
 
 export const CommunityFeed = (props: Props) => {
   const styles = useStyles();
-  const { communityID, admin } = props;
+  const { communityID, admin, isPrivate, isMember } = props;
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootshareReduxState) => state.user);
@@ -29,17 +40,43 @@ export const CommunityFeed = (props: Props) => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [pinnedPosts, setPinnedPosts] = useState<PostType[]>([]);
 
-  useEffect(() => {
-    const promises: Promise<void>[] = [];
-    promises.push(fetchPosts());
-    promises.push(fetchPinnedPosts());
+  const [tabs, setTabs] = useState([
+    { label: 'External', value: 'community-external' },
+    { label: 'Following', value: 'community-following' },
+  ]);
+  const [selectedTab, setSelectedTab] = useState<typeof TabValues[number]>(
+    'community-external'
+  );
 
-    Promise.all(promises).then(() => setLoading(false));
+  useEffect(() => {
+    if (isPrivate && isMember) {
+      const clone = [...tabs];
+      if (admin === user._id) {
+        insertArray(clone, 1, {
+          label: 'Internal Current',
+          value: 'community-internal-student',
+        });
+        insertArray(clone, 1, {
+          label: 'Internal Alumni',
+          value: 'community-internal-alumni',
+        });
+      } else {
+        insertArray(clone, 1, {
+          label: 'Internal',
+          value:
+            user.accountType === 'student'
+              ? 'community-internal-student'
+              : 'community-internal-alumni',
+        });
+      }
+      setTabs(clone);
+    }
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
+    setLoading(true);
     const data = await getPosts({
-      postType: { type: 'community-external', params: { communityID } },
+      postType: { type: selectedTab, params: { communityID } },
     });
     if (data.success === 1) {
       setPosts(data.content.posts);
@@ -51,7 +88,17 @@ export const CommunityFeed = (props: Props) => {
         })
       );
     }
-  };
+    setLoading(false);
+  }, [selectedTab]);
+
+  useEffect(() => {
+    setLoading(true);
+    const promises: Promise<void>[] = [];
+    promises.push(fetchPosts());
+    if (selectedTab === 'community-external') promises.push(fetchPinnedPosts());
+
+    Promise.all(promises).then(() => setLoading(false));
+  }, [fetchPosts]);
 
   const fetchPinnedPosts = async () => {
     const data = await getPinnedPosts({ communityID });
@@ -84,29 +131,35 @@ export const CommunityFeed = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
-      <MakePostContainer
-        style={{ marginTop: 15 }}
-        mode={{ name: 'community-external', communityID, admin: user._id === admin }}
-        appendPost={appendPost}
-      />
+      {selectedTab !== 'community-following' && (
+        <MakePostContainer
+          style={{ marginTop: 15 }}
+          mode={{ name: selectedTab, communityID, admin: user._id === admin }}
+          appendPost={appendPost}
+          disabled={loading}
+        />
+      )}
+      <RSTabs tabs={tabs} selected={selectedTab} onChange={setSelectedTab} />
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
         <>
-          {pinnedPosts.map((post) => (
-            <UserPost
-              post={post}
-              style={{ marginTop: 15 }}
-              options={{
-                hideToCommunity: true,
-                pinToCommunityMenuItem:
-                  admin === user._id
-                    ? { value: true, onPin: handlePinPostClicked }
-                    : undefined,
-                pinned: true,
-              }}
-            />
-          ))}
+          {selectedTab === 'community-external'
+            ? pinnedPosts.map((post) => (
+                <UserPost
+                  post={post}
+                  style={{ marginTop: 15 }}
+                  options={{
+                    hideToCommunity: true,
+                    pinToCommunityMenuItem:
+                      admin === user._id
+                        ? { value: true, onPin: handlePinPostClicked }
+                        : undefined,
+                    pinned: true,
+                  }}
+                />
+              ))
+            : undefined}
           {posts
             .filter(
               (post) =>

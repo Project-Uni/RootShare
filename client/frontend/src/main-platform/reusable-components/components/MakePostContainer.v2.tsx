@@ -53,10 +53,11 @@ type Props = {
   className?: string;
   mode: MakePostContainerMode;
   appendPost?: (post: PostType) => void;
+  disabled?: boolean;
 };
 
 export const MakePostContainer = (props: Props) => {
-  const { style, className, mode, appendPost } = props;
+  const { style, className, mode, appendPost, disabled } = props;
 
   const styles = useStyles();
 
@@ -218,7 +219,7 @@ export const MakePostContainer = (props: Props) => {
               {(props.mode as any)['admin'] ? (
                 <RSButton
                   style={{ textTransform: 'none', height: '100%', marginRight: 15 }}
-                  disabled={loading}
+                  disabled={loading || disabled}
                   onClick={(e) => {
                     if (
                       window.confirm(
@@ -239,7 +240,7 @@ export const MakePostContainer = (props: Props) => {
               )}
               <RSButton
                 style={{ textTransform: 'none', height: '100%' }}
-                disabled={loading}
+                disabled={loading || disabled}
                 onClick={(e) => handlePostClicked()}
               >
                 {loading ? (
