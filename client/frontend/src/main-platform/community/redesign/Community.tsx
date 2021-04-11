@@ -11,7 +11,7 @@ import { RSText } from '../../../base-components';
 import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
 import { getCommunities } from '../../../api';
-import { Community as CommunityFields } from '../../../helpers/types';
+import { Community as CommunityFields, U2CR } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -72,7 +72,7 @@ const Community = (props: Props) => {
         return (
           <CommunityAbout
             communityID={communityID}
-            editable={info.relationship === 'admin'}
+            editable={info.relationship === U2CR.ADMIN}
             aboutDesc={info.description}
             admin={info.admin as AboutPageUser}
             // moderators={info.moderators as AboutPageUser[]} // TODO: add this functionality later
@@ -86,7 +86,7 @@ const Community = (props: Props) => {
             admin={(info.admin as AboutPageUser)._id}
             isPrivate={info.private}
             isMember={
-              info.relationship === 'joined' || info.relationship === 'admin'
+              info.relationship === U2CR.JOINED || info.relationship === U2CR.ADMIN
             }
           />
         );

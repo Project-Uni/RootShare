@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { getPosts, getPinnedPosts } from '../../../api';
 import { PostType } from '../../../helpers/types';
@@ -48,6 +48,12 @@ export const CommunityFeed = (props: Props) => {
     'community-external'
   );
 
+  const tabChangeSemaphore = useRef(0);
+
+  useEffect(() => {
+    tabChangeSemaphore.current += 1;
+  }, [selectedTab]);
+
   useEffect(() => {
     if (isPrivate && isMember) {
       const clone = [...tabs];
@@ -75,18 +81,21 @@ export const CommunityFeed = (props: Props) => {
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
+    const currSemaphoreState = tabChangeSemaphore.current;
     const data = await getPosts({
       postType: { type: selectedTab, params: { communityID } },
     });
-    if (data.success === 1) {
-      setPosts(data.content.posts);
-    } else {
-      dispatch(
-        dispatchSnackbar({
-          mode: 'error',
-          message: 'There was an error retrieving posts',
-        })
-      );
+    if (tabChangeSemaphore.current === currSemaphoreState) {
+      if (data.success === 1) {
+        setPosts(data.content.posts);
+      } else {
+        dispatch(
+          dispatchSnackbar({
+            mode: 'error',
+            message: 'There was an error retrieving posts',
+          })
+        );
+      }
     }
     setLoading(false);
   }, [selectedTab]);
