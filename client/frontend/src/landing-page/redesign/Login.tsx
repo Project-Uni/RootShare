@@ -20,18 +20,17 @@ import { RootshareReduxState } from '../../redux/store/stateManagement';
 import qs from 'query-string';
 
 const useStyles = makeStyles((_: any) => ({
-  right: {
-    flex: 1,
-    display: 'flex',
-    minHeight: '100%',
-  },
   wrapper: {
     maxWidth: 500,
     width: '100%',
     textAlign: 'left',
+    paddingLeft: 50,
+    paddingRight: 50,
+    paddingTop: 30,
+    paddingBottom: 30,
   },
   textBox: {
-    marginBottom: '20px',
+    marginBottom: 30,
   },
   externalWrapper: {
     display: 'flex',
