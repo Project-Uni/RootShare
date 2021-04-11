@@ -15,7 +15,7 @@ import {
   getCommunityProfileAndBanner,
 
   //Links
-  uploadLinks,
+  updateLinks,
 
   //Documents
   uploadDocuments,
@@ -168,21 +168,24 @@ export default function mediaRoutes(app) {
       const query = getQueryParams<{
         entityID: string;
         entityType: string;
-        links: string[];
+        links?: string[];
+        removeIDs?: string[];
       }>(req, {
         entityID: { type: 'string' },
         entityType: { type: 'string' },
-        links: { type: 'string[]' },
+        links: { type: 'string[]', optional: true },
+        removeIDs: { type: 'string[]', optional: true },
       });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const { entityID, entityType, links } = query;
+      const { entityID, entityType, links, removeIDs } = query;
 
-      const packet = await uploadLinks(
+      const packet = await updateLinks(
         userID,
         ObjectIdVal(entityID),
         entityType,
-        links
+        links || [],
+        removeIDs ? removeIDs.map((id) => ObjectIdVal(id)) : []
       );
       return res.json(packet);
     } catch (err) {
@@ -193,7 +196,6 @@ export default function mediaRoutes(app) {
   app.post('/api/media/documents', isAuthenticatedWithJWT, async (req, res) => {
     try {
       const documents = req.files.documents;
-      console.log(documents);
       if (!documents || !Array.isArray(documents))
         return res.json(sendPacket(0, 'No documents to upload'));
       for (let i = 0; i < documents.length; i++)

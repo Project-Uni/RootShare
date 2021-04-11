@@ -44,7 +44,7 @@ type Props = {
   selected: string;
   onChange: (newTab: string | any) => any;
   size: number;
-  variant: 'primary' | 'underlined';
+  variant: 'primary' | 'underlinedTabs' | 'underlinedWhole';
   className?: string;
   style?: React.CSSProperties;
 };
@@ -65,7 +65,7 @@ function RSTabsV2(props: Props) {
         <div
           className={[
             styles.tab,
-            variant === 'underlined' &&
+            variant === 'underlinedTabs' &&
               (isSelected ? styles.selectedTab : styles.notSelectedTab),
           ].join(' ')}
           key={tabs[i].value}
@@ -92,7 +92,7 @@ function RSTabsV2(props: Props) {
     <div
       className={[
         styles.wrapper,
-        variant === 'underlined' && styles.underlineWrapper,
+        variant === 'underlinedWhole' && styles.underlineWrapper,
         className,
       ].join(' ')}
       style={style}

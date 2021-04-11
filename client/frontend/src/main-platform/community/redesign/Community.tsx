@@ -11,8 +11,10 @@ import { CommunityMedia } from './CommunityMedia';
 import { RSText } from '../../../base-components';
 import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
+
 import { getCommunities } from '../../../api';
 import { Community as CommunityFields } from '../../../helpers/types';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -30,7 +32,7 @@ const Community = (props: Props) => {
     //Necessary state variables
   }));
 
-  const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
+  const [info, setInfo] = useState<CommunityFields>(); //Community details as a dictionary
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<CommunityTab>('media');
 
@@ -77,6 +79,7 @@ const Community = (props: Props) => {
   }, [communityID, getCommunities]);
 
   const getTabContent = React.useCallback(() => {
+    if (!info) return;
     switch (currentTab) {
       case 'about':
         return (
@@ -101,7 +104,8 @@ const Community = (props: Props) => {
         return (
           <CommunityMedia
             communityID={communityID}
-            admin={(info.admin as AboutPageUser)._id}
+            admin={(info.admin as AboutPageUser)?._id}
+            editable={info.relationship === 'admin'}
           />
         );
       }
@@ -115,13 +119,21 @@ const Community = (props: Props) => {
     <>
       {!loading && (
         <div className={styles.wrapper}>
-          <CommunityHead
-            style={{ marginTop: 20 }}
-            communityInfo={info}
-            currentTab={currentTab}
-            handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
-          />
-          {getTabContent()}
+          {info ? (
+            <div>
+              <CommunityHead
+                style={{ marginTop: 20 }}
+                communityInfo={info}
+                currentTab={currentTab}
+                handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
+              />
+              {getTabContent()}
+            </div>
+          ) : (
+            <RSText size={32} type="head" color={Theme.error}>
+              THERE WAS AN ERROR GETTING THE COMMUNITY
+            </RSText>
+          )}
         </div>
       )}
     </>

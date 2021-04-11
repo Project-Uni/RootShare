@@ -224,11 +224,12 @@ export async function retrieveAllUrls(
   });
 }
 
-export async function uploadLinks(
+export async function updateLinks(
   userID: ObjectIdType,
   entityID: ObjectIdType,
   entityType: string,
-  links: string[]
+  links: string[],
+  removeIDs: ObjectIdType[]
 ) {
   if (entityType !== 'user' && entityType !== 'community')
     return sendPacket(0, 'Invalid type');
@@ -240,20 +241,43 @@ export async function uploadLinks(
   )
     return sendPacket(0, `Community doesn't exist or user is not admin`);
 
-  const linkIDs = await ExternalLink.createLinks(entityID, entityType, links);
-
-  if (entityType === 'user')
-    await User.model.updateOne(
-      { _id: userID },
-      { $push: { links: { $each: linkIDs } } }
-    );
-  else
-    await Community.model.updateOne(
-      { _id: entityID },
-      { $push: { links: { $each: linkIDs } } }
-    );
-
-  return sendPacket(1, `Added links to ${entityType}`);
+  const linkPromise = ExternalLink.createLinks(entityID, entityType, links);
+  const removePromise = ExternalLink.model.deleteMany({ _id: { $in: removeIDs } });
+  return Promise.all([linkPromise, removePromise]).then(
+    async ([linkIDs, removal]) => {
+      const updatePromises = [];
+      if (entityType === 'user') {
+        updatePromises.push(
+          User.model.updateOne(
+            { _id: userID },
+            { $push: { links: { $each: linkIDs } } }
+          )
+        );
+        updatePromises.push(
+          User.model.updateOne(
+            { _id: userID },
+            { $pull: { links: { $in: removeIDs } } }
+          )
+        );
+      } else {
+        updatePromises.push(
+          Community.model.updateOne(
+            { _id: entityID },
+            { $push: { links: { $each: linkIDs } } }
+          )
+        );
+        updatePromises.push(
+          Community.model.updateOne(
+            { _id: entityID },
+            { $pull: { links: { $in: removeIDs } } }
+          )
+        );
+      }
+      return Promise.all(updatePromises).then(() =>
+        sendPacket(1, `Updated links for ${entityType}`)
+      );
+    }
+  );
 }
 
 export async function uploadDocuments(
