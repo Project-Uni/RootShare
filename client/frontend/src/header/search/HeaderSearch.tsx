@@ -3,8 +3,8 @@ import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
 import { SearchField } from '../../main-platform/reusable-components';
 import { useHistory } from 'react-router';
 import Theme from '../../theme/Theme';
-import { FaSearch } from 'react-icons/fa';
-import { InputBase, TextField } from '@material-ui/core';
+import { InputBase } from '@material-ui/core';
+import { IoSearchOutline } from 'react-icons/io5';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -19,6 +19,15 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   //   maxWidth: 400,
   //   opacity: 1,
   // },
+  inputBase: {
+    background: muiTheme.background.primary,
+    borderRadius: 22,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: 3,
+    paddingBottom: 3,
+    color: muiTheme.text.secondary,
+  },
 }));
 
 type Props = {
@@ -62,8 +71,8 @@ export const HeaderSearch = (props: Props) => {
       groupByType
       variant="standard"
       bigText
-      adornment={<FaSearch size={16} color={Theme.secondaryText} />}
-      InputComponent={<InputBase />}
+      adornment={<IoSearchOutline size={18} color={Theme.secondaryText} />}
+      InputComponent={<InputBase className={styles.inputBase} />}
     />
   );
 };
