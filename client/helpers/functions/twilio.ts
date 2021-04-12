@@ -15,6 +15,7 @@ export async function sendSMS(
     formattedNumbers.push(formatSMSRecipients(recipients[i]));
   }
 
+  //Doing error handling within the promise mapping to mimic functionality of Promise.allResolved
   const smsPromises = formattedNumbers.map(async (phoneNumber) => {
     if (!phoneNumber)
       return { success: true, message: 'No associated or invalid number' };
