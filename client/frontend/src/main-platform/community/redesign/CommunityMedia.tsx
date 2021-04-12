@@ -27,8 +27,6 @@ import { ENTER_KEYCODE } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { RootShareIconPaleYellow, SocialMediaIcon } from '../../../images';
 
-const ICON_SIZE = 54;
-
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   cardWrapper: {
@@ -36,7 +34,8 @@ const useStyles = makeStyles((_: any) => ({
     paddingRight: 40,
     paddingTop: 30,
     paddingBottom: 30,
-    marginBottom: 30,
+    marginTop: 20,
+    marginBottom: 20,
     textAlign: 'left',
   },
   tabs: {

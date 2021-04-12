@@ -1332,7 +1332,7 @@ export async function getCommunityMedia(
       })
     )[0].relationship;
 
-    let fields = ['links', 'documents', 'externalPosts', 'broadcastedPosts'];
+    let fields = ['links', 'externalPosts', 'broadcastedPosts'];
     if (communityRelationship === U2CR.JOINED)
       if (userAccountType === 'alumni') fields.push('internalAlumniPosts');
       else if (userAccountType === 'student')
@@ -1342,7 +1342,6 @@ export async function getCommunityMedia(
 
     const {
       links,
-      documents: documentDocs,
       externalPosts,
       broadcastedPosts,
       internalAlumniPosts = [],
@@ -1350,11 +1349,9 @@ export async function getCommunityMedia(
     } = (await Community.model
       .findById(communityID, fields)
       .populate('links', 'linkType url')
-      .populate('documents', 'fileName')
       .lean<ICommunity>()
       .exec()) as {
       links: ObjectIdType[];
-      documents: IDocument[];
       externalPosts: ObjectIdType[];
       broadcastedPosts: ObjectIdType[];
       internalAlumniPosts: ObjectIdType[];
@@ -1374,28 +1371,13 @@ export async function getCommunityMedia(
       .lean()
       .exec();
 
-    const imagePromise = retrieveAllUrls(
+    const images = await retrieveAllUrls(
       imageDocs.map((image) => {
         return { ...image, fileType: 'images', reason: 'postImage' };
       })
     );
 
-    const documentPromise = retrieveAllUrls(
-      documentDocs.map((doc) => {
-        return {
-          fileType: 'documents',
-          reason: 'community',
-          fileName: doc.fileName,
-          entityID: communityID.toString(),
-        };
-      })
-    );
-
-    return Promise.all([imagePromise, documentPromise]).then(
-      ([images, documents]) => {
-        return sendPacket(1, 'Sending media', { images, links, documents });
-      }
-    );
+    return sendPacket(1, 'Sending media', { images, links });
   } catch (err) {
     log('err', err.stack);
     return sendPacket(-1, err);

@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { makeRequest, slideLeft } from '../../helpers/functions';
-import Theme from '../../theme/Theme';
-import { CircularProgress } from '@material-ui/core';
-import MTGEvent from './MTGEvent';
 
+import { useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../redux/actions';
+
+import { CircularProgress } from '@material-ui/core';
+
+import MTGEvent from './MTGEvent';
 import ManageSpeakersSnackbar from '../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreeksInfoCard from './MeetTheGreeksInfoCard';
+
+import { makeRequest, slideLeft } from '../../helpers/functions';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,6 +56,7 @@ type Props = {};
 
 function MeetTheGreeks(props: Props) {
   const styles = useStyles();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
@@ -61,6 +67,11 @@ function MeetTheGreeks(props: Props) {
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
     fetchEvents().then(() => setLoading(false));
   }, []);
 

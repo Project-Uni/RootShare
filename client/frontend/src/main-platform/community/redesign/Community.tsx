@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, useParams } from 'react-router-dom';
 
-import { dispatchSnackbar } from '../../../redux/actions';
+import { dispatchSnackbar, updateSidebarComponents } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
@@ -37,6 +37,12 @@ const Community = (props: Props) => {
   const [currentTab, setCurrentTab] = useState<CommunityTab>('media');
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers', 'communityDocuments'],
+        communityID,
+      })
+    );
     fetchCommunityInfo().then(() => {
       setLoading(false);
     });

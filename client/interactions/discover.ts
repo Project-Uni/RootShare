@@ -1,6 +1,14 @@
 import { Types } from 'mongoose';
 
-import { User, Community, Search, IConnection } from '../rootshare_db/models';
+import {
+  User,
+  Community,
+  Search,
+  IConnection,
+  ICommunity,
+  IDocument,
+  IUser,
+} from '../rootshare_db/models';
 import { SidebarData } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
 import {
@@ -9,6 +17,7 @@ import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
+import { retrieveAllUrls } from './media';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -317,43 +326,96 @@ function addCommunityAndUserImages(communities: any[], users: any[]) {
     });
 }
 
+async function getDocuments(
+  entityID: ObjectIdType,
+  entityType: 'user' | 'community'
+) {
+  let documents = [];
+
+  if (entityType === 'community')
+    documents = ((await Community.model
+      .findById(entityID, ['documents'])
+      .populate('documents', 'fileName')
+      .lean<ICommunity>()
+      .exec()) as {
+      documents: IDocument[];
+    })?.documents;
+  else
+    documents = ((await User.model
+      .findById(entityID, ['documents'])
+      .populate('documents', 'fileName')
+      .lean<IUser>()
+      .exec()) as {
+      documents: IDocument[];
+    })?.documents;
+
+  if (!documents) return undefined;
+  return await retrieveAllUrls(
+    documents.map((doc) => {
+      return {
+        fileType: 'documents',
+        reason: entityType,
+        fileName: doc.fileName,
+        entityID: entityID.toString(),
+      };
+    })
+  );
+}
+
 export async function getSidebarData(
-  userID: ObjectIdType,
-  dataSources: SidebarData[]
+  selfUserID: ObjectIdType,
+  dataSources: SidebarData[],
+  communityID?: ObjectIdType,
+  otherUserID?: ObjectIdType
 ) {
   const promises = [];
-
   if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
-    promises.push(populateDiscoverForUser(userID));
+    promises.push(populateDiscoverForUser(selfUserID));
 
-  // dataSources.forEach((dataSource) => {
-  //   switch (dataSource) {
-  //     case 'pinnedCommunities':
-  //       promises.push(getPinnedCommunities(userID));
-  //     case 'trending':
-  //       promises.push(getTrending(userID));
-  //   }
-  // });
+  dataSources.forEach((dataSource) => {
+    switch (dataSource) {
+      case 'communityDocuments':
+        promises.push(getDocuments(communityID, 'community'));
+        break;
+      case 'userDocuments':
+        promises.push(getDocuments(otherUserID, 'user'));
+        break;
+      // case 'pinnedCommunities':
+      //   promises.push(getPinnedCommunities(userID));
+      //   break;
+      // case 'trending':
+      //   promises.push(getTrending(userID));
+      //   break;
+    }
+  });
 
   let output: { [key in SidebarData]?: any } = {};
   return Promise.all(promises).then((data) => {
+    let count = 0;
     if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
-      const discoverData = data[0];
+      const discoverData = data[count++];
       if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
       output.discoverUsers = discoverData['users'];
       output.discoverCommunities = discoverData['communities'];
     }
 
-    // let count = 1;
-    // for (let i = 0; i < dataSources.length; i++) {
-    //   if (count === data.length) return;
-    //   switch (dataSources[i]) {
-    //     case 'pinnedCommunities':
-    //       output.pinnedCommunities = data[count++];
-    //     case 'trending':
-    //       output.pinnedCommunities = data[count++];
-    //   }
-    // }
+    for (let i = 0; i < dataSources.length; i++) {
+      if (count === data.length) break;
+      switch (dataSources[i]) {
+        case 'communityDocuments':
+          output.communityDocuments = data[count++];
+          break;
+        case 'userDocuments':
+          output.userDocuments = data[count++];
+          break;
+        case 'pinnedCommunities':
+          output.pinnedCommunities = data[count++];
+          break;
+        case 'trending':
+          output.trending = data[count++];
+          break;
+      }
+    }
 
     return sendPacket(1, 'Retrieved Sidebar data', { ...output });
   });
