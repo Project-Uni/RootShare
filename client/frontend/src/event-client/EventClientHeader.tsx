@@ -32,7 +32,7 @@ import { RSLink, SearchField } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 import { useHistory } from 'react-router-dom';
 import Theme from '../theme/Theme';
-import { NotificationButton } from '../header';
+import { HeaderSearch, NotificationButton } from '../header';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -43,19 +43,6 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
-  searchbar: {
-    marginLeft: 10,
-    marginRight: 25,
-    maxWidth: 400,
-  },
-  // collapsedSearch: {
-  //   maxWidth: 0,
-  //   opacity: 0,
-  // },
-  // visibleSearch: {
-  //   maxWidth: 400,
-  //   opacity: 1,
-  // },
 }));
 
 type Props = {
@@ -202,35 +189,11 @@ function EventClientHeader(props: Props) {
                   }}
                 />
               </RSLink>
-              <SearchField
+              <HeaderSearch
                 style={{
-                  // transition: `max-width 0.75s ease, opacity ${
-                  //   showSearch ? 0.2 : 0.6
-                  // }s ease`,
                   marginLeft: window.innerWidth >= 767 ? 55 : undefined,
+                  marginRight: 25,
                 }}
-                mode="both"
-                name="header-search"
-                placeholder="Search RootShare..."
-                className={[
-                  styles.searchbar,
-                  // showSearch ? styles.visibleSearch : styles.collapsedSearch,
-                ].join(' ')}
-                fetchDataURL="/api/discover/search/v1/exactMatch"
-                renderLimit={10}
-                onAutocomplete={(selectedOption) => {
-                  history.push(
-                    `/${
-                      selectedOption.type === 'community' ? 'community' : 'profile'
-                    }/${selectedOption._id}`
-                  );
-                }}
-                fullWidth
-                freeSolo
-                groupByType
-                variant="standard"
-                bigText
-                adornment={<FaSearch size={24} color={theme.secondaryText} />}
               />
             </div>
           </div>
