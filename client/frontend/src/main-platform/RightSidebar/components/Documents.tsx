@@ -4,13 +4,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import { dispatchSnackbar } from '../../../redux/actions';
 import { useDispatch } from 'react-redux';
 
-import { RSCard, RSLink, RSButtonV2, RSAvatar } from '../../reusable-components';
+import { RSCard, RSAvatar } from '../../reusable-components';
 import { RSText } from '../../../base-components';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { GrDocumentPdf } from 'react-icons/gr';
 
-import Theme from '../../../theme/Theme';
-import { putUpdateUserConnection } from '../../../api';
+import { deleteDocuments } from '../../../api';
 import { RIGHT_BAR_WIDTH } from '../RightSidebar';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
+import { NoDocumentsIcon } from '../../../images';
+import Theme from '../../../theme/Theme';
 
 const MAX_DOCUMENTS = 4;
 
@@ -18,52 +21,37 @@ const useStyles = makeStyles((_: any) => ({
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'start',
     width: RIGHT_BAR_WIDTH - 20,
     padding: 10,
+    paddingBottom: 20,
     marginBottom: 20,
   },
   cardTitle: {
+    alignSelf: 'center',
     paddingBottom: 15,
   },
-  singleWrapper: {
+  link: {
     display: 'flex',
-    width: RIGHT_BAR_WIDTH - 20,
-    paddingTop: 5,
-    paddingBottom: 5,
-  },
-  left: {},
-  center: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginLeft: 10,
-  },
-  accountType: {
-    color: Theme.secondaryText,
-    textAlign: 'left',
-    wordWrap: 'break-word',
-    maxWidth: 140,
-  },
-  name: {
-    display: 'inline-block',
-    color: Theme.primaryText,
-    textAlign: 'left',
-    wordWrap: 'break-word',
-    maxWidth: 140,
+    color: 'inherit',
+    margin: 5,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-      color: Theme.primaryText,
     },
   },
-  right: {
+  documentContainer: {
     display: 'flex',
-    flexDirection: 'column',
-    marginLeft: 'auto',
+    width: '100%',
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   },
-  button: {
-    height: 20,
-    marginTop: 7,
+  removeButton: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
   },
   fadeOut: {
     opacity: 0,
@@ -82,12 +70,13 @@ type Props = {
   // children?: JSX.Element | JSX.Element[] | string | number;
   documents: Document[];
   variant: 'user' | 'community';
+  editable: boolean;
   className?: string;
 };
 
 export const Documents = (props: Props) => {
   const styles = useStyles();
-  const { variant, className } = props;
+  const { variant, editable, className } = props;
 
   const [documents, setDocuments] = useState(props.documents);
 
@@ -96,16 +85,16 @@ export const Documents = (props: Props) => {
   }, [props.documents]);
 
   const removeDocument = (documentID: string) => {
-    // need an api call for this
-    // let newDocuments = users.slice();
-    // for (let i = 0; i < users.length; i++) {
-    //   const currUser = users[i];
-    //   if (currUser._id === userID) {
-    //     newDocuments.splice(i, 1);
-    //     setUsers(newDocuments);
-    //     return;
-    //   }
-    // }
+    console.log(documents);
+    setDocuments((prevDocuments) => {
+      const newDocuments = prevDocuments.slice();
+      for (let i = 0; i < newDocuments.length; i++)
+        if (newDocuments[i]._id === documentID) {
+          newDocuments.splice(i, 1);
+          return newDocuments;
+        }
+      return prevDocuments;
+    });
   };
 
   const renderDocuments = () => {
@@ -117,31 +106,59 @@ export const Documents = (props: Props) => {
       output.push(
         <SingleDocument
           key={currDocument._id}
+          documentID={currDocument._id}
           fileName={currDocument.fileName}
+          entityID={currDocument.entityID}
+          entityType={variant}
           url={currDocument.url}
-          // removeUser={removeUser}
+          editable={editable}
+          removeDocument={removeDocument}
         />
       );
     }
     return output;
   };
 
-  if (documents.length === 0) return <></>;
-
   return (
     <RSCard className={[styles.wrapper, className].join(' ')} background="secondary">
       <RSText className={styles.cardTitle} size={16} bold>
         {`${capitalizeFirstLetter(variant)} Documents`}
       </RSText>
-      {renderDocuments()}
+      {documents.length === 0 ? (
+        <div
+          style={{
+            display: 'flex',
+            width: '100%',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <RSAvatar
+            style={{ padding: 5 }}
+            variant="square"
+            size={100}
+            src={NoDocumentsIcon}
+          />
+
+          <RSText color={Theme.secondaryText} weight="light">
+            No documents uploaded yet
+          </RSText>
+        </div>
+      ) : (
+        renderDocuments()
+      )}
     </RSCard>
   );
 };
 
 type SingleProps = {
+  documentID: string;
   fileName: string;
+  entityID: string;
+  entityType: 'user' | 'community';
   url: string;
-  // removeUser: (userID: string) => void;
+  editable: boolean;
+  removeDocument: (documentID: string) => void;
 };
 
 const SingleDocument = (props: SingleProps) => {
@@ -149,66 +166,56 @@ const SingleDocument = (props: SingleProps) => {
 
   const dispatch = useDispatch();
 
-  const { fileName, url /*removeUser*/ } = props;
+  const { documentID, fileName, entityID, entityType, url, editable } = props;
 
   const [visible, setVisible] = useState(true);
 
-  // const requestConnection = async () => {
-  //   removeSuggestion();
+  const removeDocument = async () => {
+    transitionDocument();
 
-  //   const data = await putUpdateUserConnection('connect', user._id);
+    const data = await deleteDocuments(entityID, entityType, [documentID]);
 
-  //   if (data.success === 1)
-  //     dispatch(
-  //       dispatchSnackbar({
-  //         message: `Connection request sent to ${user.firstName} ${user.lastName}`,
-  //         mode: 'success',
-  //       })
-  //     );
-  //   else
-  //     dispatch(
-  //       dispatchSnackbar({
-  //         message: `There was an error sending a request to ${user.firstName} ${user.lastName}`,
-  //         mode: 'error',
-  //       })
-  //     );
-  // };
+    if (data.success === 1)
+      dispatch(
+        dispatchSnackbar({
+          message: `Successfully deleted document`,
+          mode: 'success',
+        })
+      );
+    else
+      dispatch(
+        dispatchSnackbar({
+          message: `There was an error deleting the document`,
+          mode: 'error',
+        })
+      );
+  };
 
-  const removeSuggestion = () => {
+  const transitionDocument = () => {
     setVisible(false);
     setTimeout(() => {
-      // removeUser(user._id);
+      props.removeDocument(documentID);
     }, 500);
   };
 
   return (
-    <div className={[styles.singleWrapper, visible || styles.fadeOut].join(' ')}>
-      <a href={url}></a>
-      <div className={styles.left}>{/* <DocumentIcon/> */}</div>
-      <div className={styles.center}>
-        <RSText size={13} className={styles.name}>
+    <div className={[styles.documentContainer, visible || styles.fadeOut].join(' ')}>
+      <a target="_blank" href={url} className={styles.link}>
+        <GrDocumentPdf style={{ paddingTop: 2, paddingRight: 5 }} />
+        <RSText
+          weight="bold"
+          style={{ wordWrap: 'break-word', maxWidth: 220, textAlign: 'left' }}
+        >
           {fileName}
         </RSText>
-      </div>
-
-      {/* <div className={styles.right}>
-        <RSButtonV2
-          className={styles.button}
-          onClick={requestConnection}
-          variant="university"
-        >
-          <RSText size={10}>Connect</RSText>
-        </RSButtonV2>
-        <RSButtonV2
-          className={styles.button}
-          onClick={removeSuggestion}
-          variant="universitySecondary"
-        >
-          <RSText size={10} weight="light">
-            Remove
-          </RSText>
-        </RSButtonV2>
-      </div> */}
+      </a>
+      <div style={{ flex: 1 }} />
+      {editable && (
+        <DeleteOutlineIcon
+          className={styles.removeButton}
+          onClick={() => removeDocument()}
+        />
+      )}
     </div>
   );
 };

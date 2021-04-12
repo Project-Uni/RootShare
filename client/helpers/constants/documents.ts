@@ -1,4 +1,4 @@
-export const ALLOWED_FILE_TYPES = [
+export const ALLOWED_MIME_TYPES = [
   'image/jpg',
   'image/png',
   'text/plain',
@@ -8,7 +8,18 @@ export const ALLOWED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'video/mp4',
+];
+
+export const ALLOWED_FILE_EXTENSIONS = [
+  '.jpg',
+  '.png',
+  '.txt',
+  '.csv',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.ppt',
+  '.pptx',
 ];
 
 export const MAX_FILE_SIZE_MBS = 4;

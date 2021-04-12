@@ -1,6 +1,11 @@
 import { Types } from 'mongoose';
 
-import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
+import {
+  getUserFromJWT,
+  sendPacket,
+  getQueryParams,
+  log,
+} from '../helpers/functions';
 import { MAX_FILE_SIZE_MBS } from '../helpers/constants';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
@@ -19,6 +24,7 @@ import {
 
   //Documents
   uploadDocuments,
+  deleteDocuments,
 } from '../interactions/media';
 
 const ObjectIdVal = Types.ObjectId;
@@ -227,6 +233,36 @@ export default function mediaRoutes(app) {
       );
       return res.json(packet);
     } catch (err) {
+      log('err', err.message);
+      res.json(sendPacket(-1, err.message));
+    }
+  });
+
+  app.delete('/api/media/documents', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const query = getQueryParams<{
+        entityID: string;
+        entityType: string;
+        documentIDs: string[];
+      }>(req, {
+        entityID: { type: 'string' },
+        entityType: { type: 'string' },
+        documentIDs: { type: 'string[]' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { entityID, entityType, documentIDs } = query;
+      const { _id: userID } = getUserFromJWT(req);
+
+      const packet = await deleteDocuments(
+        userID,
+        ObjectIdVal(entityID),
+        entityType,
+        documentIDs.map((doc) => ObjectIdVal(doc))
+      );
+      res.json(packet);
+    } catch (err) {
+      log('err', err.message);
       res.json(sendPacket(-1, err.message));
     }
   });

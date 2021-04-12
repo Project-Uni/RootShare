@@ -9,7 +9,7 @@ import {
   retrieveSignedUrl,
   decodeBase64Image,
 } from '../helpers/functions';
-import { ALLOWED_FILE_TYPES } from '../helpers/constants';
+import { ALLOWED_MIME_TYPES } from '../helpers/constants';
 
 type ObjectIdType = Types.ObjectId;
 
@@ -297,7 +297,7 @@ export async function uploadDocuments(
     return sendPacket(0, `Community doesn't exist or user is not admin`);
 
   documents = documents.filter((document) =>
-    ALLOWED_FILE_TYPES.includes(document.mimetype)
+    ALLOWED_MIME_TYPES.includes(document.mimetype)
   );
 
   if (documents.length === 0) return sendPacket(0, `No valid files to upload`);
@@ -369,5 +369,43 @@ export async function uploadDocuments(
         });
       }
     );
+  });
+}
+
+export async function deleteDocuments(
+  userID: ObjectIdType,
+  entityID: ObjectIdType,
+  entityType: string,
+  documentIDs: ObjectIdType[]
+) {
+  if (entityType !== 'user' && entityType !== 'community')
+    return sendPacket(0, 'Invalid type');
+  if (entityType === 'user' && !userID.equals(entityID))
+    return sendPacket(0, `User ID doesn't match`);
+  if (
+    entityType === 'community' &&
+    !(await Community.model.exists({ _id: entityID, admin: userID }))
+  )
+    return sendPacket(0, `Community doesn't exist or user is not admin`);
+
+  const updatePromises = [];
+  updatePromises.push(Document.model.deleteMany({ _id: { $in: documentIDs } }));
+  if (entityType === 'user')
+    updatePromises.push(
+      User.model.updateOne(
+        { _id: userID },
+        { $pull: { documents: { $in: documentIDs } } }
+      )
+    );
+  else
+    updatePromises.push(
+      Community.model.updateOne(
+        { _id: entityID },
+        { $pull: { documents: { $in: documentIDs } } }
+      )
+    );
+
+  return Promise.all(updatePromises).then(() => {
+    return sendPacket(1, 'Deleted documents');
   });
 }

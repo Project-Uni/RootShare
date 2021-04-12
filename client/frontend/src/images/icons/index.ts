@@ -6,6 +6,7 @@ import RightArrow from './right-arrow.png';
 import ImageUploadIcon from './image-upload-icon.png';
 import SocialMediaIcon from './social-media-icon.png';
 import GroupIcon from './group_icon_transparent.png';
+import NoDocumentsIcon from './no-documents-icon.jpg';
 
 export {
   RootShareIconWhite,
@@ -16,4 +17,5 @@ export {
   ImageUploadIcon,
   SocialMediaIcon,
   GroupIcon,
+  NoDocumentsIcon,
 };

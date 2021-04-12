@@ -39,7 +39,7 @@ const Community = (props: Props) => {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers', 'communityDocuments'],
+        names: ['discoverUsers', 'communityDocuments', 'discoverCommunities'],
         communityID,
       })
     );

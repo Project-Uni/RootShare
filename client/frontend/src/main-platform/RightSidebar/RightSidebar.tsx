@@ -44,8 +44,9 @@ type Props = {
 export const RightSidebar = (props: Props) => {
   const styles = useStyles();
 
-  const { sidebarComponents } = useSelector((state: RootshareReduxState) => ({
+  const { sidebarComponents, user } = useSelector((state: RootshareReduxState) => ({
     sidebarComponents: state.sidebarComponents,
+    user: state.user,
   }));
   const previousComponents = usePrevious(sidebarComponents);
 
@@ -55,8 +56,16 @@ export const RightSidebar = (props: Props) => {
   const [discoverCommunities, setDiscoverCommunities] = useState<
     DiscoverCommunity[]
   >([]);
-  const [communityDocuments, setCommunityDocuments] = useState<Document[]>([]);
-  const [userDocuments, setUserDocuments] = useState<Document[]>([]);
+  const [communityDocuments, setCommunityDocuments] = useState<{
+    communityID?: string;
+    editable: boolean;
+    documents: Document[];
+  }>({ editable: false, documents: [] });
+  const [userDocuments, setUserDocuments] = useState<{
+    userID?: string;
+    editable: boolean;
+    documents: Document[];
+  }>({ editable: false, documents: [] });
   // const [pinnedCommunities, setPinnedCommunities] = useState([])
   // const [trending, setTrending] = useState([])
 
@@ -79,11 +88,22 @@ export const RightSidebar = (props: Props) => {
       pinnedCommunities,
       trending,
     } = data.content;
+    console.log(data);
 
     discoverUsers && setDiscoverUsers(discoverUsers);
     discoverCommunities && setDiscoverCommunities(discoverCommunities);
-    communityDocuments && setCommunityDocuments(communityDocuments);
-    userDocuments && setUserDocuments(userDocuments);
+    communityDocuments &&
+      setCommunityDocuments({
+        communityID: newComponents.communityID,
+        editable: communityDocuments.isAdmin,
+        documents: communityDocuments.documents,
+      });
+    userDocuments &&
+      setUserDocuments({
+        userID: newComponents.userID,
+        editable: newComponents.userID === user._id,
+        documents: userDocuments,
+      });
 
     // pinnedCommunities &&
     //   setPinnedCommunities(pinnedCommunities);
@@ -120,20 +140,34 @@ export const RightSidebar = (props: Props) => {
   return (
     <div className={styles.wrapper}>
       {sidebarComponents.names.map((component) => {
-        switch (component) {
-          case 'discoverUsers':
-            return <DiscoverUsers users={discoverUsers} />;
-          case 'discoverCommunities':
-            return <DiscoverCommunities communities={discoverCommunities} />;
-          case 'communityDocuments':
-            return <Documents variant="community" documents={communityDocuments} />;
-          case 'userDocuments':
-            return <Documents variant="user" documents={userDocuments} />;
-          case 'pinnedCommunities':
-            return <div />; //<PinnedCommunities />;
-          case 'trending':
-            return <div />; //<Trending />;
-        }
+        if (component === 'discoverUsers')
+          return <DiscoverUsers users={discoverUsers} />;
+        else if (component === 'discoverCommunities')
+          return <DiscoverCommunities communities={discoverCommunities} />;
+        else if (
+          component === 'communityDocuments' &&
+          communityDocuments.communityID === sidebarComponents.communityID
+        )
+          return (
+            <Documents
+              variant="community"
+              documents={communityDocuments.documents}
+              editable={communityDocuments.editable}
+            />
+          );
+        else if (
+          component === 'userDocuments' &&
+          userDocuments.userID === sidebarComponents.userID
+        )
+          return (
+            <Documents
+              variant="user"
+              editable={userDocuments.editable}
+              documents={userDocuments.documents}
+            />
+          );
+        else if (component === 'pinnedCommunities') return <div />;
+        else if (component === 'trending') return <div />;
       })}
     </div>
   );

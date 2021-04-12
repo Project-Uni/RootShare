@@ -8,6 +8,7 @@ import {
   ICommunity,
   IDocument,
   IUser,
+  Connection,
 } from '../rootshare_db/models';
 import { SidebarData } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
@@ -326,37 +327,67 @@ function addCommunityAndUserImages(communities: any[], users: any[]) {
     });
 }
 
-async function getDocuments(
-  entityID: ObjectIdType,
-  entityType: 'user' | 'community'
+async function getCommunityDocuments(
+  userID: ObjectIdType,
+  communityID: ObjectIdType
 ) {
-  let documents = [];
-
-  if (entityType === 'community')
-    documents = ((await Community.model
-      .findById(entityID, ['documents'])
-      .populate('documents', 'fileName')
-      .lean<ICommunity>()
-      .exec()) as {
-      documents: IDocument[];
-    })?.documents;
-  else
-    documents = ((await User.model
-      .findById(entityID, ['documents'])
-      .populate('documents', 'fileName')
-      .lean<IUser>()
-      .exec()) as {
-      documents: IDocument[];
-    })?.documents;
+  const documents = ((await Community.model
+    .findOne({ _id: communityID, members: userID }, ['documents'])
+    .populate('documents', 'fileName')
+    .lean<ICommunity>()
+    .exec()) as {
+    documents: IDocument[];
+  })?.documents;
 
   if (!documents) return undefined;
-  return await retrieveAllUrls(
+
+  const adminPromise = Community.model.exists({ _id: communityID, admin: userID });
+  const urlsPromise = retrieveAllUrls(
     documents.map((doc) => {
       return {
+        _id: doc._id,
         fileType: 'documents',
-        reason: entityType,
+        reason: 'community',
         fileName: doc.fileName,
-        entityID: entityID.toString(),
+        entityID: communityID.toString(),
+      };
+    })
+  );
+
+  return Promise.all([urlsPromise, adminPromise]).then(([documents, isAdmin]) => {
+    return { documents, isAdmin };
+  });
+}
+
+async function getUserDocuments(
+  selfUserID: ObjectIdType,
+  otherUserID: ObjectIdType
+) {
+  const checkConnected = await Connection.model.exists({
+    $or: [
+      { $and: [{ from: selfUserID }, { to: otherUserID }, { accepted: true }] },
+      { $and: [{ from: otherUserID }, { to: selfUserID }, { accepted: true }] },
+    ],
+  });
+  if (!checkConnected && !selfUserID.equals(otherUserID)) return undefined;
+
+  const documents = ((await User.model
+    .findById(otherUserID, ['documents'])
+    .populate('documents', 'fileName')
+    .lean<IUser>()
+    .exec()) as {
+    documents: IDocument[];
+  })?.documents;
+  if (!documents) return undefined;
+
+  const urlsPromise = retrieveAllUrls(
+    documents.map((doc) => {
+      return {
+        _id: doc._id,
+        fileType: 'documents',
+        reason: 'user',
+        fileName: doc.fileName,
+        entityID: otherUserID.toString(),
       };
     })
   );
@@ -375,10 +406,10 @@ export async function getSidebarData(
   dataSources.forEach((dataSource) => {
     switch (dataSource) {
       case 'communityDocuments':
-        promises.push(getDocuments(communityID, 'community'));
+        promises.push(getCommunityDocuments(selfUserID, communityID));
         break;
       case 'userDocuments':
-        promises.push(getDocuments(otherUserID, 'user'));
+        promises.push(getUserDocuments(selfUserID, otherUserID));
         break;
       // case 'pinnedCommunities':
       //   promises.push(getPinnedCommunities(userID));
