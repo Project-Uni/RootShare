@@ -12,6 +12,8 @@ import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
 import { getCommunities } from '../../../api';
 import { Community as CommunityFields, U2CR } from '../../../helpers/types';
+import { FaLock } from 'react-icons/fa';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -107,7 +109,21 @@ const Community = (props: Props) => {
             currentTab={currentTab}
             handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
           />
-          {getTabContent()}
+          {(info.relationship === U2CR.OPEN || info.relationship === U2CR.PENDING) &&
+          info.private ? (
+            <div style={{ marginTop: 30 }}>
+              <FaLock
+                color={Theme.secondaryText}
+                size={70}
+                style={{ marginBottom: 15 }}
+              />
+              <RSText bold size={16}>
+                Join this community to see it's content.
+              </RSText>
+            </div>
+          ) : (
+            getTabContent()
+          )}
         </div>
       )}
     </>
