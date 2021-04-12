@@ -4,6 +4,7 @@ import { SearchField } from '../../main-platform/reusable-components';
 import { useHistory } from 'react-router';
 import Theme from '../../theme/Theme';
 import { FaSearch } from 'react-icons/fa';
+import { InputBase, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -61,7 +62,8 @@ export const HeaderSearch = (props: Props) => {
       groupByType
       variant="standard"
       bigText
-      adornment={<FaSearch size={24} color={Theme.secondaryText} />}
+      adornment={<FaSearch size={16} color={Theme.secondaryText} />}
+      InputComponent={<InputBase />}
     />
   );
 };
