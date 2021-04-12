@@ -48,18 +48,18 @@ export const RightSidebar = (props: Props) => {
 
   const fetchData = async () => {
     const data = await getSidebarData(components);
-    const {
-      discoverUsers,
-      discoverCommunities,
-      pinnedCommunities,
-      trending,
-    } = data.content;
+    if (data.success === 1) {
+      const {
+        content: { discoverUsers, discoverCommunities, pinnedCommunities, trending },
+      } = data;
 
-    discoverUsers && setDiscoverUsers(discoverUsers);
-    discoverCommunities && setDiscoverCommunities(discoverCommunities);
-    // pinnedCommunities &&
-    //   setPinnedCommunities(pinnedCommunities);
-    // trending && setTrending(trending);
+      discoverUsers && setDiscoverUsers(discoverUsers);
+      discoverCommunities && setDiscoverCommunities(discoverCommunities);
+
+      // pinnedCommunities &&
+      //   setPinnedCommunities(pinnedCommunities);
+      // trending && setTrending(trending);
+    }
   };
 
   return (
