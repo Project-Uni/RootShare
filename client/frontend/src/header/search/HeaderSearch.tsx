@@ -10,6 +10,7 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
   searchbar: {
     maxWidth: 400,
+    minWidth: 275,
   },
   // collapsedSearch: {
   //   maxWidth: 0,
@@ -51,7 +52,7 @@ export const HeaderSearch = (props: Props) => {
       }}
       mode="both"
       name="header-search"
-      placeholder="Search RootShare..."
+      placeholder="Search RootShare"
       className={[
         styles.searchbar,
         className,
