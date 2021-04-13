@@ -39,6 +39,7 @@ type Props = {
   helperText?: string;
   error?: boolean;
   value?: string | number;
+  defaultValue?: string | number;
   onChange?: (e: React.ChangeEvent<{ value: unknown }>) => void;
   fullWidth?: boolean;
   fontSize?: number;
@@ -55,6 +56,7 @@ export const RSSelect = (props: Props) => {
     helperText,
     error,
     value,
+    defaultValue,
     onChange,
     fullWidth,
     fontSize,
@@ -71,6 +73,7 @@ export const RSSelect = (props: Props) => {
       <InputLabel className={styles.label}>{label}</InputLabel>
       <Select
         value={value}
+        defaultValue={defaultValue}
         onChange={onChange}
         style={{ fontSize }}
         className={styles.select}
