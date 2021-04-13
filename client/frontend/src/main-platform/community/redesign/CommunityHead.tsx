@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
@@ -12,7 +12,9 @@ import RelationshipButton from './RelationshipButton';
 import Tag from './Tag';
 
 import Theme from '../../../theme/Theme';
-import { Community } from '../../../helpers/types';
+import { Community, U2CR } from '../../../helpers/types';
+import PendingFollowRequestsModal from '../components/PendingFollowRequestsModal';
+import PendingMembersModal from '../components/PendingMembersModal';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -84,6 +86,12 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 5,
     width: 150,
   },
+  pendingText: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
@@ -97,6 +105,9 @@ type Props = {
 export const CommunityHead = (props: Props) => {
   const styles = useStyles();
   const { style, className, communityInfo, currentTab, handleTabChange } = props;
+
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [followersModalOpen, setFollowersModalOpen] = useState(false);
 
   const {
     _id: communityID,
@@ -162,6 +173,25 @@ export const CommunityHead = (props: Props) => {
         <RSText size={11}>{`${numMembers} ${
           numMembers === 1 ? 'Member' : 'Members'
         }`}</RSText>
+        {communityInfo.relationship === U2CR.ADMIN && (
+          //TODO Get counts from backend
+          <div style={{ marginTop: 5, marginBottom: 5 }}>
+            <RSText
+              size={11}
+              className={styles.pendingText}
+              onClick={() => setMembersModalOpen(true)}
+            >
+              Pending Members
+            </RSText>
+            <RSText
+              size={11}
+              className={styles.pendingText}
+              onClick={() => setFollowersModalOpen(true)}
+            >
+              Pending Followers
+            </RSText>
+          </div>
+        )}
         <FollowButton
           communityID={communityID}
           name={name}
@@ -205,6 +235,16 @@ export const CommunityHead = (props: Props) => {
         {renderCenter()}
         {renderRight()}
       </div>
+      <PendingFollowRequestsModal
+        open={followersModalOpen}
+        communityID={communityInfo._id}
+        handleClose={() => setFollowersModalOpen(false)}
+      />
+      <PendingMembersModal
+        open={membersModalOpen}
+        communityID={communityInfo._id}
+        handleClose={() => setMembersModalOpen(false)}
+      />
     </RSCard>
   );
 };
