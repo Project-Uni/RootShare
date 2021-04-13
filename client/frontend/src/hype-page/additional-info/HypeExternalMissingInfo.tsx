@@ -119,14 +119,7 @@ function HypeExternalMissingInfo(props: Props) {
   const refreshToken = values.refreshToken as string;
 
   async function checkCompletedRegistration() {
-    const { data } = await makeRequest(
-      'POST',
-      '/auth/getRegistrationInfo',
-      {},
-      true,
-      accessToken,
-      refreshToken
-    );
+    const { data } = await makeRequest('POST', '/auth/getRegistrationInfo');
     if (data['success'] === 1) {
       if (data['content']['externalComplete']) setAdditionalRedirect(true);
     } else setLandingRedirect(true);

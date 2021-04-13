@@ -189,17 +189,10 @@ function EventMessageContainer(props: Props) {
   }
 
   async function fetchMessages() {
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/getLatestMessages',
-      {
-        conversationID: props.conversationID,
-        maxMessages: MAX_MESSAGES,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/messaging/getLatestMessages', {
+      conversationID: props.conversationID,
+      maxMessages: MAX_MESSAGES,
+    });
 
     if (data['success'] !== 1) return;
     const messages = data['content']['messages'];
@@ -223,14 +216,11 @@ function EventMessageContainer(props: Props) {
     };
     addMessage(newMessageObj as MessageType);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/sendMessage',
-      { conversationID: props.conversationID, message, tempID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/messaging/sendMessage', {
+      conversationID: props.conversationID,
+      message,
+      tempID,
+    });
 
     if (data['success'] !== 1 && data['content']['tempID'])
       addMessageErr(data['content']['tempID']);
@@ -240,10 +230,7 @@ function EventMessageContainer(props: Props) {
     const { data } = await makeRequest(
       'POST',
       '/proxy/webinar/removeViewerFromStream',
-      { userID, webinarID: props.webinarID },
-      true,
-      props.accessToken,
-      props.refreshToken
+      { userID, webinarID: props.webinarID }
     );
 
     return data.success;

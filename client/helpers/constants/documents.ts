@@ -1,6 +1,8 @@
 export const ALLOWED_MIME_TYPES = [
   'image/jpg',
+  'image/jpeg',
   'image/png',
+  'image/x-png',
   'text/plain',
   'text/csv',
   'application/pdf',

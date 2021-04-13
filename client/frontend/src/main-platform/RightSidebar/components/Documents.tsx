@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { dispatchSnackbar } from '../../../redux/actions';
 import { useDispatch } from 'react-redux';
 
-import { RSCard, RSAvatar } from '../../reusable-components';
-import { RSText } from '../../../base-components';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { GrDocumentPdf } from 'react-icons/gr';
+import { CircularProgress } from '@material-ui/core';
+import { GrDocument } from 'react-icons/gr';
+import { AiOutlineCloudUpload } from 'react-icons/ai';
 
-import { deleteDocuments } from '../../../api';
+import { RSCard, RSAvatar, RSLink } from '../../reusable-components';
+import { RSText } from '../../../base-components';
+
+import { postUploadDocuments, deleteDocuments } from '../../../api';
+import { Document, ALLOWED_MIME_TYPES } from '../../../helpers/types';
 import { RIGHT_BAR_WIDTH } from '../RightSidebar';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import { NoDocumentsIcon } from '../../../images';
 import Theme from '../../../theme/Theme';
 
 const MAX_DOCUMENTS = 4;
+const MAX_FILE_SIZE = 4 * 1000 * 1000;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -59,16 +64,10 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-export type Document = {
-  _id: string;
-  entityID: string;
-  fileName: string;
-  url: string;
-};
-
 type Props = {
   // children?: JSX.Element | JSX.Element[] | string | number;
   documents: Document[];
+  entityID: string;
   variant: 'user' | 'community';
   editable: boolean;
   className?: string;
@@ -76,16 +75,22 @@ type Props = {
 
 export const Documents = (props: Props) => {
   const styles = useStyles();
-  const { variant, editable, className } = props;
+  const dispatch = useDispatch();
+
+  const { entityID, variant, editable, className } = props;
 
   const [documents, setDocuments] = useState(props.documents);
+  const [newDocument, setNewDocument] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const fileForm = useRef<HTMLFormElement>(null);
+  const fileUploader = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setDocuments(props.documents);
   }, [props.documents]);
 
   const removeDocument = (documentID: string) => {
-    console.log(documents);
     setDocuments((prevDocuments) => {
       const newDocuments = prevDocuments.slice();
       for (let i = 0; i < newDocuments.length; i++)
@@ -95,6 +100,61 @@ export const Documents = (props: Props) => {
         }
       return prevDocuments;
     });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList || fileList.length === 0) return;
+    for (let i = 0; i < fileList.length; i++)
+      if (fileList[0].size > MAX_FILE_SIZE) {
+        event.target.value = '';
+        dispatch(
+          dispatchSnackbar({
+            message: `Files must be less than 4 MB`,
+            mode: 'notify',
+          })
+        );
+        return;
+      }
+
+    setLoading(true);
+    const data = await postUploadDocuments(fileList, entityID, variant);
+    fileForm.current!.reset();
+
+    setLoading(false);
+    if (data.success === 1) {
+      const uploadedDocs = data.content.documents;
+      setDocuments((prevDocuments) => {
+        const newDocuments = prevDocuments.slice();
+
+        for (let i = 0; i < uploadedDocs.length; i++) {
+          let foundFlag = false;
+          const uploadedDoc = uploadedDocs[i];
+          for (let j = 0; j < prevDocuments.length; j++) {
+            if (uploadedDoc.fileName === newDocuments[j].fileName) {
+              newDocuments[i].url = uploadedDoc.url;
+              foundFlag = true;
+              break;
+            }
+          }
+          if (!foundFlag) newDocuments.push(uploadedDoc);
+        }
+
+        return newDocuments;
+      });
+      dispatch(
+        dispatchSnackbar({
+          message: `Successfully uploaded document`,
+          mode: 'success',
+        })
+      );
+    } else
+      dispatch(
+        dispatchSnackbar({
+          message: `There was an error uploading the document`,
+          mode: 'error',
+        })
+      );
   };
 
   const renderDocuments = () => {
@@ -108,7 +168,7 @@ export const Documents = (props: Props) => {
           key={currDocument._id}
           documentID={currDocument._id}
           fileName={currDocument.fileName}
-          entityID={currDocument.entityID}
+          entityID={entityID}
           entityType={variant}
           url={currDocument.url}
           editable={editable}
@@ -121,10 +181,23 @@ export const Documents = (props: Props) => {
 
   return (
     <RSCard className={[styles.wrapper, className].join(' ')} background="secondary">
+      <form ref={fileForm}>
+        <input
+          type="file"
+          ref={fileUploader}
+          style={{ display: 'none' }}
+          accept={ALLOWED_MIME_TYPES.join(', ')}
+          onChange={handleFileUpload}
+        />
+      </form>
       <RSText className={styles.cardTitle} size={16} bold>
         {`${capitalizeFirstLetter(variant)} Documents`}
       </RSText>
-      {documents.length === 0 ? (
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <CircularProgress size={75} style={{ color: Theme.primary }} />
+        </div>
+      ) : documents.length === 0 ? (
         <div
           style={{
             display: 'flex',
@@ -147,6 +220,21 @@ export const Documents = (props: Props) => {
       ) : (
         renderDocuments()
       )}
+      <div
+        style={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'center',
+          paddingTop: 5,
+        }}
+      >
+        <RSLink onClick={() => fileUploader.current?.click()}>
+          <AiOutlineCloudUpload
+            className={styles.link}
+            size={documents.length === 0 ? 40 : 30}
+          />
+        </RSLink>
+      </div>
     </RSCard>
   );
 };
@@ -201,7 +289,7 @@ const SingleDocument = (props: SingleProps) => {
   return (
     <div className={[styles.documentContainer, visible || styles.fadeOut].join(' ')}>
       <a target="_blank" href={url} className={styles.link}>
-        <GrDocumentPdf style={{ paddingTop: 2, paddingRight: 5 }} />
+        <GrDocument style={{ paddingTop: 2, paddingRight: 5 }} />
         <RSText
           weight="bold"
           style={{ wordWrap: 'break-word', maxWidth: 220, textAlign: 'left' }}

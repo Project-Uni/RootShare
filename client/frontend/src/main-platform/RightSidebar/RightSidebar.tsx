@@ -8,7 +8,8 @@ import { usePrevious } from '../../helpers/hooks';
 import { DiscoverUsers, DiscoverCommunities, Documents } from './components'; // Components
 
 import { getSidebarData } from '../../api/get';
-import { DiscoverUser, DiscoverCommunity, Document } from './components'; // Types
+import { Document } from '../../helpers/types';
+import { DiscoverUser, DiscoverCommunity } from './components'; // Types
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -88,7 +89,6 @@ export const RightSidebar = (props: Props) => {
       pinnedCommunities,
       trending,
     } = data.content;
-    console.log(data);
 
     discoverUsers && setDiscoverUsers(discoverUsers);
     discoverCommunities && setDiscoverCommunities(discoverCommunities);
@@ -151,6 +151,7 @@ export const RightSidebar = (props: Props) => {
           return (
             <Documents
               variant="community"
+              entityID={communityDocuments.communityID!}
               documents={communityDocuments.documents}
               editable={communityDocuments.editable}
             />
@@ -162,6 +163,7 @@ export const RightSidebar = (props: Props) => {
           return (
             <Documents
               variant="user"
+              entityID={userDocuments.userID!}
               editable={userDocuments.editable}
               documents={userDocuments.documents}
             />

@@ -201,9 +201,10 @@ export default function mediaRoutes(app) {
 
   app.post('/api/media/documents', isAuthenticatedWithJWT, async (req, res) => {
     try {
-      const documents = req.files.documents;
-      if (!documents || !Array.isArray(documents))
-        return res.json(sendPacket(0, 'No documents to upload'));
+      let documents = req.files.documents;
+      if (!documents) return res.json(sendPacket(0, 'No documents to upload'));
+      if (!Array.isArray(documents)) documents = [documents];
+
       for (let i = 0; i < documents.length; i++)
         if (documents[i].truncated)
           return res.json(

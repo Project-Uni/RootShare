@@ -17,6 +17,13 @@ export type Link = {
   url: string;
 };
 
+export type Document = {
+  _id: string;
+  entityID: string;
+  fileName: string;
+  url: string;
+};
+
 export type LinkTypes =
   | 'RootShare'
   | 'Google'
@@ -68,4 +75,18 @@ export const WebsiteDict: { url: string; name: LinkTypes }[] = [
   { url: 'stackoverflow.com', name: 'Stack Overflow' },
   { url: 'github.com', name: 'GitHub' },
   { url: 'steamcommunity.com', name: 'Steam' },
+];
+
+export const ALLOWED_MIME_TYPES = [
+  'image/jpg',
+  'image/jpeg',
+  'image/png',
+  'image/x-png',
+  'text/plain',
+  'text/csv',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ];

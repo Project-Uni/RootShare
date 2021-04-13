@@ -378,20 +378,6 @@ export const CommunityMedia = (props: Props) => {
                         </div>
                       );
                   })}
-                  {/* {links.map((link) => {
-                    if (link.linkType === 'Other')
-                      return (
-                        <div style={{ display: 'flex' }}>
-                          <a target="_blank" href={link.url} className={styles.link}>
-                            <AiOutlineLink
-                              style={{ paddingTop: 2, paddingRight: 5 }}
-                            />
-                            <RSText weight="bold">{getDomainName(link.url)}</RSText>
-                          </a>
-                          <div style={{ flex: 1 }} />
-                        </div>
-                      );
-                  })} */}
                 </div>
               </div>
             )}

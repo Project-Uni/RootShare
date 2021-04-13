@@ -356,6 +356,8 @@ export async function uploadDocuments(
             { $push: { documents: { $each: documentIDs } } }
           );
 
+        for (let i = 0; i < documentURLs.length; i++)
+          documentURLs[i]._id = documentIDs[i];
         if (uploadedDocs.length < documents.length)
           return sendPacket(
             1,
