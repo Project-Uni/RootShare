@@ -5,18 +5,16 @@ import { IconButton, Modal, LinearProgress } from '@material-ui/core';
 import { colors } from '../../../../theme/Colors';
 import { FiArrowLeft } from 'react-icons/fi';
 import Theme from '../../../../theme/Theme';
-import RSButton from '../RSButton';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     background: colors.primaryText,
-    borderRadius: '50px',
+    borderRadius: 5,
     outline: 'none',
   },
   pageTitle: {
-    fontFamily: 'lato',
+    marginLeft: 15,
     marginRight: 15,
-    marginLeft: 30,
   },
   top: {
     textAlign: 'left',
@@ -49,6 +47,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   open: boolean;
   className?: string;
+  style?: React.CSSProperties;
   title: string;
   helperText?: string;
   helperIcon?: JSX.Element;
@@ -70,12 +69,13 @@ function RSModal(props: Props) {
       onClose={props.onClose}
     >
       <div
-        className={[styles.wrapper, props.className].join(' ')}
+        className={[props.className, styles.wrapper].join(' ')}
         style={{
           position: 'absolute',
           top: `${50}%`,
           left: `${50}%`,
           transform: `translate(-${50}%, -${50}%)`,
+          ...props.style,
         }}
       >
         {props.loadingIndicator && (

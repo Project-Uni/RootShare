@@ -179,18 +179,17 @@ function ProfileBanner(props: Props) {
   async function handleSaveImage() {
     if (props.preview === true) {
       imageURLToFile(croppedImageURL!, previewPicture);
-    }
-    else {
+    } else {
       imageURLToFile(croppedImageURL!, sendPictureToServer);
     }
   }
 
   async function previewPicture(imageData: string | ArrayBuffer | null | Blob) {
-    props.callback!(imageData as string);
+    props.callback?.(imageData as string);
     setImageSrc(undefined);
     setCurrentPicture(imageData as string);
   }
-  
+
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
@@ -364,7 +363,7 @@ function ProfileBanner(props: Props) {
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >
-            {props.preview == true ? "Select" : "Save"}
+            {props.preview == true ? 'Select' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>

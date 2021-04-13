@@ -33,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   children?: React.ReactNode;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'university' | 'universityRound';
+  variant?: 'primary' | 'secondary' | 'university';
   className?: string;
   style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;

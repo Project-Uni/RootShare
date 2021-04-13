@@ -7,7 +7,7 @@ import { RSCard, RSTabsV2, RSButtonV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
-import EditCommunityModal from './EditCommunityModal';
+import { EditCommunityModal } from './EditCommunityModal';
 import FollowButton from './FollowButton';
 import RelationshipButton from './RelationshipButton';
 import { U2CR, CommunityType } from '../../../helpers/types';
@@ -84,7 +84,7 @@ const useStyles = makeStyles((_: any) => ({
     width: 150,
     marginBottom: 10,
   },
-  right:{
+  right: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -137,29 +137,31 @@ export const CommunityHead = (props: Props) => {
   const [statePrivate, setStatePrivate] = useState(isPrivate);
   const [stateType, setStateType] = useState(type);
   const [stateBanner, setStateBanner] = useState<string | undefined>(bannerPicture);
-  const [stateProfile, setStateProfile] = useState<string | undefined>(profilePicture);
+  const [stateProfile, setStateProfile] = useState<string | undefined>(
+    profilePicture
+  );
 
-  function updateName(name: string){
+  function updateName(name: string) {
     setStateName(name);
   }
 
-  function updateBio(bio: string){
+  function updateBio(bio: string) {
     setStateBio(bio);
   }
 
-  function updatePrivate(isPrivate: boolean){
+  function updatePrivate(isPrivate: boolean) {
     setStatePrivate(isPrivate);
   }
 
-  function updateType(type: CommunityType){
+  function updateType(type: CommunityType) {
     setStateType(type);
   }
 
-  function updateBanner(banner: string | undefined){
+  function updateBanner(banner: string | undefined) {
     setStateBanner(banner);
   }
 
-  function updateProfile(profile: string | undefined){
+  function updateProfile(profile: string | undefined) {
     setStateProfile(profile);
   }
 
@@ -182,7 +184,12 @@ export const CommunityHead = (props: Props) => {
             />
           )}
         </RSText>
-        <Tag className={styles.tag} tag={stateType} variant="university" weight="light" />
+        <Tag
+          className={styles.tag}
+          tag={stateType}
+          variant="university"
+          weight="light"
+        />
         <RSText size={12} color={Theme.secondaryText} className={styles.bio}>
           {stateBio}
         </RSText>
@@ -211,18 +218,22 @@ export const CommunityHead = (props: Props) => {
     return (
       <div className={styles.right}>
         <div className={styles.editBtnContainer}>
-          {relationship == U2CR.ADMIN ?
+          {relationship == U2CR.ADMIN ? (
             <RSButtonV2
               variant="universitySecondary"
               className={styles.editButton}
               onClick={() => setShowEditCommunityModal(true)}
               borderRadius={25}
             >
-              <RSText size={10} bold={false}>Edit Profile</RSText>
-            </RSButtonV2> : <br/>}
+              <RSText size={10} bold={false}>
+                Edit Profile
+              </RSText>
+            </RSButtonV2>
+          ) : (
+            <br />
+          )}
         </div>
         <div className={styles.btnContainer}>
-          
           <RSText size={11}>{`${numMembers} ${
             numMembers === 1 ? 'Member' : 'Members'
           }`}</RSText>
@@ -241,31 +252,32 @@ export const CommunityHead = (props: Props) => {
     );
   };
 
-  const [showEditCommunityModal, setShowEditCommunityModal] = useState(
-    false
-  );
+  const [showEditCommunityModal, setShowEditCommunityModal] = useState(false);
 
   return (
     <div>
-      {relationship == U2CR.ADMIN ?
-      <EditCommunityModal
-        communityID={communityID}
-        name={stateName}
-        bio={stateBio}
-        private={statePrivate}
-        type={stateType}
-        open={showEditCommunityModal}
-        onClose={() => setShowEditCommunityModal(false)}
-        updateName={updateName}
-        updateBio={updateBio}
-        updatePrivate={updatePrivate}
-        updateType={updateType}
-        updateBanner={updateBanner}
-        updateProfile={updateProfile}
-        editable={relationship === 'admin'}
-        banner={bannerPicture}
-        profilePicture={profilePicture}
-        /> : ""}
+      {relationship == U2CR.ADMIN ? (
+        <EditCommunityModal
+          communityID={communityID}
+          name={stateName}
+          bio={stateBio}
+          private={statePrivate}
+          type={stateType}
+          open={showEditCommunityModal}
+          onClose={() => setShowEditCommunityModal(false)}
+          updateName={updateName}
+          updateBio={updateBio}
+          updatePrivate={updatePrivate}
+          updateType={updateType}
+          updateBanner={updateBanner}
+          updateProfile={updateProfile}
+          editable={relationship === 'admin'}
+          banner={bannerPicture}
+          profilePicture={profilePicture}
+        />
+      ) : (
+        ''
+      )}
       <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
         <ProfileBanner
           height={225}
@@ -275,8 +287,8 @@ export const CommunityHead = (props: Props) => {
           currentPicture={stateBanner}
           zoomOnClick
         />
-         
-        <div className={styles.horizontalDiv}>         
+
+        <div className={styles.horizontalDiv}>
           <div className={styles.profilePictureContainer}>
             <ProfilePicture
               type="community"
