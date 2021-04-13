@@ -12,25 +12,26 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   selectedTab: {
-    background: Theme.white,
-    color: Theme.primary,
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
+    background: Theme.primaryHover,
+    borderRadius: 25,
   },
   notSelectedTab: {
-    background: Theme.primaryHover,
+    background: Theme.background,
+    borderRadius: 25,
+  },
+  selectedText: {
     color: Theme.white,
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
+  },
+  notSelectedText: {
+    color: Theme.primaryHover,
     '&:hover': {
-      background: Theme.primary,
-      color: Theme.white,
+      color: Theme.bright,
     },
   },
   tab: {
     flexBasis: '100%',
-    paddingTop: 15,
-    paddingBottom: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -63,7 +64,17 @@ function RSTabs(props: Props) {
             props.onChange(props.tabs[i].value);
           }}
         >
-          <RSText size={11}>{props.tabs[i].label.toUpperCase()}</RSText>
+          <RSText
+            className={
+              props.selected === props.tabs[i].value
+                ? styles.selectedText
+                : styles.notSelectedText
+            }
+            bold
+            size={12}
+          >
+            {props.tabs[i].label}
+          </RSText>
         </div>
       );
     }
