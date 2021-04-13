@@ -79,9 +79,13 @@ function RSTabs(props: Props) {
             props.onChange(props.tabs[i].value);
           }}
         >
-          {props.selected === props.tabs[i].value
-          ? <RSText className={styles.selectedText} bold={true} size={16}>{props.tabs[i].label}</RSText>
-          : <RSText className={styles.notSelectedText} bold={true} size={16}>{props.tabs[i].label}</RSText>}
+
+        <RSText className={props.selected === props.tabs[i].value ? styles.selectedText : styles.notSelectedText} 
+          bold={true} 
+          size={16}>
+          {props.tabs[i].label}
+        </RSText>
+        
         </div>
       );
     }
