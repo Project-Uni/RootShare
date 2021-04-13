@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { makeStyles } from "@material-ui/core";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core';
 import Theme from '../../../theme/Theme';
 import { RSLink } from '..';
 import { RSText } from '../../../base-components';
@@ -31,27 +31,25 @@ const useStyles = makeStyles((_: any) => ({
     width: '80%',
     marginLeft: 20,
   },
-  title:{
+  title: {
     marginTop: 5,
     textAlign: 'left',
   },
-  
 }));
 
 type Props = {
-  _id: string,
-  className?: string,
-  banner?: string,
-  date?: string,
-  title?: string,
-  location?: string,
-  breif_description?: string,
+  _id: string;
+  className?: string;
+  image?: string;
+  date?: string;
+  title?: string;
+  location?: string;
 };
 
 export const EventWidget = (props: Props) => {
   const styles = useStyles();
 
-  const [textColor, setTextColor] = useState(Theme.white)
+  const [textColor, setTextColor] = useState(Theme.white);
 
   function handleMouseOver() {
     setTextColor(Theme.bright);
@@ -61,16 +59,13 @@ export const EventWidget = (props: Props) => {
     setTextColor(Theme.white);
   }
 
-
   return (
     <>
       <RSCard className={props.className}>
-        <RSLink
-          href={`/event/${props._id}`}
-        >
+        <RSLink href={`/event/${props._id}`}>
           <div
             style={{
-              backgroundImage: `url(${props.banner})`,
+              backgroundImage: `url(${props.image})`,
             }}
             className={styles.banner}
             onMouseEnter={Theme.bright ? handleMouseOver : undefined}
@@ -80,25 +75,28 @@ export const EventWidget = (props: Props) => {
               <div className={styles.text}>
                 <RSText
                   color={textColor}
-                  size={18}
+                  size={14}
                   bold={true}
-                  className={styles.title}>
+                  className={styles.title}
+                >
                   {props.date}
+                </RSText>
+                <RSText
+                  color={textColor}
+                  size={10}
+                  bold={true}
+                  className={styles.title}
+                >
+                  {props.location}
                 </RSText>
                 <RSText
                   color={textColor}
                   size={12}
                   bold={true}
-                  className={styles.title}>
-                  {props.location}
-                </RSText>
-                <RSText 
-                  color={textColor}
-                  size={14}
-                  bold={true}
                   type="subhead"
                   className={styles.title}
-                  multiline={true}>
+                  multiline={true}
+                >
                   {props.title}
                 </RSText>
               </div>

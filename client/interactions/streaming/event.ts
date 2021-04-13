@@ -326,7 +326,7 @@ export async function getAllEventsUser(userID, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-export async function getPromotedEvents(userID: string, callback) {
+export async function getRecentEvents(limit: number) {
   try {
     const conditions = {
       $and: [
@@ -341,50 +341,34 @@ export async function getPromotedEvents(userID: string, callback) {
           ],
         },
       ],
-    }
+    };
 
     let events = await Webinar.aggregate([
       { $match: conditions },
       { $sort: { createdAt: -1 } },
-      { $limit: 3 },
+      { $limit: limit },
       {
         $project: {
           title: '$title',
           brief_description: '$brief_description',
           full_description: 'full_description',
-          RSVPs: '$RSVPs',
           dateTime: '$dateTime',
           hostCommunity: '$hostCommunity',
-          muxAssetPlaybackID: '$muxAssetPlaybackID',
-          eventBanner: '$eventBanner',
+          eventImage: '$eventImage',
         },
       },
     ]).exec();
 
-    events = await addEventImagesAll(events, 'eventBanner');
-    if (!events) return callback(sendPacket(-1, `Couldn't get recent events`));
+    if (!events) return sendPacket(-1, `Couldn't get recent events`);
 
-    const { connections } = await User.findOne({ _id: userID }, [
-      'connections',
-    ]).populate({ path: 'connections', select: ['from', 'to'] });
+    events = await addEventImagesAll(events, 'eventImage');
 
-    const connectionIDs = connections.reduce((output, connection) => {
-      const otherID =
-        connection['from'].toString() != userID.toString()
-          ? connection['from']
-          : connection['to'];
-
-      output.push(otherID);
-
-      return output;
-    }, []);
-
-    return callback(
-      sendPacket(1, 'Successfully retrieved recent events', { events, connectionIDs })
-    );
+    return sendPacket(1, 'Successfully retrieved recent events', {
+      events,
+    });
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return sendPacket(-1, err.message);
   }
 }
 
