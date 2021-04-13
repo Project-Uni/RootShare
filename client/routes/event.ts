@@ -1,4 +1,4 @@
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
+import { getQueryParams, getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 
 import {
@@ -12,6 +12,7 @@ import {
   addEventImage,
   addEventBanner,
   sendEventEmailConfirmation,
+  getRecentEvents,
 } from '../interactions/streaming/event';
 
 import { updateAttendingList } from '../interactions/user';
@@ -61,6 +62,16 @@ export default function eventRoutes(app) {
   app.get('/api/webinar/recents', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getAllRecentEvents(userID, (packet) => res.json(packet));
+  });
+
+  app.get('/api/webinar/recent', isAuthenticatedWithJWT, async (req, res) => {
+    const query = getQueryParams(req, { limit: { type: 'number', optional: true } });
+    if (!query) res.status(500).json(sendPacket(-1, 'Invalid request'));
+    else {
+      const packet = await getRecentEvents((query.limit || 3) as number);
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
+    }
   });
 
   app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
