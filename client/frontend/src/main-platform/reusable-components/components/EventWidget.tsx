@@ -32,7 +32,8 @@ const useStyles = makeStyles((_: any) => ({
     marginLeft: 20,
   },
   title:{
-    marginTop: 10,
+    marginTop: 5,
+    textAlign: 'left',
   },
   
 }));
@@ -44,8 +45,6 @@ type Props = {
   date?: string,
   title?: string,
   location?: string,
-  hover?: boolean,
-  link?: boolean,
   breif_description?: string,
 };
 
@@ -85,6 +84,13 @@ export const EventWidget = (props: Props) => {
                   bold={true}
                   className={styles.title}>
                   {props.date}
+                </RSText>
+                <RSText
+                  color={textColor}
+                  size={12}
+                  bold={true}
+                  className={styles.title}>
+                  {props.location}
                 </RSText>
                 <RSText 
                   color={textColor}

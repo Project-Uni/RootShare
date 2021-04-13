@@ -13,9 +13,9 @@ const useStyles = makeStyles((_: any) => ({
     marginBottom: 30,
   },
   event: {
-    height: 150,
+    height: 175,
     width: '33%',
-    marginLeft: 20,
+    marginLeft: 15,
     marginRight: 15,
   }
   
@@ -50,7 +50,7 @@ export const PromotedEvents = (props: Props) => {
     for (let i = 0; i < events.length; i++) {
       const currEvent = events[i];
       const eventDateTime = new Date(currEvent.dateTime);
-      const eventDate = formatDateMonth(eventDateTime); //Aug 14, 2020
+      const eventDate = formatDateMonth(eventDateTime); //14 Aug
       const eventTime = formatTime(eventDateTime);
       output.push(
         <EventWidget
@@ -59,7 +59,6 @@ export const PromotedEvents = (props: Props) => {
           title={currEvent.title}
           date={eventDate}
           banner={currEvent.eventBanner}
-          link
         />
       );
     }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Box } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 
 import { useSelector } from 'react-redux';
 
