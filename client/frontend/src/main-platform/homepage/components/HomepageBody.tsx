@@ -43,8 +43,8 @@ const useStyles = makeStyles((_: any) => ({
   tabs: {
     marginLeft: 10,
     marginRight: 10,
-    marginTop: 35,
-    marginBottom: 20,
+    marginTop: 15,
+    marginBottom: 10,
   },
   box: {
     background: Theme.white,
