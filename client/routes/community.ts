@@ -42,6 +42,7 @@ import {
   updateFields,
   //generics
   getCommunitiesGeneric,
+  inviteUser,
 } from '../interactions/community';
 
 const ObjectIdVal = Types.ObjectId;
@@ -634,4 +635,42 @@ export default function communityRoutes(app) {
       else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );
+
+  //TODO - Add in new is communityMember check from pinned-post branch
+  app.put('/api/v2/community/invite', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      invitedIDs,
+      communityID,
+    }: { invitedIDs: string[]; communityID: string } = req.body;
+
+    if (!invitedIDs || !Array.isArray(invitedIDs) || !communityID)
+      res
+        .status(500)
+        .json(
+          sendPacket(
+            -1,
+            'Missing body params: invitedIDs:string[] or communityID: string'
+          )
+        );
+    else {
+      const packet = await inviteUser({
+        communityID,
+        invitedIDs,
+        fromUserID: userID.toString(),
+      });
+      const status = (() => {
+        switch (packet.success) {
+          case 1:
+            return 200;
+          case 0:
+            return 400;
+          case -1:
+          default:
+            return 500;
+        }
+      })();
+      res.status(status).json(packet);
+    }
+  });
 }

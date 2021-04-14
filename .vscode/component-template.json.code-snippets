@@ -12,5 +12,23 @@
       "};"
     ],
     "description": "Quick template for new react component"
+  },
+  "API Frontend Template": {
+    "prefix": ["api"],
+    "body": [
+      "import { makeRequest } from '../../helpers/functions';",
+      "import { stringify } from 'qs';\n",
+      "export const $1 = async ({}: {}) => {",
+      "const query = stringify({});",
+      "const { data } = await makeRequest('$2', `$3`);\n",
+      "return data;",
+      "};"
+    ],
+    "description": "Quick template for frontend API call integration"
+  },
+  "Async Export Function Template": {
+    "prefix": "fn",
+    "body": ["export const $1 = async ({}:{}) => {\n}"],
+    "description": "Returns an async function template"
   }
 }

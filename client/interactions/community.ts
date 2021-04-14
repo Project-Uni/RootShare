@@ -13,7 +13,12 @@ import {
   IDocument,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
-import { CommunityType, U2CR, AccountType } from '../rootshare_db/types';
+import {
+  CommunityType,
+  U2CR,
+  AccountType,
+  ObjectIdVal,
+} from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -1119,7 +1124,7 @@ export async function getAllFollowingCommunities(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followingCommunities[i].profilePicture = signedImageURLs[i];
+            followingCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1169,7 +1174,7 @@ export async function getAllFollowedByCommunities(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followedByCommunities[i].profilePicture = signedImageURLs[i];
+            followedByCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1218,7 +1223,7 @@ export async function getAllPendingFollowRequests(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            pendingFollowRequests[i].profilePicture = signedImageURLs[i];
+            pendingFollowRequests[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1424,5 +1429,63 @@ export const getCommunitiesGeneric = async (
   } catch (err) {
     log('error', err);
     return sendPacket(-1, 'Failed to retrieve communities', { error: err.message });
+  }
+};
+
+export const inviteUser = async ({
+  fromUserID,
+  invitedIDs,
+  communityID,
+}: {
+  fromUserID: string;
+  invitedIDs: string[];
+  communityID: string;
+}) => {
+  try {
+    const isMemberPromises: Promise<boolean>[] = invitedIDs.map((invitedID) => {
+      try {
+        return Community.model.exists({
+          $and: [
+            { _id: communityID },
+            {
+              $or: [
+                {
+                  members: {
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
+                  },
+                },
+                {
+                  pendingMembers: {
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
+                  },
+                },
+              ],
+            },
+          ],
+        });
+      } catch (err) {
+        return new Promise((resolve) => resolve(false));
+      }
+    });
+
+    const isMemberArr = await Promise.all(isMemberPromises);
+
+    let success = true;
+    isMemberArr.forEach(async (isMember, idx) => {
+      if (!isMember) {
+        const attempt = await new NotificationService().communityInvite({
+          fromUser: fromUserID,
+          communityID,
+          forUser: invitedIDs[idx],
+        });
+        if (!attempt) success = false;
+      }
+    });
+
+    if (success) return sendPacket(1, 'Successfully invited user to commnunity');
+    return sendPacket(-1, 'Failed to invite user');
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err.message);
   }
 };
