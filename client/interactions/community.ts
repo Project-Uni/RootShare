@@ -472,7 +472,7 @@ export async function joinCommunity(
       //Update User DB Entry
       if (
         (user.joinedCommunities as ObjectIdType[]).indexOf(communityID) === -1 &&
-        (user.pendingCommunities as ObjectIdType[]).indexOf(communityID) == -1
+        (user.pendingCommunities as ObjectIdType[]).indexOf(communityID) === -1
       ) {
         isMember = false;
         if (community.private === false) {

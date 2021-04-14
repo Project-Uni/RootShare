@@ -101,7 +101,7 @@ export default function userRoutes(app: Express) {
       const { _id } = getUserFromJWT(req);
 
       let packet;
-      if (_id === ObjectIdVal(userID))
+      if (_id.equals(ObjectIdVal(userID)))
         packet = await getSelfConnectionsFullData(userID);
       else packet = await getOtherConnectionsFullData(_id, ObjectIdVal(userID));
       return res.json(packet);

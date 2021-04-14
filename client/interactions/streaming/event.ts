@@ -533,7 +533,7 @@ function canUpdateRSVP(
 
     if (
       (webinar.speakers as ObjectIdType[]).includes(userID) ||
-      userID === (webinar.host as ObjectIdType)
+      userID.equals(webinar.host as ObjectIdType)
     )
       return callback(sendPacket(0, 'User cannot update RSVP'));
 
