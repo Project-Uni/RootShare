@@ -2,7 +2,7 @@ import React, { useEffect, useState, createElement } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { CircularProgress, Grid, TextField } from '@material-ui/core';
+import { CircularProgress, Grid, IconButton, TextField } from '@material-ui/core';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { AiOutlineLink } from 'react-icons/ai';
 import { SocialIcon } from 'react-social-icons';
@@ -18,7 +18,7 @@ import {
   RSAvatar,
   RSTextField,
 } from '../../reusable-components';
-import { RSText } from '../../../base-components';
+import { DynamicIconButton, RSText } from '../../../base-components';
 
 import { getCommunityMedia, postUploadLinks } from '../../../api';
 import { ImageType, Link, WebsiteDict } from '../../../helpers/types';
@@ -26,6 +26,7 @@ import { capitalizeFirstLetter } from '../../../helpers/functions';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { RootShareIconPaleYellow, SocialMediaIcon } from '../../../images';
+import { BiPlus } from 'react-icons/bi';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -204,13 +205,15 @@ export const CommunityMedia = (props: Props) => {
   };
 
   const addLink = () => {
-    const newLink = {
-      linkType: getLinkTypes(currEditLink),
-      url: formatURL(currEditLink),
-    };
-    setEditLinks((prevEditLinks) => prevEditLinks.concat(newLink));
-    setAddLinks((prevAddLinks) => prevAddLinks.concat(newLink));
-    setCurrEditLink('');
+    if (currEditLink) {
+      const newLink = {
+        linkType: getLinkTypes(currEditLink),
+        url: formatURL(currEditLink),
+      };
+      setEditLinks((prevEditLinks) => prevEditLinks.concat(newLink));
+      setAddLinks((prevAddLinks) => prevAddLinks.concat(newLink));
+      setCurrEditLink('');
+    }
   };
 
   const getLinkTypes = (url: string) => {
@@ -296,18 +299,22 @@ export const CommunityMedia = (props: Props) => {
                     </div>
                   );
                 })}
-                <RSTextField
-                  label="URL"
-                  fullWidth
-                  style={{ marginTop: 10 }}
-                  value={currEditLink}
-                  placeholder="https://rootshare.io/profile/user"
-                  onKeyDown={(e) => e.keyCode === ENTER_KEYCODE && addLink()}
-                  onChange={(e: any) => setCurrEditLink(e.target.value)}
-                  // error={formErrors.major !== ''}
-                  // helperText={formErrors.major}
-                  fontSize={16}
-                />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <RSTextField
+                    label="URL"
+                    fullWidth
+                    style={{ marginTop: 10 }}
+                    value={currEditLink}
+                    placeholder="https://rootshare.io/profile/user"
+                    onKeyDown={(e) => e.keyCode === ENTER_KEYCODE && addLink()}
+                    onChange={(e: any) => setCurrEditLink(e.target.value)}
+                    helperText={'Press enter to add the link'}
+                    fontSize={16}
+                  />
+                  <DynamicIconButton onClick={addLink} style={{ height: '100%' }}>
+                    <BiPlus />
+                  </DynamicIconButton>
+                </div>
               </div>
             ) : links.length === 0 ? (
               <div
