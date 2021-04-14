@@ -11,7 +11,8 @@ import {
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
-  isCommunityMember,
+  isCommunityAdminFromQueryParams,
+  isCommunityMemberFromQueryParams,
 } from './middleware/communityAuthentication';
 
 import {
@@ -42,8 +43,11 @@ import {
   updateFields,
   //generics
   getCommunitiesGeneric,
+  pinPost,
+  getPinnedPosts,
   inviteUser,
 } from '../interactions/community';
+import { String } from 'aws-sdk/clients/cloudsearchdomain';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -636,6 +640,87 @@ export default function communityRoutes(app) {
     }
   );
 
+  /**
+   *
+   * @swagger
+   * paths:
+   *   /api/v2/community/pin:
+   *      put:
+   *        summary: Pin or unpin a post to a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: query
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            description: The id of the community to pin post
+   *
+   *          - in: query
+   *            name: postID
+   *            schema:
+   *              type: string
+   *            description: Id of the post to pin
+   *
+   *        responses:
+   *          "200":
+   *            description: Successfully pinned / unpinned post
+   *          "500":
+   *            description: There was an error pinning the post
+   *
+   */
+
+  app.put(
+    '/api/v2/community/pin',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      const query = getQueryParams<{ postID: string; communityID: string }>(req, {
+        communityID: { type: 'string' },
+        postID: { type: 'string' },
+      });
+
+      if (!query)
+        res
+          .status(500)
+          .json(sendPacket(-1, 'Missing query params communityID or postID'));
+      else {
+        let { postID, communityID } = query;
+
+        const packet = await pinPost({
+          postID: ObjectIdVal(postID),
+          communityID: ObjectIdVal(communityID),
+        });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
+    }
+  );
+
+  app.get(
+    '/api/v2/community/pinnedPosts',
+    isAuthenticatedWithJWT,
+    isCommunityMemberFromQueryParams,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams<{ communityID: string }>(req, {
+        communityID: { type: 'string' },
+      });
+
+      if (!query)
+        res.status(500).json(sendPacket(-1, 'Missing query param: communityID'));
+      else {
+        let { communityID } = query;
+        communityID = communityID as string;
+        const packet = await getPinnedPosts({
+          communityID: ObjectIdVal(communityID),
+          userID,
+        });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
+    }
+  );
   //TODO - Add in new is communityMember check from pinned-post branch
   app.put('/api/v2/community/invite', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);

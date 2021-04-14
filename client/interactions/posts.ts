@@ -1306,7 +1306,7 @@ export const getPost = async ({
   }
 };
 
-async function retrievePosts(
+export async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
   userID: ObjectIdType,

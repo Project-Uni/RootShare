@@ -1,7 +1,13 @@
+import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 
-import { getUserFromJWT, log, sendPacket } from '../../helpers/functions';
 import { Community } from '../../rootshare_db/models';
+import {
+  getQueryParams,
+  getUserFromJWT,
+  log,
+  sendPacket,
+} from '../../helpers/functions';
 
 type ObjectIdType = Types.ObjectId;
 
@@ -39,3 +45,55 @@ export async function isCommunityMember(req, res, next) {
   if (isMember) return next();
   else return res.json(sendPacket(-1, 'User is not a member of this community'));
 }
+
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+
+export const isCommunityAdminFromQueryParams = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { _id: userID } = getUserFromJWT(req);
+  const query = getQueryParams<{ communityID: string }>(req, {
+    communityID: { type: 'string' },
+  });
+  if (!query)
+    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
+
+  let { communityID } = query;
+  communityID = communityID as string;
+
+  //TODO - Might need to update to use objectID here
+  const isAdmin = await Community.model.exists({ _id: communityID, admin: userID });
+  if (isAdmin) next();
+  else res.status(401).json(sendPacket(-1, 'User is not community admin'));
+};
+
+export const isCommunityMemberFromQueryParams = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { _id: userID } = getUserFromJWT(req);
+  const query = getQueryParams<{ communityID: string }>(req, {
+    communityID: { type: 'string' },
+  });
+  if (!query)
+    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
+
+  let { communityID } = query;
+  communityID = communityID as string;
+
+  const isMember = await Community.model.exists({
+    _id: communityID,
+    members: { $elemMatch: { $eq: userID } },
+  });
+
+  if (isMember) next();
+  else res.status(401).json(sendPacket(-1, 'User is not community member'));
+};
