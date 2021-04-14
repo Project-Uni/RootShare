@@ -254,7 +254,8 @@ export async function updateLinks(
           )
         );
         updatePromises.push(
-          User.model.updateOne(
+          //TODO - Fix typing issue with this db command
+          (User.model as any).updateOne(
             { _id: userID },
             { $pull: { links: { $in: removeIDs } } }
           )
@@ -267,7 +268,8 @@ export async function updateLinks(
           )
         );
         updatePromises.push(
-          Community.model.updateOne(
+          //TODO - Fix typing issue with this db command
+          (Community.model as any).updateOne(
             { _id: entityID },
             { $pull: { links: { $in: removeIDs } } }
           )
@@ -394,14 +396,16 @@ export async function deleteDocuments(
   updatePromises.push(Document.model.deleteMany({ _id: { $in: documentIDs } }));
   if (entityType === 'user')
     updatePromises.push(
-      User.model.updateOne(
+      //TODO - Fix typing issue with this db command
+      (User.model as any).updateOne(
         { _id: userID },
         { $pull: { documents: { $in: documentIDs } } }
       )
     );
   else
     updatePromises.push(
-      Community.model.updateOne(
+      //TODO - Fix typing issue with this db command
+      (Community.model as any).updateOne(
         { _id: entityID },
         { $pull: { documents: { $in: documentIDs } } }
       )

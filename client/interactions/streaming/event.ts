@@ -152,10 +152,11 @@ function addRSVPs(webinarID: ObjectIdType, speakers: ObjectIdType[]) {
 function removeRSVPs(webinarID: ObjectIdType, oldSpeakers: ObjectIdType[]) {
   const temp: any[] = [];
 
-  const webinarPromise = Webinar.model
+  //TODO - Fix typing issue with this db command
+  const webinarPromise = (Webinar.model as any)
     .updateOne({ _id: webinarID }, { $pull: { RSVPs: oldSpeakers } })
     .exec();
-  const userPromise = User.model
+  const userPromise = (User.model as any)
     .updateMany(
       { _id: { $in: oldSpeakers } },
       { $pull: { RSVPWebinars: webinarID.toString() } }
