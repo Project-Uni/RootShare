@@ -365,6 +365,54 @@ export async function getAllEventsUser(
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
+export async function getRecentEvents(limit: number) {
+  try {
+    const conditions = {
+      $and: [
+        { isDev: false },
+        {
+          $or: [{ isMTG: false }, { isMTG: undefined }],
+        },
+        {
+          $or: [
+            { muxAssetPlaybackID: { $ne: undefined } },
+            { dateTime: { $gte: new Date().getTime() - 240 * 60 * 1000 } },
+          ],
+        },
+      ],
+    };
+
+    let events = await Webinar.model
+      .aggregate([
+        { $match: conditions },
+        { $sort: { createdAt: -1 } },
+        { $limit: limit },
+        {
+          $project: {
+            title: '$title',
+            brief_description: '$brief_description',
+            full_description: 'full_description',
+            dateTime: '$dateTime',
+            hostCommunity: '$hostCommunity',
+            eventImage: '$eventImage',
+          },
+        },
+      ])
+      .exec();
+
+    if (!events) return sendPacket(-1, `Couldn't get recent events`);
+
+    events = await addEventImagesAll(events, 'eventImage');
+
+    return sendPacket(1, 'Successfully retrieved recent events', {
+      events,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err.message);
+  }
+}
+
 function addUserDidRSVP(
   userID: ObjectIdType,
   webinars: { _id: ObjectIdType; userRSVP: boolean }[],

@@ -6,3 +6,4 @@ export * from './getPosts';
 export * from './getCommentsForPost';
 export * from './getSidebarData';
 export * from './getCommunityMedia';
+export * from './getRecentEvents';

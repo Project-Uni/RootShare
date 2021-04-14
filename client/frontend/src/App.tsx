@@ -85,7 +85,7 @@ const App = () => {
 
             <Route
               exact
-              path="/register/resetPassword/:emailtoken"
+              path="/register/resetPassword/:emailToken"
               component={ResetPassword}
             />
 
