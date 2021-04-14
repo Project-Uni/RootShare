@@ -13,7 +13,7 @@ export default class NotificationService {
         getUsername(fromUser),
       ]);
 
-      if (!forUser || !fromUserName || forUser === ObjectIdVal(fromUser)) return;
+      if (!forUser || !fromUserName || forUser.equals(ObjectIdVal(fromUser))) return;
 
       await Notifications.create({
         variant: 'like',

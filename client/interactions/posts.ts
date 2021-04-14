@@ -74,7 +74,7 @@ export async function createBroadcastUserPost(
     }
 
     log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { post: postObj });
+    return sendPacket(1, 'Successfully created post', { post: postObj || post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);
