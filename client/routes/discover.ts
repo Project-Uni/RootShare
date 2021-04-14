@@ -1,3 +1,4 @@
+import { Express } from 'express';
 import { Types } from 'mongoose';
 
 import { SidebarData } from '../rootshare_db/types';
@@ -12,11 +13,12 @@ import {
   populateDiscoverForUser,
   exactMatchSearchFor,
   getSidebarData,
+  communityInviteSearch,
 } from '../interactions/discover';
 
 const ObjectIdVal = Types.ObjectId;
 
-export default function discoverRoutes(app) {
+export default function discoverRoutes(app: Express) {
   app.get('/api/discover/populate', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const packet = await populateDiscoverForUser(userID);
@@ -74,4 +76,38 @@ export default function discoverRoutes(app) {
       res.json(sendPacket(-1, err.message));
     }
   });
+
+  //TODO - Use community member from query params middleware
+  app.get(
+    '/api/discover/communityInvite',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const reqQuery = getQueryParams<{
+        query: string;
+        communityID: string;
+        limit?: number;
+      }>(req, {
+        query: { type: 'string' },
+        communityID: { type: 'string' },
+        limit: { type: 'number', optional: true },
+      });
+      if (!reqQuery)
+        return res.status(500).json(sendPacket(-1, 'No query provided'));
+
+      let { query, communityID, limit } = reqQuery;
+      communityID = communityID as string;
+      query = query as string;
+      limit = limit as number;
+
+      const packet = await communityInviteSearch({
+        query,
+        limit,
+        communityID,
+        userID: userID.toString(),
+      });
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
+    }
+  );
 }

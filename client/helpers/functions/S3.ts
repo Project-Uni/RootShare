@@ -104,7 +104,6 @@ export async function retrieveSignedUrl(
 
     return signedURL;
   } catch (err) {
-    log('err', err);
     return false;
   }
 }

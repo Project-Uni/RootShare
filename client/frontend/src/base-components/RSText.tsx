@@ -48,7 +48,13 @@ type Props = {
   onClick?: () => any;
 };
 
-function RSText(props: Props) {
+function RSText(
+  props: Props &
+    React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLParagraphElement>,
+      HTMLParagraphElement
+    >
+) {
   const styles = useStyles();
 
   const {
@@ -64,6 +70,7 @@ function RSText(props: Props) {
     hoverColor,
     children,
     onClick,
+    ...rest
   } = props;
 
   const [style, setStyle] = useState({
@@ -100,6 +107,7 @@ function RSText(props: Props) {
       onMouseEnter={hoverColor ? handleMouseOver : undefined}
       onMouseLeave={hoverColor ? handleMouseLeave : undefined}
       onClick={onClick}
+      {...rest}
     >
       {children}
     </p>

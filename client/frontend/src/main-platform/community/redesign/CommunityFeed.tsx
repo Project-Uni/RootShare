@@ -9,7 +9,7 @@ import { CircularProgress } from '@material-ui/core';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 
-import { getPosts } from '../../../api';
+import { getPosts, getPinnedPosts, putPinPost } from '../../../api';
 import { PostType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
 
@@ -29,9 +29,14 @@ export const CommunityFeed = (props: Props) => {
 
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [pinnedPosts, setPinnedPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
-    fetchPosts().then(() => setLoading(false));
+    const promises: Promise<void>[] = [];
+    promises.push(fetchPosts());
+    promises.push(fetchPinnedPosts());
+
+    Promise.all(promises).then(() => setLoading(false));
   }, []);
 
   const fetchPosts = async () => {
@@ -50,6 +55,31 @@ export const CommunityFeed = (props: Props) => {
     }
   };
 
+  const fetchPinnedPosts = async () => {
+    const data = await getPinnedPosts({ communityID });
+    if (data.success === 1) {
+      setPinnedPosts(data.content.posts);
+    }
+  };
+
+  const handlePinPostClicked = async (postID: string) => {
+    const data = await putPinPost({ postID, communityID });
+    if (data.success === 1) {
+      dispatch(
+        dispatchSnackbar({ mode: 'notify', message: 'Successfully pinned post' })
+      );
+      return true;
+    } else {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'Failed to pin post. Please try again later',
+        })
+      );
+      return false;
+    }
+  };
+
   const appendPost = (post: PostType) => {
     setPosts((prev) => [post, ...prev]);
   };
@@ -64,13 +94,40 @@ export const CommunityFeed = (props: Props) => {
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
-        posts?.map((post) => (
-          <UserPost
-            post={post}
-            style={{ marginTop: 15 }}
-            options={{ hideToCommunity: true }}
-          />
-        ))
+        <>
+          {pinnedPosts.map((post) => (
+            <UserPost
+              post={post}
+              style={{ marginTop: 15 }}
+              options={{
+                hideToCommunity: true,
+                pinToCommunityMenuItem:
+                  admin === user._id
+                    ? { value: true, onPin: handlePinPostClicked }
+                    : undefined,
+                pinned: true,
+              }}
+            />
+          ))}
+          {posts
+            .filter(
+              (post) =>
+                !pinnedPosts.some((pinnedPost) => pinnedPost._id === post._id)
+            )
+            .map((post) => (
+              <UserPost
+                post={post}
+                style={{ marginTop: 15 }}
+                options={{
+                  hideToCommunity: true,
+                  pinToCommunityMenuItem:
+                    admin === user._id
+                      ? { value: true, onPin: handlePinPostClicked }
+                      : undefined,
+                }}
+              />
+            ))}
+        </>
       )}
     </div>
   );

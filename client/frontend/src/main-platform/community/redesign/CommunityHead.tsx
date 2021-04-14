@@ -7,13 +7,11 @@ import { RSCard, RSTabsV2, RSButtonV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
 import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
-import { EditCommunityModal } from './EditCommunityModal';
-import FollowButton from './FollowButton';
-import RelationshipButton from './RelationshipButton';
-import { U2CR, CommunityType } from '../../../helpers/types';
+import { FollowButton, RelationshipButton, InviteButton } from './buttons';
 import Tag from './Tag';
 import Theme from '../../../theme/Theme';
-import { Community } from '../../../helpers/types';
+import { Community, U2CR, CommunityType } from '../../../helpers/types';
+import { EditCommunityModal } from './EditCommunityModal';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -238,6 +236,7 @@ export const CommunityHead = (props: Props) => {
           <RSText size={11}>{`${numMembers} ${
             numMembers === 1 ? 'Member' : 'Members'
           }`}</RSText>
+          <InviteButton communityName={name} communityID={communityID} />
           <FollowButton
             communityID={communityID}
             name={name}

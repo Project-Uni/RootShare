@@ -1007,7 +1007,8 @@ export async function getLikes(postID: ObjectIdType, userID: ObjectIdType) {
     return Promise.all(signedImagePromises)
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++)
-          if (signedImageURLs[i]) likes[i].profilePicture = signedImageURLs[i];
+          if (signedImageURLs[i])
+            likes[i].profilePicture = signedImageURLs[i] as string;
 
         return sendPacket(1, 'Successfully retrieved likes', { likes });
       })
@@ -1305,7 +1306,7 @@ export const getPost = async ({
   }
 };
 
-async function retrievePosts(
+export async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
   userID: ObjectIdType,

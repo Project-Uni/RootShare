@@ -131,7 +131,7 @@ function RSModal(props: Props) {
             className={styles.helperText}
             size={12}
             italic
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
           >
             {props.helperText}
           </RSText>

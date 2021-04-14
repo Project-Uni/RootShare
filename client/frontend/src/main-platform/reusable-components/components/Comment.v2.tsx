@@ -1,10 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { RSText } from '../../../base-components';
 import { Avatar } from '@material-ui/core';
 import { RSLink } from '..';
 import { formatPostTime } from './UserPost.v2';
 import Theme from '../../../theme/Theme';
+import { useDispatch } from 'react-redux';
+import {
+  dispatchHoverPreview,
+  hoverPreviewTriggerComponentExit,
+} from '../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -34,6 +39,10 @@ export const Comment = (props: CommentProps) => {
   const { className, style, comment } = props;
   const styles = useStyles();
 
+  const dispatch = useDispatch();
+
+  const isHovering = useRef(false);
+
   const getUserDescription = useCallback(() => {
     const {
       user: { major, graduationYear, position, work },
@@ -49,6 +58,23 @@ export const Comment = (props: CommentProps) => {
 
     return description;
   }, [comment]);
+
+  const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
+    isHovering.current = true;
+    const currentTarget = e.currentTarget;
+    setTimeout(() => {
+      if (isHovering.current)
+        dispatch(
+          dispatchHoverPreview({
+            _id: comment.user._id,
+            type: 'user',
+            profilePicture: comment.user.profilePicture,
+            name: `${comment.user.firstName} ${comment.user.lastName}`,
+            anchorEl: currentTarget,
+          })
+        );
+    }, 750);
+  };
 
   return (
     <div
@@ -66,6 +92,13 @@ export const Comment = (props: CommentProps) => {
         <Avatar
           src={comment.user.profilePicture}
           style={{ height: 50, width: 50 }}
+          onMouseEnter={handleMouseOver}
+          onMouseLeave={() => {
+            isHovering.current = false;
+            setTimeout(() => {
+              dispatch(hoverPreviewTriggerComponentExit());
+            }, 500);
+          }}
         />
       </RSLink>
       <div
@@ -82,7 +115,17 @@ export const Comment = (props: CommentProps) => {
         id="comment-body"
       >
         <RSLink href={`/profile/${comment.user._id}`} underline="hover">
-          <RSText size={11} bold>
+          <RSText
+            size={11}
+            bold
+            onMouseEnter={handleMouseOver}
+            onMouseLeave={() => {
+              isHovering.current = false;
+              setTimeout(() => {
+                dispatch(hoverPreviewTriggerComponentExit());
+              }, 500);
+            }}
+          >
             {comment.user.firstName} {comment.user.lastName}
           </RSText>
         </RSLink>
