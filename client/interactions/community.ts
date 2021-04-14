@@ -29,7 +29,7 @@ import {
 } from './utilities';
 import { retrieveAllUrls } from './media';
 import { deletePost } from './posts';
-
+import NotificationService from './notification';
 type ObjectIdType = Types.ObjectId;
 
 export async function createNewCommunity(
@@ -659,6 +659,10 @@ export async function acceptPendingMember(
       )
       .exec();
 
+    new NotificationService().communityAccept({
+      communityID: communityID.toString(),
+      forUser: userID.toString(),
+    });
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `Accepted user ${userID} into community ${communityID}`);

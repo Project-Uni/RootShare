@@ -23,6 +23,7 @@ import {
   deleteFile,
 } from '../helpers/functions';
 import { generateSignedProfilePromises } from './utilities';
+import NotificationService from './notification';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -755,6 +756,12 @@ export async function leaveCommentOnPost(
           .updateOne({ _id: postID }, { $push: { comments: comment._id } })
           .exec();
 
+        new NotificationService().comment({
+          fromUser: userID.toString(),
+          postID: postID.toString(),
+          comment: message,
+        });
+
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
           comment,
         });
@@ -932,6 +939,10 @@ export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
           .updateOne({ _id: userID }, { $addToSet: { likes: postID } })
           .exec();
 
+        new NotificationService().like({
+          fromUser: userID.toString(),
+          postID: postID.toString(),
+        });
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log('info', `User ${userID} successfully liked post ${postID}`);
           return sendPacket(1, 'Successfully liked post');
@@ -1273,6 +1284,26 @@ export async function retrieveComments(
     return sendPacket(-1, err);
   }
 }
+
+export const getPost = async ({
+  userID,
+  postID,
+}: {
+  postID: string;
+  userID: ObjectIdType;
+}) => {
+  //TODO - Determine if user has access to get post
+  const hasAccess = true;
+  try {
+    const post = await retrievePosts({ _id: ObjectIdVal(postID) }, 1, userID);
+    if (!post) return false;
+
+    return post[0];
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+};
 
 async function retrievePosts(
   condition: { [key: string]: any },

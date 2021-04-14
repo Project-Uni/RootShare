@@ -21,6 +21,7 @@ import {
   addProfilePicturesAll,
   addProfilePicturesToRequests,
 } from './utilities';
+import NotificationService from './notification';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -754,6 +755,10 @@ async function acceptConnectionRequest(request) {
           .exec();
         const connectionPromise = Connection.update(request._id, { accepted: true });
 
+        new NotificationService().connectionAccept({
+          fromUser: userTwoID,
+          forUser: userOneID,
+        });
         return Promise.all([userOneUpdate, userTwoUpdate, connectionPromise]).then(
           ([userOne, userTwo, connection]) => {
             log('info', `Accepted connection ${request._id}`);
