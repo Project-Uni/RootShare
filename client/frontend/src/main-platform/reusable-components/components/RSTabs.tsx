@@ -43,6 +43,7 @@ type Props = {
   selected: string;
   onChange: (newTab: string | any) => any;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 function RSTabs(props: Props) {
@@ -81,7 +82,9 @@ function RSTabs(props: Props) {
     return output;
   }
   return (
-    <div className={[styles.wrapper, props.className].join(' ')}>{renderTabs()}</div>
+    <div className={[styles.wrapper, props.className].join(' ')} style={props.style}>
+      {renderTabs()}
+    </div>
   );
 }
 

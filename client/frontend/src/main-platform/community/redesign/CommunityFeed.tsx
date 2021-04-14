@@ -151,7 +151,12 @@ export const CommunityFeed = (props: Props) => {
           disabled={loading}
         />
       )}
-      <RSTabs tabs={tabs} selected={selectedTab} onChange={setSelectedTab} />
+      <RSTabs
+        tabs={tabs}
+        selected={selectedTab}
+        onChange={setSelectedTab}
+        style={{ marginLeft: 10, marginRight: 10 }}
+      />
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (
