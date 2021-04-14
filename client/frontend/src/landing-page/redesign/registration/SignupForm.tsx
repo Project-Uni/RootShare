@@ -83,7 +83,11 @@ export const SignupForm = (props: Props) => {
 
     const { email, password, phoneNumber } = formFields;
 
-    const data = await getValidRegistration({ email, password, phoneNumber });
+    const data = await getValidRegistration({
+      email,
+      password,
+      phoneNumber: phoneNumber.replace(/\D/g, ''),
+    });
     setLoading(false);
 
     if (data.success === 1) {
@@ -93,7 +97,7 @@ export const SignupForm = (props: Props) => {
           email,
           password: encryptedPassword,
           initializationVector,
-          phoneNumber,
+          phoneNumber: phoneNumber.replace(/\D/g, ''),
         })
       );
       history.push('/account/verify');
@@ -238,7 +242,8 @@ const validateForm = (formFields: IFormData) => {
   }
 
   //Phone Number
-  if (!/^\d+$/.test(phoneNumber) || phoneNumber.length !== 10) {
+  const strippedPhone = phoneNumber.replace(/\D/g, '');
+  if (strippedPhone.length !== 10) {
     hasErr = true;
     errUpdates.push({
       key: 'phoneNumber',

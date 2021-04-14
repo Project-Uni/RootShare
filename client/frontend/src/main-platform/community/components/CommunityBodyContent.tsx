@@ -228,11 +228,7 @@ function CommunityBodyContent(props: Props) {
     const currSemaphoreState = tabChangeSemaphore;
     const { data } = await makeRequest(
       'GET',
-      `/api/community/${props.communityID}/members`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/members`
     );
     if (tabChangeSemaphore === currSemaphoreState) {
       if (data.success === 1) {

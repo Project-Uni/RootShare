@@ -1,9 +1,14 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 
+import {
+  getUserFromJWT,
+  sendPacket,
+  getQueryParams,
+  invalidInputsMessage,
+} from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
-import invalidInputsMessage from '../helpers/functions/invalidInputsMessage';
 import {
   createMTGEvent,
   uploadMTGBanner,
@@ -15,7 +20,8 @@ import {
   getMTGEvents,
   getInterestedUsers,
 } from '../interactions/meet-the-greeks';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
+
+const ObjectIdVal = Types.ObjectId;
 
 /**
  *
@@ -127,7 +133,7 @@ export default function meetTheGreekRoutes(app) {
         );
 
       const packet = await createMTGEvent(
-        communityID,
+        ObjectIdVal(communityID),
         description,
         // eventTime,
         speakers,
@@ -216,7 +222,9 @@ export default function meetTheGreekRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const query = getQueryParams(req, { mode: { type: 'string' } });
+      const query = getQueryParams<{ mode: string }>(req, {
+        mode: { type: 'string' },
+      });
 
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));

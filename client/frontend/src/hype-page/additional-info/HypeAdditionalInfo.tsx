@@ -78,14 +78,7 @@ function HypeAdditionalInfo(props: Props) {
   const [currentUser, setCurrentUser] = useState('');
 
   async function checkCompletedRegistration() {
-    const { data } = await makeRequest(
-      'POST',
-      '/auth/getRegistrationInfo',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/auth/getRegistrationInfo');
     if (data['success'] === 1) {
       if (!data['content']['externalComplete']) {
         setExternalRedirect(true);
@@ -184,10 +177,7 @@ function HypeAdditionalInfo(props: Props) {
           phoneNumber: phoneNumber,
           graduateSchool: hasGradDegree ? graduateSchool : '',
           discoveryMethod: discoveryMethod,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
+        }
       );
       if (data['success'] !== 1) {
         setUpdateErr(true);

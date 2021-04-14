@@ -67,14 +67,7 @@ function DiscoverySidebar(props: Props) {
   }
 
   async function getRecommendations() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/discover/populate',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/discover/populate');
 
     if (data['success'] === 1) {
       const { users, communities } = data.content;

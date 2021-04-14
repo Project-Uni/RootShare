@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { Autocomplete } from '@material-ui/lab';
 import { TextField, IconButton, CircularProgress, Box } from '@material-ui/core';
-
 import { FaSearch } from 'react-icons/fa';
 
 import { WelcomeMessage, UserHighlight } from '../../reusable-components';
@@ -12,10 +15,7 @@ import { RSText } from '../../../base-components';
 
 import { makeRequest } from '../../../helpers/functions';
 import { DiscoverUser, UniversityType, U2UR } from '../../../helpers/types';
-
 import Theme from '../../../theme/Theme';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -58,6 +58,8 @@ type Props = {};
 
 export default function ConnectionsBody(props: Props) {
   const styles = useStyles();
+
+  const dispatch = useDispatch();
   const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
 
   const [loading, setLoading] = useState(true);
@@ -80,6 +82,14 @@ export default function ConnectionsBody(props: Props) {
       setPendingConnections(data.content['pendingConnections']);
     }
   }, [requestUserID]);
+
+  useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
+  }, []);
 
   useEffect(() => {
     if (!loading) setLoading(true);

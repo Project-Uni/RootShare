@@ -2,14 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory, useParams } from 'react-router-dom';
 
-import { dispatchSnackbar } from '../../../redux/actions';
+import { dispatchSnackbar, updateSidebarComponents } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { CommunityHead } from './CommunityHead';
+import { CommunityMedia } from './CommunityMedia';
 import { RSText } from '../../../base-components';
 import { CommunityAbout, AboutPageUser } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
+
 import { getCommunities } from '../../../api';
 import { Community as CommunityFields, U2CR } from '../../../helpers/types';
 import { FaLock } from 'react-icons/fa';
@@ -19,7 +21,7 @@ const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 type Props = {};
 
-export type CommunityTab = 'about' | 'feed'; // For now, feed is just external
+export type CommunityTab = 'about' | 'feed' | 'media'; // For now, feed is just external
 
 const Community = (props: Props) => {
   const styles = useStyles();
@@ -31,17 +33,37 @@ const Community = (props: Props) => {
     //Necessary state variables
   }));
 
-  const [info, setInfo] = useState<CommunityFields>({} as CommunityFields); //Community details as a dictionary
+  const [info, setInfo] = useState<CommunityFields>(); //Community details as a dictionary
   const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<CommunityTab>('feed');
+
+  useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverUsers', 'communityDocuments', 'discoverCommunities'],
+        communityID,
+      })
+    );
+    fetchCommunityInfo().then(() => {
+      setLoading(false);
+    });
+  }, []);
 
   const fetchCommunityInfo = useCallback(async () => {
     setLoading(true);
     const data = await getCommunities([communityID], {
-      fields: ['admin', 'name', 'members', 'description', 'bio', 'private', 'type'],
+      fields: [
+        'admin',
+        'name',
+        'members',
+        'description',
+        'bio',
+        'private',
+        'type',
+        'profilePicture',
+        'bannerPicture',
+      ],
       options: {
-        getProfilePicture: true,
-        getBannerPicture: true,
         getRelationship: true,
         limit: 1,
         includeDefaultFields: true,
@@ -60,6 +82,7 @@ const Community = (props: Props) => {
       );
       return;
     }
+
     setInfo(data.content.communities[0]);
     setLoading(false);
   }, [communityID]);
@@ -69,6 +92,7 @@ const Community = (props: Props) => {
   }, [fetchCommunityInfo]);
 
   const getTabContent = React.useCallback(() => {
+    if (!info) return;
     switch (currentTab) {
       case 'about':
         return (
@@ -93,6 +117,15 @@ const Community = (props: Props) => {
           />
         );
       }
+      case 'media': {
+        return (
+          <CommunityMedia
+            communityID={communityID}
+            admin={(info.admin as AboutPageUser)?._id}
+            editable={info.relationship === 'admin'}
+          />
+        );
+      }
 
       default:
         return <RSText>An Error Occured</RSText>;
@@ -103,26 +136,35 @@ const Community = (props: Props) => {
     <>
       {!loading && (
         <div className={styles.wrapper}>
-          <CommunityHead
-            style={{ marginTop: 20 }}
-            communityInfo={info}
-            currentTab={currentTab}
-            handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
-          />
-          {(info.relationship === U2CR.OPEN || info.relationship === U2CR.PENDING) &&
-          info.private ? (
-            <div style={{ marginTop: 30 }}>
-              <FaLock
-                color={Theme.secondaryText}
-                size={70}
-                style={{ marginBottom: 15 }}
+          {info ? (
+            <div>
+              <CommunityHead
+                style={{ marginTop: 20 }}
+                communityInfo={info}
+                currentTab={currentTab}
+                handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
               />
-              <RSText bold size={16}>
-                Join this community to see it's content.
-              </RSText>
+              {(info.relationship === U2CR.OPEN ||
+                info.relationship === U2CR.PENDING) &&
+              info.private ? (
+                <div style={{ marginTop: 30 }}>
+                  <FaLock
+                    color={Theme.secondaryText}
+                    size={70}
+                    style={{ marginBottom: 15 }}
+                  />
+                  <RSText bold size={16}>
+                    Join this community to see it's content.
+                  </RSText>
+                </div>
+              ) : (
+                getTabContent()
+              )}{' '}
             </div>
           ) : (
-            getTabContent()
+            <RSText size={32} type="head" color={Theme.error}>
+              THERE WAS AN ERROR GETTING THE COMMUNITY
+            </RSText>
           )}
         </div>
       )}

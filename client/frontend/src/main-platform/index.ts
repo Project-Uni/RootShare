@@ -15,3 +15,5 @@ export {
   ProfileBody,
   MeetTheGreeks,
 };
+
+export * from './postPage/PostPage';
