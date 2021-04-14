@@ -14,7 +14,7 @@ import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: '400px',
+    width: '350px',
     display: 'flex',
     flexDirection: 'column',
     height: window.innerHeight,

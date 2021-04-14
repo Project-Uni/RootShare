@@ -14,7 +14,7 @@ import SingleEvent from './SingleEvent';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: '400px',
+    width: '300px',
     display: 'flex',
     flexDirection: 'column',
     height: window.innerHeight - 60,
