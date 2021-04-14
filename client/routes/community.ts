@@ -45,6 +45,7 @@ import {
   getCommunitiesGeneric,
   pinPost,
   getPinnedPosts,
+  inviteUser,
 } from '../interactions/community';
 import { String } from 'aws-sdk/clients/cloudsearchdomain';
 
@@ -685,10 +686,11 @@ export default function communityRoutes(app) {
           .json(sendPacket(-1, 'Missing query params communityID or postID'));
       else {
         let { postID, communityID } = query;
-        postID = postID as string;
-        communityID = communityID as string;
 
-        const packet = await pinPost({ postID, communityID });
+        const packet = await pinPost({
+          postID: ObjectIdVal(postID),
+          communityID: ObjectIdVal(communityID),
+        });
         const status = packet.success === 1 ? 200 : 500;
         res.status(status).json(packet);
       }
@@ -701,7 +703,7 @@ export default function communityRoutes(app) {
     isCommunityMemberFromQueryParams,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const query = getQueryParams<{ communityID: String }>(req, {
+      const query = getQueryParams<{ communityID: string }>(req, {
         communityID: { type: 'string' },
       });
 
@@ -711,12 +713,49 @@ export default function communityRoutes(app) {
         let { communityID } = query;
         communityID = communityID as string;
         const packet = await getPinnedPosts({
-          communityID,
-          userID: userID.toString(),
+          communityID: ObjectIdVal(communityID),
+          userID,
         });
         const status = packet.success === 1 ? 200 : 500;
         res.status(status).json(packet);
       }
     }
   );
+  //TODO - Add in new is communityMember check from pinned-post branch
+  app.put('/api/v2/community/invite', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      invitedIDs,
+      communityID,
+    }: { invitedIDs: string[]; communityID: string } = req.body;
+
+    if (!invitedIDs || !Array.isArray(invitedIDs) || !communityID)
+      res
+        .status(500)
+        .json(
+          sendPacket(
+            -1,
+            'Missing body params: invitedIDs:string[] or communityID: string'
+          )
+        );
+    else {
+      const packet = await inviteUser({
+        communityID,
+        invitedIDs,
+        fromUserID: userID.toString(),
+      });
+      const status = (() => {
+        switch (packet.success) {
+          case 1:
+            return 200;
+          case 0:
+            return 400;
+          case -1:
+          default:
+            return 500;
+        }
+      })();
+      res.status(status).json(packet);
+    }
+  });
 }

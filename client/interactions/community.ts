@@ -5,13 +5,12 @@ import {
   CommunityEdge,
   User,
   University,
-  Post,
   Image,
+  Post,
   ICommunity,
   IUser,
   ICommunityEdge,
   IConnection,
-  IDocument,
 } from '../rootshare_db/models';
 import { CommunityGetOptions } from '../rootshare_db/models/communities';
 import {
@@ -19,6 +18,7 @@ import {
   U2CR,
   AccountType,
   ObjectIdVal,
+  ObjectIdType
 } from '../rootshare_db/types';
 import {
   log,
@@ -36,7 +36,6 @@ import {
 import { retrieveAllUrls } from './media';
 import { deletePost, retrievePosts } from './posts';
 import NotificationService from './notification';
-type ObjectIdType = Types.ObjectId;
 
 export async function createNewCommunity(
   name: string,
@@ -1125,7 +1124,7 @@ export async function getAllFollowingCommunities(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followingCommunities[i].profilePicture = signedImageURLs[i];
+            followingCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1175,7 +1174,7 @@ export async function getAllFollowedByCommunities(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followedByCommunities[i].profilePicture = signedImageURLs[i];
+            followedByCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1224,7 +1223,7 @@ export async function getAllPendingFollowRequests(communityID: ObjectIdType) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            pendingFollowRequests[i].profilePicture = signedImageURLs[i];
+            pendingFollowRequests[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1437,8 +1436,8 @@ export const pinPost = async ({
   postID,
   communityID,
 }: {
-  postID: string;
-  communityID: string;
+  postID: ObjectIdType;
+  communityID: ObjectIdType;
 }) => {
   const postBelongsToCommunity = await Post.model.exists({
     _id: postID,
@@ -1450,14 +1449,14 @@ export const pinPost = async ({
   try {
     const isPinned = await Community.model.exists({
       _id: communityID,
-      pinnedPosts: { $elemMatch: { $eq: ObjectIdVal(postID) } },
+      pinnedPosts: { $elemMatch: { $eq: postID } },
     });
 
     const update = isPinned
       ? { $pull: { pinnedPosts: postID } }
       : { $addToSet: { pinnedPosts: postID } };
 
-    await Community.model.updateOne({ _id: communityID }, update as any).exec();
+    await Community.model.updateOne({ _id: communityID }, update).exec();
     return sendPacket(1, `Successfully ${isPinned ? 'unpinned' : 'pinned'} post`);
   } catch (err) {
     log('error', err.message);
@@ -1469,8 +1468,8 @@ export const getPinnedPosts = async ({
   communityID,
   userID,
 }: {
-  communityID: string;
-  userID: string;
+  communityID: ObjectIdType;
+  userID: ObjectIdType;
 }) => {
   try {
     const community = await Community.model
@@ -1480,11 +1479,69 @@ export const getPinnedPosts = async ({
     const posts = await retrievePosts(
       { _id: { $in: community.pinnedPosts } },
       10,
-      ObjectIdVal(userID)
+      userID
     );
     return sendPacket(1, 'Retrieved pinned posts', { posts });
   } catch (err) {
     log('error', err.message);
+    return sendPacket(-1, err.message);
+  }
+};
+
+export const inviteUser = async ({
+  fromUserID,
+  invitedIDs,
+  communityID,
+}: {
+  fromUserID: string;
+  invitedIDs: string[];
+  communityID: string;
+}) => {
+  try {
+    const isMemberPromises: Promise<boolean>[] = invitedIDs.map((invitedID) => {
+      try {
+        return Community.model.exists({
+          $and: [
+            { _id: communityID },
+            {
+              $or: [
+                {
+                  members: {
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
+                  },
+                },
+                {
+                  pendingMembers: {
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
+                  },
+                },
+              ],
+            },
+          ],
+        });
+      } catch (err) {
+        return new Promise((resolve) => resolve(false));
+      }
+    });
+
+    const isMemberArr = await Promise.all(isMemberPromises);
+
+    let success = true;
+    isMemberArr.forEach(async (isMember, idx) => {
+      if (!isMember) {
+        const attempt = await new NotificationService().communityInvite({
+          fromUser: fromUserID,
+          communityID,
+          forUser: invitedIDs[idx],
+        });
+        if (!attempt) success = false;
+      }
+    });
+
+    if (success) return sendPacket(1, 'Successfully invited user to commnunity');
+    return sendPacket(-1, 'Failed to invite user');
+  } catch (err) {
+    log('error', err);
     return sendPacket(-1, err.message);
   }
 };

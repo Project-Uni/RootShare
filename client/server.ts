@@ -17,7 +17,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 
 import passport = require('passport');
-import { log, initializeDirectory } from './helpers/functions';
+import { log, initializeDirectory, sendPacket } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
 import RootshareRoutes from './routes';
@@ -116,6 +116,10 @@ if (!isProd) {
   const specs = swaggerJsdoc(options);
   app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 }
+
+app.use((err, req, res, next) => {
+  res.status(500).json(sendPacket(-1, 'Something went wrong', { err }));
+});
 
 const server = http.createServer(app);
 const io = socketIO(server);

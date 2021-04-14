@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { Community, Notifications, Post, User } from '../rootshare_db/models';
-import { log } from '../helpers/functions';
+import { log, sendPacket } from '../helpers/functions';
 
 type ObjectIdType = Types.ObjectId;
 const ObjectIdVal = Types.ObjectId;
@@ -69,12 +69,12 @@ export default class NotificationService {
     communityID: string;
     forUser: string;
   }) => {
-    if (fromUser === forUser) return;
+    if (fromUser === forUser) return false;
     const [communityName, fromUserName] = await Promise.all([
       getCommunityName(communityID),
       getUsername(fromUser),
     ]);
-    if (!communityName || !fromUserName) return;
+    if (!communityName || !fromUserName) return false;
 
     try {
       await Notifications.create({
@@ -86,8 +86,10 @@ export default class NotificationService {
         actionProviderId: fromUser,
         message: `${fromUserName.firstName} ${fromUserName.lastName} invited you to join ${communityName.name}`,
       });
+      return true;
     } catch (err) {
       log('error', err.message);
+      return false;
     }
   };
 
@@ -141,7 +143,38 @@ export default class NotificationService {
     }
   };
 
-  rootshare = async ({}: {}) => {};
+  promoteEvent = async ({
+    eventID,
+    message,
+    createdByAdmin,
+  }: {
+    eventID: string;
+    message: string;
+    createdByAdmin: string;
+  }) => {
+    try {
+      const users = await User.model.find({}, '_id').exec();
+      const promises = users.map((user) => {
+        return Notifications.create({
+          variant: 'general',
+          forUser: user._id.toString(),
+          relatedItemType: 'event',
+          relatedItemId: eventID,
+          actionProviderType: 'rootshare',
+          actionProviderId: createdByAdmin,
+          message,
+        });
+      });
+
+      const values = await Promise.all(promises);
+      return sendPacket(1, 'Successfully promoted post');
+    } catch (err) {
+      log('error', err.message);
+      return sendPacket(-1, err.message);
+    }
+  };
+
+  rootshareMessage = async ({}: {}) => {};
 
   markAsSeen = async ({ _ids, userID }: { _ids: string[]; userID: string }) => {
     try {

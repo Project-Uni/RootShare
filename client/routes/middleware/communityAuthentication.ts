@@ -1,12 +1,15 @@
+import { Request, Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
+
+import { Community } from '../../rootshare_db/models';
 import {
   getQueryParams,
   getUserFromJWT,
   log,
   sendPacket,
 } from '../../helpers/functions';
-import { Request, Response, NextFunction } from 'express';
-import { Community } from '../../rootshare_db/models';
-import { ObjectIdType } from '../../rootshare_db/types';
+
+type ObjectIdType = Types.ObjectId;
 
 export async function isCommunityAdmin(req, res, next) {
   const { communityID } = req.params;

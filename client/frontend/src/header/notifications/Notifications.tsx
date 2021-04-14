@@ -11,6 +11,8 @@ import { green } from '@material-ui/core/colors';
 import { RootShareIconGray } from '../../images/icons';
 import { formatTimestamp } from '../../helpers/functions';
 
+import RootShareLogo_Small from '../../images/RootShareLogoFull_Small.png';
+
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
 type Props = {
@@ -61,7 +63,7 @@ type ShapedNotification = {
   timestamp: string;
   message: string;
   seen: boolean;
-  href: string;
+  href?: string;
 };
 
 const Notification = (
@@ -96,8 +98,9 @@ const Notification = (
         image = actionProvider?.profilePicture;
         break;
       case 'rootshare':
-        if (relatedItemType === 'event') image = relatedItem?.profilePicture;
-        else image = RootShareIconGray;
+        // if (relatedItemType === 'event') image = relatedItem?.profilePicture;
+        // else image = GreyRootshareIcon;
+        image = RootShareIconGray;
         break;
       default:
     }
@@ -136,7 +139,13 @@ const Notification = (
           href: `/post/${relatedItem!._id}`,
         };
       default:
-        return undefined;
+        return {
+          image,
+          timestamp,
+          seen,
+          message,
+          href: undefined,
+        };
     }
   };
 
@@ -165,6 +174,17 @@ const Notification = (
               flex: 1,
             }}
           >
+            {actionProviderType === 'rootshare' && (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <RSText bold size={11} style={{ marginBottom: 5 }}>
+                  Message From
+                </RSText>
+                <img
+                  src={RootShareLogo_Small}
+                  style={{ height: 18, marginBottom: 5, marginLeft: 3 }}
+                />
+              </div>
+            )}
             <RSText size={11}>{data?.message}</RSText>
             <RSText color={Theme.secondaryText} size={9}>
               {data?.timestamp}
