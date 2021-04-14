@@ -28,7 +28,8 @@ export function createThread(req, io, callback: (packet: packetParams) => void) 
         callback
       );
 
-    checkUsersConnected(userID, recipients, (packet) => {
+    const recipientIDs = recipients.map((r) => ObjectIdVal(r));
+    checkUsersConnected(userID, recipientIDs, (packet) => {
       if (packet['success'] !== 1) return callback(packet);
 
       let newConversation = new Conversation.model();
