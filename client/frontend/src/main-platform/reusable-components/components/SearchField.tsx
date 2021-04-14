@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
 import {
@@ -13,6 +13,7 @@ import { debounce } from 'lodash';
 import { makeRequest } from '../../../helpers/functions';
 import { RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
+import { stringify } from 'qs';
 
 const useStyles = makeStyles((_: any) => ({
   text: {
@@ -83,6 +84,9 @@ type Props<T extends SearchOption> = {
   initialValue?: string;
   ref?: React.MutableRefObject<HTMLDivElement | null> | null | undefined;
   style?: React.CSSProperties;
+  fetchDataAdditionalParams?: { [k: string]: any };
+  fetchLimit?: number;
+  InputComponent?: JSX.Element; //NOTE - This has to be a material UI InputBase started component (TextField is built off input base)
 };
 function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
   const styles = useStyles();
@@ -91,6 +95,8 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     className,
     options: optionsProps,
     fetchDataURL,
+    fetchDataAdditionalParams,
+    fetchLimit,
     name,
     label,
     helperText,
@@ -112,12 +118,28 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     onChange,
     ref,
     style,
+    InputComponent,
   } = props;
 
   const [options, setOptions] = useState(optionsProps || []);
   const [searchValue, setSearchValue] = useState(initialValue || '');
 
   const [loading, setLoading] = useState(false);
+
+  const TextfieldProps = useRef({
+    label: label,
+    name: name,
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      setSearchValue(e.target.value);
+      onChange?.(e);
+    },
+    fullWidth: fullWidth,
+    onFocus: onFocus,
+    onBlur: onBlur,
+    helperText: Boolean(error) && error !== '' ? error : helperText,
+    error: Boolean(error) && error !== '',
+    placeholder: placeholder,
+  });
 
   const onAutocomplete = (_: any, value: string | T | null) => {
     if (value) onAutocompleteProps?.(value as T);
@@ -165,9 +187,14 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     if (fetchDataURL) {
       const cleanedQuery = query.replace(/\?/g, ' ').trim();
       setLoading(true);
+      const params = stringify({
+        query: cleanedQuery,
+        limit: fetchLimit || 10,
+        ...fetchDataAdditionalParams,
+      });
       const { data } = await makeRequest<ServiceResponse>(
         'GET',
-        `${fetchDataURL}?query=${cleanedQuery}&limit=10`
+        `${fetchDataURL}?${params}`
       );
       if (data.success === 1) {
         const { users, communities } = data.content;
@@ -202,24 +229,11 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
       freeSolo={freeSolo}
       fullWidth={fullWidth}
       loading={loading}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          name={name}
-          variant={variant as any}
-          onChange={(e) => {
-            setSearchValue(e.target.value);
-            onChange?.(e);
-          }}
-          fullWidth={fullWidth}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          helperText={Boolean(error) && error !== '' ? error : helperText}
-          error={Boolean(error) && error !== ''}
-          placeholder={placeholder}
-          InputProps={{
-            ...params.InputProps,
+      renderInput={(params) =>
+        InputComponent ? (
+          React.cloneElement(InputComponent, {
+            ref: params.InputProps.ref,
+            inputProps: params.inputProps,
             startAdornment: adornment && (
               <InputAdornment position="start">{adornment}</InputAdornment>
             ),
@@ -228,10 +242,28 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
                 <CircularProgress size={20} className={styles.loadingIndicator} />
               </React.Fragment>
             ),
-            classes: { input: bigText ? styles.bigFont : undefined },
-          }}
-        />
-      )}
+            ...TextfieldProps.current,
+          })
+        ) : (
+          <TextField
+            {...params}
+            {...TextfieldProps.current}
+            variant={variant as any}
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: adornment && (
+                <InputAdornment position="start">{adornment}</InputAdornment>
+              ),
+              endAdornment: loading && (
+                <React.Fragment>
+                  <CircularProgress size={20} className={styles.loadingIndicator} />
+                </React.Fragment>
+              ),
+              classes: { input: bigText ? styles.bigFont : undefined },
+            }}
+          />
+        )
+      }
       renderOption={(option) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Avatar src={option.profilePicture} alt={option.label} />

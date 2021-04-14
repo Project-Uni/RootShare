@@ -62,12 +62,14 @@ export const NotificationButton = (props: Props) => {
 
   useEffect(() => {
     if (open && notifications.some((n) => !n.seen)) {
-      const timeout = setTimeout(() => {
-        if (open)
-          putNotificationsSeen({
+      const timeout = setTimeout(async () => {
+        if (open) {
+          await putNotificationsSeen({
             notifications: notifications.filter((n) => !n.seen),
           });
-      }, 3000);
+          setBadgeHidden(true);
+        }
+      }, 1000);
       return () => clearTimeout(timeout);
     }
   }, [open]);
