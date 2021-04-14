@@ -1,11 +1,19 @@
-import { getUserFromJWT, sendPacket } from '../helpers/functions';
-import { USER_LEVEL } from '../helpers/types';
+import { Types } from 'mongoose';
+
+import { USER_LEVEL } from '../rootshare_db/types';
+import {
+  getUserFromJWT,
+  sendPacket,
+  getQueryParams,
+  log,
+} from '../helpers/functions';
 
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
   isCommunityAdminFromQueryParams,
   isCommunityMemberFromQueryParams,
+  isCommunityMember,
 } from './middleware/communityAuthentication';
 
 import {
@@ -23,6 +31,7 @@ import {
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
+  getCommunityMedia,
   // Follow Related Actions
   followCommunity,
   acceptFollowRequest,
@@ -38,9 +47,9 @@ import {
   pinPost,
   getPinnedPosts,
 } from '../interactions/community';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
-import { stringify } from 'querystring';
-import { send } from 'process';
+
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
 /**
  *
@@ -398,7 +407,9 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const { _id: userID } = getUserFromJWT(req);
 
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        skipCalculation?: boolean;
+      }>(req, {
         skipCalculation: {
           type: 'boolean',
           optional: true,
@@ -409,9 +420,21 @@ export default function communityRoutes(app) {
 
       const { skipCalculation } = query;
       const packet = await getCommunityMembers(userID, communityID, {
-        skipCalculation: (skipCalculation || false) as boolean,
+        skipCalculation,
       });
       return res.json(packet);
+    }
+  );
+
+  app.get(
+    '/api/community/:communityID/media',
+    isAuthenticatedWithJWT,
+    async (req, res) => {
+      const { communityID } = req.params;
+      const { _id: userID, accountType } = getUserFromJWT(req);
+
+      const packet = await getCommunityMedia(userID, accountType, communityID);
+      res.json(packet);
     }
   );
 
@@ -470,8 +493,14 @@ export default function communityRoutes(app) {
     isCommunityAdmin,
     async (req, res) => {
       const { communityID } = req.params;
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        description?: string;
+        name?: string;
+        type?: string;
+        private?: boolean;
+      }>(req, {
         description: { type: 'string', optional: true },
+        bio: { type: 'string', optional: true },
         name: { type: 'string', optional: true },
         type: { type: 'string', optional: true },
         private: { type: 'boolean', optional: true },
@@ -486,7 +515,16 @@ export default function communityRoutes(app) {
 
   app.get('/api/v2/community', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      _ids: string[];
+      limit?: number;
+      fields?: string[];
+      populates?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+      getRelationship?: boolean;
+    }>(req, {
       _ids: { type: 'string[]' },
       limit: { type: 'number', optional: true },
       fields: { type: 'string[]', optional: true },
@@ -510,14 +548,16 @@ export default function communityRoutes(app) {
     } = query;
 
     const populates = [];
-    try {
-      (populatesRaw as string[]).forEach((populateRaw) => {
-        const split = populateRaw.split(':');
-        populates.push({ path: split[0], select: split[1] });
-      });
-    } catch (err) {
-      return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-    }
+    if (populatesRaw)
+      try {
+        populatesRaw.forEach((populateRaw) => {
+          const split = populateRaw.split(':');
+          populates.push({ path: split[0], select: split[1] });
+        });
+      } catch (err) {
+        log('err', err);
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      }
 
     const options = {
       limit,
@@ -528,10 +568,13 @@ export default function communityRoutes(app) {
       includeDefaultFields,
     };
 
-    const packet = await getCommunitiesGeneric(_ids as string[], {
-      fields: fields as any,
-      options: options as any,
-    });
+    const packet = await getCommunitiesGeneric(
+      (_ids as unknown[]) as ObjectIdType[],
+      {
+        fields: fields as any,
+        options: options as any,
+      }
+    );
     return res.json(packet);
   });
 
@@ -572,7 +615,10 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{
+        action: string;
+        communityID: string;
+      }>(req, {
         action: { type: 'string' },
         communityID: { type: 'string' },
       });
@@ -580,13 +626,15 @@ export default function communityRoutes(app) {
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
 
       let { action, communityID } = query;
-      (action = action as string), (communityID = communityID as string);
 
-      if (action === 'join') res.json(await joinCommunity(communityID, userID));
+      if (action === 'join')
+        res.json(await joinCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'leave')
-        res.json(await leaveCommunity(communityID, userID));
+        res.json(await leaveCommunity(ObjectIdVal(communityID), userID));
       else if (action === 'cancel')
-        res.json(await cancelCommunityPendingRequest(communityID, userID));
+        res.json(
+          await cancelCommunityPendingRequest(ObjectIdVal(communityID), userID)
+        );
       else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );
@@ -626,7 +674,7 @@ export default function communityRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{ postID: string; communityID: string }>(req, {
         communityID: { type: 'string' },
         postID: { type: 'string' },
       });
@@ -637,10 +685,11 @@ export default function communityRoutes(app) {
           .json(sendPacket(-1, 'Missing query params communityID or postID'));
       else {
         let { postID, communityID } = query;
-        postID = postID as string;
-        communityID = communityID as string;
 
-        const packet = await pinPost({ postID, communityID });
+        const packet = await pinPost({
+          postID: ObjectIdVal(postID),
+          communityID: ObjectIdVal(communityID),
+        });
         const status = packet.success === 1 ? 200 : 500;
         res.status(status).json(packet);
       }
@@ -653,7 +702,7 @@ export default function communityRoutes(app) {
     isCommunityMemberFromQueryParams,
     async (req, res) => {
       const { _id: userID } = getUserFromJWT(req);
-      const query = getQueryParams(req, {
+      const query = getQueryParams<{ communityID: string }>(req, {
         communityID: { type: 'string' },
       });
 
@@ -662,7 +711,10 @@ export default function communityRoutes(app) {
       else {
         let { communityID } = query;
         communityID = communityID as string;
-        const packet = await getPinnedPosts({ communityID, userID });
+        const packet = await getPinnedPosts({
+          communityID: ObjectIdVal(communityID),
+          userID,
+        });
         const status = packet.success === 1 ? 200 : 500;
         res.status(status).json(packet);
       }

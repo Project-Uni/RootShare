@@ -1,9 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RSText from '../../../../base-components/RSText';
+
 import { IconButton, Modal, LinearProgress } from '@material-ui/core';
-import { colors } from '../../../../theme/Colors';
 import { FiArrowLeft } from 'react-icons/fi';
+import { MdClose } from 'react-icons/md';
+
+import RSText from '../../../../base-components/RSText';
+
+import { colors } from '../../../../theme/Colors';
 import Theme from '../../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -12,7 +16,6 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 5,
     outline: 'none',
   },
-
   pageTitle: {
     marginLeft: 15,
     marginRight: 15,
@@ -48,6 +51,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   open: boolean;
   className?: string;
+  style?: React.CSSProperties;
   title: string;
   helperText?: string;
   helperIcon?: JSX.Element;
@@ -69,12 +73,13 @@ function RSModal(props: Props) {
       onClose={props.onClose}
     >
       <div
-        className={[styles.wrapper, props.className].join(' ')}
+        className={[props.className, styles.wrapper].join(' ')}
         style={{
           position: 'absolute',
           top: `${50}%`,
           left: `${50}%`,
           transform: `translate(-${50}%, -${50}%)`,
+          ...props.style,
         }}
       >
         {props.loadingIndicator && (
@@ -105,7 +110,7 @@ function RSModal(props: Props) {
             </RSText>
           </div>
           <IconButton onClick={props.onClose} size="medium">
-            X
+            <MdClose />
           </IconButton>
         </div>
         {props.helperIcon && (

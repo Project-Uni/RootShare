@@ -234,14 +234,7 @@ function AdminEventCreator(props: Props) {
   }, []);
 
   async function fetchEvents() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/webinar/getAllEventsAdmin',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/webinar/getAllEventsAdmin');
     if (data['success'] !== 1) return log('error', data['message']);
     setEvents(data['content']['webinars']);
   }

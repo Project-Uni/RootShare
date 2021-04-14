@@ -117,11 +117,7 @@ function DiscoveryCommunity(props: Props) {
   async function requestJoin() {
     const { data } = await makeRequest(
       'POST',
-      `/api/community/${props.communityID}/join`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
+      `/api/community/${props.communityID}/join`
     );
 
     if (data['success'] === 1) {

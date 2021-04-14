@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Box } from '@material-ui/core';
+import { useParams } from 'react-router-dom';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
+import { CircularProgress, Box } from '@material-ui/core';
 
 import { WelcomeMessage } from '../../reusable-components';
 import CommunityHighlight from '../../reusable-components/components/CommunityHighlight';
@@ -12,8 +16,6 @@ import { RSText } from '../../../base-components';
 import { makeRequest } from '../../../helpers/functions';
 import { Community } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,6 +53,8 @@ type Props = {};
 
 export default function YourCommunitiesBody(props: Props) {
   const styles = useStyles();
+  const dispatch = useDispatch();
+
   const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
 
   const [loading, setLoading] = useState(true);
@@ -65,6 +69,14 @@ export default function YourCommunitiesBody(props: Props) {
   );
 
   const { userID: requestUserID } = useParams<{ userID: string }>();
+
+  useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
+  }, []);
 
   const fetchData = useCallback(async () => {
     const { data } = await makeRequest(

@@ -100,6 +100,7 @@ export const MakePostContainer = (props: Props) => {
 
     if (!message.trim()) {
       setServerErr('Enter a valid message');
+      setLoading(false);
       return;
     }
 

@@ -185,18 +185,11 @@ function MessageThreadContainer(props: Props) {
     };
     props.addMessage(newMessage as MessageType);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/sendMessage',
-      {
-        conversationID: props.conversation._id,
-        message: message,
-        tempID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/messaging/sendMessage', {
+      conversationID: props.conversation._id,
+      message: message,
+      tempID,
+    });
 
     if (data['success'] !== 1 && data['content']['tempID'])
       props.addMessageErr(data['content']['tempID']);

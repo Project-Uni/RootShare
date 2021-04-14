@@ -10,7 +10,7 @@ import ProfilePicture from '../../../base-components/ProfilePicture';
 import { getConversationTime } from '../../../helpers/functions';
 import { UserType, ConversationType, MessageType } from '../../../helpers/types';
 
-import GroupIcon from '../../../images/group_icon_transparent.png';
+import { GroupIcon } from '../../../images';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({

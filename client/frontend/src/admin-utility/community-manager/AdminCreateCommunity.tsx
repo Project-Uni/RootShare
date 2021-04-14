@@ -223,21 +223,14 @@ function AdminCreateCommunity(props: Props) {
     const isPrivateBool = isPrivate === 'yes' ? true : false;
     const isMTGBool = isMTG === 'yes' ? true : false;
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/admin/community/create',
-      {
-        name,
-        description: desc,
-        adminID: (admin as HostType)._id,
-        type,
-        isPrivate: isPrivateBool,
-        isMTG: isMTGBool,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/admin/community/create', {
+      name,
+      description: desc,
+      adminID: (admin as HostType)._id,
+      type,
+      isPrivate: isPrivateBool,
+      isMTG: isMTGBool,
+    });
 
     if (data.success === 1) {
       setName('');
@@ -268,22 +261,15 @@ function AdminCreateCommunity(props: Props) {
     const isPrivateBool = isPrivate === 'yes' ? true : false;
     const isMTGBool = isMTG === 'yes' ? true : false;
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/admin/community/edit',
-      {
-        _id: (props.editingCommunity as Community)._id,
-        name,
-        description: desc,
-        adminID: (admin as HostType)._id,
-        type,
-        isPrivate: isPrivateBool,
-        isMTG: isMTGBool,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/admin/community/edit', {
+      _id: (props.editingCommunity as Community)._id,
+      name,
+      description: desc,
+      adminID: (admin as HostType)._id,
+      type,
+      isPrivate: isPrivateBool,
+      isMTG: isMTGBool,
+    });
 
     if (data.success === 1) {
       setName('');

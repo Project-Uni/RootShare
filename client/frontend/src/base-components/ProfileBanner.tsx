@@ -18,7 +18,6 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { connect } from 'react-redux';
 import { updateUser } from '../redux/actions/user';
 
-import { colors } from '../theme/Colors';
 import {
   getCroppedImage,
   imageURLToFile,
@@ -87,6 +86,8 @@ type Props = {
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
   zoomOnClick?: boolean;
+  preview?: boolean; //preview enables use of external callback
+  callback?: (data: string) => any;
 
   user: { [key: string]: any };
   updateUser: (userInfo: { [key: string]: any }) => void;
@@ -176,15 +177,25 @@ function ProfileBanner(props: Props) {
   }
 
   async function handleSaveImage() {
-    imageURLToFile(croppedImageURL!, sendPictureToServer);
+    if (props.preview === true) {
+      imageURLToFile(croppedImageURL!, previewPicture);
+    } else {
+      imageURLToFile(croppedImageURL!, sendPictureToServer);
+    }
+  }
+
+  async function previewPicture(imageData: string | ArrayBuffer | null | Blob) {
+    props.callback?.(imageData as string);
+    setImageSrc(undefined);
+    setCurrentPicture(imageData as string);
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
       props.type === 'profile'
-        ? '/api/images/profile/banner'
-        : `/api/images/community/${props._id}/banner`;
+        ? '/api/media/images/profile/banner'
+        : `/api/media/images/community/${props._id}/banner`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,
@@ -352,7 +363,7 @@ function ProfileBanner(props: Props) {
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >
-            Save
+            {props.preview == true ? 'Select' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>

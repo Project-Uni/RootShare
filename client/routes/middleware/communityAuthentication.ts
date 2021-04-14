@@ -4,18 +4,19 @@ import {
   log,
   sendPacket,
 } from '../../helpers/functions';
-import { Community } from '../../models';
 import { Request, Response, NextFunction } from 'express';
-import { CommunityC } from '../../models/communities';
+import { Types } from 'mongoose';
 
-const mongoose = require('mongoose');
+import { Community } from '../../rootshare_db/models';
+
+type ObjectIdType = Types.ObjectId;
 
 export async function isCommunityAdmin(req, res, next) {
   const { communityID } = req.params;
   const user = getUserFromJWT(req);
   try {
-    const community = await Community.findById(communityID);
-    if (!community.admin.equals(user._id)) {
+    const community = await Community.model.findById(communityID);
+    if (!(community.admin as ObjectIdType).equals(user._id)) {
       log(
         'info',
         `${user.firstName} ${user.lastName} tried to update the community ${community.name}, but failed because they are not the admin`
@@ -36,10 +37,10 @@ export async function isCommunityMember(req, res, next) {
   const { communityID } = req.params;
   const { _id: userID } = getUserFromJWT(req);
 
-  const isMember = await Community.exists(
-    { _id: communityID },
-    { members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } } }
-  );
+  const isMember = await Community.model.exists({
+    _id: communityID,
+    members: { $elemMatch: { $eq: userID } },
+  });
 
   if (isMember) return next();
   else return res.json(sendPacket(-1, 'User is not a member of this community'));
@@ -58,7 +59,7 @@ export const isCommunityAdminFromQueryParams = async (
   next: NextFunction
 ) => {
   const { _id: userID } = getUserFromJWT(req);
-  const query = getQueryParams(req, {
+  const query = getQueryParams<{ communityID: string }>(req, {
     communityID: { type: 'string' },
   });
   if (!query)
@@ -68,7 +69,7 @@ export const isCommunityAdminFromQueryParams = async (
   communityID = communityID as string;
 
   //TODO - Might need to update to use objectID here
-  const isAdmin = await CommunityC.model.exists({ _id: communityID, admin: userID });
+  const isAdmin = await Community.model.exists({ _id: communityID, admin: userID });
   if (isAdmin) next();
   else res.status(401).json(sendPacket(-1, 'User is not community admin'));
 };
@@ -79,7 +80,7 @@ export const isCommunityMemberFromQueryParams = async (
   next: NextFunction
 ) => {
   const { _id: userID } = getUserFromJWT(req);
-  const query = getQueryParams(req, {
+  const query = getQueryParams<{ communityID: string }>(req, {
     communityID: { type: 'string' },
   });
   if (!query)
@@ -88,9 +89,9 @@ export const isCommunityMemberFromQueryParams = async (
   let { communityID } = query;
   communityID = communityID as string;
 
-  const isMember = await CommunityC.model.exists({
+  const isMember = await Community.model.exists({
     _id: communityID,
-    members: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+    members: { $elemMatch: { $eq: userID } },
   });
 
   if (isMember) next();

@@ -140,18 +140,11 @@ function BugModal(props: Props) {
     setServerErr(false);
     if (!validateInputs()) {
       setLoading(true);
-      const { data } = await makeRequest(
-        'POST',
-        '/api/feedback/bug',
-        {
-          title,
-          category,
-          message: description,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
+      const { data } = await makeRequest('POST', '/api/feedback/bug', {
+        title,
+        category,
+        message: description,
+      });
       setLoading(false);
       if (data.success === 1) {
         setTransition(() => slideLeft);
