@@ -9,14 +9,9 @@ export async function validateSession(
   accessToken: string,
   refreshToken: string
 ) {
-  const { data } = await makeRequest(
-    'POST',
-    '/webinar/getOpenTokSessionID',
-    { webinarID },
-    true,
-    accessToken,
-    refreshToken
-  );
+  const { data } = await makeRequest('POST', '/webinar/getOpenTokSessionID', {
+    webinarID,
+  });
   if (data['success'] !== 1) {
     alert(data['message']);
     return false;
@@ -29,16 +24,9 @@ export async function getOpenTokToken(
   accessToken: string,
   refreshToken: string
 ) {
-  const { data } = await makeRequest(
-    'POST',
-    '/webinar/getOpenTokToken',
-    {
-      opentokSessionID: sessionID,
-    },
-    true,
-    accessToken,
-    refreshToken
-  );
+  const { data } = await makeRequest('POST', '/webinar/getOpenTokToken', {
+    opentokSessionID: sessionID,
+  });
   if (data['success'] !== 1) {
     alert('Could not connect to session. Please try again');
     return false;

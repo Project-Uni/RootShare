@@ -34,16 +34,9 @@ function UserAutocomplete(props: Props) {
 
   async function handleQueryChange(event: any) {
     if (event.target.value.length >= 3) {
-      const { data } = await makeRequest(
-        'POST',
-        '/api/getMatchingUsers',
-        {
-          query: event.target.value,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
+      const { data } = await makeRequest('POST', '/api/getMatchingUsers', {
+        query: event.target.value,
+      });
       if (data['success'] === 1) {
         setOptions(data['content']['users']);
       }

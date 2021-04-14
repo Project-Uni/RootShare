@@ -18,5 +18,3 @@ export const putUpdateCommunity = async (
   );
   return data;
 };
-
-// TODO: Change name here
