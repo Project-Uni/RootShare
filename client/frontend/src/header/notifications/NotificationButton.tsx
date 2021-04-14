@@ -46,12 +46,12 @@ export const NotificationButton = (props: Props) => {
     setLoading(true);
     const data = await getNotifications();
     if (!data) {
-      dispatch(
-        dispatchSnackbar({
-          mode: 'error',
-          message: 'There was an error retrieving your notifications',
-        })
-      );
+      // dispatch(
+      //   dispatchSnackbar({
+      //     mode: 'error',
+      //     message: 'There was an error retrieving your notifications',
+      //   })
+      // );
     } else {
       setNotifications(data);
       const hasNewNotifications = data.some((n) => !n.seen);

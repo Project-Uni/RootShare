@@ -55,7 +55,7 @@ function UserInfoTextField(props: Props) {
         label={props.label}
         variant="outlined"
         className={styles.textField}
-        style={{ width: props.width || 360 }}
+        style={{ width: props.width || 275 }}
         onChange={props.onChange}
         value={props.value}
         InputLabelProps={{

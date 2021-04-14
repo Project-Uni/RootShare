@@ -20,7 +20,7 @@ import { resetState } from '../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    width: '400px',
+    width: '300px',
   },
   profilePictureContainer: {
     marginTop: 20,
@@ -58,7 +58,7 @@ const useStyles = makeStyles((_: any) => ({
     color: Theme.primaryText,
   },
   button: {
-    width: '361px',
+    width: '275px',
     marginTop: 20,
     color: Theme.altText,
     background: Theme.bright,
@@ -67,12 +67,12 @@ const useStyles = makeStyles((_: any) => ({
     },
   },
   logoutButton: {
-    width: '361px',
+    width: '275px',
     marginTop: 10,
     color: Theme.primaryText,
   },
   logoutErr: {
-    width: '361px',
+    width: '275px',
     marginTop: 10,
     color: Theme.error,
   },
@@ -86,7 +86,7 @@ const useStyles = makeStyles((_: any) => ({
     textAlign: 'center',
   },
   selectCollege: {
-    width: 360,
+    width: 275,
     height: 57,
     marginTop: 17,
     background: Theme.primary,
