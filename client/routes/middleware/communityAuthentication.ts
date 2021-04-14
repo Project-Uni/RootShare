@@ -1,13 +1,13 @@
+import { Request, Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
+
+import { Community } from '../../rootshare_db/models';
 import {
   getQueryParams,
   getUserFromJWT,
   log,
   sendPacket,
 } from '../../helpers/functions';
-import { Request, Response, NextFunction } from 'express';
-import { Types } from 'mongoose';
-
-import { Community } from '../../rootshare_db/models';
 
 type ObjectIdType = Types.ObjectId;
 

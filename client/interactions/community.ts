@@ -26,9 +26,9 @@ import {
   getUserToUserRelationship,
   addCalculatedUserFields,
   addProfilePicturesAll,
-} from '../interactions/utilities';
-import { deletePost, retrievePosts } from './posts';
+} from './utilities';
 import { retrieveAllUrls } from './media';
+import { deletePost, retrievePosts } from './posts';
 import NotificationService from './notification';
 
 const ObjectIdVal = Types.ObjectId;

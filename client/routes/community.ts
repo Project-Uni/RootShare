@@ -13,7 +13,6 @@ import {
   isCommunityAdmin,
   isCommunityAdminFromQueryParams,
   isCommunityMemberFromQueryParams,
-  isCommunityMember,
 } from './middleware/communityAuthentication';
 
 import {
@@ -47,6 +46,7 @@ import {
   pinPost,
   getPinnedPosts,
 } from '../interactions/community';
+import { String } from 'aws-sdk/clients/cloudsearchdomain';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
