@@ -795,7 +795,10 @@ export async function getInternalCurrentMemberPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (
+    accountType !== 'student' &&
+    !(community.admin as ObjectIdType).equals(userID)
+  ) {
     log(
       'info',
       `User ${userID} who is not a student attempted to retrieve current member feed for ${communityID}`
@@ -839,7 +842,10 @@ export async function getInternalAlumniPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (
+    accountType === 'student' &&
+    !(community.admin as ObjectIdType).equals(userID)
+  ) {
     log(
       'info',
       `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`

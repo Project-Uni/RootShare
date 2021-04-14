@@ -4,8 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Modal, IconButton, CircularProgress } from '@material-ui/core';
 import { MdErrorOutline } from 'react-icons/md';
 
-import { connect } from 'react-redux';
-
 import SinglePendingRequest from './SinglePendingRequest';
 
 import RSText from '../../../base-components/RSText';
@@ -53,9 +51,7 @@ type Props = {
   open: boolean;
   communityID: string;
   handleClose: () => any;
-  updatePendingCount: (numPending: number) => any;
-  accessToken: string;
-  refreshToken: string;
+  updatePendingCount?: (numPending: number) => any;
 };
 
 function PendingFollowRequestsModal(props: Props) {
@@ -103,7 +99,7 @@ function PendingFollowRequestsModal(props: Props) {
         const newPending = pendingRequests.slice();
         newPending.splice(spliceIndex, 1);
         setPendingRequests(newPending);
-        props.updatePendingCount(newPending.length);
+        props.updatePendingCount?.(newPending.length);
       }
     }
   }
@@ -126,13 +122,13 @@ function PendingFollowRequestsModal(props: Props) {
         const newPending = pendingRequests.slice();
         newPending.splice(spliceIndex, 1);
         setPendingRequests(newPending);
-        props.updatePendingCount(newPending.length);
+        props.updatePendingCount?.(newPending.length);
       }
     }
   }
 
   function handleClose() {
-    props.updatePendingCount(pendingRequests.length);
+    props.updatePendingCount?.(pendingRequests.length);
     setLoading(true);
     setPendingRequests([]);
     props.handleClose();
@@ -228,18 +224,4 @@ function PendingFollowRequestsModal(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PendingFollowRequestsModal);
+export default PendingFollowRequestsModal;

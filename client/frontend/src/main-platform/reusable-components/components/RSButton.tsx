@@ -1,7 +1,8 @@
 import React, { useCallback, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
+import { Button, CircularProgress } from '@material-ui/core';
 import theme from '../../../theme/Theme';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   base: {
@@ -33,6 +34,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   children?: React.ReactNode;
   disabled?: boolean;
+  loading?: boolean;
   variant?: 'primary' | 'secondary' | 'university';
   className?: string;
   style?: React.CSSProperties;
@@ -42,7 +44,7 @@ type Props = {
 const RSButton = (props: Props) => {
   const styles = useStyles();
 
-  const { children, disabled, variant, className, style, onClick } = props;
+  const { children, disabled, loading, variant, className, style, onClick } = props;
 
   const getCoreStyle = useCallback(() => {
     switch (variant) {
@@ -69,7 +71,11 @@ const RSButton = (props: Props) => {
       onClick={onClick}
       style={style}
     >
-      {children}
+      {loading ? (
+        <CircularProgress style={{ color: Theme.altText }} size={30} />
+      ) : (
+        children
+      )}
     </Button>
   );
 };

@@ -20,7 +20,7 @@ import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
-import Banner from '../../../images/eventBanner/financialPlanBanner.png';
+import { DefaultPromotedBanner } from '../../../images';
 import { getPosts } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { PromotedEvents } from '../../reusable-components/components/PromotedEvents';
@@ -129,11 +129,11 @@ export default function HomepageBody(props: Props) {
         />
       </Box> */}
       <FeaturedEvent
-        src={Banner}
+        src={DefaultPromotedBanner}
         style={{ margin: 8 }}
-        href={'/event/6058db7add0bb42382a5dd37'}
+        href={undefined}
       />
-      <PromotedEvents/>
+      <PromotedEvents />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
       {/* <MakePostContainer
         appendNewPost={appendNewPost}
