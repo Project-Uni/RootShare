@@ -104,14 +104,10 @@ function CreateNewConversation(props: Props) {
     setNewRecipients(async (prevRecipients: any) => {
       if (prevRecipients.length === 0 || message === '') return [];
 
-      const { data } = await makeRequest(
-        'POST',
-        '/api/messaging/createThread',
-        { recipients: prevRecipients, message: message },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
+      const { data } = await makeRequest('POST', '/api/messaging/createThread', {
+        recipients: prevRecipients,
+        message: message,
+      });
 
       if (data['success'] === 1)
         props.selectConversation(data['content']['currConversation']);
@@ -131,14 +127,7 @@ function CreateNewConversation(props: Props) {
 
   // change this to get users' actual connections
   async function getConnections() {
-    const { data } = await makeRequest(
-      'GET',
-      '/user/getConnections',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/user/getConnections');
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 

@@ -6,8 +6,6 @@ export const getUsers = async <T = { [k: string]: unknown }>(
   params: {
     fields?: string[];
     options?: {
-      getProfilePicture?: boolean;
-      getBannerPicture?: boolean;
       getRelationship?: boolean;
       limit?: number;
       includeDefaultFields?: boolean;

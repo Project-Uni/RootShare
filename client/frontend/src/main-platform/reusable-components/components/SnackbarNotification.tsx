@@ -21,7 +21,7 @@ const useStyles = makeStyles((_) => ({
     background: Theme.error,
   },
   notifySnackbar: {
-    background: Theme.bright,
+    background: Theme.notify,
   },
   closeButton: {
     color: Theme.altText,

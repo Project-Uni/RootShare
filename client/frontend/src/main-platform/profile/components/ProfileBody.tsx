@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-
 import { makeStyles } from '@material-ui/core/styles';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
+
 import { CircularProgress, Box } from '@material-ui/core';
 
 import ProfileHead from './ProfileHead';
@@ -70,6 +72,8 @@ type Props = {};
 
 export default function ProfileBody(props: Props) {
   const styles = useStyles();
+  const dispatch = useDispatch();
+
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
   const [currentProfileState, setCurrentProfileState] = useState<
@@ -90,6 +94,12 @@ export default function ProfileBody(props: Props) {
   const user = useSelector((state: RootshareReduxState) => state.user);
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers', 'userDocuments'],
+        userID: profileID,
+      })
+    );
     window.addEventListener('resize', handleResize);
   }, []);
 

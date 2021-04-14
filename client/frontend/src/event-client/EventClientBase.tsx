@@ -110,14 +110,7 @@ function EventClientBase(props: Props) {
   }
 
   async function fetchEventInfo() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/webinar/getDetails/${eventID}`,
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', `/api/webinar/getDetails/${eventID}`);
     if (data['success'] === 1) {
       const { webinar } = data['content'];
       setWebinarData(webinar);
@@ -159,16 +152,9 @@ function EventClientBase(props: Props) {
   function updateAttendeeList(webinarID: string) {
     initializeViewerSocket(webinarID);
 
-    makeRequest(
-      'POST',
-      '/api/webinar/updateAttendeeList',
-      {
-        webinarID: webinarID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    makeRequest('POST', '/api/webinar/updateAttendeeList', {
+      webinarID: webinarID,
+    });
   }
 
   async function initializeHostSocket(webinarID: string) {

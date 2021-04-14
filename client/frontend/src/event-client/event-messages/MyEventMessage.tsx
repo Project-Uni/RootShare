@@ -131,17 +131,10 @@ function MyEventMessage(props: Props) {
     });
 
     setLoadingLike(true);
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/updateLike',
-      {
-        messageID: props.message._id,
-        liked: !liked,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/messaging/updateLike', {
+      messageID: props.message._id,
+      liked: !liked,
+    });
     setLoadingLike(false);
 
     if (data['success'] === 1) setLiked(data['content']['newLiked']);

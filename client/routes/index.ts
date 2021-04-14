@@ -5,7 +5,7 @@ import communityRoutes from './community';
 import discoverRoutes from './discover';
 import eventRoutes from './event';
 import feedbackRoutes from './feedback';
-import imageRoutes from './images';
+import mediaRoutes from './media';
 // import mtgRoutes from './meet-the-greeks';
 import messagingRoutes from './messaging';
 import opentokRoutes from './opentok';
@@ -25,7 +25,7 @@ export default function RootshareRoutes(app: Express, io) {
   discoverRoutes(app);
   eventRoutes(app);
   feedbackRoutes(app);
-  imageRoutes(app);
+  mediaRoutes(app);
   // mtgRoutes(app);
   messagingRoutes(app, io);
   opentokRoutes(app);

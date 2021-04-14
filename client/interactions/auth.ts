@@ -1,17 +1,18 @@
-import sendPacket from '../../webinar/helpers/sendPacket';
-import { PhoneVerification, University, User } from '../models';
-import { generateJWT, hashPassword, comparePasswords } from '../helpers/functions';
-import { getUsersByIDs } from '../models/users';
-import { log } from '../helpers/functions/logger';
+import { PhoneVerification, University, User } from '../rootshare_db/models';
+import {
+  generateJWT,
+  hashPassword,
+  comparePasswords,
+  log,
+  sendPacket,
+} from '../helpers/functions';
 import { StateCodeKeys, EmailRegex } from '../helpers/constants';
 import { Encryption } from '../helpers/modules';
 export class AuthService {
   login = async ({ email, password }: { email: string; password: string }) => {
     try {
-      const validation_user = await User.findOne(
-        { email: { $regex: email, $options: 'i' } },
-        ['hashedPassword']
-      )
+      const validation_user = await User.model
+        .findOne({ email: { $regex: email, $options: 'i' } }, ['hashedPassword'])
         .lean()
         .exec();
       if (!validation_user)
@@ -23,7 +24,7 @@ export class AuthService {
       if (!comparePasswords(password, validation_user.hashedPassword))
         return { status: 400, packet: sendPacket(0, 'Invalid credentials') };
 
-      const [user] = await getUsersByIDs([validation_user._id], {
+      const [user] = await User.getUsersByIDs([validation_user._id], {
         fields: [
           'firstName',
           'lastName',
@@ -34,7 +35,6 @@ export class AuthService {
         ],
         options: {
           includeDefaultFields: false,
-          getProfilePicture: true,
           limit: 1,
         },
       });
@@ -71,7 +71,7 @@ export class AuthService {
       return { status: 400, packet: sendPacket(-1, 'Inputs are invalid') };
 
     try {
-      const userExists = await User.exists({
+      const userExists = await User.model.exists({
         email: { $regex: email, $options: 'i' },
       });
       if (userExists)
@@ -204,7 +204,7 @@ export class AuthService {
       };
 
     try {
-      const newUser = await new User({
+      const newUser = await new User.model({
         email: email.toLowerCase().trim(),
         phoneNumber,
         hashedPassword: hashPassword(decryptedPassword),
@@ -341,7 +341,7 @@ export class AuthService {
     isValidState: (state: string) =>
       StateCodeKeys.some((stateCode) => stateCode === state),
     isValidUniversity: async (universityID: string) =>
-      await University.exists({ _id: universityID }),
+      await University.model.exists({ _id: universityID }),
     isValidGraduationYear: async ({
       accountType,
       graduationYear,

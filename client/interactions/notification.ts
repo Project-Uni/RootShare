@@ -17,7 +17,7 @@ export default class NotificationService {
 
       await Notifications.create({
         variant: 'like',
-        forUser,
+        forUser: forUser.toString(),
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',
@@ -48,7 +48,7 @@ export default class NotificationService {
 
       await Notifications.create({
         variant: 'comment',
-        forUser,
+        forUser: forUser.toString(),
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',

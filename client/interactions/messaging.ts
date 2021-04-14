@@ -1,16 +1,18 @@
+import { Types } from 'mongoose';
+
+import { Conversation, Message, User } from '../rootshare_db/models';
+import { packetParams } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
   retrieveSignedUrl,
   getUserFromJWT,
 } from '../helpers/functions';
-import { addProfilePictureToUser } from '../interactions/utilities';
 
-const mongoose = require('mongoose');
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
-import { Conversation, Message, User } from '../models';
-
-export function createThread(req, io, callback) {
+export function createThread(req, io, callback: (packet: packetParams) => void) {
   const { message, tempID, recipients } = req.body;
   const { _id: userID } = getUserFromJWT(req);
 
@@ -29,12 +31,12 @@ export function createThread(req, io, callback) {
     checkUsersConnected(userID, recipients, (packet) => {
       if (packet['success'] !== 1) return callback(packet);
 
-      let newConversation = new Conversation();
+      let newConversation = new Conversation.model();
       newConversation.participants = recipients.concat(userID);
 
       newConversation.save((err, conversation) => {
         if (err) {
-          log('error', err);
+          log('error', err.message);
           return callback(
             sendPacket(-1, 'There was an error saving the conversation')
           );
@@ -47,35 +49,45 @@ export function createThread(req, io, callback) {
   });
 }
 
-export function removeConversation(conversationID, callback) {
-  Conversation.deleteOne({ _id: conversationID }, (err) => {
-    if (err) return callback(-1, 'Failed to delete conversation');
-    return callback(1, 'Deleted conversation');
+export function removeConversation(
+  conversationID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
+  Conversation.model.deleteOne({ _id: conversationID }, {}, (err) => {
+    if (err) return callback(sendPacket(-1, 'Failed to delete conversation'));
+    return callback(sendPacket(1, 'Deleted conversation'));
   });
 }
 
-export function sendMessage(userID, conversationID, message, tempID, io, callback) {
-  Conversation.findById(conversationID, (err, currConversation) => {
+export function sendMessage(
+  userID: ObjectIdType,
+  conversationID: ObjectIdType,
+  message: string,
+  tempID: string,
+  io,
+  callback: (packet: packetParams) => void
+) {
+  Conversation.model.findById(conversationID, (err, currConversation) => {
     if (err || conversationID === undefined || currConversation === null) {
       log('error', err);
       return callback(sendPacket(-1, 'Could not find conversation', { tempID }));
     }
 
-    if (!userIsParticipant(userID, currConversation.participants))
+    if (!userIsParticipant(userID, currConversation.participants as ObjectIdType[]))
       return callback(sendPacket(0, 'User is not in this Conversation'));
 
-    User.findById(userID, ['firstName', 'lastName'], (err, user) => {
-      if (err) return callback(sendPacket(-1, err));
-      if (!user) return callback(0, "Couldn't find user");
+    User.model.findById(userID, ['firstName', 'lastName'], {}, (err, user) => {
+      if (err) return callback(sendPacket(-1, err.message));
+      if (!user) return callback(sendPacket(0, "Couldn't find user"));
 
-      let newMessage = new Message();
+      let newMessage = new Message.model();
       newMessage.conversationID = conversationID;
       newMessage.sender = userID;
       newMessage.senderName = `${user.firstName} ${user.lastName}`;
       newMessage.content = message;
       newMessage.save((err) => {
         if (err) {
-          log('error', err);
+          log('error', err.message);
           return callback(
             sendPacket(-1, 'There was an error saving the message', { tempID })
           );
@@ -101,7 +113,7 @@ export function sendMessage(userID, conversationID, message, tempID, io, callbac
           if (isNewConversation)
             emitPicturedConversation(userID, currConversation.toObject(), io);
 
-          let jsonNewMessage = newMessage.toObject();
+          let jsonNewMessage: any = newMessage.toObject();
           jsonNewMessage.tempID = tempID;
 
           io.in(`CONVERSATION_${newMessage.conversationID}`).emit(
@@ -115,7 +127,10 @@ export function sendMessage(userID, conversationID, message, tempID, io, callbac
   });
 }
 
-export async function getLatestThreads(userID, callback) {
+export async function getLatestThreads(
+  userID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
   function timeStampCompare(ObjectA, ObjectB) {
     const a = !ObjectA.lastMessage
       ? ObjectA.createdAt
@@ -130,9 +145,10 @@ export async function getLatestThreads(userID, callback) {
     return 0;
   }
 
-  let userConversations = await Conversation.find({
-    participants: userID,
-  })
+  let userConversations = await Conversation.model
+    .find({
+      participants: userID,
+    })
     .populate('lastMessage')
     .populate('participants', '_id firstName lastName profilePicture')
     .lean();
@@ -151,7 +167,11 @@ export async function getLatestThreads(userID, callback) {
   );
 }
 
-async function emitPicturedConversation(userID, conversation, io) {
+async function emitPicturedConversation(
+  userID: ObjectIdType,
+  conversation: any,
+  io
+) {
   if (conversation.participants.length !== 2)
     return conversation.participants.forEach((recipient) => {
       conversation;
@@ -164,6 +184,7 @@ async function emitPicturedConversation(userID, conversation, io) {
     if (otherPerson.profilePicture) {
       try {
         const signedImageUrlPromise = retrieveSignedUrl(
+          'images',
           'profile',
           otherPerson.profilePicture
         );
@@ -195,7 +216,10 @@ async function emitPicturedConversation(userID, conversation, io) {
     });
 }
 
-function addProfilePictureToConversations(userID, conversations) {
+function addProfilePictureToConversations(
+  userID: ObjectIdType,
+  conversations: any[]
+) {
   const imagePromises = [];
   conversations.forEach((conversation) => {
     if (conversation.participants.length === 2) {
@@ -206,6 +230,7 @@ function addProfilePictureToConversations(userID, conversations) {
       if (otherPerson.profilePicture) {
         try {
           const signedImageUrlPromise = retrieveSignedUrl(
+            'images',
             'profile',
             otherPerson.profilePicture
           );
@@ -234,35 +259,36 @@ function addProfilePictureToConversations(userID, conversations) {
 }
 
 export function getLatestMessages(
-  userID,
-  conversationID,
+  userID: ObjectIdType,
+  conversationID: ObjectIdType,
   maxMessages = 200,
-  callback
+  callback: (packet: packetParams) => void
 ) {
-  Conversation.findById(conversationID, async (err, conversation) => {
+  Conversation.model.findById(conversationID, async (err, conversation) => {
     if (err) {
       log('error', err);
       return callback(sendPacket(-1, err));
     }
     if (!conversation) return callback(sendPacket(0, 'Could not find Conversation'));
 
-    Message.aggregate([
-      { $match: { conversationID: mongoose.Types.ObjectId(conversationID) } },
-      { $sort: { createdAt: -1 } },
-      { $limit: maxMessages },
-      { $sort: { createdAt: 1 } },
-      {
-        $project: {
-          numLikes: { $size: '$likes' },
-          liked: { $in: [mongoose.Types.ObjectId(userID), '$likes'] },
-          conversationID: '$conversationID',
-          senderName: '$senderName',
-          sender: '$sender',
-          content: '$content',
-          createdAt: '$createdAt',
+    Message.model
+      .aggregate([
+        { $match: { conversationID: ObjectIdVal(conversationID.toString()) } },
+        { $sort: { createdAt: -1 } },
+        { $limit: maxMessages },
+        { $sort: { createdAt: 1 } },
+        {
+          $project: {
+            numLikes: { $size: '$likes' },
+            liked: { $in: [ObjectIdVal(userID.toString()), '$likes'] },
+            conversationID: '$conversationID',
+            senderName: '$senderName',
+            sender: '$sender',
+            content: '$content',
+            createdAt: '$createdAt',
+          },
         },
-      },
-    ])
+      ])
       .exec()
       .then((messages) => {
         if (!messages) return callback(sendPacket(-1, 'Could not find Messages'));
@@ -277,58 +303,77 @@ export function getLatestMessages(
   });
 }
 
-export function updateLike(userID, messageID, liked, io, callback) {
-  User.findById(userID, ['firstName', 'lastName'], (err, user) => {
-    if (err) return callback(sendPacket(-1, err));
+export function updateLike(
+  userID: ObjectIdType,
+  messageID: ObjectIdType,
+  liked: boolean,
+  io,
+  callback: (packet: packetParams) => void
+) {
+  User.model.findById(userID, ['firstName', 'lastName'], {}, (err, user) => {
+    if (err) return callback(sendPacket(-1, err.message));
     if (!user) return callback(sendPacket(0, 'Could not find User'));
 
-    Message.findById(messageID, ['likes', 'conversationID'], (err, message) => {
-      if (err) return callback(sendPacket(-1, err));
-      if (!message)
-        return callback(sendPacket(-1, 'Could not find message to like'));
-
-      const alreadyLiked = message.likes.includes(userID);
-
-      if (liked && !alreadyLiked) message.likes.push(userID);
-      else if (!liked && alreadyLiked)
-        message.likes.splice(message.likes.indexOf(userID), 1);
-
-      message.save((err, message) => {
-        if (err) return callback(sendPacket(-1, err));
+    Message.model.findById(
+      messageID,
+      ['likes', 'conversationID'],
+      {},
+      (err, message) => {
+        if (err) return callback(sendPacket(-1, err.message));
         if (!message)
-          return callback(sendPacket(-1, 'There was an error saving the like'));
+          return callback(sendPacket(-1, 'Could not find message to like'));
 
-        io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
-          messageID: message._id,
-          numLikes: message.likes.length,
-          liked,
-          liker: userID,
-          likerName: `${user.firstName} ${user.lastName}`,
+        message.likes = message.likes as ObjectIdType[];
+        const alreadyLiked = message.likes.includes(userID);
+
+        if (liked && !alreadyLiked) message.likes.push(userID);
+        else if (!liked && alreadyLiked)
+          message.likes.splice(message.likes.indexOf(userID), 1);
+
+        message.save((err, message) => {
+          if (err) return callback(sendPacket(-1, err.message));
+          if (!message)
+            return callback(sendPacket(-1, 'There was an error saving the like'));
+
+          io.in(`CONVERSATION_${message.conversationID}`).emit('updateLikes', {
+            messageID: message._id,
+            numLikes: message.likes.length,
+            liked,
+            liker: userID,
+            likerName: `${user.firstName} ${user.lastName}`,
+          });
+          callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
         });
-        callback(sendPacket(1, 'Updated like state', { newLiked: liked }));
-      });
-    });
+      }
+    );
   });
 }
 
-export function getLiked(userID, messageID, callback) {
-  Message.findById(messageID, ['content', 'likes'], (err, message) => {
-    if (err) return callback(sendPacket(-1, err));
+export function getLiked(
+  userID: ObjectIdType,
+  messageID: ObjectIdType,
+  callback: (packet: packetParams) => void
+) {
+  Message.model.findById(messageID, ['content', 'likes'], {}, (err, message) => {
+    if (err) return callback(sendPacket(-1, err.message));
     if (!message) return callback(sendPacket(-1, 'Could not find message'));
 
-    const liked = message.likes.includes(userID);
+    const liked = (message.likes as ObjectIdType[]).includes(userID);
     callback(sendPacket(1, 'Sending liked value', { liked: liked }));
   });
 }
 
-export function connectSocketToConversations(socket, conversations) {
+export function connectSocketToConversations(socket, conversations: any[]) {
   conversations.forEach((conversation) => {
     socket.join(`CONVERSATION_${conversation._id}`);
   });
 }
 
-function checkUsersConnected(userID, otherUserIDs, callback) {
-  otherUserIDs = stringsToUserIDs(otherUserIDs);
+function checkUsersConnected(
+  userID: ObjectIdType,
+  otherUserIDs: ObjectIdType[],
+  callback: (packet: packetParams) => void
+) {
   const lookupConnections = {
     $lookup: {
       from: 'connections',
@@ -351,28 +396,29 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
       },
     },
   };
-  User.aggregate([
-    { $match: { _id: mongoose.Types.ObjectId(userID) } },
-    lookupConnections,
-    transformToArray,
-    squashToSingleArray,
-    {
-      $project: {
-        unConnected: {
-          $filter: {
-            input: otherUserIDs,
-            as: 'otherUser',
-            cond: {
-              $not: {
-                $in: ['$$otherUser', '$connections'],
+  User.model
+    .aggregate([
+      { $match: { _id: ObjectIdVal(userID.toString()) } },
+      lookupConnections,
+      transformToArray,
+      squashToSingleArray,
+      {
+        $project: {
+          unConnected: {
+            $filter: {
+              input: otherUserIDs,
+              as: 'otherUser',
+              cond: {
+                $not: {
+                  $in: ['$$otherUser', '$connections'],
+                },
               },
             },
           },
+          connections: '$connections',
         },
-        connections: '$connections',
       },
-    },
-  ])
+    ])
     .exec()
     .then((user) => {
       if (!user || user.length === 0)
@@ -385,9 +431,13 @@ function checkUsersConnected(userID, otherUserIDs, callback) {
     .catch((err) => callback(sendPacket(-1, err)));
 }
 
-function checkConversationExists(userID, recipients, callback) {
+function checkConversationExists(
+  userID: ObjectIdType,
+  recipients: ObjectIdType[],
+  callback: (packet: packetParams) => void
+) {
   const participants = recipients.concat(userID);
-  Conversation.findOne(
+  Conversation.model.findOne(
     { participants: { $all: participants, $size: participants.length } },
     (err, conversation) => {
       if (err) return callback(sendPacket(-1, err));
@@ -401,16 +451,7 @@ function checkConversationExists(userID, recipients, callback) {
   );
 }
 
-function stringsToUserIDs(array) {
-  let ret = [];
-  array.forEach((element) => {
-    ret.push(mongoose.Types.ObjectId(element));
-  });
-
-  return ret;
-}
-
-function userIsParticipant(userID, participants) {
+function userIsParticipant(userID: ObjectIdType, participants: ObjectIdType[]) {
   // Prevents infiltration to private convos, but allows sending event messages
   return participants.includes(userID) || participants.length === 0;
 }
