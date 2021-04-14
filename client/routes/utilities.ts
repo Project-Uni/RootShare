@@ -1,7 +1,7 @@
 import aws = require('aws-sdk');
 
 import { User } from '../rootshare_db/models';
-import { log, sendPacket, getQueryParams } from '../helpers/functions';
+import { log, sendPacket, getQueryParams, sendSMS } from '../helpers/functions';
 import { getViewersForEvents } from '../helpers/data_aggregation/getViewersForEvents';
 import {
   getTotalMTGViewers,
@@ -48,7 +48,7 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/utilities/events/viewers', async (req, res) => {
-    // const eventsCSV = await getViewersForEvents([]);
+    // const eventsCSV = await getViewersForEvents(['6058db7add0bb42382a5dd37']);
     // if (eventsCSV) {
     //   res.attachment('events_aggregation.csv');
     //   res.status(200).send(eventsCSV);
@@ -87,6 +87,26 @@ export default function utilityRoutes(app) {
     // const response = await phasedEmergencyEmailRollout(subject, message);
     // return res.send(response);
     res.status(401).send('Re-activate this route if you want this data');
+  });
+
+  app.get('/api/utilies/sms', async (req, res) => {
+    // const users = await User.find({
+    //   $and: [{ phoneNumber: { $exists: true } }, { phoneNumber: { $ne: '' } }],
+    // }).exec();
+    // const phoneNumbers = users.map((u) => u.phoneNumber);
+
+    // sendSMS(
+    //   phoneNumbers,
+    //   'Hey it’s Chris Hartley, CEO of 🌱RootShare! I wanted to remind you that we are hosting an EXCLUSIVE event with Northwestern Mutual for Purdue students and alumni TONIGHT! Tune with your Rootshare account using the link below. \n\nhttps://RootShare.io/event/6058db7add0bb42382a5dd37',
+    //   'https://rootshare-profile-images.s3.us-east-2.amazonaws.com/images/messaging/nwm_Graphic.png'
+    // );
+
+    // return res.json(
+    //   sendPacket(1, 'Users', {
+    //     phoneNumbers,
+    //   })
+    // );
+    res.status(401).send('This is an example usage route');
   });
 }
 

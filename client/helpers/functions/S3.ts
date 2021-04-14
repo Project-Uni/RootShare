@@ -104,7 +104,6 @@ export async function retrieveSignedUrl(
 
     return signedURL;
   } catch (err) {
-    log('err', err);
     return false;
   }
 }
@@ -142,6 +141,7 @@ function getPathPrefix(
 
 export function decodeBase64Image(dataString: string) {
   const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  console.log(matches);
   const output: { type?: string; data?: Buffer } = {};
 
   if (matches.length !== 3) return {};

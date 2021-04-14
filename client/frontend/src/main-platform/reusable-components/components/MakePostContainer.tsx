@@ -127,7 +127,7 @@ function MakePostContainer(props: Props) {
       setTimeout(() => {
         setServerMessage(undefined);
       }, 5000);
-      props.appendNewPost(data.content['newPost']);
+      props.appendNewPost(data.content['post']);
     } else {
       setServerMessage({
         status: 0,
@@ -210,9 +210,7 @@ function MakePostContainer(props: Props) {
           {serverMessage ? (
             <RSText
               className={styles.serverMessage}
-              color={
-                serverMessage.status === 1 ? Theme.success : Theme.error
-              }
+              color={serverMessage.status === 1 ? Theme.success : Theme.error}
               italic
             >
               {serverMessage.message}

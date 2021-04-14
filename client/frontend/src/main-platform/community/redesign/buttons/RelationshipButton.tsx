@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { dispatchSnackbar } from '../../../redux/actions';
+import { dispatchSnackbar } from '../../../../redux/actions';
 import { useDispatch } from 'react-redux';
 
-import { RSButtonV2 } from '../../reusable-components';
-import Tag from './Tag';
+import { RSButtonV2 } from '../../../reusable-components';
+import Tag from '../Tag';
 
-import { UserToCommunityRelationship, U2CR } from '../../../helpers/types';
-import { putCommunityMembership } from '../../../api';
-import { RSText } from '../../../base-components';
+import { UserToCommunityRelationship, U2CR } from '../../../../helpers/types';
+import { putCommunityMembership } from '../../../../api';
+import { RSText } from '../../../../base-components';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},

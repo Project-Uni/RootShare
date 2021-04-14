@@ -45,9 +45,9 @@ const getPostsURL = (postType: GetPostParams) => {
       return `/api/posts/user/${postType.params?.userID}/all`;
     case 'community-external':
       return `/api/posts/community/${postType.params?.communityID}/external`;
-    case 'community-internal-alumni':
-      return `/api/posts/community/${postType.params?.communityID}/internal/current`;
     case 'community-internal-student':
+      return `/api/posts/community/${postType.params?.communityID}/internal/current`;
+    case 'community-internal-alumni':
       return `/api/posts/community/${postType.params?.communityID}/internal/alumni`;
     case 'community-following':
       return `/api/posts/community/${postType.params?.communityID}/following`;

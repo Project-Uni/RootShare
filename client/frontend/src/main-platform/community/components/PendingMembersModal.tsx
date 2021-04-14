@@ -4,8 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Modal, IconButton, CircularProgress } from '@material-ui/core';
 import { MdErrorOutline } from 'react-icons/md';
 
-import { connect } from 'react-redux';
-
 import SinglePendingRequest from './SinglePendingRequest';
 
 import RSText from '../../../base-components/RSText';
@@ -52,10 +50,8 @@ type Props = {
   open: boolean;
   communityID: string;
   handleClose: () => any;
-  updatePendingCount: (numPending: number) => any;
-  updateMemberCount: (value: 1 | -1) => any;
-  accessToken: string;
-  refreshToken: string;
+  updatePendingCount?: (numPending: number) => any;
+  updateMemberCount?: (value: 1 | -1) => any;
 };
 
 function PendingMembersModal(props: Props) {
@@ -106,8 +102,8 @@ function PendingMembersModal(props: Props) {
         const newPending = pendingMembers.slice();
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
-        props.updatePendingCount(newPending.length);
-        props.updateMemberCount(1);
+        props.updatePendingCount?.(newPending.length);
+        props.updateMemberCount?.(1);
       }
     }
   }
@@ -132,13 +128,13 @@ function PendingMembersModal(props: Props) {
         const newPending = pendingMembers.slice();
         newPending.splice(spliceIndex, 1);
         setPendingMembers(newPending);
-        props.updatePendingCount(newPending.length);
+        props.updatePendingCount?.(newPending.length);
       }
     }
   }
 
   function handleClose() {
-    props.updatePendingCount(pendingMembers.length);
+    props.updatePendingCount?.(pendingMembers.length);
     setLoading(true);
     setPendingMembers([]);
     props.handleClose();
@@ -233,15 +229,4 @@ function PendingMembersModal(props: Props) {
   );
 }
 
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(PendingMembersModal);
+export default PendingMembersModal;

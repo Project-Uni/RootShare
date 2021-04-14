@@ -5,3 +5,6 @@ export * from './putCommunityMembership';
 export * from './putVerifyPhone';
 export * from './putResendPhoneVerification';
 export * from './putUpdateCommunity';
+export * from './putPinPost';
+export * from './putNotificationsSeen';
+export * from './putCommunityInvite';

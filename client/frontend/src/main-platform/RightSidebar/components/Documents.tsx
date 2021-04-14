@@ -43,6 +43,7 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
+      cursor: 'pointer',
     },
   },
   documentContainer: {
@@ -51,11 +52,6 @@ const useStyles = makeStyles((_: any) => ({
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
-    },
-  },
-  removeButton: {
-    '&:hover': {
-      cursor: 'pointer',
     },
   },
   fadeOut: {
@@ -80,7 +76,6 @@ export const Documents = (props: Props) => {
   const { entityID, variant, editable, className } = props;
 
   const [documents, setDocuments] = useState(props.documents);
-  const [newDocument, setNewDocument] = useState();
   const [loading, setLoading] = useState(false);
 
   const fileForm = useRef<HTMLFormElement>(null);
@@ -181,15 +176,17 @@ export const Documents = (props: Props) => {
 
   return (
     <RSCard className={[styles.wrapper, className].join(' ')} background="secondary">
-      <form ref={fileForm}>
-        <input
-          type="file"
-          ref={fileUploader}
-          style={{ display: 'none' }}
-          accept={ALLOWED_MIME_TYPES.join(', ')}
-          onChange={handleFileUpload}
-        />
-      </form>
+      {editable && (
+        <form ref={fileForm}>
+          <input
+            type="file"
+            ref={fileUploader}
+            style={{ display: 'none' }}
+            accept={ALLOWED_MIME_TYPES.join(', ')}
+            onChange={handleFileUpload}
+          />
+        </form>
+      )}
       <RSText className={styles.cardTitle} size={16} bold>
         {`${capitalizeFirstLetter(variant)} Documents`}
       </RSText>
@@ -228,12 +225,14 @@ export const Documents = (props: Props) => {
           paddingTop: 5,
         }}
       >
-        <RSLink onClick={() => fileUploader.current?.click()}>
-          <AiOutlineCloudUpload
-            className={styles.link}
-            size={documents.length === 0 ? 40 : 30}
-          />
-        </RSLink>
+        {editable && (
+          <RSLink onClick={() => fileUploader.current?.click()}>
+            <AiOutlineCloudUpload
+              className={styles.link}
+              size={documents.length === 0 ? 40 : 30}
+            />
+          </RSLink>
+        )}
       </div>
     </RSCard>
   );
@@ -300,7 +299,7 @@ const SingleDocument = (props: SingleProps) => {
       <div style={{ flex: 1 }} />
       {editable && (
         <DeleteOutlineIcon
-          className={styles.removeButton}
+          className={styles.link}
           onClick={() => removeDocument()}
         />
       )}

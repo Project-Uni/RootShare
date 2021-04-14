@@ -23,6 +23,7 @@ import {
   deleteFile,
 } from '../helpers/functions';
 import { generateSignedProfilePromises } from './utilities';
+import NotificationService from './notification';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -73,7 +74,7 @@ export async function createBroadcastUserPost(
     }
 
     log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { post: postObj });
+    return sendPacket(1, 'Successfully created post', { post: postObj || post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);
@@ -755,6 +756,12 @@ export async function leaveCommentOnPost(
           .updateOne({ _id: postID }, { $push: { comments: comment._id } })
           .exec();
 
+        new NotificationService().comment({
+          fromUser: userID.toString(),
+          postID: postID.toString(),
+          comment: message,
+        });
+
         return sendPacket(1, `Successfully posted comment on post ${postID}`, {
           comment,
         });
@@ -788,7 +795,10 @@ export async function getInternalCurrentMemberPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (
+    accountType !== 'student' &&
+    !(community.admin as ObjectIdType).equals(userID)
+  ) {
     log(
       'info',
       `User ${userID} who is not a student attempted to retrieve current member feed for ${communityID}`
@@ -832,7 +842,10 @@ export async function getInternalAlumniPosts(
     return sendPacket(0, 'User is not a member of this community');
   }
 
-  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (
+    accountType === 'student' &&
+    !(community.admin as ObjectIdType).equals(userID)
+  ) {
     log(
       'info',
       `User ${userID} who is a student attempted to retrieve alumni feed for ${communityID}`
@@ -932,6 +945,10 @@ export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
           .updateOne({ _id: userID }, { $addToSet: { likes: postID } })
           .exec();
 
+        new NotificationService().like({
+          fromUser: userID.toString(),
+          postID: postID.toString(),
+        });
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log('info', `User ${userID} successfully liked post ${postID}`);
           return sendPacket(1, 'Successfully liked post');
@@ -996,7 +1013,8 @@ export async function getLikes(postID: ObjectIdType, userID: ObjectIdType) {
     return Promise.all(signedImagePromises)
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++)
-          if (signedImageURLs[i]) likes[i].profilePicture = signedImageURLs[i];
+          if (signedImageURLs[i])
+            likes[i].profilePicture = signedImageURLs[i] as string;
 
         return sendPacket(1, 'Successfully retrieved likes', { likes });
       })
@@ -1274,7 +1292,27 @@ export async function retrieveComments(
   }
 }
 
-async function retrievePosts(
+export const getPost = async ({
+  userID,
+  postID,
+}: {
+  postID: string;
+  userID: ObjectIdType;
+}) => {
+  //TODO - Determine if user has access to get post
+  const hasAccess = true;
+  try {
+    const post = await retrievePosts({ _id: ObjectIdVal(postID) }, 1, userID);
+    if (!post) return false;
+
+    return post[0];
+  } catch (err) {
+    log('error', err.message);
+    return false;
+  }
+};
+
+export async function retrievePosts(
   condition: { [key: string]: any },
   numRetrieved: number,
   userID: ObjectIdType,

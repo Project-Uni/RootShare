@@ -12,6 +12,8 @@ import Theme from '../../../theme/Theme';
 import { postSubmitPost, SubmitPostArgs } from '../../../api';
 import { PostType } from '../../../helpers/types';
 import { dispatchSnackbar } from '../../../redux/actions';
+import { AiOutlineSend } from 'react-icons/ai';
+import { GoBroadcast } from 'react-icons/go';
 
 const useStyles = makeStyles((_: any) => ({
   imagePreviewWrapper: {
@@ -53,10 +55,11 @@ type Props = {
   className?: string;
   mode: MakePostContainerMode;
   appendPost?: (post: PostType) => void;
+  disabled?: boolean;
 };
 
 export const MakePostContainer = (props: Props) => {
-  const { style, className, mode, appendPost } = props;
+  const { style, className, mode, appendPost, disabled } = props;
 
   const styles = useStyles();
 
@@ -100,6 +103,7 @@ export const MakePostContainer = (props: Props) => {
 
     if (!message.trim()) {
       setServerErr('Enter a valid message');
+      setLoading(false);
       return;
     }
 
@@ -217,8 +221,13 @@ export const MakePostContainer = (props: Props) => {
             <div>
               {(props.mode as any)['admin'] ? (
                 <RSButton
-                  style={{ textTransform: 'none', height: '100%', marginRight: 15 }}
-                  disabled={loading}
+                  style={{
+                    marginRight: 15,
+                    textTransform: 'none',
+                    paddingTop: 3,
+                    paddingBottom: 3,
+                  }}
+                  disabled={loading || disabled}
                   onClick={(e) => {
                     if (
                       window.confirm(
@@ -231,21 +240,31 @@ export const MakePostContainer = (props: Props) => {
                   {loading ? (
                     <CircularProgress size={25} style={{ color: Theme.altText }} />
                   ) : (
-                    'Announce'
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <RSText color={Theme.altText} style={{ marginRight: 5 }}>
+                        Announce
+                      </RSText>
+                      <GoBroadcast color={Theme.altText} size={16} />
+                    </div>
                   )}
                 </RSButton>
               ) : (
                 <></>
               )}
               <RSButton
-                style={{ textTransform: 'none', height: '100%' }}
-                disabled={loading}
+                style={{ textTransform: 'none', paddingTop: 3, paddingBottom: 3 }}
+                disabled={loading || disabled}
                 onClick={(e) => handlePostClicked()}
               >
                 {loading ? (
                   <CircularProgress size={25} style={{ color: Theme.altText }} />
                 ) : (
-                  'Post'
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <RSText color={Theme.altText} style={{ marginRight: 5 }}>
+                      Post
+                    </RSText>
+                    <AiOutlineSend color={Theme.altText} size={16} />
+                  </div>
                 )}
               </RSButton>
             </div>

@@ -23,6 +23,8 @@ import { retrieveAllUrls } from './media';
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
 
+import { U2UR } from '../rootshare_db/types';
+
 const MAX_RETRIEVED = 20;
 
 export async function populateDiscoverForUser(userID: ObjectIdType) {
@@ -186,11 +188,103 @@ export async function exactMatchSearchFor(
   query: string,
   limit: number = 20
 ) {
-  const cleanedQuery = query.trim();
-
   Search.createSearch(userID, query);
 
-  const terms = query.split(' ');
+  const usersPromise = userSearch({ query, limit });
+  const communitiesPromise = communitySearch({ query, limit });
+
+  const [users, communities] = await Promise.all([usersPromise, communitiesPromise]);
+
+  if (users && communities)
+    return sendPacket(1, 'Successfully searched', { users, communities });
+  return sendPacket(-1, 'There was an error searching');
+}
+
+export const communityInviteSearch = async ({
+  query,
+  limit,
+  communityID,
+  userID,
+}: {
+  query: string;
+  communityID: string;
+  userID: string;
+  limit?: number;
+}) => {
+  const additionalFilter = {
+    $and: [
+      {
+        joinedCommunities: {
+          $not: { $elemMatch: { $eq: ObjectIdVal(communityID) } },
+        },
+      },
+      {
+        pendingCommunities: {
+          $not: { $elemMatch: { $eq: ObjectIdVal(communityID) } },
+        },
+      },
+    ],
+  };
+  let users = await userSearch({
+    query,
+    limit,
+    additionalFilter,
+    getRelationship: { toUserID: userID },
+  });
+  if (!users) return sendPacket(-1, 'Failed to get users');
+
+  const valuedRelationship = {
+    [U2UR.SELF]: -1,
+    [U2UR.CONNECTED]: 0,
+    [U2UR.PENDING_FROM]: 1,
+    [U2UR.PENDING_TO]: 2,
+    [U2UR.PENDING]: 3,
+    [U2UR.OPEN]: 4,
+  };
+
+  users.sort((a, b) => {
+    if (
+      valuedRelationship[a.relationship] === 0 &&
+      valuedRelationship[b.relationship] === 0
+    )
+      return 0;
+    else if (valuedRelationship[a.relationship] < valuedRelationship[b.relationship])
+      return -1;
+    return 1;
+  });
+  return sendPacket(1, 'Retrieved users', { users });
+};
+
+export const userSearch = async ({
+  query,
+  limit,
+  additionalFilter,
+  getRelationship,
+}: {
+  query: string;
+  limit?: number;
+  additionalFilter?: { [k: string]: unknown };
+  getRelationship?: { toUserID: string };
+}): Promise<
+  | {
+      firstName: string;
+      lastName: string;
+      email: string;
+      profilePicture?: string;
+      relationship:
+        | typeof U2UR.SELF
+        | typeof U2UR.CONNECTED
+        | typeof U2UR.PENDING_FROM
+        | typeof U2UR.PENDING_TO
+        | typeof U2UR.PENDING
+        | typeof U2UR.OPEN;
+    }[]
+  | false
+> => {
+  const defaultLimit = 20;
+  const cleanedQuery = query.trim();
+
+  const terms = cleanedQuery.split(' ');
   const userSearchConditions: { [key: string]: any }[] = [];
   if (terms.length === 1) {
     try {
@@ -202,10 +296,7 @@ export async function exactMatchSearchFor(
         'error',
         `There was an error with the regular expression made from the query: ${err}`
       );
-      return sendPacket(
-        -1,
-        'There was an error with the regular expression made from the query'
-      );
+      return false;
     }
   } else {
     try {
@@ -220,30 +311,93 @@ export async function exactMatchSearchFor(
         'error',
         `There was an error with the regular expression made from the query: ${err}`
       );
-      return sendPacket(
-        -1,
-        'There was an error with the regular expression made from the query'
-      );
+      return false;
     }
   }
 
   try {
-    const userPromise = User.model
-      .find({
-        $and: [
-          // { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
-          { $or: userSearchConditions },
-        ],
-      })
-      .select(['firstName', 'lastName', 'email', 'profilePicture'])
-      .limit(limit)
-      .lean()
-      .exec();
+    const andCondition: { [k: string]: unknown }[] = [{ $or: userSearchConditions }];
+    if (additionalFilter) andCondition.push(additionalFilter);
 
-    const communityPromise = Community.model
+    const selectFields = ['firstName', 'lastName', 'email', 'profilePicture'];
+    if (getRelationship) selectFields.push('connections', 'pendingConnections');
+
+    const usersPromise = User.model
       .find({
-        name: new RegExp(cleanedQuery, 'gi'),
+        $and: andCondition,
       })
+      .select(selectFields)
+      .limit(limit || defaultLimit);
+
+    if (getRelationship)
+      usersPromise.populate({ path: 'pendingConnections', select: 'from to' });
+
+    const users = await usersPromise.lean<IUser[]>().exec();
+
+    if (getRelationship) {
+      await User.getUserToUserRelationship_V2(
+        ObjectIdVal(getRelationship.toUserID),
+        users as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          pendingConnections: IConnection[];
+          connections: ObjectIdType[];
+        }[]
+      );
+      users.forEach((user) => {
+        delete user['connections'];
+        delete user['pendingConnections'];
+      });
+    }
+
+    const images = await Promise.all(
+      generateSignedProfilePromises(users, 'profile')
+    );
+
+    for (let i = 0; i < users.length; i++)
+      if (images[i]) users[i].profilePicture = images[i] as string;
+
+    return (users as unknown) as {
+      firstName: string;
+      lastName: string;
+      email: string;
+      profilePicture?: string;
+      relationship:
+        | typeof U2UR.SELF
+        | typeof U2UR.CONNECTED
+        | typeof U2UR.PENDING_FROM
+        | typeof U2UR.PENDING_TO
+        | typeof U2UR.PENDING
+        | typeof U2UR.OPEN;
+    }[];
+  } catch (err) {
+    log('error', err);
+    return false;
+  }
+};
+
+export const communitySearch = async ({
+  query,
+  limit,
+  additionalFilter,
+}: {
+  query: string;
+  limit?: number;
+  additionalFilter?: { [k: string]: unknown };
+}) => {
+  const defaultLimit = 20;
+  const cleanedQuery = query.trim();
+
+  try {
+    const searchConditions: { [k: string]: unknown }[] = [
+      {
+        name: new RegExp(cleanedQuery, 'gi'),
+      },
+    ];
+    if (additionalFilter) searchConditions.push(additionalFilter);
+
+    const communities = await Community.model
+      .find({ $and: searchConditions })
       .select([
         'name',
         'type',
@@ -252,32 +406,23 @@ export async function exactMatchSearchFor(
         'profilePicture',
         'university',
       ])
-      .limit(limit)
+      .limit(limit || defaultLimit)
       .lean()
       .exec();
 
-    return Promise.all([userPromise, communityPromise])
-      .then(async ([users, communities]) => {
-        const imageInfo = await addCommunityAndUserImages(communities, users);
+    const images = await Promise.all(
+      generateSignedProfilePromises(communities, 'communityProfile')
+    );
 
-        return sendPacket(
-          1,
-          `Successfully retrieved all matching users and communities for query: ${query}`,
-          {
-            communities: imageInfo['communities'],
-            users: imageInfo['users'],
-          }
-        );
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
+    for (let i = 0; i < communities.length; i++)
+      if (images[i]) communities[i].profilePicture = images[i] as string;
+
+    return communities;
   } catch (err) {
     log('error', err);
-    return sendPacket(-1, err);
+    return false;
   }
-}
+};
 
 function addCommunityAndUserImages(communities: any[], users: any[]) {
   const communityImagePromises = generateSignedProfilePromises(

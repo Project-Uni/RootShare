@@ -16,7 +16,6 @@ const useStyles = makeStyles((_: any) => ({
     borderRadius: 5,
     outline: 'none',
   },
-
   pageTitle: {
     marginLeft: 15,
     marginRight: 15,
@@ -52,6 +51,7 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   open: boolean;
   className?: string;
+  style?: React.CSSProperties;
   title: string;
   helperText?: string;
   helperIcon?: JSX.Element;
@@ -73,12 +73,13 @@ function RSModal(props: Props) {
       onClose={props.onClose}
     >
       <div
-        className={[styles.wrapper, props.className].join(' ')}
+        className={[props.className, styles.wrapper].join(' ')}
         style={{
           position: 'absolute',
           top: `${50}%`,
           left: `${50}%`,
           transform: `translate(-${50}%, -${50}%)`,
+          ...props.style,
         }}
       >
         {props.loadingIndicator && (
@@ -130,7 +131,7 @@ function RSModal(props: Props) {
             className={styles.helperText}
             size={12}
             italic
-            color={colors.secondaryText}
+            color={Theme.secondaryText}
           >
             {props.helperText}
           </RSText>

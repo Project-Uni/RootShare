@@ -152,10 +152,11 @@ function addRSVPs(webinarID: ObjectIdType, speakers: ObjectIdType[]) {
 function removeRSVPs(webinarID: ObjectIdType, oldSpeakers: ObjectIdType[]) {
   const temp: any[] = [];
 
-  const webinarPromise = Webinar.model
+  //TODO - Fix typing issue with this db command
+  const webinarPromise = (Webinar.model as any)
     .updateOne({ _id: webinarID }, { $pull: { RSVPs: oldSpeakers } })
     .exec();
-  const userPromise = User.model
+  const userPromise = (User.model as any)
     .updateMany(
       { _id: { $in: oldSpeakers } },
       { $pull: { RSVPWebinars: webinarID.toString() } }
@@ -362,6 +363,54 @@ export async function getAllEventsUser(
       return addUserDidRSVP(userID, webinars, callback);
     })
     .catch((err) => callback(sendPacket(-1, err)));
+}
+
+export async function getRecentEvents(limit: number) {
+  try {
+    const conditions = {
+      $and: [
+        { isDev: false },
+        {
+          $or: [{ isMTG: false }, { isMTG: undefined }],
+        },
+        {
+          $or: [
+            { muxAssetPlaybackID: { $ne: undefined } },
+            { dateTime: { $gte: new Date().getTime() - 240 * 60 * 1000 } },
+          ],
+        },
+      ],
+    };
+
+    let events = await Webinar.model
+      .aggregate([
+        { $match: conditions },
+        { $sort: { createdAt: -1 } },
+        { $limit: limit },
+        {
+          $project: {
+            title: '$title',
+            brief_description: '$brief_description',
+            full_description: 'full_description',
+            dateTime: '$dateTime',
+            hostCommunity: '$hostCommunity',
+            eventImage: '$eventImage',
+          },
+        },
+      ])
+      .exec();
+
+    if (!events) return sendPacket(-1, `Couldn't get recent events`);
+
+    events = await addEventImagesAll(events, 'eventImage');
+
+    return sendPacket(1, 'Successfully retrieved recent events', {
+      events,
+    });
+  } catch (err) {
+    log('error', err);
+    return sendPacket(-1, err.message);
+  }
 }
 
 function addUserDidRSVP(

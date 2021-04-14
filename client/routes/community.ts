@@ -11,7 +11,8 @@ import {
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
-  isCommunityMember,
+  isCommunityAdminFromQueryParams,
+  isCommunityMemberFromQueryParams,
 } from './middleware/communityAuthentication';
 
 import {
@@ -42,7 +43,11 @@ import {
   updateFields,
   //generics
   getCommunitiesGeneric,
+  pinPost,
+  getPinnedPosts,
+  inviteUser,
 } from '../interactions/community';
+import { String } from 'aws-sdk/clients/cloudsearchdomain';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
@@ -491,11 +496,13 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const query = getQueryParams<{
         description?: string;
+        bio?: string;
         name?: string;
         type?: string;
         private?: boolean;
       }>(req, {
         description: { type: 'string', optional: true },
+        bio: { type: 'string', optional: true },
         name: { type: 'string', optional: true },
         type: { type: 'string', optional: true },
         private: { type: 'boolean', optional: true },
@@ -503,7 +510,7 @@ export default function communityRoutes(app) {
 
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const packet = await updateFields(communityID, query);
+      const packet = await updateFields(ObjectIdVal(communityID), query);
       return res.json(packet);
     }
   );
@@ -633,4 +640,123 @@ export default function communityRoutes(app) {
       else res.json(sendPacket(0, 'Invalid action provided'));
     }
   );
+
+  /**
+   *
+   * @swagger
+   * paths:
+   *   /api/v2/community/pin:
+   *      put:
+   *        summary: Pin or unpin a post to a community
+   *        tags:
+   *          - Community
+   *        parameters:
+   *          - in: query
+   *            name: communityID
+   *            schema:
+   *              type: string
+   *            description: The id of the community to pin post
+   *
+   *          - in: query
+   *            name: postID
+   *            schema:
+   *              type: string
+   *            description: Id of the post to pin
+   *
+   *        responses:
+   *          "200":
+   *            description: Successfully pinned / unpinned post
+   *          "500":
+   *            description: There was an error pinning the post
+   *
+   */
+
+  app.put(
+    '/api/v2/community/pin',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      const query = getQueryParams<{ postID: string; communityID: string }>(req, {
+        communityID: { type: 'string' },
+        postID: { type: 'string' },
+      });
+
+      if (!query)
+        res
+          .status(500)
+          .json(sendPacket(-1, 'Missing query params communityID or postID'));
+      else {
+        let { postID, communityID } = query;
+
+        const packet = await pinPost({
+          postID: ObjectIdVal(postID),
+          communityID: ObjectIdVal(communityID),
+        });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
+    }
+  );
+
+  app.get(
+    '/api/v2/community/pinnedPosts',
+    isAuthenticatedWithJWT,
+    isCommunityMemberFromQueryParams,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams<{ communityID: string }>(req, {
+        communityID: { type: 'string' },
+      });
+
+      if (!query)
+        res.status(500).json(sendPacket(-1, 'Missing query param: communityID'));
+      else {
+        let { communityID } = query;
+        communityID = communityID as string;
+        const packet = await getPinnedPosts({
+          communityID: ObjectIdVal(communityID),
+          userID,
+        });
+        const status = packet.success === 1 ? 200 : 500;
+        res.status(status).json(packet);
+      }
+    }
+  );
+  //TODO - Add in new is communityMember check from pinned-post branch
+  app.put('/api/v2/community/invite', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      invitedIDs,
+      communityID,
+    }: { invitedIDs: string[]; communityID: string } = req.body;
+
+    if (!invitedIDs || !Array.isArray(invitedIDs) || !communityID)
+      res
+        .status(500)
+        .json(
+          sendPacket(
+            -1,
+            'Missing body params: invitedIDs:string[] or communityID: string'
+          )
+        );
+    else {
+      const packet = await inviteUser({
+        communityID,
+        invitedIDs,
+        fromUserID: userID.toString(),
+      });
+      const status = (() => {
+        switch (packet.success) {
+          case 1:
+            return 200;
+          case 0:
+            return 400;
+          case -1:
+          default:
+            return 500;
+        }
+      })();
+      res.status(status).json(packet);
+    }
+  });
 }
