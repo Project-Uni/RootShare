@@ -31,6 +31,9 @@ import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
+import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
+import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
+import { MdReportProblem } from 'react-icons/md';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -46,6 +49,14 @@ const useStyles = makeStyles((_: any) => ({
       cursor: 'pointer',
     },
   },
+  menuItem: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
 }));
 
 type Props = {
@@ -54,6 +65,11 @@ type Props = {
   post: PostType;
   options?: {
     hideToCommunity?: boolean;
+    pinToCommunityMenuItem?: {
+      value: boolean;
+      onPin: (postID: string) => Promise<boolean>;
+    };
+    pinned?: boolean;
   };
 };
 
@@ -84,6 +100,8 @@ export const UserPost = (props: Props) => {
 
   const isHovering = useRef(false);
   const [isDeleted, setIsDeleted] = useState(false);
+
+  const [pinned, setPinned] = useState(options?.pinned || false);
 
   useEffect(() => {
     const removeHistoryListen = history.listen((location, action) => {
@@ -120,7 +138,7 @@ export const UserPost = (props: Props) => {
     setShowCommentField((prev) => !prev);
   };
   const handleCommentTextClick = async () => {
-    if (!showComments) {
+    if (!showComments && commentCount > 0) {
       await fetchComments({});
     } else {
       setComments([]);
@@ -282,6 +300,12 @@ export const UserPost = (props: Props) => {
     }
   }
 
+  const handleCopy = async () => {
+    setMenuAnchorEl(undefined);
+    await navigator.clipboard.writeText(`https://rootshare.io/post/${post._id}`);
+    dispatch(dispatchSnackbar({ mode: 'notify', message: 'Copied post link!' }));
+  };
+
   return isDeleted ? (
     <></>
   ) : (
@@ -334,6 +358,13 @@ export const UserPost = (props: Props) => {
           </RSLink>
           <div id="name-and-info" style={{ textAlign: 'left', marginLeft: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
+              {pinned && (
+                <RiPushpin2Fill
+                  color={Theme.secondaryText}
+                  size={18}
+                  style={{ marginRight: 5 }}
+                />
+              )}
               <RSLink
                 href={anonymousCleanedData?.posterNavigationURL}
                 underline="hover"
@@ -395,9 +426,36 @@ export const UserPost = (props: Props) => {
           anchorEl={menuAnchorEl}
           onClose={() => setMenuAnchorEl(undefined)}
         >
+          {options?.pinToCommunityMenuItem?.value && (
+            <MenuItem
+              onClick={async () => {
+                setMenuAnchorEl(undefined);
+                setPinned((prev) => !prev);
+                const success = await options?.pinToCommunityMenuItem?.onPin(
+                  post._id
+                );
+                if (!success) setPinned((prev) => !prev);
+              }}
+              className={styles.menuItem}
+            >
+              <RiPushpin2Line color={Theme.secondaryText} size={18} />
+              <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+                {pinned ? 'Unpin' : 'Pin'}
+              </RSText>
+            </MenuItem>
+          )}
+          <MenuItem className={styles.menuItem} onClick={handleCopy}>
+            <IoCopyOutline color={Theme.secondaryText} size={15} />
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+              Copy Link
+            </RSText>
+          </MenuItem>
           {post.user._id === user._id && (
-            <MenuItem onClick={handleDeletePost}>
-              <RSText color={Theme.error}>Delete</RSText>
+            <MenuItem onClick={handleDeletePost} className={styles.menuItem}>
+              <IoTrashBinOutline color={Theme.secondaryText} size={15} />
+              <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+                Delete
+              </RSText>
             </MenuItem>
           )}
           <MenuItem
@@ -405,8 +463,12 @@ export const UserPost = (props: Props) => {
               setMenuAnchorEl(undefined);
               window.alert('This feature is still under development');
             }}
+            className={styles.menuItem}
           >
-            <RSText color={Theme.error}>Report</RSText>
+            <MdReportProblem color={Theme.error} size={15} />
+            <RSText color={Theme.error} style={{ marginLeft: 5 }}>
+              Report
+            </RSText>
           </MenuItem>
         </Menu>
       </div>

@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Toolbar, IconButton, Menu, MenuItem } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Theme as MuiTheme,
+} from '@material-ui/core';
 import RootShareLogo from '../images/RootShareLogoFullbeta.png';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
-
-import { FaSearch } from 'react-icons/fa';
 
 import EventDrawer from './EventDrawer';
 
@@ -20,32 +25,14 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
-import { RSLink, SearchField } from '../main-platform/reusable-components';
+import { RSLink } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
-import { useHistory } from 'react-router-dom';
+import { HeaderSearch, NotificationButton } from '../header';
 
-const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
+const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   header: {
-    background: theme.white,
+    background: muiTheme.background.secondary,
   },
-  toolbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  searchbar: {
-    marginLeft: 10,
-    marginRight: 25,
-    maxWidth: 400,
-  },
-  // collapsedSearch: {
-  //   maxWidth: 0,
-  //   opacity: 0,
-  // },
-  // visibleSearch: {
-  //   maxWidth: 400,
-  //   opacity: 1,
-  // },
 }));
 
 type Props = {
@@ -56,7 +43,6 @@ type Props = {
 
 function EventClientHeader(props: Props) {
   const styles = useStyles();
-  const history = useHistory();
 
   const [drawerContent, setDrawerContent] = useState('');
   const [drawerAnchor, setDrawerAnchor] = useState<'left' | 'right'>('right');
@@ -69,8 +55,6 @@ function EventClientHeader(props: Props) {
   const iconSize = useRef(isDesktop.current ? 32 : 24);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<any>();
-
-  // const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -125,106 +109,85 @@ function EventClientHeader(props: Props) {
     }
   }
 
-  function renderIcons() {
+  const Icons = () => {
     const iconProps = { size: iconSize.current, color: theme.primary };
-    if (isDesktop.current && window.innerWidth >= 600) {
-      return (
-        <div style={{ marginLeft: 25 }}>
-          <IconButton onClick={handleConnectionsClick}>
-            <MdGroupAdd {...iconProps} />
-          </IconButton>
-          <IconButton onClick={handleMessagesClick}>
-            <IoMdText {...iconProps} />
-          </IconButton>
-          <IconButton onClick={handleProfileClick}>
-            <MdAccountCircle {...iconProps} />
-          </IconButton>
-        </div>
-      );
-    }
+    // if (isDesktop.current && window.innerWidth >= 800) {
     return (
-      <div style={{ marginLeft: 25 }}>
-        <IconButton onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
-          <AiFillCaretDown color={theme.primary} />
+      <div style={{ display: 'flex', width: 'fit-content' }}>
+        <IconButton onClick={handleConnectionsClick}>
+          <MdGroupAdd {...iconProps} />
         </IconButton>
-        <Menu
-          open={Boolean(menuAnchorEl)}
-          anchorEl={menuAnchorEl}
-          onClose={() => setMenuAnchorEl(undefined)}
-        >
-          <MenuItem onClick={handleConnectionsClick}>Connections</MenuItem>
-          <MenuItem onClick={handleMessagesClick}>Messages</MenuItem>
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-        </Menu>
+        <IconButton onClick={handleMessagesClick}>
+          <IoMdText {...iconProps} />
+        </IconButton>
+        <IconButton onClick={handleProfileClick}>
+          <MdAccountCircle {...iconProps} />
+        </IconButton>
+        <NotificationButton />
       </div>
     );
-  }
+    // }
+    // return (
+    //   <div style={{ display: 'flex' }}>
+    //     <NotificationButton />
+    //     <IconButton onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
+    //       <AiFillCaretDown color={theme.primary} />
+    //     </IconButton>
+    //     <Menu
+    //       open={Boolean(menuAnchorEl)}
+    //       anchorEl={menuAnchorEl}
+    //       onClose={() => setMenuAnchorEl(undefined)}
+    //     >
+    //       <MenuItem onClick={handleConnectionsClick}>Connections</MenuItem>
+    //       <MenuItem onClick={handleMessagesClick}>Messages</MenuItem>
+    //       <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+    //     </Menu>
+    //   </div>
+    // );
+  };
 
   return (
-    <div className={styles.wrapper} style={{ width: width, minWidth: minWidth }}>
+    <div style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
-        <Toolbar className={styles.toolbar}>
-          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-            {(props.showNavigationMenuDefault ||
-              (props.showNavigationWidth &&
-                window.innerWidth < props.showNavigationWidth)) && (
-              <IconButton onClick={handleNavigationClick}>
-                <MdMenu color={theme.primary} size={28} />
-              </IconButton>
-            )}
-
+        <Toolbar>
+          <div style={{ flex: 1 }}>
             <div
-              style={
-                window.innerWidth >= 767
-                  ? { display: 'flex', alignItems: 'center', flex: 1 }
-                  : {
-                      flex: 1,
-                    }
-              }
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flex: 1,
+                alignItems: 'center',
+              }}
             >
-              <RSLink href="/home">
-                <img
-                  src={RootShareLogo}
-                  alt="RootShare"
-                  style={{
-                    width: isDesktop.current ? 190 : 130,
-                  }}
-                />
-              </RSLink>
-              <SearchField
-                style={{
-                  // transition: `max-width 0.75s ease, opacity ${
-                  //   showSearch ? 0.2 : 0.6
-                  // }s ease`,
-                  marginLeft: window.innerWidth >= 767 ? 55 : undefined,
-                }}
-                mode="both"
-                name="header-search"
-                placeholder="Search RootShare..."
-                className={[
-                  styles.searchbar,
-                  // showSearch ? styles.visibleSearch : styles.collapsedSearch,
-                ].join(' ')}
-                fetchDataURL="/api/discover/search/v1/exactMatch"
-                renderLimit={10}
-                onAutocomplete={(selectedOption) => {
-                  history.push(
-                    `/${
-                      selectedOption.type === 'community' ? 'community' : 'profile'
-                    }/${selectedOption._id}`
-                  );
-                }}
-                fullWidth
-                freeSolo
-                groupByType
-                variant="standard"
-                bigText
-                adornment={<FaSearch size={24} color={theme.secondaryText} />}
-              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {(props.showNavigationMenuDefault ||
+                  (props.showNavigationWidth &&
+                    window.innerWidth < props.showNavigationWidth)) && (
+                  <IconButton onClick={handleNavigationClick}>
+                    <MdMenu color={theme.primary} size={28} />
+                  </IconButton>
+                )}
+                <RSLink href="/home">
+                  <img
+                    src={RootShareLogo}
+                    alt="RootShare"
+                    style={{
+                      width: isDesktop.current ? 190 : 130,
+                    }}
+                  />
+                </RSLink>
+              </div>
+              {window.innerWidth >= 800 ? <HeaderSearch /> : undefined}
+              <Icons />
+            </div>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              {window.innerWidth < 800 ? (
+                <HeaderSearch style={{ marginBottom: 7 }} />
+              ) : (
+                undefined
+              )}
             </div>
           </div>
-
-          <div>{renderIcons()}</div>
         </Toolbar>
         <EventDrawer
           open={Boolean(drawerContent)}

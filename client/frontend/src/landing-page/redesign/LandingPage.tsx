@@ -166,11 +166,7 @@ const LandingPage = (props: Props) => {
       case 'verify':
         return <VerifyPhone />;
       case 'login':
-        return (
-          <div className={styles.rightMiddleContent}>
-            <Login />
-          </div>
-        );
+        return <Login />;
       case 'additional':
         return <AccountInitializationForm />;
     }

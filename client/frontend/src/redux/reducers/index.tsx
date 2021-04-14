@@ -12,6 +12,7 @@ import {
   snackbarNotificationReducer,
 } from './interactionsReducers';
 import { registrationReducer } from './registrationReducer';
+import { sidebarComponentsReducer } from './sidebarReducers';
 
 const allReducers = combineReducers({
   user: userReducer,
@@ -23,6 +24,7 @@ const allReducers = combineReducers({
   newMessage: newMessageReducer,
   hoverPreview: hoverPreviewReducer,
   snackbarNotification: snackbarNotificationReducer,
+  sidebarComponents: sidebarComponentsReducer,
   registration: registrationReducer,
 });
 

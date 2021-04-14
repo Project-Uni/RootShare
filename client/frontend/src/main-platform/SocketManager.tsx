@@ -148,14 +148,7 @@ function SocketManager(props: Props) {
   async function fetchConversations(currSocket: SocketIOClient.Socket) {
     if (currSocket === undefined && socket !== undefined) currSocket = socket;
 
-    const { data } = await makeRequest(
-      'GET',
-      '/api/messaging/getLatestThreads',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/messaging/getLatestThreads');
     if (data['success'] !== 1) return;
 
     const userConversations = data['content']['userConversations'];

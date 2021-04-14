@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CircularProgress, Box } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
 
 import RSText from '../../../base-components/RSText';
 
@@ -19,9 +20,10 @@ import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
 import { useHistory } from 'react-router-dom';
-import Banner from '../../../images/eventBanner/financialPlanBanner.png';
+import { DefaultPromotedBanner } from '../../../images';
 import { getPosts } from '../../../api';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { PromotedEvents } from '../../reusable-components/components/PromotedEvents';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -41,9 +43,10 @@ const useStyles = makeStyles((_: any) => ({
     margin: 8,
   },
   tabs: {
-    marginLeft: 15,
-    marginRight: 15,
-    marginBottom: 5,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 15,
+    marginBottom: 10,
   },
   box: {
     background: Theme.white,
@@ -56,6 +59,7 @@ type Props = {};
 export default function HomepageBody(props: Props) {
   const styles = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -68,6 +72,11 @@ export default function HomepageBody(props: Props) {
   );
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
     window.addEventListener('resize', handleResize);
     getFeed().then(() => {
       setLoading(false);
@@ -120,10 +129,11 @@ export default function HomepageBody(props: Props) {
         />
       </Box> */}
       <FeaturedEvent
-        src={Banner}
+        src={DefaultPromotedBanner}
         style={{ margin: 8 }}
-        href={'/event/6058db7add0bb42382a5dd37'}
+        href={undefined}
       />
+      <PromotedEvents />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
       {/* <MakePostContainer
         appendNewPost={appendNewPost}

@@ -1,6 +1,7 @@
 import { AccountType } from '../../helpers/types';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
+import { SidebarComponents } from '../../main-platform/RightSidebar/RightSidebar';
 
 export type RootshareReduxState = {
   user: {
@@ -22,6 +23,7 @@ export type RootshareReduxState = {
   newMessage: { [k: string]: any };
   hoverPreview: HoverProps & { mouseEntered?: boolean };
   snackbarNotification: SnackbarProps;
+  sidebarComponents: SidebarComponents;
   registration: null | {
     email?: string;
     password?: string; //Password is encrypted
@@ -58,5 +60,6 @@ export const initializeState = (): RootshareReduxState => ({
     mode: null,
     message: '',
   },
+  sidebarComponents: { names: [] },
   registration: null,
 });

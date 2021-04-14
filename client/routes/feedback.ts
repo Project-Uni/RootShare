@@ -1,12 +1,11 @@
-import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
-
-const { GITHUB_OAUTH } = require('../../keys/keys.json');
-
 import { request } from '@octokit/request';
 import { Express } from 'express';
 
-import { User } from '../models';
+import { User } from '../rootshare_db/models';
+import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+
+const { GITHUB_OAUTH } = require('../../keys/keys.json');
 
 const PROJECT_OWNER = 'Project-Uni';
 const REPO = 'RootShare-Bugs';
@@ -30,10 +29,8 @@ export default function feedbackRoutes(app: Express) {
 
     const userFromToken = getUserFromJWT(req);
     try {
-      const userFromDB = await User.findOne(
-        { _id: userFromToken._id },
-        'phoneNumber'
-      )
+      const userFromDB = await User.model
+        .findOne({ _id: userFromToken._id }, 'phoneNumber')
         .lean()
         .exec();
       const user = Object.assign({}, userFromToken, {

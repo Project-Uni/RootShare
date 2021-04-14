@@ -1,11 +1,14 @@
-const mongoose = require('mongoose');
+import { Types } from 'mongoose';
+
+import { User, IConnection } from '../rootshare_db/models';
+import { packetParams, U2UR, U2CR } from '../rootshare_db/types';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 
-import { User } from '../models';
-import { U2UR, U2CR } from '../helpers/types';
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
-export function getUserData(callback) {
-  User.find(
+export function getUserData(callback: (packet: packetParams) => void) {
+  User.model.find(
     {},
     [
       'firstName',
@@ -21,21 +24,25 @@ export function getUserData(callback) {
       'department',
       'graduateSchool',
     ],
+    {},
     (err, users) => {
       if (err || users === undefined || users === null) {
         return callback(sendPacket(-1, 'Could not find users'));
       }
 
-      const { studentCount, alumniCount, facultyCount, fanCount } = countAccountType(
-        users
-      );
+      const {
+        studentCount,
+        alumniCount,
+        facultyCount,
+        recruiterCount,
+      } = countAccountType(users);
       return callback(
         sendPacket(1, 'Found users', {
           users,
           studentCount,
           alumniCount,
           facultyCount,
-          fanCount,
+          recruiterCount,
         })
       );
     }
@@ -43,7 +50,7 @@ export function getUserData(callback) {
 }
 
 function countAccountType(users) {
-  const accountTypes = ['student', 'alumni', 'faculty', 'fan'];
+  const accountTypes = ['student', 'alumni', 'faculty', 'recruiter'];
   let accountCounts = [0, 0, 0, 0];
   const numTypes = accountTypes.length;
 
@@ -61,7 +68,7 @@ function countAccountType(users) {
     studentCount: 0,
     alumniCount: 0,
     facultyCount: 0,
-    fanCount: 0,
+    recruiterCount: 0,
   };
 
   for (let i = 0; i < numTypes; i++) {
@@ -73,15 +80,14 @@ function countAccountType(users) {
 
 // Adds mutual members, and mutual communities
 export async function addCalculatedUserFields(
-  currentUserConnections: string[],
-  currentUserJoinedCommunities: string[],
+  currentUserConnections: ObjectIdType[],
+  currentUserJoinedCommunities: ObjectIdType[],
   otherUser: {
     [key: string]: any;
-    _id: string;
+    _id: ObjectIdType;
     profilePicture?: string;
-    connections: string[];
-    joinedCommunities: string[];
-    status: string;
+    connections: ObjectIdType[];
+    joinedCommunities: ObjectIdType[];
   }
 ) {
   const userConnectionsStrings = toStringArray(currentUserConnections);
@@ -113,12 +119,12 @@ export async function addCalculatedUserFields(
 
 // Adds profile picture and mutual members
 export async function addCalculatedCommunityFields(
-  currentUserConnections: string[],
+  currentUserConnections: ObjectIdType[],
   community: {
     [key: string]: any;
-    _id: string;
-    admin: string;
-    members: string[];
+    _id: ObjectIdType;
+    admin: ObjectIdType;
+    members: ObjectIdType[];
   }
 ) {
   const currentUserConnectionsStrings = toStringArray(currentUserConnections);
@@ -137,14 +143,14 @@ export async function addCalculatedCommunityFields(
 }
 
 export function getUserToUserRelationship(
-  currentUserConnections,
-  currentUserPendingConnections,
+  currentUserConnections: IConnection[],
+  currentUserPendingConnections: IConnection[],
   originalOtherUser: {
     [key: string]: any;
-    _id: string;
-    connections: any[];
-    pendingConnections: string[];
-    joinedCommunities: string[];
+    _id: ObjectIdType;
+    connections: IConnection[];
+    pendingConnections: ObjectIdType[];
+    joinedCommunities: ObjectIdType[];
   },
   cleanedOtherUser: {
     [key: string]: any;
@@ -180,11 +186,11 @@ export function getUserToUserRelationship(
 }
 
 export function getUserToCommunityRelationship(
-  currentUserJoinedCommunities: string[],
-  currentUserPendingCommunities: string[],
+  currentUserJoinedCommunities: ObjectIdType[],
+  currentUserPendingCommunities: ObjectIdType[],
   originalCommunity: {
     [key: string]: any;
-    _id: string;
+    _id: ObjectIdType;
   },
   cleanedCommunity: {
     [key: string]: any;
@@ -212,7 +218,11 @@ export async function addProfilePictureToUser(user) {
   let profilePicture = undefined;
   if (user.profilePicture) {
     try {
-      const signedImageURL = await retrieveSignedUrl('profile', user.profilePicture);
+      const signedImageURL = await retrieveSignedUrl(
+        'images',
+        'profile',
+        user.profilePicture
+      );
       if (signedImageURL) profilePicture = signedImageURL;
     } catch (err) {
       log('error', err);
@@ -229,19 +239,19 @@ export function generateSignedProfilePromises(
   },
   imageType: 'profile' | 'communityProfile'
 ) {
-  const profilePicturePromises = [];
+  const profilePicturePromises: Promise<string | false | null>[] = [];
 
   for (let i = 0; i < entityList.length; i++) {
     if (entityList[i].profilePicture) {
       try {
         const signedImageURLPromise = retrieveSignedUrl(
+          'images',
           imageType,
           entityList[i].profilePicture
         );
         profilePicturePromises.push(signedImageURLPromise);
       } catch (err) {
         profilePicturePromises.push(null);
-        log('error', 'There was an error retrieving a signed url from S3');
       }
     } else {
       profilePicturePromises.push(null);
@@ -295,6 +305,7 @@ export function generateSignedBannerPromises(
     if (entityList[i].bannerPicture) {
       try {
         const signedImageURLPromise = retrieveSignedUrl(
+          'images',
           imageType,
           entityList[i].bannerPicture
         );
@@ -347,6 +358,7 @@ export function addProfilePicturesToRequests(requests) {
   for (let i = 0; i < requests.length; i++) {
     if (requests[i].from.profilePicture) {
       const signedImageURLPromise = retrieveSignedUrl(
+        'images',
         'profile',
         requests[i].from.profilePicture
       );
@@ -381,15 +393,18 @@ export function addProfilePicturesToRequests(requests) {
     });
 }
 
-export function connectionsToUserIDStrings(userID, connections) {
-  return connections.reduce((output, connection) => {
+export function connectionsToUserIDStrings(
+  userID: ObjectIdType,
+  connections: IConnection[]
+) {
+  return connections.reduce((output: ObjectIdType[], connection) => {
     if (connection.accepted) {
       const otherID =
         connection['from'].toString() !== userID.toString()
           ? connection['from']
           : connection['to'];
 
-      output.push(otherID.toString());
+      output.push(otherID as ObjectIdType);
     }
     return output;
   }, []);
@@ -403,7 +418,7 @@ export function connectionsToUserIDs(userID, connections) {
           ? connection['from']
           : connection['to'];
 
-      output.push(mongoose.Types.ObjectId(otherID));
+      output.push(ObjectIdVal(otherID));
     }
     return output;
   }, []);
@@ -417,7 +432,7 @@ export function pendingToUserIDs(userID, connections) {
           ? connection['from']
           : connection['to'];
 
-      output.push(mongoose.Types.ObjectId(otherID));
+      output.push(ObjectIdVal(otherID));
     }
     return output;
   }, []);

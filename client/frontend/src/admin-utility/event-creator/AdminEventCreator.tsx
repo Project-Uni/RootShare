@@ -11,6 +11,7 @@ import {
   MenuItem,
   InputLabel,
 } from '@material-ui/core';
+import { AiOutlineStar } from 'react-icons/ai';
 
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
@@ -30,6 +31,9 @@ import { colors } from '../../theme/Colors';
 import { EventType, HostType, SpeakerType } from '../../helpers/types';
 import { makeRequest, log } from '../../helpers/functions';
 import { useHistory } from 'react-router-dom';
+import { RSButton } from '../../main-platform/reusable-components';
+import Theme from '../../theme/Theme';
+import { AdminPromoteModal } from './AdminPromoteModal';
 
 const MIN_ACCESS_LEVEL = 6;
 const MAX_BRIEF_LEN = 100;
@@ -208,6 +212,8 @@ function AdminEventCreator(props: Props) {
   const [isDev, setIsDev] = useState<'yes' | 'no'>('no');
   const [isPrivate, setIsPrivate] = useState<'yes' | 'no'>('no');
 
+  const [promoteOpen, setPromoteOpen] = useState(false);
+
   const eventImageUploader = useRef<HTMLInputElement>(null);
   const eventBannerUploader = useRef<HTMLInputElement>(null);
 
@@ -234,14 +240,7 @@ function AdminEventCreator(props: Props) {
   }, []);
 
   async function fetchEvents() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/webinar/getAllEventsAdmin',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/webinar/getAllEventsAdmin');
     if (data['success'] !== 1) return log('error', data['message']);
     setEvents(data['content']['webinars']);
   }
@@ -855,6 +854,32 @@ function AdminEventCreator(props: Props) {
             </Button>
           )}
         </div>
+        {editEvent && (
+          <div
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              marginTop: 15,
+            }}
+          >
+            <RSButton
+              style={{
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingTop: 5,
+                paddingBottom: 5,
+              }}
+              onClick={() => setPromoteOpen(true)}
+            >
+              <AiOutlineStar
+                color={Theme.altText}
+                size={20}
+                style={{ marginRight: 10 }}
+              />
+              Promote
+            </RSButton>
+          </div>
+        )}
       </div>
     );
   }
@@ -862,6 +887,11 @@ function AdminEventCreator(props: Props) {
   return (
     <div className={styles.wrapper}>
       <EventClientHeader showNavigationMenuDefault />
+      <AdminPromoteModal
+        open={promoteOpen}
+        onClose={() => setPromoteOpen(false)}
+        eventID={editEvent}
+      />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

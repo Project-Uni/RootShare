@@ -5,7 +5,11 @@ import { AuthService } from '../interactions/auth';
 
 export const authRoutes = (app: Express) => {
   app.get('/api/v2/auth/validate', async (req, res) => {
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      email: string;
+      phoneNumber: string;
+      password: string;
+    }>(req, {
       email: { type: 'string' },
       phoneNumber: { type: 'string' },
       password: { type: 'string' },
@@ -14,9 +18,9 @@ export const authRoutes = (app: Express) => {
 
     const { email, password, phoneNumber } = query;
     const { status, packet } = await new AuthService().validateRegistration({
-      email: email as string,
-      password: password as string,
-      phoneNumber: phoneNumber as string,
+      email,
+      password,
+      phoneNumber,
     });
     return res.status(status).json(packet);
   });

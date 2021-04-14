@@ -1,7 +1,13 @@
 import { Express } from 'express';
-import { getUserFromJWT, log, sendPacket } from '../helpers/functions';
-import { Post, User } from '../models';
+import { Types } from 'mongoose';
 
+import { User } from '../rootshare_db/models';
+import {
+  getUserFromJWT,
+  log,
+  sendPacket,
+  getQueryParams,
+} from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   getCurrentUser,
@@ -26,7 +32,8 @@ import {
   getUsersGeneric,
 } from '../interactions/user';
 
-import { getQueryParams } from '../helpers/functions/getQueryParams';
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
 
 /**
  *
@@ -49,17 +56,20 @@ export default function userRoutes(app: Express) {
     if (req.params.userID === 'user')
       getPrivateProfileInformation(_id, (packet) => res.json(packet));
     else
-      getPublicProfileInformation(_id, req.params.userID, (packet) =>
-        res.json(packet)
+      getPublicProfileInformation(
+        _id,
+        (req.params.userID as unknown) as ObjectIdType,
+        (packet) => res.json(packet)
       );
   });
 
   app.get('/api/user/events/:userID', isAuthenticatedWithJWT, (req, res) => {
-    let { userID } = req.params;
+    const { userID } = req.params;
     const { _id } = getUserFromJWT(req);
 
-    if (userID === 'user') userID = _id;
-    getUserEvents(userID, (packet) => res.json(packet));
+    getUserEvents(userID === 'user' ? _id : ObjectIdVal(userID), (packet) =>
+      res.json(packet)
+    );
   });
 
   app.post('/user/updateProfile', isAuthenticatedWithJWT, (req, res) => {
@@ -91,9 +101,9 @@ export default function userRoutes(app: Express) {
       const { _id } = getUserFromJWT(req);
 
       let packet;
-      if (_id.toString() === userID.toString())
+      if (_id === ObjectIdVal(userID))
         packet = await getSelfConnectionsFullData(userID);
-      else packet = await getOtherConnectionsFullData(_id, userID);
+      else packet = await getOtherConnectionsFullData(_id, ObjectIdVal(userID));
       return res.json(packet);
     }
   );
@@ -131,7 +141,7 @@ export default function userRoutes(app: Express) {
       searchParams.push({ lastName: secondRegex });
     } else searchParams.push({ lastName: firstRegex });
 
-    User.find({ $or: searchParams }, (err, users) => {
+    User.model.find({ $or: searchParams }, (err, users) => {
       if (err) {
         log('error', err);
         return res.json(sendPacket(-1, 'Error fetching users from DB'));
@@ -160,8 +170,8 @@ export default function userRoutes(app: Express) {
 
       let packet;
       if (_id.toString() === userID.toString())
-        packet = await getSelfUserCommunities(userID);
-      else packet = await getOtherUserCommunities(_id, userID);
+        packet = await getSelfUserCommunities(ObjectIdVal(userID));
+      else packet = await getOtherUserCommunities(_id, ObjectIdVal(userID));
       return res.json(packet);
     }
   );
@@ -259,7 +269,16 @@ export default function userRoutes(app: Express) {
   app.get('/api/v2/users', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
 
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      _ids: string[];
+      limit?: number;
+      fields?: string[];
+      populates?: string[];
+      getProfilePicture?: boolean;
+      getBannerPicture?: boolean;
+      includeDefaultFields?: boolean;
+      getRelationship?: boolean;
+    }>(req, {
       _ids: { type: 'string[]' },
       limit: { type: 'number', optional: true },
       fields: { type: 'string[]', optional: true },
@@ -276,12 +295,25 @@ export default function userRoutes(app: Express) {
       _ids,
       limit,
       fields,
-      populates,
+      populates: populatesRaw,
       getProfilePicture,
       getBannerPicture,
       includeDefaultFields,
       getRelationship,
     } = query;
+    const userIDs = _ids.map((_id) => ObjectIdVal(_id));
+
+    const populates = [];
+    if (populatesRaw)
+      try {
+        populatesRaw.forEach((populateRaw) => {
+          const split = populateRaw.split(':');
+          populates.push({ path: split[0], select: split[1] });
+        });
+      } catch (err) {
+        log('err', err);
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      }
 
     const options = {
       limit,
@@ -291,16 +323,19 @@ export default function userRoutes(app: Express) {
       includeDefaultFields,
       getRelationshipTo: getRelationship ? userID : undefined,
     };
-    const packet = await getUsersGeneric(_ids as string[], {
-      fields: fields as any,
-      options: options as any,
+    const packet = await getUsersGeneric(userIDs, {
+      fields: fields as any[],
+      options: options,
     });
     return res.json(packet);
   });
 
   app.put('/api/v2/user/connect', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: selfUserID } = getUserFromJWT(req);
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{
+      action: string;
+      otherUserID: string;
+    }>(req, {
       action: { type: 'string' },
       otherUserID: { type: 'string' },
     });
@@ -310,11 +345,11 @@ export default function userRoutes(app: Express) {
     const { action, otherUserID } = query;
 
     if (action === 'connect')
-      res.json(await requestConnection(selfUserID, otherUserID));
+      res.json(await requestConnection(selfUserID, ObjectIdVal(otherUserID)));
     else if (action === 'reject' || action === 'cancel' || action === 'remove')
-      res.json(await respondConnection(selfUserID, otherUserID, false));
+      res.json(await respondConnection(selfUserID, ObjectIdVal(otherUserID), false));
     else if (action === 'accept')
-      res.json(await respondConnection(selfUserID, otherUserID, true));
+      res.json(await respondConnection(selfUserID, ObjectIdVal(otherUserID), true));
     else
       return res.json(
         sendPacket(0, 'Invalid action in route (connect, reject, accept, remove)')

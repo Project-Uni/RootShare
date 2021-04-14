@@ -6,7 +6,7 @@ export type UserType = {
   firstName: string;
   lastName: string;
   email: string;
-  accountType: string;
+  accountType: AccountType;
   privilegeLevel: number;
   university: string | UniversityType;
   graduationYear: number;
@@ -79,7 +79,7 @@ export type SearchUserType = {
   position?: string;
   graduationYear?: number;
   profilePicture?: string;
-  accountType?: string;
+  accountType?: AccountType;
   numMutualCommunities: number;
   numMutualConnections: number;
   status: UserToUserRelationship;
