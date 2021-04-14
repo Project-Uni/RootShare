@@ -1,5 +1,9 @@
-import { Community, Notifications, Post, User } from '../models';
+import { Types } from 'mongoose';
+import { Community, Notifications, Post, User } from '../rootshare_db/models';
 import { log } from '../helpers/functions';
+
+type ObjectIdType = Types.ObjectId;
+const ObjectIdVal = Types.ObjectId;
 
 export default class NotificationService {
   like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
@@ -9,7 +13,7 @@ export default class NotificationService {
         getUsername(fromUser),
       ]);
 
-      if (!forUser || !fromUserName || forUser === fromUser) return;
+      if (!forUser || !fromUserName || forUser === ObjectIdVal(fromUser)) return;
 
       await Notifications.create({
         variant: 'like',
@@ -40,7 +44,7 @@ export default class NotificationService {
         getUsername(fromUser),
       ]);
 
-      if (!forUser || !fromUserName || forUser === fromUser) return;
+      if (!forUser || !fromUserName || forUser.equals(ObjectIdVal(fromUser))) return;
 
       await Notifications.create({
         variant: 'comment',
@@ -159,20 +163,23 @@ export default class NotificationService {
 }
 
 //Helpers
-const getUserIDForPost = async (postID: string): Promise<string> => {
+const getUserIDForPost = async (postID: string): Promise<ObjectIdType> => {
   try {
-    const post = await Post.findById(postID, 'user anonymous').lean().exec();
-    if (!post || post.anonymous) return '';
+    const post = await Post.model.findById(postID, 'user anonymous').lean().exec();
+    if (!post || post.anonymous) return ObjectIdVal('');
 
-    return post.user;
+    return post.user as ObjectIdType;
   } catch (err) {
-    return '';
+    return ObjectIdVal('');
   }
 };
 
 const getUsername = async (userID: string) => {
   try {
-    const user = await User.findById(userID, 'firstName lastName').lean().exec();
+    const user = await User.model
+      .findById(userID, 'firstName lastName')
+      .lean()
+      .exec();
     if (!user) return false;
     return { firstName: user.firstName, lastName: user.lastName };
   } catch (err) {
@@ -182,7 +189,10 @@ const getUsername = async (userID: string) => {
 
 const getCommunityName = async (communityID: string) => {
   try {
-    const community = await Community.findById(communityID, 'name').lean().exec();
+    const community = await Community.model
+      .findById(communityID, 'name')
+      .lean()
+      .exec();
     if (!community) return false;
     return { name: community.name };
   } catch (err) {
