@@ -206,7 +206,7 @@ export const EditCommunityModal = (props: Props) => {
       type === 'banner' || type === 'updateProfilePicture'
         ? await makeRequest(
             'POST',
-            `/api/images/community/${props.communityID}/${type}`,
+            `/api/media/images/community/${props.communityID}/${type}`,
             { image: value }
           )
         : await makeRequest(

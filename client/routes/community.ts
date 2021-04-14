@@ -496,6 +496,7 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const query = getQueryParams<{
         description?: string;
+        bio?: string;
         name?: string;
         type?: string;
         private?: boolean;
@@ -509,7 +510,7 @@ export default function communityRoutes(app) {
 
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const packet = await updateFields(communityID, query);
+      const packet = await updateFields(ObjectIdVal(communityID), query);
       return res.json(packet);
     }
   );

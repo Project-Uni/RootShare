@@ -332,12 +332,17 @@ export const userSearch = async ({
     if (getRelationship)
       usersPromise.populate({ path: 'pendingConnections', select: 'from to' });
 
-    const users = await usersPromise.lean().exec();
+    const users = await usersPromise.lean<IUser[]>().exec();
 
     if (getRelationship) {
       await User.getUserToUserRelationship_V2(
         ObjectIdVal(getRelationship.toUserID),
-        users
+        users as {
+          [key: string]: any;
+          _id: ObjectIdType;
+          pendingConnections: IConnection[];
+          connections: ObjectIdType[];
+        }[]
       );
       users.forEach((user) => {
         delete user['connections'];

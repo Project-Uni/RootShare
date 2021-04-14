@@ -11,9 +11,10 @@ export const postUploadLinks = async (
   const params = stringify({
     entityID,
     entityType,
+  });
+  const { data } = await makeRequest('POST', `/api/media/links?${params}`, {
     links: links.map((link) => `${link.linkType} ${link.url}`),
     removeIDs,
   });
-  const { data } = await makeRequest('POST', `/api/media/links?${params}`);
   return data;
 };

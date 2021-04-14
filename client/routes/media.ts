@@ -174,17 +174,14 @@ export default function mediaRoutes(app) {
       const query = getQueryParams<{
         entityID: string;
         entityType: string;
-        links?: string[];
-        removeIDs?: string[];
       }>(req, {
         entityID: { type: 'string' },
         entityType: { type: 'string' },
-        links: { type: 'string[]', optional: true },
-        removeIDs: { type: 'string[]', optional: true },
       });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const { entityID, entityType, links, removeIDs } = query;
+      const { entityID, entityType } = query;
+      const { links, removeIDs } = req.body;
 
       const packet = await updateLinks(
         userID,
