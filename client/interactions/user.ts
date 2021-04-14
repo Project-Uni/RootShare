@@ -711,8 +711,8 @@ export async function respondConnection(
     });
     if (!request) return sendPacket(0, 'Could not find Connection Request');
 
-    const isRequestee = selfUserID === request.to;
-    const isRequester = selfUserID === request.from;
+    const isRequestee = selfUserID.equals(request.to as ObjectIdType);
+    const isRequester = selfUserID.equals(request.from as ObjectIdType);
     if (!accepted && (isRequestee || isRequester))
       return removeConnectionRequest(request);
     if (accepted && isRequestee) return acceptConnectionRequest(request);

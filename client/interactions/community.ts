@@ -18,7 +18,7 @@ import {
   U2CR,
   AccountType,
   ObjectIdVal,
-  ObjectIdType
+  ObjectIdType,
 } from '../rootshare_db/types';
 import {
   log,
@@ -477,7 +477,7 @@ export async function joinCommunity(
       //Update User DB Entry
       if (
         (user.joinedCommunities as ObjectIdType[]).indexOf(communityID) === -1 &&
-        (user.pendingCommunities as ObjectIdType[]).indexOf(communityID) == -1
+        (user.pendingCommunities as ObjectIdType[]).indexOf(communityID) === -1
       ) {
         isMember = false;
         if (community.private === false) {
@@ -1407,6 +1407,7 @@ export async function updateFields(
 
   try {
     await Community.model.updateOne({ _id: communityID }, updates).exec();
+
     return sendPacket(1, 'Successfully updated community');
   } catch (err) {
     log('error', err);

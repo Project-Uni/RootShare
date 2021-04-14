@@ -2,7 +2,7 @@ import React, { useEffect, useState, createElement } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { CircularProgress, Grid, IconButton, TextField } from '@material-ui/core';
+import { CircularProgress, Grid } from '@material-ui/core';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { AiOutlineLink } from 'react-icons/ai';
 import { SocialIcon } from 'react-social-icons';
