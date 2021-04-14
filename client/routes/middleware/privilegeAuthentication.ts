@@ -1,5 +1,5 @@
 import { getUserFromJWT, log, sendPacket } from '../../helpers/functions';
-import { User } from '../../models';
+import { User } from '../../rootshare_db/models';
 import { Request, Response, NextFunction } from 'express';
 
 export const isRootshareAdmin = async (
@@ -14,7 +14,7 @@ export const isRootshareAdmin = async (
       .json(sendPacket(-1, 'User is not authorized to perform this action'));
   } else {
     try {
-      const isAdmin = await User.exists({
+      const isAdmin = await User.model.exists({
         _id: userID,
         privilegeLevel: { $gte: 6 },
       });
@@ -41,7 +41,7 @@ export const isRootshareSuperAdmin = async (
       .json(sendPacket(-1, 'User is not authorized to perform this action'));
   } else {
     try {
-      const isSuperAdmin = await User.exists({
+      const isSuperAdmin = await User.model.exists({
         _id: userID,
         privilegeLevel: { $gte: 9 },
       });

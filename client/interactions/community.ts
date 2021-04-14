@@ -1,37 +1,55 @@
-const mongoose = require('mongoose');
+import { Types } from 'mongoose';
 
-import { Community, CommunityEdge, User, University } from '../models';
+import {
+  Community,
+  CommunityEdge,
+  User,
+  University,
+  Image,
+  ICommunity,
+  IUser,
+  ICommunityEdge,
+  IConnection,
+  IDocument,
+} from '../rootshare_db/models';
+import { CommunityGetOptions } from '../rootshare_db/models/communities';
+import {
+  CommunityType,
+  U2CR,
+  AccountType,
+  ObjectIdVal,
+} from '../rootshare_db/types';
 import {
   log,
   sendPacket,
   retrieveSignedUrl,
   deleteFile,
 } from '../helpers/functions';
-import { CommunityType, U2CR } from '../helpers/types';
 import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
   addProfilePicturesAll,
-} from '../interactions/utilities';
+} from './utilities';
+import { retrieveAllUrls } from './media';
 import { deletePost } from './posts';
-import { CommunityC, CommunityGetOptions } from '../models/communities';
 import NotificationService from './notification';
+type ObjectIdType = Types.ObjectId;
 
 export async function createNewCommunity(
   name: string,
   description: string,
-  adminID: string,
+  adminID: ObjectIdType,
   type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: {} = {}
 ) {
-  const userExists = await User.exists({ _id: adminID });
+  const userExists = await User.model.exists({ _id: adminID });
   if (!userExists) return sendPacket(0, 'Admin does not exist');
 
-  const newCommunity = new Community({
+  const newCommunity = new Community.model({
     name,
     description,
     type,
@@ -44,15 +62,19 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = User.updateOne(
-      { _id: adminID },
-      { $addToSet: { joinedCommunities: savedCommunity._id } }
-    ).exec();
+    const adminUpdate = User.model
+      .updateOne(
+        { _id: adminID },
+        { $addToSet: { joinedCommunities: savedCommunity._id } }
+      )
+      .exec();
 
-    const universityUpdate = University.updateOne(
-      { _id: savedCommunity.university },
-      { $push: { communities: savedCommunity._id } }
-    ).exec();
+    const universityUpdate = University.model
+      .updateOne(
+        { _id: savedCommunity.university },
+        { $push: { communities: savedCommunity._id } }
+      )
+      .exec();
 
     return Promise.all([adminUpdate, universityUpdate]).then(() => {
       log('info', `Successfully created community ${name}`);
@@ -66,12 +88,13 @@ export async function createNewCommunity(
   }
 }
 
-export async function deleteCommunity(communityID) {
+export async function deleteCommunity(communityID: ObjectIdType) {
   try {
-    const communityExists = await Community.exists({ _id: communityID });
+    const communityExists = await Community.model.exists({ _id: communityID });
     if (!communityExists) return sendPacket(0, 'Community does not exist');
 
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select([
         'name',
         'members',
@@ -121,72 +144,90 @@ export async function deleteCommunity(communityID) {
     //2 - Remove community from other communities' pending lists
     community.outgoingPendingCommunityFollowRequests.forEach(async (currRequest) => {
       promises.push(
-        Community.updateOne(
-          { _id: currRequest.to },
-          { $pull: { incomingPendingCommunityFollowRequests: currRequest._id } }
-        ).exec()
+        Community.model
+          .updateOne(
+            { _id: currRequest.to },
+            { $pull: { incomingPendingCommunityFollowRequests: currRequest._id } }
+          )
+          .exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
+      promises.push(CommunityEdge.model.deleteOne({ _id: currRequest._id }).exec());
     });
     community.incomingPendingCommunityFollowRequests.forEach((currRequest) => {
       promises.push(
-        Community.updateOne(
-          { _id: currRequest.from },
-          { $pull: { outgoingPendingCommunityFollowRequests: currRequest._id } }
-        ).exec()
+        Community.model
+          .updateOne(
+            { _id: currRequest.from },
+            { $pull: { outgoingPendingCommunityFollowRequests: currRequest._id } }
+          )
+          .exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
+      promises.push(CommunityEdge.model.deleteOne({ _id: currRequest._id }).exec());
     });
     //3 - Remove community from other communities' follow lists
     community.followingCommunities.forEach((currRequest) => {
       promises.push(
-        Community.updateOne(
-          { _id: currRequest.to },
-          { $pull: { followedByCommunities: currRequest._id } }
-        ).exec()
+        Community.model
+          .updateOne(
+            { _id: currRequest.to },
+            { $pull: { followedByCommunities: currRequest._id } }
+          )
+          .exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
+      promises.push(CommunityEdge.model.deleteOne({ _id: currRequest._id }).exec());
     });
     community.followedByCommunities.forEach((currRequest) => {
       promises.push(
-        Community.updateOne(
-          { _id: currRequest.from },
-          { $pull: { followingCommunities: currRequest._id } }
-        ).exec()
+        Community.model
+          .updateOne(
+            { _id: currRequest.from },
+            { $pull: { followingCommunities: currRequest._id } }
+          )
+          .exec()
       );
-      promises.push(CommunityEdge.deleteOne({ _id: currRequest._id }).exec());
+      promises.push(CommunityEdge.model.deleteOne({ _id: currRequest._id }).exec());
     });
     //4 - Remove community from members' pending and existing community lists
     community.pendingMembers.forEach((currPending) => {
       promises.push(
-        User.updateOne(
-          { _id: currPending },
-          { $pull: { pendingCommunities: community._id } }
-        ).exec()
+        User.model
+          .updateOne(
+            { _id: currPending },
+            { $pull: { pendingCommunities: community._id } }
+          )
+          .exec()
       );
     });
     community.members.forEach((currMember) => {
       promises.push(
-        User.updateOne(
-          { _id: currMember },
-          { $pull: { joinedCommunities: community._id } }
-        ).exec()
+        User.model
+          .updateOne(
+            { _id: currMember },
+            { $pull: { joinedCommunities: community._id } }
+          )
+          .exec()
       );
     });
     //5 - Remove community from University's communities list
     promises.push(
-      University.updateOne(
-        { _id: community.university },
-        { $pull: { communities: community._id } }
-      ).exec()
+      University.model
+        .updateOne(
+          { _id: community.university },
+          { $pull: { communities: community._id } }
+        )
+        .exec()
     );
     //6 - Delete images
     if (community.profilePicture)
-      promises.push(deleteFile('communityProfile', community.profilePicture));
+      promises.push(
+        deleteFile('images', 'communityProfile', community.profilePicture)
+      );
     if (community.bannerPicture)
-      promises.push(deleteFile('communityBanner', community.bannerPicture));
+      promises.push(
+        deleteFile('images', 'communityBanner', community.bannerPicture)
+      );
     //7 - Delete community
-    promises.push(Community.deleteOne({ _id: communityID }).exec());
+    promises.push(Community.model.deleteOne({ _id: communityID }).exec());
 
     return Promise.all([promises]).then((values) => {
       log(
@@ -203,17 +244,18 @@ export async function deleteCommunity(communityID) {
 
 export async function retrieveAllCommunities() {
   try {
-    const communities = await Community.find({}, [
-      'name',
-      'description',
-      'admin',
-      'private',
-      'isMTGFlag',
-      'type',
-      'university',
-      'members',
-      'pendingMembers',
-    ])
+    const communities = await Community.model
+      .find({}, [
+        'name',
+        'description',
+        'admin',
+        'private',
+        'isMTGFlag',
+        'type',
+        'university',
+        'members',
+        'pendingMembers',
+      ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
         path: 'admin',
@@ -229,40 +271,41 @@ export async function retrieveAllCommunities() {
 }
 
 export async function editCommunity(
-  _id: string,
+  _id: ObjectIdType,
   name: string,
   description: string,
-  adminID: string,
+  adminID: ObjectIdType,
   type: CommunityType,
   isPrivate: boolean,
   additionalFlags: { isMTG?: boolean } = {},
   options: { returnCommunity?: boolean } = {}
 ) {
   try {
-    const communityPromise = Community.updateOne(
-      { _id },
-      {
-        $set: {
-          name,
-          description,
-          admin: adminID,
-          type,
-          private: isPrivate,
-          isMTGFlag: additionalFlags.isMTG || false,
-        },
-        $addToSet: { members: adminID },
-      }
-    ).exec();
+    const communityPromise = Community.model
+      .updateOne(
+        { _id },
+        {
+          $set: {
+            name,
+            description,
+            admin: adminID,
+            type,
+            private: isPrivate,
+            isMTGFlag: additionalFlags.isMTG || false,
+          },
+          $addToSet: { members: adminID },
+        }
+      )
+      .exec();
 
-    const userPromise = User.updateOne(
-      { _id: adminID },
-      { $addToSet: { joinedCommunities: _id } }
-    ).exec();
+    const userPromise = User.model
+      .updateOne({ _id: adminID }, { $addToSet: { joinedCommunities: _id } })
+      .exec();
     await Promise.all([communityPromise, userPromise]);
 
     let community;
     if (options.returnCommunity) {
-      community = await Community.findById(_id).exec();
+      community = await Community.model.findById(_id).exec();
     }
 
     log('info', `Successfully updated community ${name}`);
@@ -275,22 +318,26 @@ export async function editCommunity(
   }
 }
 
-export async function getCommunityInformation(communityID: string, userID: string) {
+export async function getCommunityInformation(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const communityPromise = Community.findById(communityID, [
-      'name',
-      'description',
-      'admin',
-      'private',
-      'type',
-      'members',
-      'pendingMembers',
-      'university',
-      'profilePicture',
-      'followedByCommunities',
-      'incomingPendingCommunityFollowRequests',
-      'isMTGFlag',
-    ])
+    const communityPromise = Community.model
+      .findById(communityID, [
+        'name',
+        'description',
+        'admin',
+        'private',
+        'type',
+        'members',
+        'pendingMembers',
+        'university',
+        'profilePicture',
+        'followedByCommunities',
+        'incomingPendingCommunityFollowRequests',
+        'isMTGFlag',
+      ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({
         path: 'admin',
@@ -303,7 +350,8 @@ export async function getCommunityInformation(communityID: string, userID: strin
       .populate({ path: 'followedByCommunities', select: 'from' })
       .exec();
 
-    const userPromise = User.findById(userID)
+    const userPromise = User.model
+      .findById(userID)
       .select(['connections', 'joinedCommunities'])
       .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
       .exec();
@@ -311,8 +359,13 @@ export async function getCommunityInformation(communityID: string, userID: strin
     return Promise.all([communityPromise, userPromise])
       .then(([community, user]) => {
         //Calculating Connections in Community
-        const connections = connectionsToUserIDStrings(userID, user['connections']);
-        const members = community.members.map((member) => member.toString());
+        const connections = connectionsToUserIDStrings(
+          userID,
+          user.connections as IConnection[]
+        );
+        const members = (community.members as ObjectIdType[]).map(
+          (member) => member
+        );
 
         const mutualConnections = members.filter(
           (member) => connections.indexOf(member) !== -1
@@ -321,11 +374,11 @@ export async function getCommunityInformation(communityID: string, userID: strin
         let hasFollowingAccess = false;
 
         if (community.private) {
-          const followedByCommunities = community.followedByCommunities.map(
+          const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
             (community) => community.from.toString()
           );
-          const communityIntersection = user.joinedCommunities.filter((community) =>
-            followedByCommunities.includes(community.toString())
+          const communityIntersection = (user.joinedCommunities as ObjectIdType[]).filter(
+            (community) => followedByCommunities.includes(community.toString())
           );
           if (communityIntersection.length > 0) hasFollowingAccess = true;
         }
@@ -350,10 +403,13 @@ export async function getCommunityInformation(communityID: string, userID: strin
   }
 }
 
-export async function joinCommunity(communityID: string, userID: string) {
+export async function joinCommunity(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    let userPromise = User.findById(userID).exec();
-    let communityPromise = Community.findById(communityID).exec();
+    let userPromise = User.model.findById(userID).exec();
+    let communityPromise = Community.model.findById(communityID).exec();
 
     return Promise.all([userPromise, communityPromise]).then((values) => {
       const [user, community] = values;
@@ -365,16 +421,15 @@ export async function joinCommunity(communityID: string, userID: string) {
 
       //Update community DB entry
       if (
-        community.members.indexOf(userID) === -1 &&
-        community.pendingMembers.indexOf(userID) === -1
+        (community.members as ObjectIdType[]).indexOf(userID) === -1 &&
+        (community.pendingMembers as ObjectIdType[]).indexOf(userID) === -1
       ) {
         isMember = false;
 
         if (community.private === false) {
-          communityUpdatePromise = Community.updateOne(
-            { _id: communityID },
-            { $addToSet: { members: userID } }
-          ).exec();
+          communityUpdatePromise = Community.model
+            .updateOne({ _id: communityID }, { $addToSet: { members: userID } })
+            .exec();
 
           communityUpdatePromise
             .then(() =>
@@ -393,10 +448,12 @@ export async function joinCommunity(communityID: string, userID: string) {
 
           newStatus = U2CR.JOINED;
         } else {
-          communityUpdatePromise = Community.updateOne(
-            { _id: communityID },
-            { $addToSet: { pendingMembers: userID } }
-          ).exec();
+          communityUpdatePromise = Community.model
+            .updateOne(
+              { _id: communityID },
+              { $addToSet: { pendingMembers: userID } }
+            )
+            .exec();
 
           communityUpdatePromise
             .then(() => {
@@ -419,15 +476,17 @@ export async function joinCommunity(communityID: string, userID: string) {
 
       //Update User DB Entry
       if (
-        user.joinedCommunities.indexOf(communityID) === -1 &&
-        user.pendingCommunities.indexOf(communityID) == -1
+        (user.joinedCommunities as ObjectIdType[]).indexOf(communityID) === -1 &&
+        (user.pendingCommunities as ObjectIdType[]).indexOf(communityID) == -1
       ) {
         isMember = false;
         if (community.private === false) {
-          userUpdatePromise = User.updateOne(
-            { _id: userID },
-            { $addToSet: { joinedCommunities: communityID } }
-          ).exec();
+          userUpdatePromise = User.model
+            .updateOne(
+              { _id: userID },
+              { $addToSet: { joinedCommunities: communityID } }
+            )
+            .exec();
 
           userUpdatePromise
             .then(() => {
@@ -446,10 +505,12 @@ export async function joinCommunity(communityID: string, userID: string) {
 
           newStatus = U2CR.JOINED;
         } else {
-          userUpdatePromise = User.updateOne(
-            { _id: userID },
-            { $addToSet: { pendingCommunities: communityID } }
-          ).exec();
+          userUpdatePromise = User.model
+            .updateOne(
+              { _id: userID },
+              { $addToSet: { pendingCommunities: communityID } }
+            )
+            .exec();
 
           userUpdatePromise
             .then(() => {
@@ -493,14 +554,15 @@ export async function joinCommunity(communityID: string, userID: string) {
   }
 }
 
-export async function getAllPendingMembers(communityID: string) {
+export async function getAllPendingMembers(communityID: ObjectIdType) {
   try {
-    const { pendingMembers } = await Community.findById(communityID)
+    const { pendingMembers } = (await Community.model
+      .findById(communityID)
       .select(['pendingMembers'])
       .populate({
         path: 'pendingMembers',
         select: ['_id', 'firstName', 'lastName', 'profilePicture'],
-      });
+      })) as { pendingMembers: IUser[] };
 
     for (let i = 0; i < pendingMembers.length; i++) {
       let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
@@ -512,7 +574,7 @@ export async function getAllPendingMembers(communityID: string) {
         log('err', err);
       }
 
-      const imageURL = await retrieveSignedUrl('profile', pictureFileName);
+      const imageURL = await retrieveSignedUrl('images', 'profile', pictureFileName);
       if (imageURL) {
         pendingMembers[i].profilePicture = imageURL;
       }
@@ -532,17 +594,18 @@ export async function getAllPendingMembers(communityID: string) {
   }
 }
 
-export async function rejectPendingMember(communityID: string, userID: string) {
+export async function rejectPendingMember(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const communityPromise = Community.updateOne(
-      { _id: communityID },
-      { $pull: { pendingMembers: userID } }
-    ).exec();
+    const communityPromise = Community.model
+      .updateOne({ _id: communityID }, { $pull: { pendingMembers: userID } })
+      .exec();
 
-    const userPromise = User.updateOne(
-      { _id: userID },
-      { $pull: { pendingCommunities: communityID } }
-    ).exec();
+    const userPromise = User.model
+      .updateOne({ _id: userID }, { $pull: { pendingCommunities: communityID } })
+      .exec();
 
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
@@ -559,11 +622,14 @@ export async function rejectPendingMember(communityID: string, userID: string) {
   }
 }
 
-export async function acceptPendingMember(communityID: string, userID: string) {
+export async function acceptPendingMember(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const community = await Community.findOne({
+    const community = await Community.model.findOne({
       _id: communityID,
-      pendingMembers: { $elemMatch: { $eq: mongoose.Types.ObjectId(userID) } },
+      pendingMembers: { $elemMatch: { $eq: userID } },
     });
     if (!community) {
       log(
@@ -578,20 +644,30 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   }
 
   try {
-    const communityPromise = Community.updateOne(
-      { _id: communityID },
-      { $pull: { pendingMembers: userID }, $addToSet: { members: userID } }
-    ).exec();
+    const communityPromise = Community.model
+      .updateOne(
+        { _id: communityID },
+        {
+          $pull: { pendingMembers: userID },
+          $addToSet: { members: userID },
+        }
+      )
+      .exec();
 
-    const userPromise = User.updateOne(
-      { _id: userID },
-      {
-        $pull: { pendingCommunities: communityID },
-        $addToSet: { joinedCommunities: communityID },
-      }
-    ).exec();
+    const userPromise = User.model
+      .updateOne(
+        { _id: userID },
+        {
+          $pull: { pendingCommunities: communityID },
+          $addToSet: { joinedCommunities: communityID },
+        }
+      )
+      .exec();
 
-    new NotificationService().communityAccept({ communityID, forUser: userID });
+    new NotificationService().communityAccept({
+      communityID: communityID.toString(),
+      forUser: userID.toString(),
+    });
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
         log('info', `Accepted user ${userID} into community ${communityID}`);
@@ -607,17 +683,18 @@ export async function acceptPendingMember(communityID: string, userID: string) {
   }
 }
 
-export async function leaveCommunity(communityID: string, userID: string) {
+export async function leaveCommunity(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const communityPromise = Community.updateOne(
-      { _id: communityID },
-      { $pull: { members: userID } }
-    ).exec();
+    const communityPromise = Community.model
+      .updateOne({ _id: communityID }, { $pull: { members: userID } })
+      .exec();
 
-    const userPromise = User.updateOne(
-      { _id: userID },
-      { $pull: { joinedCommunities: communityID } }
-    ).exec();
+    const userPromise = User.model
+      .updateOne({ _id: userID }, { $pull: { joinedCommunities: communityID } })
+      .exec();
 
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
@@ -636,17 +713,18 @@ export async function leaveCommunity(communityID: string, userID: string) {
   }
 }
 
-export function cancelCommunityPendingRequest(communityID: string, userID: string) {
+export function cancelCommunityPendingRequest(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
   try {
-    const communityPromise = Community.updateOne(
-      { _id: communityID },
-      { $pull: { pendingMembers: userID } }
-    ).exec();
+    const communityPromise = Community.model
+      .updateOne({ _id: communityID }, { $pull: { pendingMembers: userID } })
+      .exec();
 
-    const userPromise = User.updateOne(
-      { _id: userID },
-      { $pull: { pendingCommunities: communityID } }
-    ).exec();
+    const userPromise = User.model
+      .updateOne({ _id: userID }, { $pull: { pendingCommunities: communityID } })
+      .exec();
 
     return Promise.all([communityPromise, userPromise])
       .then((values) => {
@@ -669,23 +747,23 @@ export function cancelCommunityPendingRequest(communityID: string, userID: strin
 }
 
 export async function followCommunity(
-  requestToFollowCommunityID: string,
-  yourCommunityID: string,
-  userID: string
+  requestToFollowCommunityID: ObjectIdType,
+  yourCommunityID: ObjectIdType,
+  userID: ObjectIdType
 ) {
   try {
     //Checking if the user who requested to follow is the admin of the community they are following as
-    const checkAdminPromise = Community.exists({
+    const checkAdminPromise = Community.model.exists({
       _id: yourCommunityID,
       admin: userID,
     });
     //Checks if other community exists
-    const communityExistsPromise = Community.exists({
+    const communityExistsPromise = Community.model.exists({
       _id: requestToFollowCommunityID,
     });
 
     //Checks to see if there is an already existing follow request
-    const edgeExistsPromise = CommunityEdge.exists({
+    const edgeExistsPromise = CommunityEdge.model.exists({
       from: yourCommunityID,
       to: requestToFollowCommunityID,
     });
@@ -728,18 +806,22 @@ export async function followCommunity(
         }
 
         //Creates and saves the new edge
-        const followEdge = await new CommunityEdge({
+        const followEdge = await new CommunityEdge.model({
           from: yourCommunityID,
           to: requestToFollowCommunityID,
         }).save();
-        const otherCommunityPromise = Community.updateOne(
-          { _id: requestToFollowCommunityID },
-          { $addToSet: { incomingPendingCommunityFollowRequests: followEdge._id } }
-        ).exec();
-        const yourCommunityPromise = Community.updateOne(
-          { _id: yourCommunityID },
-          { $addToSet: { outgoingPendingCommunityFollowRequests: followEdge._id } }
-        ).exec();
+        const otherCommunityPromise = Community.model
+          .updateOne(
+            { _id: requestToFollowCommunityID },
+            { $addToSet: { incomingPendingCommunityFollowRequests: followEdge._id } }
+          )
+          .exec();
+        const yourCommunityPromise = Community.model
+          .updateOne(
+            { _id: yourCommunityID },
+            { $addToSet: { outgoingPendingCommunityFollowRequests: followEdge._id } }
+          )
+          .exec();
 
         return Promise.all([otherCommunityPromise, yourCommunityPromise])
           .then((values) => {
@@ -768,9 +850,12 @@ export async function followCommunity(
   }
 }
 
-export async function acceptFollowRequest(yourCommunityID: string, edgeID: string) {
+export async function acceptFollowRequest(
+  yourCommunityID: ObjectIdType,
+  edgeID: ObjectIdType
+) {
   try {
-    const edge = await CommunityEdge.findOne({
+    const edge = await CommunityEdge.model.findOne({
       _id: edgeID,
       to: yourCommunityID,
       accepted: false,
@@ -783,20 +868,24 @@ export async function acceptFollowRequest(yourCommunityID: string, edgeID: strin
     edge.accepted = true;
 
     const edgeSavePromise = edge.save();
-    const yourCommunityPromise = Community.updateOne(
-      { _id: yourCommunityID },
-      {
-        $pull: { incomingPendingCommunityFollowRequests: edgeID },
-        $addToSet: { followedByCommunities: edgeID },
-      }
-    ).exec();
-    const otherCommunityPromise = Community.updateOne(
-      { _id: edge.from },
-      {
-        $pull: { outgoingPendingCommunityFollowRequests: edgeID },
-        $addToSet: { followingCommunities: edgeID },
-      }
-    ).exec();
+    const yourCommunityPromise = Community.model
+      .updateOne(
+        { _id: yourCommunityID },
+        {
+          $pull: { incomingPendingCommunityFollowRequests: edgeID },
+          $addToSet: { followedByCommunities: edgeID },
+        }
+      )
+      .exec();
+    const otherCommunityPromise = Community.model
+      .updateOne(
+        { _id: edge.from },
+        {
+          $pull: { outgoingPendingCommunityFollowRequests: edgeID },
+          $addToSet: { followingCommunities: edgeID },
+        }
+      )
+      .exec();
 
     return Promise.all([
       edgeSavePromise,
@@ -820,10 +909,13 @@ export async function acceptFollowRequest(yourCommunityID: string, edgeID: strin
   }
 }
 
-export async function rejectFollowRequest(yourCommunityID: string, edgeID: string) {
+export async function rejectFollowRequest(
+  yourCommunityID: ObjectIdType,
+  edgeID: ObjectIdType
+) {
   try {
     //Checking if edge exists given paramters
-    const edge = await CommunityEdge.findOne({
+    const edge = await CommunityEdge.model.findOne({
       _id: edgeID,
       to: yourCommunityID,
       accepted: false,
@@ -834,15 +926,19 @@ export async function rejectFollowRequest(yourCommunityID: string, edgeID: strin
     }
 
     //Deletes edge and pulls from DB entries for both communities
-    const yourCommunityPromise = Community.updateOne(
-      { _id: yourCommunityID },
-      { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
-    ).exec();
-    const otherCommunityPromise = Community.updateOne(
-      { _id: edge.from },
-      { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
-    ).exec();
-    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+    const yourCommunityPromise = Community.model
+      .updateOne(
+        { _id: yourCommunityID },
+        { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
+      )
+      .exec();
+    const otherCommunityPromise = Community.model
+      .updateOne(
+        { _id: edge.from },
+        { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
+      )
+      .exec();
+    const edgePromise = CommunityEdge.model.deleteOne({ _id: edgeID });
 
     return Promise.all([yourCommunityPromise, otherCommunityPromise, edgePromise])
       .then((values) => {
@@ -863,13 +959,13 @@ export async function rejectFollowRequest(yourCommunityID: string, edgeID: strin
 }
 
 export async function cancelFollowRequest(
-  fromCommunityID: string,
-  toCommunityID: string,
-  userID: string
+  fromCommunityID: ObjectIdType,
+  toCommunityID: ObjectIdType,
+  userID: ObjectIdType
 ) {
   try {
     //Checking if user is admin of community
-    const isAdmin = await Community.exists({
+    const isAdmin = await Community.model.exists({
       _id: fromCommunityID,
       admin: userID,
     });
@@ -885,7 +981,7 @@ export async function cancelFollowRequest(
     }
 
     //Checking if edge exists given paramters
-    const edge = await CommunityEdge.findOne({
+    const edge = await CommunityEdge.model.findOne({
       from: fromCommunityID,
       to: toCommunityID,
       accepted: false,
@@ -898,15 +994,19 @@ export async function cancelFollowRequest(
     const edgeID = edge._id;
 
     //Deletes edge and pulls from DB entries for both communities
-    const fromCommunityPromise = Community.updateOne(
-      { _id: fromCommunityID },
-      { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
-    ).exec();
-    const toCommunityPromise = Community.updateOne(
-      { _id: toCommunityID },
-      { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
-    ).exec();
-    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+    const fromCommunityPromise = Community.model
+      .updateOne(
+        { _id: fromCommunityID },
+        { $pull: { outgoingPendingCommunityFollowRequests: edgeID } }
+      )
+      .exec();
+    const toCommunityPromise = Community.model
+      .updateOne(
+        { _id: toCommunityID },
+        { $pull: { incomingPendingCommunityFollowRequests: edgeID } }
+      )
+      .exec();
+    const edgePromise = CommunityEdge.model.deleteOne({ _id: edgeID });
 
     return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
       .then((values) => {
@@ -927,13 +1027,13 @@ export async function cancelFollowRequest(
 }
 
 export async function unfollowCommunity(
-  fromCommunityID: string,
-  toCommunityID: string,
-  userID: string
+  fromCommunityID: ObjectIdType,
+  toCommunityID: ObjectIdType,
+  userID: ObjectIdType
 ) {
   try {
     //Checking if user is admin of community
-    const isAdmin = await Community.exists({
+    const isAdmin = await Community.model.exists({
       _id: fromCommunityID,
       admin: userID,
     });
@@ -949,7 +1049,7 @@ export async function unfollowCommunity(
     }
 
     //Checking if edge exists given paramters
-    const edge = await CommunityEdge.findOne({
+    const edge = await CommunityEdge.model.findOne({
       from: fromCommunityID,
       to: toCommunityID,
       accepted: true,
@@ -962,15 +1062,19 @@ export async function unfollowCommunity(
     const edgeID = edge._id;
 
     //Deletes edge and pulls from DB entries for both communities
-    const fromCommunityPromise = Community.updateOne(
-      { _id: fromCommunityID },
-      { $pull: { followingCommunities: edgeID } }
-    ).exec();
-    const toCommunityPromise = Community.updateOne(
-      { _id: toCommunityID },
-      { $pull: { followedByCommunities: edgeID } }
-    ).exec();
-    const edgePromise = CommunityEdge.deleteOne({ _id: edgeID });
+    const fromCommunityPromise = Community.model
+      .updateOne(
+        { _id: fromCommunityID },
+        { $pull: { followingCommunities: edgeID } }
+      )
+      .exec();
+    const toCommunityPromise = Community.model
+      .updateOne(
+        { _id: toCommunityID },
+        { $pull: { followedByCommunities: edgeID } }
+      )
+      .exec();
+    const edgePromise = CommunityEdge.model.deleteOne({ _id: edgeID });
 
     return Promise.all([fromCommunityPromise, toCommunityPromise, edgePromise])
       .then((values) => {
@@ -990,10 +1094,11 @@ export async function unfollowCommunity(
   }
 }
 
-export async function getAllFollowingCommunities(communityID: string) {
+export async function getAllFollowingCommunities(communityID: ObjectIdType) {
   try {
     //TODO - Update this to use aggregation pipeline
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select(['followingCommunities'])
       .populate({
         path: 'followingCommunities',
@@ -1004,9 +1109,11 @@ export async function getAllFollowingCommunities(communityID: string) {
         },
       });
 
-    const followingCommunities = community['followingCommunities'].map((edge) => {
-      return edge.to;
-    });
+    const followingCommunities = (community.followingCommunities as ICommunityEdge[]).map(
+      (edge) => {
+        return edge.to as ICommunity;
+      }
+    );
 
     const profilePicturePromises = generateSignedProfilePromises(
       followingCommunities,
@@ -1017,7 +1124,7 @@ export async function getAllFollowingCommunities(communityID: string) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followingCommunities[i].profilePicture = signedImageURLs[i];
+            followingCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1037,10 +1144,11 @@ export async function getAllFollowingCommunities(communityID: string) {
   }
 }
 
-export async function getAllFollowedByCommunities(communityID: string) {
+export async function getAllFollowedByCommunities(communityID: ObjectIdType) {
   try {
     //TODO - Update this to use aggregation pipeline
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select(['followedByCommunities'])
       .populate({
         path: 'followedByCommunities',
@@ -1051,9 +1159,11 @@ export async function getAllFollowedByCommunities(communityID: string) {
         },
       });
 
-    const followedByCommunities = community['followedByCommunities'].map((edge) => {
-      return edge.from;
-    });
+    const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
+      (edge) => {
+        return edge.from as ICommunity;
+      }
+    );
 
     const profilePicturePromises = generateSignedProfilePromises(
       followedByCommunities,
@@ -1064,7 +1174,7 @@ export async function getAllFollowedByCommunities(communityID: string) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            followedByCommunities[i].profilePicture = signedImageURLs[i];
+            followedByCommunities[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1084,9 +1194,10 @@ export async function getAllFollowedByCommunities(communityID: string) {
   }
 }
 
-export async function getAllPendingFollowRequests(communityID: string) {
+export async function getAllPendingFollowRequests(communityID: ObjectIdType) {
   try {
-    const community = await Community.findById(communityID)
+    const community = await Community.model
+      .findById(communityID)
       .select(['incomingPendingCommunityFollowRequests'])
       .populate({
         path: 'incomingPendingCommunityFollowRequests',
@@ -1097,11 +1208,11 @@ export async function getAllPendingFollowRequests(communityID: string) {
         },
       });
 
-    const pendingFollowRequests = community[
-      'incomingPendingCommunityFollowRequests'
-    ].map((edge) => {
-      return { edgeID: edge._id, ...edge.from.toObject() };
-    });
+    const pendingFollowRequests = (community.incomingPendingCommunityFollowRequests as ICommunityEdge[]).map(
+      (edge) => {
+        return { edgeID: edge._id, ...(edge.from as ICommunity) };
+      }
+    );
 
     const profilePicturePromises = generateSignedProfilePromises(
       pendingFollowRequests,
@@ -1112,7 +1223,7 @@ export async function getAllPendingFollowRequests(communityID: string) {
       .then((signedImageURLs) => {
         for (let i = 0; i < signedImageURLs.length; i++) {
           if (signedImageURLs[i])
-            pendingFollowRequests[i].profilePicture = signedImageURLs[i];
+            pendingFollowRequests[i].profilePicture = signedImageURLs[i] as string;
         }
         log(
           'info',
@@ -1137,12 +1248,13 @@ export async function getAllPendingFollowRequests(communityID: string) {
 }
 
 export async function getCommunityMembers(
-  userID: string,
-  communityID: string,
+  userID: ObjectIdType,
+  communityID: ObjectIdType,
   options: { skipCalculation?: boolean } = {}
 ) {
   try {
-    const communityPromise = Community.findById(communityID)
+    const communityPromise = Community.model
+      .findById(communityID)
       .select(['members', 'name'])
       .populate({
         path: 'members',
@@ -1155,7 +1267,8 @@ export async function getCommunityMembers(
       })
       .exec();
 
-    const userPromise = User.findById(userID)
+    const userPromise = User.model
+      .findById(userID)
       .select(['connections', 'joinedCommunities', 'pendingConnections'])
       .populate([
         { path: 'connections', select: 'from to accepted' },
@@ -1168,31 +1281,37 @@ export async function getCommunityMembers(
         if (!community) return sendPacket(0, 'Could not find community');
         if (!user) return sendPacket(0, 'Could not find current user');
 
-        let { members } = community;
+        let { members } = community as { members: IUser[] };
 
         if (!options.skipCalculation) {
           const userConnections = connectionsToUserIDStrings(
             userID,
-            user.connections
+            user.connections as IConnection[]
           );
 
           for (let i = 0; i < members.length; i++) {
-            let cleanedMember = members[i].toObject();
+            let cleanedMember: any = members[i];
             cleanedMember.connections = connectionsToUserIDStrings(
               cleanedMember._id,
-              cleanedMember.connections
+              cleanedMember.connections as IConnection[]
             );
 
             cleanedMember = await addCalculatedUserFields(
               userConnections,
-              user.joinedCommunities,
+              user.joinedCommunities as ObjectIdType[],
               cleanedMember
             );
 
             getUserToUserRelationship(
-              user.connections,
-              user.pendingConnections,
-              members[i],
+              user.connections as IConnection[],
+              user.pendingConnections as IConnection[],
+              members[i] as {
+                [key: string]: any;
+                _id: ObjectIdType;
+                connections: IConnection[];
+                pendingConnections: ObjectIdType[];
+                joinedCommunities: ObjectIdType[];
+              },
               cleanedMember
             );
             members[i] = cleanedMember;
@@ -1209,19 +1328,85 @@ export async function getCommunityMembers(
   }
 }
 
+export async function getCommunityMedia(
+  userID: ObjectIdType,
+  userAccountType: AccountType,
+  communityID: ObjectIdType
+) {
+  try {
+    const communityRelationship = (
+      await Community.getUserToCommunityRelationship_V2({
+        userID,
+        communityIDs: [communityID],
+      })
+    )[0].relationship;
+
+    let fields = ['links', 'externalPosts', 'broadcastedPosts'];
+    if (communityRelationship === U2CR.JOINED)
+      if (userAccountType === 'alumni') fields.push('internalAlumniPosts');
+      else if (userAccountType === 'student')
+        fields.push('internalCurrentMemberPosts');
+      else if (communityRelationship === U2CR.ADMIN)
+        fields.push('internalAlumniPosts', 'internalCurrentMemberPosts');
+
+    const {
+      links,
+      externalPosts,
+      broadcastedPosts,
+      internalAlumniPosts = [],
+      internalCurrentMemberPosts = [],
+    } = (await Community.model
+      .findById(communityID, fields)
+      .populate('links', 'linkType url')
+      .lean<ICommunity>()
+      .exec()) as {
+      links: ObjectIdType[];
+      externalPosts: ObjectIdType[];
+      broadcastedPosts: ObjectIdType[];
+      internalAlumniPosts: ObjectIdType[];
+      internalCurrentMemberPosts: ObjectIdType[];
+    };
+
+    const postIDs = externalPosts.concat(
+      broadcastedPosts,
+      internalAlumniPosts,
+      internalCurrentMemberPosts
+    );
+
+    const imageDocs = await Image.model
+      .find({ post: { $in: postIDs } }, ['fileName'])
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean()
+      .exec();
+
+    const images = await retrieveAllUrls(
+      imageDocs.map((image) => {
+        return { ...image, fileType: 'images', reason: 'postImage' };
+      })
+    );
+
+    return sendPacket(1, 'Sending media', { images, links });
+  } catch (err) {
+    log('err', err.stack);
+    return sendPacket(-1, err);
+  }
+}
+
 export async function updateFields(
-  communityID: string,
+  communityID: ObjectIdType,
   fields: { [key: string]: any }
 ) {
   const updates: {
     description?: string;
+    bio?: string;
     private?: boolean;
     type?: CommunityType;
     name?: string;
   } = Object.assign({}, fields);
 
   try {
-    await Community.updateOne({ _id: communityID }, updates).exec();
+    await Community.model.updateOne({ _id: communityID }, updates).exec();
     return sendPacket(1, 'Successfully updated community');
   } catch (err) {
     log('error', err);
@@ -1232,14 +1417,14 @@ export async function updateFields(
 }
 
 export const getCommunitiesGeneric = async (
-  _ids: string[],
+  _ids: ObjectIdType[],
   params: {
-    fields?: typeof CommunityC.AcceptedFields[number][];
+    fields?: typeof Community.AcceptedFields[number][];
     options?: CommunityGetOptions;
   }
 ) => {
   try {
-    const communities = await CommunityC.getByIDs(_ids, params);
+    const communities = await Community.getByIDs(_ids, params);
     return sendPacket(1, 'Successfully retrieved communities', { communities });
   } catch (err) {
     log('error', err);
@@ -1259,19 +1444,19 @@ export const inviteUser = async ({
   try {
     const isMemberPromises: Promise<boolean>[] = invitedIDs.map((invitedID) => {
       try {
-        return CommunityC.model.exists({
+        return Community.model.exists({
           $and: [
             { _id: communityID },
             {
               $or: [
                 {
                   members: {
-                    $elemMatch: { $eq: mongoose.Types.ObjectId(invitedID) },
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
                   },
                 },
                 {
                   pendingMembers: {
-                    $elemMatch: { $eq: mongoose.Types.ObjectId(invitedID) },
+                    $elemMatch: { $eq: ObjectIdVal(invitedID) },
                   },
                 },
               ],
@@ -1279,7 +1464,7 @@ export const inviteUser = async ({
           ],
         });
       } catch (err) {
-        return false;
+        return new Promise((resolve) => resolve(false));
       }
     });
 

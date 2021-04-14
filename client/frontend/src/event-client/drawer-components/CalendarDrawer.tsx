@@ -70,14 +70,7 @@ function CalendarDrawer(props: Props) {
   }, []);
 
   async function fetchEvents() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/webinar/getAllEventsUser',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/webinar/getAllEventsUser');
     if (data['success'] === 1) setEvents(data['content']['webinars']);
   }
 

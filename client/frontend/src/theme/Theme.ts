@@ -16,6 +16,7 @@ type Theme = {
   secondaryText: string;
   error: string;
   success: string;
+  notify: string;
   bright: string;
   brightHover: string;
   altText: string;
@@ -38,6 +39,7 @@ const theme: { default: Theme; dark: Theme } = {
     //secondaryText: '#545454',
     error: '#900C1C',
     success: '#4BB543',
+    notify: '#f57c00',
     //bright: '#6699FF',
     //altText: '#F8F8FF',
     // buttonHighlight: '#3C4469',
@@ -77,6 +79,7 @@ const theme: { default: Theme; dark: Theme } = {
     secondaryText: '',
     error: '',
     success: '',
+    notify: '',
     bright: '',
     brightHover: '',
     altText: '',

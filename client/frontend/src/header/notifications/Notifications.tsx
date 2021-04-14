@@ -7,8 +7,8 @@ import { UnifiedNotification } from '../../api';
 import Theme from '../../theme/Theme';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useSelector } from 'react-redux';
-import { green, grey } from '@material-ui/core/colors';
-import GreyRootshareIcon from '../../images/icongray.png';
+import { green } from '@material-ui/core/colors';
+import { RootShareIconGray } from '../../images/icons';
 import { formatTimestamp } from '../../helpers/functions';
 
 import RootShareLogo_Small from '../../images/RootShareLogoFull_Small.png';
@@ -100,7 +100,7 @@ const Notification = (
       case 'rootshare':
         // if (relatedItemType === 'event') image = relatedItem?.profilePicture;
         // else image = GreyRootshareIcon;
-        image = GreyRootshareIcon;
+        image = RootShareIconGray;
         break;
       default:
     }

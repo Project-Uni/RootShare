@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { getPosts } from '../../../api';
-import { PostType } from '../../../helpers/types';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
 import { CircularProgress } from '@material-ui/core';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
+
+import { getPosts } from '../../../api';
+import { PostType } from '../../../helpers/types';
 import Theme from '../../../theme/Theme';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 

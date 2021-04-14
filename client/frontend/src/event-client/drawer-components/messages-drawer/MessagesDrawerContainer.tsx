@@ -92,16 +92,9 @@ function MessagesDrawerContainer(props: Props) {
   }
 
   async function updateMessages(currID: string = props.currConversationID) {
-    const { data } = await makeRequest(
-      'POST',
-      '/api/messaging/getLatestMessages',
-      {
-        conversationID: currID,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/messaging/getLatestMessages', {
+      conversationID: currID,
+    });
 
     if (data['success'] !== 1) return;
     const messages = data['content']['messages'];

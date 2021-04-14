@@ -1,5 +1,9 @@
-import { Community, Notifications, Post, User } from '../models';
+import { Types } from 'mongoose';
+import { Community, Notifications, Post, User } from '../rootshare_db/models';
 import { log, sendPacket } from '../helpers/functions';
+
+type ObjectIdType = Types.ObjectId;
+const ObjectIdVal = Types.ObjectId;
 
 export default class NotificationService {
   like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
@@ -9,11 +13,11 @@ export default class NotificationService {
         getUsername(fromUser),
       ]);
 
-      if (!forUser || !fromUserName || forUser === fromUser) return;
+      if (!forUser || !fromUserName || forUser === ObjectIdVal(fromUser)) return;
 
       await Notifications.create({
         variant: 'like',
-        forUser,
+        forUser: forUser.toString(),
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',
@@ -40,11 +44,11 @@ export default class NotificationService {
         getUsername(fromUser),
       ]);
 
-      if (!forUser || !fromUserName || forUser === fromUser) return;
+      if (!forUser || !fromUserName || forUser.equals(ObjectIdVal(fromUser))) return;
 
       await Notifications.create({
         variant: 'comment',
-        forUser,
+        forUser: forUser.toString(),
         actionProviderType: 'user',
         actionProviderId: fromUser,
         relatedItemType: 'post',
@@ -149,11 +153,11 @@ export default class NotificationService {
     createdByAdmin: string;
   }) => {
     try {
-      const users = await User.find({}, '_id').exec();
+      const users = await User.model.find({}, '_id').exec();
       const promises = users.map((user) => {
         return Notifications.create({
           variant: 'general',
-          forUser: user,
+          forUser: user._id.toString(),
           relatedItemType: 'event',
           relatedItemId: eventID,
           actionProviderType: 'rootshare',
@@ -192,20 +196,23 @@ export default class NotificationService {
 }
 
 //Helpers
-const getUserIDForPost = async (postID: string): Promise<string> => {
+const getUserIDForPost = async (postID: string): Promise<ObjectIdType> => {
   try {
-    const post = await Post.findById(postID, 'user anonymous').lean().exec();
-    if (!post || post.anonymous) return '';
+    const post = await Post.model.findById(postID, 'user anonymous').lean().exec();
+    if (!post || post.anonymous) return ObjectIdVal('');
 
-    return post.user;
+    return post.user as ObjectIdType;
   } catch (err) {
-    return '';
+    return ObjectIdVal('');
   }
 };
 
 const getUsername = async (userID: string) => {
   try {
-    const user = await User.findById(userID, 'firstName lastName').lean().exec();
+    const user = await User.model
+      .findById(userID, 'firstName lastName')
+      .lean()
+      .exec();
     if (!user) return false;
     return { firstName: user.firstName, lastName: user.lastName };
   } catch (err) {
@@ -215,7 +222,10 @@ const getUsername = async (userID: string) => {
 
 const getCommunityName = async (communityID: string) => {
   try {
-    const community = await Community.findById(communityID, 'name').lean().exec();
+    const community = await Community.model
+      .findById(communityID, 'name')
+      .lean()
+      .exec();
     if (!community) return false;
     return { name: community.name };
   } catch (err) {

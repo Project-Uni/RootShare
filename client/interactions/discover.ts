@@ -1,5 +1,16 @@
-const mongoose = require('mongoose');
+import { Types } from 'mongoose';
 
+import {
+  User,
+  Community,
+  Search,
+  IConnection,
+  ICommunity,
+  IDocument,
+  IUser,
+  Connection,
+} from '../rootshare_db/models';
+import { SidebarData } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
@@ -7,22 +18,23 @@ import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
-import { SidebarData } from '../helpers/types';
+import { retrieveAllUrls } from './media';
 
-import { User, Community } from '../models';
-import { createSearch } from '../models/searches';
-import { getUserToUserRelationship_V2 } from '../models/users';
-import { U2UR } from '../helpers/types';
+const ObjectIdVal = Types.ObjectId;
+type ObjectIdType = Types.ObjectId;
+
+import { U2UR } from '../rootshare_db/types';
 
 const MAX_RETRIEVED = 20;
 
-export async function populateDiscoverForUser(userID: string) {
+export async function populateDiscoverForUser(userID: ObjectIdType) {
   const numUsers = Math.floor(Math.random() * 4) + 12;
   const numCommunities = MAX_RETRIEVED - numUsers;
 
   try {
     //getting connection ids for user
-    const user = await User.findById(userID)
+    const user = await User.model
+      .findById(userID)
       .select([
         'connections',
         'pendingConnections',
@@ -36,96 +48,103 @@ export async function populateDiscoverForUser(userID: string) {
     const { connections, pendingConnections, university, joinedCommunities } = user;
 
     //Getting random sample of users that current user has not connected / requested to connect with
-    const userPromise = User.aggregate([
-      {
-        $match: {
-          $and: [
-            { _id: { $not: { $eq: mongoose.Types.ObjectId(userID) } } },
-            { connections: { $not: { $in: connections } } },
-            { pendingConnections: { $not: { $in: pendingConnections } } },
-            { university: { $eq: university } },
-          ],
-        },
-      },
-      { $sample: { size: numUsers } },
-      {
-        $lookup: {
-          from: 'universities',
-          localField: 'university',
-          foreignField: '_id',
-          as: 'university',
-        },
-      },
-      { $unwind: '$university' },
-      {
-        $lookup: {
-          from: 'connections',
-          localField: 'connections',
-          foreignField: '_id',
-          as: 'connections',
-        },
-      },
-      {
-        $project: {
-          firstName: '$firstName',
-          lastName: '$lastName',
-          university: {
-            _id: '$university._id',
-            universityName: '$university.universityName',
+    const userPromise = User.model
+      .aggregate([
+        {
+          $match: {
+            $and: [
+              { _id: { $not: { $eq: ObjectIdVal(userID.toString()) } } },
+              { connections: { $not: { $in: connections } } },
+              { pendingConnections: { $not: { $in: pendingConnections } } },
+              { university: { $eq: university } },
+            ],
           },
-          work: '$work',
-          accountType: '$accountType',
-          position: '$position',
-          graduationYear: '$graduationYear',
-          profilePicture: '$profilePicture',
-          joinedCommunities: '$joinedCommunities',
-          connections: '$connections',
-          pendingConnections: '$pendingConnections',
         },
-      },
-    ]).exec();
+        { $sample: { size: numUsers } },
+        {
+          $lookup: {
+            from: 'universities',
+            localField: 'university',
+            foreignField: '_id',
+            as: 'university',
+          },
+        },
+        { $unwind: '$university' },
+        {
+          $lookup: {
+            from: 'connections',
+            localField: 'connections',
+            foreignField: '_id',
+            as: 'connections',
+          },
+        },
+        {
+          $project: {
+            firstName: '$firstName',
+            lastName: '$lastName',
+            university: {
+              _id: '$university._id',
+              universityName: '$university.universityName',
+            },
+            work: '$work',
+            accountType: '$accountType',
+            position: '$position',
+            graduationYear: '$graduationYear',
+            profilePicture: '$profilePicture',
+            joinedCommunities: '$joinedCommunities',
+            connections: '$connections',
+            pendingConnections: '$pendingConnections',
+          },
+        },
+      ])
+      .exec();
 
     //Getting random sample of communities that user has not joined / requested to join
-    const communityPromise = Community.aggregate([
-      {
-        $match: {
-          $and: [
-            { members: { $not: { $eq: userID } } },
-            { pendingMembers: { $not: { $eq: userID } } },
-            { university: { $eq: university } },
-          ],
-        },
-      },
-      { $sample: { size: numCommunities } },
-      {
-        $lookup: {
-          from: 'universities',
-          localField: 'university',
-          foreignField: '_id',
-          as: 'university',
-        },
-      },
-      { $unwind: '$university' },
-      {
-        $project: {
-          name: '$name',
-          type: '$type',
-          description: '$description',
-          private: '$private',
-          members: '$members',
-          profilePicture: '$profilePicture',
-          university: {
-            _id: '$university._id',
-            universityName: '$university.universityName',
+    const communityPromise = Community.model
+      .aggregate([
+        {
+          $match: {
+            $and: [
+              { members: { $not: { $eq: ObjectIdVal(userID.toString()) } } },
+              { pendingMembers: { $not: { $eq: ObjectIdVal(userID.toString()) } } },
+              { university: { $eq: university } },
+            ],
           },
-          admin: '$admin',
         },
-      },
-    ]).exec();
+        { $sample: { size: numCommunities } },
+        {
+          $lookup: {
+            from: 'universities',
+            localField: 'university',
+            foreignField: '_id',
+            as: 'university',
+          },
+        },
+        { $unwind: '$university' },
+        {
+          $project: {
+            name: '$name',
+            type: '$type',
+            description: '$description',
+            private: '$private',
+            members: '$members',
+            profilePicture: '$profilePicture',
+            university: {
+              _id: '$university._id',
+              universityName: '$university.universityName',
+            },
+            admin: '$admin',
+          },
+        },
+      ])
+      .exec();
 
     return Promise.all([communityPromise, userPromise])
       .then(async ([communities, users]) => {
-        const connectionUserIDs = connectionsToUserIDStrings(userID, connections);
+        const connectionUserIDs = connectionsToUserIDStrings(
+          userID,
+          connections as IConnection[]
+        );
 
         //Cleaning users array
         for (let i = 0; i < users.length; i++) {
@@ -136,7 +155,7 @@ export async function populateDiscoverForUser(userID: string) {
 
           const cleanedUser = await addCalculatedUserFields(
             connectionUserIDs,
-            joinedCommunities,
+            joinedCommunities as ObjectIdType[],
             users[i]
           );
           users[i] = cleanedUser;
@@ -165,11 +184,11 @@ export async function populateDiscoverForUser(userID: string) {
 }
 
 export async function exactMatchSearchFor(
-  userID: string,
+  userID: ObjectIdType,
   query: string,
   limit: number = 20
 ) {
-  createSearch(userID, query);
+  Search.createSearch(userID, query);
 
   const usersPromise = userSearch({ query, limit });
   const communitiesPromise = communitySearch({ query, limit });
@@ -179,45 +198,6 @@ export async function exactMatchSearchFor(
   if (users && communities)
     return sendPacket(1, 'Successfully searched', { users, communities });
   return sendPacket(-1, 'There was an error searching');
-}
-
-export async function getSidebarData(userID: string, dataSources: SidebarData[]) {
-  const promises = [];
-
-  if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
-    promises.push(populateDiscoverForUser(userID));
-
-  // dataSources.forEach((dataSource) => {
-  //   switch (dataSource) {
-  //     case 'pinnedCommunities':
-  //       promises.push(getPinnedCommunities(userID));
-  //     case 'trending':
-  //       promises.push(getTrending(userID));
-  //   }
-  // });
-
-  let output: { [key in SidebarData]?: any } = {};
-  return Promise.all(promises).then((data) => {
-    if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
-      const discoverData = data[0];
-      if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
-      output.discoverUsers = discoverData['users'];
-      output.discoverCommunities = discoverData['communities'];
-    }
-
-    // let count = 1;
-    // for (let i = 0; i < dataSources.length; i++) {
-    //   if (count === data.length) return;
-    //   switch (dataSources[i]) {
-    //     case 'pinnedCommunities':
-    //       output.pinnedCommunities = data[count++];
-    //     case 'trending':
-    //       output.pinnedCommunities = data[count++];
-    //   }
-    // }
-
-    return sendPacket(1, 'Retrieved Sidebar data', { ...output });
-  });
 }
 
 export const communityInviteSearch = async ({
@@ -235,12 +215,12 @@ export const communityInviteSearch = async ({
     $and: [
       {
         joinedCommunities: {
-          $not: { $elemMatch: { $eq: mongoose.Types.ObjectId(communityID) } },
+          $not: { $elemMatch: { $eq: ObjectIdVal(communityID) } },
         },
       },
       {
         pendingCommunities: {
-          $not: { $elemMatch: { $eq: mongoose.Types.ObjectId(communityID) } },
+          $not: { $elemMatch: { $eq: ObjectIdVal(communityID) } },
         },
       },
     ],
@@ -342,9 +322,10 @@ export const userSearch = async ({
     const selectFields = ['firstName', 'lastName', 'email', 'profilePicture'];
     if (getRelationship) selectFields.push('connections', 'pendingConnections');
 
-    const usersPromise = User.find({
-      $and: andCondition,
-    })
+    const usersPromise = User.model
+      .find({
+        $and: andCondition,
+      })
       .select(selectFields)
       .limit(limit || defaultLimit);
 
@@ -354,7 +335,10 @@ export const userSearch = async ({
     const users = await usersPromise.lean().exec();
 
     if (getRelationship) {
-      await getUserToUserRelationship_V2(getRelationship.toUserID, users);
+      await User.getUserToUserRelationship_V2(
+        ObjectIdVal(getRelationship.toUserID),
+        users
+      );
       users.forEach((user) => {
         delete user['connections'];
         delete user['pendingConnections'];
@@ -366,9 +350,21 @@ export const userSearch = async ({
     );
 
     for (let i = 0; i < users.length; i++)
-      if (images[i]) users[i].profilePicture = images[i];
+      if (images[i]) users[i].profilePicture = images[i] as string;
 
-    return users;
+    return (users as unknown) as {
+      firstName: string;
+      lastName: string;
+      email: string;
+      profilePicture?: string;
+      relationship:
+        | typeof U2UR.SELF
+        | typeof U2UR.CONNECTED
+        | typeof U2UR.PENDING_FROM
+        | typeof U2UR.PENDING_TO
+        | typeof U2UR.PENDING
+        | typeof U2UR.OPEN;
+    }[];
   } catch (err) {
     log('error', err);
     return false;
@@ -395,7 +391,8 @@ export const communitySearch = async ({
     ];
     if (additionalFilter) searchConditions.push(additionalFilter);
 
-    const communities = await Community.find({ $and: searchConditions })
+    const communities = await Community.model
+      .find({ $and: searchConditions })
       .select([
         'name',
         'type',
@@ -413,7 +410,7 @@ export const communitySearch = async ({
     );
 
     for (let i = 0; i < communities.length; i++)
-      if (images[i]) communities[i].profilePicture = images[i];
+      if (images[i]) communities[i].profilePicture = images[i] as string;
 
     return communities;
   } catch (err) {
@@ -422,7 +419,7 @@ export const communitySearch = async ({
   }
 };
 
-function addCommunityAndUserImages(communities, users) {
+function addCommunityAndUserImages(communities: any[], users: any[]) {
   const communityImagePromises = generateSignedProfilePromises(
     communities,
     'communityProfile'
@@ -468,4 +465,129 @@ function addCommunityAndUserImages(communities, users) {
 
       return { communities, users };
     });
+}
+
+async function getCommunityDocuments(
+  userID: ObjectIdType,
+  communityID: ObjectIdType
+) {
+  const documents = ((await Community.model
+    .findOne({ _id: communityID, members: userID }, ['documents'])
+    .populate('documents', 'fileName')
+    .lean<ICommunity>()
+    .exec()) as {
+    documents: IDocument[];
+  })?.documents;
+
+  if (!documents) return undefined;
+
+  const adminPromise = Community.model.exists({ _id: communityID, admin: userID });
+  const urlsPromise = retrieveAllUrls(
+    documents.map((doc) => {
+      return {
+        _id: doc._id,
+        fileType: 'documents',
+        reason: 'community',
+        fileName: doc.fileName,
+        entityID: communityID.toString(),
+      };
+    })
+  );
+
+  return Promise.all([urlsPromise, adminPromise]).then(([documents, isAdmin]) => {
+    return { documents, isAdmin };
+  });
+}
+
+async function getUserDocuments(
+  selfUserID: ObjectIdType,
+  otherUserID: ObjectIdType
+) {
+  const checkConnected = await Connection.model.exists({
+    $or: [
+      { $and: [{ from: selfUserID }, { to: otherUserID }, { accepted: true }] },
+      { $and: [{ from: otherUserID }, { to: selfUserID }, { accepted: true }] },
+    ],
+  });
+  if (!checkConnected && !selfUserID.equals(otherUserID)) return undefined;
+
+  const documents = ((await User.model
+    .findById(otherUserID, ['documents'])
+    .populate('documents', 'fileName')
+    .lean<IUser>()
+    .exec()) as {
+    documents: IDocument[];
+  })?.documents;
+  if (!documents) return undefined;
+
+  const urlsPromise = retrieveAllUrls(
+    documents.map((doc) => {
+      return {
+        _id: doc._id,
+        fileType: 'documents',
+        reason: 'user',
+        fileName: doc.fileName,
+        entityID: otherUserID.toString(),
+      };
+    })
+  );
+}
+
+export async function getSidebarData(
+  selfUserID: ObjectIdType,
+  dataSources: SidebarData[],
+  communityID?: ObjectIdType,
+  otherUserID?: ObjectIdType
+) {
+  const promises = [];
+  if (dataSources.includes('discoverCommunities' || 'discoverUsers'))
+    promises.push(populateDiscoverForUser(selfUserID));
+
+  dataSources.forEach((dataSource) => {
+    switch (dataSource) {
+      case 'communityDocuments':
+        promises.push(getCommunityDocuments(selfUserID, communityID));
+        break;
+      case 'userDocuments':
+        promises.push(getUserDocuments(selfUserID, otherUserID));
+        break;
+      // case 'pinnedCommunities':
+      //   promises.push(getPinnedCommunities(userID));
+      //   break;
+      // case 'trending':
+      //   promises.push(getTrending(userID));
+      //   break;
+    }
+  });
+
+  let output: { [key in SidebarData]?: any } = {};
+  return Promise.all(promises).then((data) => {
+    let count = 0;
+    if (dataSources.includes('discoverCommunities' || 'discoverUsers')) {
+      const discoverData = data[count++];
+      if (!discoverData) output = { discoverUsers: [], discoverCommunities: [] };
+      output.discoverUsers = discoverData['users'];
+      output.discoverCommunities = discoverData['communities'];
+    }
+
+    for (let i = 0; i < dataSources.length; i++) {
+      if (count === data.length) break;
+      switch (dataSources[i]) {
+        case 'communityDocuments':
+          output.communityDocuments = data[count++];
+          break;
+        case 'userDocuments':
+          output.userDocuments = data[count++];
+          break;
+        case 'pinnedCommunities':
+          output.pinnedCommunities = data[count++];
+          break;
+        case 'trending':
+          output.trending = data[count++];
+          break;
+      }
+    }
+
+    return sendPacket(1, 'Retrieved Sidebar data', { ...output });
+  });
 }
