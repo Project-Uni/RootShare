@@ -133,7 +133,7 @@ export default function HomepageBody(props: Props) {
         style={{ margin: 8 }}
         href={undefined}
       />
-      <PromotedEvents/>
+      <PromotedEvents />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
       {/* <MakePostContainer
         appendNewPost={appendNewPost}
