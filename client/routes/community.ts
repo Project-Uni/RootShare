@@ -496,6 +496,7 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const query = getQueryParams<{
         description?: string;
+        bio?: string;
         name?: string;
         type?: string;
         private?: boolean;
