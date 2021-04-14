@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
@@ -150,6 +150,16 @@ export const CommunityHead = (props: Props) => {
     profilePicture
   );
 
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   function updateName(name: string) {
     setStateName(name);
   }
@@ -210,16 +220,18 @@ export const CommunityHead = (props: Props) => {
             width: '100%',
           }}
         />
-        <RSTabsV2
-          tabs={[
-            { label: 'Feed', value: 'feed' },
-            { label: 'About', value: 'about' },
-            { label: 'Media', value: 'media' },
-          ]}
-          onChange={handleTabChange}
-          selected={currentTab}
-          className={styles.tabs}
-        />
+        {width >= 600 && (
+          <RSTabsV2
+            tabs={[
+              { label: 'Feed', value: 'feed' },
+              { label: 'About', value: 'about' },
+              { label: 'Media', value: 'media' },
+            ]}
+            onChange={handleTabChange}
+            selected={currentTab}
+            className={styles.tabs}
+          />
+        )}
       </div>
     );
   };
@@ -304,7 +316,7 @@ export const CommunityHead = (props: Props) => {
           profilePicture={profilePicture}
         />
       ) : (
-        ''
+        <></>
       )}
       <RSCard className={[styles.wrapper, className].join(' ')} style={style}>
         <ProfileBanner
@@ -333,6 +345,20 @@ export const CommunityHead = (props: Props) => {
           {renderCenter()}
           {renderRight()}
         </div>
+        {width < 600 ? (
+          <RSTabsV2
+            tabs={[
+              { label: 'Feed', value: 'feed' },
+              { label: 'About', value: 'about' },
+              { label: 'Media', value: 'media' },
+            ]}
+            onChange={handleTabChange}
+            selected={currentTab}
+            className={styles.tabs}
+          />
+        ) : (
+          <></>
+        )}
       </RSCard>
       <PendingFollowRequestsModal
         open={followersModalOpen}
