@@ -6,3 +6,4 @@ export * from './misc';
 export * from './communityTypes';
 export * from './discoveryTypes';
 export * from './postTypes';
+export * from './mediaTypes';

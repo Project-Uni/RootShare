@@ -80,6 +80,8 @@ type Props = {
   borderRadius?: number;
   borderWidth?: number; //Added for camera icon positioning on images with a border
   zoomOnClick?: boolean;
+  preview?: boolean; //preview enables use of external callback
+  callback?: (data: string) => any;
 };
 
 function ProfilePicture(props: Props) {
@@ -179,15 +181,25 @@ function ProfilePicture(props: Props) {
   }
 
   async function handleSaveImage() {
-    imageURLToFile(croppedImageURL!, sendPictureToServer);
+    if (props.preview === true) {
+      imageURLToFile(croppedImageURL!, previewPicture);
+    } else {
+      imageURLToFile(croppedImageURL!, sendPictureToServer);
+    }
+  }
+
+  async function previewPicture(imageData: string | ArrayBuffer | null | Blob) {
+    props.callback?.(imageData as string);
+    setImageSrc(undefined);
+    setCurrentPicture(imageData as string);
   }
 
   async function sendPictureToServer(imageData: string | ArrayBuffer | null | Blob) {
     setLoading(true);
     const path =
       type === 'profile'
-        ? '/api/images/profile/updateProfilePicture'
-        : `/api/images/community/${_id}/updateProfilePicture`;
+        ? '/api/media/images/profile/updateProfilePicture'
+        : `/api/media/images/community/${_id}/updateProfilePicture`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,
@@ -335,7 +347,7 @@ function ProfilePicture(props: Props) {
             onClick={handleSaveImage}
             disabled={!Boolean(croppedImageURL) || loading}
           >
-            Save
+            {props.preview == true ? 'Select' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>

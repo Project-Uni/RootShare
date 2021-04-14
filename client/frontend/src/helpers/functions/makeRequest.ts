@@ -11,6 +11,7 @@ export async function makeRequest<T = { [key: string]: any }>(
   method: AxiosRequestConfig['method'],
   url: string,
   data?: { [key: string]: any },
+  headers?: { [key: string]: any },
   ...rest: any
 ): Promise<AxiosResponse<HttpResponse<T>>> {
   const { accessToken, refreshToken } = getStore().getState();
@@ -19,6 +20,7 @@ export async function makeRequest<T = { [key: string]: any }>(
     headers: {
       Authorization:
         accessToken && refreshToken ? `Bearer ${accessToken}` : undefined,
+      ...headers,
     },
     method,
     url,

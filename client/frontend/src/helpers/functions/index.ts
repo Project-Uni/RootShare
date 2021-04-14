@@ -9,3 +9,4 @@ export * from './effects';
 export * from './sleep';
 export * from './checkProfilePictureExpired';
 export * from './isValidEmail';
+export * from './formatTimestamp';

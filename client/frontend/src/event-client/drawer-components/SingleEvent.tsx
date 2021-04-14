@@ -111,17 +111,10 @@ function SingleEvent(props: Props) {
     const oldRSVP = RSVP;
     setRSVP(!oldRSVP);
 
-    const { data } = await makeRequest(
-      'POST',
-      '/api/webinar/updateRSVP',
-      {
-        webinarID: event._id,
-        didRSVP: !oldRSVP,
-      },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('POST', '/api/webinar/updateRSVP', {
+      webinarID: event._id,
+      didRSVP: !oldRSVP,
+    });
 
     if (data['success'] === 1) setRSVP(data['content']['newRSVP']);
   }

@@ -1,5 +1,5 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   TextField,
   FormControl,
@@ -7,43 +7,43 @@ import {
   Select,
   InputLabel,
   FormHelperText,
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    marginBottom: "20px",
+    marginBottom: '20px',
   },
   tabDesc: {
-    fontSize: "13pt",
-    margin: "0px",
-    fontWeight: "bold",
-    fontfamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
   },
   universityStanding: {
-    fontSize: "13pt",
-    margin: "0px",
-    fontWeight: "bold",
-    fontfamily: "Ubuntu",
-    textAlign: "left",
-    marginLeft: "25px",
-    marginTop: "10px",
+    fontSize: '13pt',
+    margin: '0px',
+    fontWeight: 'bold',
+    fontfamily: 'Ubuntu',
+    textAlign: 'left',
+    marginLeft: '25px',
+    marginTop: '10px',
   },
   textField: {
-    width: "325px",
-    marginTop: "20px",
-    marginBottom: "10px",
+    width: '325px',
+    marginTop: '20px',
+    marginBottom: '10px',
   },
   statusField: {
-    width: "200px",
-    marginTop: "20px",
-    marginBottom: "20px",
+    width: '200px',
+    marginTop: '20px',
+    marginBottom: '20px',
   },
   selectDiv: {
-    display: "flex",
-    justifyContent: "left",
-    marginLeft: "25px",
+    display: 'flex',
+    justifyContent: 'left',
+    marginLeft: '25px',
   },
 }));
 
@@ -70,7 +70,7 @@ function RegistrationStep1(props: Props) {
         className={styles.textField}
         value={props.firstName}
         onChange={props.handleFirstNameChange}
-        error={props.firstNameErr !== ""}
+        error={props.firstNameErr !== ''}
         helperText={props.firstNameErr}
         autoComplete="given-name"
       />
@@ -81,7 +81,7 @@ function RegistrationStep1(props: Props) {
         className={styles.textField}
         value={props.lastName}
         onChange={props.handleLastNameChange}
-        error={props.lastNameErr !== ""}
+        error={props.lastNameErr !== ''}
         helperText={props.lastNameErr}
         autoComplete="family-name"
       />
@@ -91,7 +91,7 @@ function RegistrationStep1(props: Props) {
         <FormControl
           variant="outlined"
           className={styles.statusField}
-          error={props.standingErr !== ""}
+          error={props.standingErr !== ''}
         >
           <InputLabel>Standing</InputLabel>
           <Select
@@ -102,7 +102,7 @@ function RegistrationStep1(props: Props) {
             <MenuItem value="student">Student</MenuItem>
             <MenuItem value="alumni">Alumni</MenuItem>
             <MenuItem value="faculty">Faculty</MenuItem>
-            <MenuItem value="fan">Fan</MenuItem>
+            <MenuItem value="recruiter">Recruiter</MenuItem>
           </Select>
           <FormHelperText>{props.standingErr}</FormHelperText>
         </FormControl>

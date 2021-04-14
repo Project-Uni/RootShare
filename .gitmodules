@@ -1,0 +1,3 @@
+[submodule "client/rootshare_db"]
+	path = client/rootshare_db
+	url = https://github.com/Project-Uni/rootshare_db.git
