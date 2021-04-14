@@ -96,14 +96,7 @@ function AdminCommunityManager(props: Props) {
   }
 
   async function fetchCommunities() {
-    const { data } = await makeRequest(
-      'GET',
-      '/api/admin/community/all',
-      {},
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    const { data } = await makeRequest('GET', '/api/admin/community/all');
 
     if (data.success === 1) {
       setCommunities(data.content['communities']);

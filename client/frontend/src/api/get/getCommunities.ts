@@ -6,8 +6,6 @@ export const getCommunities = async <T = { [k: string]: any }>(
   params: {
     fields?: string[];
     options?: {
-      getProfilePicture?: boolean;
-      getBannerPicture?: boolean;
       getRelationship?: boolean;
       limit?: number;
       includeDefaultFields?: boolean;

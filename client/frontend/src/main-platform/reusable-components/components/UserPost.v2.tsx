@@ -120,7 +120,7 @@ export const UserPost = (props: Props) => {
     setShowCommentField((prev) => !prev);
   };
   const handleCommentTextClick = async () => {
-    if (!showComments) {
+    if (!showComments && commentCount > 0) {
       await fetchComments({});
     } else {
       setComments([]);

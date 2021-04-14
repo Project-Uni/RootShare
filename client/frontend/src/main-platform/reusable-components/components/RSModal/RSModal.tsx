@@ -1,9 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import RSText from '../../../../base-components/RSText';
+
 import { IconButton, Modal, LinearProgress } from '@material-ui/core';
-import { colors } from '../../../../theme/Colors';
 import { FiArrowLeft } from 'react-icons/fi';
+import { MdClose } from 'react-icons/md';
+
+import RSText from '../../../../base-components/RSText';
+
+import { colors } from '../../../../theme/Colors';
 import Theme from '../../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -106,7 +110,7 @@ function RSModal(props: Props) {
             </RSText>
           </div>
           <IconButton onClick={props.onClose} size="medium">
-            x
+            <MdClose />
           </IconButton>
         </div>
         {props.helperIcon && (

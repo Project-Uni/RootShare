@@ -1,6 +1,6 @@
+import { USER_LEVEL } from '../rootshare_db/types';
 import { getQueryParams, getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-
 import {
   createEvent,
   deleteEvent,
@@ -14,10 +14,7 @@ import {
   sendEventEmailConfirmation,
   getRecentEvents,
 } from '../interactions/streaming/event';
-
 import { updateAttendingList } from '../interactions/user';
-
-import { USER_LEVEL } from '../helpers/types';
 
 export default function eventRoutes(app) {
   app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
@@ -65,7 +62,9 @@ export default function eventRoutes(app) {
   });
 
   app.get('/api/webinar/recent', isAuthenticatedWithJWT, async (req, res) => {
-    const query = getQueryParams(req, { limit: { type: 'number', optional: true } });
+    const query = getQueryParams<{ limit: boolean }>(req, {
+      limit: { type: 'number', optional: true },
+    });
     if (!query) res.status(500).json(sendPacket(-1, 'Invalid request'));
     else {
       const packet = await getRecentEvents((query.limit || 3) as number);

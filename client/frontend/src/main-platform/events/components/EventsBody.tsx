@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress, Box } from '@material-ui/core';
 
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { WelcomeMessage } from '../../reusable-components';
 import { Event } from '../../reusable-components';
@@ -43,11 +45,17 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type Props = {
-  user: { [key: string]: any };
+  // user: { [key: string]: any };
 };
 
-function EventsBody(props: Props) {
+export default function EventsBody(props: Props) {
   const styles = useStyles();
+
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootshareReduxState) => ({
+    user: state.user,
+  }));
+
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
 
@@ -55,6 +63,11 @@ function EventsBody(props: Props) {
   const [connectionIDs, setConnectionIDs] = useState<{ [key: string]: any }>([]);
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
     window.addEventListener('resize', handleResize);
     fetchData().then(() => {
       setLoading(false);
@@ -94,7 +107,7 @@ function EventsBody(props: Props) {
           timestamp={eventDate + ' at ' + eventTime}
           eventBanner={currEvent.eventBanner}
           mutualSignups={varMutualSignups.length}
-          rsvpYes={currEvent.RSVPs.includes(props.user._id)}
+          rsvpYes={currEvent.RSVPs.includes(user._id)}
           style={styles.eventStyle}
           complete={!!currEvent.muxAssetPlaybackID}
         />
@@ -119,15 +132,3 @@ function EventsBody(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(EventsBody);

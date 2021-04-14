@@ -101,8 +101,6 @@ function ProfileEvent(props: Props) {
       webinarID: props.event._id,
       didRSVP: false,
     });
-
-    console.log(data);
   }
 
   function renderDetails() {

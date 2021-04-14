@@ -7,7 +7,7 @@ import { resetLockAuth } from '../interactions/registration/email-confirmation';
 
 export default function registrationExternalRoutes(app: Express) {
   app.get('/auth/login/linkedin', (req, res, next) => {
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{ redirect?: string }>(req, {
       redirect: { type: 'string', optional: true },
     });
     if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
@@ -18,14 +18,14 @@ export default function registrationExternalRoutes(app: Express) {
 
   app.get('/auth/callback/linkedin', (req, res) => {
     passport.authenticate('linkedin-login', (err, user, info) => {
-      const query = getQueryParams(req, { state: { type: 'string' } });
+      const query = getQueryParams<{ state: string }>(req, {
+        state: { type: 'string' },
+      });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const { state } = query;
 
-      const { redirect } = JSON.parse(
-        Buffer.from(state as string, 'base64').toString()
-      );
+      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
       if (typeof redirect !== 'string' || !redirect.startsWith('/'))
         return res.redirect('/');
 
@@ -48,7 +48,7 @@ export default function registrationExternalRoutes(app: Express) {
   });
 
   app.get('/auth/login/google', (req, res, next) => {
-    const query = getQueryParams(req, {
+    const query = getQueryParams<{ redirect?: string }>(req, {
       redirect: { type: 'string', optional: true },
     });
     if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
@@ -64,14 +64,14 @@ export default function registrationExternalRoutes(app: Express) {
 
   app.get('/auth/callback/google', (req, res) => {
     passport.authenticate('google-login', (err, user, info) => {
-      const query = getQueryParams(req, { state: { type: 'string' } });
+      const query = getQueryParams<{ state: string }>(req, {
+        state: { type: 'string' },
+      });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
       const { state } = query;
 
-      const { redirect } = JSON.parse(
-        Buffer.from(state as any, 'base64').toString()
-      );
+      const { redirect } = JSON.parse(Buffer.from(state, 'base64').toString());
       if (typeof redirect !== 'string' || !redirect.startsWith('/'))
         return res.redirect('/');
 

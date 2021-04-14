@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CircularProgress } from '@material-ui/core';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../../redux/actions';
 
 import RSText from '../../../base-components/RSText';
 
@@ -58,6 +59,7 @@ type Props = {};
 export default function HomepageBody(props: Props) {
   const styles = useStyles();
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [height, setHeight] = useState(window.innerHeight - HEADER_HEIGHT);
@@ -70,6 +72,11 @@ export default function HomepageBody(props: Props) {
   );
 
   useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverCommunities', 'discoverUsers'],
+      })
+    );
     window.addEventListener('resize', handleResize);
     getFeed().then(() => {
       setLoading(false);

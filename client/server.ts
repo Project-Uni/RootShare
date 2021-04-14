@@ -8,8 +8,10 @@ import express = require('express');
 import pino = require('express-pino-logger');
 import bodyParser = require('body-parser');
 import expressSession = require('express-session');
+import fileUpload = require('express-fileupload');
 import cors = require('cors');
 
+const mongoConfig = require('./rootshare_db/config/mongoConfig');
 const fs = require('fs');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -19,23 +21,18 @@ import { log, initializeDirectory } from './helpers/functions';
 import * as path from 'path';
 import { rateLimiter } from './middleware';
 import RootshareRoutes from './routes';
+import { MAX_FILE_SIZE_MBS } from './helpers/constants';
 
 import {
   elasticMiddleware,
   initialize as initializeElasticSearch,
 } from './helpers/functions/elasticSearch';
 
-import * as mongoConfig from './config/mongoConfig';
-
-// Use mongoose to connect to MongoDB
-mongoConfig.connectDB(function (err, client) {
-  if (err) log('MONGO ERROR', err);
-});
-
 // Load all files in models directory
-fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
-  if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
-});
+// fs.readdirSync(`${__dirname}/models`).forEach((fileName) => {
+//   if (~fileName.indexOf('ts')) require(`${__dirname}/models/${fileName}`);
+// });
+mongoConfig.connectDB();
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -44,6 +41,15 @@ app.set('query parser', 'simple');
 
 app.use(cors());
 app.use(pino());
+app.use(
+  fileUpload({
+    limits: {
+      abortOnLimit: true,
+      responseOnLimit: 'LIMIT',
+      fileSize: MAX_FILE_SIZE_MBS * 1024 * 1024,
+    },
+  })
+);
 app.use(bodyParser.json({ limit: '3.5mb', type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(

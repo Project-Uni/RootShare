@@ -1,14 +1,9 @@
-var passport = require('passport');
+const passport = require('passport');
 
+import { User } from '../rootshare_db/models';
+import { log, sendPacket, generateJWT, getUserFromJWT } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import {
-  log,
-  sendPacket,
-  generateJWT,
-  retrieveSignedUrl,
-  getUserFromJWT,
-} from '../helpers/functions';
-import { User } from '../models';
+
 var {
   confirmUser,
   unsubscribeUser,
@@ -51,7 +46,7 @@ export default function registrationInternalRoutes(app) {
 
   app.post('/auth/signup/user-exists', async (req, res) => {
     let email = req.body.email;
-    let check = await User.exists({ email: email.toLowerCase() });
+    let check = await User.model.exists({ email: email.toLowerCase() });
     if (check) {
       res.json(sendPacket(0, 'User with this email already exists'));
       log('error', `User tried creating a duplicate account with ${email}`);
@@ -92,14 +87,13 @@ export default function registrationInternalRoutes(app) {
   app.post('/auth/getRegistrationInfo', isAuthenticatedWithJWT, async (req, res) => {
     const user = getUserFromJWT(req);
 
-    let check = await User.exists({ email: user.email.toLowerCase() });
+    let check = await User.model.exists({ email: user.email.toLowerCase() });
 
     if (check) {
       try {
-        const userDB = await User.findOne(
-          { _id: user._id },
-          'work accountType'
-        ).exec();
+        const userDB = await User.model
+          .findOne({ _id: user._id }, 'work accountType')
+          .exec();
         res.json(
           sendPacket(1, 'Sending back current user', {
             email: user.email,

@@ -1,6 +1,10 @@
 import axios from 'axios';
+import { Types } from 'mongoose';
+
 import { log } from './logger';
-import { JWT_TOKEN_FIELDS } from '../types';
+import { JWT_TOKEN_FIELDS } from '../../rootshare_db/types';
+
+type ObjectIdType = Types.ObjectId;
 
 type Config = {
   headers: {
@@ -29,7 +33,7 @@ export function makeRequest(
   authenticated: boolean = false,
   accessToken: string = '',
   refreshToken: string = '',
-  user?: { _id: string; [key: string]: any }
+  user?: { _id: ObjectIdType; [key: string]: any }
 ) {
   const serverPath = getServerPath(server);
   if (serverPath == 'ERROR') {

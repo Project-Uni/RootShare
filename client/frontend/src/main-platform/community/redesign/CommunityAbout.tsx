@@ -185,7 +185,7 @@ const AboutCard = (props: {
   return (
     <RSCard className={styles.cardWrapper}>
       <div className={styles.cardHeader}>
-        <RSText className={styles.cardTitle} weight="light" size={20}>
+        <RSText className={styles.cardTitle} weight="light" size={18}>
           About
         </RSText>
         {renderEditButtons()}

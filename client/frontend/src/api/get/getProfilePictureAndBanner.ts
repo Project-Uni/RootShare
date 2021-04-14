@@ -6,7 +6,7 @@ export const getProfilePictureAndBanner = async (
   _id: string,
   options: { getProfile?: boolean; getBanner?: boolean }
 ) => {
-  const route = '/api/images/profile';
+  const route = '/api/media/images/profile';
   const params = stringify({
     _id,
     type,

@@ -194,8 +194,8 @@ function ProfileBanner(props: Props) {
     setLoading(true);
     const path =
       props.type === 'profile'
-        ? '/api/images/profile/banner'
-        : `/api/images/community/${props._id}/banner`;
+        ? '/api/media/images/profile/banner'
+        : `/api/media/images/community/${props._id}/banner`;
 
     const { data } = await makeRequest('POST', path, {
       image: imageData,

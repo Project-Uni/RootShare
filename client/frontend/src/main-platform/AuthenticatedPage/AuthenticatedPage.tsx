@@ -119,9 +119,7 @@ function AuthenticatedPage(props: Props) {
                 rightElement
               ) : (
                 // <DiscoverySidebar />
-                <RightSidebar
-                  components={['discoverUsers', 'discoverCommunities']}
-                />
+                <RightSidebar />
                 // <span style={{ width: 270 }}></span>
               ))}
           </div>

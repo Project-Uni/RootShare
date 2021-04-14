@@ -1,23 +1,25 @@
-import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-import { User } from '../models';
+import aws = require('aws-sdk');
 
-const aws = require('aws-sdk');
-aws.config.loadFromPath('../keys/aws_key.json');
-let ses = new aws.SES({
-  apiVersion: '2010-12-01',
-});
-
-import { log, sendPacket } from '../helpers/functions';
-
-import { getUserData } from '../interactions/utilities';
-
+import { User } from '../rootshare_db/models';
+import { log, sendPacket, getQueryParams } from '../helpers/functions';
 import { getViewersForEvents } from '../helpers/data_aggregation/getViewersForEvents';
 import {
   getTotalMTGViewers,
   getUniqueInterested,
 } from '../helpers/data_aggregation/getMTGUniqueUserInfo';
 import { getUserGrowthByPeriod } from '../helpers/data_aggregation/getUserGrowthByPeriod';
-import { getQueryParams } from '../helpers/functions/getQueryParams';
+import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+import { getUserData } from '../interactions/utilities';
+
+const AWSKeys = require('../../keys/aws_key.json');
+
+const ses = new aws.SES({
+  accessKeyId: AWSKeys.ses.accessKeyId,
+  secretAccessKey: AWSKeys.ses.secretAccessKey,
+  region: AWSKeys.ses.region,
+  apiVersion: '2010-12-01',
+  signatureVersion: 'v4',
+});
 
 export default function utilityRoutes(app) {
   app.get('/api/adminCount', isAuthenticatedWithJWT, (req, res) => {
@@ -57,7 +59,7 @@ export default function utilityRoutes(app) {
   });
 
   app.get('/api/utilities/growth', async (req, res) => {
-    // const query = getQueryParams(req, { period: { type: 'string' } });
+    // const query = getQueryParams<{period: string}>(req, { period: { type: 'string' } });
     // if (!query) return res.status(500).send('Invalid query');
     // const growthCSV = await getUserGrowthByPeriod('month');
     // if (growthCSV) {
@@ -89,7 +91,7 @@ export default function utilityRoutes(app) {
 }
 
 export async function phasedEmergencyEmailRollout(subject: string, message: string) {
-  const users = await User.find({}, ['email']).exec();
+  const users = await User.model.find({}, ['email']).exec();
   for (let i = 0; i < users.length; i++) {
     const email = users[i].email;
     try {

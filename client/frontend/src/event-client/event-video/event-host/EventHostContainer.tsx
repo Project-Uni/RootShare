@@ -279,14 +279,11 @@ function EventHostContainer(props: Props) {
     type: 'bestFit' | 'horizontalPresentation',
     streamID = ''
   ) {
-    makeRequest(
-      'POST',
-      '/webinar/changeBroadcastLayout',
-      { webinarID, type, streamID },
-      true,
-      props.accessToken,
-      props.refreshToken
-    );
+    makeRequest('POST', '/webinar/changeBroadcastLayout', {
+      webinarID,
+      type,
+      streamID,
+    });
   }
 
   function toggleScreenshare() {
@@ -415,18 +412,11 @@ function EventHostContainer(props: Props) {
 
   async function setCacheConnection(eventSession: Session) {
     setTimeout(async () => {
-      const { data } = await makeRequest(
-        'POST',
-        '/proxy/webinar/setConnectionID',
-        {
-          webinarID: props.webinar._id,
-          speakingToken: props.speakingToken,
-          connection: eventSession.connection,
-        },
-        true,
-        props.accessToken,
-        props.refreshToken
-      );
+      const { data } = await makeRequest('POST', '/proxy/webinar/setConnectionID', {
+        webinarID: props.webinar._id,
+        speakingToken: props.speakingToken,
+        connection: eventSession.connection,
+      });
 
       if (data.success !== 1) setCacheConnection(eventSession);
     }, CACHE_RETRANSMIT_INTERVAL);
