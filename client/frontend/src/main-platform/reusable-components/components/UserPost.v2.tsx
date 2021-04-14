@@ -88,7 +88,7 @@ export const UserPost = (props: Props) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
   const [showLikesModal, setShowLikesModal] = useState(false);
 
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [liked, setLiked] = useState(post.liked);
   const [likeDisabled, setLikeDisabled] = useState(false);
 
