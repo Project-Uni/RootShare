@@ -1,11 +1,6 @@
-import { Types } from 'mongoose';
-
 import { IConnection } from '../rootshare_db/models';
-import { U2UR, U2CR } from '../rootshare_db/types';
+import { U2UR, U2CR, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import { log, retrieveSignedUrl } from '../helpers/functions';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 // Adds mutual members, and mutual communities
 export async function addCalculatedUserFields(

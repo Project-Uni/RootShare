@@ -1,7 +1,10 @@
-import { Types } from 'mongoose';
-
 import { User, Community, ExternalLink, Document } from '../rootshare_db/models';
-import { S3FileType, ImageReason, DocumentReason } from '../rootshare_db/types';
+import {
+  S3FileType,
+  ImageReason,
+  DocumentReason,
+  ObjectIdType,
+} from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -10,8 +13,6 @@ import {
   decodeBase64Image,
 } from '../helpers/functions';
 import { ALLOWED_MIME_TYPES } from '../helpers/constants';
-
-type ObjectIdType = Types.ObjectId;
 
 export async function updateUserProfilePicture(image: string, userID: ObjectIdType) {
   const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);

@@ -1,10 +1,7 @@
-import { Types } from 'mongoose';
-
-import { isAuthenticatedWithJWT, isRootshareAdmin } from '.';
+import { ObjectIdVal } from '../../rootshare_db/types';
 import { getQueryParams, sendPacket } from '../../helpers/functions';
 import { deleteConversation } from '../../interactions/admin';
-
-const ObjectIdVal = Types.ObjectId;
+import { isAuthenticatedWithJWT, isRootshareAdmin } from '.';
 
 export default function adminMessagingRoutes(app) {
   app.delete(

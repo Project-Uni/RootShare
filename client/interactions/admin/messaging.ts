@@ -1,9 +1,6 @@
-import { Types } from 'mongoose';
-
 import { Conversation, Message } from '../../rootshare_db/models';
+import { ObjectIdType } from '../../rootshare_db/types';
 import { sendPacket } from '../../helpers/functions';
-
-type ObjectIdType = Types.ObjectId;
 
 export const deleteConversation = async (conversationID: ObjectIdType) => {
   const conversationPromise = Conversation.model.deleteOne({

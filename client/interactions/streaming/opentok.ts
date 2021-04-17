@@ -1,10 +1,9 @@
 const OpenTok = require('opentok');
 const jwt = require('njwt');
 import axios from 'axios';
-import { Types } from 'mongoose';
 
 import { Webinar } from '../../rootshare_db/models';
-import { packetParams } from '../../rootshare_db/types';
+import { packetParams, ObjectIdType } from '../../rootshare_db/types';
 import { log, sendPacket } from '../../helpers/functions';
 
 const {
@@ -16,8 +15,6 @@ const {
 const IN_DEV = process.env.NODE_ENV && process.env.NODE_ENV === 'dev';
 const BASE_64_MUX = IN_DEV ? DEV_BASE_64_MUX : PROD_BASE_64_MUX;
 const opentok = new OpenTok(OPENTOK_API_KEY, OPENTOK_API_SECRET);
-
-type ObjectIdType = Types.ObjectId;
 
 module.exports = {
   createNewOpenTokSession: (

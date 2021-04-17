@@ -1,7 +1,5 @@
-import { Types } from 'mongoose';
-
 import { Webinar, Conversation, User, IUser } from '../../rootshare_db/models';
-import { packetParams } from '../../rootshare_db/types';
+import { packetParams, ObjectIdType } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -10,8 +8,6 @@ import {
   sendEmail,
 } from '../../helpers/functions';
 import { addEventImagesAll } from '../streaming/event';
-
-type ObjectIdType = Types.ObjectId;
 
 export async function createEvent(
   eventBody: { [key: string]: any },

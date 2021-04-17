@@ -1,10 +1,7 @@
 import axios from 'axios';
-import { Types } from 'mongoose';
 
+import { JWT_TOKEN_FIELDS, ObjectIdType } from '../../rootshare_db/types';
 import { log } from './logger';
-import { JWT_TOKEN_FIELDS } from '../../rootshare_db/types';
-
-type ObjectIdType = Types.ObjectId;
 
 type Config = {
   headers: {

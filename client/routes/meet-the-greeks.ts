@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Types } from 'mongoose';
 
+import { ObjectIdVal } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
@@ -20,8 +20,6 @@ import {
   getMTGEvents,
   getInterestedUsers,
 } from '../interactions/meet-the-greeks';
-
-const ObjectIdVal = Types.ObjectId;
 
 /**
  *

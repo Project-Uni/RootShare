@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 import {
   Community,
   CommunityEdge,
@@ -13,7 +11,7 @@ import {
   ICommunityEdge,
   IUser,
 } from '../rootshare_db/models';
-import { AccountType } from '../rootshare_db/types';
+import { AccountType, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -24,9 +22,6 @@ import {
 } from '../helpers/functions';
 import { generateSignedProfilePromises } from './utilities';
 import NotificationService from './notification';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 const NUM_POSTS_RETRIEVED = 40;
 

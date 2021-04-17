@@ -1,10 +1,6 @@
-import { Types } from 'mongoose';
-
 import { University, User } from '../rootshare_db/models';
-import { packetParams } from '../rootshare_db/types';
+import { packetParams, ObjectIdType } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
-
-type ObjectIdType = Types.ObjectId;
 
 export async function getDepartments(
   userID: ObjectIdType,

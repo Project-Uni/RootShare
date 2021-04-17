@@ -1,9 +1,6 @@
-import { Types } from 'mongoose';
 import { Community, Notifications, Post, User } from '../rootshare_db/models';
+import { ObjectIdType, ObjectIdVal } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
-
-type ObjectIdType = Types.ObjectId;
-const ObjectIdVal = Types.ObjectId;
 
 export default class NotificationService {
   like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {

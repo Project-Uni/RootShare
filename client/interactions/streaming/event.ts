@@ -1,15 +1,5 @@
-import { Types } from 'mongoose';
-import aws = require('aws-sdk');
-
-import {
-  Webinar,
-  Conversation,
-  User,
-  IUser,
-  IConnection,
-  IWebinar,
-} from '../../rootshare_db/models';
-import { packetParams } from '../../rootshare_db/types';
+import { Webinar, User, IConnection, IWebinar } from '../../rootshare_db/models';
+import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
@@ -20,19 +10,6 @@ import {
   retrieveSignedUrl,
   sendEmail,
 } from '../../helpers/functions';
-
-const AWSKeys = require('../../../keys/aws_key.json');
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
-
-const ses = new aws.SES({
-  accessKeyId: AWSKeys.ses.accessKeyId,
-  secretAccessKey: AWSKeys.ses.secretAccessKey,
-  region: AWSKeys.ses.region,
-  apiVersion: '2010-12-01',
-  signatureVersion: 'v4',
-});
 
 export function timeStampCompare(
   ObjectA: { dateTime: Date },

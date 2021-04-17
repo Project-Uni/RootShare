@@ -1,5 +1,4 @@
-import { Types } from 'mongoose';
-
+import { ObjectIdVal } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
@@ -26,8 +25,6 @@ import {
   uploadDocuments,
   deleteDocuments,
 } from '../interactions/media';
-
-const ObjectIdVal = Types.ObjectId;
 
 export default function mediaRoutes(app) {
   app.post(

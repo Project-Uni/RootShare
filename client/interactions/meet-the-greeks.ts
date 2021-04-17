@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
@@ -11,7 +10,7 @@ import {
   ExternalCommunication,
   Webinar,
 } from '../rootshare_db/models';
-import { packetParams } from '../rootshare_db/types';
+import { packetParams, ObjectIdType } from '../rootshare_db/types';
 import {
   decodeBase64Image,
   log,
@@ -23,8 +22,6 @@ import {
 } from '../helpers/functions';
 
 import { addProfilePicturesAll } from './utilities';
-
-type ObjectIdType = Types.ObjectId;
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

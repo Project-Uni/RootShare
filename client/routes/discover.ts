@@ -1,7 +1,6 @@
 import { Express } from 'express';
-import { Types } from 'mongoose';
 
-import { SidebarData } from '../rootshare_db/types';
+import { SidebarData, ObjectIdVal } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
@@ -15,8 +14,6 @@ import {
   getSidebarData,
   communityInviteSearch,
 } from '../interactions/discover';
-
-const ObjectIdVal = Types.ObjectId;
 
 export default function discoverRoutes(app: Express) {
   app.get('/api/discover/populate', isAuthenticatedWithJWT, async (req, res) => {

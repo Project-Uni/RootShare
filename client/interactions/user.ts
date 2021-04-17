@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 import {
   User,
   Connection,
@@ -8,7 +6,13 @@ import {
   ICommunity,
 } from '../rootshare_db/models';
 import { GetUsersByIDsOptions } from '../rootshare_db/models/users';
-import { U2UR, U2CR, packetParams } from '../rootshare_db/types';
+import {
+  U2UR,
+  U2CR,
+  packetParams,
+  ObjectIdVal,
+  ObjectIdType,
+} from '../rootshare_db/types';
 import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
 import {
   addCalculatedUserFields,
@@ -22,9 +26,6 @@ import {
   addProfilePicturesToRequests,
 } from './utilities';
 import NotificationService from './notification';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 export async function getCurrentUser(
   user: any,

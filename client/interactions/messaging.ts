@@ -1,16 +1,11 @@
-import { Types } from 'mongoose';
-
 import { Conversation, Message, User } from '../rootshare_db/models';
-import { packetParams } from '../rootshare_db/types';
+import { packetParams, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
   retrieveSignedUrl,
   getUserFromJWT,
 } from '../helpers/functions';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 export function createThread(req, io, callback: (packet: packetParams) => void) {
   const { message, tempID, recipients } = req.body;

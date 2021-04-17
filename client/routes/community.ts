@@ -1,12 +1,10 @@
-import { Types } from 'mongoose';
-
+import { ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
   getQueryParams,
   log,
 } from '../helpers/functions';
-
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
@@ -42,10 +40,6 @@ import {
   getPinnedPosts,
   inviteUser,
 } from '../interactions/community';
-import { String } from 'aws-sdk/clients/cloudsearchdomain';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 /**
  *

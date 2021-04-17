@@ -1,13 +1,14 @@
+import jwt = require('jsonwebtoken');
+
 import {
+  ObjectIdType,
   JWT_TOKEN_FIELDS,
   JWT_ACCESS_TOKEN_TIMEOUT,
 } from '../../rootshare_db/types';
-import jwt = require('jsonwebtoken');
-import { Types } from 'mongoose';
 
 export function generateJWT(
   user: {
-    [key in typeof JWT_TOKEN_FIELDS[number]]: string | number | Types.ObjectId;
+    [key in typeof JWT_TOKEN_FIELDS[number]]: string | number | ObjectIdType;
   }
 ): { accessToken: string; refreshToken: string } {
   const userTokenInfo = {};

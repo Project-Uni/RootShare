@@ -1,7 +1,7 @@
 import { Express } from 'express';
-import { Types } from 'mongoose';
 
 import { User } from '../rootshare_db/models';
+import { ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   log,
@@ -31,9 +31,6 @@ import {
   getBasicUserInfo,
   getUsersGeneric,
 } from '../interactions/user';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 /**
  *
