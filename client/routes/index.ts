@@ -20,7 +20,11 @@ import webhookRoutes from './webhooks';
 import { authRoutes } from './newAuth';
 import notificationRoutes from './notifications';
 
+import adminRoutes from './admin';
+
 export default function RootshareRoutes(app: Express, io) {
+  adminRoutes(app);
+
   communityRoutes(app);
   discoverRoutes(app);
   eventRoutes(app);

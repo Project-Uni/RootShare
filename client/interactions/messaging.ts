@@ -50,16 +50,6 @@ export function createThread(req, io, callback: (packet: packetParams) => void) 
   });
 }
 
-export function removeConversation(
-  conversationID: ObjectIdType,
-  callback: (packet: packetParams) => void
-) {
-  Conversation.model.deleteOne({ _id: conversationID }, {}, (err) => {
-    if (err) return callback(sendPacket(-1, 'Failed to delete conversation'));
-    return callback(sendPacket(1, 'Deleted conversation'));
-  });
-}
-
 export function sendMessage(
   userID: ObjectIdType,
   conversationID: ObjectIdType,

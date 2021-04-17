@@ -1,82 +1,11 @@
 import { Types } from 'mongoose';
 
-import { User, IConnection } from '../rootshare_db/models';
-import { packetParams, U2UR, U2CR } from '../rootshare_db/types';
-import { log, sendPacket, retrieveSignedUrl } from '../helpers/functions';
+import { IConnection } from '../rootshare_db/models';
+import { U2UR, U2CR } from '../rootshare_db/types';
+import { log, retrieveSignedUrl } from '../helpers/functions';
 
 const ObjectIdVal = Types.ObjectId;
 type ObjectIdType = Types.ObjectId;
-
-export function getUserData(callback: (packet: packetParams) => void) {
-  User.model.find(
-    {},
-    [
-      'firstName',
-      'lastName',
-      'createdAt',
-      'accountType',
-      'email',
-      'phoneNumber',
-      'graduationYear',
-      'major',
-      'work',
-      'position',
-      'department',
-      'graduateSchool',
-    ],
-    {},
-    (err, users) => {
-      if (err || users === undefined || users === null) {
-        return callback(sendPacket(-1, 'Could not find users'));
-      }
-
-      const {
-        studentCount,
-        alumniCount,
-        facultyCount,
-        recruiterCount,
-      } = countAccountType(users);
-      return callback(
-        sendPacket(1, 'Found users', {
-          users,
-          studentCount,
-          alumniCount,
-          facultyCount,
-          recruiterCount,
-        })
-      );
-    }
-  );
-}
-
-function countAccountType(users) {
-  const accountTypes = ['student', 'alumni', 'faculty', 'recruiter'];
-  let accountCounts = [0, 0, 0, 0];
-  const numTypes = accountTypes.length;
-
-  for (let i = 0; i < users.length; i++) {
-    const userAccountType = users[i].accountType;
-    for (let j = 0; j < numTypes; j++) {
-      const checkAccountType = accountTypes[j];
-      if (checkAccountType.localeCompare(userAccountType) === 0) {
-        accountCounts[j]++;
-      }
-    }
-  }
-
-  const retCounts = {
-    studentCount: 0,
-    alumniCount: 0,
-    facultyCount: 0,
-    recruiterCount: 0,
-  };
-
-  for (let i = 0; i < numTypes; i++) {
-    retCounts[`${accountTypes[i]}Count`] = accountCounts[i];
-  }
-
-  return retCounts;
-}
 
 // Adds mutual members, and mutual communities
 export async function addCalculatedUserFields(
@@ -447,4 +376,8 @@ export function toStringArray(array) {
   });
 
   return retArray;
+}
+
+export function sleep(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }

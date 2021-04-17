@@ -2,18 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { CircularProgress, IconButton } from '@material-ui/core';
+import { CircularProgress, IconButton, Menu, MenuItem } from '@material-ui/core';
 import { IoIosArrowBack } from 'react-icons/io';
+import { IoTrashBinOutline } from 'react-icons/io5';
+import { FaEllipsisH } from 'react-icons/fa';
 
 import SingleSelfMessage from './SingleSelfMessage';
 import SingleOtherMessage from './SingleOtherMessage';
 import MessageTextField from './MessageTextField';
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
 
 import { updateCurrConversationID } from '../../../redux/actions/message';
 import { makeRequest } from '../../../helpers/functions';
 import { MessageType, ConversationType } from '../../../helpers/types';
+import { deleteConversation } from '../../../api';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -56,9 +58,6 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
-  arrow: {
-    marginLeft: -10,
-  },
   filler: {
     color: Theme.altText,
   },
@@ -78,6 +77,14 @@ const useStyles = makeStyles((_: any) => ({
     background: Theme.dark,
     color: Theme.dark,
     label: Theme.dark,
+  },
+  menuItem: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   cssLabel: {
     color: Theme.dark,
@@ -117,34 +124,43 @@ type Props = {
   addMessage: (message: MessageType) => void;
   addMessageErr: (tempID: number) => void;
   returnToConversations: () => void;
-  accessToken: string;
-  refreshToken: string;
   updateCurrConversationID: (currConversationID: string) => void;
 };
 
 function MessageThreadContainer(props: Props) {
   const styles = useStyles();
 
+  const {
+    user,
+    conversation,
+    messages,
+    addMessage,
+    addMessageErr,
+    returnToConversations,
+    updateCurrConversationID,
+  } = props;
+
   const [loading, setLoading] = useState(true);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement>();
 
   useEffect(() => {
     return () => {
-      props.updateCurrConversationID('');
+      updateCurrConversationID('');
     };
   }, []);
 
   useEffect(() => {
-    if (props.messages && props.messages.length > 0) setLoading(false);
-  }, [props.messages]);
+    if (messages && messages.length > 0) setLoading(false);
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [props.messages]);
+  }, [messages]);
 
   function renderLatestMessages() {
     let output: any[] = [];
     let lastSender = '';
-    props.messages.forEach((message: any) => {
+    messages.forEach((message: any) => {
       let currSender = '';
       if (message.sender !== lastSender) {
         currSender = message.senderName;
@@ -152,16 +168,16 @@ function MessageThreadContainer(props: Props) {
       }
 
       output.push(
-        props.user._id === message.sender ? (
+        user._id === message.sender ? (
           <SingleSelfMessage
             key={message._id || message.tempID}
-            user={props.user}
+            user={user}
             message={message}
           />
         ) : (
           <SingleOtherMessage
             key={message._id}
-            user={props.user}
+            user={user}
             message={message}
             senderName={currSender}
           />
@@ -176,23 +192,36 @@ function MessageThreadContainer(props: Props) {
   async function handleSendMessage(message: string) {
     const tempID = new Date().toISOString();
     const newMessage = {
-      conversationID: props.conversation._id,
-      sender: props.user._id,
-      senderName: `${props.user.firstName} ${props.user.lastName}`,
+      conversationID: conversation._id,
+      sender: user._id,
+      senderName: `${user.firstName} ${user.lastName}`,
       content: message,
       createdAt: new Date(),
       tempID: tempID,
     };
-    props.addMessage(newMessage as MessageType);
+    addMessage(newMessage as MessageType);
 
     const { data } = await makeRequest('POST', '/api/messaging/sendMessage', {
-      conversationID: props.conversation._id,
+      conversationID: conversation._id,
       message: message,
       tempID,
     });
 
     if (data['success'] !== 1 && data['content']['tempID'])
-      props.addMessageErr(data['content']['tempID']);
+      addMessageErr(data['content']['tempID']);
+  }
+
+  async function handleDeleteThread() {
+    if (
+      !window.confirm(
+        'Are you sure you want to delete this conversation? This action is irreversible.'
+      )
+    )
+      return;
+
+    const data = await deleteConversation(conversation._id);
+
+    setMenuAnchorEl(undefined);
   }
 
   function joinUserNames(users: any, delimiter: string) {
@@ -203,7 +232,7 @@ function MessageThreadContainer(props: Props) {
       const currUser = users[i];
       const currName = currUser.firstName;
 
-      if (currUser._id !== props.user._id) {
+      if (currUser._id !== user._id) {
         if (firstFlag) joinedString += delimiter;
         joinedString += currName;
         firstFlag = true;
@@ -223,13 +252,28 @@ function MessageThreadContainer(props: Props) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <IconButton className={styles.arrow} onClick={props.returnToConversations}>
+        <IconButton onClick={returnToConversations}>
           <IoIosArrowBack size={32} color={Theme.secondaryText} />
         </IconButton>
         <RSText bold size={16} className={styles.headerParticipants}>
-          {joinUserNames(props.conversation.participants, ', ')}
+          {joinUserNames(conversation.participants, ', ')}
         </RSText>
-        <div className={styles.filler}>SAVE</div>
+        {/* <IconButton onClick={(e) => setMenuAnchorEl(e.currentTarget)}>
+          <FaEllipsisH fontSize={20} />
+        </IconButton>
+        <Menu
+          open={Boolean(menuAnchorEl)}
+          anchorEl={menuAnchorEl}
+          onClose={() => setMenuAnchorEl(undefined)}
+        >
+          <MenuItem onClick={handleDeleteThread} className={styles.menuItem}>
+            <IoTrashBinOutline color={Theme.secondaryText} size={15} />
+            <RSText color={Theme.secondaryText} style={{ marginLeft: 5 }}>
+              Delete Conversation
+            </RSText>
+          </MenuItem>
+        </Menu> */}
+        <div> </div>
       </div>
       <div className={styles.messagesContainer}>
         {loading ? (

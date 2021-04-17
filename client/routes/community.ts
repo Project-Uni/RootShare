@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 
-import { USER_LEVEL } from '../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
@@ -16,12 +15,8 @@ import {
 } from './middleware/communityAuthentication';
 
 import {
-  // Admin Routes
-  createNewCommunity,
-  retrieveAllCommunities,
-  editCommunity,
-  deleteCommunity,
   //General Community Actions
+  createNewCommunity,
   getCommunityInformation,
   joinCommunity,
   getAllPendingMembers,
@@ -62,120 +57,6 @@ type ObjectIdType = Types.ObjectId;
  */
 
 export default function communityRoutes(app) {
-  app.post(
-    '/api/admin/community/create',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { privilegeLevel } = getUserFromJWT(req);
-      if (privilegeLevel < USER_LEVEL.ADMIN)
-        return res.json(
-          sendPacket(-1, 'User is not authorized to perform this action')
-        );
-
-      const { name, description, adminID, type, isPrivate, isMTG } = req.body;
-      if (
-        !name ||
-        !description ||
-        !adminID ||
-        !type ||
-        isPrivate === null ||
-        isPrivate === undefined
-      )
-        return res.json(
-          sendPacket(
-            -1,
-            'name, description, adminID, type, or isPrivate missing from request body.'
-          )
-        );
-
-      const packet = await createNewCommunity(
-        name,
-        description,
-        adminID,
-        type,
-        isPrivate,
-        { isMTG }
-      );
-
-      return res.json(packet);
-    }
-  );
-
-  app.get('/api/admin/community/all', isAuthenticatedWithJWT, async (req, res) => {
-    const { privilegeLevel } = getUserFromJWT(req);
-    if (privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(-1, 'User is not authorized to perform this action')
-      );
-
-    const packet = await retrieveAllCommunities();
-    return res.json(packet);
-  });
-
-  app.post('/api/admin/community/edit', isAuthenticatedWithJWT, async (req, res) => {
-    const { privilegeLevel } = getUserFromJWT(req);
-    if (privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(-1, 'User is not authorized to perform this action')
-      );
-
-    const { _id, name, description, adminID, type, isPrivate, isMTG } = req.body;
-    if (
-      !_id ||
-      !name ||
-      !description ||
-      !adminID ||
-      !type ||
-      isPrivate === null ||
-      isPrivate === undefined
-    )
-      return res.json(
-        sendPacket(
-          -1,
-          'name, description, adminID, type, or isPrivate missing from request body.'
-        )
-      );
-
-    const packet = await editCommunity(
-      _id,
-      name,
-      description,
-      adminID,
-      type,
-      isPrivate,
-      { isMTG }
-    );
-
-    return res.json(packet);
-  });
-
-  app.delete(
-    '/api/admin/community/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { privilegeLevel } = getUserFromJWT(req);
-      if (privilegeLevel < USER_LEVEL.ADMIN)
-        return res.json(
-          sendPacket(-1, 'User is not authorized to perform this action')
-        );
-
-      const { communityID } = req.params;
-      const packet = await deleteCommunity(communityID);
-      return res.json(packet);
-    }
-  );
-
-  app.delete(
-    '/api/community/:communityID',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const packet = await deleteCommunity(communityID);
-      return res.json(packet);
-    }
-  );
-
   app.post('/api/community/create', isAuthenticatedWithJWT, async (req, res) => {
     const { name, description, type, isPrivate } = req.body;
 

@@ -1,7 +1,6 @@
 import { getUserFromJWT, log } from '../helpers/functions';
-
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
-const {
+import {
   createThread,
   sendMessage,
   getLatestThreads,
@@ -9,7 +8,7 @@ const {
   updateLike,
   getLiked,
   connectSocketToConversations,
-} = require('../interactions/messaging');
+} from '../interactions/messaging';
 
 export default function messagingRoutes(app, io) {
   io.on('connection', (socket) => {

@@ -215,7 +215,7 @@ export async function sendMTGCommunications(
 
     if (mode === 'email') {
       interestedUsers.forEach((email) =>
-        sendEmail(email, `A Message From ${community.name}`, message)
+        sendEmail([email], `A Message From ${community.name}`, message)
       );
     } else {
       sendSMS(interestedUsers, `Message from ${community.name}`);
@@ -429,7 +429,7 @@ async function sendMTGEventEmails(
     const timestamp = convertEST(event.dateTime);
     recipients.forEach((recipient) => {
       sendEmail(
-        recipient.email,
+        [recipient.email],
         `Meet The Greek Event Invite From ${community.name}`,
         `
         <p>Hi ${recipient.firstName},</p>
