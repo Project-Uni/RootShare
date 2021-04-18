@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
+
 import { CircularProgress } from '@material-ui/core';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { updateSidebarComponents } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import RSText from '../../../base-components/RSText';
-
 import {
   WelcomeMessage,
   RSTabs,
@@ -15,15 +17,13 @@ import {
 } from '../../reusable-components';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
+import { PromotedEvents } from '../../reusable-components/components/PromotedEvents';
 
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
-import { useHistory } from 'react-router-dom';
 import { DefaultPromotedBanner } from '../../../images';
 import { getPosts } from '../../../api';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { PromotedEvents } from '../../reusable-components/components/PromotedEvents';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -131,7 +131,7 @@ export default function HomepageBody(props: Props) {
       <FeaturedEvent
         src={DefaultPromotedBanner}
         style={{ margin: 8 }}
-        href={undefined}
+        href={'/grand-prix'}
       />
       <PromotedEvents />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />
