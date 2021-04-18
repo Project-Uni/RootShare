@@ -1,8 +1,11 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
 import { Box } from '@material-ui/core';
-import Theme from '../../../theme/Theme';
+
 import { RSLink } from '..';
+
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -32,8 +35,9 @@ export const FeaturedEvent = (props: Props) => {
         <img
           src={src}
           style={{
+            display: 'block',
             width: '100%',
-            objectFit: 'contain',
+            objectFit: 'cover',
             borderRadius: 10,
           }}
         />

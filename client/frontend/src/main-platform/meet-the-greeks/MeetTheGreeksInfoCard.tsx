@@ -1,13 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
-import mtgBanner from '../../images/mtgBanner.png';
+import GrandPrixBanner from '../../images/grand-prix-banner.png';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     flex: 1,
     textAlign: 'left',
-    backgroundImage: `url(${mtgBanner})`,
+    backgroundImage: `url(${GrandPrixBanner})`,
     backgroundSize: '100% 100%',
   },
   button: {
@@ -36,7 +36,7 @@ function MeetTheGreeksInfoCard(props: Props) {
         style={{ textDecoration: 'none' }}
       >
         <img
-          src={mtgBanner}
+          src={GrandPrixBanner}
           style={{
             height: '10%',
             width: '100%',
