@@ -14,7 +14,7 @@ import LandingPage from './landing-page/redesign/LandingPage'; //NEW LANDING PAG
 import ForgotPasswordCard from './login/ForgotPasswordCard';
 
 import {
-  // MeetTheGreeks,
+  MeetTheGreeks,
   HomepageBody,
   ProfileBody,
   EventsBody,
@@ -117,13 +117,13 @@ const App = () => {
                   <AuthenticatedPage component={<ConnectionsBody />} />
                 )}
               />
-              {/* <Route
-              exact
-              path="/mtg"
-              render={(props) => (
-                <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
-              )}
-            /> */}
+              <Route
+                exact
+                path="/grand-prix"
+                render={(props) => (
+                  <AuthenticatedPage {...props} component={<MeetTheGreeks />} />
+                )}
+              />
               <Route
                 exact
                 path="/post/:postID"

@@ -413,12 +413,8 @@ function CommunityBodyContent(props: Props) {
             communityProfilePicture={props.communityProfilePicture}
           />
         )}
-        {props.flags.isMTGFlag && mtgEvent && (
-          <MTGEvent
-            event={mtgEvent}
-            dispatchSnackbar={dispatchSnackbar}
-            className={styles.mtgEvent}
-          />
+        {props.flags.scaleEventType && mtgEvent && (
+          <MTGEvent event={mtgEvent} className={styles.mtgEvent} />
         )}
         {posts.length > 0 ? posts : renderNoPosts()}
       </div>

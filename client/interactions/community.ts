@@ -41,7 +41,7 @@ export async function createNewCommunity(
   adminID: ObjectIdType,
   type: CommunityType,
   isPrivate: boolean,
-  additionalFlags: { isMTG?: boolean } = {},
+  additionalFlags: { scaleEventType?: string } = {},
   options: {} = {}
 ) {
   const userExists = await User.model.exists({ _id: adminID });
@@ -54,7 +54,7 @@ export async function createNewCommunity(
     private: isPrivate,
     admin: adminID,
     members: [adminID],
-    isMTGFlag: additionalFlags.isMTG || false,
+    scaleEventType: additionalFlags.scaleEventType,
   });
 
   try {
@@ -258,7 +258,7 @@ export async function getCommunityInformation(
         'profilePicture',
         'followedByCommunities',
         'incomingPendingCommunityFollowRequests',
-        'isMTGFlag',
+        'scaleEventType',
       ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({

@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { FaLock } from 'react-icons/fa';
+import { Menu, MenuItem } from '@material-ui/core';
 
 import { RSCard, RSTabsV2, RSButtonV2 } from '../../reusable-components';
 import ProfileBanner from '../../../base-components/ProfileBanner';
@@ -9,11 +10,13 @@ import { ProfilePicture, RSText } from '../../../base-components';
 import { CommunityTab } from './Community';
 import { FollowButton, RelationshipButton, InviteButton } from './buttons';
 import Tag from './Tag';
-import Theme from '../../../theme/Theme';
-import { Community, U2CR, CommunityType } from '../../../helpers/types';
 import { EditCommunityModal } from './EditCommunityModal';
 import PendingFollowRequestsModal from '../components/PendingFollowRequestsModal';
 import PendingMembersModal from '../components/PendingMembersModal';
+import { MeetTheGreeksModal, MTGMessageModal } from '../components/MeetTheGreeks';
+
+import Theme from '../../../theme/Theme';
+import { Community, U2CR, CommunityType } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -95,6 +98,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   editBtnContainer: {
     display: 'flex',
+    flexDirection: 'column',
     marginBottom: 30,
     marginRight: 10,
   },
@@ -102,6 +106,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     height: 35,
     width: 120,
+    marginTop: 3,
   },
   pendingText: {
     '&:hover': {
@@ -126,10 +131,13 @@ export const CommunityHead = (props: Props) => {
   const [membersModalOpen, setMembersModalOpen] = useState(false);
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
 
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [showMTGModal, setShowMTGModal] = useState(false);
+  const [showMTGMessageModal, setShowMTGMessageModal] = useState(false);
+
   const {
     _id: communityID,
     name,
-    description,
     bio,
     private: isPrivate,
     type,
@@ -137,6 +145,7 @@ export const CommunityHead = (props: Props) => {
     profilePicture,
     bannerPicture,
     relationship,
+    scaleEventType,
   } = communityInfo;
 
   const numMembers = members?.length || 0;
@@ -183,6 +192,70 @@ export const CommunityHead = (props: Props) => {
   function updateProfile(profile: string | undefined) {
     setStateProfile(profile);
   }
+
+  const scaleEventComponents = (
+    <>
+      <RSButtonV2
+        variant="universitySecondary"
+        className={styles.editButton}
+        onClick={(e: any) => setMenuAnchorEl(e.currentTarget)}
+        borderRadius={25}
+      >
+        <RSText size={10} bold={false}>
+          Grand Prix
+        </RSText>
+      </RSButtonV2>
+      <Menu
+        open={Boolean(menuAnchorEl)}
+        anchorEl={menuAnchorEl}
+        onClose={() => setMenuAnchorEl(null)}
+      >
+        <MenuItem
+          onClick={() => {
+            setShowMTGModal(true);
+            setMenuAnchorEl(null);
+          }}
+        >
+          Grand Prix
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowMTGMessageModal(true);
+            setMenuAnchorEl(null);
+          }}
+        >
+          Messaging
+        </MenuItem>
+        {/* <MenuItem
+          onClick={async () => {
+            setShowInterestedUsersModal(true);
+            setMenuAnchorEl(null);
+          }}
+        >
+          Interested Users
+        </MenuItem> */}
+      </Menu>
+
+      <MeetTheGreeksModal
+        open={showMTGModal}
+        onClose={() => setShowMTGModal(false)}
+        communityName={name}
+        communityID={communityID}
+      />
+      <MTGMessageModal
+        open={showMTGMessageModal}
+        communityName={name}
+        communityID={communityID}
+        onClose={() => setShowMTGMessageModal(false)}
+      />
+      {/* <MTGInterestedUsersModal
+        open={showInterestedUsersModal}
+        onClose={() => setShowInterestedUsersModal(false)}
+        communityName={name}
+        communityID={communityID}
+      /> */}
+    </>
+  );
 
   const renderCenter = () => {
     return (
@@ -252,6 +325,7 @@ export const CommunityHead = (props: Props) => {
               </RSText>
             </RSButtonV2>
           )}
+          {relationship == U2CR.ADMIN && scaleEventType && scaleEventComponents}
         </div>
         <div className={styles.btnContainer}>
           <RSText size={11}>{`${numMembers} ${

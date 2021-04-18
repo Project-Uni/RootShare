@@ -13,7 +13,14 @@ export default function adminCommunityRoutes(app) {
     isAuthenticatedWithJWT,
     isRootshareAdmin,
     async (req, res) => {
-      const { name, description, adminID, type, isPrivate, isMTG } = req.body;
+      const {
+        name,
+        description,
+        adminID,
+        type,
+        isPrivate,
+        scaleEventType,
+      } = req.body;
       if (
         !name ||
         !description ||
@@ -35,7 +42,7 @@ export default function adminCommunityRoutes(app) {
         adminID,
         type,
         isPrivate,
-        { isMTG }
+        { scaleEventType }
       );
 
       return res.json(packet);
@@ -57,7 +64,15 @@ export default function adminCommunityRoutes(app) {
     isAuthenticatedWithJWT,
     isRootshareAdmin,
     async (req, res) => {
-      const { _id, name, description, adminID, type, isPrivate, isMTG } = req.body;
+      const {
+        _id,
+        name,
+        description,
+        adminID,
+        type,
+        isPrivate,
+        scaleEventType,
+      } = req.body;
       if (
         !_id ||
         !name ||
@@ -81,7 +96,7 @@ export default function adminCommunityRoutes(app) {
         adminID,
         type,
         isPrivate,
-        { isMTG }
+        { scaleEventType }
       );
 
       return res.json(packet);

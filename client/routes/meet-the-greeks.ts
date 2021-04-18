@@ -10,7 +10,7 @@ import {
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 import {
-  createMTGEvent,
+  createScaleEvent,
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
@@ -32,20 +32,21 @@ import {
 
 export default function meetTheGreekRoutes(app) {
   app.get(
-    '/api/mtg/events',
+    '/api/mtg/events/:scaleEventType',
     isAuthenticatedWithJWT,
     async (req: Request, res: Response) => {
-      const packet = await getMTGEvents();
+      const { scaleEventType } = req.params;
+      const packet = await getMTGEvents(scaleEventType);
       return res.json(packet);
     }
   );
 
   app.get(
-    '/api/mtg/event/:communityID',
+    '/api/mtg/event/:communityID/:scaleEventType',
     isAuthenticatedWithJWT,
     async (req, res) => {
-      const { communityID } = req.params;
-      const packet = await retrieveMTGEventInfo(communityID);
+      const { communityID, scaleEventType } = req.params;
+      const packet = await retrieveMTGEventInfo(communityID, scaleEventType);
       return res.json(packet);
     }
   );
@@ -105,11 +106,11 @@ export default function meetTheGreekRoutes(app) {
   );
 
   app.post(
-    '/api/mtg/update/:communityID',
+    '/api/mtg/update/:communityID/:scaleEventType',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req: Request, res: Response) => {
-      const { communityID } = req.params;
+      const { communityID, scaleEventType } = req.params;
       const { introVideoURL, eventTime, description, speakers } = req.body;
       if (
         // !introVideoURL ||
@@ -130,12 +131,13 @@ export default function meetTheGreekRoutes(app) {
           )
         );
 
-      const packet = await createMTGEvent(
+      const packet = await createScaleEvent(
         ObjectIdVal(communityID),
         description,
-        // eventTime,
         speakers,
+        scaleEventType,
         introVideoURL
+        // eventTime,
       );
       return res.json(packet);
     }
@@ -157,15 +159,15 @@ export default function meetTheGreekRoutes(app) {
   );
 
   app.put(
-    '/api/mtg/banner/:communityID',
+    '/api/mtg/banner/:communityID/:scaleEventType',
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
-      const { communityID } = req.params;
+      const { communityID, scaleEventType } = req.params;
       const { image } = req.body;
       if (!image) return res.json(sendPacket(0, invalidInputsMessage(['image'])));
 
-      const packet = await uploadMTGBanner(communityID, image);
+      const packet = await uploadMTGBanner(communityID, image, scaleEventType);
       return res.json(packet);
     }
   );

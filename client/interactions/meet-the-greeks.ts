@@ -26,10 +26,11 @@ import { addProfilePicturesAll } from './utilities';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export async function createMTGEvent(
+export async function createScaleEvent(
   communityID: ObjectIdType,
   description: string,
   speakers: ObjectIdType[],
+  scaleEventType: string,
   introVideoURL?: string
   // eventTime: string,
 ) {
@@ -39,7 +40,7 @@ export async function createMTGEvent(
     let event = await Webinar.model
       .findOne({
         hostCommunity: communityID,
-        isMTG: true,
+        scaleEventType,
       })
       .exec();
 
@@ -71,7 +72,7 @@ export async function createMTGEvent(
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
-          isMTG: true,
+          scaleEventType,
           isDev: process.env.NODE_ENV === 'dev',
         }).save();
       }
@@ -104,7 +105,11 @@ export async function createMTGEvent(
   }
 }
 
-export async function uploadMTGBanner(communityID: ObjectIdType, image: string) {
+export async function uploadMTGBanner(
+  communityID: ObjectIdType,
+  image: string,
+  scaleEventType: string
+) {
   try {
     const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
     if (!imageBuffer.data) return -1;
@@ -121,7 +126,7 @@ export async function uploadMTGBanner(communityID: ObjectIdType, image: string) 
 
     await Webinar.model
       .updateOne(
-        { hostCommunity: communityID, isMTG: true },
+        { hostCommunity: communityID, scaleEventType },
         { eventBanner: fileName }
       )
       .sort({
@@ -136,10 +141,13 @@ export async function uploadMTGBanner(communityID: ObjectIdType, image: string) 
   }
 }
 
-export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
+export async function retrieveMTGEventInfo(
+  communityID: ObjectIdType,
+  scaleEventType: string
+) {
   try {
     const mtgEvent = await Webinar.model
-      .findOne({ hostCommunity: communityID, isMTG: true }, [
+      .findOne({ hostCommunity: communityID, scaleEventType }, [
         'title',
         'full_description',
         'introVideoURL',
@@ -158,7 +166,7 @@ export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
     if (!mtgEvent)
       return sendPacket(
         0,
-        'Could not find corresponding mtg event. Most likely doesnt exist'
+        `Could not find corresponding scale event. Most likely doesn't exist`
       );
 
     const { speakers } = mtgEvent;
@@ -171,7 +179,7 @@ export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
     });
     delete cleanedData.full_description;
 
-    return sendPacket(1, 'Successfully retrieved MTG event information', {
+    return sendPacket(1, 'Successfully retrieved scale event information', {
       mtgEvent: cleanedData,
     });
   } catch (err) {
@@ -312,9 +320,9 @@ export async function updateInterestAnswers(
     return sendPacket(-1, err.message);
   }
 }
-export async function getMTGEvents() {
+export async function getMTGEvents(scaleEventType: string) {
   const condition = Object.assign(
-    { isMTG: true },
+    { scaleEventType },
     process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } }
   );
 
@@ -421,22 +429,34 @@ async function sendMTGEventEmails(
 ) {
   try {
     const community = await Community.model
-      .findById(event.hostCommunity, 'name')
+      .findById(event.hostCommunity, ['name', 'scaleEventType'])
       .exec();
     const timestamp = convertEST(event.dateTime);
+    const scaleEventType = community.scaleEventType;
+    let eventName = '';
+    switch (scaleEventType) {
+      case 'mtg': {
+        eventName = 'Meet The Greek ';
+        break;
+      }
+      case 'grand-prix': {
+        eventName = 'Grand Prix ';
+        break;
+      }
+    }
     recipients.forEach((recipient) => {
       sendEmail(
         [recipient.email],
-        `Meet The Greek Event Invite From ${community.name}`,
+        `${eventName}Event Invite From ${community.name}`,
         `
         <p>Hi ${recipient.firstName},</p>
         <p></p>
-        <p>You have been invited by <strong>${community.name}</strong> to speak at their Meet The Greek event on <strong>${timestamp} EST</strong>.</p>
+        <p>You have been invited by <strong>${community.name}</strong> to speak at their ${eventName}event on <strong>${timestamp} EST</strong>.</p>
         <p></p>
         <p>You can access the event by visiting:</p>
         <p><a href="https://rootshare.io/event/${event._id}" target="_blank">https://rootshare.io/event/${event._id}</a></p>
         <p></p>
-        <p>Thanks for using RootShare, and good luck with recruitment!</p>
+        <p>Thanks for using RootShare, and have a great event!</p>
         <p>- The RootShare team.</p>
         `
       );

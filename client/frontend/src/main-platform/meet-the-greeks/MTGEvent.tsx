@@ -1,19 +1,24 @@
 import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import { CircularProgress, Box, Slide, Avatar, Collapse } from '@material-ui/core';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../redux/actions';
+
+import { CircularProgress, Box, Slide, Avatar, Collapse } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
-import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
+
 import { RSButton } from '../reusable-components';
 import { InterestedButton } from '../community/components/MeetTheGreeks';
 
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -57,11 +62,11 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   className?: string;
   event: Event;
-  dispatchSnackbar: (mode: 'success' | 'notify' | 'error', message: string) => void;
 };
 
 const MTGEvent = (props: Props) => {
   const styles = useStyles();
+  const dispatch = useDispatch();
 
   const {
     className,
@@ -71,7 +76,6 @@ const MTGEvent = (props: Props) => {
       eventBanner,
       community: { _id: communityID, name: communityName, profilePicture },
     },
-    dispatchSnackbar,
   } = props;
 
   const [showVideo, setShowVideo] = useState(false);
@@ -163,7 +167,12 @@ const MTGEvent = (props: Props) => {
                 onError={() => {
                   setVideoLoading(false);
                   setShowVideo(false);
-                  dispatchSnackbar('error', 'There was an error loading the video');
+                  dispatch(
+                    dispatchSnackbar({
+                      mode: 'error',
+                      message: 'There was an error loading the video',
+                    })
+                  );
                 }}
               />
             </div>
@@ -274,10 +283,10 @@ const DesktopMTGEventContent = (props: ContentProps) => {
               </RSButton>
             )}
           </div>
-          <InterestedButton
+          {/* <InterestedButton
             className={styles.interestedButton}
             communityID={communityID}
-          />
+          /> */}
         </div>
       </div>
     </>

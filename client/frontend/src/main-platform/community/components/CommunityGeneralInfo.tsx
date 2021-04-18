@@ -133,7 +133,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 type CommunityFlags = {
-  isMTGFlag: boolean;
+  scaleEventType?: string;
 };
 
 type Props = {
@@ -148,7 +148,7 @@ type Props = {
   type: CommunityType;
   private?: boolean;
   isAdmin?: boolean;
-  isMTG?: boolean;
+  scaleEventType?: string;
 
   updateCommunityStatus: (newStatus: UserToCommunityRelationship) => any;
   flags: CommunityFlags;
@@ -319,7 +319,7 @@ function CommunityGeneralInfo(props: Props) {
             {props.isAdmin ? 'Admin' : 'Member'}
           </Button>
           {props.isAdmin ? (
-            props.flags.isMTGFlag && (
+            props.flags.scaleEventType && (
               <Menu
                 open={Boolean(menuAnchorEl)}
                 anchorEl={menuAnchorEl}
@@ -383,7 +383,7 @@ function CommunityGeneralInfo(props: Props) {
             }}
             updatePendingCount={updateFollowRequestCount}
           />
-          {props.flags.isMTGFlag && (
+          {props.flags.scaleEventType && (
             <>
               <MeetTheGreeksModal
                 open={showMTGModal}
@@ -510,7 +510,7 @@ function CommunityGeneralInfo(props: Props) {
         <div className={styles.buttonContainer}>
           {renderStatusButton()}
           <FollowButton communityID={props.communityID} name={props.name} />
-          {props.flags.isMTGFlag && !props.isAdmin && (
+          {props.flags.scaleEventType && !props.isAdmin && (
             <InterestedButton communityID={props.communityID} />
           )}
         </div>

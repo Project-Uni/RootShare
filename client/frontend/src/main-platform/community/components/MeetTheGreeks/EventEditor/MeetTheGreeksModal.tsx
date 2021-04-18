@@ -135,7 +135,7 @@ function MeetTheGreeksModal(props: Props) {
   const fetchCurrentEventInformation = useCallback(async () => {
     const { data } = await makeRequest<EventInformationServiceResponse>(
       'GET',
-      `/api/mtg/event/${props.communityID}`
+      `/api/mtg/event/${props.communityID}/grand-prix`
     );
     if (data.success === 1) {
       const { mtgEvent } = data.content;
@@ -240,7 +240,7 @@ function MeetTheGreeksModal(props: Props) {
     }
     const { data } = await makeRequest(
       'POST',
-      `/api/mtg/update/${props.communityID}`,
+      `/api/mtg/update/${props.communityID}/grand-prix`,
       {
         description: formFields.description,
         introVideoURL: formFields.introVideoURL,
@@ -270,7 +270,7 @@ function MeetTheGreeksModal(props: Props) {
 
     const { data } = await makeRequest(
       'PUT',
-      `/api/mtg/banner/${props.communityID}`,
+      `/api/mtg/banner/${props.communityID}/grand-prix`,
       { image: imageSrc }
     );
     if (data.success === 1) {
@@ -287,19 +287,17 @@ function MeetTheGreeksModal(props: Props) {
   return (
     <>
       <ManageSpeakersSnackbar
-        message={'Successfully updated Meet The Greeks event'}
+        message={'Successfully updated Grand Prix event'}
         transition={transition}
         mode={snackbarMode}
         handleClose={() => setSnackbarMode(null)}
       />
       <RSModal
         open={props.open}
-        title={`Meet The Greeks - ${props.communityName}`}
+        title={`Grand Prix - ${props.communityName}`}
         onClose={onClose}
         className={styles.modal}
-        helperText={
-          "Create or Edit your Fraternity's information for Meet the Greeks"
-        }
+        helperText={"Create or Edit your Community's information for Grand Prix"}
         helperIcon={<BsPeopleFill size={90} />}
         serverErr={serverErr}
       >

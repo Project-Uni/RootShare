@@ -76,7 +76,10 @@ function MeetTheGreeks(props: Props) {
   }, []);
 
   const fetchEvents = async () => {
-    const { data } = await makeRequest<ServiceResponse>('GET', '/api/mtg/events');
+    const { data } = await makeRequest<ServiceResponse>(
+      'GET',
+      `/api/mtg/events/grand-prix`
+    );
     if (data.success === 1) {
       setEvents(data.content.events);
     } else {
@@ -106,7 +109,6 @@ function MeetTheGreeks(props: Props) {
               key={`mtgEvent_${event._id}`}
               event={event}
               className={styles.mtgEvent}
-              dispatchSnackbar={dispatchSnackbar}
             />
           ))}
         </>

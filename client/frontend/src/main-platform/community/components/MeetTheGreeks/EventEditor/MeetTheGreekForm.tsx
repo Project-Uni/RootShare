@@ -132,7 +132,7 @@ function MeetTheGreekForm(props: Props) {
         </MuiPickersUtilsProvider>
       </FormHelperText> */}
       <RSText type="body" bold size={12} className={styles.fieldLabel}>
-        Meet The Greeks Speakers
+        Event Speakers
       </RSText>
       <SearchField
         label="Speakers"
