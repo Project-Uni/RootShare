@@ -89,7 +89,6 @@ type Props = {
   updateProfile: (profile: string | undefined) => any;
   profilePicture?: string;
   banner?: string;
-  editable: boolean;
   name: string;
   bio: string;
   private: boolean;
@@ -271,7 +270,7 @@ export const EditCommunityModal = (props: Props) => {
       >
         <ProfileBanner
           height={225}
-          editable={props.editable}
+          editable
           type={'community'}
           _id={communityID}
           currentPicture={communityBanner}
@@ -288,7 +287,7 @@ export const EditCommunityModal = (props: Props) => {
           }}
         >
           <ProfilePicture
-            editable={props.editable}
+            editable
             zoomOnClick
             type="community"
             height={150}

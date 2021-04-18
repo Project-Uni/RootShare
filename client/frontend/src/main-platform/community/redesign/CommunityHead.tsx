@@ -13,7 +13,11 @@ import Tag from './Tag';
 import { EditCommunityModal } from './EditCommunityModal';
 import PendingFollowRequestsModal from '../components/PendingFollowRequestsModal';
 import PendingMembersModal from '../components/PendingMembersModal';
-import { MeetTheGreeksModal, MTGMessageModal } from '../components/MeetTheGreeks';
+import {
+  MeetTheGreeksModal,
+  InterestedButton,
+  MTGInterestedUsersModal,
+} from '../components/MeetTheGreeks';
 
 import Theme from '../../../theme/Theme';
 import { Community, U2CR, CommunityType } from '../../../helpers/types';
@@ -133,7 +137,7 @@ export const CommunityHead = (props: Props) => {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [showMTGModal, setShowMTGModal] = useState(false);
-  const [showMTGMessageModal, setShowMTGMessageModal] = useState(false);
+  const [showInterestedUsersModal, setShowInterestedUsersModal] = useState(false);
 
   const {
     _id: communityID,
@@ -158,6 +162,7 @@ export const CommunityHead = (props: Props) => {
   const [stateProfile, setStateProfile] = useState<string | undefined>(
     profilePicture
   );
+  const [showEditCommunityModal, setShowEditCommunityModal] = useState(false);
 
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -193,69 +198,58 @@ export const CommunityHead = (props: Props) => {
     setStateProfile(profile);
   }
 
-  const scaleEventComponents = (
-    <>
-      <RSButtonV2
-        variant="universitySecondary"
-        className={styles.editButton}
-        onClick={(e: any) => setMenuAnchorEl(e.currentTarget)}
-        borderRadius={25}
-      >
-        <RSText size={10} bold={false}>
-          Grand Prix
-        </RSText>
-      </RSButtonV2>
-      <Menu
-        open={Boolean(menuAnchorEl)}
-        anchorEl={menuAnchorEl}
-        onClose={() => setMenuAnchorEl(null)}
-      >
-        <MenuItem
-          onClick={() => {
-            setShowMTGModal(true);
-            setMenuAnchorEl(null);
-          }}
+  const scaleEventComponents =
+    relationship !== U2CR.ADMIN ? (
+      <InterestedButton communityID={communityID} />
+    ) : (
+      <>
+        <RSButtonV2
+          variant="universitySecondary"
+          className={styles.editButton}
+          onClick={(e: any) => setMenuAnchorEl(e.currentTarget)}
+          borderRadius={25}
         >
-          Grand Prix
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            setShowMTGMessageModal(true);
-            setMenuAnchorEl(null);
-          }}
+          <RSText size={10} bold={false}>
+            Grand Prix
+          </RSText>
+        </RSButtonV2>
+        <Menu
+          open={Boolean(menuAnchorEl)}
+          anchorEl={menuAnchorEl}
+          onClose={() => setMenuAnchorEl(null)}
         >
-          Messaging
-        </MenuItem>
-        {/* <MenuItem
-          onClick={async () => {
-            setShowInterestedUsersModal(true);
-            setMenuAnchorEl(null);
-          }}
-        >
-          Interested Users
-        </MenuItem> */}
-      </Menu>
+          <MenuItem
+            onClick={() => {
+              setShowMTGModal(true);
+              setMenuAnchorEl(null);
+            }}
+          >
+            Grand Prix Event
+          </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              setShowInterestedUsersModal(true);
+              setMenuAnchorEl(null);
+            }}
+          >
+            Interested Users
+          </MenuItem>
+        </Menu>
 
-      <MeetTheGreeksModal
-        open={showMTGModal}
-        onClose={() => setShowMTGModal(false)}
-        communityName={name}
-        communityID={communityID}
-      />
-      <MTGMessageModal
-        open={showMTGMessageModal}
-        communityName={name}
-        communityID={communityID}
-        onClose={() => setShowMTGMessageModal(false)}
-      />
-      {/* <MTGInterestedUsersModal
-        open={showInterestedUsersModal}
-        onClose={() => setShowInterestedUsersModal(false)}
-        communityName={name}
-        communityID={communityID}
-      /> */}
-    </>
-  );
+        <MeetTheGreeksModal
+          open={showMTGModal}
+          onClose={() => setShowMTGModal(false)}
+          communityName={name}
+          communityID={communityID}
+        />
+        <MTGInterestedUsersModal
+          open={showInterestedUsersModal}
+          onClose={() => setShowInterestedUsersModal(false)}
+          communityName={name}
+          communityID={communityID}
+        />
+      </>
+    );
 
   const renderCenter = () => {
     return (
@@ -313,19 +307,17 @@ export const CommunityHead = (props: Props) => {
     return (
       <div className={styles.right}>
         <div className={styles.editBtnContainer}>
-          {relationship == U2CR.ADMIN && (
+          {relationship === U2CR.ADMIN && (
             <RSButtonV2
               variant="universitySecondary"
               className={styles.editButton}
               onClick={() => setShowEditCommunityModal(true)}
               borderRadius={25}
             >
-              <RSText size={10} bold={false}>
-                Edit Profile
-              </RSText>
+              <RSText size={10}>Edit Profile</RSText>
             </RSButtonV2>
           )}
-          {relationship == U2CR.ADMIN && scaleEventType && scaleEventComponents}
+          {scaleEventType && scaleEventComponents}
         </div>
         <div className={styles.btnContainer}>
           <RSText size={11}>{`${numMembers} ${
@@ -366,11 +358,9 @@ export const CommunityHead = (props: Props) => {
     );
   };
 
-  const [showEditCommunityModal, setShowEditCommunityModal] = useState(false);
-
   return (
     <div>
-      {relationship == U2CR.ADMIN ? (
+      {relationship === U2CR.ADMIN ? (
         <EditCommunityModal
           communityID={communityID}
           name={stateName}
@@ -385,7 +375,6 @@ export const CommunityHead = (props: Props) => {
           updateType={updateType}
           updateBanner={updateBanner}
           updateProfile={updateProfile}
-          editable={relationship === 'admin'}
           banner={bannerPicture}
           profilePicture={profilePicture}
         />
