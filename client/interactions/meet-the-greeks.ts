@@ -48,7 +48,7 @@ export async function createScaleEvent(
       if (event) {
         //Edit Mode
         event.full_description = description;
-        // event.introVideoURL = introVideoURL;
+        event.introVideoURL = introVideoURL;
         // event.dateTime = eventTime;
         event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
         event.speakers = speakers;

@@ -132,7 +132,7 @@ const MTGEvent = (props: Props) => {
             size={isDesktop.current ? 14 : 12}
             type="head"
             bold
-          >{`Meet The Greeks - ${communityName}`}</RSText>
+          >{`Grand Prix - ${communityName}`}</RSText>
         </a>
       </div>
       <div

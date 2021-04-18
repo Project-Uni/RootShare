@@ -93,7 +93,7 @@ function MeetTheGreekForm(props: Props) {
         error={formErrors.description !== ''}
       />
 
-      <RSText type="body" bold size={12} className={styles.fieldLabel}>
+      {/* <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Introduction Video YouTube URL
       </RSText>
       <TextField
@@ -107,7 +107,7 @@ function MeetTheGreekForm(props: Props) {
         autoComplete="off"
         helperText={formErrors.introVideoURL}
         error={formErrors.introVideoURL !== ''}
-      />
+      /> */}
 
       {/* <RSText type="body" bold size={12} className={styles.fieldLabel}>
         Event Date & Time

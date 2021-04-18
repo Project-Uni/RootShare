@@ -35,7 +35,7 @@ type Props = {
 
 export type IFormData = {
   description: string;
-  introVideoURL: string;
+  // introVideoURL: string;
   eventTime: any;
   speakers: SearchOption[];
 };
@@ -76,7 +76,7 @@ const defaultDate = new Date('01/17/2021 @ 4:00 PM');
 
 const defaultFormData: IFormData = {
   description: '',
-  introVideoURL: '',
+  // introVideoURL: '',
   eventTime: defaultDate,
   speakers: [],
 };
@@ -141,7 +141,7 @@ function MeetTheGreeksModal(props: Props) {
       const { mtgEvent } = data.content;
       const fieldUpdateArgs: { key: keyof IFormData; value: any }[] = [
         { key: 'description', value: mtgEvent.description },
-        { key: 'introVideoURL', value: mtgEvent.introVideoURL },
+        // { key: 'introVideoURL', value: mtgEvent.introVideoURL },
         {
           key: 'speakers',
           value: mtgEvent.speakers.map((speaker) => ({
@@ -197,21 +197,21 @@ function MeetTheGreeksModal(props: Props) {
       });
     }
 
-    if (
-      formFields.introVideoURL.trim().length !== 0 &&
-      !formFields.introVideoURL.startsWith('https://')
-    ) {
-      hasErr = true;
-      errUpdates.push({
-        key: 'introVideoURL',
-        value: 'Please enter a valid YouTube URL',
-      });
-    } else {
-      errUpdates.push({
-        key: 'introVideoURL',
-        value: '',
-      });
-    }
+    // if (
+    //   formFields.introVideoURL.trim().length !== 0 &&
+    //   !formFields.introVideoURL.startsWith('https://')
+    // ) {
+    //   hasErr = true;
+    //   errUpdates.push({
+    //     key: 'introVideoURL',
+    //     value: 'Please enter a valid YouTube URL',
+    //   });
+    // } else {
+    //   errUpdates.push({
+    //     key: 'introVideoURL',
+    //     value: '',
+    //   });
+    // }
 
     if (formFields.speakers.length === 0 || formFields.speakers.length > 4) {
       hasErr = true;
@@ -243,7 +243,7 @@ function MeetTheGreeksModal(props: Props) {
       `/api/mtg/update/${props.communityID}/grand-prix`,
       {
         description: formFields.description,
-        introVideoURL: formFields.introVideoURL,
+        // introVideoURL: formFields.introVideoURL,
         eventTime: formFields.eventTime,
         speakers: formFields.speakers.map((speaker) => speaker._id),
       }
@@ -258,7 +258,6 @@ function MeetTheGreeksModal(props: Props) {
   }, [formFields]);
 
   const onUploadBanner = useCallback(async () => {
-    setApiLoading(true);
     //Handling case where user is sticking with the existing image
     if (imageSrc?.startsWith('https://')) {
       setTransition(() => slideLeft);
@@ -268,6 +267,7 @@ function MeetTheGreeksModal(props: Props) {
       return;
     }
 
+    setApiLoading(true);
     const { data } = await makeRequest(
       'PUT',
       `/api/mtg/banner/${props.communityID}/grand-prix`,
