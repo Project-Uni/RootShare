@@ -39,7 +39,7 @@ export default function adminMiscRoutes(app) {
   );
 
   app.put(
-    '/api/admin/massSMS',
+    '/api/admin/sms',
     isAuthenticatedWithJWT,
     isRootshareAdmin,
     async (req, res) => {
