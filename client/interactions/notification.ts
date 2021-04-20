@@ -193,33 +193,38 @@ export default class NotificationService {
     forUserID: ObjectIdType;
     isHost?: boolean;
   }) => {
-    let communityPromise: Query<ICommunity, ICommunity>;
-    if (communityID)
-      communityPromise = Community.model.findById(communityID, 'name');
+    try {
+      let communityPromise: Query<ICommunity, ICommunity>;
+      if (communityID)
+        communityPromise = Community.model.findById(communityID, 'name');
 
-    let eventPromise: Query<IWebinar, IWebinar>;
-    if (eventID) eventPromise = Webinar.model.findById(eventID, 'title');
+      let eventPromise: Query<IWebinar, IWebinar>;
+      if (eventID) eventPromise = Webinar.model.findById(eventID, 'title');
 
-    const [community, eventFromPromise] = await Promise.all([
-      communityPromise,
-      eventPromise,
-    ]);
+      const [community, eventFromPromise] = await Promise.all([
+        communityPromise,
+        eventPromise,
+      ]);
 
-    const eventToUse = eventFromPromise || event;
+      const eventToUse = eventFromPromise || event;
 
-    const message = `You have been invited ${
-      communityID ? `by ${community.name} ` : ''
-    }to ${isHost ? 'host' : 'speak at'} an event.`;
+      const message = `You have been invited ${
+        communityID ? `by ${community.name} ` : ''
+      }to ${isHost ? 'host' : 'speak at'} an event.`;
 
-    Notifications.create({
-      variant: 'event-speaker-invite',
-      forUser: forUserID,
-      relatedItemType: 'event',
-      relatedItemId: eventToUse._id,
-      actionProviderType: community ? 'community' : 'rootshare',
-      actionProviderId: community ? communityID : 'rootshare',
-      message,
-    });
+      return Notifications.create({
+        variant: 'event-speaker-invite',
+        forUser: forUserID,
+        relatedItemType: 'event',
+        relatedItemId: eventToUse._id,
+        actionProviderType: community ? 'community' : 'rootshare',
+        actionProviderId: community ? communityID : 'rootshare',
+        message,
+      });
+    } catch (err) {
+      log('error', err.message);
+      return false;
+    }
   };
 
   rootshareMessage = async ({}: {}) => {};
