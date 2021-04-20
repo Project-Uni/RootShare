@@ -7,7 +7,6 @@ import { updateSidebarComponents } from '../../redux/actions';
 import { CircularProgress } from '@material-ui/core';
 
 import MTGEvent from './MTGEvent';
-import ManageSpeakersSnackbar from '../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreeksInfoCard from './MeetTheGreeksInfoCard';
 
 import { makeRequest, slideLeft } from '../../helpers/functions';
@@ -45,7 +44,7 @@ export type Event = {
     name: string;
     profilePicture?: string;
   };
-  eventBanner: string;
+  eventImage: string;
 };
 
 type ServiceResponse = {
@@ -60,11 +59,6 @@ function MeetTheGreeks(props: Props) {
 
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
-  const [transition, setTransition] = useState<any>(() => slideLeft);
-  const [snackbarMode, setSnackbarMode] = useState<
-    'notify' | 'success' | 'error' | null
-  >(null);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     dispatch(
@@ -76,9 +70,11 @@ function MeetTheGreeks(props: Props) {
   }, []);
 
   const fetchEvents = async () => {
+    // Let's just leave this unabstracted for now. I don't see us expanding on this
+    // much in the future
     const { data } = await makeRequest<ServiceResponse>(
       'GET',
-      `/api/mtg/events/grand-prix`
+      `/api/mtg/events?scaleEventType=grand-prix`
     );
     if (data.success === 1) {
       setEvents(data.content.events);
@@ -86,19 +82,8 @@ function MeetTheGreeks(props: Props) {
     }
   };
 
-  const dispatchSnackbar = (mode: typeof snackbarMode, message: string) => {
-    setSnackbarMessage(message);
-    setSnackbarMode(mode);
-  };
-
   return (
     <div className={styles.wrapper}>
-      <ManageSpeakersSnackbar
-        message={snackbarMessage}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={() => setSnackbarMode(null)}
-      />
       <MeetTheGreeksInfoCard className={styles.header} />
       {loading ? (
         <CircularProgress size={100} className={styles.loadingIndicator} />

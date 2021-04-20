@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
 import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
-import { useForm } from '../../../../../helpers/hooks';
-
-import theme from '../../../../../theme/Theme';
-
-import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 import { RSModal } from '../../../../reusable-components';
-import { SearchOption } from '../../../../reusable-components/components/SearchField';
-
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
+
+import { getScaleEventInformation } from '../../../../../api';
+import { SearchOption } from '../../../../reusable-components/components/SearchField';
+import { useForm } from '../../../../../helpers/hooks';
+import theme from '../../../../../theme/Theme';
+import { makeRequest, slideLeft } from '../../../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -68,7 +68,7 @@ export type EventInformationServiceResponse = {
     speakers: Member[];
     host: string;
     dateTime: any;
-    eventBanner: string;
+    eventImage: string;
   };
 };
 
@@ -133,10 +133,7 @@ function MeetTheGreeksModal(props: Props) {
   }, []);
 
   const fetchCurrentEventInformation = useCallback(async () => {
-    const { data } = await makeRequest<EventInformationServiceResponse>(
-      'GET',
-      `/api/mtg/event/${props.communityID}/grand-prix`
-    );
+    const data = await getScaleEventInformation(props.communityID, 'grand-prix');
     if (data.success === 1) {
       const { mtgEvent } = data.content;
       const fieldUpdateArgs: { key: keyof IFormData; value: any }[] = [
@@ -154,7 +151,7 @@ function MeetTheGreeksModal(props: Props) {
         { key: 'eventTime', value: mtgEvent.dateTime },
       ];
       updateFields(fieldUpdateArgs);
-      setImageSrc(mtgEvent.eventBanner);
+      setImageSrc(mtgEvent.eventImage);
     }
   }, []);
 
@@ -240,12 +237,13 @@ function MeetTheGreeksModal(props: Props) {
     }
     const { data } = await makeRequest(
       'POST',
-      `/api/mtg/update/${props.communityID}/grand-prix`,
+      `/api/mtg/update/${props.communityID}`,
       {
         description: formFields.description,
         // introVideoURL: formFields.introVideoURL,
         eventTime: formFields.eventTime,
         speakers: formFields.speakers.map((speaker) => speaker._id),
+        scaleEventType: 'grand-prix',
       }
     );
     if (data.success === 1) {
@@ -270,7 +268,7 @@ function MeetTheGreeksModal(props: Props) {
     setApiLoading(true);
     const { data } = await makeRequest(
       'PUT',
-      `/api/mtg/banner/${props.communityID}/grand-prix`,
+      `/api/mtg/banner/${props.communityID}?scaleEventType=grand-prix`,
       { image: imageSrc }
     );
     if (data.success === 1) {

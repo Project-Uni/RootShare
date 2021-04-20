@@ -154,7 +154,7 @@ export const CommunityFeed = (props: Props) => {
   };
 
   const fetchMTGEventInformation = useCallback(async () => {
-    const data = await getScaleEventInformation(communityID);
+    const data = await getScaleEventInformation(communityID, 'grand-prix');
     if (data.success === 1) {
       const { mtgEvent: mtgEvent_raw } = data.content;
 
@@ -163,7 +163,7 @@ export const CommunityFeed = (props: Props) => {
         description: mtgEvent_raw.description,
         introVideoURL: mtgEvent_raw.introVideoURL,
         dateTime: mtgEvent_raw.dateTime,
-        eventBanner: mtgEvent_raw.eventBanner,
+        eventImage: mtgEvent_raw.eventImage,
         community: {
           _id: communityID,
           profilePicture: props.communityProfilePicture,

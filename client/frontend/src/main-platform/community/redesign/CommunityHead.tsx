@@ -198,7 +198,7 @@ export const CommunityHead = (props: Props) => {
     setStateProfile(profile);
   }
 
-  const scaleEventComponents =
+  const scaleEventComponents = () =>
     relationship !== U2CR.ADMIN ? (
       <InterestedButton communityID={communityID} />
     ) : (
@@ -317,7 +317,7 @@ export const CommunityHead = (props: Props) => {
               <RSText size={10}>Edit Profile</RSText>
             </RSButtonV2>
           )}
-          {scaleEventType && scaleEventComponents}
+          {scaleEventType && scaleEventComponents()}
         </div>
         <div className={styles.btnContainer}>
           <RSText size={11}>{`${numMembers} ${

@@ -22,7 +22,7 @@ import { PromotedEvents } from '../../reusable-components/components/PromotedEve
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
-import { DefaultPromotedBanner } from '../../../images';
+import { DefaultPromotedBanner, GrandPrixPromotionBanner } from '../../../images';
 import { getPosts } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
@@ -129,7 +129,7 @@ export default function HomepageBody(props: Props) {
         />
       </Box> */}
       <FeaturedEvent
-        src={DefaultPromotedBanner}
+        src={GrandPrixPromotionBanner}
         style={{ margin: 8 }}
         href={'/grand-prix'}
       />

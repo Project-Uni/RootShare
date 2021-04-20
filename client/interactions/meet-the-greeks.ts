@@ -50,7 +50,7 @@ export async function createScaleEvent(
         event.full_description = description;
         event.introVideoURL = introVideoURL;
         // event.dateTime = eventTime;
-        event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
+        event.dateTime = new Date('Apr 23 2021 12:00 PM EDT');
         event.speakers = speakers;
         event.host = speakers[0];
         // event.isDev = process.env.NODE_ENV === 'dev';
@@ -68,7 +68,7 @@ export async function createScaleEvent(
           full_description: description,
           introVideoURL,
           // dateTime: eventTime,
-          dateTime: new Date('Jan 17 2021 1:00 PM EST'),
+          dateTime: new Date('Apr 23 2021 12:00 PM EDT'),
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
@@ -127,7 +127,7 @@ export async function uploadMTGBanner(
     await Webinar.model
       .updateOne(
         { hostCommunity: communityID, scaleEventType },
-        { eventBanner: fileName }
+        { eventImage: fileName }
       )
       .sort({
         updatedAt: -1,
@@ -154,7 +154,7 @@ export async function retrieveMTGEventInfo(
         'speakers',
         'host',
         'dateTime',
-        'eventBanner',
+        'eventImage',
       ])
       .populate({
         path: 'speakers',
@@ -171,8 +171,8 @@ export async function retrieveMTGEventInfo(
 
     const { speakers } = mtgEvent;
     mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
-    mtgEvent.eventBanner =
-      (await retrieveSignedUrl('images', 'mtgBanner', mtgEvent.eventBanner)) || '';
+    mtgEvent.eventImage =
+      (await retrieveSignedUrl('images', 'mtgBanner', mtgEvent.eventImage)) || '';
 
     let cleanedData = Object.assign({}, mtgEvent, {
       description: mtgEvent.full_description,
@@ -350,7 +350,7 @@ export async function getMTGEvents(scaleEventType: string) {
               profilePicture: '$community.profilePicture',
             },
             introVideoURL: '$introVideoURL',
-            eventBanner: '$eventBanner',
+            eventImage: '$eventImage',
           },
         },
       ])
@@ -359,7 +359,7 @@ export async function getMTGEvents(scaleEventType: string) {
     const imagePromises = [];
     for (let i = 0; i < events.length; i++) {
       imagePromises.push(
-        retrieveSignedUrl('images', 'mtgBanner', events[i].eventBanner)
+        retrieveSignedUrl('images', 'mtgBanner', events[i].eventImage)
       );
       imagePromises.push(
         retrieveSignedUrl(
@@ -372,7 +372,7 @@ export async function getMTGEvents(scaleEventType: string) {
 
     return Promise.all(imagePromises).then((images) => {
       for (let i = 0; i < images.length; i += 2) {
-        events[Math.floor(i / 2)].eventBanner = images[i];
+        events[Math.floor(i / 2)].eventImage = images[i];
         events[Math.floor(i / 2)].community.profilePicture = images[i + 1];
       }
       return sendPacket(1, 'Successfully retrieved all meet the greeks events', {
