@@ -136,8 +136,6 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
     fullWidth: fullWidth,
     onFocus: onFocus,
     onBlur: onBlur,
-    helperText: Boolean(error) && error !== '' ? error : helperText,
-    error: Boolean(error) && error !== '',
     placeholder: placeholder,
   });
 
@@ -242,12 +240,16 @@ function SearchField<T extends SearchOption = SearchOption>(props: Props<T>) {
                 <CircularProgress size={20} className={styles.loadingIndicator} />
               </React.Fragment>
             ),
+            helperText: Boolean(error) && error !== '' ? error : helperText,
+            error: Boolean(error) && error !== '',
             ...TextfieldProps.current,
           })
         ) : (
           <TextField
             {...params}
             {...TextfieldProps.current}
+            helperText={Boolean(error) && error !== '' ? error : helperText}
+            error={Boolean(error) && error !== ''}
             variant={variant as any}
             InputProps={{
               ...params.InputProps,

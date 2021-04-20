@@ -3,7 +3,11 @@ import { TextField, FormHelperText, makeStyles } from '@material-ui/core';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { BigButton, SearchField } from '../../../../reusable-components';
+import {
+  BigButton,
+  RSTextField,
+  SearchField,
+} from '../../../../reusable-components';
 import { SearchOption } from '../../../../reusable-components/components/SearchField';
 import { RSText } from '../../../../../base-components';
 import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
@@ -11,9 +15,6 @@ import MeetTheGreeksSpeakers from './MeetTheGreeksSpeakers';
 import { IFormData } from './MeetTheGreeksModal';
 
 const useStyles = makeStyles((_: any) => ({
-  textField: {
-    width: 460,
-  },
   fieldLabel: {
     textAlign: 'left',
     marginLeft: 5,
@@ -77,14 +78,14 @@ function MeetTheGreekForm(props: Props) {
         Event Description
       </RSText>
 
-      <TextField
+      <RSTextField
         name="description"
         value={formFields.description}
         onChange={handleChange('description')}
         variant="outlined"
         label="Description"
         key="desc"
-        className={styles.textField}
+        fullWidth
         multiline
         rows={3}
         autoComplete="off"
@@ -136,13 +137,13 @@ function MeetTheGreekForm(props: Props) {
       </RSText>
       <SearchField
         label="Speakers"
-        className={styles.textField}
         name="speakers"
         options={communityMembers}
         onAutocomplete={onAutocomplete}
         helperText="Add up to 4 speakers for the event"
         key="userSearch"
         error={formErrors.speakers}
+        fullWidth
       />
       <MeetTheGreeksSpeakers
         speakers={formFields.speakers}

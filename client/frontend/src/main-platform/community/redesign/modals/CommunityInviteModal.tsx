@@ -52,7 +52,7 @@ export const CommunityInviteModal = (props: Props) => {
     if (data.success === 1) {
       dispatch(
         dispatchSnackbar({
-          mode: 'notify',
+          mode: 'success',
           message: 'Selected users have been invited!',
         })
       );

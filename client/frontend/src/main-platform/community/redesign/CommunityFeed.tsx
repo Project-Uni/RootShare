@@ -139,7 +139,7 @@ export const CommunityFeed = (props: Props) => {
     const data = await putPinPost({ postID, communityID });
     if (data.success === 1) {
       dispatch(
-        dispatchSnackbar({ mode: 'notify', message: 'Successfully pinned post' })
+        dispatchSnackbar({ mode: 'success', message: 'Successfully pinned post' })
       );
       return true;
     } else {
