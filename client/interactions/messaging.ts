@@ -1,16 +1,11 @@
-import { Types } from 'mongoose';
-
 import { Conversation, Message, User } from '../rootshare_db/models';
-import { packetParams } from '../rootshare_db/types';
+import { packetParams, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
   log,
   sendPacket,
   retrieveSignedUrl,
   getUserFromJWT,
 } from '../helpers/functions';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 export function createThread(req, io, callback: (packet: packetParams) => void) {
   const { message, tempID, recipients } = req.body;
@@ -47,16 +42,6 @@ export function createThread(req, io, callback: (packet: packetParams) => void) 
         sendMessage(userID, conversationID, message, tempID, io, callback);
       });
     });
-  });
-}
-
-export function removeConversation(
-  conversationID: ObjectIdType,
-  callback: (packet: packetParams) => void
-) {
-  Conversation.model.deleteOne({ _id: conversationID }, {}, (err) => {
-    if (err) return callback(sendPacket(-1, 'Failed to delete conversation'));
-    return callback(sendPacket(1, 'Deleted conversation'));
   });
 }
 

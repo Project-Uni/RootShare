@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
@@ -11,7 +10,10 @@ import {
   ExternalCommunication,
   Webinar,
 } from '../rootshare_db/models';
-import { packetParams } from '../rootshare_db/types';
+import { packetParams, ObjectIdType } from '../rootshare_db/types';
+
+import NotificationService from './notification';
+
 import {
   decodeBase64Image,
   log,
@@ -24,15 +26,14 @@ import {
 
 import { addProfilePicturesAll } from './utilities';
 
-type ObjectIdType = Types.ObjectId;
-
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export async function createMTGEvent(
+export async function createScaleEvent(
   communityID: ObjectIdType,
   description: string,
   speakers: ObjectIdType[],
+  scaleEventType: string,
   introVideoURL?: string
   // eventTime: string,
 ) {
@@ -42,7 +43,7 @@ export async function createMTGEvent(
     let event = await Webinar.model
       .findOne({
         hostCommunity: communityID,
-        isMTG: true,
+        scaleEventType,
       })
       .exec();
 
@@ -50,9 +51,9 @@ export async function createMTGEvent(
       if (event) {
         //Edit Mode
         event.full_description = description;
-        // event.introVideoURL = introVideoURL;
+        event.introVideoURL = introVideoURL;
         // event.dateTime = eventTime;
-        event.dateTime = new Date('Jan 17 2021 1:00 PM EST');
+        event.dateTime = new Date('Apr 23 2021 12:00 PM EDT');
         event.speakers = speakers;
         event.host = speakers[0];
         // event.isDev = process.env.NODE_ENV === 'dev';
@@ -65,16 +66,16 @@ export async function createMTGEvent(
         }).save();
 
         event = await new Webinar.model({
-          // title: 'TBD',
+          title: 'Grand Prix',
           hostCommunity: communityID,
           full_description: description,
           introVideoURL,
           // dateTime: eventTime,
-          dateTime: new Date('Jan 17 2021 1:00 PM EST'),
+          dateTime: new Date('Apr 23 2021 12:00 PM EDT'),
           host: speakers[0],
           speakers: speakers,
           conversation: conversation._id,
-          isMTG: true,
+          scaleEventType,
           isDev: process.env.NODE_ENV === 'dev',
         }).save();
       }
@@ -92,6 +93,17 @@ export async function createMTGEvent(
           full_description: string;
         }
       );
+
+      const notificationService = new NotificationService();
+      users.forEach((u, idx) => {
+        notificationService.eventSpeakerInvite({
+          forUserID: u._id,
+          event,
+          isHost: idx === 0,
+          communityID,
+        });
+      });
+
       return sendPacket(1, 'Successfully updated MTG event', { event });
     } catch (err) {
       log('error', err.message);
@@ -107,7 +119,11 @@ export async function createMTGEvent(
   }
 }
 
-export async function uploadMTGBanner(communityID: ObjectIdType, image: string) {
+export async function uploadMTGBanner(
+  communityID: ObjectIdType,
+  image: string,
+  scaleEventType: string
+) {
   try {
     const imageBuffer: { type?: string; data?: Buffer } = decodeBase64Image(image);
     if (!imageBuffer.data) return -1;
@@ -124,8 +140,8 @@ export async function uploadMTGBanner(communityID: ObjectIdType, image: string) 
 
     await Webinar.model
       .updateOne(
-        { hostCommunity: communityID, isMTG: true },
-        { eventBanner: fileName }
+        { hostCommunity: communityID, scaleEventType },
+        { eventImage: fileName }
       )
       .sort({
         updatedAt: -1,
@@ -139,17 +155,20 @@ export async function uploadMTGBanner(communityID: ObjectIdType, image: string) 
   }
 }
 
-export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
+export async function retrieveMTGEventInfo(
+  communityID: ObjectIdType,
+  scaleEventType: string
+) {
   try {
     const mtgEvent = await Webinar.model
-      .findOne({ hostCommunity: communityID, isMTG: true }, [
+      .findOne({ hostCommunity: communityID, scaleEventType }, [
         'title',
         'full_description',
         'introVideoURL',
         'speakers',
         'host',
         'dateTime',
-        'eventBanner',
+        'eventImage',
       ])
       .populate({
         path: 'speakers',
@@ -161,20 +180,20 @@ export async function retrieveMTGEventInfo(communityID: ObjectIdType) {
     if (!mtgEvent)
       return sendPacket(
         0,
-        'Could not find corresponding mtg event. Most likely doesnt exist'
+        `Could not find corresponding scale event. Most likely doesn't exist`
       );
 
     const { speakers } = mtgEvent;
     mtgEvent.speakers = await addProfilePicturesAll(speakers, 'profile');
-    mtgEvent.eventBanner =
-      (await retrieveSignedUrl('images', 'mtgBanner', mtgEvent.eventBanner)) || '';
+    mtgEvent.eventImage =
+      (await retrieveSignedUrl('images', 'mtgBanner', mtgEvent.eventImage)) || '';
 
     let cleanedData = Object.assign({}, mtgEvent, {
       description: mtgEvent.full_description,
     });
     delete cleanedData.full_description;
 
-    return sendPacket(1, 'Successfully retrieved MTG event information', {
+    return sendPacket(1, 'Successfully retrieved scale event information', {
       mtgEvent: cleanedData,
     });
   } catch (err) {
@@ -215,7 +234,7 @@ export async function sendMTGCommunications(
 
     if (mode === 'email') {
       interestedUsers.forEach((email) =>
-        sendEmail(email, `A Message From ${community.name}`, message)
+        sendEmail([email], `A Message From ${community.name}`, message)
       );
     } else {
       sendSMS(interestedUsers, `Message from ${community.name}`);
@@ -315,9 +334,9 @@ export async function updateInterestAnswers(
     return sendPacket(-1, err.message);
   }
 }
-export async function getMTGEvents() {
+export async function getMTGEvents(scaleEventType: string) {
   const condition = Object.assign(
-    { isMTG: true },
+    { scaleEventType },
     process.env.NODE_ENV === 'dev' ? {} : { isDev: { $ne: true } }
   );
 
@@ -345,7 +364,7 @@ export async function getMTGEvents() {
               profilePicture: '$community.profilePicture',
             },
             introVideoURL: '$introVideoURL',
-            eventBanner: '$eventBanner',
+            eventImage: '$eventImage',
           },
         },
       ])
@@ -354,7 +373,7 @@ export async function getMTGEvents() {
     const imagePromises = [];
     for (let i = 0; i < events.length; i++) {
       imagePromises.push(
-        retrieveSignedUrl('images', 'mtgBanner', events[i].eventBanner)
+        retrieveSignedUrl('images', 'mtgBanner', events[i].eventImage)
       );
       imagePromises.push(
         retrieveSignedUrl(
@@ -367,7 +386,7 @@ export async function getMTGEvents() {
 
     return Promise.all(imagePromises).then((images) => {
       for (let i = 0; i < images.length; i += 2) {
-        events[Math.floor(i / 2)].eventBanner = images[i];
+        events[Math.floor(i / 2)].eventImage = images[i];
         events[Math.floor(i / 2)].community.profilePicture = images[i + 1];
       }
       return sendPacket(1, 'Successfully retrieved all meet the greeks events', {
@@ -424,22 +443,34 @@ async function sendMTGEventEmails(
 ) {
   try {
     const community = await Community.model
-      .findById(event.hostCommunity, 'name')
+      .findById(event.hostCommunity, ['name', 'scaleEventType'])
       .exec();
     const timestamp = convertEST(event.dateTime);
+    const scaleEventType = community.scaleEventType;
+    let eventName = '';
+    switch (scaleEventType) {
+      case 'mtg': {
+        eventName = 'Meet The Greek ';
+        break;
+      }
+      case 'grand-prix': {
+        eventName = 'Grand Prix ';
+        break;
+      }
+    }
     recipients.forEach((recipient) => {
       sendEmail(
-        recipient.email,
-        `Meet The Greek Event Invite From ${community.name}`,
+        [recipient.email],
+        `${eventName}Event Invite From ${community.name}`,
         `
         <p>Hi ${recipient.firstName},</p>
         <p></p>
-        <p>You have been invited by <strong>${community.name}</strong> to speak at their Meet The Greek event on <strong>${timestamp} EST</strong>.</p>
+        <p>You have been invited by <strong>${community.name}</strong> to speak at their ${eventName}event on <strong>${timestamp} EST</strong>.</p>
         <p></p>
         <p>You can access the event by visiting:</p>
         <p><a href="https://rootshare.io/event/${event._id}" target="_blank">https://rootshare.io/event/${event._id}</a></p>
         <p></p>
-        <p>Thanks for using RootShare, and good luck with recruitment!</p>
+        <p>Thanks for using RootShare, and have a great event!</p>
         <p>- The RootShare team.</p>
         `
       );

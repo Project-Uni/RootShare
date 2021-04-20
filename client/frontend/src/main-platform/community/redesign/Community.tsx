@@ -62,6 +62,7 @@ const Community = (props: Props) => {
         'type',
         'profilePicture',
         'bannerPicture',
+        'scaleEventType',
       ],
       options: {
         getRelationship: true,
@@ -114,6 +115,9 @@ const Community = (props: Props) => {
             isMember={
               info.relationship === U2CR.JOINED || info.relationship === U2CR.ADMIN
             }
+            communityName={info.name}
+            communityProfilePicture={info.profilePicture}
+            scaleEventType={info.scaleEventType}
           />
         );
       }

@@ -8,7 +8,7 @@ import { BigButton, RSModal } from '../../../../reusable-components';
 import RSText from '../../../../../base-components/RSText';
 import ProfilePicture from '../../../../../base-components/ProfilePicture';
 
-import { colors } from '../../../../../theme/Colors';
+import Theme from '../../../../../theme/Theme';
 import { makeRequest } from '../../../../../helpers/functions';
 import { SnackbarMode, UserType } from '../../../../../helpers/types';
 import { useForm } from '../../../../../helpers/hooks';
@@ -88,13 +88,13 @@ const defaultFormData = {
   graduationYear: 2024,
   phoneNumber: '',
   currInterest: '',
-  'Hobbies & Involvement': '',
-  'High School Name': '',
-  'Hometown and State': '',
-  'Social Media Handle (Twitter or Instagram, please note which)': '',
-  'Are you interested in a housed fraternity experience?': '',
-  'Are you interested in an alcohol-free fraternity experience?': '',
-  'What are you looking for in a fraternity experience?': '',
+  // 'Hobbies & Involvement': '',
+  // 'High School Name': '',
+  // 'Hometown and State': '',
+  // 'Social Media Handle (Twitter or Instagram, please note which)': '',
+  // 'Are you interested in a housed fraternity experience?': '',
+  // 'Are you interested in an alcohol-free fraternity experience?': '',
+  // 'What are you looking for in a fraternity experience?': '',
   // 'Were your relatives Greek?':'' //TODO- Update this
 };
 
@@ -268,7 +268,7 @@ function PersonalInfoModal(props: Props) {
       if (interests[i] === '') continue;
       interestItems.push(
         <div className={styles.interestItem} key={i}>
-          <RSText size={12} color={colors.secondaryText} italic>
+          <RSText size={12} color={Theme.secondaryText} italic>
             {interests[i]}
           </RSText>
           <IconButton size="small" onClick={() => removeInterest(i)}>
@@ -348,7 +348,7 @@ function PersonalInfoModal(props: Props) {
         />
         {renderInterests()}
 
-        {Object.keys(defaultFormData)
+        {/* {Object.keys(defaultFormData)
           .filter((key) => !nonQuestionFields.includes(key))
           .map((key) => {
             const typedKey = key as keyof IFormData;
@@ -364,7 +364,7 @@ function PersonalInfoModal(props: Props) {
                 helperText={formErrors[typedKey]}
               />
             );
-          })}
+          })} */}
         <BigButton
           label="Submit Info and Interest"
           onClick={submitInfoAndInterest}

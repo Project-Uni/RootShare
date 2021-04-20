@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 import {
   Community,
   CommunityEdge,
@@ -43,7 +41,7 @@ export async function createNewCommunity(
   adminID: ObjectIdType,
   type: CommunityType,
   isPrivate: boolean,
-  additionalFlags: { isMTG?: boolean } = {},
+  additionalFlags: { scaleEventType?: string } = {},
   options: {} = {}
 ) {
   const userExists = await User.model.exists({ _id: adminID });
@@ -56,7 +54,7 @@ export async function createNewCommunity(
     private: isPrivate,
     admin: adminID,
     members: [adminID],
-    isMTGFlag: additionalFlags.isMTG || false,
+    scaleEventType: additionalFlags.scaleEventType,
   });
 
   try {
@@ -242,82 +240,6 @@ export async function deleteCommunity(communityID: ObjectIdType) {
   }
 }
 
-export async function retrieveAllCommunities() {
-  try {
-    const communities = await Community.model
-      .find({}, [
-        'name',
-        'description',
-        'admin',
-        'private',
-        'isMTGFlag',
-        'type',
-        'university',
-        'members',
-        'pendingMembers',
-      ])
-      .populate({ path: 'university', select: 'universityName' })
-      .populate({
-        path: 'admin',
-        select: ['_id', 'firstName', 'lastName', 'email'],
-      });
-
-    log('info', `Retrieved ${communities.length} communities`);
-    return sendPacket(1, 'Successfully retrieved all communities', { communities });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
-export async function editCommunity(
-  _id: ObjectIdType,
-  name: string,
-  description: string,
-  adminID: ObjectIdType,
-  type: CommunityType,
-  isPrivate: boolean,
-  additionalFlags: { isMTG?: boolean } = {},
-  options: { returnCommunity?: boolean } = {}
-) {
-  try {
-    const communityPromise = Community.model
-      .updateOne(
-        { _id },
-        {
-          $set: {
-            name,
-            description,
-            admin: adminID,
-            type,
-            private: isPrivate,
-            isMTGFlag: additionalFlags.isMTG || false,
-          },
-          $addToSet: { members: adminID },
-        }
-      )
-      .exec();
-
-    const userPromise = User.model
-      .updateOne({ _id: adminID }, { $addToSet: { joinedCommunities: _id } })
-      .exec();
-    await Promise.all([communityPromise, userPromise]);
-
-    let community;
-    if (options.returnCommunity) {
-      community = await Community.model.findById(_id).exec();
-    }
-
-    log('info', `Successfully updated community ${name}`);
-    return sendPacket(1, 'Successfully updated community', {
-      community,
-    });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
 export async function getCommunityInformation(
   communityID: ObjectIdType,
   userID: ObjectIdType
@@ -336,7 +258,7 @@ export async function getCommunityInformation(
         'profilePicture',
         'followedByCommunities',
         'incomingPendingCommunityFollowRequests',
-        'isMTGFlag',
+        'scaleEventType',
       ])
       .populate({ path: 'university', select: 'universityName' })
       .populate({

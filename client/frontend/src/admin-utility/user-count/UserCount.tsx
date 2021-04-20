@@ -118,7 +118,7 @@ function UserCount(props: Props) {
   }
 
   async function fetchUsers() {
-    const { data } = await makeRequest('GET', '/api/adminCount');
+    const { data } = await makeRequest('GET', '/api/admin/userCount');
     if (data.success === 1) {
       setAllUsers(data['content']['users']);
       setUsers(data['content']['users']);

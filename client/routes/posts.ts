@@ -1,6 +1,7 @@
 import { Express } from 'express';
+
+import { ObjectIdVal } from '../rootshare_db/types';
 import { getUserFromJWT, sendPacket, getQueryParams } from '../helpers/functions';
-import { Types } from 'mongoose';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
@@ -34,8 +35,6 @@ import {
   deletePost,
   getPost,
 } from '../interactions/posts';
-
-const ObjectIdVal = Types.ObjectId;
 
 export default function postsRoutes(app: Express) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {

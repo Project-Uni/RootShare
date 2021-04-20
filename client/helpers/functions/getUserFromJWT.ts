@@ -1,10 +1,7 @@
 import jwt = require('jsonwebtoken');
-import { Types } from 'mongoose';
+import { ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 
 import { AccountType } from '../../rootshare_db/types';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
 
 /**
  * @description Extracts the user from a valid access token

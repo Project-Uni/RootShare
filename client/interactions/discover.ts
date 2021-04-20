@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 import {
   User,
   Community,
@@ -10,7 +8,7 @@ import {
   IUser,
   Connection,
 } from '../rootshare_db/models';
-import { SidebarData } from '../rootshare_db/types';
+import { U2UR, SidebarData, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
 import {
   addCalculatedCommunityFields,
@@ -19,11 +17,6 @@ import {
   connectionsToUserIDStrings,
 } from '../interactions/utilities';
 import { retrieveAllUrls } from './media';
-
-const ObjectIdVal = Types.ObjectId;
-type ObjectIdType = Types.ObjectId;
-
-import { U2UR } from '../rootshare_db/types';
 
 const MAX_RETRIEVED = 20;
 

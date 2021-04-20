@@ -1,45 +1,17 @@
-import { USER_LEVEL } from '../rootshare_db/types';
 import { getQueryParams, getUserFromJWT, sendPacket } from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
-  createEvent,
-  deleteEvent,
   getAllRecentEvents,
-  getAllEventsAdmin,
   getAllEventsUser,
   getWebinarDetails,
   updateRSVP,
   addEventImage,
   addEventBanner,
-  sendEventEmailConfirmation,
   getRecentEvents,
 } from '../interactions/streaming/event';
 import { updateAttendingList } from '../interactions/user';
 
 export default function eventRoutes(app) {
-  app.post('/api/webinar/createEvent', isAuthenticatedWithJWT, async (req, res) => {
-    const user = getUserFromJWT(req);
-    if (user.privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(0, 'User is not authorized to perform this action')
-      );
-    await createEvent(req.body, user, (packet) => res.json(packet));
-  });
-
-  app.delete(
-    '/api/webinar/event/:eventID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { privilegeLevel, _id: userID } = getUserFromJWT(req);
-      if (privilegeLevel < USER_LEVEL.SUPER_ADMIN)
-        return res.json(
-          sendPacket(0, 'User is not authorized to perform this action')
-        );
-
-      deleteEvent(userID, req.params.eventID, (packet) => res.json(packet));
-    }
-  );
-
   app.post(
     '/api/webinar/uploadEventImage',
     isAuthenticatedWithJWT,
@@ -73,37 +45,10 @@ export default function eventRoutes(app) {
     }
   });
 
-  app.get('/api/webinar/getAllEventsAdmin', isAuthenticatedWithJWT, (req, res) => {
-    const { privilegeLevel } = getUserFromJWT(req);
-    if (privilegeLevel < USER_LEVEL.ADMIN)
-      return res.json(
-        sendPacket(0, 'User is not authorized to perform this action')
-      );
-    getAllEventsAdmin((packet) => res.json(packet));
-  });
-
   app.get('/api/webinar/getAllEventsUser', isAuthenticatedWithJWT, (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     getAllEventsUser(userID, (packet) => res.json(packet));
   });
-
-  app.post(
-    '/api/webinar/resendSpeakerInvites',
-    isAuthenticatedWithJWT,
-    (req, res) => {
-      const { privilegeLevel } = getUserFromJWT(req);
-      if (privilegeLevel < USER_LEVEL.ADMIN)
-        return res.json(
-          sendPacket(0, 'User is not authorized to perform this action')
-        );
-
-      sendEventEmailConfirmation(
-        req.body.webinarData,
-        req.body.speakerEmails,
-        (packet) => res.json(packet)
-      );
-    }
-  );
 
   app.get(
     '/api/webinar/getDetails/:eventID',

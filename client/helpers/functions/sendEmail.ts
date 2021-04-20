@@ -10,10 +10,14 @@ const ses = new aws.SES({
   signatureVersion: 'v4',
 });
 
-export const sendEmail = async (email: string, subject: string, message: string) => {
+export const sendEmail = async (
+  emailAddresses: string[],
+  subject: string,
+  message: string
+) => {
   const params = {
     Destination: {
-      ToAddresses: [email],
+      ToAddresses: emailAddresses,
     },
     Source: `RootShare Team <dev@rootshare.io>`,
     ReplyToAddresses: [],

@@ -35,10 +35,9 @@ export const PromotedEvents = (props: Props) => {
   }, []);
 
   async function fetchData() {
-    // const { data } = await makeRequest('GET', '/api/webinar/recent');
     const data = await getRecentEvents(3);
     if (data.success == 1) {
-      setEvents(data.content.events.reverse());
+      setEvents(data.content.events);
     }
   }
 
