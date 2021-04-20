@@ -12,6 +12,7 @@ import RSText from '../../base-components/RSText';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
 import Theme from '../../theme/Theme';
 import { putUpdateUserConnection } from '../../api';
+import { RSLink } from '../../main-platform/reusable-components';
 const ITEM_HEIGHT = 48;
 
 const useStyles = makeStyles((_: any) => ({
@@ -40,6 +41,10 @@ const useStyles = makeStyles((_: any) => ({
     display: 'inline-block',
     wordWrap: 'break-word',
     maxWidth: 240,
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
   },
   message: {
     textAlign: 'left',
@@ -222,9 +227,11 @@ function EventMessage(props: Props) {
         />
         <div className={styles.left}>
           <div className={styles.top}>
-            <RSText bold className={styles.senderName}>
-              {props.message.senderName}
-            </RSText>
+            <RSLink href={`/profile/${props.message.sender}`}>
+              <RSText bold className={styles.senderName}>
+                {props.message.senderName}
+              </RSText>
+            </RSLink>
             <RSText size={10} className={styles.time}>
               {getConversationTime(new Date(props.message.createdAt))}
             </RSText>
