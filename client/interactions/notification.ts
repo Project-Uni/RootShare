@@ -136,7 +136,7 @@ export default class NotificationService {
         relatedItemId: communityID,
         actionProviderType: 'community',
         actionProviderId: communityID,
-        message: `${communityName} accepted your request.`,
+        message: `${communityName.name} accepted your request.`,
       });
     } catch (err) {
       log('error', err.message);
