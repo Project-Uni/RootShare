@@ -5,7 +5,6 @@ import { CircularProgress } from '@material-ui/core';
 import { BsPeopleFill } from 'react-icons/bs';
 
 import { RSModal } from '../../../../reusable-components';
-import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import MeetTheGreekForm from './MeetTheGreekForm';
 import MeetTheGreeksBannerUpload from './MeetTheGreeksBannerUpload';
 
@@ -13,7 +12,9 @@ import { getScaleEventInformation } from '../../../../../api';
 import { SearchOption } from '../../../../reusable-components/components/SearchField';
 import { useForm } from '../../../../../helpers/hooks';
 import theme from '../../../../../theme/Theme';
-import { makeRequest, slideLeft } from '../../../../../helpers/functions';
+import { makeRequest } from '../../../../../helpers/functions';
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../../../../redux/actions';
 
 const useStyles = makeStyles((_: any) => ({
   modal: {
@@ -92,6 +93,8 @@ const defaultFormData: IFormData = {
 function MeetTheGreeksModal(props: Props) {
   const styles = useStyles();
 
+  const dispatch = useDispatch();
+
   const [loading, setLoading] = useState(true);
   const [apiLoading, setApiLoading] = useState(false);
   const [serverErr, setServerErr] = useState<string>();
@@ -101,11 +104,6 @@ function MeetTheGreeksModal(props: Props) {
   const [communityMembers, setCommunityMembers] = useState<SearchOption[]>([]);
 
   const [imageSrc, setImageSrc] = useState<string>();
-
-  const [snackbarMode, setSnackbarMode] = useState<
-    'success' | 'error' | 'notify' | null
-  >(null);
-  const [transition, setTransition] = useState<any>();
 
   const {
     formFields,
@@ -257,9 +255,13 @@ function MeetTheGreeksModal(props: Props) {
 
   const onUploadBanner = useCallback(async () => {
     //Handling case where user is sticking with the existing image
-    if (imageSrc?.startsWith('https://')) {
-      setTransition(() => slideLeft);
-      setSnackbarMode('notify');
+    if (imageSrc?.startsWith('https://') || !imageSrc) {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'success',
+          message: 'Successfully updated Grand Prix event!',
+        })
+      );
       setImageSrc('');
       onClose();
       return;
@@ -272,8 +274,12 @@ function MeetTheGreeksModal(props: Props) {
       { image: imageSrc }
     );
     if (data.success === 1) {
-      setTransition(() => slideLeft);
-      setSnackbarMode('notify');
+      dispatch(
+        dispatchSnackbar({
+          mode: 'success',
+          message: 'Successfully updated Grand Prix event!',
+        })
+      );
       setImageSrc('');
       onClose();
     } else {
@@ -283,57 +289,49 @@ function MeetTheGreeksModal(props: Props) {
   }, [imageSrc]);
 
   return (
-    <>
-      <ManageSpeakersSnackbar
-        message={'Successfully updated Grand Prix event'}
-        transition={transition}
-        mode={snackbarMode}
-        handleClose={() => setSnackbarMode(null)}
-      />
-      <RSModal
-        open={props.open}
-        title={`Grand Prix - ${props.communityName}`}
-        onClose={onClose}
-        className={styles.modal}
-        helperText={"Create or Edit your Community's information for Grand Prix"}
-        helperIcon={<BsPeopleFill size={90} />}
-        serverErr={serverErr}
-      >
-        <div>
-          {loading ? (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                paddingTop: 15,
-                paddingBottom: 15,
-              }}
-            >
-              <CircularProgress size={60} className={styles.loadingIndicator} />
-            </div>
-          ) : renderStage === 0 ? (
-            <MeetTheGreekForm
-              formFields={formFields}
-              formErrors={formErrors}
-              handleChange={handleChange}
-              handleDateChange={handleDateChange}
-              updateFields={updateFields}
-              onSubmit={onSubmit}
-              loading={apiLoading}
-              communityMembers={communityMembers}
-            />
-          ) : (
-            <MeetTheGreeksBannerUpload
-              setServerErr={setServerErr}
-              onUpload={onUploadBanner}
-              loading={apiLoading}
-              imageSrc={imageSrc}
-              updateImageSrc={setImageSrc}
-            />
-          )}
-        </div>
-      </RSModal>
-    </>
+    <RSModal
+      open={props.open}
+      title={`Grand Prix - ${props.communityName}`}
+      onClose={onClose}
+      className={styles.modal}
+      helperText={"Create or Edit your Community's information for Grand Prix"}
+      helperIcon={<BsPeopleFill size={90} />}
+      serverErr={serverErr}
+    >
+      <div>
+        {loading ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              paddingTop: 15,
+              paddingBottom: 15,
+            }}
+          >
+            <CircularProgress size={60} className={styles.loadingIndicator} />
+          </div>
+        ) : renderStage === 0 ? (
+          <MeetTheGreekForm
+            formFields={formFields}
+            formErrors={formErrors}
+            handleChange={handleChange}
+            handleDateChange={handleDateChange}
+            updateFields={updateFields}
+            onSubmit={onSubmit}
+            loading={apiLoading}
+            communityMembers={communityMembers}
+          />
+        ) : (
+          <MeetTheGreeksBannerUpload
+            setServerErr={setServerErr}
+            onUpload={onUploadBanner}
+            loading={apiLoading}
+            imageSrc={imageSrc}
+            updateImageSrc={setImageSrc}
+          />
+        )}
+      </div>
+    </RSModal>
   );
 }
 
