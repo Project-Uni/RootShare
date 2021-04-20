@@ -7,7 +7,7 @@ import moment from 'moment';
 
 import { MuxMetaDataType } from '../../../helpers/types';
 
-import RootSharePoster from '../../../images/event/RootShareVideoPoster.png';
+import { RootShareVideoPoster } from '../../../images/events';
 
 require('dotenv').config();
 
@@ -36,7 +36,7 @@ export default class VideoPlayer extends React.Component<Props> {
       autoplay: false,
       controls: true,
       preload: 'auto',
-      poster: this.props.eventImage || RootSharePoster,
+      poster: this.props.eventImage || RootShareVideoPoster,
       sources: [
         {
           src: this.props.src,

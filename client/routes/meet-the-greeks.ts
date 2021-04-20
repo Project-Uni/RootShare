@@ -10,7 +10,7 @@ import {
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import { isCommunityAdmin } from './middleware/communityAuthentication';
 import {
-  createMTGEvent,
+  createScaleEvent,
   uploadMTGBanner,
   retrieveMTGEventInfo,
   sendMTGCommunications,
@@ -35,20 +35,36 @@ export default function meetTheGreekRoutes(app) {
     '/api/mtg/events',
     isAuthenticatedWithJWT,
     async (req: Request, res: Response) => {
-      const packet = await getMTGEvents();
+      const query = getQueryParams<{ scaleEventType: string }>(req, {
+        scaleEventType: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+
+      const { scaleEventType } = query;
+      const packet = await getMTGEvents(scaleEventType);
       return res.json(packet);
     }
   );
 
-  app.get(
-    '/api/mtg/event/:communityID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const packet = await retrieveMTGEventInfo(communityID);
-      return res.json(packet);
-    }
-  );
+  app.get('/api/mtg/event', isAuthenticatedWithJWT, async (req, res) => {
+    const query = getQueryParams<{ communityID: string; scaleEventType: string }>(
+      req,
+      {
+        communityID: { type: 'string' },
+        scaleEventType: { type: 'string' },
+      }
+    );
+    if (!query)
+      return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+    const { communityID, scaleEventType } = query;
+
+    const packet = await retrieveMTGEventInfo(
+      ObjectIdVal(communityID),
+      scaleEventType
+    );
+    return res.json(packet);
+  });
 
   app.get(
     '/api/mtg/interestAnswers/:communityID',
@@ -110,13 +126,21 @@ export default function meetTheGreekRoutes(app) {
     isCommunityAdmin,
     async (req: Request, res: Response) => {
       const { communityID } = req.params;
-      const { introVideoURL, eventTime, description, speakers } = req.body;
+
+      const {
+        introVideoURL,
+        eventTime,
+        description,
+        speakers,
+        scaleEventType,
+      } = req.body;
       if (
         // !introVideoURL ||
         // !eventTime ||
         !description ||
         !speakers ||
-        !Array.isArray(speakers)
+        !Array.isArray(speakers) ||
+        !scaleEventType
       )
         return res.json(
           sendPacket(
@@ -126,16 +150,18 @@ export default function meetTheGreekRoutes(app) {
               // 'eventTime',
               'description',
               'speakers',
+              'scaleEventType',
             ])
           )
         );
 
-      const packet = await createMTGEvent(
+      const packet = await createScaleEvent(
         ObjectIdVal(communityID),
         description,
-        // eventTime,
         speakers,
+        scaleEventType,
         introVideoURL
+        // eventTime,
       );
       return res.json(packet);
     }
@@ -161,11 +187,22 @@ export default function meetTheGreekRoutes(app) {
     isAuthenticatedWithJWT,
     isCommunityAdmin,
     async (req, res) => {
+      const query = getQueryParams<{ scaleEventType: string }>(req, {
+        scaleEventType: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params provided'));
+      const { scaleEventType } = query;
       const { communityID } = req.params;
       const { image } = req.body;
-      if (!image) return res.json(sendPacket(0, invalidInputsMessage(['image'])));
+      if (!image || !communityID)
+        return res.json(sendPacket(0, invalidInputsMessage(['image'])));
 
-      const packet = await uploadMTGBanner(communityID, image);
+      const packet = await uploadMTGBanner(
+        ObjectIdVal(communityID),
+        image,
+        scaleEventType
+      );
       return res.json(packet);
     }
   );

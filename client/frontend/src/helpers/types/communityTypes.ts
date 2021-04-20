@@ -21,7 +21,7 @@ export type Community = {
   bannerPicture?: string;
   relationship: UserToCommunityRelationship;
   status: UserToCommunityRelationship; // TODO: deprecate this
-  isMTGFlag?: boolean; //For Meet the Greeks
+  scaleEventType?: string; //For MTG and Grand Prix
   externalPosts?: PostType[];
 };
 

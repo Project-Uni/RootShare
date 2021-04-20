@@ -17,7 +17,7 @@ export async function retrieveAllCommunities() {
         'description',
         'admin',
         'private',
-        'isMTGFlag',
+        'scaleEventType',
         'type',
         'university',
         'members',
@@ -44,7 +44,7 @@ export async function editCommunity(
   adminID: ObjectIdType,
   type: CommunityType,
   isPrivate: boolean,
-  additionalFlags: { isMTG?: boolean } = {},
+  additionalFlags: { scaleEventType?: string } = {},
   options: { returnCommunity?: boolean } = {}
 ) {
   try {
@@ -58,7 +58,7 @@ export async function editCommunity(
             admin: adminID,
             type,
             private: isPrivate,
-            isMTGFlag: additionalFlags.isMTG || false,
+            scaleEventType: additionalFlags.scaleEventType,
           },
           $addToSet: { members: adminID },
         }

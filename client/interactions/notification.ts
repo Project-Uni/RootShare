@@ -1,6 +1,15 @@
-import { Community, Notifications, Post, User } from '../rootshare_db/models';
+import {
+  Community,
+  ICommunity,
+  IWebinar,
+  Notifications,
+  Post,
+  User,
+  Webinar,
+} from '../rootshare_db/models';
 import { ObjectIdType, ObjectIdVal } from '../rootshare_db/types';
 import { log, sendPacket } from '../helpers/functions';
+import { Query } from 'mongoose';
 
 export default class NotificationService {
   like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
@@ -168,6 +177,53 @@ export default class NotificationService {
     } catch (err) {
       log('error', err.message);
       return sendPacket(-1, err.message);
+    }
+  };
+
+  eventSpeakerInvite = async ({
+    event,
+    eventID,
+    communityID,
+    forUserID,
+    isHost,
+  }: {
+    eventID?: ObjectIdType;
+    event?: { _id: ObjectIdType; title: string; [k: string]: any };
+    communityID?: ObjectIdType;
+    forUserID: ObjectIdType;
+    isHost?: boolean;
+  }) => {
+    try {
+      let communityPromise: Query<ICommunity, ICommunity>;
+      if (communityID)
+        communityPromise = Community.model.findById(communityID, 'name');
+
+      let eventPromise: Query<IWebinar, IWebinar>;
+      if (eventID) eventPromise = Webinar.model.findById(eventID, 'title');
+
+      const [community, eventFromPromise] = await Promise.all([
+        communityPromise,
+        eventPromise,
+      ]);
+
+      const eventToUse = eventFromPromise || event;
+
+      const message = `You have been invited ${
+        communityID ? `by ${community.name} ` : ''
+      }to ${isHost ? 'host' : 'speak at'} an event.`;
+
+      return Notifications.create({
+        variant: 'event-speaker-invite',
+        forUser: forUserID,
+        relatedItemType: 'event',
+        relatedItemId: eventToUse._id,
+        actionProviderType: community ? 'community' : 'rootshare',
+        actionProviderId: community ? communityID : 'rootshare',
+        message,
+      });
+    } catch (err) {
+      log('error', err.message);
+      return false;
     }
   };
 

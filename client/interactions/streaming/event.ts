@@ -32,9 +32,7 @@ export async function getAllRecentEvents(
       {
         $and: [
           { isDev: false },
-          {
-            $or: [{ isMTG: false }, { isMTG: undefined }],
-          },
+          { scaleEventType: undefined },
           {
             $or: [
               { muxAssetPlaybackID: { $ne: undefined } },
@@ -134,9 +132,7 @@ export async function getRecentEvents(limit: number) {
     const conditions = {
       $and: [
         { isDev: false },
-        {
-          $or: [{ isMTG: false }, { isMTG: undefined }],
-        },
+        { scaleEventType: undefined },
         {
           $or: [
             { muxAssetPlaybackID: { $ne: undefined } },

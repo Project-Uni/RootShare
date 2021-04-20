@@ -70,7 +70,7 @@ const useStyles = makeStyles((_: any) => ({
 }));
 
 export type CommunityFlags = {
-  isMTGFlag: boolean;
+  scaleEventType?: string;
 };
 
 type Props = {
@@ -252,7 +252,7 @@ function CommunityBody(props: Props) {
                 description={communityInfo?.description || ''}
                 updateCommunityStatus={updateCommunityStatus}
                 isAdmin={isAdmin}
-                flags={{ isMTGFlag: communityInfo?.isMTGFlag || false }}
+                flags={{ scaleEventType: communityInfo?.scaleEventType }}
               />
             )}
           </Box>
@@ -270,7 +270,7 @@ function CommunityBody(props: Props) {
               status={communityStatus}
               isAdmin={isAdmin}
               private={communityInfo?.private}
-              flags={{ isMTGFlag: communityInfo?.isMTGFlag || false }}
+              flags={{ scaleEventType: communityInfo?.scaleEventType }}
             />
           )}
         </div>

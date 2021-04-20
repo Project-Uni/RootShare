@@ -8,21 +8,34 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { CircularProgress } from '@material-ui/core';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
-
-import { getPosts, getPinnedPosts, putPinPost } from '../../../api';
-import { PostType } from '../../../helpers/types';
-import Theme from '../../../theme/Theme';
-
 import { RSTabs } from '../../reusable-components';
+import MTGEvent from '../../meet-the-greeks/MTGEvent';
+
+import {
+  getPosts,
+  getPinnedPosts,
+  getScaleEventInformation,
+  putPinPost,
+} from '../../../api';
+import { PostType } from '../../../helpers/types';
+import { Event } from '../../meet-the-greeks/MeetTheGreeks';
+import Theme from '../../../theme/Theme';
 import { insertArray } from '../../../helpers/functions';
 
-const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
+const useStyles = makeStyles((_: any) => ({
+  wrapper: {},
+  mtgEvent: { marginTop: 8, marginBottom: 8 },
+}));
 
 type Props = {
   communityID: string;
   admin: string;
   isMember: boolean;
   isPrivate?: boolean;
+
+  communityName: string;
+  communityProfilePicture?: string;
+  scaleEventType?: string;
 };
 
 const TabValues = [
@@ -51,6 +64,8 @@ export const CommunityFeed = (props: Props) => {
     'community-external'
   );
 
+  const [mtgEvent, setMtgEvent] = useState<Event>();
+
   const tabChangeSemaphore = useRef(0);
 
   useEffect(() => {
@@ -58,6 +73,7 @@ export const CommunityFeed = (props: Props) => {
   }, [selectedTab]);
 
   useEffect(() => {
+    if (isMember) fetchMTGEventInformation();
     if (isPrivate && isMember) {
       const clone = [...tabs];
       if (admin === user._id) {
@@ -123,7 +139,7 @@ export const CommunityFeed = (props: Props) => {
     const data = await putPinPost({ postID, communityID });
     if (data.success === 1) {
       dispatch(
-        dispatchSnackbar({ mode: 'notify', message: 'Successfully pinned post' })
+        dispatchSnackbar({ mode: 'success', message: 'Successfully pinned post' })
       );
       return true;
     } else {
@@ -136,6 +152,26 @@ export const CommunityFeed = (props: Props) => {
       return false;
     }
   };
+
+  const fetchMTGEventInformation = useCallback(async () => {
+    const data = await getScaleEventInformation(communityID, 'grand-prix');
+    if (data.success === 1) {
+      const { mtgEvent: mtgEvent_raw } = data.content;
+
+      setMtgEvent({
+        _id: mtgEvent_raw._id,
+        description: mtgEvent_raw.description,
+        introVideoURL: mtgEvent_raw.introVideoURL,
+        dateTime: mtgEvent_raw.dateTime,
+        eventImage: mtgEvent_raw.eventImage,
+        community: {
+          _id: communityID,
+          profilePicture: props.communityProfilePicture,
+          name: props.communityName,
+        },
+      });
+    }
+  }, []);
 
   const appendPost = (post: PostType) => {
     setPosts((prev) => [post, ...prev]);
@@ -151,12 +187,16 @@ export const CommunityFeed = (props: Props) => {
           disabled={loading}
         />
       )}
+
       <RSTabs
         tabs={tabs}
         selected={selectedTab}
         onChange={setSelectedTab}
         style={{ marginLeft: 10, marginRight: 10 }}
       />
+      {props.scaleEventType && mtgEvent && (
+        <MTGEvent event={mtgEvent} className={styles.mtgEvent} />
+      )}
       {loading ? (
         <CircularProgress size={90} style={{ color: Theme.bright, marginTop: 50 }} />
       ) : (

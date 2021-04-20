@@ -19,7 +19,7 @@ import EventWatcherMobile from './event-video/event-watcher/event-watcher-mobile
 import EventClientAdvertisement from './EventClientAdvertisement';
 import EventMessageContainer from './event-messages/EventMessageContainer';
 
-import RootShareDefaultBanner from '../images/event/RootShareDefaultBanner.png';
+import { RootShareDefaultBanner, GrandPrixEventBanner } from '../images';
 
 import { colors } from '../theme/Colors';
 import { EventType, MuxMetaDataType, SpeakRequestType } from '../helpers/types';
@@ -127,7 +127,7 @@ function EventClientBase(props: Props) {
   }
 
   function fetchAds(eventBanner: any) {
-    const ads = [eventBanner || RootShareDefaultBanner];
+    const ads = [eventBanner || GrandPrixEventBanner];
     setAdvertisements(ads);
     setAdLoaded(true);
   }

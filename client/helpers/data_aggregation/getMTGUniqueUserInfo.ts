@@ -18,7 +18,10 @@ export async function getUniqueInterested() {
 }
 
 export async function getTotalMTGViewers() {
-  const events = await Webinar.find({ isMTG: true, isDev: false }, 'attendees_V2')
+  const events = await Webinar.find(
+    { scaleEventType: 'mtg', isDev: false },
+    'attendees_V2'
+  )
     .populate({ path: 'attendees_V2', select: 'firstName lastName email _id' })
     .lean()
     .exec();

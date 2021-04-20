@@ -149,7 +149,7 @@ export const MakePostContainer = (props: Props) => {
         },
       };
       appendPost?.(cleanedPost);
-      dispatch(dispatchSnackbar({ mode: 'notify', message: 'Posted!' }));
+      dispatch(dispatchSnackbar({ mode: 'success', message: 'Posted!' }));
     }
     setLoading(false);
   }

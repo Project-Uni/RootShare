@@ -1,19 +1,24 @@
 import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Theme from '../../theme/Theme';
-import { CircularProgress, Box, Slide, Avatar, Collapse } from '@material-ui/core';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../redux/actions';
+
+import { CircularProgress, Box, Slide, Avatar, Collapse } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 
 import { Event } from './MeetTheGreeks';
 import { RSText } from '../../base-components';
-import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
-import { RSButton } from '../reusable-components';
+import { RSButtonV2 } from '../reusable-components';
 import { InterestedButton } from '../community/components/MeetTheGreeks';
 
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { checkDesktop, formatDatePretty, formatTime } from '../../helpers/functions';
+import { GrandPrixPromotionBanner } from '../../images';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -57,21 +62,20 @@ const useStyles = makeStyles((_: any) => ({
 type Props = {
   className?: string;
   event: Event;
-  dispatchSnackbar: (mode: 'success' | 'notify' | 'error', message: string) => void;
 };
 
 const MTGEvent = (props: Props) => {
   const styles = useStyles();
+  const dispatch = useDispatch();
 
   const {
     className,
     event: {
       _id: eventID,
       introVideoURL,
-      eventBanner,
+      eventImage,
       community: { _id: communityID, name: communityName, profilePicture },
     },
-    dispatchSnackbar,
   } = props;
 
   const [showVideo, setShowVideo] = useState(false);
@@ -128,7 +132,7 @@ const MTGEvent = (props: Props) => {
             size={isDesktop.current ? 14 : 12}
             type="head"
             bold
-          >{`Meet The Greeks - ${communityName}`}</RSText>
+          >{`Grand Prix - ${communityName}`}</RSText>
         </a>
       </div>
       <div
@@ -163,7 +167,12 @@ const MTGEvent = (props: Props) => {
                 onError={() => {
                   setVideoLoading(false);
                   setShowVideo(false);
-                  dispatchSnackbar('error', 'There was an error loading the video');
+                  dispatch(
+                    dispatchSnackbar({
+                      mode: 'error',
+                      message: 'There was an error loading the video',
+                    })
+                  );
                 }}
               />
             </div>
@@ -172,7 +181,7 @@ const MTGEvent = (props: Props) => {
         {!showVideo && (
           <Slide direction="right" in={!showVideo}>
             <img
-              src={eventBanner}
+              src={eventImage || GrandPrixPromotionBanner}
               alt={`${communityName} Event Banner`}
               style={{
                 maxHeight: isDesktop.current ? 300 : undefined,
@@ -261,19 +270,25 @@ const DesktopMTGEventContent = (props: ContentProps) => {
           </RSText>
           <RSText>
             <b>Time: </b>
-            1:00 PM EST
+            12:00 PM ET
             {/* TODO - This is stored correctly, but need to figure out why its rendering incorrectly */}
             {/* {formattedDateTime.current.time} */}
           </RSText>
-          <div style={{ display: 'flex', marginTop: 15 }}>
-            <RSButton onClick={onEnterEvent}>Enter Event</RSButton>
-            <span style={{ width: 15 }}></span>
-            {onWatchVideoClick && (
-              <RSButton onClick={onWatchVideoClick}>
+
+          <RSButtonV2
+            onClick={onEnterEvent}
+            className={styles.interestedButton}
+            borderRadius={25}
+          >
+            <RSText size={10}>Enter Event</RSText>
+          </RSButtonV2>
+
+          {/* {onWatchVideoClick && (
+              <RSButtonV2 onClick={onWatchVideoClick}>
                 {showVideo ? 'Hide' : 'Watch'} Video
-              </RSButton>
-            )}
-          </div>
+              </RSButtonV2>
+            )} */}
+
           <InterestedButton
             className={styles.interestedButton}
             communityID={communityID}
@@ -325,41 +340,29 @@ const MobileMTGEventContent = (props: ContentProps) => {
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-end',
             flexDirection: 'column',
-            width: 150,
+            alignItems: 'center',
+            marginBottom: 10,
           }}
         >
-          <RSButton
+          <RSButtonV2
             onClick={(e) => {
               e.stopPropagation();
               onEnterEvent();
             }}
             className={styles.mobileButton}
           >
-            Enter Event
-          </RSButton>
-          {onWatchVideoClick && (
-            <RSButton
-              onClick={(e) => {
-                e.stopPropagation();
-                onWatchVideoClick?.();
-              }}
-            >
-              {showVideo ? 'Hide' : 'Watch'} Video
-            </RSButton>
-          )}
+            <RSText size={10}>Enter Event</RSText>
+          </RSButtonV2>
+          <InterestedButton
+            className={styles.mobileButton}
+            communityID={communityID}
+          />
         </div>
       </div>
       <Collapse in={showDescription}>
         <RSText className={styles.mobileDesc}>{description}</RSText>
       </Collapse>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-        <InterestedButton
-          className={styles.interestedButton}
-          communityID={communityID}
-        />
-      </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const {
  */
 export const getViewersForEvents = async (
   eventIDs: string[] = [],
-  flags: { isMTG?: boolean } = {},
+  flags: { scaleEventType?: string } = {},
   fields: string[] = [
     'firstName',
     'lastName',

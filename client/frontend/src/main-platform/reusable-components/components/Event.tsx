@@ -7,7 +7,7 @@ import { BsChevronDown, BsChevronRight } from 'react-icons/bs';
 
 import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
-import RootSharePreviewBanner from '../../../images/event/RootSharePreviewBanner.png';
+import { RootSharePreviewBanner } from '../../../images/events';
 import Theme from '../../../theme/Theme';
 import { RSLink } from '..';
 

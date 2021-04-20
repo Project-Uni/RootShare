@@ -91,7 +91,7 @@ function AdminCreateCommunity(props: Props) {
   const [admin, setAdmin] = useState<HostType | {}>({});
   const [type, setType] = useState<CommunityType>();
   const [isPrivate, setIsPrivate] = useState('no');
-  const [isMTG, setIsMTG] = useState('no');
+  const [scaleEventType, setScaleEventType] = useState<string>();
 
   const [serverMessage, setServerMessage] = useState<{
     success: boolean;
@@ -110,7 +110,7 @@ function AdminCreateCommunity(props: Props) {
       setDesc(editingCommunity.description);
       setAdmin(editingCommunity.admin);
       setType(editingCommunity.type);
-      setIsMTG(editingCommunity.isMTGFlag ? 'yes' : 'no');
+      setScaleEventType(editingCommunity.scaleEventType);
       setIsPrivate(editingCommunity.private ? 'yes' : 'no');
 
       setNameErr('');
@@ -126,7 +126,7 @@ function AdminCreateCommunity(props: Props) {
     setAdmin({});
     setType(undefined);
     setIsPrivate('no');
-    setIsMTG('no');
+    setScaleEventType(undefined);
 
     setNameErr('');
     setDescErr('');
@@ -221,7 +221,6 @@ function AdminCreateCommunity(props: Props) {
     }
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
-    const isMTGBool = isMTG === 'yes' ? true : false;
 
     const { data } = await makeRequest('POST', '/api/admin/community/create', {
       name,
@@ -229,7 +228,7 @@ function AdminCreateCommunity(props: Props) {
       adminID: (admin as HostType)._id,
       type,
       isPrivate: isPrivateBool,
-      isMTG: isMTGBool,
+      scaleEventType,
     });
 
     if (data.success === 1) {
@@ -238,7 +237,7 @@ function AdminCreateCommunity(props: Props) {
       setAdmin({});
       setType(undefined);
       setIsPrivate('no');
-      setIsMTG('yes');
+      setScaleEventType(undefined);
       setServerMessage({
         success: true,
         message: `Successfully created community ${name}`,
@@ -259,7 +258,6 @@ function AdminCreateCommunity(props: Props) {
     }
 
     const isPrivateBool = isPrivate === 'yes' ? true : false;
-    const isMTGBool = isMTG === 'yes' ? true : false;
 
     const { data } = await makeRequest('POST', '/api/admin/community/edit', {
       _id: (props.editingCommunity as Community)._id,
@@ -268,7 +266,7 @@ function AdminCreateCommunity(props: Props) {
       adminID: (admin as HostType)._id,
       type,
       isPrivate: isPrivateBool,
-      isMTG: isMTGBool,
+      scaleEventType,
     });
 
     if (data.success === 1) {
@@ -277,7 +275,7 @@ function AdminCreateCommunity(props: Props) {
       setAdmin({});
       setType(undefined);
       setIsPrivate('no');
-      setIsMTG('no');
+      setScaleEventType(undefined);
       setServerMessage({
         success: true,
         message: `Successfully created community ${name}`,
@@ -351,10 +349,13 @@ function AdminCreateCommunity(props: Props) {
     return (
       <div className={styles.communitySelectDiv}>
         <FormControl className={styles.privateSelect} variant="outlined">
-          <InputLabel>Meet The Greeks</InputLabel>
-          <Select value={isMTG} onChange={(e: any) => setIsMTG(e.target.value)}>
-            <MenuItem value={'yes'}>Yes</MenuItem>
-            <MenuItem value={'no'}>No</MenuItem>
+          <InputLabel>Scale Event Type</InputLabel>
+          <Select
+            value={scaleEventType}
+            onChange={(e: any) => setScaleEventType(e.target.value)}
+          >
+            <MenuItem value={'mtg'}>Meet The Greeks</MenuItem>
+            <MenuItem value={'grand-prix'}>Grand Prix</MenuItem>
           </Select>
         </FormControl>
       </div>
@@ -431,7 +432,7 @@ function AdminCreateCommunity(props: Props) {
         </RSText>
         {renderPrivateSelect()}
         <RSText type="body" bold size={12} className={styles.fieldLabel}>
-          Meet The Greeks?
+          Scale Event Type
         </RSText>
         <MeetTheGreeksSelect />
       </div>

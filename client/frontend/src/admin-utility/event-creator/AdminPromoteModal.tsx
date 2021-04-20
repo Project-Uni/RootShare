@@ -67,7 +67,7 @@ export const AdminPromoteModal = (props: Props) => {
         onClose();
         dispatch(
           dispatchSnackbar({
-            mode: 'notify',
+            mode: 'success',
             message: 'Successfully promoted event!',
           })
         );

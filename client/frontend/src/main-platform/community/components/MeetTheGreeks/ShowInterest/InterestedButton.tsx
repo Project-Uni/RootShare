@@ -3,16 +3,20 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import ManageSpeakersSnackbar from '../../../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 import PersonalInfoModal from './PersonalInfoModal';
+import { RSButtonV2 } from '../../../../reusable-components';
+import { RSText } from '../../../../../base-components';
 
 import { slideLeft } from '../../../../../helpers/functions';
 import { SnackbarMode } from '../../../../../helpers/types';
-import { RSButton } from '../../../../reusable-components';
 
 const useStyles = makeStyles((_: any) => ({
   interestedButton: {
     paddingLeft: 10,
     paddingRight: 10,
     marginTop: 15,
+    display: 'flex',
+    height: 35,
+    width: 120,
   },
 }));
 
@@ -52,13 +56,16 @@ function InterestedButton(props: Props) {
         handleSnackbar={handleSnackbar}
         onClose={() => setShowPersonalInfoModal(false)}
       />
-      <RSButton
+      <RSButtonV2
         variant="university"
         className={props.className || styles.interestedButton}
         onClick={() => setShowPersonalInfoModal(true)}
+        borderRadius={25}
       >
-        I'm Interested
-      </RSButton>
+        <RSText size={10} bold={false}>
+          I'm Interested
+        </RSText>
+      </RSButtonV2>
     </>
   );
 }
