@@ -33,7 +33,17 @@ export const Notifications = (props: Props) => {
         variant="secondary"
       >
         {loading ? (
-          <CircularProgress color="primary" style={{ height: 40 }} />
+          <div
+            style={{
+              width: '100%',
+              paddingTop: 25,
+              paddingBottom: 25,
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <CircularProgress color="primary" style={{ height: 40 }} />
+          </div>
         ) : (
           <>
             {notifications.map((n, i) => {
