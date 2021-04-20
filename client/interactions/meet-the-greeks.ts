@@ -11,6 +11,9 @@ import {
   Webinar,
 } from '../rootshare_db/models';
 import { packetParams, ObjectIdType } from '../rootshare_db/types';
+
+import NotificationService from './notification';
+
 import {
   decodeBase64Image,
   log,
@@ -63,7 +66,7 @@ export async function createScaleEvent(
         }).save();
 
         event = await new Webinar.model({
-          // title: 'TBD',
+          title: 'Grand Prix',
           hostCommunity: communityID,
           full_description: description,
           introVideoURL,
@@ -90,6 +93,17 @@ export async function createScaleEvent(
           full_description: string;
         }
       );
+
+      const notificationService = new NotificationService();
+      users.forEach((u, idx) => {
+        notificationService.eventSpeakerInvite({
+          forUserID: u._id,
+          event,
+          isHost: idx === 0,
+          communityID,
+        });
+      });
+
       return sendPacket(1, 'Successfully updated MTG event', { event });
     } catch (err) {
       log('error', err.message);
