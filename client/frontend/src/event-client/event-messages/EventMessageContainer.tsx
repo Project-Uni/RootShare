@@ -7,7 +7,6 @@ import { TransitionProps } from '@material-ui/core/transitions';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
-import { colors } from '../../theme/Colors';
 import EventMessageTextField from './EventMessageTextField';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
 import { RSButton } from '../..//main-platform/reusable-components';
@@ -17,6 +16,7 @@ import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { makeRequest, cropText } from '../../helpers/functions';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 import Theme from '../../theme/Theme';
+import { JoinedMessage } from './JoinedMessage';
 
 const MAX_MESSAGES = 40;
 
@@ -93,7 +93,9 @@ function EventMessageContainer(props: Props) {
       props.user === undefined
     )
       return;
-    fetchMessages();
+    fetchMessages().then(() => {
+      handleSendMessage('jte_now_x3op');
+    });
   }, [props.messageSocket, props.conversationID, props.user]);
 
   useEffect(() => {
@@ -246,25 +248,30 @@ function EventMessageContainer(props: Props) {
       const temp = messages[i];
       const message = temp; //.error ? { ...temp } : temp;
 
-      output.push(
-        message.sender !== props.user._id ? (
-          <EventMessage
-            key={message._id}
-            message={message}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
-            isHost={props.isHost}
-            handleRemoveUser={handleRemoveUser}
-          />
-        ) : (
-          <MyEventMessage
-            key={message._id || message.tempID}
-            message={message}
-            accessToken={props.accessToken}
-            refreshToken={props.refreshToken}
-          />
-        )
-      );
+      if (message.content === 'jte_now_x3op')
+        output.push(
+          <JoinedMessage name={message.senderName} _id={message.sender as string} />
+        );
+      else
+        output.push(
+          message.sender !== props.user._id ? (
+            <EventMessage
+              key={message._id}
+              message={message}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+              isHost={props.isHost}
+              handleRemoveUser={handleRemoveUser}
+            />
+          ) : (
+            <MyEventMessage
+              key={message._id || message.tempID}
+              message={message}
+              accessToken={props.accessToken}
+              refreshToken={props.refreshToken}
+            />
+          )
+        );
     }
 
     return output;

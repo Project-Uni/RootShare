@@ -43,22 +43,6 @@ export const Comment = (props: CommentProps) => {
 
   const isHovering = useRef(false);
 
-  const getUserDescription = useCallback(() => {
-    const {
-      user: { major, graduationYear, position, work },
-    } = comment;
-
-    let description = '';
-    if (major && graduationYear) description += `${major} ${graduationYear}`;
-
-    if (major && graduationYear && position && work) description += '  |  ';
-    if (position) description += position;
-    if (position && work) description += ' @ ';
-    if (work) description += work;
-
-    return description;
-  }, [comment]);
-
   const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
     isHovering.current = true;
     const currentTarget = e.currentTarget;
@@ -75,6 +59,22 @@ export const Comment = (props: CommentProps) => {
         );
     }, 750);
   };
+
+  const getUserDescription = useCallback(() => {
+    const {
+      user: { major, graduationYear, position, work },
+    } = comment;
+
+    let description = '';
+    if (major && graduationYear) description += `${major} ${graduationYear}`;
+
+    if (major && graduationYear && position && work) description += '  |  ';
+    if (position) description += position;
+    if (position && work) description += ' @ ';
+    if (work) description += work;
+
+    return description;
+  }, [comment]);
 
   return (
     <div
