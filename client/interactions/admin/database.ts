@@ -55,7 +55,7 @@ export class AdminDatabase {
         });
       }
       if (limit) action = action.limit(limit);
-      const data = await action.exec();
+      const data = await action.lean().exec();
 
       if (!data) return sendPacket(0, 'Failed to retrieve data');
 
