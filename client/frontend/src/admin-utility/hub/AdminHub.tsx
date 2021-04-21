@@ -17,6 +17,8 @@ import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSLink } from '../../main-platform/reusable-components';
+import { FaDatabase } from 'react-icons/fa';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -92,6 +94,11 @@ function AdminHub(props: Props) {
       title: 'Event Manager',
       icon: <MdEvent color={colors.primaryText} size={150} />,
       link: '/admin/event',
+    },
+    {
+      title: 'Database Portal',
+      icon: <FaDatabase color={Theme.altText} size={150} />,
+      link: '/admin/database',
     },
   ];
 
