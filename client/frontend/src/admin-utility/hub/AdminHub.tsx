@@ -7,10 +7,6 @@ import { BsPeopleFill } from 'react-icons/bs';
 import { MdEvent } from 'react-icons/md';
 
 import { useHistory } from 'react-router-dom';
-import { connect } from 'react-redux';
-
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import RSText from '../../base-components/RSText';
 
@@ -18,6 +14,8 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSLink } from '../../main-platform/reusable-components';
 import { FaDatabase } from 'react-icons/fa';
 import Theme from '../../theme/Theme';
+import { useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -62,18 +60,16 @@ const useStyles = makeStyles((_: any) => ({
 
 const MIN_ACCESS_LEVEL = 6;
 
-type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
-};
+type Props = {};
 
-function AdminHub(props: Props) {
+export default function AdminHub(props: Props) {
   const styles = useStyles();
   const history = useHistory();
+
+  const { user, accessToken } = useSelector((state: RootshareReduxState) => ({
+    user: state.user,
+    accessToken: state.accessToken,
+  }));
 
   const [loading, setLoading] = useState(true);
   const [showInvalid, setShowInvalid] = useState(false);
@@ -108,10 +104,10 @@ function AdminHub(props: Props) {
   }, []);
 
   async function checkAuth() {
-    if (!Boolean(props.accessToken)) {
+    if (!Boolean(accessToken)) {
       history.push('/login?redirect=/admin/event');
       return false;
-    } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
+    } else if (user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
       return false;
     }
@@ -179,27 +175,3 @@ function AdminHub(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminHub);
