@@ -105,12 +105,9 @@ if (!isProd) {
         {
           url: 'http://localhost:8000',
         },
-        {
-          url: 'http://cache.rootshare.io/api',
-        },
       ],
     },
-    apis: ['routes/*.ts', 'models/*.ts'],
+    apis: ['routes/*.ts', 'rootshare_db/models/*.ts'],
   };
 
   const specs = swaggerJsdoc(options);
