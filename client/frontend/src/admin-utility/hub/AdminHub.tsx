@@ -13,7 +13,6 @@ import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSLink } from '../../main-platform/reusable-components';
@@ -23,7 +22,7 @@ import Theme from '../../theme/Theme';
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 100,
   },
   pageTitleDiv: {
@@ -41,7 +40,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
   },
   iconBackground: {
-    background: colors.primary,
+    background: Theme.bright,
     borderRadius: 100,
     padding: 20,
   },
@@ -82,17 +81,17 @@ function AdminHub(props: Props) {
   const pages = [
     {
       title: 'Community Manager',
-      icon: <RiCommunityLine color={colors.primaryText} size={150} />,
+      icon: <RiCommunityLine color={Theme.altText} size={150} />,
       link: '/admin/community',
     },
     {
       title: 'User Manager',
-      icon: <BsPeopleFill color={colors.primaryText} size={150} />,
+      icon: <BsPeopleFill color={Theme.altText} size={150} />,
       link: '/admin/count',
     },
     {
       title: 'Event Manager',
-      icon: <MdEvent color={colors.primaryText} size={150} />,
+      icon: <MdEvent color={Theme.altText} size={150} />,
       link: '/admin/event',
     },
     {
