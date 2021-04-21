@@ -49,6 +49,13 @@ export const AdminDBQuery = (props: Props) => {
 
   const [result, setResult] = useState<{ [k: string]: any }[]>();
 
+  //Errors
+  const [modelErr, setModelErr] = useState('');
+  const [selectedFieldErr, setSelectedFieldErr] = useState('');
+  const [populateSelectErr, setPopulateSelectErr] = useState('');
+  const [queryErr, setQueryErr] = useState('');
+  const [limitErr, setLimitErr] = useState('');
+
   useEffect(() => {
     if (!Boolean(accessToken))
       history.push(`/login?redirect=${history.location.pathname}`);
@@ -114,6 +121,7 @@ export const AdminDBQuery = (props: Props) => {
     populates.findIndex((p) => p.path === path);
 
   const reset = () => {
+    resetErrors();
     setModel('user');
     setSelectedFields([]);
     setPopulates([]);
@@ -122,8 +130,47 @@ export const AdminDBQuery = (props: Props) => {
     setResult(undefined);
   };
 
+  const resetErrors = () => {
+    setModelErr('');
+    setSelectedFieldErr('');
+    setPopulateSelectErr('');
+    setQueryErr('');
+    setLimitErr('');
+  };
+
+  const validate = () => {
+    let isValid = true;
+    if (!model) {
+      isValid = false;
+      setModelErr('Select a valid model');
+    }
+    if (selectedFields.length === 0) {
+      isValid = false;
+      setSelectedFieldErr('At least one field is required.');
+    }
+    if (
+      populates.some((p) => p.select.length === 0 || p.populate?.select.length === 0)
+    ) {
+      isValid = false;
+      setPopulateSelectErr('All populates must have atleast one selected field.');
+    }
+    try {
+      JSON.parse(query);
+    } catch (err) {
+      isValid = false;
+      setQueryErr('Invalid mongoose JSON query');
+    }
+    if (limit && !/^\d+$/.test(limit)) {
+      isValid = false;
+      setLimitErr('Not a number');
+    }
+    return isValid;
+  };
+
   const submitQuery = async () => {
-    //TODO - Add data validations
+    resetErrors();
+    if (!validate()) return;
+
     setLoading(true);
     const data = await putAdminDatabaseQuery({
       query,
@@ -187,6 +234,8 @@ export const AdminDBQuery = (props: Props) => {
               fullWidth
               value={model}
               onChange={(e) => setModel(e.target.value as Model)}
+              error={Boolean(modelErr)}
+              helperText={modelErr}
             />
             <RSSelect
               style={{ marginTop: 10 }}
@@ -201,6 +250,8 @@ export const AdminDBQuery = (props: Props) => {
               onChange={(e) =>
                 setSelectedFields([...selectedFields, e.target.value as string])
               }
+              error={Boolean(selectedFieldErr)}
+              helperText={selectedFieldErr}
             />
             {selectedFields.length > 0 && (
               <div
@@ -236,6 +287,8 @@ export const AdminDBQuery = (props: Props) => {
                 ])
               }
               value=""
+              error={Boolean(populateSelectErr)}
+              helperText={populateSelectErr}
             />
             {populates.map((p) => (
               <div
@@ -273,18 +326,22 @@ export const AdminDBQuery = (props: Props) => {
               multiline
               rows={5}
               variant="outlined"
-              helperText={`Mongoose query dictionary. Ex) {"_id": 'abcd'}`}
+              helperText={
+                queryErr || `Mongoose query dictionary. Ex) {"_id": 'abcd'}`
+              }
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              error={Boolean(queryErr)}
             />
             <RSTextField
               style={{ width: 175, marginTop: 15 }}
               label="Limit"
-              helperText="Max docs (optional)"
+              helperText={limitErr || 'Max docs (optional)'}
               variant="outlined"
               type="number"
               value={limit}
               onChange={(e) => setLimit(e.target.value as string)}
+              error={Boolean(limitErr)}
             />
             <RSButton
               style={{ width: '100%', marginTop: 15 }}

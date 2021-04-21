@@ -17,7 +17,11 @@ export default function adminDatabaseRoutes(app: Express) {
         model: Model;
         select: string;
         query: FilterQuery<any>;
-        populates?: { path: string; select: string }[];
+        populates?: {
+          path: string;
+          select: string;
+          populate?: { path: string; select: string };
+        }[];
         limit?: number;
       };
 
