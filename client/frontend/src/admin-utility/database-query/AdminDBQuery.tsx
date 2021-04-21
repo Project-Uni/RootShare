@@ -230,7 +230,7 @@ export const AdminDBQuery = (props: Props) => {
               multiline
               rows={5}
               variant="outlined"
-              helperText="Mongoose query dictionary. Ex) {_id: 'abcd'}"
+              helperText={`Mongoose query dictionary. Ex) {"_id": 'abcd'}`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
