@@ -122,12 +122,14 @@ export type Model = typeof Models[number];
 
 type Value = {
   select: string[];
-  populates: {
+  populates: Populate[];
+};
+
+export type Populate = {
+  path: string;
+  select: string[];
+  populate?: {
     path: string;
     select: string[];
-    populate?: {
-      path: string;
-      select: string[];
-    };
-  }[];
+  };
 };

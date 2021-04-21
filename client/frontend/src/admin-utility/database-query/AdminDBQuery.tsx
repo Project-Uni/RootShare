@@ -7,7 +7,11 @@ import {
   RSSelect,
   RSTextField,
 } from '../../main-platform/reusable-components';
-import { Model, DatabaseQuery } from '../../helpers/constants/databaseQuery';
+import {
+  Model,
+  DatabaseQuery,
+  Populate,
+} from '../../helpers/constants/databaseQuery';
 import { IconButton } from '@material-ui/core';
 import { IoRemove } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
@@ -226,6 +230,7 @@ export const AdminDBQuery = (props: Props) => {
           <RSText italic style={{ marginTop: 7 }}>
             Admin tool to query the database.
           </RSText>
+
           <div>
             <RSSelect
               style={{ marginTop: 10 }}
@@ -260,6 +265,7 @@ export const AdminDBQuery = (props: Props) => {
                   padding: 10,
                   marginTop: 8,
                   background: Theme.foreground,
+                  borderRadius: 8,
                 }}
               >
                 <RSText bold>Selected Fields</RSText>
@@ -297,6 +303,7 @@ export const AdminDBQuery = (props: Props) => {
                   marginTop: 8,
                   padding: 10,
                   background: Theme.foreground,
+                  borderRadius: 8,
                 }}
               >
                 <RSText bold>Path:</RSText>
@@ -343,6 +350,31 @@ export const AdminDBQuery = (props: Props) => {
               onChange={(e) => setLimit(e.target.value as string)}
               error={Boolean(limitErr)}
             />
+
+            {model && selectedFields && query && (
+              <div
+                style={{
+                  border: `1px solid ${Theme.primaryText}`,
+                  background: Theme.foreground,
+                  padding: 10,
+                  marginTop: 10,
+                  borderRadius: 8,
+                }}
+              >
+                <RSText bold style={{ marginBottom: 10 }}>
+                  Syntax
+                </RSText>
+                <RSText>
+                  {getQuerySyntax({
+                    model,
+                    select: selectedFields,
+                    limit,
+                    query,
+                    populates,
+                  })}
+                </RSText>
+              </div>
+            )}
             <RSButton
               style={{ width: '100%', marginTop: 15 }}
               onClick={submitQuery}
@@ -410,4 +442,77 @@ const Option = (props: { label: string; onRemove: (value: string) => void }) => 
       </IconButton>
     </div>
   );
+};
+
+const getQuerySyntax = ({
+  model,
+  select,
+  populates,
+  query,
+  limit,
+}: {
+  model: Model;
+  select: string[];
+  populates?: Populate[];
+  query: string;
+  limit?: string;
+}) => {
+  let output = `${getModelName(model)}.model.find(${query}).select("${select.join(
+    ' '
+  )}")`;
+  if (limit) output += `.limit(${limit})`;
+  populates?.forEach((p) => {
+    let secondPopulate = '';
+    if (p.populate)
+      secondPopulate = `, populate: { path: ${
+        p.populate.path
+      }, select: "${p.populate.select.join(' ')}" }`;
+
+    output += `.populate({ path: ${p.path}, select: "${p.select.join(' ')}" })`;
+  });
+  output += '.exec()';
+  return output;
+};
+
+const getModelName = (model: Model) => {
+  switch (model) {
+    case 'comment':
+      return 'Comment';
+    case 'community':
+      return 'Community';
+    case 'communityEdge':
+      return 'CommunityEdge';
+    case 'connection':
+      return 'Connection';
+    case 'conversation':
+      return 'Conversation';
+    case 'document':
+      return 'Document';
+    case 'externalCommunication':
+      return 'ExternalCommunication';
+    case 'externalLink':
+      return 'ExternalLink';
+    case 'image':
+      return 'Image';
+    case 'meetTheGreekInterest':
+      return 'MeetTheGreekInterest';
+    case 'message':
+      return 'Message';
+    case 'notification':
+      return 'Notifications';
+    case 'phone_verification':
+      return 'PhoneVerification';
+    case 'post':
+      return 'Post';
+    case 'search':
+      return 'Search';
+    case 'university':
+      return 'University';
+    case 'user':
+      return 'User';
+    case 'webinar':
+      return 'Webinar';
+    default:
+      return false;
+  }
 };
