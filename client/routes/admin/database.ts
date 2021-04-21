@@ -5,6 +5,7 @@ import { isRootshareSuperAdmin } from '../middleware/privilegeAuthentication';
 import { FilterQuery } from 'mongoose';
 
 import { Model, AdminDatabase } from '../../interactions/admin';
+//TODO - Swagger
 
 export default function adminDatabaseRoutes(app: Express) {
   app.put(

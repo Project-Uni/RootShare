@@ -40,6 +40,8 @@ export const AdminDBQuery = (props: Props) => {
 
   const [result, setResult] = useState<{ [k: string]: any }[]>();
 
+  //TODO - Add privilege level validations
+
   const removeField = (field: string) => {
     const idx = selectedFields.findIndex((otherField) => otherField === field);
     const clone = [...selectedFields];
@@ -103,6 +105,7 @@ export const AdminDBQuery = (props: Props) => {
   };
 
   const submitQuery = async () => {
+    //TODO - Add data validations
     setLoading(true);
     const data = await putAdminDatabaseQuery({
       query,
