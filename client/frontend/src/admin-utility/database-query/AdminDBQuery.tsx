@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSText } from '../../base-components';
@@ -12,8 +12,11 @@ import { IconButton } from '@material-ui/core';
 import { IoRemove } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
 import { putAdminDatabaseQuery } from '../../api';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { useHistory } from 'react-router';
+import { FaDatabase } from 'react-icons/fa';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -22,7 +25,13 @@ type Props = {};
 export const AdminDBQuery = (props: Props) => {
   const styles = useStyles();
 
+  const history = useHistory();
+
   const dispatch = useDispatch();
+  const { user, accessToken } = useSelector((state: RootshareReduxState) => ({
+    user: state.user,
+    accessToken: state.accessToken,
+  }));
 
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +49,16 @@ export const AdminDBQuery = (props: Props) => {
 
   const [result, setResult] = useState<{ [k: string]: any }[]>();
 
-  //TODO - Add privilege level validations
+  useEffect(() => {
+    if (!Boolean(accessToken))
+      history.push(`/login?redirect=${history.location.pathname}`);
+    else if (user.privilegeLevel < 6) history.push('/notfound');
+  }, []);
+
+  useEffect(() => {
+    setSelectedFields([]);
+    setPopulates([]);
+  }, [model]);
 
   const removeField = (field: string) => {
     const idx = selectedFields.findIndex((otherField) => otherField === field);
@@ -139,11 +157,29 @@ export const AdminDBQuery = (props: Props) => {
           alignItems: 'flex-start',
         }}
       >
-        <div>
-          <RSText type="head" bold size={18}>
-            Database Select
+        <div
+          style={{
+            border: `1px solid ${Theme.primaryText}`,
+            background: Theme.background,
+            padding: 15,
+            borderRadius: 10,
+            width: 325,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaDatabase
+              color={Theme.secondaryText}
+              size={20}
+              style={{ marginRight: 20 }}
+            />
+            <RSText type="head" bold size={18}>
+              Database Select
+            </RSText>
+          </div>
+          <RSText italic style={{ marginTop: 7 }}>
+            Admin tool to query the database.
           </RSText>
-          <div style={{ width: 300 }}>
+          <div>
             <RSSelect
               style={{ marginTop: 10 }}
               label="Model"
@@ -167,14 +203,20 @@ export const AdminDBQuery = (props: Props) => {
               }
             />
             {selectedFields.length > 0 && (
-              <RSText bold style={{ marginTop: 20 }}>
-                Selected Fields
-              </RSText>
+              <div
+                style={{
+                  border: `1px solid ${Theme.secondaryText}`,
+                  padding: 10,
+                  marginTop: 8,
+                  background: Theme.foreground,
+                }}
+              >
+                <RSText bold>Selected Fields</RSText>
+                {selectedFields.map((field) => (
+                  <Option label={field} onRemove={removeField} />
+                ))}
+              </div>
             )}
-            {selectedFields.map((field) => (
-              <Option label={field} onRemove={removeField} />
-            ))}
-
             <RSSelect
               label="Populate"
               fullWidth
@@ -201,6 +243,7 @@ export const AdminDBQuery = (props: Props) => {
                   border: `1px solid ${Theme.secondaryText}`,
                   marginTop: 8,
                   padding: 10,
+                  background: Theme.foreground,
                 }}
               >
                 <RSText bold>Path:</RSText>
