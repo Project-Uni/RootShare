@@ -1,7 +1,6 @@
 import { Express } from 'express';
-import { getQueryParams } from '../../helpers/functions';
 import { isAuthenticatedWithJWT } from '../../passport/middleware/isAuthenticated';
-import { isRootshareSuperAdmin } from '../middleware/privilegeAuthentication';
+import { isRootshareAdmin } from '../middleware/privilegeAuthentication';
 import { FilterQuery } from 'mongoose';
 
 import { Model, AdminDatabase } from '../../interactions/admin';
@@ -11,7 +10,7 @@ export default function adminDatabaseRoutes(app: Express) {
   app.put(
     '/api/admin/general/database',
     isAuthenticatedWithJWT,
-    isRootshareSuperAdmin,
+    isRootshareAdmin,
     async (req, res) => {
       const { model, select, query, populates, limit } = req.body as {
         model: Model;
