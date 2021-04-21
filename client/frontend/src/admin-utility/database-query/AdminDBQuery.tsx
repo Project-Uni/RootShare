@@ -22,7 +22,12 @@ import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useHistory } from 'react-router';
 import { FaDatabase } from 'react-icons/fa';
 
-const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
+const useStyles = makeStyles((muiTheme: MuiTheme) => ({
+  wrapper: {},
+  querySyntax: {
+    'word-break': 'break-all', //Not working for some reason
+  },
+}));
 
 type Props = {};
 
@@ -52,6 +57,7 @@ export const AdminDBQuery = (props: Props) => {
   const [limit, setLimit] = useState<string>('');
 
   const [result, setResult] = useState<{ [k: string]: any }[]>();
+  const [queryTime, setQueryTime] = useState(0);
 
   //Errors
   const [modelErr, setModelErr] = useState('');
@@ -175,6 +181,8 @@ export const AdminDBQuery = (props: Props) => {
     resetErrors();
     if (!validate()) return;
 
+    const startTime = Date.now();
+
     setLoading(true);
     const data = await putAdminDatabaseQuery({
       query,
@@ -193,6 +201,8 @@ export const AdminDBQuery = (props: Props) => {
         })
       );
     }
+    const duration = Date.now() - startTime;
+    setQueryTime(duration / 1000);
     setLoading(false);
   };
 
@@ -351,7 +361,7 @@ export const AdminDBQuery = (props: Props) => {
               error={Boolean(limitErr)}
             />
 
-            {model && selectedFields && query && (
+            {model && selectedFields.length > 0 && query && (
               <div
                 style={{
                   border: `1px solid ${Theme.primaryText}`,
@@ -361,9 +371,15 @@ export const AdminDBQuery = (props: Props) => {
                   borderRadius: 8,
                 }}
               >
-                <RSText bold style={{ marginBottom: 10 }}>
-                  Syntax
-                </RSText>
+                <div>
+                  <RSText
+                    bold
+                    style={{ marginBottom: 10 }}
+                    className={styles.querySyntax}
+                  >
+                    Syntax
+                  </RSText>
+                </div>
                 <RSText>
                   {getQuerySyntax({
                     model,
@@ -391,14 +407,26 @@ export const AdminDBQuery = (props: Props) => {
             </RSButton>
           </div>
         </div>
-        <div style={{ marginLeft: 30 }}>
-          {result && (
-            <>
-              <RSText size={18}>Query Result</RSText>
-              <pre>{JSON.stringify(result, null, 2)}</pre>
-            </>
-          )}
-        </div>
+
+        {result && (
+          <div
+            style={{
+              marginLeft: 30,
+              maxHeight: window.innerHeight,
+              overflow: 'scroll',
+              border: `1px solid ${Theme.primaryText}`,
+              borderRadius: 10,
+              padding: 20,
+              flex: 1,
+            }}
+          >
+            <RSText size={18}>Query Result</RSText>
+            <RSText bold italic style={{ marginTop: 7, marginBottom: 7 }}>
+              {result.length} documents returned in {queryTime.toFixed(2)} seconds
+            </RSText>
+            <pre>{JSON.stringify(result, null, 2)}</pre>
+          </div>
+        )}
       </div>
     </div>
   );
