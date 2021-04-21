@@ -312,6 +312,8 @@ function EventClientBase(props: Props) {
             }
             muxMetaData={muxMetaData as MuxMetaDataType}
             eventImage={webinarEvent.eventImage}
+            conversationID={currConversationID}
+            webinarID={webinarEvent._id}
           />
 
           <div className={styles.adContainer}>

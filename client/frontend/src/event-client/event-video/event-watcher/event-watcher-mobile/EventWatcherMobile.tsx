@@ -13,12 +13,19 @@ import {
   updateRefreshToken,
 } from '../../../../redux/actions/token';
 import { MuxMetaDataType } from '../../../../helpers/types';
+import { RSButton } from '../../../../main-platform/reusable-components';
+import { Drawer } from '@material-ui/core';
+import EventMessageContainer from '../../../event-messages/EventMessageContainer';
+import Theme from '../../../../theme/Theme';
 
 const MOBILE_AD_CONTAINER_HEIGHT = 60;
 const HEADER_HEIGHT = 60;
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
+  drawerPaper: {
+    background: Theme.foreground,
+  },
 }));
 
 type Props = {
@@ -29,6 +36,8 @@ type Props = {
   muxPlaybackID: string;
   muxMetaData: MuxMetaDataType;
   eventImage: string;
+  webinarID: string;
+  conversationID: string;
 };
 
 function EventWatcherMobile(props: Props) {
@@ -38,6 +47,8 @@ function EventWatcherMobile(props: Props) {
   const [playerHeight, setPlayerHeight] = useState(
     window.innerHeight - MOBILE_AD_CONTAINER_HEIGHT - HEADER_HEIGHT
   );
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     updateVideoData(props.muxPlaybackID);
@@ -81,6 +92,21 @@ function EventWatcherMobile(props: Props) {
       ) : (
         <EventClientEmptyVideoPlayer height={playerHeight} width={playerWidth} />
       )}
+      <RSButton style={{ width: '100%' }} onClick={() => setDrawerOpen(true)}>
+        Messages
+      </RSButton>
+      <Drawer
+        anchor={'right'}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        classes={{ paper: styles.drawerPaper }}
+        variant="temporary"
+      >
+        <EventMessageContainer
+          webinarID={props.webinarID}
+          conversationID={props.conversationID}
+        />
+      </Drawer>
     </div>
   );
 }

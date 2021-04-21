@@ -205,6 +205,7 @@ function EventMessageContainer(props: Props) {
     setHeight(window.innerHeight - HEADER_HEIGHT);
   }
 
+  //TODO - Maybe call this function in event base?
   async function handleSendMessage(message: string) {
     const tempID = new Date().toISOString();
     const newMessageObj = {
