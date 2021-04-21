@@ -7,11 +7,13 @@ import {
   RSSelect,
   RSTextField,
 } from '../../main-platform/reusable-components';
-import { Model, Models, DatabaseQuery } from '../../helpers/constants/databaseQuery';
+import { Model, DatabaseQuery } from '../../helpers/constants/databaseQuery';
 import { IconButton } from '@material-ui/core';
 import { IoRemove } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
 import { putAdminDatabaseQuery } from '../../api';
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../redux/actions';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -19,6 +21,8 @@ type Props = {};
 
 export const AdminDBQuery = (props: Props) => {
   const styles = useStyles();
+
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +37,8 @@ export const AdminDBQuery = (props: Props) => {
   >([]);
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState<string>('');
+
+  const [result, setResult] = useState<{ [k: string]: any }[]>();
 
   const removeField = (field: string) => {
     const idx = selectedFields.findIndex((otherField) => otherField === field);
@@ -93,6 +99,7 @@ export const AdminDBQuery = (props: Props) => {
     setPopulates([]);
     setQuery('');
     setLimit('');
+    setResult(undefined);
   };
 
   const submitQuery = async () => {
@@ -104,125 +111,158 @@ export const AdminDBQuery = (props: Props) => {
       select: selectedFields,
       model,
     });
+    if (data.success === 1) {
+      setResult(data.content.data);
+    } else {
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error completing the call',
+        })
+      );
+    }
     setLoading(false);
   };
 
   return (
     <div className={styles.wrapper}>
       <EventClientHeader showNavigationMenuDefault />
-      <div style={{ textAlign: 'left', padding: 20 }}>
-        <RSText type="head" bold size={18}>
-          Database Select
-        </RSText>
-        <div style={{ width: 300 }}>
-          <RSSelect
-            style={{ marginTop: 10 }}
-            label="Model"
-            options={modelOptions}
-            fullWidth
-            value={model}
-            onChange={(e) => setModel(e.target.value as Model)}
-          />
-          <RSSelect
-            style={{ marginTop: 10 }}
-            label="Fields"
-            fullWidth
-            value=""
-            options={
-              model
-                ? DatabaseQuery[model].select.map((s) => ({ label: s, value: s }))
-                : []
-            }
-            onChange={(e) =>
-              setSelectedFields([...selectedFields, e.target.value as string])
-            }
-          />
-          {selectedFields.length > 0 && (
-            <RSText bold style={{ marginTop: 20 }}>
-              Selected Fields
-            </RSText>
-          )}
-          {selectedFields.map((field) => (
-            <Option label={field} onRemove={removeField} />
-          ))}
+      <div
+        style={{
+          textAlign: 'left',
+          padding: 20,
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+        }}
+      >
+        <div>
+          <RSText type="head" bold size={18}>
+            Database Select
+          </RSText>
+          <div style={{ width: 300 }}>
+            <RSSelect
+              style={{ marginTop: 10 }}
+              label="Model"
+              options={modelOptions}
+              fullWidth
+              value={model}
+              onChange={(e) => setModel(e.target.value as Model)}
+            />
+            <RSSelect
+              style={{ marginTop: 10 }}
+              label="Fields"
+              fullWidth
+              value=""
+              options={
+                model
+                  ? DatabaseQuery[model].select.map((s) => ({ label: s, value: s }))
+                  : []
+              }
+              onChange={(e) =>
+                setSelectedFields([...selectedFields, e.target.value as string])
+              }
+            />
+            {selectedFields.length > 0 && (
+              <RSText bold style={{ marginTop: 20 }}>
+                Selected Fields
+              </RSText>
+            )}
+            {selectedFields.map((field) => (
+              <Option label={field} onRemove={removeField} />
+            ))}
 
-          <RSSelect
-            label="Populate"
-            fullWidth
-            style={{ marginTop: 20 }}
-            options={
-              model
-                ? DatabaseQuery[model].populates.map((p) => ({
-                    label: p.path,
-                    value: p.path,
-                  }))
-                : []
-            }
-            onChange={(e) =>
-              setPopulates([
-                ...populates,
-                { path: e.target.value as string, select: [] },
-              ])
-            }
-            value=""
-          />
-          {populates.map((p) => (
-            <div
-              style={{
-                border: `1px solid ${Theme.secondaryText}`,
-                marginTop: 8,
-                padding: 10,
-              }}
+            <RSSelect
+              label="Populate"
+              fullWidth
+              style={{ marginTop: 20 }}
+              options={
+                model
+                  ? DatabaseQuery[model].populates.map((p) => ({
+                      label: p.path,
+                      value: p.path,
+                    }))
+                  : []
+              }
+              onChange={(e) =>
+                setPopulates([
+                  ...populates,
+                  { path: e.target.value as string, select: [] },
+                ])
+              }
+              value=""
+            />
+            {populates.map((p) => (
+              <div
+                style={{
+                  border: `1px solid ${Theme.secondaryText}`,
+                  marginTop: 8,
+                  padding: 10,
+                }}
+              >
+                <RSText bold>Path:</RSText>
+                <Option label={p.path} onRemove={removePopulate} />
+                <RSText bold>Select:</RSText>
+                <RSSelect
+                  label="Populate select"
+                  options={getPopulateOptions(p.path)}
+                  fullWidth
+                  onChange={(e) =>
+                    addPopulateSelect(p.path, e.target.value as string)
+                  }
+                  value={''}
+                />
+                {p.select.map((s) => (
+                  <Option
+                    label={s}
+                    onRemove={() => removePopulateSelect(p.path, s)}
+                  />
+                ))}
+              </div>
+            ))}
+            <RSTextField
+              style={{ marginTop: 15 }}
+              fullWidth
+              label="Query"
+              multiline
+              rows={5}
+              variant="outlined"
+              helperText="Mongoose query dictionary. Ex) {_id: 'abcd'}"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <RSTextField
+              style={{ width: 175, marginTop: 15 }}
+              label="Limit"
+              helperText="Max docs (optional)"
+              variant="outlined"
+              type="number"
+              value={limit}
+              onChange={(e) => setLimit(e.target.value as string)}
+            />
+            <RSButton
+              style={{ width: '100%', marginTop: 15 }}
+              onClick={submitQuery}
+              loading={loading}
             >
-              <RSText bold>Path:</RSText>
-              <Option label={p.path} onRemove={removePopulate} />
-              <RSText bold>Select:</RSText>
-              <RSSelect
-                label="Populate select"
-                options={getPopulateOptions(p.path)}
-                fullWidth
-                onChange={(e) => addPopulateSelect(p.path, e.target.value as string)}
-                value={''}
-              />
-              {p.select.map((s) => (
-                <Option label={s} onRemove={() => removePopulateSelect(p.path, s)} />
-              ))}
-            </div>
-          ))}
-          <RSTextField
-            style={{ marginTop: 15 }}
-            fullWidth
-            label="Query"
-            multiline
-            rows={5}
-            variant="outlined"
-            helperText="Mongoose query dictionary. Ex) {_id: 'abcd'}"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <RSTextField
-            style={{ width: 175, marginTop: 15 }}
-            label="Limit"
-            helperText="Max docs (optional)"
-            variant="outlined"
-            type="number"
-            value={limit}
-            onChange={(e) => setLimit(e.target.value as string)}
-          />
-          <RSButton
-            style={{ width: '100%', marginTop: 15 }}
-            onClick={submitQuery}
-            loading={loading}
-          >
-            Complete Query
-          </RSButton>
-          <RSButton
-            style={{ width: '100%', marginTop: 10 }}
-            variant="secondary"
-            onClick={reset}
-          >
-            Reset
-          </RSButton>
+              Complete Query
+            </RSButton>
+            <RSButton
+              style={{ width: '100%', marginTop: 10 }}
+              variant="secondary"
+              onClick={reset}
+            >
+              Reset
+            </RSButton>
+          </div>
+        </div>
+        <div style={{ marginLeft: 30 }}>
+          {result && (
+            <>
+              <RSText size={18}>Query Result</RSText>
+              <pre>{JSON.stringify(result, null, 2)}</pre>
+            </>
+          )}
         </div>
       </div>
     </div>
