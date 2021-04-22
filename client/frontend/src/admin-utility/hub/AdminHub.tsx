@@ -105,7 +105,7 @@ export default function AdminHub(props: Props) {
 
   async function checkAuth() {
     if (!Boolean(accessToken)) {
-      history.push('/login?redirect=/admin/event');
+      history.push('/login?redirect=/admin');
       return false;
     } else if (user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
