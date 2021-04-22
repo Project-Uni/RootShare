@@ -3,7 +3,8 @@ import { isAuthenticatedWithJWT } from '../../passport/middleware/isAuthenticate
 import { isRootshareAdmin } from '../middleware/privilegeAuthentication';
 import { FilterQuery } from 'mongoose';
 
-import { Model, AdminDatabase } from '../../interactions/admin';
+import { AdminDatabase } from '../../interactions/admin';
+import { Model } from '../../rootshare_db/types';
 
 export default function adminDatabaseRoutes(app: Express) {
   /**

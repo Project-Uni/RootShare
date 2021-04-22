@@ -445,7 +445,7 @@ export const AdminDBQuery = (props: Props) => {
                       dispatch(
                         dispatchSnackbar({
                           mode: 'notify',
-                          message: 'Copied post link!',
+                          message: 'Copied query syntax!',
                         })
                       );
                     }}
@@ -504,7 +504,7 @@ export const AdminDBQuery = (props: Props) => {
                   dispatch(
                     dispatchSnackbar({
                       mode: 'notify',
-                      message: 'Copied post link!',
+                      message: 'Copied query result!',
                     })
                   );
                 }}
@@ -592,7 +592,9 @@ const getQuerySyntax = ({
         p.populate.path
       }, select: "${p.populate.select.join(' ')}" }`;
 
-    output += `.populate({ path: ${p.path}, select: "${p.select.join(' ')}" })`;
+    output += `.populate({ path: ${p.path}, select: "${p.select.join(
+      ' '
+    )}"${secondPopulate} })`;
   });
   output += '.exec()';
   return output;

@@ -1,25 +1,7 @@
 import { FilterQuery, Model as MongooseModel } from 'mongoose';
 import { log, sendPacket } from '../../helpers/functions';
-import {
-  Comment,
-  Community,
-  CommunityEdge,
-  Connection,
-  Conversation,
-  Document,
-  ExternalCommunication,
-  ExternalLink,
-  Image,
-  MeetTheGreekInterest,
-  Message,
-  Notifications,
-  PhoneVerification,
-  Post,
-  Search,
-  University,
-  User,
-  Webinar,
-} from '../../rootshare_db/models';
+import { getModel } from '../../rootshare_db/models';
+import { Model } from '../../rootshare_db/types';
 
 export class AdminDatabase {
   find = async ({
@@ -46,7 +28,7 @@ export class AdminDatabase {
   }) => {
     if (!select) return sendPacket(-1, 'Select is required.');
 
-    const db = AdminDatabase.getModel(model);
+    const db = getModel(model);
     if (!db) return sendPacket(-1, 'Invalid Model');
 
     try {
@@ -71,70 +53,4 @@ export class AdminDatabase {
       return sendPacket(-1, 'Failed with error', { error });
     }
   };
-
-  private static getModel = (model: Model) => {
-    switch (model) {
-      case 'comment':
-        return Comment;
-      case 'community':
-        return Community;
-      case 'communityEdge':
-        return CommunityEdge;
-      case 'connection':
-        return Connection;
-      case 'conversation':
-        return Conversation;
-      case 'document':
-        return Document;
-      case 'externalCommunication':
-        return ExternalCommunication;
-      case 'externalLink':
-        return ExternalLink;
-      case 'image':
-        return Image;
-      case 'meetTheGreekInterest':
-        return MeetTheGreekInterest;
-      case 'message':
-        return Message;
-      case 'notification':
-        return Notifications;
-      case 'phone_verification':
-        return PhoneVerification;
-      case 'post':
-        return Post;
-      case 'search':
-        return Search;
-      case 'university':
-        return University;
-      case 'user':
-        return User;
-      case 'webinar':
-        return Webinar;
-      default:
-        return false;
-    }
-  };
 }
-
-export const Models = [
-  'comment',
-  'community',
-  'communityEdge',
-  'connection',
-  'conversation',
-  'document',
-  'externalCommunication',
-  'externalLink',
-  'image',
-  'meetTheGreekInterest',
-  'message',
-  'notification',
-  'phone_verification',
-  'post',
-  'search',
-  'university',
-  'user',
-  'webinar',
-] as const;
-
-export type Model = typeof Models[number];
