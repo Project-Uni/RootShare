@@ -6,6 +6,7 @@ export const putAdminDatabaseQuery = async ({
   select,
   model,
   populates,
+  sort,
 }: {
   query: string;
   limit?: string;
@@ -16,6 +17,7 @@ export const putAdminDatabaseQuery = async ({
     select: string[];
     populate?: { path: string; select: string[] };
   }[];
+  sort: { field: string; order: 1 | -1 };
 }) => {
   const cleanedPopulates = populates?.map((p) => {
     const s = p.select.join(' ');
@@ -30,6 +32,8 @@ export const putAdminDatabaseQuery = async ({
     };
   });
 
+  const cleanedSort = sort.field ? { [sort.field]: sort.order } : undefined;
+
   const { data } = await makeRequest<{ data: { [k: string]: any }[] }>(
     'PUT',
     `/api/admin/general/database`,
@@ -39,6 +43,7 @@ export const putAdminDatabaseQuery = async ({
       select: select.join(' '),
       model,
       populates: cleanedPopulates,
+      sort: cleanedSort,
     }
   );
 

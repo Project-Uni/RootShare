@@ -55,7 +55,11 @@ export const AdminDBQuery = (props: Props) => {
     }[]
   >([]);
   const [query, setQuery] = useState('');
-  const [limit, setLimit] = useState<string>('');
+  const [limit, setLimit] = useState('');
+  const [sort, setSort] = useState<{ field: string; order: 1 | -1 }>({
+    field: '',
+    order: 1,
+  });
 
   const [result, setResult] = useState<{ [k: string]: any }[]>();
   const [queryTime, setQueryTime] = useState(0);
@@ -138,6 +142,7 @@ export const AdminDBQuery = (props: Props) => {
     setPopulates([]);
     setQuery('');
     setLimit('');
+    setSort({ field: '', order: 1 });
     setResult(undefined);
   };
 
@@ -171,6 +176,7 @@ export const AdminDBQuery = (props: Props) => {
       isValid = false;
       setQueryErr('Invalid mongoose JSON query');
     }
+
     if (limit && !/^\d+$/.test(limit)) {
       isValid = false;
       setLimitErr('Not a number');
@@ -191,6 +197,7 @@ export const AdminDBQuery = (props: Props) => {
       populates,
       select: selectedFields,
       model,
+      sort,
     });
     if (data.success === 1) {
       setResult(data.content.data);
@@ -353,10 +360,45 @@ export const AdminDBQuery = (props: Props) => {
               onChange={(e) => setQuery(e.target.value)}
               error={Boolean(queryErr)}
             />
+            <div style={{ display: 'flex', marginTop: 15 }}>
+              <RSSelect
+                label="Sort"
+                options={
+                  model
+                    ? DatabaseQuery[model].select.map((s) => ({
+                        label: s,
+                        value: s,
+                      }))
+                    : []
+                }
+                style={{ flex: 1, marginRight: 15 }}
+                value={sort.field}
+                onChange={(e) => {
+                  const sortClone = Object.assign({}, sort);
+                  sortClone.field = e.target.value as string;
+                  setSort(sortClone);
+                }}
+                helperText="(Optional) Field to sort by"
+              />
+              <RSSelect
+                label="Order"
+                options={[
+                  { label: 'Asc.', value: 1 },
+                  { label: 'Desc.', value: -1 },
+                ]}
+                style={{ width: 100 }}
+                value={sort.order}
+                onChange={(e) => {
+                  const sortClone = Object.assign({}, sort);
+                  sortClone.order = e.target.value as 1 | -1;
+                  setSort(sortClone);
+                }}
+              />
+            </div>
             <RSTextField
               style={{ width: 175, marginTop: 15 }}
               label="Limit"
-              helperText={limitErr || 'Max docs (optional)'}
+              helperText={limitErr || '(Optional) Max docs'}
               variant="outlined"
               type="number"
               value={limit}
@@ -390,6 +432,7 @@ export const AdminDBQuery = (props: Props) => {
                     limit,
                     query,
                     populates,
+                    sort,
                   })}
                 </RSText>
               </div>
@@ -498,16 +541,21 @@ const getQuerySyntax = ({
   populates,
   query,
   limit,
+  sort,
 }: {
   model: Model;
   select: string[];
   populates?: Populate[];
   query: string;
   limit?: string;
+  sort?: { field: string; order: 1 | -1 };
 }) => {
   let output = `${getModelName(model)}.model.find(${query}).select("${select.join(
     ' '
   )}")`;
+
+  if (sort?.field) output += `.sort{ ${sort.field}: ${sort.order}}`;
+
   if (limit) output += `.limit(${limit})`;
   populates?.forEach((p) => {
     let secondPopulate = '';

@@ -12,7 +12,7 @@ export default function adminDatabaseRoutes(app: Express) {
     isAuthenticatedWithJWT,
     isRootshareAdmin,
     async (req, res) => {
-      const { model, select, query, populates, limit } = req.body as {
+      const { model, select, query, populates, limit, sort } = req.body as {
         model: Model;
         select: string;
         query: FilterQuery<any>;
@@ -22,6 +22,7 @@ export default function adminDatabaseRoutes(app: Express) {
           populate?: { path: string; select: string };
         }[];
         limit?: number;
+        sort: { [k: string]: 1 | -1 };
       };
 
       const result = await new AdminDatabase().find({
@@ -30,6 +31,7 @@ export default function adminDatabaseRoutes(app: Express) {
         query,
         populates,
         limit,
+        sort,
       });
 
       const status = result.success === 1 ? 200 : 500;

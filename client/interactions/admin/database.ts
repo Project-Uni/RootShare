@@ -28,6 +28,7 @@ export class AdminDatabase {
     query,
     populates,
     limit,
+    sort,
   }: {
     model: Model;
     select: string;
@@ -41,6 +42,7 @@ export class AdminDatabase {
       }; //For Community Edge and connection
     }[];
     limit?: number;
+    sort?: { [k: string]: 1 | -1 };
   }) => {
     if (!select) return sendPacket(-1, 'Select is required.');
 
@@ -49,12 +51,16 @@ export class AdminDatabase {
 
     try {
       let action = (db.model as MongooseModel<any>).find(query, select);
+
+      if (sort) action = action.sort(sort);
+      if (limit) action = action.limit(limit);
+
       if (populates) {
         populates.forEach((p) => {
           action = action.populate(p);
         });
       }
-      if (limit) action = action.limit(limit);
+
       const data = await action.lean().exec();
 
       if (!data) return sendPacket(0, 'Failed to retrieve data');
