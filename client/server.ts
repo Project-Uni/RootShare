@@ -107,7 +107,7 @@ if (!isProd) {
         },
       ],
     },
-    apis: ['routes/*.ts', 'rootshare_db/models/*.ts'],
+    apis: ['routes/*.ts', 'routes/admin/*.ts', 'rootshare_db/models/*.ts'],
   };
 
   const specs = swaggerJsdoc(options);

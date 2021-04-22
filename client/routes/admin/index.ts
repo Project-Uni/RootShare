@@ -11,6 +11,15 @@ import adminCommunityRoutes from './community';
 import adminEventRoutes from './event';
 import adminDatabaseRoutes from './database';
 
+/**
+ *
+ *  @swagger
+ *  tags:
+ *    name: Admin
+ *    description: API to manage Admin Interactions
+ *
+ */
+
 export default function adminRoutes(app: Express) {
   adminMiscRoutes(app);
   adminCommunityRoutes(app);
