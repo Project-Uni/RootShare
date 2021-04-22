@@ -416,7 +416,13 @@ export const AdminDBQuery = (props: Props) => {
                   borderRadius: 8,
                 }}
               >
-                <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
                   <RSText
                     bold
                     style={{ marginBottom: 10 }}
@@ -424,6 +430,28 @@ export const AdminDBQuery = (props: Props) => {
                   >
                     Syntax
                   </RSText>
+                  <IconButton
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(
+                        getQuerySyntax({
+                          model,
+                          select: selectedFields,
+                          limit,
+                          query,
+                          populates,
+                          sort,
+                        })
+                      );
+                      dispatch(
+                        dispatchSnackbar({
+                          mode: 'notify',
+                          message: 'Copied post link!',
+                        })
+                      );
+                    }}
+                  >
+                    <IoCopyOutline color={Theme.secondaryText} size={18} />
+                  </IconButton>
                 </div>
                 <RSText>
                   {getQuerySyntax({
