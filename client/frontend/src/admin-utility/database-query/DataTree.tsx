@@ -28,10 +28,10 @@ export const DataTree = (props: Props) => {
       if (typeof currentObj[k] !== 'object') {
         return (
           <TreeItem
-            nodeId={`${idx}`}
+            nodeId={`${Math.random().toFixed(3)}_${idx}_${k}`}
             label={
               <RSText>
-                <b>{k}:</b>
+                <b style={{ marginRight: 7 }}>{k}:</b>
                 {currentObj[k]}
               </RSText>
             }
@@ -70,8 +70,8 @@ export const DataTree = (props: Props) => {
             paddingBottom: 7,
           }}
         >
-          <RSText bold style={{ marginRight: 8 }}>
-            {idx}
+          <RSText bold style={{ marginRight: 12 }}>
+            {idx + 1}
           </RSText>
           <div>{renderNode(d)}</div>
         </div>

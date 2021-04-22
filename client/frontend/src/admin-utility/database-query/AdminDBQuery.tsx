@@ -13,7 +13,7 @@ import {
   Populate,
 } from '../../helpers/constants/databaseQuery';
 import { IconButton } from '@material-ui/core';
-import { IoRemove } from 'react-icons/io5';
+import { IoCopyOutline, IoRemove } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
 import { putAdminDatabaseQuery } from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
@@ -423,7 +423,24 @@ export const AdminDBQuery = (props: Props) => {
               flex: 1,
             }}
           >
-            <RSText size={18}>Query Result</RSText>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <RSText size={18}>Query Result</RSText>
+              <IconButton
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    JSON.stringify(result, null, 2)
+                  );
+                  dispatch(
+                    dispatchSnackbar({
+                      mode: 'notify',
+                      message: 'Copied post link!',
+                    })
+                  );
+                }}
+              >
+                <IoCopyOutline color={Theme.secondaryText} size={22} />
+              </IconButton>
+            </div>
             <RSText bold italic style={{ marginTop: 7, marginBottom: 7 }}>
               {result.length} documents returned in {queryTime.toFixed(2)} seconds
             </RSText>
