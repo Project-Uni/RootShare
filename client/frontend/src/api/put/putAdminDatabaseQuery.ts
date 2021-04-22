@@ -20,15 +20,18 @@ export const putAdminDatabaseQuery = async ({
   sort: { field: string; order: 1 | -1 };
 }) => {
   const cleanedPopulates = populates?.map((p) => {
-    const s = p.select.join(' ');
-    let pp: { path: string; select: string } | undefined = undefined;
+    const populateSelect = p.select.join(' ');
+    let nestedPopulate: { path: string; select: string } | undefined = undefined;
     if (p.populate)
-      pp = { path: p.populate.path, select: p.populate.select.join(' ') };
+      nestedPopulate = {
+        path: p.populate.path,
+        select: p.populate.select.join(' '),
+      };
 
     return {
       path: p.path,
-      select: s,
-      populate: pp,
+      select: populateSelect,
+      populate: nestedPopulate,
     };
   });
 

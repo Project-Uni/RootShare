@@ -319,7 +319,7 @@ function MTGInterestedUsersModal(props: Props) {
         helperText={
           selectedUser
             ? undefined
-            : `See all of the rushees that have expressed interest in ${communityName}.`
+            : `See all of the individuals that have expressed interest in ${communityName}.`
         }
         helperIcon={
           selectedUser ? (
