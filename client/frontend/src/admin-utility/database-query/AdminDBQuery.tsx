@@ -21,6 +21,7 @@ import { dispatchSnackbar } from '../../redux/actions';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useHistory } from 'react-router';
 import { FaDatabase } from 'react-icons/fa';
+import { DataTree } from './DataTree';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -225,6 +226,8 @@ export const AdminDBQuery = (props: Props) => {
             padding: 15,
             borderRadius: 10,
             width: 325,
+            maxHeight: window.innerHeight,
+            overflow: 'scroll',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -424,7 +427,7 @@ export const AdminDBQuery = (props: Props) => {
             <RSText bold italic style={{ marginTop: 7, marginBottom: 7 }}>
               {result.length} documents returned in {queryTime.toFixed(2)} seconds
             </RSText>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
+            <DataTree data={result} />
           </div>
         )}
       </div>
