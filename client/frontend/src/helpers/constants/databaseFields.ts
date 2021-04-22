@@ -1,6 +1,6 @@
-//SELECT VALUES
+// DB Fields
 
-export const UserSelect = [
+export const UserFields = [
   '_id',
   'firstName',
   'lastName',
@@ -32,7 +32,7 @@ export const UserSelect = [
   'updatedAt',
 ];
 
-export const CommunitySelect = [
+export const CommunityFields = [
   '_id',
   'name',
   'admin',
@@ -61,7 +61,7 @@ export const CommunitySelect = [
   'updatedAt',
 ];
 
-export const PostSelect = [
+export const PostFields = [
   '_id',
   'user',
   'message',
@@ -77,7 +77,7 @@ export const PostSelect = [
   'updatedAt',
 ];
 
-export const CommunityEdgeSelect = [
+export const CommunityEdgeFields = [
   '_id',
   'from',
   'to',
@@ -86,7 +86,7 @@ export const CommunityEdgeSelect = [
   'updatedAt',
 ];
 
-export const CommentSelect = [
+export const CommentFields = [
   '_id',
   'user',
   'message',
@@ -96,7 +96,7 @@ export const CommentSelect = [
   'updatedAt',
 ];
 
-export const ConnectionSelect = [
+export const ConnectionFields = [
   '_id',
   'from',
   'to',
@@ -105,7 +105,7 @@ export const ConnectionSelect = [
   'updatedAt',
 ];
 
-export const ConversationSelect = [
+export const ConversationFields = [
   '_id',
   'participants',
   'lastMessage',
@@ -113,7 +113,7 @@ export const ConversationSelect = [
   'updated',
 ];
 
-export const DocumentSelect = [
+export const DocumentFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -125,7 +125,7 @@ export const DocumentSelect = [
   'updatedAt',
 ];
 
-export const ExternalCommunicationSelect = [
+export const ExternalCommunicationFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -135,7 +135,7 @@ export const ExternalCommunicationSelect = [
   'message',
 ];
 
-export const ExternalLinkSelect = [
+export const ExternalLinkFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -145,7 +145,7 @@ export const ExternalLinkSelect = [
   'url',
 ];
 
-export const ImageSelect = [
+export const ImageFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -155,7 +155,7 @@ export const ImageSelect = [
   'fileName',
 ];
 
-export const MeetTheGreekInterestSelect = [
+export const MeetTheGreekInterestFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -164,7 +164,7 @@ export const MeetTheGreekInterestSelect = [
   'answers',
 ];
 
-export const MessageSelect = [
+export const MessageFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -175,7 +175,7 @@ export const MessageSelect = [
   'likes',
 ];
 
-export const NotificationSelect = [
+export const NotificationFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -194,7 +194,7 @@ export const NotificationSelect = [
   'message',
 ];
 
-export const PhoneVerificationSelect = [
+export const PhoneVerificationFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -205,9 +205,9 @@ export const PhoneVerificationSelect = [
   'validated',
 ];
 
-export const SearchSelect = ['_id', 'updatedAt', 'createdAt', 'user', 'query'];
+export const SearchFields = ['_id', 'updatedAt', 'createdAt', 'user', 'query'];
 
-export const UniversitySelect = [
+export const UniversityFields = [
   '_id',
   'updatedAt',
   'createdAt',
@@ -218,7 +218,7 @@ export const UniversitySelect = [
   'imageRef',
 ];
 
-export const WebinarSelect = [
+export const WebinarFields = [
   '_id',
   'updatedAt',
   'createdAt',
