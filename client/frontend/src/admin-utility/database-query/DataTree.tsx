@@ -66,9 +66,13 @@ export const DataTree = (props: Props) => {
             borderBottom: `1px solid ${Theme.secondaryText}`,
             display: 'flex',
             alignItems: 'center',
+            paddingTop: 7,
+            paddingBottom: 7,
           }}
         >
-          <RSText bold>{idx}</RSText>
+          <RSText bold style={{ marginRight: 8 }}>
+            {idx}
+          </RSText>
           <div>{renderNode(d)}</div>
         </div>
       ))}

@@ -32,6 +32,7 @@ export const DatabaseQuery: { [k in Model]: Value } = {
     populates: [
       { path: 'members', select: UserSelect },
       { path: 'pendingMembers', select: UserSelect },
+      { path: 'admin', select: UserSelect },
       { path: 'links', select: ExternalLinkSelect },
       { path: 'documents', select: DocumentSelect },
       { path: 'university', select: UniversitySelect },
