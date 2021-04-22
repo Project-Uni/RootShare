@@ -7,7 +7,7 @@ import {
 import { CommunityType, ObjectIdType } from '../../rootshare_db/types';
 import { log, sendPacket, deleteFile } from '../../helpers/functions';
 
-import { deletePost } from '../posts';
+import { deletePost } from '../post';
 
 export async function retrieveAllCommunities() {
   try {

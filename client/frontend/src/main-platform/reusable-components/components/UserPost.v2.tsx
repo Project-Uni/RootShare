@@ -27,7 +27,7 @@ import {
 } from '../../../redux/actions';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { useHistory } from 'react-router-dom';
-import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
+import { deletePost, getCommentsForPost, putPostLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
 import { postSubmitComment } from '../../../api/post';
@@ -110,25 +110,26 @@ export const UserPost = (props: Props) => {
     return removeHistoryListen;
   }, [history]);
 
-  const handleSproutClick = async (action: 'like' | 'unlike') => {
+  const handleSproutClick = async (like: boolean) => {
     setLikeDisabled(true);
-    const data = await putLikeStatus(post._id, action);
-    //Adding the UI update before API call completes, and resetting back to original if it fails
-    if (action === 'unlike') {
+    if (!like) {
       setLiked(false);
-      setLikeCount(likeCount - 1);
+      setLikeCount((prevLikeCount) => prevLikeCount - 1);
     } else {
       setLiked(true);
-      setLikeCount(likeCount + 1);
+      setLikeCount((prevLikeCount) => prevLikeCount + 1);
     }
 
+    const data = await putPostLikeStatus(post._id, like);
+    //Adding the UI update before API call completes, and resetting back to original if it fails
+
     if (data.success !== 1) {
-      if (action === 'unlike') {
+      if (!like) {
         setLiked(true);
-        setLikeCount(likeCount + 1);
+        setLikeCount((prevLikeCount) => prevLikeCount + 1);
       } else {
         setLiked(false);
-        setLikeCount(likeCount - 1);
+        setLikeCount((prevLikeCount) => prevLikeCount - 1);
       }
     }
     setLikeDisabled(false);
@@ -537,7 +538,7 @@ export const UserPost = (props: Props) => {
       >
         <DynamicIconButton
           variant="text"
-          onClick={() => handleSproutClick(liked ? 'unlike' : 'like')}
+          onClick={() => handleSproutClick(!liked)}
           disabled={likeDisabled}
           style={{ textTransform: 'none' }}
         >

@@ -29,7 +29,7 @@ export const postSubmitComment = async ({
 }) => {
   const { data } = await makeRequest<SubmitCommentResponse>(
     'POST',
-    `/api/posts/comment/new/${postID}`,
+    `/api/comments/${postID}`,
     { message }
   );
   return data;
