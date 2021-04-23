@@ -25,7 +25,9 @@ export const DataTree = (props: Props) => {
   const renderNode = (currentObj: { [k: string]: any }): any => {
     const keys = Object.keys(currentObj);
     return keys.map((k, idx) => {
-      if (typeof currentObj[k] !== 'object') {
+      if (!currentObj[k] || currentObj[k]?.length === 0) {
+        return <></>;
+      } else if (typeof currentObj[k] !== 'object') {
         return (
           <TreeItem
             nodeId={`${Math.random().toFixed(3)}_${idx}_${k}`}
@@ -38,8 +40,6 @@ export const DataTree = (props: Props) => {
             style={{ width: '100%' }}
           />
         );
-      } else if (currentObj[k] === null || undefined) {
-        return <></>;
       } else {
         return (
           <TreeItem
