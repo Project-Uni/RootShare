@@ -32,6 +32,7 @@ export class AuthService {
           'university',
           'privilegeLevel',
           'profilePicture',
+          'email',
         ],
         options: {
           includeDefaultFields: false,
