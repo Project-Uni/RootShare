@@ -22,6 +22,7 @@ import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useHistory } from 'react-router';
 import { FaDatabase } from 'react-icons/fa';
 import { DataTree } from './DataTree';
+import { SaveModal } from './SaveModal';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -70,6 +71,8 @@ export const AdminDBQuery = (props: Props) => {
   const [populateSelectErr, setPopulateSelectErr] = useState('');
   const [queryErr, setQueryErr] = useState('');
   const [limitErr, setLimitErr] = useState('');
+
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   useEffect(() => {
     if (!Boolean(accessToken))
@@ -216,6 +219,16 @@ export const AdminDBQuery = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
+      <SaveModal
+        onClose={() => setShowSaveModal(false)}
+        open={showSaveModal}
+        model={model}
+        selectedFields={selectedFields}
+        populates={populates}
+        query={query}
+        limit={limit}
+        sort={sort}
+      />
       <EventClientHeader showNavigationMenuDefault />
       <div
         style={{
@@ -478,6 +491,13 @@ export const AdminDBQuery = (props: Props) => {
               onClick={reset}
             >
               Reset
+            </RSButton>
+            <RSButton
+              style={{ width: '100%', marginTop: 10 }}
+              variant="university"
+              onClick={() => setShowSaveModal(true)}
+            >
+              Save
             </RSButton>
           </div>
         </div>
