@@ -79,7 +79,7 @@ export class AdminDatabase {
       }; //For Community Edge and connection
     }[];
     limit?: number;
-    sort?: { [k: string]: 1 | -1 };
+    sort?: { field: string; order: 1 | -1 };
     displayColor: string;
     title: string;
     description: string;
@@ -109,6 +109,16 @@ export class AdminDatabase {
   };
 
   getSaved = async () => {
-    return sendPacket(1, 'Test worked');
+    try {
+      const savedQueries = await SavedAdminDBQuery.model
+        .find({})
+        .populate({ path: 'user', select: 'firstName lastName' })
+        .lean()
+        .exec();
+      return sendPacket(1, 'Successfully retrieved saved queries', { savedQueries });
+    } catch (err) {
+      log('error', err.message);
+      return sendPacket(-1, 'Failed to get saved queries', { error: err });
+    }
   };
 }

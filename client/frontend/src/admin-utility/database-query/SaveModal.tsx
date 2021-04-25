@@ -58,6 +58,9 @@ export const SaveModal = (props: Props) => {
     if (description) setDescription('');
     if (titleErr) setTitleErr('');
     if (descErr) setDescErr('');
+
+    if (loading) setLoading(false);
+    if (color !== Theme.bright) setColor(Theme.bright);
   };
 
   const validate = () => {

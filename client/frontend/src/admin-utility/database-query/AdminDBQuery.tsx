@@ -15,7 +15,11 @@ import {
 import { IconButton } from '@material-ui/core';
 import { IoCopyOutline, IoRemove } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
-import { putAdminDatabaseQuery } from '../../api';
+import {
+  getSavedAdminDBQueries,
+  putAdminDatabaseQuery,
+  IGetSavedAdminDBQueriesResponse,
+} from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
@@ -74,6 +78,10 @@ export const AdminDBQuery = (props: Props) => {
 
   const [showSaveModal, setShowSaveModal] = useState(false);
 
+  const [savedQueries, setSavedQueries] = useState<
+    IGetSavedAdminDBQueriesResponse['savedQueries']
+  >([]);
+
   useEffect(() => {
     if (!Boolean(accessToken))
       history.push(`/login?redirect=${history.location.pathname}`);
@@ -84,6 +92,17 @@ export const AdminDBQuery = (props: Props) => {
     setSelectedFields([]);
     setPopulates([]);
   }, [model]);
+
+  useEffect(() => {
+    getSavedQueries();
+  }, []);
+
+  const getSavedQueries = useCallback(async () => {
+    const data = await getSavedAdminDBQueries();
+    if (data.success === 1) {
+      setSavedQueries(data.content.savedQueries);
+    }
+  }, []);
 
   const removeField = (field: string) => {
     const idx = selectedFields.findIndex((otherField) => otherField === field);

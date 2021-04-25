@@ -130,7 +130,7 @@ export default function adminDatabaseRoutes(app: Express) {
           populate?: { path: string; select: string };
         }[];
         limit?: number;
-        sort: { [k: string]: 1 | -1 };
+        sort: { field: string; order: 1 | -1 };
         displayColor: string;
         title: string;
         description: string;
