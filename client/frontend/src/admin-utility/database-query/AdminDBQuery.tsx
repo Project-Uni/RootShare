@@ -14,7 +14,7 @@ import {
   Populate,
 } from '../../helpers/constants/databaseQuery';
 import { IconButton } from '@material-ui/core';
-import { IoCopyOutline, IoRemove } from 'react-icons/io5';
+import { IoCopyOutline, IoRemove, IoSaveOutline } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
 import {
   getSavedAdminDBQueries,
@@ -554,8 +554,18 @@ export const AdminDBQuery = (props: Props) => {
             overflow: 'scroll',
           }}
         >
-          <RSText bold type="head" size={14}>
-            Saved
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IoSaveOutline
+              color={Theme.secondaryText}
+              size={18}
+              style={{ marginRight: 10 }}
+            />
+            <RSText bold type="head" size={14}>
+              Saved
+            </RSText>
+          </div>
+          <RSText italic style={{ marginTop: 5 }}>
+            Use a saved query if you don't know what you are doing ;)
           </RSText>
           <div>
             {savedQueries.map((s) => (
