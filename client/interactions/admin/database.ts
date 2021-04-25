@@ -105,7 +105,13 @@ export class AdminDatabase {
   };
 
   delete = async (_id: ObjectIdType) => {
-    return sendPacket(1, 'Test worked');
+    try {
+      await SavedAdminDBQuery.model.deleteOne({ _id }).exec();
+      return sendPacket(1, 'Successfully deleted query');
+    } catch (err) {
+      log('error', err.message);
+      return sendPacket(-1, 'Failed to get delete query', { error: err });
+    }
   };
 
   getSaved = async () => {

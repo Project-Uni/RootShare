@@ -20,6 +20,7 @@ import {
   getSavedAdminDBQueries,
   putAdminDatabaseQuery,
   IGetSavedAdminDBQueriesResponse,
+  deleteSavedAdminDBQuery,
 } from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
@@ -178,6 +179,23 @@ export const AdminDBQuery = (props: Props) => {
     setQuery(savedQuery.query);
     setLimit(savedQuery.limit);
     setSort(savedQuery.sort);
+  };
+
+  const onDeleteSavedQuery = async (_id: string) => {
+    const data = await deleteSavedAdminDBQuery(_id);
+    if (data.success === 1) {
+      const index = savedQueries.findIndex((s) => s._id === _id);
+      const clone = [...savedQueries];
+      clone.splice(index, 1);
+      setSavedQueries(clone);
+      dispatch(
+        dispatchSnackbar({ mode: 'success', message: 'Successfully deleted query' })
+      );
+    } else {
+      dispatch(
+        dispatchSnackbar({ mode: 'error', message: 'Failed to delete query' })
+      );
+    }
   };
 
   const reset = () => {
@@ -573,6 +591,7 @@ export const AdminDBQuery = (props: Props) => {
                 {...s}
                 style={{ marginTop: 10 }}
                 onSelect={onSaveQuerySelect}
+                onDelete={onDeleteSavedQuery}
               />
             ))}
           </div>
@@ -786,7 +805,7 @@ export const SavedQuery = (
         style={{
           background: displayColor,
           alignItems: 'center',
-          padding: 3,
+          padding: 5,
           borderTopLeftRadius: 5,
           borderTopRightRadius: 5,
         }}
