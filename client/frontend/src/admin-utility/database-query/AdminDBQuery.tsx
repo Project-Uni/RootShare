@@ -4,6 +4,7 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSText } from '../../base-components';
 import {
   RSButton,
+  RSCard,
   RSSelect,
   RSTextField,
 } from '../../main-platform/reusable-components';
@@ -27,11 +28,25 @@ import { useHistory } from 'react-router';
 import { FaDatabase } from 'react-icons/fa';
 import { DataTree } from './DataTree';
 import { SaveModal } from './SaveModal';
+import { formatTimestamp } from '../../helpers/functions';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
   querySyntax: {
     'word-break': 'break-all', //Not working for some reason
+  },
+  hoverUnderline: {
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+  pointer: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
+  underline: {
+    textDecoration: 'underline',
   },
 }));
 
@@ -87,11 +102,6 @@ export const AdminDBQuery = (props: Props) => {
       history.push(`/login?redirect=${history.location.pathname}`);
     else if (user.privilegeLevel < 6) history.push('/notfound');
   }, []);
-
-  useEffect(() => {
-    setSelectedFields([]);
-    setPopulates([]);
-  }, [model]);
 
   useEffect(() => {
     getSavedQueries();
@@ -156,6 +166,19 @@ export const AdminDBQuery = (props: Props) => {
 
   const getStatePopulateIndex = (path: string) =>
     populates.findIndex((p) => p.path === path);
+
+  const onSaveQuerySelect = (_id: string) => {
+    const index = savedQueries.findIndex((s) => s._id === _id);
+    const savedQuery = savedQueries[index];
+
+    resetErrors();
+    setModel(savedQuery.dbModel);
+    setSelectedFields(savedQuery.selectedFields);
+    setPopulates(savedQuery.populates);
+    setQuery(savedQuery.query);
+    setLimit(savedQuery.limit);
+    setSort(savedQuery.sort);
+  };
 
   const reset = () => {
     resetErrors();
@@ -258,7 +281,7 @@ export const AdminDBQuery = (props: Props) => {
           alignItems: 'flex-start',
         }}
       >
-        <div
+        <RSCard
           style={{
             border: `1px solid ${Theme.primaryText}`,
             background: Theme.background,
@@ -519,10 +542,34 @@ export const AdminDBQuery = (props: Props) => {
               Save
             </RSButton>
           </div>
-        </div>
+        </RSCard>
+        <RSCard
+          style={{
+            border: `1px solid ${Theme.primaryText}`,
+            background: Theme.background,
+            padding: 10,
+            borderRadius: 10,
+            width: 250,
+            maxHeight: window.innerHeight,
+            overflow: 'scroll',
+          }}
+        >
+          <RSText bold type="head" size={14}>
+            Saved
+          </RSText>
+          <div>
+            {savedQueries.map((s) => (
+              <SavedQuery
+                {...s}
+                style={{ marginTop: 10 }}
+                onSelect={onSaveQuerySelect}
+              />
+            ))}
+          </div>
+        </RSCard>
 
         {result && (
-          <div
+          <RSCard
             style={{
               marginLeft: 30,
               maxHeight: window.innerHeight,
@@ -555,7 +602,7 @@ export const AdminDBQuery = (props: Props) => {
               {result.length} documents returned in {queryTime.toFixed(2)} seconds
             </RSText>
             <DataTree data={result} />
-          </div>
+          </RSCard>
         )}
       </div>
     </div>
@@ -680,4 +727,95 @@ const getModelName = (model: Model) => {
     default:
       return false;
   }
+};
+
+export const SavedQuery = (
+  props: IGetSavedAdminDBQueriesResponse['savedQueries'][number] & {
+    style?: React.CSSProperties;
+    className?: string;
+    onDelete?: (_id: string) => void;
+    onSelect: (_id: string) => void;
+  }
+) => {
+  const {
+    _id,
+    title,
+    description,
+    displayColor,
+    createdAt,
+    style,
+    className,
+    onDelete,
+    onSelect,
+  } = props;
+  const styles = useStyles();
+
+  const [hovering, setHovering] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this saved query? This action cannot be undone.'
+      )
+    ) {
+      onDelete?.(_id);
+    }
+  }, [onDelete]);
+
+  return (
+    <div
+      style={{
+        ...style,
+        width: '100%',
+        background: Theme.foreground,
+        borderRadius: 5,
+      }}
+      className={className}
+    >
+      <div
+        style={{
+          background: displayColor,
+          alignItems: 'center',
+          padding: 3,
+          borderTopLeftRadius: 5,
+          borderTopRightRadius: 5,
+        }}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        className={styles.pointer}
+        onClick={() => onSelect(_id)}
+      >
+        <RSText
+          bold
+          className={hovering ? styles.underline : undefined}
+          color={Theme.white}
+        >
+          {title}
+        </RSText>
+      </div>
+      <div style={{ margin: 5, paddingBottom: 5 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <RSText italic size={11}>
+            {formatTimestamp(createdAt, 'MMM D h:mm A')}
+          </RSText>
+          <RSText
+            color={Theme.error}
+            size={11}
+            style={{ marginRight: 7 }}
+            className={[styles.hoverUnderline, styles.pointer].join(' ')}
+            onClick={handleDelete}
+          >
+            Delete
+          </RSText>
+        </div>
+        <RSText style={{ marginTop: 5 }}>{description}</RSText>
+      </div>
+    </div>
+  );
 };
