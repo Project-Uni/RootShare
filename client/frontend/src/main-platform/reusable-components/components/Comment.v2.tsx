@@ -11,7 +11,7 @@ import { FaLeaf } from 'react-icons/fa';
 import { Avatar } from '@material-ui/core';
 
 import { RSText } from '../../../base-components';
-import { RSLink } from '..';
+import { RSLink, RSIconButton } from '..';
 
 import { formatPostTime } from './UserPost.v2';
 import Theme from '../../../theme/Theme';
@@ -119,12 +119,21 @@ export const Comment = (props: CommentProps) => {
             }}
           />
         </RSLink>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
+        {/* <div style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
           <RSText style={{ marginRight: 3 }} size={10}>
             {formatLargeNumber(numLikes)}
           </RSText>
           <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} size={20} />
-        </div>
+        </div> */}
+        <RSIconButton
+          Icon={FaLeaf}
+          text={formatLargeNumber(numLikes)}
+          textSize={10}
+          onClick={() => setLiked((prevLiked) => !prevLiked)}
+          selected={liked}
+          primaryColor={Theme.secondaryText}
+          highlightColor={Theme.bright}
+        />
       </div>
       <div
         style={{
