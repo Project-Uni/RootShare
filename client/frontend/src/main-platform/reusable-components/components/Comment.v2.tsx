@@ -1,15 +1,21 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSText } from '../../../base-components';
-import { Avatar } from '@material-ui/core';
-import { RSLink } from '..';
-import { formatPostTime } from './UserPost.v2';
-import Theme from '../../../theme/Theme';
+
 import { useDispatch } from 'react-redux';
 import {
   dispatchHoverPreview,
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions';
+
+import { FaLeaf } from 'react-icons/fa';
+import { Avatar } from '@material-ui/core';
+
+import { RSText } from '../../../base-components';
+import { RSLink } from '..';
+
+import { formatPostTime } from './UserPost.v2';
+import Theme from '../../../theme/Theme';
+import { formatLargeNumber } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -40,6 +46,9 @@ export const Comment = (props: CommentProps) => {
   const styles = useStyles();
 
   const dispatch = useDispatch();
+
+  const [liked, setLiked] = useState(false);
+  const [numLikes, setNumLikes] = useState(1421);
 
   const isHovering = useRef(false);
 
@@ -88,19 +97,35 @@ export const Comment = (props: CommentProps) => {
         ...style,
       }}
     >
-      <RSLink href={`/profile/${comment.user._id}`}>
-        <Avatar
-          src={comment.user.profilePicture}
-          style={{ height: 50, width: 50 }}
-          onMouseEnter={handleMouseOver}
-          onMouseLeave={() => {
-            isHovering.current = false;
-            setTimeout(() => {
-              dispatch(hoverPreviewTriggerComponentExit());
-            }, 500);
-          }}
-        />
-      </RSLink>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignSelf: 'stretch',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+        }}
+      >
+        <RSLink href={`/profile/${comment.user._id}`}>
+          <Avatar
+            src={comment.user.profilePicture}
+            style={{ height: 50, width: 50 }}
+            onMouseEnter={handleMouseOver}
+            onMouseLeave={() => {
+              isHovering.current = false;
+              setTimeout(() => {
+                dispatch(hoverPreviewTriggerComponentExit());
+              }, 500);
+            }}
+          />
+        </RSLink>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
+          <RSText style={{ marginRight: 3 }} size={10}>
+            {formatLargeNumber(numLikes)}
+          </RSText>
+          <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} size={20} />
+        </div>
+      </div>
       <div
         style={{
           flex: 1,
@@ -114,21 +139,24 @@ export const Comment = (props: CommentProps) => {
         }}
         id="comment-body"
       >
-        <RSLink href={`/profile/${comment.user._id}`} underline="hover">
-          <RSText
-            size={11}
-            bold
-            onMouseEnter={handleMouseOver}
-            onMouseLeave={() => {
-              isHovering.current = false;
-              setTimeout(() => {
-                dispatch(hoverPreviewTriggerComponentExit());
-              }, 500);
-            }}
-          >
-            {comment.user.firstName} {comment.user.lastName}
-          </RSText>
-        </RSLink>
+        <div style={{ display: 'flex' }}>
+          <RSLink href={`/profile/${comment.user._id}`} underline="hover">
+            <RSText
+              size={11}
+              bold
+              onMouseEnter={handleMouseOver}
+              onMouseLeave={() => {
+                isHovering.current = false;
+                setTimeout(() => {
+                  dispatch(hoverPreviewTriggerComponentExit());
+                }, 500);
+              }}
+            >
+              <span style={{ flex: 1 }} />
+              {comment.user.firstName} {comment.user.lastName}
+            </RSText>
+          </RSLink>
+        </div>
         <RSText size={10} color={Theme.secondaryText}>
           {getUserDescription()}
         </RSText>

@@ -1,6 +1,21 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSCard } from './RSCard';
+import dayjs from 'dayjs';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import {
+  dispatchHoverPreview,
+  dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
+} from '../../../redux/actions';
+
+import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
+import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
+import { MdReportProblem, MdSend } from 'react-icons/md';
+import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 import {
   Avatar,
   Button,
@@ -9,31 +24,23 @@ import {
   Menu,
   MenuItem,
 } from '@material-ui/core';
-import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
+import { RSCard } from './RSCard';
 import { DynamicIconButton, RSText } from '../../../base-components';
-import Theme from '../../../theme/Theme';
 import { RSTextField } from './RSTextField';
-import { MdSend } from 'react-icons/md';
-import { RightArrow } from '../../../images';
 import { PostType } from '../../../helpers/types';
 import { RSLink } from './RSLink';
-import dayjs from 'dayjs';
-import {
-  dispatchHoverPreview,
-  dispatchSnackbar,
-  hoverPreviewTriggerComponentExit,
-} from '../../../redux/actions';
-import Carousel, { Modal, ModalGateway } from 'react-images';
-import { useHistory } from 'react-router-dom';
-import { deletePost, getCommentsForPost, putPostLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
-import { postSubmitComment } from '../../../api/post';
-import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
-import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
-import { MdReportProblem } from 'react-icons/md';
+
+import {
+  postSubmitComment,
+  deletePost,
+  getCommentsForPost,
+  putPostLikeStatus,
+} from '../../../api';
+import Theme from '../../../theme/Theme';
+import { RightArrow } from '../../../images';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -239,7 +246,7 @@ export const UserPost = (props: Props) => {
           : undefined,
       });
       if (data.success == 1) {
-        setComments((prev) => [...prev, ...data.content.comments]);
+        setComments((prev) => prev.concat(data.content.comments));
       }
       setLoadingComments(false);
     }
