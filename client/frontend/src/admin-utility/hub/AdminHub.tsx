@@ -7,21 +7,20 @@ import { BsPeopleFill } from 'react-icons/bs';
 import { MdEvent } from 'react-icons/md';
 
 import { useHistory } from 'react-router-dom';
-import { connect } from 'react-redux';
-
-import { updateUser } from '../../redux/actions/user';
-import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
 import RSText from '../../base-components/RSText';
-import { colors } from '../../theme/Colors';
 
 import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSLink } from '../../main-platform/reusable-components';
+import { FaDatabase } from 'react-icons/fa';
+import Theme from '../../theme/Theme';
+import { useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
   loadingIndicator: {
-    color: colors.primary,
+    color: Theme.bright,
     marginTop: 100,
   },
   pageTitleDiv: {
@@ -39,7 +38,7 @@ const useStyles = makeStyles((_: any) => ({
     marginTop: 30,
   },
   iconBackground: {
-    background: colors.primary,
+    background: Theme.bright,
     borderRadius: 100,
     padding: 20,
   },
@@ -61,18 +60,16 @@ const useStyles = makeStyles((_: any) => ({
 
 const MIN_ACCESS_LEVEL = 6;
 
-type Props = {
-  user: { [key: string]: any };
-  accessToken: string;
-  refreshToken: string;
-  updateUser: (userInfo: { [key: string]: any }) => void;
-  updateAccessToken: (accessToken: string) => void;
-  updateRefreshToken: (refreshToken: string) => void;
-};
+type Props = {};
 
-function AdminHub(props: Props) {
+export default function AdminHub(props: Props) {
   const styles = useStyles();
   const history = useHistory();
+
+  const { user, accessToken } = useSelector((state: RootshareReduxState) => ({
+    user: state.user,
+    accessToken: state.accessToken,
+  }));
 
   const [loading, setLoading] = useState(true);
   const [showInvalid, setShowInvalid] = useState(false);
@@ -80,18 +77,23 @@ function AdminHub(props: Props) {
   const pages = [
     {
       title: 'Community Manager',
-      icon: <RiCommunityLine color={colors.primaryText} size={150} />,
+      icon: <RiCommunityLine color={Theme.altText} size={150} />,
       link: '/admin/community',
     },
     {
       title: 'User Manager',
-      icon: <BsPeopleFill color={colors.primaryText} size={150} />,
+      icon: <BsPeopleFill color={Theme.altText} size={150} />,
       link: '/admin/count',
     },
     {
       title: 'Event Manager',
-      icon: <MdEvent color={colors.primaryText} size={150} />,
+      icon: <MdEvent color={Theme.altText} size={150} />,
       link: '/admin/event',
+    },
+    {
+      title: 'Database Portal',
+      icon: <FaDatabase color={Theme.altText} size={150} />,
+      link: '/admin/database',
     },
   ];
 
@@ -102,10 +104,10 @@ function AdminHub(props: Props) {
   }, []);
 
   async function checkAuth() {
-    if (!Boolean(props.accessToken)) {
-      history.push('/login?redirect=/admin/event');
+    if (!Boolean(accessToken)) {
+      history.push('/login?redirect=/admin');
       return false;
-    } else if (props.user.privilegeLevel < MIN_ACCESS_LEVEL) {
+    } else if (user.privilegeLevel < MIN_ACCESS_LEVEL) {
       setShowInvalid(true);
       return false;
     }
@@ -173,27 +175,3 @@ function AdminHub(props: Props) {
     </div>
   );
 }
-
-const mapStateToProps = (state: { [key: string]: any }) => {
-  return {
-    user: state.user,
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    updateUser: (userInfo: { [key: string]: any }) => {
-      dispatch(updateUser(userInfo));
-    },
-    updateAccessToken: (accessToken: string) => {
-      dispatch(updateAccessToken(accessToken));
-    },
-    updateRefreshToken: (refreshToken: string) => {
-      dispatch(updateRefreshToken(refreshToken));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminHub);
