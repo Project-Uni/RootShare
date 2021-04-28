@@ -17,6 +17,7 @@ import {
 
 export default function commentRoutes(app: Express) {
   app.get('/api/comments/:postID', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
     const { postID } = req.params;
     const query = getQueryParams<{ startingTimestamp?: string }>(req, {
       startingTimestamp: { type: 'string', optional: true },
@@ -26,6 +27,7 @@ export default function commentRoutes(app: Express) {
     const { startingTimestamp } = query;
 
     const packet = await retrieveComments(
+      userID,
       ObjectIdVal(postID),
       startingTimestamp ? new Date(startingTimestamp) : new Date()
     );

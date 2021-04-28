@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from 'react-redux';
 import {
   dispatchHoverPreview,
+  dispatchSnackbar,
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions';
 
@@ -15,7 +16,9 @@ import { RSLink, RSIconButton } from '..';
 
 import { formatPostTime } from './UserPost.v2';
 import Theme from '../../../theme/Theme';
+import { putCommentLikeStatus } from '../../../api';
 import { formatLargeNumber } from '../../../helpers/functions';
+import { usePrevious } from '../../../helpers/hooks';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
@@ -23,6 +26,8 @@ export type CommentType = {
   createdAt: string;
   _id: string;
   message: string;
+  likes: string[];
+  liked: boolean;
   user: {
     firstName: string;
     lastName: string;
@@ -36,19 +41,21 @@ export type CommentType = {
   updatedAt: string;
 };
 
-type CommentProps = {
+type Props = {
   className?: string;
   style?: React.CSSProperties;
   comment: CommentType;
 };
-export const Comment = (props: CommentProps) => {
+
+export const Comment = (props: Props) => {
   const { className, style, comment } = props;
   const styles = useStyles();
 
   const dispatch = useDispatch();
 
-  const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(1421);
+  const [liked, setLiked] = useState(comment.liked);
+  const previousLiked = usePrevious(liked);
 
   const isHovering = useRef(false);
 
@@ -68,6 +75,22 @@ export const Comment = (props: CommentProps) => {
         );
     }, 750);
   };
+
+  const updateLikedStatus = useCallback(async () => {
+    const newLiked = previousLiked === undefined ? !liked : previousLiked;
+    setLiked(newLiked);
+
+    const data = await putCommentLikeStatus(comment._id, newLiked);
+    if (data.success !== 1) {
+      setLiked(!newLiked);
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error liking the comment',
+        })
+      );
+    }
+  }, [previousLiked]);
 
   const getUserDescription = useCallback(() => {
     const {
@@ -119,17 +142,11 @@ export const Comment = (props: CommentProps) => {
             }}
           />
         </RSLink>
-        {/* <div style={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}>
-          <RSText style={{ marginRight: 3 }} size={10}>
-            {formatLargeNumber(numLikes)}
-          </RSText>
-          <FaLeaf color={liked ? Theme.bright : Theme.secondaryText} size={20} />
-        </div> */}
         <RSIconButton
           Icon={FaLeaf}
           text={formatLargeNumber(numLikes)}
           textSize={10}
-          onClick={() => setLiked((prevLiked) => !prevLiked)}
+          onClick={updateLikedStatus}
           selected={liked}
           primaryColor={Theme.secondaryText}
           highlightColor={Theme.bright}

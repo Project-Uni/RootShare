@@ -246,6 +246,7 @@ export const UserPost = (props: Props) => {
           : undefined,
       });
       if (data.success == 1) {
+        console.log(data.content.comments);
         setComments((prev) => prev.concat(data.content.comments));
       }
       setLoadingComments(false);
@@ -268,6 +269,7 @@ export const UserPost = (props: Props) => {
       setComments((prev) => [
         {
           ...commentRest,
+          liked: false,
           user: { ...newCommentUser, profilePicture: user.profilePicture },
         },
         ...prev,

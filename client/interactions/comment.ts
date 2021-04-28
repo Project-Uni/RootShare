@@ -80,6 +80,7 @@ export async function leaveCommentOnPost(
 }
 
 export async function retrieveComments(
+  userID: ObjectIdType,
   postID: ObjectIdType,
   startingTimestamp: Date = new Date()
 ) {
@@ -115,6 +116,7 @@ export async function retrieveComments(
           $project: {
             message: '$message',
             likes: { $size: '$likes' },
+            liked: { $in: [userID, '$likes'] },
             createdAt: '$createdAt',
             updatedAt: '$updatedAt',
             user: {
@@ -170,29 +172,25 @@ export async function toggleCommentLike(
   const userExistsPromise = User.model.exists({ _id: userID });
 
   return Promise.all([commentExistsPromise, userExistsPromise]).then(
-    ([commentExists, userExists]) => {
+    async ([commentExists, userExists]) => {
       if (!commentExists) return sendPacket(0, 'Comment does not exist');
       if (!userExists) return sendPacket(0, 'User does not exist');
 
       const updateAction = liked ? '$addToSet' : '$pull';
-      const commentUpdate = Post.model
+      await Comment.model
         .updateOne({ _id: commentID }, { [updateAction]: { likes: userID } })
-        .exec();
-      const userUpdate = User.model
-        .updateOne({ _id: userID }, { [updateAction]: { likes: commentID } })
         .exec();
 
       // new NotificationService().like({
       //   fromUser: userID.toString(),
       //   postID: commentID.toString(),
       // });
-      return Promise.all([commentUpdate, userUpdate]).then(() => {
-        log(
-          'info',
-          `User ${userID} successfully updated like on comment ${commentID}`
-        );
-        return sendPacket(1, 'Successfully updated like on comment');
-      });
+
+      log(
+        'info',
+        `User ${userID} successfully updated like on comment ${commentID}`
+      );
+      return sendPacket(1, 'Successfully updated like on comment');
     }
   );
 }
