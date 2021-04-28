@@ -116,7 +116,8 @@ export const SaveModal = (props: Props) => {
         <div style={{ padding: 15 }}>
           <RSTextField
             label="Title"
-            helperText="Query Title"
+            helperText={titleErr ? titleErr : 'Query Title'}
+            error={!!titleErr}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
@@ -125,7 +126,8 @@ export const SaveModal = (props: Props) => {
           />
           <RSTextField
             label="Description"
-            helperText="Description for the query"
+            helperText={descErr ? descErr : 'Description for the query'}
+            error={!!descErr}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             multiline
