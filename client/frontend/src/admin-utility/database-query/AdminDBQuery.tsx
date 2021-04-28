@@ -4,6 +4,7 @@ import EventClientHeader from '../../event-client/EventClientHeader';
 import { RSText } from '../../base-components';
 import {
   RSButton,
+  RSCard,
   RSSelect,
   RSTextField,
 } from '../../main-platform/reusable-components';
@@ -13,15 +14,22 @@ import {
   Populate,
 } from '../../helpers/constants/databaseQuery';
 import { IconButton } from '@material-ui/core';
-import { IoCopyOutline, IoRemove } from 'react-icons/io5';
+import { IoCopyOutline, IoRemove, IoSaveOutline } from 'react-icons/io5';
 import Theme from '../../theme/Theme';
-import { putAdminDatabaseQuery } from '../../api';
+import {
+  getSavedAdminDBQueries,
+  putAdminDatabaseQuery,
+  IGetSavedAdminDBQueriesResponse,
+  deleteSavedAdminDBQuery,
+} from '../../api';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatchSnackbar } from '../../redux/actions';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { useHistory } from 'react-router';
 import { FaDatabase } from 'react-icons/fa';
 import { DataTree } from './DataTree';
+import { SaveModal } from './SaveModal';
+import { SavedQuery } from './SavedDBQuery';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -71,6 +79,12 @@ export const AdminDBQuery = (props: Props) => {
   const [queryErr, setQueryErr] = useState('');
   const [limitErr, setLimitErr] = useState('');
 
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
+  const [savedQueries, setSavedQueries] = useState<
+    IGetSavedAdminDBQueriesResponse['savedQueries']
+  >([]);
+
   useEffect(() => {
     if (!Boolean(accessToken))
       history.push(`/login?redirect=${history.location.pathname}`);
@@ -78,9 +92,15 @@ export const AdminDBQuery = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    setSelectedFields([]);
-    setPopulates([]);
-  }, [model]);
+    getSavedQueries();
+  }, []);
+
+  const getSavedQueries = useCallback(async () => {
+    const data = await getSavedAdminDBQueries();
+    if (data.success === 1) {
+      setSavedQueries(data.content.savedQueries);
+    }
+  }, []);
 
   const removeField = (field: string) => {
     const idx = selectedFields.findIndex((otherField) => otherField === field);
@@ -134,6 +154,36 @@ export const AdminDBQuery = (props: Props) => {
 
   const getStatePopulateIndex = (path: string) =>
     populates.findIndex((p) => p.path === path);
+
+  const onSaveQuerySelect = (_id: string) => {
+    const index = savedQueries.findIndex((s) => s._id === _id);
+    const savedQuery = savedQueries[index];
+
+    resetErrors();
+    setModel(savedQuery.dbModel);
+    setSelectedFields(savedQuery.selectedFields);
+    setPopulates(savedQuery.populates);
+    setQuery(savedQuery.query);
+    setLimit(savedQuery.limit);
+    setSort(savedQuery.sort);
+  };
+
+  const onDeleteSavedQuery = async (_id: string) => {
+    const data = await deleteSavedAdminDBQuery(_id);
+    if (data.success === 1) {
+      const index = savedQueries.findIndex((s) => s._id === _id);
+      const clone = [...savedQueries];
+      clone.splice(index, 1);
+      setSavedQueries(clone);
+      dispatch(
+        dispatchSnackbar({ mode: 'success', message: 'Successfully deleted query' })
+      );
+    } else {
+      dispatch(
+        dispatchSnackbar({ mode: 'error', message: 'Failed to delete query' })
+      );
+    }
+  };
 
   const reset = () => {
     resetErrors();
@@ -216,6 +266,16 @@ export const AdminDBQuery = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
+      <SaveModal
+        onClose={() => setShowSaveModal(false)}
+        open={showSaveModal}
+        model={model}
+        selectedFields={selectedFields}
+        populates={populates}
+        query={query}
+        limit={limit}
+        sort={sort}
+      />
       <EventClientHeader showNavigationMenuDefault />
       <div
         style={{
@@ -226,7 +286,7 @@ export const AdminDBQuery = (props: Props) => {
           alignItems: 'flex-start',
         }}
       >
-        <div
+        <RSCard
           style={{
             border: `1px solid ${Theme.primaryText}`,
             background: Theme.background,
@@ -479,11 +539,53 @@ export const AdminDBQuery = (props: Props) => {
             >
               Reset
             </RSButton>
+            <RSButton
+              style={{ width: '100%', marginTop: 10 }}
+              variant="university"
+              onClick={() => setShowSaveModal(true)}
+            >
+              Save
+            </RSButton>
           </div>
-        </div>
+        </RSCard>
+        <RSCard
+          style={{
+            border: `1px solid ${Theme.primaryText}`,
+            background: Theme.background,
+            padding: 10,
+            borderRadius: 10,
+            width: 250,
+            maxHeight: window.innerHeight,
+            overflow: 'scroll',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <IoSaveOutline
+              color={Theme.secondaryText}
+              size={18}
+              style={{ marginRight: 10 }}
+            />
+            <RSText bold type="head" size={14}>
+              Saved
+            </RSText>
+          </div>
+          <RSText italic style={{ marginTop: 5 }}>
+            Use a saved query if you don't know what you are doing ;)
+          </RSText>
+          <div>
+            {savedQueries.map((s) => (
+              <SavedQuery
+                {...s}
+                style={{ marginTop: 10 }}
+                onSelect={onSaveQuerySelect}
+                onDelete={onDeleteSavedQuery}
+              />
+            ))}
+          </div>
+        </RSCard>
 
         {result && (
-          <div
+          <RSCard
             style={{
               marginLeft: 30,
               maxHeight: window.innerHeight,
@@ -516,7 +618,7 @@ export const AdminDBQuery = (props: Props) => {
               {result.length} documents returned in {queryTime.toFixed(2)} seconds
             </RSText>
             <DataTree data={result} />
-          </div>
+          </RSCard>
         )}
       </div>
     </div>
