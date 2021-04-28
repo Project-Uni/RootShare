@@ -46,16 +46,26 @@ export default function commentRoutes(app: Express) {
 
   app.put('/api/comments/like', isAuthenticatedWithJWT, async (req, res) => {
     try {
-      const query = getQueryParams<{ commentID: string; liked: boolean }>(req, {
+      const query = getQueryParams<{
+        commentID: string;
+        postID: string;
+        liked: boolean;
+      }>(req, {
         commentID: { type: 'string' },
+        postID: { type: 'string' },
         liked: { type: 'boolean' },
       });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const { commentID, liked } = query;
+      const { commentID, postID, liked } = query;
       const { _id: userID } = getUserFromJWT(req);
 
-      const packet = await toggleCommentLike(userID, ObjectIdVal(commentID), liked);
+      const packet = await toggleCommentLike(
+        userID,
+        ObjectIdVal(commentID),
+        ObjectIdVal(postID),
+        liked
+      );
       return res.json(packet);
     } catch (err) {
       log('err', err);

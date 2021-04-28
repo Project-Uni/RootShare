@@ -1,26 +1,6 @@
-import {
-  Community,
-  CommunityEdge,
-  Comment,
-  Post,
-  User,
-  Image,
-  IImage,
-  ICommunity,
-  IConnection,
-  ICommunityEdge,
-  IUser,
-} from '../rootshare_db/models';
-import { AccountType, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
-import {
-  log,
-  sendPacket,
-  retrieveSignedUrl,
-  uploadFile,
-  decodeBase64Image,
-  deleteFile,
-} from '../helpers/functions';
-import { generateSignedProfilePromises } from './utilities';
+import { Comment, Post, User } from '../rootshare_db/models';
+import { ObjectIdType } from '../rootshare_db/types';
+import { log, sendPacket } from '../helpers/functions';
 import { generatePostSignedImagePromises } from './post';
 import NotificationService from './notification';
 
@@ -119,6 +99,7 @@ export async function retrieveComments(
             liked: { $in: [userID, '$likes'] },
             createdAt: '$createdAt',
             updatedAt: '$updatedAt',
+            post: '$post',
             user: {
               _id: '$user._id',
               firstName: '$user.firstName',
@@ -166,6 +147,7 @@ export async function retrieveComments(
 export async function toggleCommentLike(
   userID: ObjectIdType,
   commentID: ObjectIdType,
+  postID: ObjectIdType,
   liked: boolean
 ) {
   const commentExistsPromise = Comment.model.exists({ _id: commentID });
@@ -181,10 +163,12 @@ export async function toggleCommentLike(
         .updateOne({ _id: commentID }, { [updateAction]: { likes: userID } })
         .exec();
 
-      // new NotificationService().like({
-      //   fromUser: userID.toString(),
-      //   postID: commentID.toString(),
-      // });
+      if (liked)
+        new NotificationService().likeComment({
+          fromUser: userID.toString(),
+          commentID: commentID.toString(),
+          postID: postID.toHexString(),
+        });
 
       log(
         'info',

@@ -148,6 +148,14 @@ const Notification = (
           message,
           href: `/post/${relatedItem!._id}`,
         };
+      case 'comment':
+        return {
+          image,
+          timestamp,
+          seen,
+          message,
+          href: `/post/${relatedItem!._id}`,
+        };
       default:
         return {
           image,

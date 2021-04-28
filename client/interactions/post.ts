@@ -890,10 +890,13 @@ export async function togglePostLike(
           .updateOne({ _id: userID }, { [updateAction]: { likes: postID } })
           .exec();
 
-        new NotificationService().like({
-          fromUser: userID.toString(),
-          postID: postID.toString(),
-        });
+        if (liked) {
+          new NotificationService().likePost({
+            fromUser: userID.toString(),
+            postID: postID.toString(),
+          });
+        }
+
         return Promise.all([postUpdate, userUpdate]).then(() => {
           log('info', `User ${userID} successfully update like for post ${postID}`);
           return sendPacket(1, 'Successfully updated like for post');

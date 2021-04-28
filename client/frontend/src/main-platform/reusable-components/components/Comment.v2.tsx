@@ -25,8 +25,9 @@ const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 export type CommentType = {
   createdAt: string;
   _id: string;
+  post: string;
   message: string;
-  likes: string[];
+  likes: number;
   liked: boolean;
   user: {
     firstName: string;
@@ -53,7 +54,7 @@ export const Comment = (props: Props) => {
 
   const dispatch = useDispatch();
 
-  const [numLikes, setNumLikes] = useState(1421);
+  const [numLikes, setNumLikes] = useState(comment.likes);
   const [liked, setLiked] = useState(comment.liked);
   const previousLiked = usePrevious(liked);
 
@@ -79,10 +80,14 @@ export const Comment = (props: Props) => {
   const updateLikedStatus = useCallback(async () => {
     const newLiked = previousLiked === undefined ? !liked : previousLiked;
     setLiked(newLiked);
+    setNumLikes((prevNumLikes) => (newLiked ? prevNumLikes + 1 : prevNumLikes - 1));
 
-    const data = await putCommentLikeStatus(comment._id, newLiked);
+    const data = await putCommentLikeStatus(comment._id, comment.post, newLiked);
     if (data.success !== 1) {
       setLiked(!newLiked);
+      setNumLikes((prevNumLikes) =>
+        newLiked ? prevNumLikes - 1 : prevNumLikes + 1
+      );
       dispatch(
         dispatchSnackbar({
           mode: 'error',

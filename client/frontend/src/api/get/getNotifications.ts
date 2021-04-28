@@ -8,8 +8,12 @@ export type NotificationType = {
   updatedAt: string;
   forUser: string;
   seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'user';
+  relatedItemType: 'post' | 'comment' | 'event' | 'community' | 'user';
   relatedPost?: {
+    _id: string;
+    message: string;
+  };
+  relatedComment?: {
     _id: string;
     message: string;
   };
@@ -54,7 +58,7 @@ export type UnifiedNotification = {
   updatedAt: string;
   forUser: string;
   seen: boolean;
-  relatedItemType: 'post' | 'event' | 'community' | 'user';
+  relatedItemType: 'post' | 'comment' | 'event' | 'community' | 'user';
   actionProviderType: 'user' | 'community' | 'rootshare';
   actionProvider?: { [key: string]: any; profilePicture?: string };
   relatedItem?: { [key: string]: any };
@@ -83,6 +87,7 @@ const unifyNotifications = (
     const {
       relatedCommunity,
       relatedPost,
+      relatedComment,
       relatedEvent,
       relatedUser,
       actionProviderCommunity,
@@ -93,6 +98,7 @@ const unifyNotifications = (
       | NotificationType['relatedCommunity']
       | NotificationType['relatedEvent']
       | NotificationType['relatedPost']
+      | NotificationType['relatedComment']
       | NotificationType['relatedUser'];
     switch (n.relatedItemType) {
       case 'community':
@@ -106,6 +112,9 @@ const unifyNotifications = (
         break;
       case 'post':
         relatedItem = n.relatedPost;
+        break;
+      case 'comment':
+        relatedItem = n.relatedComment;
         break;
       default:
     }
