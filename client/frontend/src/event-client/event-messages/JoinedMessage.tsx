@@ -40,7 +40,7 @@ export const JoinedMessage = (props: Props) => {
         style={{ marginRight: 10 }}
       />
       <RSText color={Theme.secondaryText}>
-        <RSLink href={`/profile/${_id}`}>
+        <RSLink href={`/profile/${_id}`} newTab>
           <b className={styles.name}>{name}</b>
         </RSLink>{' '}
         joined the event.

@@ -7,6 +7,7 @@ import { TransitionProps } from '@material-ui/core/transitions';
 
 import EventMessage from './EventMessage';
 import MyEventMessage from './MyEventMessage';
+import { JoinedMessage } from './JoinedMessage';
 import EventMessageTextField from './EventMessageTextField';
 import ManageSpeakersSnackbar from '../event-video/event-host/ManageSpeakersSnackbar';
 import { RSButton } from '../..//main-platform/reusable-components';
@@ -16,7 +17,6 @@ import { MessageType, LikeUpdateType } from '../../helpers/types';
 import { makeRequest, cropText } from '../../helpers/functions';
 import { HEADER_HEIGHT } from '../../helpers/constants';
 import Theme from '../../theme/Theme';
-import { JoinedMessage } from './JoinedMessage';
 
 const MAX_MESSAGES = 40;
 
