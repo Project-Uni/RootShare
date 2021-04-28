@@ -4,7 +4,8 @@ import { isRootshareAdmin } from '../middleware/privilegeAuthentication';
 import { FilterQuery } from 'mongoose';
 
 import { AdminDatabase } from '../../interactions/admin';
-import { Model } from '../../rootshare_db/types';
+import { Model, ObjectIdVal } from '../../rootshare_db/types';
+import { getQueryParams, getUserFromJWT, sendPacket } from '../../helpers/functions';
 
 export default function adminDatabaseRoutes(app: Express) {
   /**
@@ -101,6 +102,88 @@ export default function adminDatabaseRoutes(app: Express) {
 
       const status = result.success === 1 ? 200 : 500;
       res.status(status).json(result);
+    }
+  );
+
+  app.post(
+    '/api/admin/general/database/saved',
+    isAuthenticatedWithJWT,
+    isRootshareAdmin,
+    async (req, res) => {
+      const {
+        model,
+        selectedFields,
+        query,
+        populates,
+        limit,
+        sort,
+        displayColor,
+        title,
+        description,
+      } = req.body as {
+        model: Model;
+        selectedFields: string;
+        query: FilterQuery<any>;
+        populates?: {
+          path: string;
+          select: string;
+          populate?: { path: string; select: string };
+        }[];
+        limit?: number;
+        sort?: { field: string; order: 1 | -1 };
+        displayColor: string;
+        title: string;
+        description: string;
+      };
+
+      const { _id: userID } = getUserFromJWT(req);
+
+      const packet = await new AdminDatabase().save({
+        userID,
+        model,
+        selectedFields,
+        query,
+        populates,
+        limit,
+        sort,
+        displayColor,
+        title,
+        description,
+      });
+
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
+    }
+  );
+
+  app.delete(
+    '/api/admin/general/database/saved',
+    isAuthenticatedWithJWT,
+    isRootshareAdmin,
+    async (req, res) => {
+      const query = getQueryParams<{ _id: string }>(req, {
+        _id: { type: 'string' },
+      });
+
+      if (!query)
+        return res.status(500).json(sendPacket(-1, '_id Missing from query params'));
+
+      const { _id } = query;
+
+      const packet = await new AdminDatabase().delete(ObjectIdVal(_id));
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
+    }
+  );
+
+  app.get(
+    '/api/admin/general/database/saved',
+    isAuthenticatedWithJWT,
+    isRootshareAdmin,
+    async (req, res) => {
+      const packet = await new AdminDatabase().getSaved();
+      const status = packet.success === 1 ? 200 : 500;
+      res.status(status).json(packet);
     }
   );
 }
