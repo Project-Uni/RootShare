@@ -21,8 +21,8 @@ import { connect } from 'react-redux';
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
 
-import RootShareLogoFull from '../../images/RootShareLogoFull.png';
-import EventClientHeader from '../../event-client/EventClientHeader';
+import { RSLogoFull } from '../../images';
+import PlatformHeader from '../../header/PlatformHeader';
 import RSText from '../../base-components/RSText';
 import UserAutocomplete from './UserAutocomplete';
 import AdminEventList from './AdminEventList';
@@ -795,11 +795,7 @@ function AdminEventCreator(props: Props) {
   function renderContent() {
     return (
       <div className={styles.formBody}>
-        <img
-          src={RootShareLogoFull}
-          className={styles.rootshareLogo}
-          alt="RootShare"
-        />
+        <img src={RSLogoFull} className={styles.rootshareLogo} alt="RootShare" />
         <RSText type="head" size={28} className={styles.pageTitle}>
           {editEvent === '' ? 'Create New Event' : 'Update Event'}
         </RSText>
@@ -886,7 +882,7 @@ function AdminEventCreator(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader showNavigationMenuDefault />
+      <PlatformHeader showNavigationMenuDefault />
       <AdminPromoteModal
         open={promoteOpen}
         onClose={() => setPromoteOpen(false)}

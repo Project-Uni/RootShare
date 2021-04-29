@@ -22,10 +22,7 @@ import { PromotedEvents } from '../../reusable-components/components/PromotedEve
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
-import {
-  DefaultPromotedBanner,
-  ManagementPlanPromotionBanner,
-} from '../../../images';
+import { DefaultPromotionBanner } from '../../../images';
 import { getPosts } from '../../../api';
 
 const useStyles = makeStyles((_: any) => ({
@@ -132,9 +129,9 @@ export default function HomepageBody(props: Props) {
         />
       </Box> */}
       <FeaturedEvent
-        src={ManagementPlanPromotionBanner}
+        src={DefaultPromotionBanner}
         style={{ margin: 8 }}
-        href={'/event/60884af46e8fe94e13adf36e'}
+        href={undefined}
       />
       <PromotedEvents />
       <MakePostContainer mode={{ name: 'homepage' }} appendPost={appendNewPost} />

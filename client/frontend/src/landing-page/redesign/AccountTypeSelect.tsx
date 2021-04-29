@@ -10,19 +10,19 @@ import { RSText } from '../../base-components';
 
 import { AccountType } from '../../helpers/types';
 import Theme, { addAlpha } from '../../theme/Theme';
-import RootShareLogo from '../../images/RootShareLogoFull.png';
 import { capitalizeFirstLetter } from '../../helpers/functions';
 
 import {
-  account_student,
-  account_alumni,
-  account_faculty,
-  account_recruiter,
-  account_student_mobile,
-  account_alumni_mobile,
-  account_faculty_mobile,
-  account_recruiter_mobile,
-} from '../../images/registration';
+  RSLogoFull,
+  AccountStudent,
+  AccountAlumni,
+  AccountFaculty,
+  AccountRecruiter,
+  AccountStudentMobile,
+  AccountAlumniMobile,
+  AccountFacultyMobile,
+  AccountRecruiterMobile,
+} from '../../images';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -67,23 +67,23 @@ const AccountTypeSelect = (props: Props) => {
   }[] = [
     {
       type: 'student',
-      backgroundImage: account_student,
-      mobileBackground: account_student_mobile,
+      backgroundImage: AccountStudent,
+      mobileBackground: AccountStudentMobile,
     },
     {
       type: 'alumni',
-      backgroundImage: account_alumni,
-      mobileBackground: account_alumni_mobile,
+      backgroundImage: AccountAlumni,
+      mobileBackground: AccountAlumniMobile,
     },
     {
       type: 'faculty',
-      backgroundImage: account_faculty,
-      mobileBackground: account_faculty_mobile,
+      backgroundImage: AccountFaculty,
+      mobileBackground: AccountFacultyMobile,
     },
     {
       type: 'recruiter',
-      backgroundImage: account_recruiter,
-      mobileBackground: account_recruiter_mobile,
+      backgroundImage: AccountRecruiter,
+      mobileBackground: AccountRecruiterMobile,
     },
   ];
 
@@ -151,7 +151,7 @@ const AccountTypeSelect = (props: Props) => {
       ))}
       <div className={styles.absolutePosContainer}>
         <img
-          src={RootShareLogo}
+          src={RSLogoFull}
           style={{
             width: isMobile ? 225 : 300,
             position: 'absolute',

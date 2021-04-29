@@ -9,7 +9,7 @@ import { makeRequest } from '../helpers/functions';
 
 import RSText from '../base-components/RSText';
 
-import EventClientHeader from './EventClientHeader';
+import PlatformHeader from '../header/PlatformHeader';
 import HypeHeader from '../hype-page/headerFooter/HypeHeader';
 
 import EventWatcherVideoContainer from './event-video/event-watcher/EventWatcherVideoContainer';
@@ -350,7 +350,7 @@ function EventClientBase(props: Props) {
         onReject={onRejectSpeakingInvite}
         onAccept={onAcceptSpeakingInvite}
       />
-      <EventClientHeader minWidth={minHeaderWidth} showNavigationMenuDefault />
+      <PlatformHeader minWidth={minHeaderWidth} showNavigationMenuDefault />
       <div className={styles.body}>
         <div className={styles.left}>
           {renderVideoArea()}

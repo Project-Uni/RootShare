@@ -16,7 +16,7 @@ import { DynamicIconButton, RSText } from '../../../base-components';
 import Theme from '../../../theme/Theme';
 import { RSTextField } from './RSTextField';
 import { MdSend } from 'react-icons/md';
-import { RightArrow } from '../../../images';
+import { RightArrowIcon } from '../../../images';
 import { PostType } from '../../../helpers/types';
 import { RSLink } from './RSLink';
 import dayjs from 'dayjs';
@@ -384,7 +384,7 @@ export const UserPost = (props: Props) => {
               {post.toCommunity?._id && !options?.hideToCommunity && (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <img
-                    src={RightArrow}
+                    src={RightArrowIcon}
                     style={{ marginLeft: 15, marginRight: 15, height: 12 }}
                     alt="to"
                   />

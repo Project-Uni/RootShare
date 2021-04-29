@@ -1,9 +1,9 @@
-import DefaultPromotedBanner from './DefaultBanner.png';
-import GrandPrixPromotionBanner from './grand-prix-promotion-banner.jpg';
-import ManagementPlanPromotionBanner from './management-plan-promotion-banner.png';
+import DefaultPromotionBanner from './DefaultPromotionBanner.png';
+import GrandPrixPromotionBanner from './GrandPrixPromotionBanner.jpg';
+import ManagementPlanPromotionBanner from './ManagementPlanPromotionBanner.png';
 
 export {
-  DefaultPromotedBanner,
+  DefaultPromotionBanner,
   GrandPrixPromotionBanner,
   ManagementPlanPromotionBanner,
 };

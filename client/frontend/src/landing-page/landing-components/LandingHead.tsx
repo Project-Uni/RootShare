@@ -4,7 +4,7 @@ import { AppBar, Toolbar } from '@material-ui/core';
 import RSText from '../../base-components/RSText';
 import { Link } from 'react-router-dom';
 
-import RootShareLogo from '../../images/RootShareLogoFullbeta.png';
+import { RSLogoFullBeta } from '../../images';
 
 import Theme from '../../theme/Theme';
 import { RSLink } from '../../main-platform/reusable-components';
@@ -40,7 +40,11 @@ function LandingHead(props: Props) {
       <Toolbar>
         <div className={styles.headerTitle}>
           <RSLink href="/">
-            <img src={RootShareLogo} alt="RootShare" className={styles.headerLogo} />
+            <img
+              src={RSLogoFullBeta}
+              alt="RootShare"
+              className={styles.headerLogo}
+            />
           </RSLink>
         </div>
         <div className={styles.loginButton}>

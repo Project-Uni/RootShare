@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 
 import RSText from '../../base-components/RSText';
 
-import EventClientHeader from '../../event-client/EventClientHeader';
+import PlatformHeader from '../../header/PlatformHeader';
 import { RSLink } from '../../main-platform/reusable-components';
 import { FaDatabase } from 'react-icons/fa';
 import Theme from '../../theme/Theme';
@@ -160,7 +160,7 @@ export default function AdminHub(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader showNavigationMenuDefault />
+      <PlatformHeader showNavigationMenuDefault />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Autocomplete } from '@material-ui/lab';
 import { TextField, Grid } from '@material-ui/core';
 
-import PurdueLogo from '../../images/purdueLogo.png';
+import { PurdueIcon } from '../../images';
 import { FaPlus } from 'react-icons/fa';
 
 const useStyles = makeStyles((_: any) => ({
@@ -61,7 +61,7 @@ function UniversityAutocomplete(props: Props) {
                 <FaPlus size={14} color="black" />
               </div>
             ) : (
-              <img src={PurdueLogo} className={styles.logoStyle} alt="Purdue P" />
+              <img src={PurdueIcon} className={styles.logoStyle} alt="Purdue P" />
             )}
           </Grid>
           <Grid item xs>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-import googleLogo from '../../images/google.svg';
+import { GoogleIcon } from '../../images';
 
 const LOGIN_MESSAGE = 'Login with Google';
 const SIGNUP_MESSAGE = 'Sign up with Google';
@@ -54,7 +54,7 @@ export default function GoogleButton(props: Props) {
       style={{ width: props.width || 250 }}
     >
       <a href={queryString} className={styles.googleLink}>
-        <img src={googleLogo} alt="Google logo" />
+        <img src={GoogleIcon} alt="Google logo" />
         <p className={styles.googleText}>
           {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}
         </p>

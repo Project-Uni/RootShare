@@ -17,9 +17,12 @@ import { AccountInitializationForm } from './initialization/AccountInitializatio
 import Theme from '../../theme/Theme';
 import { useHistory } from 'react-router-dom';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
-import RootShareLogo from '../../images/RootShareLogoFull.png';
-import LandingImg from '../../images/landingBullets.png';
-import { horizontal_line, vertical_line } from '../../images/registration';
+import {
+  RSLogoFull,
+  LandingBullets,
+  HorizontalLine,
+  VerticalLine,
+} from '../../images';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -118,7 +121,7 @@ const LandingPage = (props: Props) => {
               <RSText className={styles.title} color={Theme.white} size={40}>
                 Sign Up
               </RSText>
-              <img src={LandingImg} />
+              <img src={LandingBullets} />
             </div>
           );
         case 'login':
@@ -128,7 +131,7 @@ const LandingPage = (props: Props) => {
               <RSText className={styles.title} color={Theme.white} size={40}>
                 Login
               </RSText>
-              <img src={LandingImg} />
+              <img src={LandingBullets} />
             </div>
           );
         case 'additional':
@@ -139,7 +142,7 @@ const LandingPage = (props: Props) => {
               <RSText className={styles.title} color={Theme.white} size={40}>
                 Complete Registration
               </RSText>
-              <img src={LandingImg} />
+              <img src={LandingBullets} />
             </div>
           );
         case 'verify':
@@ -150,7 +153,7 @@ const LandingPage = (props: Props) => {
               <RSText className={styles.title} color={Theme.white} size={40}>
                 Verify Account
               </RSText>
-              <img src={LandingImg} />
+              <img src={LandingBullets} />
             </div>
           );
       }
@@ -205,7 +208,7 @@ const LandingPage = (props: Props) => {
             <div className={styles.leftMiddleContent}>{getLeftComponent()}</div>
           )} */}
 
-          <img src={RootShareLogo} className={styles.logo} />
+          <img src={RSLogoFull} className={styles.logo} />
           {!isMobile && (
             <RSText color={Theme.white} size={20}>
               Lets Grow Together
@@ -250,7 +253,7 @@ const LeftGraphic = ({ title, mobile }: { title: string; mobile?: boolean }) => 
       </RSText>
       <div style={{ display: mobile ? undefined : 'flex' }}>
         <img
-          src={mobile ? horizontal_line : vertical_line}
+          src={mobile ? HorizontalLine : VerticalLine}
           style={{ height: mobile ? undefined : 500 }}
         />
         <div

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar } from '@material-ui/core';
-import RootShareLogoWhite from '../../../../images/RootShareLogoWhite.png';
+import { RSLogoWhite } from '../../../../images';
 
 import { colors } from '../../../../theme/Colors';
 import { RSLink } from '../../../../main-platform/reusable-components';
@@ -49,11 +49,7 @@ function EventMobileHeader(props: Props) {
       <AppBar position="static" className={styles.header}>
         <Toolbar className={styles.toolbar}>
           <RSLink href="/">
-            <img
-              src={RootShareLogoWhite}
-              alt="RootShare"
-              className={styles.headerLogo}
-            />
+            <img src={RSLogoWhite} alt="RootShare" className={styles.headerLogo} />
           </RSLink>
         </Toolbar>
       </AppBar>

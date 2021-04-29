@@ -7,7 +7,7 @@ import moment from 'moment';
 
 import { MuxMetaDataType } from '../../../helpers/types';
 
-import { RootShareVideoPoster } from '../../../images/events';
+import { RootShareVideoPoster } from '../../../images';
 
 require('dotenv').config();
 

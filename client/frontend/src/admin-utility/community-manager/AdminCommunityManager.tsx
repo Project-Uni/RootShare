@@ -13,7 +13,7 @@ import { makeRequest } from '../../helpers/functions';
 import { Community } from '../../helpers/types';
 
 import RSText from '../../base-components/RSText';
-import EventClientHeader from '../../event-client/EventClientHeader';
+import PlatformHeader from '../../header/PlatformHeader';
 import AdminCreateCommunity from './AdminCreateCommunity';
 import AdminCommunitiesList from './AdminCommunitiesList';
 
@@ -182,7 +182,7 @@ function AdminCommunityManager(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader showNavigationMenuDefault minWidth={MIN_PAGE_WIDTH} />
+      <PlatformHeader showNavigationMenuDefault minWidth={MIN_PAGE_WIDTH} />
       {loading ? (
         <CircularProgress
           className={styles.loadingIndicator}

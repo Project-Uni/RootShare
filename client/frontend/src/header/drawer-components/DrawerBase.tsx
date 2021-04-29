@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Drawer } from '@material-ui/core';
 
-import { colors } from '../theme/Colors';
+import { colors } from '../../theme/Colors';
 
 const useStyles = (backgroundColor: string) =>
   makeStyles((_: any) => ({
@@ -30,7 +30,7 @@ type Props = {
   anchor: 'left' | 'right';
 };
 
-function EventDrawer(props: Props) {
+function DrawerBase(props: Props) {
   const styles = useStyles(props.backgroundColor)();
   const anchor = props.anchor;
 
@@ -46,4 +46,4 @@ function EventDrawer(props: Props) {
   );
 }
 
-export default EventDrawer;
+export default DrawerBase;

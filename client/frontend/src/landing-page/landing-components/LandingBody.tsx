@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 
-import LandingImage from '../../images/iconandphrase.png';
+import { RSCircleIconAndPhrase } from '../../images';
 import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -59,7 +59,7 @@ function LandingBody() {
           Let's grow together!
         </RSText>*/}
         <img
-          src={LandingImage}
+          src={RSCircleIconAndPhrase}
           alt="RootShare-Landing-Image"
           className={styles.photoLeft}
         />

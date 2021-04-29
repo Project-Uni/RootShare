@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
-import PurdueLogo from '../../images/purdueLogo.png';
+import { PurdueIcon } from '../../images';
 
 const useStyles = makeStyles((_: any) => ({
   completeText: {
@@ -38,7 +38,7 @@ function HypeAdditionalComplete(props: Props) {
       <Typography className={styles.completeText}>
         Once again, <b>Boiler Up!</b>
       </Typography>
-      <img src={PurdueLogo} alt="Purdue Logo" className={styles.logoStyle} />
+      <img src={PurdueIcon} alt="Purdue Icon" className={styles.logoStyle} />
     </div>
   );
 }

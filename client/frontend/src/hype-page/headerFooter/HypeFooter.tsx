@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { FaInstagram } from 'react-icons/fa';
 
-import RootShareLogoWhite from '../../images/RootShareLogoWhite.png';
+import { RSLogoWhite } from '../../images';
 
 import Theme from '../../theme/Theme';
 
@@ -58,7 +58,7 @@ function HypeFooter(props: Props) {
   }
   return (
     <div className={styles.footer} style={{ width: width }}>
-      <img src={RootShareLogoWhite} className={styles.footerLogo} alt="RootShare" />
+      <img src={RSLogoWhite} className={styles.footerLogo} alt="RootShare" />
       <br />
       <a
         href="https://www.instagram.com/rootshare/"

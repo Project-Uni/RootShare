@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar } from '@material-ui/core';
 
-import RootShareLogoWhite from '../../images/RootShareLogoWhite.png';
+import { RSLogoWhite } from '../../images';
 
 import Theme from '../../theme/Theme';
 import { RSLink } from '../../main-platform/reusable-components';
@@ -33,11 +33,7 @@ function HypeHeader(props: Props) {
       <Toolbar>
         <div className={styles.headerTitle}>
           <RSLink href="/">
-            <img
-              src={RootShareLogoWhite}
-              alt="RootShare"
-              className={styles.headerLogo}
-            />
+            <img src={RSLogoWhite} alt="RootShare" className={styles.headerLogo} />
           </RSLink>
         </div>
       </Toolbar>
