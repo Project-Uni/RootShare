@@ -58,7 +58,7 @@ function ResetPassword(props: Props) {
   const [error, setError] = useState('');
   const [passwordReset, setPasswordReset] = useState('');
 
-  const { emailToken } = useParams<{ emailToken: string }>();
+  const { emailtoken: emailToken } = useParams<{ emailtoken: string }>();
 
   useEffect(() => {}, []);
 
