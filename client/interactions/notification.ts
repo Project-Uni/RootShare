@@ -53,7 +53,6 @@ export default class NotificationService {
 
       if (!forUser || !fromUserName || forUser.equals(ObjectIdVal(fromUser))) return;
 
-      console.log('CREATING COMMENT LIKE NOTIFICATION');
       const notif = await Notifications.create({
         variant: 'like',
         forUser: forUser.toString(),
