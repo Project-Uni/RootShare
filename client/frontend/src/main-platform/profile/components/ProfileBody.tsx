@@ -303,12 +303,12 @@ export default function ProfileBody(props: Props) {
           ) : (
             posts.map((post, idx) => (
               <UserPost
+                key={post._id}
                 post={post}
                 style={{ marginTop: idx !== 0 ? 10 : undefined }}
                 onDelete={(postID: string) =>
                   removeFromStateArray(postID, '_id', setPosts)
                 }
-                key={`post_${profileID}_${idx}`}
               />
             ))
           )}

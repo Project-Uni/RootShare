@@ -206,6 +206,7 @@ export const CommunityFeed = (props: Props) => {
           {selectedTab === 'community-external'
             ? pinnedPosts.map((post) => (
                 <UserPost
+                  key={post._id}
                   post={post}
                   style={{ marginTop: 15 }}
                   onDelete={(postID: string) =>
@@ -229,6 +230,7 @@ export const CommunityFeed = (props: Props) => {
             )
             .map((post) => (
               <UserPost
+                key={post._id}
                 post={post}
                 style={{ marginTop: 15 }}
                 onDelete={(postID: string) =>

@@ -150,6 +150,8 @@ export const MakePostContainer = (props: Props) => {
         );
         return;
       }
+      post.likes = 0;
+      post.comments = 0;
       const { user: postUser, ...rest } = post;
       const cleanedPost = {
         ...rest,

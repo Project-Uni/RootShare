@@ -156,12 +156,12 @@ export default function HomepageBody(props: Props) {
         <div className={styles.posts}>
           {feed.map((post, idx) => (
             <UserPost
+              key={post._id}
               post={post}
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
               onDelete={(postID: string) =>
                 removeFromStateArray(postID, '_id', setFeed)
               }
-              key={`post_${idx}_${post.createdAt}`}
             />
           ))}
         </div>
