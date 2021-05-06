@@ -97,7 +97,7 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   //Checking if person is a student or admin
-  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (accountType !== 'student' && !userID.equals(community.admin as ObjectIdType)) {
     log(
       'info',
       `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
@@ -190,7 +190,7 @@ export async function createInternalAlumniPost(
   }
 
   //Validating that user is allowed to post into alumni code
-  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (accountType === 'student' && !userID.equals(community.admin as ObjectIdType)) {
     log(
       'info',
       `User ${userID} who is student attempted to post into alumni feed for ${communityID}`

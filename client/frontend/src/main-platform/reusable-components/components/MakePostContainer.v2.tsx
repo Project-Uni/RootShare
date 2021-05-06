@@ -115,6 +115,11 @@ export const MakePostContainer = (props: Props) => {
       toCommunityID = mode.communityID;
 
       if (params?.communityBroadcast) type = 'broadcast-community';
+      else if (
+        mode.name === 'community-internal-alumni' ||
+        mode.name === 'community-internal-student'
+      )
+        type = mode.name;
       else type = 'community-external-user';
     }
 

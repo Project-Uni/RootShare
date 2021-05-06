@@ -55,7 +55,7 @@ const getUrl = ({
 
   if (!params?.toCommunityID) return '';
 
-  let communityURLBase = `/api/posts/community/${params?.toCommunityID}`;
+  let communityURLBase = `/api/posts/community/${params.toCommunityID}`;
 
   switch (type) {
     case 'broadcast-community':
