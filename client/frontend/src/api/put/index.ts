@@ -9,3 +9,4 @@ export * from './putUpdateCommunity';
 export * from './putPinPost';
 export * from './putNotificationsSeen';
 export * from './putCommunityInvite';
+export * from './putAdminDatabaseQuery';

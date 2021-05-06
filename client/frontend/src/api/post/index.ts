@@ -4,3 +4,4 @@ export * from './postSubmitPost';
 export * from './postPromoteEvent';
 export * from './postUploadLinks';
 export * from './postUploadDocuments';
+export * from './postSaveAdminDBQuery';

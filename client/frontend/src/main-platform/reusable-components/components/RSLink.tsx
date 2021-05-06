@@ -29,6 +29,7 @@ const useStyles = makeStyles((_: any) => ({
 
 type Props = {
   href?: string;
+  newTab?: boolean;
   onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -39,11 +40,12 @@ type Props = {
 export const RSLink = (props: Props) => {
   const styles = useStyles();
 
-  const { href, onClick, className, style, children, underline } = props;
+  const { href, newTab, onClick, className, style, children, underline } = props;
 
   return href ? (
     <Link
       to={href}
+      target={newTab ? '_blank' : undefined}
       style={style}
       className={[className, styles.link, styles.pointer, styles[underline]].join(
         ' '
