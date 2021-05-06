@@ -9,7 +9,8 @@ import mediaRoutes from './media';
 import mtgRoutes from './meet-the-greeks';
 import messagingRoutes from './messaging';
 import opentokRoutes from './opentok';
-import postRoutes from './posts';
+import postRoutes from './post';
+import commentRoutes from './comment';
 import proxyRoutes from './proxy';
 import registrationExternalRoutes from './registrationExternal';
 import registrationInternalRoutes from './registrationInternal';
@@ -18,7 +19,7 @@ import userRoutes from './user';
 import utilityRoutes from './utilities';
 import webhookRoutes from './webhooks';
 import { authRoutes } from './newAuth';
-import notificationRoutes from './notifications';
+import notificationRoutes from './notification';
 
 import adminRoutes from './admin';
 
@@ -34,6 +35,7 @@ export default function RootshareRoutes(app: Express, io) {
   messagingRoutes(app, io);
   opentokRoutes(app);
   postRoutes(app);
+  commentRoutes(app);
   proxyRoutes(app);
   registrationExternalRoutes(app);
   registrationInternalRoutes(app);

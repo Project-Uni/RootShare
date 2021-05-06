@@ -16,6 +16,7 @@ import BigButton from './components/RSModal/BigButton';
 import SearchField from './components/SearchField';
 import RSButton from './components/RSButton';
 import RSButtonV2 from './components/RSButton.v2'; // Need to leave component name as V2 until V1 is no longer used
+import { RSIconButton } from './components/RSIconButton';
 import HoverPreview from './components/HoverPreview';
 import SnackbarNotification from './components/SnackbarNotification';
 import { RSLink } from './components/RSLink';
@@ -46,6 +47,7 @@ export {
   SearchField,
   RSButton,
   RSButtonV2,
+  RSIconButton,
   HoverPreview,
   SnackbarNotification,
   RSLink,

@@ -32,7 +32,7 @@ import {
   addProfilePicturesAll,
 } from './utilities';
 import { retrieveAllUrls } from './media';
-import { deletePost, retrievePosts } from './posts';
+import { deletePost, retrievePosts } from './post';
 import NotificationService from './notification';
 
 export async function createNewCommunity(

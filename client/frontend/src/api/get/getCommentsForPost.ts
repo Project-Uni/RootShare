@@ -14,7 +14,7 @@ export const getCommentsForPost = async ({
     query = stringify({ startingTimestamp: startFromTimestamp });
   const { data } = await makeRequest<{ comments: CommentType[] }>(
     'GET',
-    `/api/posts/comments/${postID}${query ? `?${query}` : ''}`
+    `/api/comments/${postID}${query ? `?${query}` : ''}`
   );
   return data;
 };

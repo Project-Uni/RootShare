@@ -1,6 +1,21 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSCard } from './RSCard';
+import dayjs from 'dayjs';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import {
+  dispatchHoverPreview,
+  dispatchSnackbar,
+  hoverPreviewTriggerComponentExit,
+} from '../../../redux/actions';
+
+import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
+import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
+import { MdReportProblem, MdSend } from 'react-icons/md';
+import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
+import Carousel, { Modal, ModalGateway } from 'react-images';
 import {
   Avatar,
   Button,
@@ -9,31 +24,23 @@ import {
   Menu,
   MenuItem,
 } from '@material-ui/core';
-import { FaEllipsisH, FaLeaf, FaRegComment } from 'react-icons/fa';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
+import { RSCard } from './RSCard';
 import { DynamicIconButton, RSText } from '../../../base-components';
-import Theme from '../../../theme/Theme';
 import { RSTextField } from './RSTextField';
-import { MdSend } from 'react-icons/md';
 import { RightArrowIcon } from '../../../images';
 import { PostType } from '../../../helpers/types';
 import { RSLink } from './RSLink';
-import dayjs from 'dayjs';
-import {
-  dispatchHoverPreview,
-  dispatchSnackbar,
-  hoverPreviewTriggerComponentExit,
-} from '../../../redux/actions';
-import Carousel, { Modal, ModalGateway } from 'react-images';
-import { useHistory } from 'react-router-dom';
-import { deletePost, getCommentsForPost, putLikeStatus } from '../../../api';
 import LikesModal from './LikesModal';
 import { Comment, CommentType } from './Comment.v2';
-import { postSubmitComment } from '../../../api/post';
-import { IoTrashBinOutline, IoCopyOutline } from 'react-icons/io5';
-import { RiPushpin2Line, RiPushpin2Fill } from 'react-icons/ri';
-import { MdReportProblem } from 'react-icons/md';
+
+import {
+  postSubmitComment,
+  deletePost,
+  getCommentsForPost,
+  putPostLikeStatus,
+} from '../../../api';
+import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -110,25 +117,26 @@ export const UserPost = (props: Props) => {
     return removeHistoryListen;
   }, [history]);
 
-  const handleSproutClick = async (action: 'like' | 'unlike') => {
+  const handleSproutClick = async (like: boolean) => {
     setLikeDisabled(true);
-    const data = await putLikeStatus(post._id, action);
-    //Adding the UI update before API call completes, and resetting back to original if it fails
-    if (action === 'unlike') {
+    if (!like) {
       setLiked(false);
-      setLikeCount(likeCount - 1);
+      setLikeCount((prevLikeCount) => prevLikeCount - 1);
     } else {
       setLiked(true);
-      setLikeCount(likeCount + 1);
+      setLikeCount((prevLikeCount) => prevLikeCount + 1);
     }
 
+    const data = await putPostLikeStatus(post._id, like);
+    //Adding the UI update before API call completes, and resetting back to original if it fails
+
     if (data.success !== 1) {
-      if (action === 'unlike') {
+      if (!like) {
         setLiked(true);
-        setLikeCount(likeCount + 1);
+        setLikeCount((prevLikeCount) => prevLikeCount + 1);
       } else {
         setLiked(false);
-        setLikeCount(likeCount - 1);
+        setLikeCount((prevLikeCount) => prevLikeCount - 1);
       }
     }
     setLikeDisabled(false);
@@ -238,7 +246,7 @@ export const UserPost = (props: Props) => {
           : undefined,
       });
       if (data.success == 1) {
-        setComments((prev) => [...prev, ...data.content.comments]);
+        setComments((prev) => prev.concat(data.content.comments));
       }
       setLoadingComments(false);
     }
@@ -260,6 +268,8 @@ export const UserPost = (props: Props) => {
       setComments((prev) => [
         {
           ...commentRest,
+          likes: 0,
+          liked: false,
           user: { ...newCommentUser, profilePicture: user.profilePicture },
         },
         ...prev,
@@ -537,7 +547,7 @@ export const UserPost = (props: Props) => {
       >
         <DynamicIconButton
           variant="text"
-          onClick={() => handleSproutClick(liked ? 'unlike' : 'like')}
+          onClick={() => handleSproutClick(!liked)}
           disabled={likeDisabled}
           style={{ textTransform: 'none' }}
         >
