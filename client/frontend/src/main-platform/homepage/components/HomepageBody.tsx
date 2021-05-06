@@ -21,6 +21,7 @@ import { PromotedEvents } from '../../reusable-components/components/PromotedEve
 
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { removeFromStateArray } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 import { DefaultPromotionBanner } from '../../../images';
 import { getPosts } from '../../../api';
@@ -157,6 +158,9 @@ export default function HomepageBody(props: Props) {
             <UserPost
               post={post}
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
+              onDelete={(postID: string) =>
+                removeFromStateArray(postID, '_id', setFeed)
+              }
               key={`post_${idx}_${post.createdAt}`}
             />
           ))}

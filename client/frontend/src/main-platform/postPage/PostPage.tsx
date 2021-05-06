@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import { getPostById } from '../../api';
-import { UserPost } from '../reusable-components/components/UserPost.v2';
-import { PostType } from '../../helpers/types';
-import { CircularProgress } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
+
+import { CircularProgress } from '@material-ui/core';
+
+import { UserPost } from '../reusable-components/components/UserPost.v2';
+
 import { RSText } from '../../base-components';
+
+import { getPostById } from '../../api';
+import { PostType } from '../../helpers/types';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 
@@ -13,6 +18,8 @@ type Props = {};
 
 export const PostPage = (props: Props) => {
   const styles = useStyles();
+
+  const history = useHistory();
 
   const { postID } = useParams<{ postID: string }>();
 
@@ -45,7 +52,7 @@ export const PostPage = (props: Props) => {
       ) : loading || !post ? (
         <CircularProgress style={{ marginTop: 50 }} size={80} />
       ) : (
-        <UserPost post={post} />
+        <UserPost post={post} onDelete={() => history.push('/home')} />
       )}
     </div>
   );

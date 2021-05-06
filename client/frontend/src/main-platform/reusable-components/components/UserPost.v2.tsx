@@ -70,6 +70,7 @@ type Props = {
   className?: string;
   style?: React.CSSProperties;
   post: PostType;
+  onDelete: (postID: string) => void;
   options?: {
     hideToCommunity?: boolean;
     pinToCommunityMenuItem?: {
@@ -82,7 +83,7 @@ type Props = {
 
 export const UserPost = (props: Props) => {
   const styles = useStyles();
-  const { className, style, post, options } = props;
+  const { className, style, post, onDelete, options } = props;
 
   const history = useHistory();
 
@@ -106,7 +107,6 @@ export const UserPost = (props: Props) => {
   const [loadingComments, setLoadingComments] = useState(false);
 
   const isHovering = useRef(false);
-  const [isDeleted, setIsDeleted] = useState(false);
 
   const [pinned, setPinned] = useState(options?.pinned || false);
 
@@ -295,7 +295,7 @@ export const UserPost = (props: Props) => {
     ) {
       const data = await deletePost({ postID: post._id });
       if (data.success === 1) {
-        setIsDeleted(true);
+        if (onDelete) onDelete(post._id);
         dispatch(
           dispatchSnackbar({ message: 'Successfully deleted post', mode: 'notify' })
         );
@@ -316,9 +316,7 @@ export const UserPost = (props: Props) => {
     dispatch(dispatchSnackbar({ mode: 'notify', message: 'Copied post link!' }));
   };
 
-  return isDeleted ? (
-    <></>
-  ) : (
+  return (
     <RSCard
       variant="secondary"
       style={{ paddingTop: 20, paddingBottom: 20, ...style }}
