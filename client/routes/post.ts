@@ -304,10 +304,11 @@ export default function postRoutes(app: Express) {
       return res.status(400).json(sendPacket(-1, 'Missing query param _id'));
 
     const { _id: postID } = query;
-    const { _id: userID } = getUserFromJWT(req);
+    const { _id: userID, accountType } = getUserFromJWT(req);
     const post = await getPost({
-      postID: postID as string,
       userID,
+      accountType,
+      postID: ObjectIdVal(postID),
     });
     if (!post)
       return res.status(400).json(sendPacket(-1, 'Could not retrieve post'));

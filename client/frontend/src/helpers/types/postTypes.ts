@@ -21,6 +21,7 @@ export type PostType = {
   toCommunity?: { name: string; _id: string; profilePicture?: string };
   type: 'broadcast' | 'external' | 'internalCurrent' | 'internalAlumni';
   anonymous?: boolean;
+  accessErr?: PostAccessError;
 };
 
 export type CommunityPostingOption = {
@@ -29,3 +30,9 @@ export type CommunityPostingOption = {
   communityID?: string;
   profilePicture?: string;
 };
+
+export type PostAccessError =
+  | 'unknown'
+  | 'not-member'
+  | 'not-student'
+  | 'not-alumni';

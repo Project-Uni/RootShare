@@ -1180,18 +1180,53 @@ export function generatePostSignedImagePromises(
 
 export const getPost = async ({
   userID,
+  accountType,
   postID,
 }: {
-  postID: string;
   userID: ObjectIdType;
+  accountType: AccountType;
+  postID: ObjectIdType;
 }) => {
-  //TODO - Determine if user has access to get post
-  const hasAccess = true;
   try {
-    const post = await retrievePosts({ _id: ObjectIdVal(postID) }, 1, userID);
-    if (!post) return false;
+    const posts = await retrievePosts({ _id: postID }, 1, userID);
+    if (!posts) return false;
+    const post = posts[0];
+    const postType = post.type;
+    const toCommunity = post.toCommunity;
 
-    return post[0];
+    if (postType === 'internalCurrent' || postType === 'internalAlumni') {
+      const isMember = await Community.model.exists({
+        _id: toCommunity._id,
+        members: { $elemMatch: { $eq: userID } },
+      });
+      if (!isMember)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-member',
+        };
+
+      const isAdmin = await Community.model.exists({
+        _id: toCommunity._id,
+        admin: userID,
+      });
+
+      if (postType === 'internalCurrent' && accountType !== 'student' && !isAdmin)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-student',
+        };
+
+      if (postType === 'internalAlumni' && accountType !== 'alumni' && !isAdmin)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-alumni',
+        };
+    }
+
+    return post;
   } catch (err) {
     log('error', err.message);
     return false;
@@ -1265,6 +1300,7 @@ export async function retrievePosts(
             profilePicture: '$user.profilePicture',
             major: '$user.major',
             graduationYear: '$user.graduationYear',
+            accountType: '$user.accountType',
             work: '$user.work',
             position: '$user.position',
           },
@@ -1279,7 +1315,7 @@ export async function retrievePosts(
             profilePicture: '$fromCommunity.profilePicture',
           },
           liked: {
-            $in: [ObjectIdVal(userID.toString()), '$likes'],
+            $in: [userID, '$likes'],
           },
           images: {
             $map: {
