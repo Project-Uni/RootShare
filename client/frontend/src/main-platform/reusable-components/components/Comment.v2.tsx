@@ -78,7 +78,10 @@ export const Comment = (props: Props) => {
   };
 
   const updateLikedStatus = useCallback(async () => {
-    const newLiked = previousLiked === undefined ? !liked : previousLiked;
+    const newLiked =
+      previousLiked === undefined || previousLiked === liked
+        ? !liked
+        : previousLiked;
     setLiked(newLiked);
     setNumLikes((prevNumLikes) => (newLiked ? prevNumLikes + 1 : prevNumLikes - 1));
 
@@ -95,7 +98,7 @@ export const Comment = (props: Props) => {
         })
       );
     }
-  }, [previousLiked]);
+  }, [previousLiked, liked]);
 
   const getUserDescription = useCallback(() => {
     const {
