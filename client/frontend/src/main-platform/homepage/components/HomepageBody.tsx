@@ -75,7 +75,7 @@ export default function HomepageBody(props: Props) {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers'],
+        names: ['discoverUsers', 'discoverCommunities'],
       })
     );
     window.addEventListener('resize', handleResize);

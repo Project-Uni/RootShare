@@ -3,6 +3,10 @@ import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
 
+import { useDispatch } from 'react-redux';
+import { updateSidebarComponents } from '../../redux/actions';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
+
 import { CircularProgress } from '@material-ui/core';
 
 import { UserPost } from '../reusable-components/components/UserPost.v2';
@@ -25,6 +29,8 @@ type Props = {};
 export const PostPage = (props: Props) => {
   const styles = useStyles();
 
+  const dispatch = useDispatch();
+
   const history = useHistory();
 
   const { postID } = useParams<{ postID: string }>();
@@ -46,6 +52,14 @@ export const PostPage = (props: Props) => {
 
     setLoading(false);
   }, [postID]);
+
+  useEffect(() => {
+    dispatch(
+      updateSidebarComponents({
+        names: ['discoverUsers', 'discoverCommunities'],
+      })
+    );
+  }, []);
 
   useEffect(() => {
     fetchPost();

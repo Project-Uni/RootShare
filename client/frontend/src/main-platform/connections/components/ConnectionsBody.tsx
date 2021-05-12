@@ -86,7 +86,7 @@ export default function ConnectionsBody(props: Props) {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers'],
+        names: ['discoverUsers', 'discoverCommunities'],
       })
     );
   }, []);

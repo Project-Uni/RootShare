@@ -96,7 +96,7 @@ export default function ProfileBody(props: Props) {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers', 'userDocuments'],
+        names: ['discoverUsers', 'userDocuments', 'discoverCommunities'],
         userID: profileID,
       })
     );
