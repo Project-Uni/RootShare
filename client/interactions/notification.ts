@@ -4,6 +4,7 @@ import {
   IWebinar,
   Notifications,
   Post,
+  Comment,
   User,
   Webinar,
 } from '../rootshare_db/models';
@@ -12,7 +13,7 @@ import { log, sendPacket } from '../helpers/functions';
 import { Query } from 'mongoose';
 
 export default class NotificationService {
-  like = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
+  likePost = async ({ fromUser, postID }: { fromUser: string; postID: string }) => {
     try {
       const [forUser, fromUserName] = await Promise.all([
         getUserIDForPost(postID),
@@ -30,6 +31,38 @@ export default class NotificationService {
         relatedItemId: postID,
         message: `${fromUserName.firstName} ${fromUserName.lastName} liked your post`,
       });
+    } catch (err) {
+      log('error', err.message);
+    }
+  };
+
+  likeComment = async ({
+    fromUser,
+    commentID,
+    postID,
+  }: {
+    fromUser: string;
+    commentID: string;
+    postID: string;
+  }) => {
+    try {
+      const [forUser, fromUserName] = await Promise.all([
+        getUserIDForComment(commentID),
+        getUsername(fromUser),
+      ]);
+
+      if (!forUser || !fromUserName || forUser.equals(ObjectIdVal(fromUser))) return;
+
+      const notif = await Notifications.create({
+        variant: 'like',
+        forUser: forUser.toString(),
+        actionProviderType: 'user',
+        actionProviderId: fromUser,
+        relatedItemType: 'post',
+        relatedItemId: postID,
+        message: `${fromUserName.firstName} ${fromUserName.lastName} liked your comment`,
+      });
+      console.log(notif);
     } catch (err) {
       log('error', err.message);
     }
@@ -255,6 +288,17 @@ const getUserIDForPost = async (postID: string): Promise<ObjectIdType> => {
     if (!post || post.anonymous) return ObjectIdVal('');
 
     return post.user as ObjectIdType;
+  } catch (err) {
+    return ObjectIdVal('');
+  }
+};
+
+const getUserIDForComment = async (commentID: string): Promise<ObjectIdType> => {
+  try {
+    const comment = await Comment.model.findById(commentID, 'user').lean().exec();
+    if (!comment) return ObjectIdVal('');
+
+    return comment.user as ObjectIdType;
   } catch (err) {
     return ObjectIdVal('');
   }

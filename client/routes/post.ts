@@ -14,8 +14,6 @@ import {
   getGeneralFeed,
   getFollowingFeed,
   getPostsByUser,
-  leaveCommentOnPost,
-  retrieveComments,
   //New Community Internal
   createInternalCurrentMemberCommunityPost,
   createInternalAlumniPost,
@@ -29,14 +27,13 @@ import {
   getFollowingCommunityPosts,
   createBroadcastCommunityPost,
   //Post Actions
-  likePost,
-  unlikePost,
+  togglePostLike,
   getLikes,
   deletePost,
   getPost,
-} from '../interactions/posts';
+} from '../interactions/post';
 
-export default function postsRoutes(app: Express) {
+export default function postRoutes(app: Express) {
   app.post('/api/posts/broadcast/user', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const { message, image } = req.body;
@@ -66,41 +63,6 @@ export default function postsRoutes(app: Express) {
       const { _id } = getUserFromJWT(req);
       if (userID === 'user') userID = (_id as unknown) as string;
       const packet = await getPostsByUser(ObjectIdVal(userID), _id);
-      return res.json(packet);
-    }
-  );
-
-  app.get(
-    '/api/posts/comments/:postID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const query = getQueryParams<{ startingTimestamp?: string }>(req, {
-        startingTimestamp: { type: 'string', optional: true },
-      });
-      if (!query)
-        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-
-      const { startingTimestamp } = query;
-
-      const packet = await retrieveComments(
-        ObjectIdVal(postID),
-        startingTimestamp ? new Date(startingTimestamp) : new Date()
-      );
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/posts/comment/new/:postID',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { postID } = req.params;
-      const { message } = req.body;
-      const { _id: userID } = getUserFromJWT(req);
-      if (!message)
-        return res.json(sendPacket(-1, 'Message is missing from request body.'));
-      const packet = await leaveCommentOnPost(userID, ObjectIdVal(postID), message);
       return res.json(packet);
     }
   );
@@ -298,27 +260,20 @@ export default function postsRoutes(app: Express) {
     }
   );
 
-  app.put('/api/posts/likes', isAuthenticatedWithJWT, async (req, res) => {
+  app.put('/api/posts/like', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
 
     const query = getQueryParams<{
-      action: string;
       postID: string;
+      liked: boolean;
     }>(req, {
-      action: { type: 'string' },
       postID: { type: 'string' },
+      liked: { type: 'boolean' },
     });
     if (!query) return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-    const { action, postID } = query;
+    const { postID, liked } = query;
 
-    if (action === 'like')
-      return res.json(await likePost(ObjectIdVal(postID), userID));
-    else if (action === 'unlike')
-      return res.json(await unlikePost(ObjectIdVal(postID), userID));
-
-    return res.json(
-      sendPacket(0, 'action (like, unlike) missing from query params')
-    );
+    return res.json(await togglePostLike(userID, ObjectIdVal(postID), liked));
   });
 
   app.get('/api/posts/likes/:postID', isAuthenticatedWithJWT, async (req, res) => {

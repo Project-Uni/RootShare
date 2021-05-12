@@ -1,4 +1,5 @@
-export * from './putLikeStatus';
+export * from './putPostLikeStatus';
+export * from './putCommentLikeStatus';
 export * from './putUserConnection';
 export * from './putUserToCommunityRelationship';
 export * from './putCommunityMembership';

@@ -37,7 +37,7 @@ import {
   dispatchSnackbar,
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions/interactions';
-import { putLikeStatus } from '../../../api/put/putLikeStatus';
+import { putPostLikeStatus } from '../../../api';
 import { useHistory } from 'react-router-dom';
 
 const MAX_INITIAL_VISIBLE_CHARS = 200;
@@ -257,7 +257,7 @@ function UserPost(props: Props) {
 
   async function likePost() {
     setLikeDisabled(true);
-    const data = await putLikeStatus(props.postID, 'like');
+    const data = await putPostLikeStatus(props.postID, true);
     if (data.success === 1) {
       setLiked(true);
       setLikeCount(likeCount + 1);
@@ -267,7 +267,7 @@ function UserPost(props: Props) {
 
   async function unlikePost() {
     setLikeDisabled(true);
-    const data = await putLikeStatus(props.postID, 'unlike');
+    const data = await putPostLikeStatus(props.postID, false);
     if (data.success === 1) {
       setLiked(false);
       setLikeCount(likeCount - 1);
@@ -297,11 +297,9 @@ function UserPost(props: Props) {
     }
 
     const message = comment;
-    const { data } = await makeRequest(
-      'POST',
-      `/api/posts/comment/new/${props.postID}`,
-      { message }
-    );
+    const { data } = await makeRequest('POST', `/api/comments/${props.postID}`, {
+      message,
+    });
 
     if (data.success === 1) {
       setComment('');
@@ -327,7 +325,7 @@ function UserPost(props: Props) {
 
   async function handleRetrieveComments() {
     setLoadingMoreComments(true);
-    const { data } = await makeRequest('GET', `/api/posts/comments/${props.postID}`);
+    const { data } = await makeRequest('GET', `/api/comments/${props.postID}`);
 
     if (data.success == 1) {
       if (data.content['comments'].length > 0)
@@ -346,7 +344,7 @@ function UserPost(props: Props) {
     const query = qs.stringify({ from: earliestComment });
     const { data } = await makeRequest(
       'GET',
-      `/api/posts/comments/${props.postID}?${query}`
+      `/api/comments/${props.postID}?${query}`
     );
 
     if (data.success == 1) {

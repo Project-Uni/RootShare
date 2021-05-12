@@ -716,61 +716,6 @@ export async function getPostsByUser(
   }
 }
 
-export async function leaveCommentOnPost(
-  userID: ObjectIdType,
-  postID: ObjectIdType,
-  message: string
-) {
-  const cleanedMessage = message.trim();
-  if (cleanedMessage.length === 0) {
-    return sendPacket(0, 'Message is empty');
-  }
-  try {
-    const userExistsPromise = await User.model.exists({ _id: userID });
-    const postExistsPromise = await Post.model.exists({ _id: postID });
-
-    return Promise.all([userExistsPromise, postExistsPromise])
-      .then(async ([userExists, postExists]) => {
-        if (!userExists) return sendPacket(0, 'Invalid userID provided');
-        if (!postExists) return sendPacket(0, 'Invalid PostID provided');
-
-        const comment = await new Comment.model({
-          user: userID,
-          message: cleanedMessage,
-          post: postID,
-        }).save();
-
-        await comment
-          .populate({
-            path: 'user',
-            select: 'firstName lastName email major work position graduationYear',
-          })
-          .execPopulate();
-
-        await Post.model
-          .updateOne({ _id: postID }, { $push: { comments: comment._id } })
-          .exec();
-
-        new NotificationService().comment({
-          fromUser: userID.toString(),
-          postID: postID.toString(),
-          comment: message,
-        });
-
-        return sendPacket(1, `Successfully posted comment on post ${postID}`, {
-          comment,
-        });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
 export async function getInternalCurrentMemberPosts(
   communityID: ObjectIdType,
   userID: ObjectIdType,
@@ -923,7 +868,11 @@ export async function getFollowingCommunityPosts(
 }
 
 //Actions
-export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
+export async function togglePostLike(
+  userID: ObjectIdType,
+  postID: ObjectIdType,
+  liked: boolean
+) {
   try {
     const postExistsPromise = Post.model.exists({ _id: postID });
     const userExistsPromise = User.model.exists({ _id: userID });
@@ -933,20 +882,24 @@ export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
         if (!postExists) return sendPacket(0, 'Post does not exist');
         if (!userExists) return sendPacket(0, 'User does not exist');
 
+        const updateAction = liked ? '$addToSet' : '$pull';
         const postUpdate = Post.model
-          .updateOne({ _id: postID }, { $addToSet: { likes: userID } })
+          .updateOne({ _id: postID }, { [updateAction]: { likes: userID } })
           .exec();
         const userUpdate = User.model
-          .updateOne({ _id: userID }, { $addToSet: { likes: postID } })
+          .updateOne({ _id: userID }, { [updateAction]: { likes: postID } })
           .exec();
 
-        new NotificationService().like({
-          fromUser: userID.toString(),
-          postID: postID.toString(),
-        });
+        if (liked) {
+          new NotificationService().likePost({
+            fromUser: userID.toString(),
+            postID: postID.toString(),
+          });
+        }
+
         return Promise.all([postUpdate, userUpdate]).then(() => {
-          log('info', `User ${userID} successfully liked post ${postID}`);
-          return sendPacket(1, 'Successfully liked post');
+          log('info', `User ${userID} successfully update like for post ${postID}`);
+          return sendPacket(1, 'Successfully updated like for post');
         });
       }
     );
@@ -958,39 +911,39 @@ export async function likePost(postID: ObjectIdType, userID: ObjectIdType) {
   }
 }
 
-export async function unlikePost(postID: ObjectIdType, userID: ObjectIdType) {
-  try {
-    const postExistsPromise = Post.model.exists({ _id: postID });
-    const userExistsPromise = User.model.exists({ _id: userID });
+// export async function unlikePost(postID: ObjectIdType, userID: ObjectIdType) {
+//   try {
+//     const postExistsPromise = Post.model.exists({ _id: postID });
+//     const userExistsPromise = User.model.exists({ _id: userID });
 
-    return Promise.all([postExistsPromise, userExistsPromise]).then(
-      ([postExists, userExists]) => {
-        if (!postExists) return sendPacket(0, 'Post does not exist');
-        if (!userExists) return sendPacket(0, 'User does not exist');
+//     return Promise.all([postExistsPromise, userExistsPromise]).then(
+//       ([postExists, userExists]) => {
+//         if (!postExists) return sendPacket(0, 'Post does not exist');
+//         if (!userExists) return sendPacket(0, 'User does not exist');
 
-        const postUpdate = Post.model
-          .updateOne({ _id: postID }, { $pull: { likes: userID } })
-          .exec();
-        const userUpdate = User.model
-          .updateOne({ _id: userID }, { $pull: { likes: postID } })
-          .exec();
+//         const postUpdate = Post.model
+//           .updateOne({ _id: postID }, { $pull: { likes: userID } })
+//           .exec();
+//         const userUpdate = User.model
+//           .updateOne({ _id: userID }, { $pull: { likes: postID } })
+//           .exec();
 
-        return Promise.all([postUpdate, userUpdate]).then(() => {
-          log(
-            'info',
-            `User ${userID} successfully removed like from post ${postID}`
-          );
-          return sendPacket(1, 'Successfully removed like from post');
-        });
-      }
-    );
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, 'There was an error updating the models', {
-      error: err.message,
-    });
-  }
-}
+//         return Promise.all([postUpdate, userUpdate]).then(() => {
+//           log(
+//             'info',
+//             `User ${userID} successfully removed like from post ${postID}`
+//           );
+//           return sendPacket(1, 'Successfully removed like from post');
+//         });
+//       }
+//     );
+//   } catch (err) {
+//     log('error', err);
+//     return sendPacket(-1, 'There was an error updating the models', {
+//       error: err.message,
+//     });
+//   }
+// }
 
 export async function getLikes(postID: ObjectIdType, userID: ObjectIdType) {
   try {
@@ -1154,7 +1107,7 @@ async function getValidatedCommunity(
   }
 }
 
-function generatePostSignedImagePromises(
+export function generatePostSignedImagePromises(
   posts: {
     [key: string]: any;
     _id: ObjectIdType;
@@ -1203,88 +1156,6 @@ function generatePostSignedImagePromises(
     }
   }
   return profilePicturePromises;
-}
-
-export async function retrieveComments(
-  postID: ObjectIdType,
-  startingTimestamp: Date = new Date()
-) {
-  try {
-    const post = await Post.model.findOne({ _id: postID }, ['comments']).exec();
-
-    if (!post) return sendPacket(0, 'Post not found');
-
-    const { comments: commentIDs } = post;
-
-    const conditions = {
-      $and: [
-        { _id: { $in: commentIDs } },
-        { createdAt: { $lt: startingTimestamp } },
-      ],
-    };
-
-    const comments = await Comment.model
-      .aggregate([
-        { $match: conditions },
-        { $sort: { createdAt: -1 } },
-        { $limit: 10 },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user',
-            foreignField: '_id',
-            as: 'user',
-          },
-        },
-        { $unwind: '$user' },
-        {
-          $project: {
-            message: '$message',
-            likes: { $size: '$likes' },
-            createdAt: '$createdAt',
-            updatedAt: '$updatedAt',
-            user: {
-              _id: '$user._id',
-              firstName: '$user.firstName',
-              lastName: '$user.lastName',
-              profilePicture: '$user.profilePicture',
-              major: '$user.major',
-              graduationYear: '$user.graduationYear',
-              work: '$user.work',
-              position: '$user.position',
-            },
-          },
-        },
-      ])
-      .exec();
-
-    const imagePromises = generatePostSignedImagePromises(comments);
-
-    return Promise.all(imagePromises)
-      .then((signedImageURLs) => {
-        for (let i = 0; i < comments.length; i++)
-          if (signedImageURLs[i]) {
-            comments[i].user.profilePicture = signedImageURLs[i];
-          }
-
-        return sendPacket(1, 'Successfully retrieved all comments', {
-          comments,
-        });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(
-          1,
-          'Successfully retrieved all comments, but failed to retrieve profile pictures',
-          {
-            comments,
-          }
-        );
-      });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
 }
 
 export const getPost = async ({

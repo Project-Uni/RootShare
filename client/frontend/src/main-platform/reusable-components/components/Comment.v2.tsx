@@ -1,22 +1,34 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { RSText } from '../../../base-components';
-import { Avatar } from '@material-ui/core';
-import { RSLink } from '..';
-import { formatPostTime } from './UserPost.v2';
-import Theme from '../../../theme/Theme';
+
 import { useDispatch } from 'react-redux';
 import {
   dispatchHoverPreview,
+  dispatchSnackbar,
   hoverPreviewTriggerComponentExit,
 } from '../../../redux/actions';
+
+import { FaLeaf } from 'react-icons/fa';
+import { Avatar } from '@material-ui/core';
+
+import { RSText } from '../../../base-components';
+import { RSLink, RSIconButton } from '..';
+
+import { formatPostTime } from './UserPost.v2';
+import Theme from '../../../theme/Theme';
+import { putCommentLikeStatus } from '../../../api';
+import { formatLargeNumber } from '../../../helpers/functions';
+import { usePrevious } from '../../../helpers/hooks';
 
 const useStyles = makeStyles((_: any) => ({ wrapper: {} }));
 
 export type CommentType = {
   createdAt: string;
   _id: string;
+  post: string;
   message: string;
+  likes: number;
+  liked: boolean;
   user: {
     firstName: string;
     lastName: string;
@@ -30,16 +42,21 @@ export type CommentType = {
   updatedAt: string;
 };
 
-type CommentProps = {
+type Props = {
   className?: string;
   style?: React.CSSProperties;
   comment: CommentType;
 };
-export const Comment = (props: CommentProps) => {
+
+export const Comment = (props: Props) => {
   const { className, style, comment } = props;
   const styles = useStyles();
 
   const dispatch = useDispatch();
+
+  const [numLikes, setNumLikes] = useState(comment.likes);
+  const [liked, setLiked] = useState(comment.liked);
+  const previousLiked = usePrevious(liked);
 
   const isHovering = useRef(false);
 
@@ -59,6 +76,29 @@ export const Comment = (props: CommentProps) => {
         );
     }, 750);
   };
+
+  const updateLikedStatus = useCallback(async () => {
+    const newLiked =
+      previousLiked === undefined || previousLiked === liked
+        ? !liked
+        : previousLiked;
+    setLiked(newLiked);
+    setNumLikes((prevNumLikes) => (newLiked ? prevNumLikes + 1 : prevNumLikes - 1));
+
+    const data = await putCommentLikeStatus(comment._id, comment.post, newLiked);
+    if (data.success !== 1) {
+      setLiked(!newLiked);
+      setNumLikes((prevNumLikes) =>
+        newLiked ? prevNumLikes - 1 : prevNumLikes + 1
+      );
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error liking the comment',
+        })
+      );
+    }
+  }, [previousLiked, liked]);
 
   const getUserDescription = useCallback(() => {
     const {
@@ -88,19 +128,38 @@ export const Comment = (props: CommentProps) => {
         ...style,
       }}
     >
-      <RSLink href={`/profile/${comment.user._id}`}>
-        <Avatar
-          src={comment.user.profilePicture}
-          style={{ height: 50, width: 50 }}
-          onMouseEnter={handleMouseOver}
-          onMouseLeave={() => {
-            isHovering.current = false;
-            setTimeout(() => {
-              dispatch(hoverPreviewTriggerComponentExit());
-            }, 500);
-          }}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignSelf: 'stretch',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+        }}
+      >
+        <RSLink href={`/profile/${comment.user._id}`}>
+          <Avatar
+            src={comment.user.profilePicture}
+            style={{ height: 50, width: 50 }}
+            onMouseEnter={handleMouseOver}
+            onMouseLeave={() => {
+              isHovering.current = false;
+              setTimeout(() => {
+                dispatch(hoverPreviewTriggerComponentExit());
+              }, 500);
+            }}
+          />
+        </RSLink>
+        <RSIconButton
+          Icon={FaLeaf}
+          text={formatLargeNumber(numLikes)}
+          textSize={10}
+          onClick={updateLikedStatus}
+          selected={liked}
+          primaryColor={Theme.secondaryText}
+          highlightColor={Theme.bright}
         />
-      </RSLink>
+      </div>
       <div
         style={{
           flex: 1,
@@ -114,21 +173,24 @@ export const Comment = (props: CommentProps) => {
         }}
         id="comment-body"
       >
-        <RSLink href={`/profile/${comment.user._id}`} underline="hover">
-          <RSText
-            size={11}
-            bold
-            onMouseEnter={handleMouseOver}
-            onMouseLeave={() => {
-              isHovering.current = false;
-              setTimeout(() => {
-                dispatch(hoverPreviewTriggerComponentExit());
-              }, 500);
-            }}
-          >
-            {comment.user.firstName} {comment.user.lastName}
-          </RSText>
-        </RSLink>
+        <div style={{ display: 'flex' }}>
+          <RSLink href={`/profile/${comment.user._id}`} underline="hover">
+            <RSText
+              size={11}
+              bold
+              onMouseEnter={handleMouseOver}
+              onMouseLeave={() => {
+                isHovering.current = false;
+                setTimeout(() => {
+                  dispatch(hoverPreviewTriggerComponentExit());
+                }, 500);
+              }}
+            >
+              <span style={{ flex: 1 }} />
+              {comment.user.firstName} {comment.user.lastName}
+            </RSText>
+          </RSLink>
+        </div>
         <RSText size={10} color={Theme.secondaryText}>
           {getUserDescription()}
         </RSText>
