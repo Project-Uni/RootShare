@@ -98,7 +98,7 @@ const useStyles = makeStyles((_: any) => ({
     paddingLeft: 10,
   },
   reportButton: {
-    width: '361px',
+    width: '275px',
     marginTop: 10,
     color: 'red',
     '&:hover': {
@@ -649,7 +649,7 @@ function ProfileDrawer() {
           {logoutErr ? 'ERROR LOGGING OUT' : 'LOGOUT'}
         </Button>
         <Button className={styles.reportButton} onClick={handleReport}>
-          {'REPORT A BUG (BETA)'}
+          REPORT A BUG (BETA)
         </Button>
       </div>
 
