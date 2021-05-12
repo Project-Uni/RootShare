@@ -39,18 +39,18 @@ const useStyles = makeStyles((_: any) => ({
   mutual: {
     color: Theme.secondaryText,
     wordWrap: 'break-word',
-    maxWidth: 200,
+    maxWidth: 160,
   },
   organization: {
     color: Theme.secondaryText,
     wordWrap: 'break-word',
-    maxWidth: 200,
+    maxWidth: 160,
   },
   name: {
     display: 'inline-block',
     color: Theme.primaryText,
     wordWrap: 'break-word',
-    maxWidth: 200,
+    maxWidth: 160,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',
@@ -60,7 +60,8 @@ const useStyles = makeStyles((_: any) => ({
   removeButton: {
     color: Theme.altText,
     background: Theme.primary,
-    height: 27,
+    height: 25,
+    width: 64,
     marginTop: 7,
     '&:hover': {
       background: Theme.primaryHover,
@@ -69,9 +70,10 @@ const useStyles = makeStyles((_: any) => ({
   connectButton: {
     color: Theme.altText,
     background: Theme.bright,
-    height: 27,
+    height: 25,
+    width: 64,
     marginTop: 7,
-    marginLeft: 7,
+    marginLeft: 5,
     '&:hover': {
       background: Theme.brightHover,
     },

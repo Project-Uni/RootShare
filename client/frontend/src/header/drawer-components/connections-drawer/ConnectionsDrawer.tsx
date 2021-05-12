@@ -57,9 +57,6 @@ const useStyles = makeStyles((_: any) => ({
   pendingContainer: {
     maxHeight: 194,
     overflow: 'scroll',
-    borderTopStyle: 'solid',
-    borderTopColor: Theme.primary,
-    borderTopWidth: '2px',
     marginTop: 5,
   },
 }));
@@ -166,7 +163,9 @@ function ConnectionsDrawer(props: Props) {
 
     output.push(
       <div className={styles.sectionHeader}>
-        <RSText className={styles.sectionName}>Connections</RSText>
+        <RSText
+          className={styles.sectionName}
+        >{`Connections | ${connections.length}`}</RSText>
       </div>
     );
 
