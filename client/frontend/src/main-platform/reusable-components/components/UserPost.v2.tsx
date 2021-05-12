@@ -275,6 +275,7 @@ export const UserPost = (props: Props) => {
         ...prev,
       ]);
       setCommentCount((prev) => prev + 1);
+      setShowComments(true);
     } else {
       dispatch(
         dispatchSnackbar({
@@ -620,7 +621,7 @@ export const UserPost = (props: Props) => {
             />
           ))}
 
-          {comments.length !== commentCount && !loadingComments ? (
+          {comments.length < commentCount && !loadingComments ? (
             <RSText
               className={styles.likes}
               style={{ textAlign: 'left', marginLeft: 20, marginRight: 20 }}
