@@ -39,3 +39,8 @@ export function getConversationTime(date: Date) {
   else if (messageDate !== currDate) return 'Yesterday';
   else return formatTime(date);
 }
+
+// Date field from MongoDB is represented as a string in Javascript
+export function localDateTimeFromUTC(dateUTC: Date | string) {
+  return new Date(dateUTC);
+}

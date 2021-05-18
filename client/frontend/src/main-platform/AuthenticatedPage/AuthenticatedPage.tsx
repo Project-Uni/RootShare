@@ -44,6 +44,7 @@ type Props = {
   component: JSX.Element;
   leftElement?: JSX.Element;
   showLeftElementWidth?: number;
+  showNavigationMenuDefault?: boolean;
   rightElement?: JSX.Element;
   showRightElementWidth?: Number;
 };
@@ -60,6 +61,7 @@ function AuthenticatedPage(props: Props) {
     component,
     leftElement,
     showLeftElementWidth,
+    showNavigationMenuDefault,
     rightElement,
     showRightElementWidth,
   } = props;
@@ -97,7 +99,10 @@ function AuthenticatedPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <PlatformHeader showNavigationWidth={showLeftEl.current} />
+      <PlatformHeader
+        showNavigationWidth={showLeftEl.current}
+        showNavigationMenuDefault={showNavigationMenuDefault}
+      />
       <div className={styles.bodyContainer}>
         {!loading && (
           <div className={styles.body} style={{ height: height }}>

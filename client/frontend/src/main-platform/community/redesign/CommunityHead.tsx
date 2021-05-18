@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 import { FaLock } from 'react-icons/fa';
 import { Menu, MenuItem } from '@material-ui/core';
@@ -130,6 +131,8 @@ type Props = {
 
 export const CommunityHead = (props: Props) => {
   const styles = useStyles();
+  const history = useHistory();
+
   const { style, className, communityInfo, currentTab, handleTabChange } = props;
 
   const [membersModalOpen, setMembersModalOpen] = useState(false);
@@ -297,6 +300,7 @@ export const CommunityHead = (props: Props) => {
             onChange={handleTabChange}
             selected={currentTab}
             className={styles.tabs}
+            theme="university"
           />
         )}
       </div>
@@ -309,12 +313,12 @@ export const CommunityHead = (props: Props) => {
         <div className={styles.editBtnContainer}>
           {relationship === U2CR.ADMIN && (
             <RSButtonV2
-              variant="universitySecondary"
+              variant="university"
               className={styles.editButton}
-              onClick={() => setShowEditCommunityModal(true)}
+              onClick={() => history.push(`/community/${communityID}/admin`)}
               borderRadius={25}
             >
-              <RSText size={10}>Edit Profile</RSText>
+              <RSText size={10}>Admin Portal</RSText>
             </RSButtonV2>
           )}
           {scaleEventType && scaleEventComponents()}
@@ -418,6 +422,7 @@ export const CommunityHead = (props: Props) => {
             onChange={handleTabChange}
             selected={currentTab}
             className={styles.tabs}
+            theme="university"
           />
         ) : (
           <></>

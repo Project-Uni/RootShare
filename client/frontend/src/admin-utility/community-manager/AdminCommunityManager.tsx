@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 import { CircularProgress } from '@material-ui/core';
 
-import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-
 import { updateUser } from '../../redux/actions/user';
 import { updateAccessToken, updateRefreshToken } from '../../redux/actions/token';
-import { makeRequest } from '../../helpers/functions';
-
-import { Community } from '../../helpers/types';
 
 import RSText from '../../base-components/RSText';
 import PlatformHeader from '../../header/PlatformHeader';
 import AdminCreateCommunity from './AdminCreateCommunity';
 import AdminCommunitiesList from './AdminCommunitiesList';
 
+import { makeRequest } from '../../helpers/functions';
+import { Community } from '../../helpers/types';
 import { colors } from '../../theme/Colors';
 
 const MIN_ACCESS_LEVEL = 6;

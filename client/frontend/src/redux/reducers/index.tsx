@@ -13,6 +13,7 @@ import {
 } from './interactionsReducers';
 import { registrationReducer } from './registrationReducer';
 import { sidebarComponentsReducer } from './sidebarReducers';
+import { communityAdminReducers } from './communityAdminReducers';
 
 const allReducers = combineReducers({
   user: userReducer,
@@ -26,6 +27,7 @@ const allReducers = combineReducers({
   snackbarNotification: snackbarNotificationReducer,
   sidebarComponents: sidebarComponentsReducer,
   registration: registrationReducer,
+  communityAdminPortalTab: communityAdminReducers,
 });
 
 export default allReducers;

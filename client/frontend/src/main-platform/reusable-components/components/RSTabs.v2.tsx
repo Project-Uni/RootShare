@@ -24,7 +24,7 @@ const useStyles = makeStyles((_: any) => ({
   },
   tabItem: {
     paddingTop: 5,
-    paddingBottom: 5,
+    paddingBottom: 10,
     paddingLeft: 20,
     paddingRight: 20,
     '&:hover': {
@@ -45,6 +45,7 @@ type Props = {
   onChange: (newTab: string | any) => any;
   size: number;
   variant: 'primary' | 'underlinedTabs' | 'underlinedWhole';
+  theme: 'rootshare' | 'university';
   className?: string;
   style?: React.CSSProperties;
 };
@@ -52,7 +53,7 @@ type Props = {
 function RSTabsV2(props: Props) {
   const styles = useStyles();
 
-  const { tabs, selected, onChange, size, variant, className, style } = props;
+  const { tabs, selected, onChange, size, variant, theme, className, style } = props;
 
   const { university } = useSelector((state: RootshareReduxState) => state.user);
 
@@ -74,7 +75,11 @@ function RSTabsV2(props: Props) {
             className={styles.tabItem}
             weight={isSelected ? 'bold' : 'light'}
             color={
-              isSelected ? Theme.universityAccent[university] : Theme.primaryText
+              isSelected
+                ? theme === 'rootshare'
+                  ? Theme.bright
+                  : Theme.universityAccent[university]
+                : Theme.primaryText
             }
             size={size}
             onClick={() => {
@@ -105,6 +110,7 @@ function RSTabsV2(props: Props) {
 RSTabsV2.defaultProps = {
   size: 13,
   variant: 'primary',
+  theme: 'rootshare',
 };
 
 export default RSTabsV2;

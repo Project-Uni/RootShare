@@ -17,6 +17,9 @@ import {
   MeetTheGreeks,
   HomepageBody,
   ProfileBody,
+  Community,
+  CommunityAdminPortal,
+  CommunityAdminPortalLeftSidebar,
   EventsBody,
   ConnectionsBody,
   YourCommunitiesBody,
@@ -27,7 +30,6 @@ import { AdminRoutes } from './routes';
 import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
 import { SnackbarNotification } from './main-platform/reusable-components';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
-import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
 import { ThemeProvider } from '@material-ui/styles';
 import { muiTheme } from './theme/Theme';
 
@@ -109,6 +111,18 @@ const App = () => {
                 exact
                 path="/community/:communityID"
                 render={(props) => <AuthenticatedPage component={<Community />} />}
+              />
+              <Route
+                exact
+                path="/community/:communityID/admin"
+                render={(props) => (
+                  <AuthenticatedPage
+                    component={<CommunityAdminPortal />}
+                    leftElement={<CommunityAdminPortalLeftSidebar />}
+                    rightElement={<span />}
+                    showNavigationMenuDefault
+                  />
+                )}
               />
               <Route
                 exact
