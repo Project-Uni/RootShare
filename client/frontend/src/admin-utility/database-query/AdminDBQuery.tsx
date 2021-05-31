@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import EventClientHeader from '../../event-client/EventClientHeader';
+import PlatformHeader from '../../header/PlatformHeader';
 import { RSText } from '../../base-components';
 import {
   RSButton,
@@ -276,7 +276,7 @@ export const AdminDBQuery = (props: Props) => {
         limit={limit}
         sort={sort}
       />
-      <EventClientHeader showNavigationMenuDefault />
+      <PlatformHeader showNavigationMenuDefault />
       <div
         style={{
           textAlign: 'left',

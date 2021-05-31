@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardContent, LinearProgress } from '@material-ui/core';
 
 import { FaArrowLeft } from 'react-icons/fa';
-import RootShareLogoFull from '../../images/RootShareLogoFullbeta.png';
+import { RSLogoFullBeta } from '../../images';
 
 import { colors } from '../../theme/Colors';
 import Theme from '../../theme/Theme';
@@ -85,11 +85,7 @@ function HypeCard(props: Props) {
       />
       <CardContent>
         {renderBackArrow()}
-        <img
-          src={RootShareLogoFull}
-          className={styles.rootshareLogo}
-          alt="RootShare"
-        />
+        <img src={RSLogoFullBeta} className={styles.rootshareLogo} alt="RootShare" />
         <p className={styles.header}>{props.headerText}</p>
         {props.children}
       </CardContent>

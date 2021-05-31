@@ -21,7 +21,7 @@ import RSText from '../../../base-components/RSText';
 import { colors } from '../../../theme/Colors';
 import BugTextField from './BugTextField';
 
-import ManageSpeakersSnackbar from '../../event-video/event-host/ManageSpeakersSnackbar';
+import ManageSpeakersSnackbar from '../../../event-client/event-video/event-host/ManageSpeakersSnackbar';
 
 import { makeRequest } from '../../../helpers/functions';
 

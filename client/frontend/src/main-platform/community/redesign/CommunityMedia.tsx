@@ -25,7 +25,7 @@ import { ImageType, Link, WebsiteDict } from '../../../helpers/types';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import { ENTER_KEYCODE } from '../../../helpers/constants';
 import Theme from '../../../theme/Theme';
-import { RootShareIconPaleYellow, SocialMediaIcon } from '../../../images';
+import { RSCircleIconPaleYellow, SocialMediaIcon } from '../../../images';
 import { BiPlus } from 'react-icons/bi';
 
 const useStyles = makeStyles((_: any) => ({
@@ -345,7 +345,7 @@ export const CommunityMedia = (props: Props) => {
                       return (
                         <a target="_blank" href={link.url} className={styles.link}>
                           <RSAvatar
-                            src={RootShareIconPaleYellow}
+                            src={RSCircleIconPaleYellow}
                             variant="rounded"
                             size={50}
                           />

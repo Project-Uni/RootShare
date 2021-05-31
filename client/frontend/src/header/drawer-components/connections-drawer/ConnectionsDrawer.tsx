@@ -6,7 +6,7 @@ import RSText from '../../../base-components/RSText';
 import SingleConnection from './SingleConnection';
 import SinglePendingConnection from './SinglePendingConnection';
 import SingleSuggestion from './SingleSuggestion';
-import MyConnections from '../images/MyConnections.png';
+import { MyConnections } from '../../../images';
 
 import { colors } from '../../../theme/Colors';
 import { UserType, ConnectionRequestType } from '../../../helpers/types';

@@ -8,12 +8,12 @@ import {
   MenuItem,
   Theme as MuiTheme,
 } from '@material-ui/core';
-import RootShareLogo from '../images/RootShareLogoFullbeta.png';
+import { RSLogoFullBeta } from '../images';
 
 import { MdGroupAdd, MdAccountCircle, MdMenu } from 'react-icons/md';
 import { IoMdText } from 'react-icons/io';
 
-import EventDrawer from './EventDrawer';
+import DrawerBase from './drawer-components/DrawerBase';
 
 import theme from '../theme/Theme';
 
@@ -27,7 +27,7 @@ import {
 import { checkDesktop } from '../helpers/functions';
 import { RSLink } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
-import { HeaderSearch, NotificationButton } from '../header';
+import { HeaderSearch, NotificationButton } from '.';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   header: {
@@ -41,7 +41,7 @@ type Props = {
   showNavigationMenuDefault?: boolean;
 };
 
-function EventClientHeader(props: Props) {
+function PlatformHeader(props: Props) {
   const styles = useStyles();
 
   const [drawerContent, setDrawerContent] = useState('');
@@ -169,7 +169,7 @@ function EventClientHeader(props: Props) {
                 )}
                 <RSLink href="/home">
                   <img
-                    src={RootShareLogo}
+                    src={RSLogoFullBeta}
                     alt="RootShare"
                     style={{
                       width: isDesktop.current ? 190 : 130,
@@ -189,7 +189,7 @@ function EventClientHeader(props: Props) {
             </div>
           </div>
         </Toolbar>
-        <EventDrawer
+        <DrawerBase
           open={Boolean(drawerContent)}
           handleClose={handleDrawerClose}
           backgroundColor={
@@ -198,10 +198,10 @@ function EventClientHeader(props: Props) {
           anchor={drawerAnchor}
         >
           {getDrawerContent()}
-        </EventDrawer>
+        </DrawerBase>
       </AppBar>
     </div>
   );
 }
 
-export default EventClientHeader;
+export default PlatformHeader;

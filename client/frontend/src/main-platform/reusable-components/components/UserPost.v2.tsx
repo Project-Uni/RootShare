@@ -28,6 +28,7 @@ import {
 import { RSCard } from './RSCard';
 import { DynamicIconButton, RSText } from '../../../base-components';
 import { RSTextField } from './RSTextField';
+import { RightArrowIcon } from '../../../images';
 import { PostType } from '../../../helpers/types';
 import { RSLink } from './RSLink';
 import LikesModal from './LikesModal';
@@ -40,7 +41,6 @@ import {
   putPostLikeStatus,
 } from '../../../api';
 import Theme from '../../../theme/Theme';
-import { RightArrow } from '../../../images';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -394,7 +394,7 @@ export const UserPost = (props: Props) => {
               {post.toCommunity?._id && !options?.hideToCommunity && (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <img
-                    src={RightArrow}
+                    src={RightArrowIcon}
                     style={{ marginLeft: 15, marginRight: 15, height: 12 }}
                     alt="to"
                   />

@@ -18,7 +18,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { useDispatch } from 'react-redux';
 import { updateProfilePicture } from '../redux/actions/user';
 
-import DefaultProfilePicture from '../images/defaultProfilePicture.png';
+import { DefaultProfilePictureIcon } from '../images';
 import {
   getCroppedImage,
   imageURLToFile,
@@ -224,7 +224,7 @@ function ProfilePicture(props: Props) {
       (currPictureSource.substring(0, 4) !== 'http' &&
         currPictureSource.substring(0, 4) !== 'data')
     )
-      currPictureSource = DefaultProfilePicture;
+      currPictureSource = DefaultProfilePictureIcon;
 
     return (
       <div className={className}>

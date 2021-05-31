@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootshareReduxState } from '../../redux/store/stateManagement';
 
-import EventClientHeader from '../../event-client/EventClientHeader';
+import PlatformHeader from '../../header/PlatformHeader';
 import { RightSidebar, RIGHT_BAR_WIDTH } from '../RightSidebar/RightSidebar';
 import {
   MainNavigator,
@@ -97,7 +97,7 @@ function AuthenticatedPage(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader showNavigationWidth={showLeftEl.current} />
+      <PlatformHeader showNavigationWidth={showLeftEl.current} />
       <div className={styles.bodyContainer}>
         {!loading && (
           <div className={styles.body} style={{ height: height }}>

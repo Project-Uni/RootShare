@@ -6,9 +6,9 @@ import { CSVDownload } from 'react-csv';
 
 import { connect } from 'react-redux';
 
-import RootShareLogoFull from '../../images/RootShareLogoFull.png';
+import { RSLogoFull } from '../../images';
 
-import EventClientHeader from '../../event-client/EventClientHeader';
+import PlatformHeader from '../../header/PlatformHeader';
 import RSText from '../../base-components/RSText';
 import AccountTypePieChart from './AccountTypePieChart';
 
@@ -263,12 +263,8 @@ function UserCount(props: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <EventClientHeader showNavigationMenuDefault />
-      <img
-        src={RootShareLogoFull}
-        className={styles.rootshareLogo}
-        alt="RootShare"
-      />
+      <PlatformHeader showNavigationMenuDefault />
+      <img src={RSLogoFull} className={styles.rootshareLogo} alt="RootShare" />
       <br />
       {loading ? (
         <CircularProgress

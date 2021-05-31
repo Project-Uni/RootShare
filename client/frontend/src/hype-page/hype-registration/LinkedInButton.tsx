@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-import linkedInLogo from '../../images/linkedIn.png';
+import { LinkedInIcon } from '../../images';
 
 const LOGIN_MESSAGE = 'Login with LinkedIn';
 const SIGNUP_MESSAGE = 'Sign up with LinkedIn';
@@ -60,7 +60,7 @@ export default function LinkedInButton(props: Props) {
       style={{ width: props.width || 250 }}
     >
       <a href={queryString} className={styles.linkedinLink}>
-        <img src={linkedInLogo} alt="Google logo" className={styles.logoStyle} />
+        <img src={LinkedInIcon} alt="Google logo" className={styles.logoStyle} />
 
         <p className={styles.linkedinText}>
           {props.messageType === 'login' ? LOGIN_MESSAGE : SIGNUP_MESSAGE}
