@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
+
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../redux/actions';
+
 import { IconButton, Badge, ClickAwayListener } from '@material-ui/core';
-import Theme from '../../theme/Theme';
+
 import { NotificationIcon } from '../../images';
 import { Notifications } from './Notifications';
+
 import {
   getNotifications,
   putNotificationsSeen,
   UnifiedNotification,
 } from '../../api';
-import { useDispatch } from 'react-redux';
-import { dispatchSnackbar } from '../../redux/actions';
-import { useHistory } from 'react-router';
+import Theme from '../../theme/Theme';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({ wrapper: {} }));
 

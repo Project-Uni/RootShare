@@ -56,6 +56,7 @@ export const Notifications = (props: Props) => {
                       ? { borderTopLeftRadius: 30, borderTopRightRadius: 30 }
                       : undefined
                   }
+                  last={i === notifications.length - 1}
                 />
               );
             })}
@@ -74,12 +75,17 @@ type ShapedNotification = {
   href?: string;
 };
 
-const Notification = (
-  props: UnifiedNotification & { style?: React.CSSProperties; className?: string }
-) => {
+type NotificationProps = {
+  style?: React.CSSProperties;
+  className?: string;
+  last?: boolean;
+};
+
+const Notification = (props: UnifiedNotification & NotificationProps) => {
   const {
     style,
     className,
+    last,
     message,
     createdAt,
     seen,
@@ -161,7 +167,6 @@ const Notification = (
     <div
       style={{
         paddingTop: 10,
-        paddingBottom: 10,
         paddingLeft: 15,
         paddingRight: 15,
         background: seen ? undefined : green[100],
@@ -177,8 +182,10 @@ const Notification = (
           />
           <div
             style={{
-              borderBottom: `1px solid ${Theme.primaryText}`,
-              paddingBottom: 10,
+              borderBottom: last ? '' : `1px solid ${Theme.primaryText}`,
+              paddingBottom: last ? 20 : 10,
+              marginTop: 10,
+              minHeight: 39,
               flex: 1,
             }}
           >

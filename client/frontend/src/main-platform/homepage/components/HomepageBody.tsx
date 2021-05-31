@@ -21,6 +21,7 @@ import { PromotedEvents } from '../../reusable-components/components/PromotedEve
 
 import { PostType } from '../../../helpers/types';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
+import { removeFromStateArray } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 import { DefaultPromotionBanner } from '../../../images';
 import { getPosts } from '../../../api';
@@ -74,7 +75,7 @@ export default function HomepageBody(props: Props) {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers'],
+        names: ['discoverUsers', 'discoverCommunities'],
       })
     );
     window.addEventListener('resize', handleResize);
@@ -155,9 +156,12 @@ export default function HomepageBody(props: Props) {
         <div className={styles.posts}>
           {feed.map((post, idx) => (
             <UserPost
+              key={post._id}
               post={post}
               style={{ marginTop: idx !== 0 ? 10 : undefined }}
-              key={`post_${idx}_${post.createdAt}`}
+              onDelete={(postID: string) =>
+                removeFromStateArray(postID, '_id', setFeed)
+              }
             />
           ))}
         </div>

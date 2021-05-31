@@ -10,6 +10,7 @@ import {
   IConnection,
   ICommunityEdge,
   IUser,
+  IPost,
 } from '../rootshare_db/models';
 import { AccountType, ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
 import {
@@ -31,45 +32,54 @@ export async function createBroadcastUserPost(
   image?: string
 ) {
   try {
-    let post = await new Post.model({
+    let raw_post = await new Post.model({
       message,
       user: userID,
       type: 'broadcast',
     }).save();
+
     await User.model.updateOne(
       { _id: userID },
-      { $push: { broadcastedPosts: post._id } }
+      { $push: { broadcastedPosts: raw_post._id } }
     );
-    await post
-      .populate({
-        path: 'user',
-        select:
-          'firstName lastName profilePicture major graduationYear work position',
-      })
-      .execPopulate();
 
     if (image) {
-      const result = await uploadPostImage(image, post._id, userID);
+      const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created post for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne({ _id: post._id }, { $push: { images: imageID } });
+    }
+
+    const post = await Post.model
+      .findById(raw_post._id)
+      .populate({ path: 'user', select: 'firstName lastName profilePicture' })
+      .populate({ path: 'images', select: 'fileName' })
+      .lean<IPost>()
+      .exec();
+
+    if (post.images && post.images.length > 0) {
       try {
-        const imageURL = await retrieveSignedUrl('images', 'postImage', fileName);
-        var postObj = post.toObject();
-        postObj.images = [{ fileName: imageURL || '' } as IImage];
+        post.images = post.images as IImage[];
+        const imageURL = await retrieveSignedUrl(
+          'images',
+          'postImage',
+          post.images[0].fileName
+        );
+        post.images[0].fileName = imageURL || '';
       } catch (err) {
         log('error', err);
       }
     }
 
-    log('info', `Successfully created for user ${userID}`);
-    return sendPacket(1, 'Successfully created post', { post: postObj || post });
+    log('info', logMessage || `Successfully created post for user ${userID}`);
+    return sendPacket(1, packetMessage || 'Successfully created post', { post });
   } catch (err) {
     log('error', err);
     return sendPacket(0, err);
@@ -97,7 +107,7 @@ export async function createInternalCurrentMemberCommunityPost(
   }
 
   //Checking if person is a student or admin
-  if (accountType !== 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (accountType !== 'student' && !userID.equals(community.admin as ObjectIdType)) {
     log(
       'info',
       `User ${userID} who is alumni attempted to post into current member feed for ${communityID}`
@@ -117,26 +127,30 @@ export async function createInternalCurrentMemberCommunityPost(
       university: community.university,
     }).save();
 
+    await Community.model.updateOne(
+      { _id: communityID },
+      { $push: { internalCurrentMemberPosts: raw_post._id } }
+    );
+
     if (image) {
       const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne(
-        { _id: raw_post._id },
-        { $push: { images: imageID } }
-      );
     }
 
     const post = await Post.model
       .findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
+      .lean<IPost>()
       .exec();
 
     if (post.images && post.images.length > 0) {
@@ -153,16 +167,16 @@ export async function createInternalCurrentMemberCommunityPost(
       }
     }
 
-    await Community.model.updateOne(
-      { _id: communityID },
-      { $push: { internalCurrentMemberPosts: post._id } }
-    );
-
     log(
       'info',
-      `User ${userID} successfully posted into the internal current member feed of community ${communityID}`
+      logMessage ||
+        `User ${userID} successfully posted into the internal current member feed of community ${communityID}`
     );
-    return sendPacket(1, 'Successfully posted into internal member feed', { post });
+    return sendPacket(
+      1,
+      packetMessage || 'Successfully posted into internal member feed',
+      { post }
+    );
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -190,7 +204,7 @@ export async function createInternalAlumniPost(
   }
 
   //Validating that user is allowed to post into alumni code
-  if (accountType === 'student' && (community.admin as ObjectIdType) !== userID) {
+  if (accountType === 'student' && !userID.equals(community.admin as ObjectIdType)) {
     log(
       'info',
       `User ${userID} who is student attempted to post into alumni feed for ${communityID}`
@@ -210,26 +224,30 @@ export async function createInternalAlumniPost(
       university: community.university,
     }).save();
 
+    await Community.model.updateOne(
+      { _id: communityID },
+      { $push: { internalAlumniPosts: raw_post._id } }
+    );
+
     if (image) {
       const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne(
-        { _id: raw_post._id },
-        { $push: { images: imageID } }
-      );
     }
 
     const post = await Post.model
       .findById(raw_post._id)
       .populate({ path: 'user', select: 'firstName lastName profilePicture' })
       .populate({ path: 'images', select: 'fileName' })
+      .lean<IPost>()
       .exec();
 
     if (post.images && post.images.length > 0) {
@@ -246,18 +264,18 @@ export async function createInternalAlumniPost(
       }
     }
 
-    await Community.model.updateOne(
-      { _id: communityID },
-      { $push: { internalAlumniPosts: post._id } }
-    );
-
     log(
       'info',
-      `User ${userID} successfully posted into the internal alumni feed of community ${communityID}`
+      logMessage ||
+        `User ${userID} successfully posted into the internal alumni feed of community ${communityID}`
     );
-    return sendPacket(1, 'Successfully posted into internal alumni member feed', {
-      post,
-    });
+    return sendPacket(
+      1,
+      packetMessage || 'Successfully posted into internal alumni member feed',
+      {
+        post,
+      }
+    );
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -312,63 +330,62 @@ export async function createExternalPostAsFollowingCommunityAdmin(
           anonymous: true,
         }).save();
 
-        if (image) {
-          const result = await uploadPostImage(image, raw_post._id, userID);
-          if (result === -1) {
-            log(
-              'info',
-              `Successfully created for user ${userID}, but failed to upload image`
-            );
-            return sendPacket(
-              1,
-              'Successfully created post, but the image was invalid'
-            );
-          }
-          const { imageID, fileName } = result;
-          await Post.model.updateOne(
-            { _id: raw_post._id },
-            { $push: { images: imageID } }
-          );
-        }
-
-        const post = await Post.model
-          .findById(raw_post._id)
-          .populate({ path: 'fromCommunity', select: 'name profilePicture' })
-          .populate({ path: 'images', select: 'fileName' })
-          .exec();
-
-        if (post.images && post.images.length > 0) {
-          try {
-            post.images = post.images as IImage[];
-            const imageURL = await retrieveSignedUrl(
-              'images',
-              'postImage',
-              post.images[0].fileName
-            );
-            post.images[0].fileName = imageURL || '';
-          } catch (err) {
-            log('error', err);
-          }
-        }
-
         const fromCommunityUpdate = Community.model.updateOne(
           { _id: fromCommunityID },
-          { $push: { postsToOtherCommunities: post._id } }
+          { $push: { postsToOtherCommunities: raw_post._id } }
         );
         const toCommunityUpdate = Community.model.updateOne(
           { _id: toCommunityID },
-          { $push: { externalPosts: post._id } }
+          { $push: { externalPosts: raw_post._id } }
         );
 
+        if (image) {
+          const result = await uploadPostImage(image, raw_post._id, userID);
+          if (result === -1) {
+            var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+            var packetMessage =
+              'Successfully created post, but the image was invalid';
+          } else {
+            const { imageID, fileName } = result;
+            await Post.model.updateOne(
+              { _id: raw_post._id },
+              { $push: { images: imageID } }
+            );
+          }
+        }
+
         return Promise.all([fromCommunityUpdate, toCommunityUpdate]).then(
-          (values) => {
+          async (values) => {
+            const post = await Post.model
+              .findById(raw_post._id)
+              .populate({ path: 'fromCommunity', select: 'name profilePicture' })
+              .populate({ path: 'images', select: 'fileName' })
+              .lean<IPost>()
+              .exec();
+
+            if (post.images && post.images.length > 0) {
+              try {
+                post.images = post.images as IImage[];
+                const imageURL = await retrieveSignedUrl(
+                  'images',
+                  'postImage',
+                  post.images[0].fileName
+                );
+                post.images[0].fileName = imageURL || '';
+              } catch (err) {
+                log('error', err);
+              }
+            }
+
             log(
               'info',
-              `Post sent from community ${fromCommunityID} to ${toCommunityID}`
+              logMessage ||
+                `Post sent from community ${fromCommunityID} to ${toCommunityID}`
             );
             return sendPacket(
               1,
-              'Successfully created post to external feed of other community',
+              packetMessage ||
+                'Successfully created post to external feed of other community',
               {
                 post,
               }
@@ -402,20 +419,23 @@ export async function createExternalPostAsCommunityAdmin(
       type: 'external',
     }).save();
 
+    await Community.model.updateOne(
+      { _id: communityID },
+      { $push: { externalPosts: raw_post._id } }
+    );
+
     if (image) {
       const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne(
-        { _id: raw_post._id },
-        { $push: { images: imageID } }
-      );
     }
 
     const post = await Post.model
@@ -438,16 +458,14 @@ export async function createExternalPostAsCommunityAdmin(
       }
     }
 
-    await Community.model.updateOne(
-      { _id: communityID },
-      { $push: { externalPosts: post._id } }
-    );
-
     log(
       'info',
-      `Created external post ${post._id} for community ${communityID} as admin ${userID}`
+      logMessage ||
+        `Created external post ${post._id} for community ${communityID} as admin ${userID}`
     );
-    return sendPacket(1, 'Successfully created external post', { post });
+    return sendPacket(1, packetMessage || 'Successfully created external post', {
+      post,
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -485,20 +503,23 @@ export async function createExternalPostAsMember(
       type: 'external',
     }).save();
 
+    await Community.model.updateOne(
+      { _id: communityID },
+      { $push: { externalPosts: raw_post._id } }
+    );
+
     if (image) {
       const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne(
-        { _id: raw_post._id },
-        { $push: { images: imageID } }
-      );
     }
 
     const post = await Post.model
@@ -525,16 +546,14 @@ export async function createExternalPostAsMember(
       }
     }
 
-    await Community.model.updateOne(
-      { _id: communityID },
-      { $push: { externalPosts: post._id } }
-    );
-
     log(
       'info',
-      `Created external post ${post._id} for community ${communityID} as user ${userID}`
+      logMessage ||
+        `Created external post ${post._id} for community ${communityID} as user ${userID}`
     );
-    return sendPacket(1, 'Successfully created external post', { post });
+    return sendPacket(1, packetMessage || 'Successfully created external post', {
+      post,
+    });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, 'There was an error.', { err });
@@ -556,20 +575,23 @@ export async function createBroadcastCommunityPost(
       type: 'broadcast',
     }).save();
 
+    await Community.model.updateOne(
+      { _id: communityID },
+      { $push: { broadcastedPosts: raw_post._id } }
+    );
+
     if (image) {
       const result = await uploadPostImage(image, raw_post._id, userID);
       if (result === -1) {
-        log(
-          'info',
-          `Successfully created for user ${userID}, but failed to upload image`
+        var logMessage = `Successfully created for user ${userID}, but failed to upload image`;
+        var packetMessage = 'Successfully created post, but the image was invalid';
+      } else {
+        const { imageID, fileName } = result;
+        await Post.model.updateOne(
+          { _id: raw_post._id },
+          { $push: { images: imageID } }
         );
-        return sendPacket(1, 'Successfully created post, but the image was invalid');
       }
-      const { imageID, fileName } = result;
-      await Post.model.updateOne(
-        { _id: raw_post._id },
-        { $push: { images: imageID } }
-      );
     }
 
     const post = await Post.model
@@ -607,13 +629,11 @@ export async function createBroadcastCommunityPost(
       }
     }
 
-    await Community.model.updateOne(
-      { _id: communityID },
-      { $push: { broadcastedPosts: post._id } }
+    log(
+      'info',
+      logMessage || `Broadcasted post ${post._id} as community ${communityID}`
     );
-
-    log('info', `Broadcasted post ${post._id} as community ${communityID}`);
-    return sendPacket(1, 'Successfully broadcasted post', { post });
+    return sendPacket(1, packetMessage || 'Successfully broadcasted post', { post });
   } catch (err) {
     log('error', err);
     return sendPacket(-1, err);
@@ -1160,18 +1180,53 @@ export function generatePostSignedImagePromises(
 
 export const getPost = async ({
   userID,
+  accountType,
   postID,
 }: {
-  postID: string;
   userID: ObjectIdType;
+  accountType: AccountType;
+  postID: ObjectIdType;
 }) => {
-  //TODO - Determine if user has access to get post
-  const hasAccess = true;
   try {
-    const post = await retrievePosts({ _id: ObjectIdVal(postID) }, 1, userID);
-    if (!post) return false;
+    const posts = await retrievePosts({ _id: postID }, 1, userID);
+    if (!posts) return false;
+    const post = posts[0];
+    const postType = post.type;
+    const toCommunity = post.toCommunity;
 
-    return post[0];
+    if (postType === 'internalCurrent' || postType === 'internalAlumni') {
+      const isMember = await Community.model.exists({
+        _id: toCommunity._id,
+        members: { $elemMatch: { $eq: userID } },
+      });
+      if (!isMember)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-member',
+        };
+
+      const isAdmin = await Community.model.exists({
+        _id: toCommunity._id,
+        admin: userID,
+      });
+
+      if (postType === 'internalCurrent' && accountType !== 'student' && !isAdmin)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-student',
+        };
+
+      if (postType === 'internalAlumni' && accountType !== 'alumni' && !isAdmin)
+        return {
+          _id: post._id,
+          toCommunity,
+          accessErr: 'not-alumni',
+        };
+    }
+
+    return post;
   } catch (err) {
     log('error', err.message);
     return false;
@@ -1245,6 +1300,7 @@ export async function retrievePosts(
             profilePicture: '$user.profilePicture',
             major: '$user.major',
             graduationYear: '$user.graduationYear',
+            accountType: '$user.accountType',
             work: '$user.work',
             position: '$user.position',
           },
@@ -1259,7 +1315,7 @@ export async function retrievePosts(
             profilePicture: '$fromCommunity.profilePicture',
           },
           liked: {
-            $in: [ObjectIdVal(userID.toString()), '$likes'],
+            $in: [userID, '$likes'],
           },
           images: {
             $map: {

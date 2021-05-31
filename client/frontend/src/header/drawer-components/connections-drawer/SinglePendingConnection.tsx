@@ -44,13 +44,13 @@ const useStyles = makeStyles((_: any) => ({
   organization: {
     color: Theme.secondaryText,
     wordWrap: 'break-word',
-    maxWidth: 200,
+    maxWidth: 160,
   },
   name: {
     display: 'inline-block',
     color: Theme.primaryText,
     wordWrap: 'break-word',
-    maxWidth: 200,
+    maxWidth: 160,
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline',

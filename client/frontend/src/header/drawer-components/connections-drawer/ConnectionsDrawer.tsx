@@ -8,9 +8,8 @@ import SinglePendingConnection from './SinglePendingConnection';
 import SingleSuggestion from './SingleSuggestion';
 import { MyConnections } from '../../../images';
 
-import { colors } from '../../../theme/Colors';
 import { UserType, ConnectionRequestType } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import { makeRequest, removeFromStateArray } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -58,9 +57,6 @@ const useStyles = makeStyles((_: any) => ({
   pendingContainer: {
     maxHeight: 194,
     overflow: 'scroll',
-    borderTopStyle: 'solid',
-    borderTopColor: Theme.primary,
-    borderTopWidth: '2px',
     marginTop: 5,
   },
 }));
@@ -101,30 +97,6 @@ function ConnectionsDrawer(props: Props) {
     if (data['success'] === 1) setConnections(data['content']['connections']);
   }
 
-  function removePending(requestID: string) {
-    let newPending = pending.slice();
-    for (let i = 0; i < pending.length; i++) {
-      const currPending = pending[i];
-      if (currPending._id === requestID) {
-        newPending.splice(i, 1);
-        setPending(newPending);
-        return;
-      }
-    }
-  }
-
-  function removeSuggestion(userID: string) {
-    let newSuggestions = suggestions.slice();
-    for (let i = 0; i < suggestions.length; i++) {
-      const currUser = suggestions[i];
-      if (currUser._id === userID) {
-        newSuggestions.splice(i, 1);
-        setSuggestions(newSuggestions);
-        return;
-      }
-    }
-  }
-
   function renderPending() {
     const output: any = [];
     if (pending.length === 0) return;
@@ -135,7 +107,9 @@ function ConnectionsDrawer(props: Props) {
       output.push(
         <SinglePendingConnection
           key={currPending._id}
-          removePending={removePending}
+          removePending={(requestID: string) =>
+            removeFromStateArray(requestID, '_id', setPending)
+          }
           addConnection={(newConnection: UserType) =>
             setConnections((prevConnections) =>
               prevConnections.concat(newConnection)
@@ -172,7 +146,9 @@ function ConnectionsDrawer(props: Props) {
       const currSuggestion = suggestions[i];
       output.push(
         <SingleSuggestion
-          removeSuggestion={removeSuggestion}
+          removeSuggestion={(userID: string) =>
+            removeFromStateArray(userID, '_id', setSuggestions)
+          }
           key={currSuggestion._id}
           suggestedUser={currSuggestion}
         />
@@ -187,7 +163,9 @@ function ConnectionsDrawer(props: Props) {
 
     output.push(
       <div className={styles.sectionHeader}>
-        <RSText className={styles.sectionName}>Connections</RSText>
+        <RSText
+          className={styles.sectionName}
+        >{`Connections | ${connections.length}`}</RSText>
       </div>
     );
 

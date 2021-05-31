@@ -6,9 +6,11 @@ import { dispatchSnackbar } from '../../../redux/actions';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { CircularProgress } from '@material-ui/core';
+
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import { MakePostContainer } from '../../reusable-components/components/MakePostContainer.v2';
 import { RSTabs } from '../../reusable-components';
+import { RSText } from '../../../base-components';
 import MTGEvent from '../../meet-the-greeks/MTGEvent';
 
 import {
@@ -20,7 +22,7 @@ import {
 import { PostType } from '../../../helpers/types';
 import { Event } from '../../meet-the-greeks/MeetTheGreeks';
 import Theme from '../../../theme/Theme';
-import { insertArray } from '../../../helpers/functions';
+import { insertArray, removeFromStateArray } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -204,8 +206,12 @@ export const CommunityFeed = (props: Props) => {
           {selectedTab === 'community-external'
             ? pinnedPosts.map((post) => (
                 <UserPost
+                  key={post._id}
                   post={post}
                   style={{ marginTop: 15 }}
+                  onDelete={(postID: string) =>
+                    removeFromStateArray(postID, '_id', setPinnedPosts)
+                  }
                   options={{
                     hideToCommunity: true,
                     pinToCommunityMenuItem:
@@ -224,8 +230,12 @@ export const CommunityFeed = (props: Props) => {
             )
             .map((post) => (
               <UserPost
+                key={post._id}
                 post={post}
                 style={{ marginTop: 15 }}
+                onDelete={(postID: string) =>
+                  removeFromStateArray(postID, '_id', setPosts)
+                }
                 options={{
                   hideToCommunity: true,
                   pinToCommunityMenuItem:
@@ -235,6 +245,18 @@ export const CommunityFeed = (props: Props) => {
                 }}
               />
             ))}
+          {(selectedTab !== 'community-external' || pinnedPosts.length === 0) &&
+            posts.length === 0 && (
+              <RSText
+                size={16}
+                type="head"
+                weight="bold"
+                color={Theme.secondaryText}
+                style={{ marginTop: 20 }}
+              >
+                There are no posts here yet.
+              </RSText>
+            )}
         </>
       )}
     </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useParams } from 'react-router-dom';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { updateSidebarComponents } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { CircularProgress, Box } from '@material-ui/core';
 
@@ -12,6 +14,7 @@ import { MakePostContainer } from '../../reusable-components';
 import { UserPost } from '../../reusable-components/components/UserPost.v2';
 import RSText from '../../../base-components/RSText';
 import ProfilePicture from '../../../base-components/ProfilePicture';
+import ProfileBanner from '../../../base-components/ProfileBanner';
 
 import {
   UserType,
@@ -21,13 +24,10 @@ import {
   UserToUserRelationship,
   U2UR,
 } from '../../../helpers/types';
-import { makeRequest } from '../../../helpers/functions';
+import { makeRequest, removeFromStateArray } from '../../../helpers/functions';
 import { HEADER_HEIGHT } from '../../../helpers/constants';
-import ProfileBanner from '../../../base-components/ProfileBanner';
 import Theme from '../../../theme/Theme';
 import { getPosts, getProfilePictureAndBanner } from '../../../api';
-import { useParams } from 'react-router-dom';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -96,7 +96,7 @@ export default function ProfileBody(props: Props) {
   useEffect(() => {
     dispatch(
       updateSidebarComponents({
-        names: ['discoverCommunities', 'discoverUsers', 'userDocuments'],
+        names: ['discoverUsers', 'userDocuments', 'discoverCommunities'],
         userID: profileID,
       })
     );
@@ -303,9 +303,12 @@ export default function ProfileBody(props: Props) {
           ) : (
             posts.map((post, idx) => (
               <UserPost
+                key={post._id}
                 post={post}
                 style={{ marginTop: idx !== 0 ? 10 : undefined }}
-                key={`post_${profileID}_${idx}`}
+                onDelete={(postID: string) =>
+                  removeFromStateArray(postID, '_id', setPosts)
+                }
               />
             ))
           )}

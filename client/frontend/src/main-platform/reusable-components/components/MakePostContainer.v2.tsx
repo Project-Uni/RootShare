@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, CircularProgress, IconButton } from '@material-ui/core';
 import { RSTextField } from './RSTextField';
@@ -70,8 +70,13 @@ export const MakePostContainer = (props: Props) => {
   const [imageSrc, setImageSrc] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [serverErr, setServerErr] = useState<string>();
+  const [helperText, setHelperText] = useState<string>('Hey Purdue...'); // TODO: change this to the actual school
 
   const fileUploader = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    updateHelperText();
+  }, [props.mode]);
 
   function handleImageClicked() {
     fileUploader.current?.click();
@@ -115,6 +120,11 @@ export const MakePostContainer = (props: Props) => {
       toCommunityID = mode.communityID;
 
       if (params?.communityBroadcast) type = 'broadcast-community';
+      else if (
+        mode.name === 'community-internal-alumni' ||
+        mode.name === 'community-internal-student'
+      )
+        type = mode.name;
       else type = 'community-external-user';
     }
 
@@ -140,6 +150,8 @@ export const MakePostContainer = (props: Props) => {
         );
         return;
       }
+      post.likes = 0;
+      post.comments = 0;
       const { user: postUser, ...rest } = post;
       const cleanedPost = {
         ...rest,
@@ -153,6 +165,13 @@ export const MakePostContainer = (props: Props) => {
     }
     setLoading(false);
   }
+
+  const updateHelperText = () => {
+    if (mode.name === 'community-internal-alumni') setHelperText('Hey Alumni...');
+    else if (mode.name === 'community-internal-student')
+      setHelperText('Hey Members...');
+    else setHelperText('Hey Purdue...');
+  };
 
   return (
     <RSCard className={className} style={{ ...style }} variant="secondary">
@@ -198,7 +217,7 @@ export const MakePostContainer = (props: Props) => {
           <RSTextField
             fullWidth
             variant="outlined"
-            label="Hey Purdue..."
+            label={helperText}
             error={Boolean(serverErr)}
             helperText={serverErr}
             className={styles.textField}
