@@ -109,7 +109,7 @@ function PlatformHeader(props: Props) {
     }
   }
 
-  const renderIcons = () => {
+  const Icons = () => {
     const iconProps = { size: iconSize.current, color: theme.primary };
     // if (isDesktop.current && window.innerWidth >= 800) {
     return (
@@ -178,7 +178,7 @@ function PlatformHeader(props: Props) {
                 </RSLink>
               </div>
               {window.innerWidth >= 800 ? <HeaderSearch /> : undefined}
-              {renderIcons()}
+              <Icons />
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               {window.innerWidth < 800 ? (
