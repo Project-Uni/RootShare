@@ -5,7 +5,6 @@ import { useParams } from 'react-router';
 
 import { useDispatch } from 'react-redux';
 import { updateSidebarComponents } from '../../redux/actions';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
 
 import { CircularProgress } from '@material-ui/core';
 
@@ -65,63 +64,10 @@ export const PostPage = (props: Props) => {
     fetchPost();
   }, [fetchPost]);
 
-  const renderError = () => {
-    if (error === 'unknown')
-      return (
-        <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
-          There was an error getting this post
-        </RSText>
-      );
-
-    if (error === 'not-member')
-      return (
-        <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
-          Can't access post because you aren't a member of{' '}
-          <RSLink
-            href={`/community/${post?.toCommunity?._id}`}
-            style={{ color: Theme.bright }}
-            underline="hover"
-          >
-            {post?.toCommunity?.name || ''}
-          </RSLink>
-        </RSText>
-      );
-
-    if (error === 'not-student')
-      return (
-        <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
-          Can't access post because it was posted by a current member of{' '}
-          <RSLink
-            href={`/community/${post?.toCommunity?._id}`}
-            style={{ color: Theme.bright }}
-            underline="hover"
-          >
-            {post?.toCommunity?.name || ''}
-          </RSLink>{' '}
-          and you are not a student
-        </RSText>
-      );
-
-    if (error === 'not-alumni')
-      return (
-        <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
-          Can't access post because it was posted by an alumni of{' '}
-          <RSLink
-            href={`/community/${post?.toCommunity?._id}`}
-            style={{ color: Theme.bright }}
-            underline="hover"
-          >
-            {post?.toCommunity?.name || ''}
-          </RSLink>{' '}
-          and you are not an alumni
-        </RSText>
-      );
-  };
-
   return (
     <div className={styles.wrapper}>
       {error ? (
-        renderError()
+        <PostPageError post={post} error={error} />
       ) : loading || !post ? (
         <CircularProgress style={{ marginTop: 50 }} size={80} />
       ) : (
@@ -129,4 +75,62 @@ export const PostPage = (props: Props) => {
       )}
     </div>
   );
+};
+
+type PostPageErrorProps = { error: PostAccessError; post?: PostType };
+
+export const PostPageError = (props: PostPageErrorProps) => {
+  const { error, post } = props;
+
+  if (error === 'unknown')
+    return (
+      <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
+        There was an error getting this post
+      </RSText>
+    );
+
+  if (error === 'not-member')
+    return (
+      <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
+        Can't access post because you aren't a member of{' '}
+        <RSLink
+          href={`/community/${post?.toCommunity?._id}`}
+          style={{ color: Theme.bright }}
+          underline="hover"
+        >
+          {post?.toCommunity?.name || ''}
+        </RSLink>
+      </RSText>
+    );
+
+  if (error === 'not-student')
+    return (
+      <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
+        Can't access post because it was posted by a current member of{' '}
+        <RSLink
+          href={`/community/${post?.toCommunity?._id}`}
+          style={{ color: Theme.bright }}
+          underline="hover"
+        >
+          {post?.toCommunity?.name || ''}
+        </RSLink>{' '}
+        and you are not a student
+      </RSText>
+    );
+
+  if (error === 'not-alumni')
+    return (
+      <RSText bold size={14} style={{ marginTop: 20, maxWidth: 400 }}>
+        Can't access post because it was posted by an alumni of{' '}
+        <RSLink
+          href={`/community/${post?.toCommunity?._id}`}
+          style={{ color: Theme.bright }}
+          underline="hover"
+        >
+          {post?.toCommunity?.name || ''}
+        </RSLink>{' '}
+        and you are not an alumni
+      </RSText>
+    );
+  return <></>;
 };
