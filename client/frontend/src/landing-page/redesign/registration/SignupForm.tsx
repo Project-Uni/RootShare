@@ -1,21 +1,26 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useForm } from '../../../helpers/hooks';
+import { useHistory } from 'react-router-dom';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { updateBasicRegistrationFields } from '../../../redux/actions';
+import { RootshareReduxState } from '../../../redux/store/stateManagement';
+
+import { CircularProgress } from '@material-ui/core';
+
 import {
   RSButton,
   RSCheckbox,
   RSLink,
   RSTextField,
 } from '../../../main-platform/reusable-components';
-import { CircularProgress } from '@material-ui/core';
 import { RSText } from '../../../base-components';
+import { TermsModal } from '../modals';
+
 import Theme from '../../../theme/Theme';
-import { isValidEmail } from '../../../helpers/functions';
-import { useHistory } from 'react-router-dom';
 import { getValidRegistration } from '../../../api';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateBasicRegistrationFields } from '../../../redux/actions';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { useForm } from '../../../helpers/hooks';
+import { isValidEmail } from '../../../helpers/functions';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -53,6 +58,7 @@ export const SignupForm = (props: Props) => {
 
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [checkboxErr, setCheckboxErr] = useState(false);
   const [serverErr, setServerErr] = useState<string>();
 
@@ -177,8 +183,11 @@ export const SignupForm = (props: Props) => {
           style={{ marginBottom: 3, marginLeft: 8 }}
         >
           By Signing up, I agree to the{' '}
-          <b style={{ color: Theme.bright }}>terms and conditions</b>
+          <RSLink onClick={() => setShowTermsModal(true)}>
+            <b style={{ color: Theme.bright }}>terms and conditions</b>
+          </RSLink>
         </RSText>
+        <TermsModal open={showTermsModal} onClose={() => setShowTermsModal(false)} />
       </div>
       <div
         style={{

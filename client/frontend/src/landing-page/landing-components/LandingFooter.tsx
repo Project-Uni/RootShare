@@ -5,7 +5,7 @@ import RSText from '../../base-components/RSText';
 import { colors } from '../../theme/Colors';
 import { FaInstagram } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import ContactModal from './ContactModal';
+import ContactModal from '../redesign/modals/ContactModal';
 import Theme from '../../theme/Theme';
 import { AiOutlineBgColors } from 'react-icons/ai';
 

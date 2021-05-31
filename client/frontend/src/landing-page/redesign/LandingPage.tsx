@@ -6,10 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import FacebookIcon from '@material-ui/icons/Facebook';
 import InstagramIcon from '@material-ui/icons/Instagram';
-import { Link } from 'react-router-dom';
 
 import { RSText } from '../../base-components';
+import { RSLink } from '../../main-platform/reusable-components';
 import Login from './Login';
+import { ContactModal, PrivacyPolicyModal } from './modals';
 import { SignupForm } from './registration/SignupForm';
 import { VerifyPhone } from './verification/VerifyPhone';
 import { AccountInitializationForm } from './initialization/AccountInitializationForm';
@@ -89,7 +90,10 @@ const LandingPage = (props: Props) => {
   const accessToken = useSelector((state: RootshareReduxState) => state.accessToken);
 
   const { mode } = props;
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < MIN_WIDTH);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showPrivacyPolicyModal, setShowPrivacyPolicyModal] = useState(false);
 
   const handleResize = () => {
     if (window.innerWidth < MIN_WIDTH && !isMobile) setIsMobile(true);
@@ -224,11 +228,37 @@ const LandingPage = (props: Props) => {
             <a href="https://www.instagram.com/rootshare/" target="_blank">
               <InstagramIcon htmlColor={'#222222'} className={styles.icon} />
             </a>
-            {/* <RSLink>
-              <RSText size={14} weight="bold">
+            <RSLink onClick={() => setShowContactModal(true)}>
+              <RSText
+                size={14}
+                weight="bold"
+                color={'#222222'}
+                style={{ marginRight: 10 }}
+              >
+                Contact Us
+              </RSText>
+            </RSLink>
+            <RSText size={14} weight="bold" color={'#222222'}>
+              |
+            </RSText>
+            <RSLink onClick={() => setShowPrivacyPolicyModal(true)}>
+              <RSText
+                size={14}
+                weight="bold"
+                color={'#222222'}
+                style={{ marginLeft: 10 }}
+              >
                 Privacy Policy
               </RSText>
-            </RSLink> */}
+            </RSLink>
+            <ContactModal
+              open={showContactModal}
+              onClose={() => setShowContactModal(false)}
+            />
+            <PrivacyPolicyModal
+              open={showPrivacyPolicyModal}
+              onClose={() => setShowPrivacyPolicyModal(false)}
+            />
           </div>
           {isMobile && (
             <RSText size={24} color={Theme.altText}>

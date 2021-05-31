@@ -58,7 +58,9 @@ export const RSLink = (props: Props) => {
       href={undefined}
       onClick={onClick}
       style={style}
-      className={[className, styles.link, styles[underline]].join(' ')}
+      className={[className, styles.link, styles.pointer, styles[underline]].join(
+        ' '
+      )}
     >
       {children}
     </a>
