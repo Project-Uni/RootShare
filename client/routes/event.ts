@@ -80,4 +80,24 @@ export default function eventRoutes(app) {
       await updateAttendingList(userID, webinarID, (packet) => res.json(packet));
     }
   );
+
+  // app.post('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
+  //   const {_id: userID} = getUserFromJWT(req)
+  //  })
+
+  app.post('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      title,
+      type,
+      streamLink,
+      startTime,
+      endTime,
+      donationLink,
+      description,
+      communityID,
+    } = req.body;
+  });
+
+  app.get('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {});
 }
