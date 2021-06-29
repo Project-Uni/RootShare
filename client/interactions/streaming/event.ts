@@ -5,6 +5,7 @@ import {
   IWebinar,
   Community,
   ExternalEvent,
+  IExternalEvent,
 } from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
@@ -18,6 +19,7 @@ import {
   sendEmail,
   createPacket,
 } from '../../helpers/functions';
+import { LeanDocument } from 'mongoose';
 
 export function timeStampCompare(
   ObjectA: { dateTime: Date },
@@ -479,4 +481,18 @@ export async function createExternalEvent({
     log('error', err);
     return createPacket(false, 500, 'An error occurred', { err });
   }
+}
+
+export async function getExternalEvents(communityID?: string) {
+  let events: LeanDocument<IExternalEvent[]> | false;
+  if (communityID) {
+    events = await ExternalEvent.getEventsForCommunity(ObjectIdVal(communityID));
+  } else {
+    events = await ExternalEvent.getAllEvents();
+  }
+
+  if (events) {
+    return createPacket(true, 200, 'Successfully retrieved events', { events });
+  }
+  return createPacket(false, 400, 'Failed to retrieve events');
 }

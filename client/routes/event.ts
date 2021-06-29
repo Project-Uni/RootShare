@@ -9,6 +9,7 @@ import {
   addEventBanner,
   getRecentEvents,
   createExternalEvent,
+  getExternalEvents,
 } from '../interactions/streaming/event';
 import { updateAttendingList } from '../interactions/user';
 
@@ -82,10 +83,6 @@ export default function eventRoutes(app) {
     }
   );
 
-  // app.post('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
-  //   const {_id: userID} = getUserFromJWT(req)
-  //  })
-
   app.post('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
     const { _id: userID } = getUserFromJWT(req);
     const {
@@ -117,8 +114,10 @@ export default function eventRoutes(app) {
   });
 
   app.get('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
-    //Optional Query Parameter for communityID
-    // If commnunity ID, get all exteranl events for a specific community
-    // Else, get all events
+    const query = getQueryParams<{ communityID?: string }>(req, {
+      communityID: { type: 'string', optional: true },
+    });
+    const packet = await getExternalEvents(query ? query.communityID : undefined);
+    res.status(packet.status).json(packet);
   });
 }
