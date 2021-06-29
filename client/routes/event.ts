@@ -8,6 +8,7 @@ import {
   addEventImage,
   addEventBanner,
   getRecentEvents,
+  createExternalEvent,
 } from '../interactions/streaming/event';
 import { updateAttendingList } from '../interactions/user';
 
@@ -96,8 +97,28 @@ export default function eventRoutes(app) {
       donationLink,
       description,
       communityID,
+      image,
     } = req.body;
+
+    const packet = await createExternalEvent({
+      title,
+      type,
+      streamLink,
+      startTime,
+      endTime,
+      donationLink,
+      description,
+      communityID,
+      image,
+      userID,
+    });
+
+    return res.status(packet.status).json(packet);
   });
 
-  app.get('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {});
+  app.get('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
+    //Optional Query Parameter for communityID
+    // If commnunity ID, get all exteranl events for a specific community
+    // Else, get all events
+  });
 }

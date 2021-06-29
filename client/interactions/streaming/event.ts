@@ -1,4 +1,11 @@
-import { Webinar, User, IConnection, IWebinar } from '../../rootshare_db/models';
+import {
+  Webinar,
+  User,
+  IConnection,
+  IWebinar,
+  Community,
+  ExternalEvent,
+} from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
   log,
@@ -9,6 +16,7 @@ import {
   decodeBase64Image,
   retrieveSignedUrl,
   sendEmail,
+  createPacket,
 } from '../../helpers/functions';
 
 export function timeStampCompare(
@@ -413,4 +421,62 @@ export function addEventImagesAll(
       log('error', err);
       return undefined;
     });
+}
+
+export async function createExternalEvent({
+  title,
+  type,
+  streamLink,
+  startTime,
+  endTime,
+  donationLink,
+  description,
+  communityID,
+  image,
+  userID,
+}: {
+  title: string;
+  type: string;
+  streamLink: string;
+  startTime: Date;
+  endTime: Date;
+  donationLink: string;
+  description: string;
+  communityID?: string;
+  image: string;
+  userID: ObjectIdType;
+}) {
+  try {
+    if (communityID) {
+      const communityExists = await Community.model.exists({
+        _id: communityID,
+        admin: userID,
+      });
+
+      if (!communityExists)
+        return createPacket(false, 401, 'User is not admin of provided community');
+    }
+
+    const newEvent = ExternalEvent.create({
+      title,
+      type,
+      description,
+      streamLink,
+      startTime,
+      endTime,
+      donationLink,
+      hostCommunity: ObjectIdVal(communityID),
+      banner: image,
+      createdByUserID: userID,
+    });
+
+    if (newEvent) {
+      return createPacket(true, 200, 'Successfully created event', { newEvent });
+    } else {
+      return createPacket(false, 400, 'Failed to create event');
+    }
+  } catch (err) {
+    log('error', err);
+    return createPacket(false, 500, 'An error occurred', { err });
+  }
 }
