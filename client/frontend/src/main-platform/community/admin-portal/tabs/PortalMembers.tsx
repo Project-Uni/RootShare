@@ -33,9 +33,8 @@ import {
   putPendingMember,
   deleteCommunityBoardMember,
   putCommunityBoardMember,
-  BoardMember,
 } from '../../../../api';
-import { UserAvatar, MuiGridValues } from '../../../../helpers/types';
+import { UserAvatar, MuiGridValues, BoardMember } from '../../../../helpers/types';
 import {
   removeFromStateArray,
   updateFieldInStateArray,

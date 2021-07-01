@@ -10,6 +10,7 @@ import {
   IUser,
   ICommunityEdge,
   IConnection,
+  ICommunityBoardMember,
 } from '../../rootshare_db/models';
 import { CommunityGetOptions } from '../../rootshare_db/models/communities';
 import {
@@ -19,18 +20,14 @@ import {
   ObjectIdVal,
   ObjectIdType,
 } from '../../rootshare_db/types';
-import {
-  log,
-  sendPacket,
-  retrieveSignedUrl,
-  deleteFile,
-} from '../../helpers/functions';
+import { log, sendPacket, deleteFile } from '../../helpers/functions';
 import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
   addProfilePicturesAll,
+  addBannerPicturesAll,
 } from '../utilities';
 import { retrieveAllUrls } from '../media';
 import { deletePost, retrievePosts } from '../post';
@@ -258,85 +255,91 @@ export async function getCommunityInformation(
   communityID: ObjectIdType,
   userID: ObjectIdType
 ) {
-  try {
-    const communityPromise = Community.model
-      .findById(communityID, [
-        'name',
-        'description',
-        'admin',
-        'private',
-        'type',
-        'members',
-        'pendingMembers',
-        'university',
-        'profilePicture',
-        'followedByCommunities',
-        'incomingPendingCommunityFollowRequests',
-        'scaleEventType',
-      ])
-      .populate({ path: 'university', select: 'universityName' })
-      .populate({
-        path: 'admin',
-        select: ['_id', 'firstName', 'lastName', 'email'],
-      })
-      .populate({
-        path: 'incomingPendingCommunityFollowRequests',
-        select: 'from',
-      })
-      .populate({ path: 'followedByCommunities', select: 'from' })
-      .exec();
+  const communityPromise = Community.model
+    .findById(communityID, [
+      'admin',
+      'boardMembers',
+      'name',
+      'members',
+      'pendingMembers',
+      'description',
+      'bio',
+      'private',
+      'type',
+      'profilePicture',
+      'bannerPicture',
+      'scaleEventType',
+    ])
+    .populate({ path: 'admin', select: 'firstName lastName profilePicture' })
+    .populate({
+      path: 'members',
+      select: 'firstName lastName profilePicture',
+    })
+    .populate({
+      path: 'boardMembers',
+      select: 'user title',
+      populate: {
+        path: 'user',
+        select: 'firstName lastName profilePicture',
+      },
+    })
+    .lean<ICommunity>()
+    .exec();
 
-    const userPromise = User.model
-      .findById(userID)
-      .select(['connections', 'joinedCommunities'])
-      .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
-      .exec();
+  const userPromise = User.model
+    .findById(userID)
+    .select(['connections', 'joinedCommunities'])
+    .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
+    .exec();
 
-    return Promise.all([communityPromise, userPromise])
-      .then(([community, user]) => {
-        //Calculating Connections in Community
-        const connections = connectionsToUserIDStrings(
+  return Promise.all([communityPromise, userPromise]).then(
+    async ([community, user]) => {
+      // Community Decoration
+      let decoratedCommunity = (
+        await Community.getUserToCommunityRelationship_V2({
           userID,
-          user.connections as IConnection[]
-        );
-        const members = (community.members as ObjectIdType[]).map(
-          (member) => member
-        );
-
-        const mutualConnections = members.filter(
-          (member) => connections.indexOf(member) !== -1
-        );
-
-        let hasFollowingAccess = false;
-
-        if (community.private) {
-          const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
-            (community) => community.from.toString()
-          );
-          const communityIntersection = (user.joinedCommunities as ObjectIdType[]).filter(
-            (community) => followedByCommunities.includes(community.toString())
-          );
-          if (communityIntersection.length > 0) hasFollowingAccess = true;
+          communities: [community],
+        })
+      )[0];
+      decoratedCommunity.pendingMembers = undefined;
+      decoratedCommunity.boardMembers = decoratedCommunity.boardMembers.map(
+        (boardMember) => {
+          return { ...boardMember.user, title: boardMember.title };
         }
+      );
 
+      //Calculating Connections in Community
+      const connections = connectionsToUserIDStrings(
+        userID,
+        user.connections as IConnection[]
+      );
+
+      decoratedCommunity.numMutual = (decoratedCommunity.members as IUser[])
+        .map((member) => member._id)
+        .filter(
+          (member) =>
+            connections.filter((connection) => connection.equals(member)).length > 0
+        ).length;
+
+      const promises: Promise<any>[] = [];
+      promises.push(addProfilePicturesAll([decoratedCommunity], 'communityProfile'));
+      promises.push(addBannerPicturesAll([decoratedCommunity], 'communityBanner'));
+      promises.push(addProfilePicturesAll(decoratedCommunity.members, 'profile'));
+      promises.push(
+        addProfilePicturesAll(decoratedCommunity.boardMembers, 'profile')
+      );
+      promises.push(addProfilePicturesAll([decoratedCommunity.admin], 'profile'));
+      return Promise.all(promises).then(() => {
         log(
           'info',
           `Successfully retrieved community information for ${community.name}`
         );
         return sendPacket(1, 'Successfully retrieved community', {
-          community,
-          mutualConnections,
-          hasFollowingAccess,
+          community: decoratedCommunity,
         });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
       });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
+    }
+  );
 }
 
 export async function joinCommunity(

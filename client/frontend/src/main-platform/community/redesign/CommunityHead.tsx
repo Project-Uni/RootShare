@@ -21,7 +21,7 @@ import {
 } from '../components/MeetTheGreeks';
 
 import Theme from '../../../theme/Theme';
-import { Community, U2CR, CommunityType } from '../../../helpers/types';
+import { Community, U2CR, CommunityType, UserAvatar } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -127,13 +127,21 @@ type Props = {
   communityInfo: Community;
   currentTab: CommunityTab;
   handleTabChange: (newTab: CommunityTab) => void;
+  handleAddMember: (newMember: UserAvatar) => void;
 };
 
 export const CommunityHead = (props: Props) => {
   const styles = useStyles();
   const history = useHistory();
 
-  const { style, className, communityInfo, currentTab, handleTabChange } = props;
+  const {
+    style,
+    className,
+    communityInfo,
+    currentTab,
+    handleTabChange,
+    handleAddMember,
+  } = props;
 
   const [membersModalOpen, setMembersModalOpen] = useState(false);
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
@@ -149,6 +157,7 @@ export const CommunityHead = (props: Props) => {
     private: isPrivate,
     type,
     members,
+    numMutual,
     profilePicture,
     bannerPicture,
     relationship,
@@ -326,7 +335,7 @@ export const CommunityHead = (props: Props) => {
         <div className={styles.btnContainer}>
           <RSText size={11}>{`${numMembers} ${
             numMembers === 1 ? 'Member' : 'Members'
-          }`}</RSText>
+          } | ${numMutual || 0} Mutual`}</RSText>
           {relationship === U2CR.ADMIN && (
             //TODO Get counts from backend
             <div style={{ marginTop: 5, marginBottom: 5 }}>
@@ -437,6 +446,7 @@ export const CommunityHead = (props: Props) => {
         open={membersModalOpen}
         communityID={communityInfo._id}
         handleClose={() => setMembersModalOpen(false)}
+        handleAddMember={handleAddMember}
       />
     </div>
   );

@@ -77,6 +77,8 @@ export type UserAvatar = {
   profilePicture?: string;
 };
 
+export type BoardMember = UserAvatar & { title: string };
+
 export type SearchUserType = {
   _id: string;
   firstName: string;

@@ -1,9 +1,7 @@
 import { stringify } from 'qs';
 import { makeRequest } from '../../../helpers/functions';
 
-import { UserAvatar } from '../../../helpers/types';
-
-export type BoardMember = UserAvatar & { title: string };
+import { UserAvatar, BoardMember } from '../../../helpers/types';
 
 type MembersResponse = {
   members: UserAvatar[];

@@ -10,7 +10,8 @@ import { RSCard, RSAvatar, RSLink } from '../../reusable-components';
 import { RSText } from '../../../base-components';
 
 import Theme from '../../../theme/Theme';
-import { putUpdateCommunity } from '../../../api/put';
+import { putUpdateCommunity } from '../../../api';
+import { UserAvatar, BoardMember } from '../../../helpers/types';
 
 const AVATAR_SIZE = 120;
 
@@ -67,18 +68,11 @@ const useStyles = makeStyles((_: any) => ({
   },
 }));
 
-export type AboutPageUser = {
-  firstName: string;
-  lastName: string;
-  profilePicture?: string;
-  _id: string;
-};
-
 type Props = {
   communityID: string;
-  admin: AboutPageUser; //Populated admin type
-  moderators?: AboutPageUser[]; //Populated Moderator type
-  members: AboutPageUser[];
+  admin: UserAvatar;
+  boardMembers: BoardMember[];
+  members: UserAvatar[];
   aboutDesc: string;
   editable?: boolean;
 };
@@ -86,14 +80,15 @@ type Props = {
 export const CommunityAbout = (props: Props) => {
   const styles = useStyles();
 
-  const { communityID, admin, moderators, members, aboutDesc, editable } = props;
+  const { communityID, admin, boardMembers, members, aboutDesc, editable } = props;
 
-  const filteredMembers = members.filter(
-    (member) =>
-      member._id !== admin._id &&
-      (!moderators ||
-        moderators.filter((moderator) => moderator._id === member._id).length === 0)
-  );
+  // const filteredMembers = members.filter(
+  //   (member) =>
+  //     member._id !== admin._id &&
+  //     (!boardMembers ||
+  //       boardMembers.filter((boardMember) => boardMember._id === member._id)
+  //         .length === 0)
+  // );
 
   return (
     <div className={styles.wrapper}>
@@ -102,8 +97,8 @@ export const CommunityAbout = (props: Props) => {
         description={aboutDesc}
         editable={editable}
       />
-      <AdminsCard admin={admin} moderators={moderators} editable={editable} />
-      <MembersCard members={filteredMembers} />
+      <AdminsCard admin={admin} boardMembers={boardMembers} editable={editable} />
+      <MembersCard members={members} />
     </div>
   );
 };
@@ -210,35 +205,51 @@ const AboutCard = (props: {
 
 const AdminsCard = (props: {
   admin: Props['admin'];
-  moderators: Props['moderators'];
+  boardMembers: Props['boardMembers'];
   editable?: boolean;
 }) => {
   const styles = useStyles();
-  const { admin, moderators, editable } = props;
+  const { admin, boardMembers, editable } = props;
 
   return (
     <RSCard className={styles.cardWrapper}>
       <RSText className={styles.cardTitle} weight="light" size={18}>
-        Admin
+        Executive Board
       </RSText>
       <div className={styles.peopleWrapper}>
-        <RSLink
-          className={styles.profilePictureContainer}
-          href={`/profile/${admin._id}`}
-          underline="hover"
-        >
-          <RSAvatar
-            className={styles.profilePicture}
-            src={admin.profilePicture}
-            primaryName={admin.firstName}
-            secondaryName={admin.lastName}
-            size={AVATAR_SIZE}
-            href={`/profile/${admin._id}`}
-          />
-          <RSText className={styles.userName} size={12} weight="light">
-            {admin.firstName} {admin.lastName}
-          </RSText>
-        </RSLink>
+        {boardMembers.map((boardMember) => (
+          <div className={styles.profilePictureContainer}>
+            <RSLink
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+              href={`/profile/${boardMember._id}`}
+              underline="hover"
+            >
+              <RSAvatar
+                className={styles.profilePicture}
+                src={boardMember.profilePicture}
+                primaryName={boardMember.firstName}
+                secondaryName={boardMember.lastName}
+                size={AVATAR_SIZE}
+                href={`/profile/${boardMember._id}`}
+              />
+              <RSText className={styles.userName} size={12} weight="light">
+                {boardMember.firstName} {boardMember.lastName}
+              </RSText>
+            </RSLink>
+            <RSText
+              className={styles.userName}
+              style={{ marginTop: 5 }}
+              size={10}
+              weight="light"
+            >
+              {boardMember.title}
+            </RSText>
+          </div>
+        ))}
       </div>
     </RSCard>
   );

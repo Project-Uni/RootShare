@@ -45,6 +45,7 @@ type Props = {
   handleClose: () => any;
   updatePendingCount?: (numPending: number) => any;
   updateMemberCount?: (value: 1 | -1) => any;
+  handleAddMember?: (newMember: UserAvatar) => void;
 };
 
 function PendingMembersModal(props: Props) {
@@ -79,9 +80,11 @@ function PendingMembersModal(props: Props) {
         let newPending = prevPending.slice();
         for (let i = 0; i < newPending.length; i++)
           if (newPending[i]._id === userID) {
+            props.handleAddMember?.(newPending[i]);
             newPending.splice(i, 1);
             props.updatePendingCount?.(newPending.length);
             props.updateMemberCount?.(1);
+
             return newPending;
           }
 

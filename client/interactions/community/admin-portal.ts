@@ -97,15 +97,15 @@ export async function addMemberToBoard(
         return sendPacket(1, `Successfully update board member's title`);
       }
 
-      // const newBoardMember = await CommunityBoardMember.model.create({
-      //   user: userID,
-      //   community: communityID,
-      //   title: capitalizeFirstLetter(title),
-      // });
-      // await Community.model.updateOne(
-      //   { _id: communityID },
-      //   { $push: { boardMembers: newBoardMember._id } }
-      // );
+      const newBoardMember = await CommunityBoardMember.model.create({
+        user: userID,
+        community: communityID,
+        title: capitalizeFirstLetter(title),
+      });
+      await Community.model.updateOne(
+        { _id: communityID },
+        { $push: { boardMembers: newBoardMember._id } }
+      );
 
       return sendPacket(
         1,

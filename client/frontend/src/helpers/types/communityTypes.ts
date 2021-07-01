@@ -1,4 +1,4 @@
-import { UserType, PostType } from './index';
+import { UserType, PostType, UserAvatar, BoardMember } from './index';
 
 export type Community = {
   _id: string;
@@ -6,11 +6,12 @@ export type Community = {
   bio: string;
   description: string;
   admin: string | UserType;
+  boardMembers: string[] | BoardMember[];
   university: {
     _id: string;
     universityName: string;
   };
-  members: string[] | UserType[];
+  members: UserAvatar[];
   pendingMembers: string[];
   private: boolean;
   type: CommunityType;

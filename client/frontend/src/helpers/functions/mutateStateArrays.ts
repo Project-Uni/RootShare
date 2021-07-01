@@ -14,6 +14,13 @@ export const removeFromStateArray = (
   });
 };
 
+export const appendToStateArray = (
+  newItem: any,
+  setItems: React.Dispatch<React.SetStateAction<any[]>>
+) => {
+  setItems((prevItems) => prevItems.concat(newItem));
+};
+
 export const updateFieldInStateArray = (
   compareVal: string,
   compareField: string,

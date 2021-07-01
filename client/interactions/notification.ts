@@ -62,7 +62,6 @@ export default class NotificationService {
         relatedItemId: postID,
         message: `${fromUserName.firstName} ${fromUserName.lastName} liked your comment`,
       });
-      console.log(notif);
     } catch (err) {
       log('error', err.message);
     }

@@ -42,7 +42,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID } = query;
+        const { communityID } = query;
 
         const packet = await getMembersCommunityAdmin(ObjectIdVal(communityID));
         res.json(packet);
@@ -70,7 +70,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID, userID, title } = query;
+        const { communityID, userID, title } = query;
 
         const packet = await addMemberToBoard(
           ObjectIdVal(communityID),
@@ -100,7 +100,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID, userID } = query;
+        const { communityID, userID } = query;
 
         const packet = await removeMemberFromBoard(
           ObjectIdVal(communityID),
@@ -129,7 +129,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID, userID } = query;
+        const { communityID, userID } = query;
         const packet = await leaveCommunity(
           ObjectIdVal(communityID),
           ObjectIdVal(userID)
@@ -155,7 +155,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID } = query;
+        const { communityID } = query;
         const packet = await getAllPendingMembers(ObjectIdVal(communityID));
         res.json(packet);
       } catch (err) {
@@ -182,7 +182,7 @@ export default function communityAdminPortalRoutes(app) {
         });
         if (!query)
           return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-        let { communityID, userID, action } = query;
+        const { communityID, userID, action } = query;
         let packet;
         if (action === 'reject')
           packet = await rejectPendingMember(
