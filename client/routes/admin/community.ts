@@ -1,6 +1,6 @@
 import { isAuthenticatedWithJWT, isRootshareAdmin } from '.';
 import { sendPacket } from '../../helpers/functions';
-import { createNewCommunity } from '../../interactions/community';
+import { createNewCommunity } from '../../interactions/community/community';
 import {
   retrieveAllCommunities,
   editCommunity,

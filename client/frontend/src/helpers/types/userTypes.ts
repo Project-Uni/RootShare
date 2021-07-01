@@ -70,6 +70,13 @@ export type LeanUser = {
   _id: string;
 };
 
+export type UserAvatar = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  profilePicture?: string;
+};
+
 export type SearchUserType = {
   _id: string;
   firstName: string;

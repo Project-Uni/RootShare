@@ -1,25 +1,22 @@
-import { ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
+import { ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
   getQueryParams,
   log,
-} from '../helpers/functions';
-import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+} from '../../helpers/functions';
+import { isAuthenticatedWithJWT } from '../../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
   isCommunityAdminFromQueryParams,
   isCommunityMemberFromQueryParams,
-} from './middleware/communityAuthentication';
+} from '../middleware/communityAuthentication';
 
 import {
   //General Community Actions
   createNewCommunity,
   getCommunityInformation,
   joinCommunity,
-  getAllPendingMembers,
-  rejectPendingMember,
-  acceptPendingMember,
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
@@ -39,7 +36,7 @@ import {
   pinPost,
   getPinnedPosts,
   inviteUser,
-} from '../interactions/community';
+} from '../../interactions/community/community';
 
 /**
  *
@@ -98,47 +95,6 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const { _id } = getUserFromJWT(req);
       const packet = await joinCommunity(communityID, _id);
-      return res.json(packet);
-    }
-  );
-
-  app.get(
-    '/api/community/:communityID/pending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const packet = await getAllPendingMembers(communityID);
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/community/:communityID/rejectPending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const { userID } = req.body;
-      if (!userID)
-        return res.json(sendPacket(-1, 'userID missing from request body'));
-
-      const packet = await rejectPendingMember(communityID, userID);
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/community/:communityID/acceptPending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const { userID } = req.body;
-      if (!userID)
-        return res.json(sendPacket(-1, 'userID missing from request body'));
-
-      const packet = await acceptPendingMember(communityID, userID);
       return res.json(packet);
     }
   );

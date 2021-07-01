@@ -1,5 +1,6 @@
 export * from './checkPassword';
 export * from './dateFormat';
+export * from './stringFormat';
 export * from './emailTokens';
 export * from './generateJWT';
 export * from './logger';

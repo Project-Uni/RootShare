@@ -5,10 +5,10 @@ import { Modal, IconButton, CircularProgress } from '@material-ui/core';
 import { MdErrorOutline } from 'react-icons/md';
 
 import SinglePendingRequest from './SinglePendingRequest';
-
 import RSText from '../../../base-components/RSText';
-import { colors } from '../../../theme/Colors';
-import { makeRequest } from '../../../helpers/functions';
+
+import { UserAvatar } from '../../../helpers/types';
+import { getCommunityPendingMembers, putPendingMember } from '../../../api';
 import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
@@ -39,13 +39,6 @@ const useStyles = makeStyles((_: any) => ({
   singleMember: { marginBottom: 15 },
 }));
 
-type PendingUser = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  profilePicture?: string;
-};
-
 type Props = {
   open: boolean;
   communityID: string;
@@ -58,7 +51,7 @@ function PendingMembersModal(props: Props) {
   const styles = useStyles();
   const [loading, setLoading] = useState(true);
   const [showServerErr, setShowServerErr] = useState(false);
-  const [pendingMembers, setPendingMembers] = useState<PendingUser[]>([]);
+  const [pendingMembers, setPendingMembers] = useState<UserAvatar[]>([]);
 
   useEffect(() => {
     if (props.open) {
@@ -69,68 +62,48 @@ function PendingMembersModal(props: Props) {
   }, [props.open]);
 
   async function fetchPendingUsers() {
-    const { data } = await makeRequest(
-      'GET',
-      `/api/community/${props.communityID}/pending`
-    );
+    const data = await getCommunityPendingMembers(props.communityID);
 
     if (data.success !== 1) {
       setShowServerErr(true);
     } else {
-      setPendingMembers(data.content['pendingMembers']);
+      setPendingMembers(data.content.pendingMembers);
     }
   }
 
-  async function handleAcceptUser(_id: string) {
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${props.communityID}/acceptPending`,
-      { userID: _id }
-    );
+  async function handleAcceptUser(userID: string) {
+    const data = await putPendingMember(props.communityID, userID, 'accept');
 
-    if (data.success === 1) {
-      let spliceIndex: number = -1;
+    if (data.success === 1)
+      setPendingMembers((prevPending) => {
+        let newPending = prevPending.slice();
+        for (let i = 0; i < newPending.length; i++)
+          if (newPending[i]._id === userID) {
+            newPending.splice(i, 1);
+            props.updatePendingCount?.(newPending.length);
+            props.updateMemberCount?.(1);
+            return newPending;
+          }
 
-      for (let i = 0; i < pendingMembers.length; i++) {
-        if (pendingMembers[i]._id === _id) {
-          spliceIndex = i;
-          break;
-        }
-      }
-
-      if (spliceIndex > -1) {
-        const newPending = pendingMembers.slice();
-        newPending.splice(spliceIndex, 1);
-        setPendingMembers(newPending);
-        props.updatePendingCount?.(newPending.length);
-        props.updateMemberCount?.(1);
-      }
-    }
+        return prevPending;
+      });
   }
 
-  async function handleRejectUser(_id: string) {
-    const { data } = await makeRequest(
-      'POST',
-      `/api/community/${props.communityID}/rejectPending`,
-      { userID: _id }
-    );
+  async function handleRejectUser(userID: string) {
+    const data = await putPendingMember(props.communityID, userID, 'reject');
 
-    if (data.success === 1) {
-      let spliceIndex: number = -1;
-      for (let i = 0; i < pendingMembers.length; i++) {
-        if (pendingMembers[i]._id === _id) {
-          spliceIndex = i;
-          break;
-        }
-      }
+    if (data.success === 1)
+      setPendingMembers((prevPending) => {
+        let newPending = prevPending.slice();
+        for (let i = 0; i < newPending.length; i++)
+          if (newPending[i]._id === userID) {
+            newPending.splice(i, 1);
+            props.updatePendingCount?.(newPending.length);
+            return newPending;
+          }
 
-      if (spliceIndex > -1) {
-        const newPending = pendingMembers.slice();
-        newPending.splice(spliceIndex, 1);
-        setPendingMembers(newPending);
-        props.updatePendingCount?.(newPending.length);
-      }
-    }
+        return prevPending;
+      });
   }
 
   function handleClose() {

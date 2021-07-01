@@ -56,20 +56,28 @@ export const isCommunityAdminFromQueryParams = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { _id: userID } = getUserFromJWT(req);
-  const query = getQueryParams<{ communityID: string }>(req, {
-    communityID: { type: 'string' },
-  });
-  if (!query)
-    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
+  try {
+    const { _id: userID } = getUserFromJWT(req);
+    const query = getQueryParams<{ communityID: string }>(req, {
+      communityID: { type: 'string' },
+    });
+    if (!query)
+      return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
 
-  let { communityID } = query;
-  communityID = communityID as string;
+    let { communityID } = query;
+    communityID = communityID as string;
 
-  //TODO - Might need to update to use objectID here
-  const isAdmin = await Community.model.exists({ _id: communityID, admin: userID });
-  if (isAdmin) next();
-  else res.status(401).json(sendPacket(-1, 'User is not community admin'));
+    //TODO - Might need to update to use objectID here
+    const isAdmin = await Community.model.exists({
+      _id: communityID,
+      admin: userID,
+    });
+    if (isAdmin) next();
+    else res.status(401).json(sendPacket(-1, 'User is not community admin'));
+  } catch (err) {
+    log('err', err);
+    res.status(500).json(sendPacket(-1, err.message));
+  }
 };
 
 export const isCommunityMemberFromQueryParams = async (
@@ -77,21 +85,26 @@ export const isCommunityMemberFromQueryParams = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { _id: userID } = getUserFromJWT(req);
-  const query = getQueryParams<{ communityID: string }>(req, {
-    communityID: { type: 'string' },
-  });
-  if (!query)
-    return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
+  try {
+    const { _id: userID } = getUserFromJWT(req);
+    const query = getQueryParams<{ communityID: string }>(req, {
+      communityID: { type: 'string' },
+    });
+    if (!query)
+      return res.status(500).json(sendPacket(-1, 'Missing query param communityID'));
 
-  let { communityID } = query;
-  communityID = communityID as string;
+    let { communityID } = query;
+    communityID = communityID as string;
 
-  const isMember = await Community.model.exists({
-    _id: communityID,
-    members: { $elemMatch: { $eq: userID } },
-  });
+    const isMember = await Community.model.exists({
+      _id: communityID,
+      members: { $elemMatch: { $eq: userID } },
+    });
 
-  if (isMember) next();
-  else res.status(401).json(sendPacket(-1, 'User is not community member'));
+    if (isMember) next();
+    else res.status(401).json(sendPacket(-1, 'User is not community member'));
+  } catch (err) {
+    log('err', err);
+    res.status(500).json(sendPacket(-1, err.message));
+  }
 };

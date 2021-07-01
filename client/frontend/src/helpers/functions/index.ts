@@ -6,7 +6,7 @@ export * from './sleep';
 export * from './checkProfilePictureExpired';
 export * from './isValidEmail';
 export * from './insertArray';
-export * from './removeFromStateArray';
+export * from './mutateStateArrays';
 
 export * from './formatString';
 export * from './formatTimestamp';

@@ -33,6 +33,8 @@ type Props = {
   highlightColor: string;
   variant: 'static' | 'dynamic';
   onClick: () => void;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 export const RSIconButton = (props: Props) => {
@@ -48,6 +50,7 @@ export const RSIconButton = (props: Props) => {
     highlightColor,
     variant,
     onClick,
+    className,
   } = props;
 
   const [hovering, setHovering] = useState(false);
@@ -101,7 +104,8 @@ export const RSIconButton = (props: Props) => {
         setHovering(false);
         setHoveringDelayed(false);
       }}
-      className={styles.wrapper}
+      className={[styles.wrapper, className].join(' ')}
+      style={props.style}
     >
       {text && (
         <RSText color={buttonColor} size={textSize} style={{ userSelect: 'none' }}>

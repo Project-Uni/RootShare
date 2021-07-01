@@ -48,8 +48,7 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   }));
 
   useEffect(() => {
-    // dispatch(resetCommunityAdminPortalTab());
-    dispatch(updateCommunityAdminPortalTab('events'));
+    dispatch(resetCommunityAdminPortalTab());
   }, []);
 
   const renderTab = (tab: CommunityAdminPortalTab) => {

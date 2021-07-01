@@ -23,10 +23,10 @@ const useStyles = makeStyles((_: any) => ({
     justifyContent: 'center',
   },
   tabItem: {
-    paddingTop: 5,
-    paddingBottom: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    marginTop: 5,
+    marginBottom: 10,
+    marginLeft: 20,
+    marginRight: 20,
     '&:hover': {
       cursor: 'pointer',
     },
@@ -37,15 +37,21 @@ const useStyles = makeStyles((_: any) => ({
     borderBottomColor: addAlpha('#000000', 0.5),
   },
   notSelectedTab: {},
+  outlined: {
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 30,
+    padding: 10,
+  },
 }));
 
 type Props = {
   tabs: { label: string; value: string }[];
   selected: string;
   onChange: (newTab: string | any) => any;
-  size: number;
-  variant: 'primary' | 'underlinedTabs' | 'underlinedWhole';
-  theme: 'rootshare' | 'university';
+  size?: number;
+  variant?: 'primary' | 'underlinedTabs' | 'underlinedWhole' | 'outlined';
+  theme?: 'rootshare' | 'university';
   className?: string;
   style?: React.CSSProperties;
 };
@@ -72,7 +78,10 @@ function RSTabsV2(props: Props) {
           key={tabs[i].value}
         >
           <RSText
-            className={styles.tabItem}
+            className={[
+              styles.tabItem,
+              variant === 'outlined' && styles.outlined,
+            ].join(' ')}
             weight={isSelected ? 'bold' : 'light'}
             color={
               isSelected
@@ -93,6 +102,7 @@ function RSTabsV2(props: Props) {
     }
     return output;
   }
+
   return (
     <div
       className={[

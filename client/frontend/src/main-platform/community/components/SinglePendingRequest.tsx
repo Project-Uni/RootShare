@@ -39,6 +39,7 @@ type Props = {
   _id: string;
   profilePicture?: string;
   className?: string;
+  style?: React.CSSProperties;
   onAccept: (_id: string) => any;
   onReject: (_id: string) => any;
   type: 'user' | 'community';
@@ -49,7 +50,7 @@ function SinglePendingRequest(props: Props) {
   const styles = useStyles();
 
   return (
-    <div className={[styles.wrapper, props.className].join(' ')}>
+    <div className={[styles.wrapper, props.className].join(' ')} style={props.style}>
       <div className={styles.left}>
         <RSLink
           href={`/${props.type === 'user' ? 'profile' : 'community'}/${props._id}`}

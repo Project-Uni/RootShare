@@ -1,7 +1,8 @@
 import { Express } from 'express';
 import { sendPacket } from '../helpers/functions';
 
-import communityRoutes from './community';
+import communityRoutes from './community/community';
+import communityAdminPortalRoutes from './community/admin-portal';
 import discoverRoutes from './discover';
 import eventRoutes from './event';
 import feedbackRoutes from './feedback';
@@ -27,6 +28,7 @@ export default function RootshareRoutes(app: Express, io) {
   adminRoutes(app);
 
   communityRoutes(app);
+  communityAdminPortalRoutes(app);
   discoverRoutes(app);
   eventRoutes(app);
   feedbackRoutes(app);
