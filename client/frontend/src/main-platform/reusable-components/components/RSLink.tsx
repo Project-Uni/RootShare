@@ -24,7 +24,9 @@ const useStyles = makeStyles((_: any) => ({
       textDecoration: 'underline',
     },
   },
-  static: {},
+  static: {
+    textDecoration: 'underline',
+  },
 }));
 
 type Props = {

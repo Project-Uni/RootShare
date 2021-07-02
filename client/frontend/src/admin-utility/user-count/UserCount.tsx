@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Grid, CircularProgress, Button } from '@material-ui/core';
-
 import { CSVDownload } from 'react-csv';
 
 import { connect } from 'react-redux';

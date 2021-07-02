@@ -63,6 +63,21 @@ export async function getMembersCommunityAdmin(communityID: ObjectIdType) {
   });
 }
 
+export async function getMemberDataCommunityAdmin(communityID: ObjectIdType) {
+  const community = await Community.model
+    .findById(communityID, ['members'])
+    .populate({
+      path: 'members',
+      select:
+        '_id profilePicture firstName lastName email accountType graduationYear department major phoneNumber work position',
+    })
+    .exec();
+
+  return sendPacket(1, 'Retriving member data for community', {
+    members: community.members,
+  });
+}
+
 export async function addMemberToBoard(
   communityID: ObjectIdType,
   userID: ObjectIdType,

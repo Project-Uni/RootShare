@@ -13,6 +13,7 @@ import {
 } from '../middleware/communityAuthentication';
 import {
   getMembersCommunityAdmin,
+  getMemberDataCommunityAdmin,
   addMemberToBoard,
   removeMemberFromBoard,
   getAllPendingMembers,
@@ -45,6 +46,28 @@ export default function communityAdminPortalRoutes(app) {
         const { communityID } = query;
 
         const packet = await getMembersCommunityAdmin(ObjectIdVal(communityID));
+        res.json(packet);
+      } catch (err) {
+        log('err', err);
+        res.json(sendPacket(-1, err.message));
+      }
+    }
+  );
+
+  app.get(
+    '/api/community/admin/portal/memberData',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      try {
+        const query = getQueryParams<{ communityID: string }>(req, {
+          communityID: { type: 'string' },
+        });
+        if (!query)
+          return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+        const { communityID } = query;
+
+        const packet = await getMemberDataCommunityAdmin(ObjectIdVal(communityID));
         res.json(packet);
       } catch (err) {
         log('err', err);

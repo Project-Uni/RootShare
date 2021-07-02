@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useParams } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
-import { RSText } from '../../../base-components';
 import { PortalMembers, PortalEvents } from './tabs';
-
-import Theme from '../../../theme/Theme';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},

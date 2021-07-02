@@ -22,6 +22,8 @@ import Theme from '../../theme/Theme';
 import { checkProfilePictureExpired } from '../../helpers/functions';
 import { NAVIGATOR_WIDTH } from '../reusable-components/components/MainNavigator';
 
+export const AUTHENTICATED_PAGE_MAX_WIDTH = 1500;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
     width: '100%',
@@ -31,7 +33,7 @@ const useStyles = makeStyles((_: any) => ({
     display: 'flex',
     justifyContent: 'space-between',
     flex: 1,
-    maxWidth: 1500,
+    maxWidth: AUTHENTICATED_PAGE_MAX_WIDTH,
   },
   bodyContainer: {
     display: 'flex',

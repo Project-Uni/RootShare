@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
+import { CSVDownload } from 'react-csv';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../../redux/store/stateManagement';
@@ -33,12 +34,23 @@ import {
   putPendingMember,
   deleteCommunityBoardMember,
   putCommunityBoardMember,
+  getCommunityAdminMemberData,
 } from '../../../../api';
-import { UserAvatar, MuiGridValues, BoardMember } from '../../../../helpers/types';
+import {
+  UserAvatar,
+  UserType,
+  MuiGridValues,
+  BoardMember,
+} from '../../../../helpers/types';
 import {
   removeFromStateArray,
   updateFieldInStateArray,
 } from '../../../../helpers/functions';
+import { SHOW_HEADER_NAVIGATION_WIDTH } from '../../../../helpers/constants';
+import { COMMUNITY_LEFT_SIDEBAR_OFFSET } from '../CommunityAdminPortalLeftSidebar';
+import { AUTHENTICATED_PAGE_MAX_WIDTH } from '../../../../main-platform/AuthenticatedPage/AuthenticatedPage';
+
+const BOARD_MEMBER_GRID_PADDING = 30;
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {},
@@ -68,6 +80,7 @@ export const PortalMembers = (props: Props) => {
 
   const [loading, setLoading] = useState(false);
   const [fetchErr, setFetchErr] = useState(false);
+  const [downloadMembers, setDownloadMembers] = useState<UserType[]>();
 
   const [members, setMembers] = useState<UserAvatar[]>([]);
   const [pendingMembers, setPendingMembers] = useState<UserAvatar[]>([]);
@@ -83,6 +96,7 @@ export const PortalMembers = (props: Props) => {
   const [selectedMemberTab, setSelectedMemberTab] = useState<MemberTab>('members');
 
   const [colSize, setColSize] = useState<MuiGridValues>(2);
+  const [boardGridWidth, setBoardGridWidth] = useState(1500);
 
   useEffect(() => {
     handleResize();
@@ -92,6 +106,10 @@ export const PortalMembers = (props: Props) => {
   useEffect(() => {
     if (communityID) fetchData();
   }, [communityID]);
+
+  useEffect(() => {
+    if (downloadMembers) setDownloadMembers(undefined);
+  }, [downloadMembers]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -199,15 +217,37 @@ export const PortalMembers = (props: Props) => {
       if (window.innerWidth < 1200) return 3;
       return 2;
     });
+
+    const leftSideBarOffset =
+      window.innerWidth < SHOW_HEADER_NAVIGATION_WIDTH
+        ? 0
+        : COMMUNITY_LEFT_SIDEBAR_OFFSET;
+
+    setBoardGridWidth(
+      Math.min(window.innerWidth, AUTHENTICATED_PAGE_MAX_WIDTH) -
+        leftSideBarOffset -
+        BOARD_MEMBER_GRID_PADDING * 2
+    );
   };
 
   const handleViewChange = () => {
     setViewType((prevViewType) => (prevViewType === 'grid' ? 'list' : 'grid'));
   };
 
+  const handleDownloadClicked = async () => {
+    const data = await getCommunityAdminMemberData(communityID);
+    setDownloadMembers(data.content.members);
+  };
+
   function renderBoardMembers() {
     return (
-      <div style={{ textAlign: 'left', padding: 30, paddingTop: 0 }}>
+      <div
+        style={{
+          textAlign: 'left',
+          padding: BOARD_MEMBER_GRID_PADDING,
+          paddingTop: 0,
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'flex-end' }}>
           <RSText size={24}>Executive Board</RSText>
           {managingBoard ? (
@@ -241,9 +281,11 @@ export const PortalMembers = (props: Props) => {
           style={{
             display: 'flex',
             marginTop: 20,
-            overflow: 'scroll',
-            maxHeight: 700,
+            overflowY: 'scroll',
             boxShadow: Theme.fullShadow,
+            minWidth: 0,
+            // maxWidth: '60vw',
+            width: boardGridWidth,
           }}
         >
           {boardMembers.map((boardMember) => (
@@ -293,16 +335,26 @@ export const PortalMembers = (props: Props) => {
                   }}
                 />
               )}
-              <RSAvatar
-                src={boardMember.profilePicture}
-                size={120}
-                style={{ boxShadow: Theme.fullShadow }}
-              />
-              <RSText
-                size={12}
-                weight="normal"
-                style={{ paddingTop: 10 }}
-              >{`${boardMember.firstName} ${boardMember.lastName}`}</RSText>
+              <RSLink
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+                href={`/profile/${boardMember._id}`}
+                underline="hover"
+              >
+                <RSAvatar
+                  src={boardMember.profilePicture}
+                  size={120}
+                  style={{ boxShadow: Theme.fullShadow }}
+                />
+                <RSText
+                  size={12}
+                  weight="normal"
+                  style={{ paddingTop: 10 }}
+                >{`${boardMember.firstName} ${boardMember.lastName}`}</RSText>
+              </RSLink>
               <RSText size={10} weight="light" style={{ paddingTop: 4 }}>
                 {boardMember.title}
               </RSText>
@@ -424,16 +476,26 @@ export const PortalMembers = (props: Props) => {
                   }}
                 />
               )}
-              <RSAvatar
-                src={member.profilePicture}
-                size={120}
+              <RSLink
                 style={{
-                  boxShadow: Theme.fullShadow,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
                 }}
-              />
-              <RSText size={11} weight="normal" style={{ paddingTop: 10 }}>
-                {`${member.firstName} ${member.lastName}`}
-              </RSText>
+                href={`/profile/${member._id}`}
+                underline="hover"
+              >
+                <RSAvatar
+                  src={member.profilePicture}
+                  size={120}
+                  style={{
+                    boxShadow: Theme.fullShadow,
+                  }}
+                />
+                <RSText size={11} weight="normal" style={{ paddingTop: 10 }}>
+                  {`${member.firstName} ${member.lastName}`}
+                </RSText>
+              </RSLink>
             </Grid>
           ))}
         </Grid>
@@ -466,14 +528,24 @@ export const PortalMembers = (props: Props) => {
               backgroundColor: idx % 2 === 0 ? Theme.primaryHover : Theme.background,
             }}
           >
-            <RSAvatar
-              src={member.profilePicture}
-              size={35}
-              style={{ boxShadow: Theme.fullShadow }}
-            />
-            <RSText size={11} weight="normal" style={{ flex: 1, paddingLeft: 10 }}>
-              {`${member.firstName} ${member.lastName}`}
-            </RSText>
+            <RSLink
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              href={`/profile/${member._id}`}
+              underline="hover"
+            >
+              <RSAvatar
+                src={member.profilePicture}
+                size={35}
+                style={{ boxShadow: Theme.fullShadow }}
+              />
+              <RSText size={11} weight="normal" style={{ paddingLeft: 10 }}>
+                {`${member.firstName} ${member.lastName}`}
+              </RSText>
+            </RSLink>
+            <div style={{ flex: 1 }} />
             {managingMembers && member._id !== userID && (
               <div style={{ display: 'flex' }}>
                 <RSButtonV2
@@ -644,6 +716,7 @@ export const PortalMembers = (props: Props) => {
         <RSButtonV2
           borderRadius={5}
           style={{ height: 30, width: 150, marginRight: 20 }}
+          onClick={handleDownloadClicked}
         >
           <AiOutlineDownload
             size={20}
@@ -654,12 +727,19 @@ export const PortalMembers = (props: Props) => {
             Download CSV
           </RSText>
         </RSButtonV2>
-        <RSButtonV2 borderRadius={5} style={{ height: 30, width: 150 }}>
+        {downloadMembers && (
+          <CSVDownload
+            data={downloadMembers}
+            target="_blank"
+            filename="rootshare-users.csv"
+          />
+        )}
+        {/* <RSButtonV2 borderRadius={5} style={{ height: 30, width: 150 }}>
           <FiSend size={18} color={Theme.white} style={{ paddingRight: 5 }} />
           <RSText size={10} color={Theme.white}>
             Messaging
           </RSText>
-        </RSButtonV2>
+        </RSButtonV2> */}
       </div>
       {renderBoardMembers()}
       {renderMembers()}
