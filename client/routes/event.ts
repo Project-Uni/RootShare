@@ -95,6 +95,7 @@ export default function eventRoutes(app) {
       description,
       communityID,
       image,
+      privacy,
     } = req.body;
 
     const packet = await createExternalEvent({
@@ -108,6 +109,7 @@ export default function eventRoutes(app) {
       communityID,
       image,
       userID,
+      privacy,
     });
 
     return res.status(packet.status).json(packet);

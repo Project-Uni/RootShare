@@ -436,6 +436,7 @@ export async function createExternalEvent({
   communityID,
   image,
   userID,
+  privacy,
 }: {
   title: string;
   type: string;
@@ -447,6 +448,7 @@ export async function createExternalEvent({
   communityID?: string;
   image: string;
   userID: ObjectIdType;
+  privacy: 0 | 1;
 }) {
   try {
     if (communityID) {
@@ -470,6 +472,7 @@ export async function createExternalEvent({
       hostCommunity: ObjectIdVal(communityID),
       banner: image,
       createdByUserID: userID,
+      privacy,
     });
 
     if (newEvent) {
@@ -482,6 +485,30 @@ export async function createExternalEvent({
     return createPacket(false, 500, 'An error occurred', { err });
   }
 }
+
+/**
+ *
+ * @param communityID
+ * @returns {
+ *  events: {
+ *    title: string,
+ *    description: string,
+ *    type: string,
+ *    streamLink: string,
+ *    donationLink: string,
+ *    privacy: 0 = PRIVATE | 1 = PUBLIC,
+ *    startTime: Date,
+ *    endTime: Date,
+ *    hostCommunity?: {
+ *      name: String
+ *      profilePicture?: String
+ *    },
+ *    createdAt: Date,
+ *    updatedAt: Date,
+ *    banner: string
+ *  }[]
+ * }
+ */
 
 export async function getExternalEvents(communityID?: string) {
   let events: LeanDocument<IExternalEvent[]> | false;
