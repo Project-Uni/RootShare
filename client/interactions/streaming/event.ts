@@ -20,6 +20,7 @@ import {
   createPacket,
 } from '../../helpers/functions';
 import { LeanDocument } from 'mongoose';
+import { Privacy } from '../../rootshare_db/models/external_events';
 
 export function timeStampCompare(
   ObjectA: { dateTime: Date },
@@ -441,14 +442,14 @@ export async function createExternalEvent({
   title: string;
   type: string;
   streamLink: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   donationLink: string;
   description: string;
   communityID?: string;
   image: string;
   userID: ObjectIdType;
-  privacy: 0 | 1;
+  privacy: Privacy;
 }) {
   try {
     if (communityID) {
@@ -461,13 +462,13 @@ export async function createExternalEvent({
         return createPacket(false, 401, 'User is not admin of provided community');
     }
 
-    const newEvent = ExternalEvent.create({
+    const newEvent = await ExternalEvent.create({
       title,
       type,
       description,
       streamLink,
-      startTime,
-      endTime,
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
       donationLink,
       hostCommunity: ObjectIdVal(communityID),
       banner: image,
@@ -476,7 +477,9 @@ export async function createExternalEvent({
     });
 
     if (newEvent) {
-      return createPacket(true, 200, 'Successfully created event', { newEvent });
+      return createPacket(true, 200, 'Successfully created event', {
+        event: newEvent,
+      });
     } else {
       return createPacket(false, 400, 'Failed to create event');
     }
@@ -496,7 +499,7 @@ export async function createExternalEvent({
  *    type: string,
  *    streamLink: string,
  *    donationLink: string,
- *    privacy: 0 = PRIVATE | 1 = PUBLIC,
+ *    privacy: 'PUBLIC' | 'PRIVATE',
  *    startTime: Date,
  *    endTime: Date,
  *    hostCommunity?: {

@@ -12,9 +12,10 @@ type IPostCreateExternalEventParams = {
   communityID: string;
   privacy: Privacy;
   image: string;
+  isDev?: boolean;
 };
 
-type IPostCreateExternalEventResponse = {
+export type IPostCreateExternalEventResponse = {
   event: {
     title: string;
     type: string;
@@ -27,6 +28,7 @@ type IPostCreateExternalEventResponse = {
     createdByUserID: string;
     privacy: Privacy;
     banner: string;
+    isDev: boolean;
     createdAt: string;
     updatedAt: string;
   };

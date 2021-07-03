@@ -150,7 +150,10 @@ declare module '@material-ui/core/styles/createMuiTheme' {
 }
 
 export const muiTheme = createMuiTheme({
-  palette: { primary: { main: '#61C87F' }, error: { main: '#FA8072' } },
+  palette: {
+    primary: { main: '#61C87F' },
+    error: { main: '#FA8072' },
+  },
   text: {
     primary: '#252525',
     secondary: '#545454',
