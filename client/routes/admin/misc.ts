@@ -1,5 +1,17 @@
 import { isAuthenticatedWithJWT, isRootshareAdmin } from '.';
+import { sendPacket, sendSMS } from '../../helpers/functions';
 import { getUserData } from '../../interactions/admin';
+import { User } from '../../rootshare_db/models';
+
+const unique = (arr: string[]) => {
+  const output: string[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (output.indexOf(arr[i]) === -1) {
+      output.push(arr[i]);
+    }
+  }
+  return output;
+};
 
 export default function adminMiscRoutes(app) {
   app.get(
@@ -38,27 +50,29 @@ export default function adminMiscRoutes(app) {
     }
   );
 
-  app.put(
+  app.get(
     '/api/admin/sms',
-    isAuthenticatedWithJWT,
-    isRootshareAdmin,
+    // isAuthenticatedWithJWT,
+    // isRootshareAdmin,
     async (req, res) => {
-      // const users = await User.find({
-      //   $and: [{ phoneNumber: { $exists: true } }, { phoneNumber: { $ne: '' } }],
-      // }).exec();
-      // const phoneNumbers = users.map((u) => u.phoneNumber);
+      //   const users = await User.model
+      //     .find({
+      //       $and: [{ phoneNumber: { $exists: true } }, { phoneNumber: { $ne: '' } }],
+      //     })
+      //     .exec();
+      //   const phoneNumbers = unique(users.map((u) => u.phoneNumber));
 
-      // sendSMS(
-      //   phoneNumbers,
-      //   'Hey it’s Chris Hartley, CEO of 🌱RootShare! I wanted to remind you that we are hosting an EXCLUSIVE event with Northwestern Mutual for Purdue students and alumni TONIGHT! Tune with your Rootshare account using the link below. \n\nhttps://RootShare.io/event/6058db7add0bb42382a5dd37',
-      //   'https://rootshare-profile-images.s3.us-east-2.amazonaws.com/images/messaging/nwm_Graphic.png'
-      // );
-
-      // return res.json(
-      //   sendPacket(1, 'Users', {
+      //   await sendSMS(
       //     phoneNumbers,
-      //   })
-      // );
+      //     `With end of the school year quickly approaching with finals week, graduations, & job searching, Rootshare is happy to be hosting “How To Build A Winning Management Strategy” with Pro Basketball Player & Purdue Legend, Robbie Hummel & Northwestern Mutual CFO, Adam Turner!!!\n\nBe sure to tune in TONIGHT @ 8-9pm EST/ 5-6pm PST. #PurdueDayOfGiving\n\nClick to claim your spot now!\nRootshare.io🌱`,
+      //     'https://rootshare-profile-images.s3.us-east-2.amazonaws.com/images/messaging/winning_strategy.png'
+      //   );
+
+      //   return res.json(
+      //     sendPacket(1, 'Users', {
+      //       phoneNumbers,
+      //     })
+      //   );
       res.status(401).send('This is an example usage route');
     }
   );
