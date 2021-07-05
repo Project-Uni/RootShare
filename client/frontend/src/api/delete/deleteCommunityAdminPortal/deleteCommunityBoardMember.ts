@@ -8,7 +8,7 @@ export const deleteCommunityBoardMember = async (
   const params = stringify({ communityID, userID });
   const { data } = await makeRequest(
     'DELETE',
-    `/api/community/admin/portal/board?${params}`
+    `/api/communityAdmin/board?${params}`
   );
   return data;
 };

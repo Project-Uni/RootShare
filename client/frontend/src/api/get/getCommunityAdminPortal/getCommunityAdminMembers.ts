@@ -13,7 +13,7 @@ export const getCommunityAdminMembers = async (communityID: string) => {
   const query = stringify({ communityID });
   const { data } = await makeRequest<MembersResponse>(
     'GET',
-    `/api/community/admin/portal/members?${query}`
+    `/api/communityAdmin/members?${query}`
   );
   return data;
 };

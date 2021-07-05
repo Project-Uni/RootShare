@@ -7,9 +7,6 @@ export const putCommunityBoardMember = async (
   title: string
 ) => {
   const params = qs.stringify({ communityID, userID, title });
-  const { data } = await makeRequest(
-    'PUT',
-    `/api/community/admin/portal/board?${params}`
-  );
+  const { data } = await makeRequest('PUT', `/api/communityAdmin/board?${params}`);
   return data;
 };

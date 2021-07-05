@@ -1,26 +1,12 @@
-import {
-  Webinar,
-  User,
-  IConnection,
-  IWebinar,
-  Community,
-  ExternalEvent,
-  IExternalEvent,
-} from '../../rootshare_db/models';
+import { Webinar, User, IConnection, IWebinar } from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
   log,
   sendPacket,
-  formatTime,
-  formatDate,
   uploadFile,
   decodeBase64Image,
   retrieveSignedUrl,
-  sendEmail,
-  createPacket,
 } from '../../helpers/functions';
-import { LeanDocument } from 'mongoose';
-import { Privacy } from '../../rootshare_db/models/external_events';
 
 export function timeStampCompare(
   ObjectA: { dateTime: Date },
@@ -424,105 +410,4 @@ export function addEventImagesAll(
       log('error', err);
       return undefined;
     });
-}
-
-export async function createExternalEvent({
-  title,
-  type,
-  streamLink,
-  startTime,
-  endTime,
-  donationLink,
-  description,
-  communityID,
-  image,
-  userID,
-  privacy,
-}: {
-  title: string;
-  type: string;
-  streamLink: string;
-  startTime: string;
-  endTime: string;
-  donationLink: string;
-  description: string;
-  communityID?: string;
-  image: string;
-  userID: ObjectIdType;
-  privacy: Privacy;
-}) {
-  try {
-    if (communityID) {
-      const communityExists = await Community.model.exists({
-        _id: communityID,
-        admin: userID,
-      });
-
-      if (!communityExists)
-        return createPacket(false, 401, 'User is not admin of provided community');
-    }
-
-    const newEvent = await ExternalEvent.create({
-      title,
-      type,
-      description,
-      streamLink,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
-      donationLink,
-      hostCommunity: ObjectIdVal(communityID),
-      banner: image,
-      createdByUserID: userID,
-      privacy,
-    });
-
-    if (newEvent) {
-      return createPacket(true, 200, 'Successfully created event', {
-        event: newEvent,
-      });
-    } else {
-      return createPacket(false, 400, 'Failed to create event');
-    }
-  } catch (err) {
-    log('error', err);
-    return createPacket(false, 500, 'An error occurred', { err });
-  }
-}
-
-/**
- *
- * @param communityID
- * @returns {
- *  events: {
- *    title: string,
- *    description: string,
- *    type: string,
- *    streamLink: string,
- *    donationLink: string,
- *    privacy: 'PUBLIC' | 'PRIVATE',
- *    startTime: Date,
- *    endTime: Date,
- *    hostCommunity?: {
- *      name: String
- *      profilePicture?: String
- *    },
- *    createdAt: Date,
- *    updatedAt: Date,
- *    banner: string
- *  }[]
- * }
- */
-
-export async function getExternalEvents(communityID?: string) {
-  let events: LeanDocument<IExternalEvent[]> | false;
-  if (communityID) {
-    events = await ExternalEvent.getEventsForCommunity(ObjectIdVal(communityID));
-  } else {
-    events = await ExternalEvent.getAllEvents();
-  }
-
-  if (events) {
-    return createPacket(true, 200, 'Successfully retrieved events', { events });
-  }
-  return createPacket(false, 400, 'Failed to retrieve events');
 }

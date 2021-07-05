@@ -7,6 +7,6 @@ export const getCommunityPendingMembers = async (communityID: string) => {
   const query = stringify({ communityID });
   const { data } = await makeRequest<{
     pendingMembers: UserAvatar[];
-  }>('GET', `/api/community/admin/portal/pending?${query}`);
+  }>('GET', `/api/communityAdmin/member/pending?${query}`);
   return data;
 };

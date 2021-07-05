@@ -9,7 +9,7 @@ export const putPendingMember = async (
   const params = qs.stringify({ communityID, userID, action });
   const { data } = await makeRequest(
     'PUT',
-    `/api/community/admin/portal/pending?${params}`
+    `/api/communityAdmin/member/pending?${params}`
   );
   return data;
 };

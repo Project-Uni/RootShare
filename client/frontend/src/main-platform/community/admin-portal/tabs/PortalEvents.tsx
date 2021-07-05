@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
+
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../../../redux/actions';
+
+import { CircularProgress } from '@material-ui/core';
 
 import { RSText } from '../../../../base-components';
 import {
@@ -9,15 +14,22 @@ import {
   RSLink,
   RSButtonV2,
 } from '../../../reusable-components';
+import { CommunityExternalEventCreate } from '../../redesign/modals';
 
 import { CreateEventIcon } from '../../../../images';
-import { EventType, LeanEventType } from '../../../../helpers/types';
 import {
   formatDatePretty,
   formatTime,
   localDateTimeFromUTC,
+  appendToStateArray,
 } from '../../../../helpers/functions';
 import Theme from '../../../../theme/Theme';
+import {
+  IPostCreateExternalEventResponse,
+  getCommunityAdminEvents,
+} from '../../../../api';
+
+const NON_SCROLL_HEIGHT = 394;
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   wrapper: {
@@ -41,30 +53,88 @@ export const EVENT_TABS = [
   },
 ];
 
+type EventTab = 'approved' | 'pending' | 'denied';
+
 export type CommunityAdminPortalTab = 'approved' | 'pending' | 'denied';
 
-type Props = {};
+type Props = {
+  communityID: string;
+};
 
 export const PortalEvents = (props: Props) => {
   const styles = useStyles();
+  const dispatch = useDispatch();
 
-  const [currentTab, setCurrentTab] = useState(EVENT_TABS[0].value);
-  const [events, setEvents] = useState<LeanEventType[]>([
-    {
-      _id: '12345',
-      title: 'Test Event',
-      dateTime: new Date('2021-04-29T00:00:00.000Z'),
-      RSVPs: [],
-      brief_description: 'This is my brief: Come check out this cool event!',
-      full_description:
-        'This is my full: This event is going to be so cool! Make sure to come and check it out!',
-      muxAssetPlaybackID: '123456',
-      eventBanner: CreateEventIcon,
-    },
-  ]);
+  const { communityID } = props;
+
+  const [currentTab, setCurrentTab] = useState<EventTab>('approved');
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [events, setEvents] = useState<IPostCreateExternalEventResponse['event'][]>(
+    []
+  );
+  const [pendingEvents, setPendingEvents] = useState<
+    IPostCreateExternalEventResponse['event'][]
+  >([]);
+  const [deniedEvents, setDeniedEvents] = useState<
+    IPostCreateExternalEventResponse['event'][]
+  >([]);
+
+  const [loading, setLoading] = useState(false);
+  const [scrollHeight, setScrollHeight] = useState(0);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+  }, []);
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    const data = await getCommunityAdminEvents(communityID);
+    setLoading(false);
+
+    if (data.successful) setEvents(data.content.events);
+    else
+      dispatch(
+        dispatchSnackbar({
+          mode: 'error',
+          message: 'There was an error fetching events',
+        })
+      );
+  };
+
+  const handleResize = () => {
+    setScrollHeight(window.innerHeight - NON_SCROLL_HEIGHT);
+  };
+
+  const updateEvents = (event: IPostCreateExternalEventResponse['event']) => {
+    appendToStateArray(event, setEvents);
+  };
+
+  function renderEvents() {
+    if (currentTab === 'approved')
+      return events.map((event) => <SingleEvent key={event._id} event={event} />);
+    if (currentTab === 'pending')
+      return pendingEvents.map((event) => (
+        <SingleEvent key={event._id} event={event} />
+      ));
+    if (currentTab === 'denied')
+      return deniedEvents.map((event) => (
+        <SingleEvent key={event._id} event={event} />
+      ));
+  }
 
   return (
     <div className={styles.wrapper}>
+      <CommunityExternalEventCreate
+        open={showCreateEventModal}
+        onClose={() => setShowCreateEventModal(false)}
+        communityID={communityID}
+        onSuccess={updateEvents}
+      />
       <RSCard variant="secondary">
         <RSTabsV2
           tabs={EVENT_TABS}
@@ -81,8 +151,8 @@ export const PortalEvents = (props: Props) => {
           variant="underlinedTabs"
         />
       </RSCard>
-      <RSLink onClick={() => alert('TODO: implement this')}>
-        <RSCard style={{ height: 250 }} variant="secondary">
+      <RSLink onClick={() => setShowCreateEventModal(true)}>
+        <RSCard style={{ height: 170 }} variant="secondary">
           <div
             style={{
               display: 'flex',
@@ -99,15 +169,22 @@ export const PortalEvents = (props: Props) => {
           </div>
         </RSCard>
       </RSLink>
-      {events.map((event) => (
-        <SingleEvent key={event._id} event={event} />
-      ))}
+      <div
+        style={{
+          width: '100%',
+          overflowY: 'scroll',
+          maxHeight: scrollHeight,
+          marginBottom: 10,
+        }}
+      >
+        {loading ? <CircularProgress size={100} /> : renderEvents()}
+      </div>
     </div>
   );
 };
 
 type SingleEventProps = {
-  event: LeanEventType;
+  event: IPostCreateExternalEventResponse['event'];
 };
 
 const SingleEvent = (props: SingleEventProps) => {
@@ -116,32 +193,35 @@ const SingleEvent = (props: SingleEventProps) => {
   const {
     _id: eventID,
     title,
-    dateTime: dateTimeUTC,
-    RSVPs,
-    brief_description,
-    full_description,
-    muxAssetPlaybackID,
-    eventBanner,
+    type,
+    description,
+    streamLink,
+    donationLink,
+    privacy,
+    banner,
+    createdAt,
+    updatedAt,
   } = props.event;
-  const dateTime = localDateTimeFromUTC(dateTimeUTC);
+  const startTime = localDateTimeFromUTC(props.event.startTime);
+  const endTime = localDateTimeFromUTC(props.event.endTime);
 
   return (
     <RSCard variant="secondary">
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <img
-          src={eventBanner}
+          src={banner || CreateEventIcon}
           style={{
             margin: 25,
             width: 300,
             height: 200,
-            borderStyle: 'solid',
             borderRadius: 20,
-            objectFit: 'cover',
+            objectFit: 'contain',
           }}
         />
         <div
           style={{
             display: 'flex',
+            flex: 1,
             flexDirection: 'column',
             alignItems: 'flex-start',
             padding: 20,
@@ -154,17 +234,14 @@ const SingleEvent = (props: SingleEventProps) => {
           </RSText>
           <div style={{ display: 'flex', paddingBottom: 10 }}>
             <RSText weight="light" size={13} style={{ paddingRight: 20 }}>
-              {formatDatePretty(dateTime)}
+              {formatDatePretty(startTime)}
             </RSText>
             <RSText weight="light" size={13}>
-              {formatTime(dateTime)}
+              {formatTime(startTime)}
             </RSText>
           </div>
-          <RSText weight="light" style={{ paddingBottom: 10 }}>
-            {brief_description}
-          </RSText>
           <RSText weight="light" style={{ paddingBottom: 25 }}>
-            {full_description}
+            {description}
           </RSText>
           <div
             style={{
@@ -174,16 +251,16 @@ const SingleEvent = (props: SingleEventProps) => {
               paddingBottom: 10,
             }}
           >
-            <RSButtonV2 style={{ height: 30, marginRight: 20 }}>
+            {/* <RSButtonV2 style={{ height: 30, marginRight: 20 }}>
               <RSText size={10} color={Theme.altText}>
                 Download Attendees
               </RSText>
-            </RSButtonV2>
-            <RSButtonV2 style={{ height: 30 }}>
+            </RSButtonV2> */}
+            {/* <RSButtonV2 style={{ height: 30 }}>
               <RSText size={10} color={Theme.altText}>
                 Edit Event
               </RSText>
-            </RSButtonV2>
+            </RSButtonV2> */}
           </div>
         </div>
       </div>

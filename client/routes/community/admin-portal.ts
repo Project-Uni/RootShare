@@ -4,6 +4,7 @@ import {
   sendPacket,
   getQueryParams,
   log,
+  createPacket,
 } from '../../helpers/functions';
 import { isAuthenticatedWithJWT } from '../../passport/middleware/isAuthenticated';
 import {
@@ -19,6 +20,8 @@ import {
   getAllPendingMembers,
   acceptPendingMember,
   rejectPendingMember,
+  createExternalEvent,
+  getExternalEvents,
 } from '../../interactions/community/admin-portal';
 import { leaveCommunity } from '../../interactions/community/community';
 
@@ -33,7 +36,7 @@ import { leaveCommunity } from '../../interactions/community/community';
 
 export default function communityAdminPortalRoutes(app) {
   app.get(
-    '/api/community/admin/portal/members',
+    '/api/communityAdmin/members',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -55,7 +58,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.get(
-    '/api/community/admin/portal/memberData',
+    '/api/communityAdmin/memberData',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -77,7 +80,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.put(
-    '/api/community/admin/portal/board',
+    '/api/communityAdmin/board',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -109,7 +112,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.delete(
-    '/api/community/admin/portal/board',
+    '/api/communityAdmin/board',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -138,7 +141,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.delete(
-    '/api/community/admin/portal/member',
+    '/api/communityAdmin/member',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -166,7 +169,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.get(
-    '/api/community/admin/portal/pending',
+    '/api/communityAdmin/member/pending',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -189,7 +192,7 @@ export default function communityAdminPortalRoutes(app) {
   );
 
   app.put(
-    '/api/community/admin/portal/pending',
+    '/api/communityAdmin/member/pending',
     isAuthenticatedWithJWT,
     isCommunityAdminFromQueryParams,
     async (req, res) => {
@@ -225,4 +228,44 @@ export default function communityAdminPortalRoutes(app) {
       }
     }
   );
+
+  app.post('/api/communityAdmin/event', isAuthenticatedWithJWT, async (req, res) => {
+    const { _id: userID } = getUserFromJWT(req);
+    const {
+      title,
+      type,
+      streamLink,
+      startTime,
+      endTime,
+      donationLink,
+      description,
+      communityID,
+      image,
+      privacy,
+    } = req.body;
+
+    const packet = await createExternalEvent({
+      title,
+      type,
+      streamLink,
+      startTime,
+      endTime,
+      donationLink,
+      description,
+      communityID,
+      image,
+      userID,
+      privacy,
+    });
+
+    return res.status(packet.status).json(packet);
+  });
+
+  app.get('/api/communityAdmin/events', isAuthenticatedWithJWT, async (req, res) => {
+    const query = getQueryParams<{ communityID?: string }>(req, {
+      communityID: { type: 'string', optional: true },
+    });
+    const packet = await getExternalEvents(query ? query.communityID : undefined);
+    res.status(packet.status).json(packet);
+  });
 }

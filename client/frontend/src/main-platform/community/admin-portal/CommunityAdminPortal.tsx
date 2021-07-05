@@ -26,7 +26,7 @@ export const CommunityAdminPortal = (props: Props) => {
       case 'members':
         return <PortalMembers communityID={communityID} />;
       case 'events':
-        return <PortalEvents />;
+        return <PortalEvents communityID={communityID} />;
       default:
         return <div />;
     }

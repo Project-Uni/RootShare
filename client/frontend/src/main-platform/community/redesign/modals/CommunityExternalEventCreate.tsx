@@ -38,14 +38,7 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   },
 }));
 
-type Props = {
-  open: boolean;
-  onClose: () => void;
-  communityID: string;
-  onSuccess?: (event: IPostCreateExternalEventResponse['event']) => void;
-};
-
-export enum Privacy {
+export enum PrivacyEnum {
   PRIVATE = 'PRIVATE',
   PUBLIC = 'PUBLIC',
 }
@@ -59,7 +52,7 @@ type ICreateEventForm = {
   endTime: string;
   streamLink: string;
   donationLink: string;
-  privacy: Privacy;
+  privacy: PrivacyEnum;
 };
 
 const initialFormData: ICreateEventForm = {
@@ -71,7 +64,14 @@ const initialFormData: ICreateEventForm = {
   endTime: new Date(Date.now()).toUTCString(),
   streamLink: '',
   donationLink: '',
-  privacy: Privacy.PUBLIC,
+  privacy: PrivacyEnum.PUBLIC,
+};
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  communityID: string;
+  onSuccess?: (event: IPostCreateExternalEventResponse['event']) => void;
 };
 
 export const CommunityExternalEventCreate = (props: Props) => {
@@ -98,6 +98,10 @@ export const CommunityExternalEventCreate = (props: Props) => {
     if (!open) resetForm();
   }, [open]);
 
+  useEffect(() => {
+    console.log(formFields.startTime);
+  }, [formFields.startTime]);
+
   const onSubmit = async () => {
     setLoading(true);
 
@@ -109,31 +113,20 @@ export const CommunityExternalEventCreate = (props: Props) => {
       const startData = new Date(startTime);
       const endData = new Date(endTime);
 
-      formattedStartDate.setHours(
-        startData.getHours(),
-        startData.getMinutes(),
-        startData.getSeconds()
-      );
+      formattedStartDate.setHours(startData.getHours());
+      formattedStartDate.setMinutes(startData.getMinutes());
 
-      formattedEndDate.setHours(
-        endData.getHours(),
-        endData.getMinutes(),
-        endData.getSeconds()
-      );
+      formattedEndDate.setHours(endData.getHours());
+      formattedEndDate.setMinutes(endData.getMinutes());
 
-      const data = ((await postCreateExternalEvent({
+      const data = await postCreateExternalEvent({
         ...rest,
         communityID,
         startTime: formattedStartDate.toUTCString(),
         endTime: formattedEndDate.toUTCString(),
         isDev: true,
         image: '',
-      })) as unknown) as {
-        successful: string;
-        message: string;
-        content: IPostCreateExternalEventResponse;
-        status: number;
-      };
+      });
 
       if (data.successful) {
         onSuccess?.(data.content.event);
@@ -146,6 +139,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
         );
       } else {
         setServerErr(data.message);
+        console.log(data);
       }
     }
     setLoading(false);
@@ -226,7 +220,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
                     handleDateChange('date')(new Date(date as Date))
                   }
                   minDate={new Date(Date.now())}
-                  minDateMessage={'Event Must Be on January 17th after today'}
+                  minDateMessage={'Event Must Be in the future'}
                   className={styles.field}
                   key="datePicker"
                   error={!!formErrors.date}
@@ -243,7 +237,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
                   <TimePicker
                     name="eventTime"
                     margin="normal"
-                    format="h:MM a"
                     value={formFields.startTime}
                     onChange={(date) =>
                       handleDateChange('startTime')(new Date(date as Date))
@@ -258,7 +251,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
                   <TimePicker
                     name="eventTime"
                     margin="normal"
-                    format="h:MM a"
                     value={formFields.endTime}
                     onChange={(date) =>
                       handleDateChange('endTime')(new Date(date as Date))
@@ -332,8 +324,8 @@ export const CommunityExternalEventCreate = (props: Props) => {
           <RSSelect
             onChange={handleChange('privacy')}
             options={[
-              { label: 'Public', value: Privacy.PUBLIC },
-              { label: 'Private', value: Privacy.PRIVATE },
+              { label: 'Public', value: PrivacyEnum.PUBLIC },
+              { label: 'Private', value: PrivacyEnum.PRIVATE },
             ]}
             label=""
             fontSize={14}

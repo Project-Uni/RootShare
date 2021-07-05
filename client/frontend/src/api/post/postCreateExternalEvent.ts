@@ -1,5 +1,5 @@
 import { makeRequest } from '../../helpers/functions';
-import { Privacy } from '../../main-platform/community/redesign/modals/CommunityExternalEventCreate';
+import { PrivacyEnum } from '../../main-platform/community/redesign/modals/CommunityExternalEventCreate';
 
 type IPostCreateExternalEventParams = {
   title: string;
@@ -10,23 +10,24 @@ type IPostCreateExternalEventParams = {
   startTime: string;
   endTime: string;
   communityID: string;
-  privacy: Privacy;
+  privacy: PrivacyEnum;
   image: string;
   isDev?: boolean;
 };
 
 export type IPostCreateExternalEventResponse = {
   event: {
+    _id: string;
     title: string;
     type: string;
     description: string;
     streamLink: string;
     donationLink: string;
-    startTime: string;
-    endTime: string;
+    startTime: Date;
+    endTime: Date;
     hostCommunity: string;
     createdByUserID: string;
-    privacy: Privacy;
+    privacy: PrivacyEnum;
     banner: string;
     isDev: boolean;
     createdAt: string;
@@ -39,9 +40,14 @@ export const postCreateExternalEvent = async (
 ) => {
   const { data } = await makeRequest<IPostCreateExternalEventResponse>(
     'post',
-    `/api/webinar/external`,
+    `/api/communityAdmin/event`,
     params
   );
 
-  return data;
+  return (data as unknown) as {
+    successful: boolean;
+    message: string;
+    content: IPostCreateExternalEventResponse;
+    status: number;
+  };
 };
