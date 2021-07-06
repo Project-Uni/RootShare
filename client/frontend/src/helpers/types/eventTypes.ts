@@ -1,5 +1,5 @@
 import { ConversationType } from './messagingTypes';
-import { UserType } from './userTypes';
+import { ExternalEventPrivacyEnum } from '../../helpers/enums';
 
 export type EventType = {
   _id: string;
@@ -33,6 +33,24 @@ export type LeanEventType = {
   full_description: string;
   muxAssetPlaybackID: string;
   eventBanner: string;
+};
+
+export type ExternalEvent = {
+  _id: string;
+  title: string;
+  type: string;
+  description: string;
+  streamLink: string;
+  donationLink: string;
+  startTime: Date;
+  endTime: Date;
+  hostCommunity: string;
+  createdByUserID: string;
+  privacy: ExternalEventPrivacyEnum;
+  banner: string;
+  isDev: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type EventUserMode = 'viewer' | 'speaker' | 'host';

@@ -1,5 +1,6 @@
 import { makeRequest } from '../../helpers/functions';
-import { PrivacyEnum } from '../../main-platform/community/redesign/modals/CommunityExternalEventCreate';
+import { ExternalEvent } from '../../helpers/types';
+import { ExternalEventPrivacyEnum } from '../../helpers/enums';
 
 type IPostCreateExternalEventParams = {
   title: string;
@@ -10,29 +11,13 @@ type IPostCreateExternalEventParams = {
   startTime: string;
   endTime: string;
   communityID: string;
-  privacy: PrivacyEnum;
+  privacy: ExternalEventPrivacyEnum;
   image: string;
   isDev?: boolean;
 };
 
 export type IPostCreateExternalEventResponse = {
-  event: {
-    _id: string;
-    title: string;
-    type: string;
-    description: string;
-    streamLink: string;
-    donationLink: string;
-    startTime: Date;
-    endTime: Date;
-    hostCommunity: string;
-    createdByUserID: string;
-    privacy: PrivacyEnum;
-    banner: string;
-    isDev: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  event: ExternalEvent;
 };
 
 export const postCreateExternalEvent = async (

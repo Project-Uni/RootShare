@@ -24,6 +24,7 @@ import {
   ConnectionsBody,
   YourCommunitiesBody,
   PostPage,
+  EventInfoPage,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
@@ -142,6 +143,13 @@ const App = () => {
                 exact
                 path="/post/:postID"
                 render={(props) => <AuthenticatedPage component={<PostPage />} />}
+              />
+              <Route
+                exact
+                path="/eventInfo/:eventID"
+                render={(props) => (
+                  <AuthenticatedPage component={<EventInfoPage />} />
+                )}
               />
               <Route component={PageNotFound} />
             </Switch>

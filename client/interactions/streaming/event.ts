@@ -1,12 +1,22 @@
-import { Webinar, User, IConnection, IWebinar } from '../../rootshare_db/models';
+import {
+  Webinar,
+  User,
+  IConnection,
+  IWebinar,
+  ExternalEvent,
+  Community,
+} from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
+import { ExternalEventPrivacyEnum } from '../../rootshare_db/enums';
 import {
   log,
   sendPacket,
   uploadFile,
   decodeBase64Image,
   retrieveSignedUrl,
+  createPacket,
 } from '../../helpers/functions';
+import { create } from 'domain';
 
 export function timeStampCompare(
   ObjectA: { dateTime: Date },
@@ -410,4 +420,22 @@ export function addEventImagesAll(
       log('error', err);
       return undefined;
     });
+}
+
+export async function getExternalEventInfo(
+  eventID: ObjectIdType,
+  userID: ObjectIdType
+) {
+  const event = await ExternalEvent.model.findById(eventID).lean();
+  if (event.hostCommunity && event.privacy === ExternalEventPrivacyEnum.PRIVATE) {
+    const isCommunityMember = await Community.model.exists({
+      _id: event.hostCommunity,
+      members: { $elemMatch: { $eq: userID } },
+    });
+    if (!isCommunityMember)
+      return createPacket(false, 403, `User doesn't have access to this event`);
+  }
+  if (!event) return createPacket(true, 400, `The event doesn't exist`);
+
+  return createPacket(true, 200, 'Successfully retrieved event info', { event });
 }
