@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
+
 import {
   AppBar,
   Toolbar,
@@ -15,7 +17,7 @@ import { IoMdText } from 'react-icons/io';
 
 import DrawerBase from './drawer-components/DrawerBase';
 
-import theme from '../theme/Theme';
+import Theme from '../theme/Theme';
 
 import {
   CalendarDrawer,
@@ -25,7 +27,7 @@ import {
   NavigationDrawer,
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
-import { RSLink } from '../main-platform/reusable-components';
+import { RSLink, RSButton } from '../main-platform/reusable-components';
 import { AiFillCaretDown } from 'react-icons/ai';
 import { HeaderSearch, NotificationButton } from '.';
 
@@ -33,16 +35,28 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   header: {
     background: muiTheme.background.secondary,
   },
+  link: {
+    color: Theme.bright,
+    marginRight: 15,
+    fontSize: '17px',
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
 }));
 
 type Props = {
   minWidth?: number;
   showNavigationWidth?: number;
   showNavigationMenuDefault?: boolean;
+  authenticated?: boolean;
 };
 
 function PlatformHeader(props: Props) {
   const styles = useStyles();
+  const history = useHistory();
+
+  const { showNavigationWidth, showNavigationMenuDefault, authenticated } = props;
 
   const [drawerContent, setDrawerContent] = useState('');
   const [drawerAnchor, setDrawerAnchor] = useState<'left' | 'right'>('right');
@@ -110,7 +124,7 @@ function PlatformHeader(props: Props) {
   }
 
   const Icons = () => {
-    const iconProps = { size: iconSize.current, color: theme.primary };
+    const iconProps = { size: iconSize.current, color: Theme.primary };
     // if (isDesktop.current && window.innerWidth >= 800) {
     return (
       <div style={{ display: 'flex', width: 'fit-content' }}>
@@ -146,6 +160,17 @@ function PlatformHeader(props: Props) {
     // );
   };
 
+  const LoginButtons = () => {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <RSLink href={'/login'} className={styles.link}>
+          Login
+        </RSLink>
+        <RSButton onClick={() => history.push('/')}>Sign Up</RSButton>
+      </div>
+    );
+  };
+
   return (
     <div style={{ width: width, minWidth: minWidth }}>
       <AppBar position="static" className={styles.header}>
@@ -160,11 +185,11 @@ function PlatformHeader(props: Props) {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                {(props.showNavigationMenuDefault ||
-                  (props.showNavigationWidth &&
-                    window.innerWidth < props.showNavigationWidth)) && (
+                {(showNavigationMenuDefault ||
+                  (showNavigationWidth &&
+                    window.innerWidth < showNavigationWidth)) && (
                   <IconButton onClick={handleNavigationClick}>
-                    <MdMenu color={theme.primary} size={28} />
+                    <MdMenu color={Theme.primary} size={28} />
                   </IconButton>
                 )}
                 <RSLink href="/home">
@@ -177,11 +202,15 @@ function PlatformHeader(props: Props) {
                   />
                 </RSLink>
               </div>
-              {window.innerWidth >= 800 ? <HeaderSearch /> : undefined}
-              <Icons />
+              {window.innerWidth >= 800 && authenticated ? (
+                <HeaderSearch />
+              ) : (
+                undefined
+              )}
+              {authenticated ? <Icons /> : <LoginButtons />}
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-              {window.innerWidth < 800 ? (
+              {window.innerWidth < 800 && authenticated ? (
                 <HeaderSearch style={{ marginBottom: 7 }} />
               ) : (
                 undefined
@@ -189,16 +218,18 @@ function PlatformHeader(props: Props) {
             </div>
           </div>
         </Toolbar>
-        <DrawerBase
-          open={Boolean(drawerContent)}
-          handleClose={handleDrawerClose}
-          backgroundColor={
-            drawerContent === 'calendar' ? theme.primary : theme.white
-          }
-          anchor={drawerAnchor}
-        >
-          {getDrawerContent()}
-        </DrawerBase>
+        {authenticated && (
+          <DrawerBase
+            open={Boolean(drawerContent)}
+            handleClose={handleDrawerClose}
+            backgroundColor={
+              drawerContent === 'calendar' ? Theme.primary : Theme.white
+            }
+            anchor={drawerAnchor}
+          >
+            {getDrawerContent()}
+          </DrawerBase>
+        )}
       </AppBar>
     </div>
   );

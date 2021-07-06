@@ -88,18 +88,22 @@ export default function eventRoutes(app) {
     }
   );
 
-  app.get('/api/event/external', isAuthenticatedWithJWT, async (req, res) => {
+  app.get('/api/event/external', async (req, res) => {
     try {
-      const { _id: userID } = getUserFromJWT(req);
       const query = getQueryParams<{
         eventID: string;
+        userID?: string;
       }>(req, {
         eventID: { type: 'string' },
+        userID: { type: 'string', optional: true },
       });
       if (!query)
         return res.status(500).json(sendPacket(-1, 'Invalid query params'));
-      const { eventID } = query;
-      const packet = await getExternalEventInfo(ObjectIdVal(eventID), userID);
+      const { eventID, userID } = query;
+      const packet = await getExternalEventInfo(
+        ObjectIdVal(eventID),
+        userID && ObjectIdVal(userID)
+      );
       res.status(packet.status).json(packet);
     } catch (err) {
       log('err', err);

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootshareReduxState } from '../../redux/store/stateManagement';
 import { updateSidebarComponents } from '../../redux/actions';
 
 import { CircularProgress } from '@material-ui/core';
@@ -30,9 +30,9 @@ export const EventInfoPage = (props: Props) => {
 
   const dispatch = useDispatch();
 
-  const history = useHistory();
-
   const { eventID } = useParams<{ eventID: string }>();
+
+  const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
 
   const [event, setEvent] = useState<ExternalEvent>();
   const [loading, setLoading] = useState(true);
@@ -42,13 +42,13 @@ export const EventInfoPage = (props: Props) => {
     if (!loading) setLoading(true);
     if (error) setError(undefined);
 
-    const data = await getExternalEventInfo(eventID);
+    const data = await getExternalEventInfo(eventID, userID || undefined);
 
     if (data.successful) setEvent(data.content.event);
     else setError(data.status === 403 ? 'access' : 'unknown');
 
     setLoading(false);
-  }, [eventID]);
+  }, [eventID, userID]);
 
   useEffect(() => {
     dispatch(

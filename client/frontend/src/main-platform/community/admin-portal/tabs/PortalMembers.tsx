@@ -48,7 +48,7 @@ import {
 } from '../../../../helpers/functions';
 import { SHOW_HEADER_NAVIGATION_WIDTH } from '../../../../helpers/constants';
 import { COMMUNITY_LEFT_SIDEBAR_OFFSET } from '../CommunityAdminPortalLeftSidebar';
-import { AUTHENTICATED_PAGE_MAX_WIDTH } from '../../../../main-platform/AuthenticatedPage/AuthenticatedPage';
+import { AUTHENTICATED_PAGE_MAX_WIDTH } from '../../../base-page-frames/AuthenticatedPage';
 
 const BOARD_MEMBER_GRID_PADDING = 30;
 

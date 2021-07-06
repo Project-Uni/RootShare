@@ -95,7 +95,7 @@ export const SingleExternalEvent = (props: Props) => {
               {formatDatePretty(startTime)}
             </RSText>
             <RSText weight="light" size={13}>
-              {formatTime(startTime)}
+              {formatTime(startTime)}-{formatTime(endTime)}
             </RSText>
           </div>
           <RSText weight="light" style={{ paddingBottom: 25 }}>
