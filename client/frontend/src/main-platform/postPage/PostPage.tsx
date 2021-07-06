@@ -45,7 +45,7 @@ export const PostPage = (props: Props) => {
     if (!loading) setLoading(true);
     if (error) setError(undefined);
 
-    const data = await getPostById(postID, userID || undefined);
+    const data = await getPostById(postID);
 
     if (data.success === 1) {
       setPost(data.content.post);
