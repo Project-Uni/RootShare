@@ -23,8 +23,8 @@ export type IPostCreateExternalEventResponse = {
     description: string;
     streamLink: string;
     donationLink: string;
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
     hostCommunity: string;
     createdByUserID: string;
     privacy: PrivacyEnum;

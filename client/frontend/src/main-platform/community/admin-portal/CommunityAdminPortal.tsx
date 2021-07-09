@@ -4,8 +4,11 @@ import { useParams } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { CommunityAdminPortalTabContext } from '../../../App';
 
 import { PortalMembers, PortalEvents } from './tabs';
+
+import { CommunityAdminPortalTab } from './CommunityAdminPortalLeftSidebar';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {},
@@ -17,11 +20,11 @@ export const CommunityAdminPortal = (props: Props) => {
   const styles = useStyles();
   const { communityID } = useParams<{ communityID: string }>();
 
-  const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-    selectedTab: state.communityAdminPortalTab,
-  }));
+  // const { selectedTab } = useSelector((state: RootshareReduxState) => ({
+  //   selectedTab: state.communityAdminPortalTab,
+  // }));
 
-  const renderPortalTab = () => {
+  const renderPortalTab = (selectedTab: string) => {
     switch (selectedTab) {
       case 'members':
         return <PortalMembers communityID={communityID} />;
@@ -32,5 +35,9 @@ export const CommunityAdminPortal = (props: Props) => {
     }
   };
 
-  return renderPortalTab();
+  return (
+    <CommunityAdminPortalTabContext.Consumer>
+      {(context) => renderPortalTab(context.selectedTab)}
+    </CommunityAdminPortalTabContext.Consumer>
+  );
 };

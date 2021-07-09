@@ -143,7 +143,7 @@ export const PortalMembers = (props: Props) => {
 
     const newMember = pendingMembers
       .filter((pending) => pending._id === userID)
-      .shift();
+      .pop();
     if (newMember) setMembers((prevMembers) => prevMembers.concat(newMember));
     removeFromStateArray(userID, '_id', setPendingMembers);
   };
@@ -202,11 +202,11 @@ export const PortalMembers = (props: Props) => {
     setShowTitleModal(false);
     const existingBoardMember = boardMembers
       .filter((boardMember) => boardMember._id === userID)
-      .shift();
+      .pop();
     if (existingBoardMember)
       return updateFieldInStateArray(userID, '_id', title, 'title', setBoardMembers);
 
-    const newBoardMember = members.filter((member) => member._id === userID).shift();
+    const newBoardMember = members.filter((member) => member._id === userID).pop();
     if (newBoardMember)
       setBoardMembers((prevBoard) => prevBoard.concat({ ...newBoardMember, title }));
   };

@@ -98,10 +98,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
     if (!open) resetForm();
   }, [open]);
 
-  useEffect(() => {
-    console.log(formFields.startTime);
-  }, [formFields.startTime]);
-
   const onSubmit = async () => {
     setLoading(true);
 
@@ -139,7 +135,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
         );
       } else {
         setServerErr(data.message);
-        console.log(data);
       }
     }
     setLoading(false);

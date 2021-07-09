@@ -8,6 +8,7 @@ import {
   resetCommunityAdminPortalTab,
 } from '../../../redux/actions';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
+import { CommunityAdminPortalTabContext } from '../../../App';
 
 import { BiArrowBack } from 'react-icons/bi';
 
@@ -54,19 +55,24 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
 
   const { communityID } = useParams<{ communityID: string }>();
 
-  const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-    selectedTab: state.communityAdminPortalTab,
-  }));
+  // const { selectedTab } = useSelector((state: RootshareReduxState) => ({
+  //   selectedTab: state.communityAdminPortalTab,
+  // }));
 
   useEffect(() => {
     dispatch(resetCommunityAdminPortalTab());
   }, []);
 
-  const renderTab = (tab: CommunityAdminPortalTab) => {
+  const renderTab = (
+    tab: CommunityAdminPortalTab,
+    selectedTab: CommunityAdminPortalTab,
+    setSelectedTab: React.Dispatch<React.SetStateAction<CommunityAdminPortalTab>>
+  ) => {
     const isCurrentTab = tab === selectedTab;
 
     return (
-      <RSLink onClick={() => dispatch(updateCommunityAdminPortalTab(tab))}>
+      // <RSLink onClick={() => dispatch(updateCommunityAdminPortalTab(tab))}>
+      <RSLink onClick={() => setSelectedTab(tab)}>
         <RSText
           size={16}
           weight={isCurrentTab ? 'bold' : 'light'}
@@ -80,22 +86,29 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   };
 
   return (
-    <div>
-      <RSCard background="secondary">
-        <div className={styles.wrapper}>
-          <RSLink
-            style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
-            underline="hover"
-            href={`/community/${communityID}`}
-          >
-            <BiArrowBack style={{ marginRight: 5 }} />
-            <RSText size={14} color={Theme.secondaryText}>
-              Back to Community
-            </RSText>
-          </RSLink>
-          {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) => renderTab(tab))}
+    <CommunityAdminPortalTabContext.Consumer>
+      {(context) => (
+        <div>
+          <RSCard background="secondary">
+            <div className={styles.wrapper}>
+              <RSLink
+                style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
+                underline="hover"
+                href={`/community/${communityID}`}
+              >
+                <BiArrowBack style={{ marginRight: 5 }} />
+                <RSText size={14} color={Theme.secondaryText}>
+                  Back to Community
+                </RSText>
+              </RSLink>
+
+              {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) =>
+                renderTab(tab, context.selectedTab, context.setSelectedTab)
+              )}
+            </div>
+          </RSCard>
         </div>
-      </RSCard>
-    </div>
+      )}
+    </CommunityAdminPortalTabContext.Consumer>
   );
 };
