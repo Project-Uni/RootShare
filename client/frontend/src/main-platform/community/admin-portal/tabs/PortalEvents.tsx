@@ -17,8 +17,8 @@ import {
 import { CommunityExternalEventCreate } from '../../redesign/modals';
 
 import { CreateEventIcon } from '../../../../images';
-import { appendToStateArray } from '../../../../helpers/functions';
-import { ExternalEvent } from '../../../../helpers/types';
+import { removeFromStateArray } from '../../../../helpers/functions';
+import { ExternalEventDefault } from '../../../../helpers/types';
 import { getCommunityAdminEvents } from '../../../../api';
 
 const NON_SCROLL_HEIGHT = 394;
@@ -61,9 +61,9 @@ export const PortalEvents = (props: Props) => {
 
   const [currentTab, setCurrentTab] = useState<EventTab>('approved');
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
-  const [events, setEvents] = useState<ExternalEvent[]>([]);
-  const [pendingEvents, setPendingEvents] = useState<ExternalEvent[]>([]);
-  const [deniedEvents, setDeniedEvents] = useState<ExternalEvent[]>([]);
+  const [events, setEvents] = useState<ExternalEventDefault[]>([]);
+  const [pendingEvents, setPendingEvents] = useState<ExternalEventDefault[]>([]);
+  const [deniedEvents, setDeniedEvents] = useState<ExternalEventDefault[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [scrollHeight, setScrollHeight] = useState(0);
@@ -96,14 +96,32 @@ export const PortalEvents = (props: Props) => {
     setScrollHeight(window.innerHeight - NON_SCROLL_HEIGHT);
   };
 
-  const updateEvents = (event: ExternalEvent) => {
-    appendToStateArray(event, setEvents);
+  const handleNewEvent = (newEvent: ExternalEventDefault) => {
+    setEvents((prevEvents) => {
+      let newEvents = prevEvents.slice();
+      for (let i = 0; i < newEvents.length; i++) {
+        if (newEvent.startTime > newEvents[i].startTime) {
+          newEvents.splice(i, 0, newEvent);
+          return newEvents;
+        }
+      }
+      newEvents.push(newEvent);
+      return newEvents;
+    });
+  };
+
+  const handleDeleteEvent = (eventID: string) => {
+    removeFromStateArray(eventID, '_id', setEvents);
   };
 
   function renderEvents() {
     if (currentTab === 'approved')
       return events.map((event) => (
-        <SingleExternalEvent key={event._id} event={event} />
+        <SingleExternalEvent
+          key={event._id}
+          event={event}
+          onDelete={handleDeleteEvent}
+        />
       ));
     if (currentTab === 'pending')
       return pendingEvents.map((event) => (
@@ -121,7 +139,7 @@ export const PortalEvents = (props: Props) => {
         open={showCreateEventModal}
         onClose={() => setShowCreateEventModal(false)}
         communityID={communityID}
-        onSuccess={updateEvents}
+        onSuccess={handleNewEvent}
       />
       <RSCard variant="secondary">
         <RSTabsV2

@@ -7,7 +7,7 @@ import {
   Community,
 } from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
-import { ExternalEventPrivacyEnum } from '../../rootshare_db/enums';
+import { ExternalEventPrivacyEnum } from '../../rootshare_db/models/external_events';
 import {
   log,
   sendPacket,
@@ -425,16 +425,27 @@ export async function getExternalEventInfo(
   eventID: ObjectIdType,
   userID: ObjectIdType
 ) {
-  const event = await ExternalEvent.model.findById(eventID).lean();
-  if (event.hostCommunity && event.privacy === ExternalEventPrivacyEnum.PRIVATE) {
+  const event = await ExternalEvent.getEventInfo(eventID);
+  if (!event) return createPacket(true, 400, `The event doesn't exist`);
+
+  if (event.privacy === ExternalEventPrivacyEnum.PRIVATE) {
     const isCommunityMember = await Community.model.exists({
-      _id: event.hostCommunity,
+      _id: event.hostCommunity._id,
       members: { $elemMatch: { $eq: userID } },
     });
     if (!isCommunityMember)
-      return createPacket(false, 403, `User doesn't have access to this event`);
+      return createPacket(false, 403, `User doesn't have access to this event`, {
+        community: event.hostCommunity,
+      });
   }
-  if (!event) return createPacket(true, 400, `The event doesn't exist`);
 
-  return createPacket(true, 200, 'Successfully retrieved event info', { event });
+  const isAdmin = await Community.model.exists({
+    _id: event.hostCommunity._id,
+    admin: userID,
+  });
+
+  return createPacket(true, 200, 'Successfully retrieved event info', {
+    event,
+    isAdmin,
+  });
 }

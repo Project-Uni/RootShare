@@ -3,8 +3,7 @@ import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../redux/store/stateManagement';
+import { useDispatch } from 'react-redux';
 import { updateSidebarComponents } from '../../redux/actions';
 
 import { CircularProgress } from '@material-ui/core';
@@ -34,8 +33,6 @@ export const PostPage = (props: Props) => {
   const history = useHistory();
 
   const { postID } = useParams<{ postID: string }>();
-
-  const { _id: userID } = useSelector((state: RootshareReduxState) => state.user);
 
   const [post, setPost] = useState<PostType>();
   const [loading, setLoading] = useState(true);

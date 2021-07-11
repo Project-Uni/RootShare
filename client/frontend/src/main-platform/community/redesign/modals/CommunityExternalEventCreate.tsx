@@ -22,7 +22,7 @@ import { RSText } from '../../../../base-components';
 
 import { postCreateExternalEvent } from '../../../../api';
 import { useForm } from '../../../../helpers/hooks';
-import { ExternalEvent } from '../../../../helpers/types';
+import { ExternalEventDefault } from '../../../../helpers/types';
 import { ExternalEventPrivacyEnum } from '../../../../helpers/enums';
 import Theme from '../../../../theme/Theme';
 
@@ -69,7 +69,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   communityID: string;
-  onSuccess?: (event: ExternalEvent) => void;
+  onSuccess?: (event: ExternalEventDefault) => void;
 };
 
 export const CommunityExternalEventCreate = (props: Props) => {
@@ -117,7 +117,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
       formattedEndDate.setHours(endData.getHours());
       formattedEndDate.setMinutes(endData.getMinutes());
 
-      const data = await postCreateExternalEvent({
+      const data = await postCreateExternalEvent(communityID, {
         ...rest,
         communityID,
         startTime: formattedStartDate.toUTCString(),
@@ -301,6 +301,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
             style={{ width: '100%' }}
             placeholder="Description"
             value={formFields.description}
+            multiline
             onChange={handleChange('description')}
             variant="standard"
             error={!!formErrors.description}

@@ -104,6 +104,7 @@ function AuthenticatedPage(props: Props) {
       <PlatformHeader
         showNavigationWidth={showLeftEl.current}
         showNavigationMenuDefault={showNavigationMenuDefault}
+        authenticated
       />
       <div className={styles.bodyContainer}>
         {!loading && (

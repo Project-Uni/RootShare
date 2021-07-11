@@ -1,5 +1,6 @@
+import { stringify } from 'qs';
 import { makeRequest } from '../../helpers/functions';
-import { ExternalEvent } from '../../helpers/types';
+import { ExternalEventDefault } from '../../helpers/types';
 import { ExternalEventPrivacyEnum } from '../../helpers/enums';
 
 type IPostCreateExternalEventParams = {
@@ -17,16 +18,18 @@ type IPostCreateExternalEventParams = {
 };
 
 export type IPostCreateExternalEventResponse = {
-  event: ExternalEvent;
+  event: ExternalEventDefault;
 };
 
 export const postCreateExternalEvent = async (
-  params: IPostCreateExternalEventParams
+  communityID: string,
+  body: IPostCreateExternalEventParams
 ) => {
+  const params = stringify({ communityID });
   const { data } = await makeRequest<IPostCreateExternalEventResponse>(
     'post',
-    `/api/communityAdmin/event`,
-    params
+    `/api/communityAdmin/event?${params}`,
+    body
   );
 
   return (data as unknown) as {

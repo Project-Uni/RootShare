@@ -53,6 +53,22 @@ export type ExternalEvent = {
   updatedAt: string;
 };
 
+export type ExternalEventDefault = {
+  _id: string;
+  title: string;
+  type: string;
+  description: string;
+  streamLink: string;
+  donationLink: string;
+  startTime: Date;
+  endTime: Date;
+  hostCommunity: { _id: string; name: string; profilePicture: string };
+  privacy: ExternalEventPrivacyEnum;
+  banner: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type EventUserMode = 'viewer' | 'speaker' | 'host';
 export type SpeakerMode = 'speaker' | 'host';
 

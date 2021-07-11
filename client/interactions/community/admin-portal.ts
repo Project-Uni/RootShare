@@ -10,7 +10,7 @@ import {
   IExternalEvent,
 } from '../../rootshare_db/models';
 import { ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
-import { ExternalEventPrivacyEnum } from '../../rootshare_db/enums';
+import { ExternalEventPrivacyEnum } from '../../rootshare_db/models/external_events';
 import {
   log,
   sendPacket,
@@ -104,7 +104,7 @@ export async function addMemberToBoard(
     async ([isMember, community]) => {
       const existingBoardMember = community.boardMembers
         .filter((boardMember) => boardMember.user.equals(userID))
-        .shift();
+        .pop();
 
       if (!isMember) return sendPacket(0, 'Cannot make this user a board member');
 
@@ -389,10 +389,10 @@ export async function createExternalEvent({
  * }
  */
 
-export async function getExternalEvents(communityID?: string) {
+export async function getExternalEvents(communityID?: ObjectIdType) {
   let events: LeanDocument<IExternalEvent[]> | false;
   if (communityID) {
-    events = await ExternalEvent.getEventsForCommunity(ObjectIdVal(communityID));
+    events = await ExternalEvent.getEventsForCommunity(communityID);
   } else {
     events = await ExternalEvent.getAllEvents();
   }
@@ -401,4 +401,18 @@ export async function getExternalEvents(communityID?: string) {
     return createPacket(true, 200, 'Successfully retrieved events', { events });
   }
   return createPacket(false, 400, 'Failed to retrieve events');
+}
+
+/**
+ *
+ * @param communityID
+ * @returns void
+ */
+
+export async function deleteExternalEvent(eventID: ObjectIdType) {
+  const deletion = await ExternalEvent.model.deleteOne({ _id: eventID });
+
+  if (deletion.deletedCount === 1)
+    return createPacket(true, 200, 'Successfully deleted event');
+  else return createPacket(false, 400, 'Failed to delete event');
 }
