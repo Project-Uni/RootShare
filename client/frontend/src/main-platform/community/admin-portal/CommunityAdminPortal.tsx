@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { createContext, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useParams } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { CommunityAdminPortalTabContext } from '../../../App';
+// import { CommunityAdminPortalTabContext } from '../../../App';
 
 import { PortalMembers, PortalEvents } from './tabs';
 
@@ -19,6 +19,13 @@ type Props = {};
 export const CommunityAdminPortal = (props: Props) => {
   const styles = useStyles();
   const { communityID } = useParams<{ communityID: string }>();
+
+  useEffect(() => {
+    setTimeout(() => {
+      selectedTab = 'events';
+      console.log(selectedTab);
+    }, 3000);
+  }, []);
 
   // const { selectedTab } = useSelector((state: RootshareReduxState) => ({
   //   selectedTab: state.communityAdminPortalTab,
@@ -35,9 +42,13 @@ export const CommunityAdminPortal = (props: Props) => {
     }
   };
 
-  return (
-    <CommunityAdminPortalTabContext.Consumer>
-      {(context) => renderPortalTab(context.selectedTab)}
-    </CommunityAdminPortalTabContext.Consumer>
-  );
+  let { selectedTab } = React.useContext(AnotherContext);
+  alert(selectedTab);
+  return renderPortalTab(selectedTab);
 };
+
+var selectedTab = 'members';
+var updateTab = (newTab: string) => {
+  selectedTab = newTab;
+};
+export const AnotherContext = createContext({ selectedTab, updateTab });

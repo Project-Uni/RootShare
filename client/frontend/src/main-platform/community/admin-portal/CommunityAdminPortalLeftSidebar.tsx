@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useParams } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ import {
   resetCommunityAdminPortalTab,
 } from '../../../redux/actions';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { CommunityAdminPortalTabContext } from '../../../App';
+import { AnotherContext } from './CommunityAdminPortal';
 
 import { BiArrowBack } from 'react-icons/bi';
 
@@ -59,9 +59,14 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   //   selectedTab: state.communityAdminPortalTab,
   // }));
 
+  const { selectedTab } = useContext(AnotherContext);
   useEffect(() => {
     dispatch(resetCommunityAdminPortalTab());
   }, []);
+
+  useEffect(() => {
+    alert(`Sidebar: ${selectedTab}`);
+  }, [selectedTab]);
 
   const renderTab = (
     tab: CommunityAdminPortalTab,
@@ -86,29 +91,30 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   };
 
   return (
-    <CommunityAdminPortalTabContext.Consumer>
-      {(context) => (
-        <div>
-          <RSCard background="secondary">
-            <div className={styles.wrapper}>
-              <RSLink
-                style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
-                underline="hover"
-                href={`/community/${communityID}`}
-              >
-                <BiArrowBack style={{ marginRight: 5 }} />
-                <RSText size={14} color={Theme.secondaryText}>
-                  Back to Community
-                </RSText>
-              </RSLink>
+    <div />
+    // <CommunityAdminPortalTabContext.Consumer>
+    //   {(context) => (
+    //     <div>
+    //       <RSCard background="secondary">
+    //         <div className={styles.wrapper}>
+    //           <RSLink
+    //             style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
+    //             underline="hover"
+    //             href={`/community/${communityID}`}
+    //           >
+    //             <BiArrowBack style={{ marginRight: 5 }} />
+    //             <RSText size={14} color={Theme.secondaryText}>
+    //               Back to Community
+    //             </RSText>
+    //           </RSLink>
 
-              {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) =>
-                renderTab(tab, context.selectedTab, context.setSelectedTab)
-              )}
-            </div>
-          </RSCard>
-        </div>
-      )}
-    </CommunityAdminPortalTabContext.Consumer>
+    //           {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) =>
+    //             renderTab(tab, context.selectedTab, context.setSelectedTab)
+    //           )}
+    //         </div>
+    //       </RSCard>
+    //     </div>
+    //   )}
+    // </CommunityAdminPortalTabContext.Consumer>
   );
 };
