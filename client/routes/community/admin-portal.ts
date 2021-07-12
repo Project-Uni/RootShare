@@ -23,6 +23,7 @@ import {
   createExternalEvent,
   getExternalEvents,
   deleteExternalEvent,
+  isCommunityAdminCheck,
 } from '../../interactions/community/admin-portal';
 import { leaveCommunity } from '../../interactions/community/community';
 
@@ -303,4 +304,21 @@ export default function communityAdminPortalRoutes(app) {
       }
     }
   );
+
+  app.get('/api/communityAdmin/check', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams<{ communityID: string }>(req, {
+        communityID: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { communityID } = query;
+      const packet = await isCommunityAdminCheck(ObjectIdVal(communityID), userID);
+      res.status(packet.status).json(packet);
+    } catch (err) {
+      log('err', err);
+      res.json(sendPacket(-1, err.message));
+    }
+  });
 }

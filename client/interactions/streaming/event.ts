@@ -439,10 +439,7 @@ export async function getExternalEventInfo(
       });
   }
 
-  const isAdmin = await Community.model.exists({
-    _id: event.hostCommunity._id,
-    admin: userID,
-  });
+  const isAdmin = await Community.isAdmin(event.hostCommunity._id, userID);
 
   return createPacket(true, 200, 'Successfully retrieved event info', {
     event,

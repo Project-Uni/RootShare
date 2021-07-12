@@ -416,3 +416,20 @@ export async function deleteExternalEvent(eventID: ObjectIdType) {
     return createPacket(true, 200, 'Successfully deleted event');
   else return createPacket(false, 400, 'Failed to delete event');
 }
+
+/**
+ *
+ * @param communityID
+ * @param userID
+ * @returns {
+ *  isCommunityAdmin: boolean
+ * }
+ */
+
+export async function isCommunityAdminCheck(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
+  const isCommunityAdmin = await Community.isAdmin(communityID, userID);
+  return createPacket(true, 200, 'Sending isCommunityAdmin', { isCommunityAdmin });
+}
