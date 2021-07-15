@@ -32,7 +32,7 @@ import { SnackbarNotification } from './main-platform/reusable-components';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
 import { ThemeProvider } from '@material-ui/styles';
 import { muiTheme } from './theme/Theme';
-import { AnotherContext } from './main-platform/community/admin-portal/CommunityAdminPortal';
+import { AdminPortalWrapper } from './main-platform/community/admin-portal/AdminPortalContext';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -113,22 +113,20 @@ const App = () => {
                 path="/community/:communityID"
                 render={(props) => <AuthenticatedPage component={<Community />} />}
               />
-              <AnotherContext.Provider
-                value={{ selectedTab: 'members', updateTab: (newTab: string) => {} }}
-              >
-                <Route
-                  exact
-                  path="/community/:communityID/admin"
-                  render={(props) => (
+              <Route
+                exact
+                path="/community/:communityID/admin"
+                render={(props) => (
+                  <AdminPortalWrapper>
                     <AuthenticatedPage
                       component={<CommunityAdminPortal />}
                       leftElement={<CommunityAdminPortalLeftSidebar />}
                       rightElement={<span />}
                       showNavigationMenuDefault
                     />
-                  )}
-                />
-              </AnotherContext.Provider>
+                  </AdminPortalWrapper>
+                )}
+              />
               <Route
                 exact
                 path="/connections/:userID"

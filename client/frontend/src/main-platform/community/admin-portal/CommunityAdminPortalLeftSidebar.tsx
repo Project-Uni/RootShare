@@ -8,7 +8,6 @@ import {
   resetCommunityAdminPortalTab,
 } from '../../../redux/actions';
 import { RootshareReduxState } from '../../../redux/store/stateManagement';
-import { AnotherContext } from './CommunityAdminPortal';
 
 import { BiArrowBack } from 'react-icons/bi';
 
@@ -18,6 +17,7 @@ import { RSCard, RSLink } from '../../reusable-components';
 import Theme from '../../../theme/Theme';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import { RSCARD_WRAPPER_MARGIN } from '../../reusable-components/components/RSCard';
+import { AdminPortalContext } from './AdminPortalContext';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -55,18 +55,10 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
 
   const { communityID } = useParams<{ communityID: string }>();
 
-  // const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-  //   selectedTab: state.communityAdminPortalTab,
-  // }));
-
-  const { selectedTab } = useContext(AnotherContext);
+  const { selectedTab, updateTab } = useContext(AdminPortalContext);
   useEffect(() => {
     dispatch(resetCommunityAdminPortalTab());
   }, []);
-
-  useEffect(() => {
-    alert(`Sidebar: ${selectedTab}`);
-  }, [selectedTab]);
 
   const renderTab = (
     tab: CommunityAdminPortalTab,

@@ -10,7 +10,7 @@ import {
   IExternalEvent,
 } from '../../rootshare_db/models';
 import { ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
-import { Privacy } from '../../rootshare_db/models/external_events';
+import { ExternalEventPrivacyEnum } from '../../rootshare_db/models/external_events';
 import {
   log,
   sendPacket,
@@ -325,7 +325,7 @@ export async function createExternalEvent({
   communityID?: string;
   image: string;
   userID: ObjectIdType;
-  privacy: Privacy;
+  privacy: ExternalEventPrivacyEnum;
 }) {
   try {
     if (communityID) {

@@ -9,27 +9,21 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { PortalMembers, PortalEvents } from './tabs';
 
 import { CommunityAdminPortalTab } from './CommunityAdminPortalLeftSidebar';
-
-const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
-}));
+import { AdminPortalContext } from './AdminPortalContext';
 
 type Props = {};
 
 export const CommunityAdminPortal = (props: Props) => {
-  const styles = useStyles();
   const { communityID } = useParams<{ communityID: string }>();
 
   useEffect(() => {
     setTimeout(() => {
-      selectedTab = 'events';
+      updateTab('events');
       console.log(selectedTab);
     }, 3000);
   }, []);
 
-  // const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-  //   selectedTab: state.communityAdminPortalTab,
-  // }));
+  const { selectedTab, updateTab } = React.useContext(AdminPortalContext);
 
   const renderPortalTab = (selectedTab: string) => {
     switch (selectedTab) {
@@ -42,13 +36,5 @@ export const CommunityAdminPortal = (props: Props) => {
     }
   };
 
-  let { selectedTab } = React.useContext(AnotherContext);
-  alert(selectedTab);
   return renderPortalTab(selectedTab);
 };
-
-var selectedTab = 'members';
-var updateTab = (newTab: string) => {
-  selectedTab = newTab;
-};
-export const AnotherContext = createContext({ selectedTab, updateTab });
