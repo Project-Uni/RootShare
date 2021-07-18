@@ -40,9 +40,9 @@ export const NotificationButton = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    const removeHistoryListen = history.listen((location, action) => {
-      fetchNotifications();
-    });
+    const removeHistoryListen = history.listen((location, action) =>
+      fetchNotifications()
+    );
     return removeHistoryListen;
   }, [history]);
 

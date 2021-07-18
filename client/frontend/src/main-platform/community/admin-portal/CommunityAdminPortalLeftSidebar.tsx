@@ -1,13 +1,6 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useParams } from 'react-router-dom';
-
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  updateCommunityAdminPortalTab,
-  resetCommunityAdminPortalTab,
-} from '../../../redux/actions';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
 
 import { BiArrowBack } from 'react-icons/bi';
 
@@ -17,7 +10,7 @@ import { RSCard, RSLink } from '../../reusable-components';
 import Theme from '../../../theme/Theme';
 import { capitalizeFirstLetter } from '../../../helpers/functions';
 import { RSCARD_WRAPPER_MARGIN } from '../../reusable-components/components/RSCard';
-import { AdminPortalContext } from './AdminPortalContext';
+import { CommunityAdminPortalContext } from './AdminPortalContext';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -51,24 +44,15 @@ type Props = {};
 
 export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   const styles = useStyles();
-  const dispatch = useDispatch();
 
   const { communityID } = useParams<{ communityID: string }>();
 
-  const { selectedTab, updateTab } = useContext(AdminPortalContext);
-  useEffect(() => {
-    dispatch(resetCommunityAdminPortalTab());
-  }, []);
+  const { selectedTab, setSelectedTab } = useContext(CommunityAdminPortalContext);
 
-  const renderTab = (
-    tab: CommunityAdminPortalTab,
-    selectedTab: CommunityAdminPortalTab,
-    setSelectedTab: React.Dispatch<React.SetStateAction<CommunityAdminPortalTab>>
-  ) => {
+  const renderTab = (tab: CommunityAdminPortalTab) => {
     const isCurrentTab = tab === selectedTab;
 
     return (
-      // <RSLink onClick={() => dispatch(updateCommunityAdminPortalTab(tab))}>
       <RSLink onClick={() => setSelectedTab(tab)}>
         <RSText
           size={16}
@@ -83,30 +67,22 @@ export const CommunityAdminPortalLeftSidebar = (props: Props) => {
   };
 
   return (
-    <div />
-    // <CommunityAdminPortalTabContext.Consumer>
-    //   {(context) => (
-    //     <div>
-    //       <RSCard background="secondary">
-    //         <div className={styles.wrapper}>
-    //           <RSLink
-    //             style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
-    //             underline="hover"
-    //             href={`/community/${communityID}`}
-    //           >
-    //             <BiArrowBack style={{ marginRight: 5 }} />
-    //             <RSText size={14} color={Theme.secondaryText}>
-    //               Back to Community
-    //             </RSText>
-    //           </RSLink>
-
-    //           {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) =>
-    //             renderTab(tab, context.selectedTab, context.setSelectedTab)
-    //           )}
-    //         </div>
-    //       </RSCard>
-    //     </div>
-    //   )}
-    // </CommunityAdminPortalTabContext.Consumer>
+    <div>
+      <RSCard background="secondary">
+        <div className={styles.wrapper}>
+          <RSLink
+            style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}
+            underline="hover"
+            href={`/community/${communityID}`}
+          >
+            <BiArrowBack style={{ marginRight: 5 }} />
+            <RSText size={14} color={Theme.secondaryText}>
+              Back to Community
+            </RSText>
+          </RSLink>
+          {COMMUNITY_ADMIN_PORTAL_TABS.map((tab) => renderTab(tab))}
+        </div>
+      </RSCard>
+    </div>
   );
 };

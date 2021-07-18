@@ -4,19 +4,21 @@ type Props = {
   children?: React.ReactElement | React.ReactElement[];
 };
 
-export const AdminPortalWrapper = (props: Props) => {
+export const CommunityAdminPortalContextWrapper = (props: Props) => {
   const { children } = props;
 
-  const [selectedTab, updateTab] = React.useState<'members' | 'events'>('members');
+  const [selectedTab, setSelectedTab] = React.useState<'members' | 'events'>(
+    'members'
+  );
 
   return (
-    <AdminPortalContext.Provider value={{ selectedTab, updateTab }}>
+    <CommunityAdminPortalContext.Provider value={{ selectedTab, setSelectedTab }}>
       {children}
-    </AdminPortalContext.Provider>
+    </CommunityAdminPortalContext.Provider>
   );
 };
 
-export const AdminPortalContext = React.createContext({
+export const CommunityAdminPortalContext = React.createContext({
   selectedTab: 'members',
-  updateTab: (newTab: 'members' | 'events') => {},
+  setSelectedTab: (newTab: 'members' | 'events') => {},
 });

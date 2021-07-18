@@ -1,29 +1,18 @@
-import React, { createContext, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
-import { useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-// import { CommunityAdminPortalTabContext } from '../../../App';
 
 import { PortalMembers, PortalEvents } from './tabs';
 
-import { CommunityAdminPortalTab } from './CommunityAdminPortalLeftSidebar';
-import { AdminPortalContext } from './AdminPortalContext';
+import { CommunityAdminPortalContext } from './AdminPortalContext';
 
 type Props = {};
 
 export const CommunityAdminPortal = (props: Props) => {
   const { communityID } = useParams<{ communityID: string }>();
 
-  useEffect(() => {
-    setTimeout(() => {
-      updateTab('events');
-      console.log(selectedTab);
-    }, 3000);
-  }, []);
-
-  const { selectedTab, updateTab } = React.useContext(AdminPortalContext);
+  const { selectedTab, setSelectedTab } = React.useContext(
+    CommunityAdminPortalContext
+  );
 
   const renderPortalTab = (selectedTab: string) => {
     switch (selectedTab) {
