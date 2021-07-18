@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import {
-  RSButton,
-  RSModal,
-  RSSelect,
-  RSTextField,
-} from '../../../reusable-components';
-import { useForm } from '../../../../helpers/hooks';
-import { RSText } from '../../../../base-components';
+
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../../../redux/actions';
+
 import { FormHelperText } from '@material-ui/core';
 import {
   DatePicker,
@@ -15,12 +11,19 @@ import {
   TimePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+
 import {
-  IPostCreateExternalEventResponse,
-  postCreateExternalEvent,
-} from '../../../../api';
-import { useDispatch } from 'react-redux';
-import { dispatchSnackbar } from '../../../../redux/actions';
+  RSButton,
+  RSModal,
+  RSSelect,
+  RSTextField,
+} from '../../../reusable-components';
+import { RSText } from '../../../../base-components';
+
+import { postCreateExternalEvent } from '../../../../api';
+import { useForm } from '../../../../helpers/hooks';
+import { ExternalEventDefault } from '../../../../helpers/types';
+import { ExternalEventPrivacyEnum } from '../../../../helpers/enums';
 import Theme from '../../../../theme/Theme';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
@@ -38,18 +41,6 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   },
 }));
 
-type Props = {
-  open: boolean;
-  onClose: () => void;
-  communityID: string;
-  onSuccess?: (event: IPostCreateExternalEventResponse['event']) => void;
-};
-
-export enum Privacy {
-  PRIVATE = 'PRIVATE',
-  PUBLIC = 'PUBLIC',
-}
-
 type ICreateEventForm = {
   title: string;
   type: string;
@@ -59,7 +50,7 @@ type ICreateEventForm = {
   endTime: string;
   streamLink: string;
   donationLink: string;
-  privacy: Privacy;
+  privacy: ExternalEventPrivacyEnum;
 };
 
 const initialFormData: ICreateEventForm = {
@@ -71,7 +62,14 @@ const initialFormData: ICreateEventForm = {
   endTime: new Date(Date.now()).toUTCString(),
   streamLink: '',
   donationLink: '',
-  privacy: Privacy.PUBLIC,
+  privacy: ExternalEventPrivacyEnum.PUBLIC,
+};
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  communityID: string;
+  onSuccess?: (event: ExternalEventDefault) => void;
 };
 
 export const CommunityExternalEventCreate = (props: Props) => {
@@ -109,31 +107,20 @@ export const CommunityExternalEventCreate = (props: Props) => {
       const startData = new Date(startTime);
       const endData = new Date(endTime);
 
-      formattedStartDate.setHours(
-        startData.getHours(),
-        startData.getMinutes(),
-        startData.getSeconds()
-      );
+      formattedStartDate.setHours(startData.getHours());
+      formattedStartDate.setMinutes(startData.getMinutes());
 
-      formattedEndDate.setHours(
-        endData.getHours(),
-        endData.getMinutes(),
-        endData.getSeconds()
-      );
+      formattedEndDate.setHours(endData.getHours());
+      formattedEndDate.setMinutes(endData.getMinutes());
 
-      const data = ((await postCreateExternalEvent({
+      const data = await postCreateExternalEvent(communityID, {
         ...rest,
         communityID,
         startTime: formattedStartDate.toUTCString(),
         endTime: formattedEndDate.toUTCString(),
         isDev: true,
         image: '',
-      })) as unknown) as {
-        successful: string;
-        message: string;
-        content: IPostCreateExternalEventResponse;
-        status: number;
-      };
+      });
 
       if (data.successful) {
         onSuccess?.(data.content.event);
@@ -226,7 +213,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
                     handleDateChange('date')(new Date(date as Date))
                   }
                   minDate={new Date(Date.now())}
-                  minDateMessage={'Event Must Be on January 17th after today'}
+                  minDateMessage={'Event Must Be in the future'}
                   className={styles.field}
                   key="datePicker"
                   error={!!formErrors.date}
@@ -243,7 +230,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
                   <TimePicker
                     name="eventTime"
                     margin="normal"
-                    format="h:MM a"
                     value={formFields.startTime}
                     onChange={(date) =>
                       handleDateChange('startTime')(new Date(date as Date))
@@ -258,7 +244,6 @@ export const CommunityExternalEventCreate = (props: Props) => {
                   <TimePicker
                     name="eventTime"
                     margin="normal"
-                    format="h:MM a"
                     value={formFields.endTime}
                     onChange={(date) =>
                       handleDateChange('endTime')(new Date(date as Date))
@@ -311,6 +296,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
             style={{ width: '100%' }}
             placeholder="Description"
             value={formFields.description}
+            multiline
             onChange={handleChange('description')}
             variant="standard"
             error={!!formErrors.description}
@@ -332,8 +318,8 @@ export const CommunityExternalEventCreate = (props: Props) => {
           <RSSelect
             onChange={handleChange('privacy')}
             options={[
-              { label: 'Public', value: Privacy.PUBLIC },
-              { label: 'Private', value: Privacy.PRIVATE },
+              { label: 'Public', value: ExternalEventPrivacyEnum.PUBLIC },
+              { label: 'Private', value: ExternalEventPrivacyEnum.PRIVATE },
             ]}
             label=""
             fontSize={14}

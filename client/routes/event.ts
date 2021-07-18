@@ -1,4 +1,10 @@
-import { getQueryParams, getUserFromJWT, sendPacket } from '../helpers/functions';
+import { ObjectIdVal } from '../rootshare_db/types';
+import {
+  getQueryParams,
+  getUserFromJWT,
+  sendPacket,
+  log,
+} from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   getAllRecentEvents,
@@ -8,8 +14,7 @@ import {
   addEventImage,
   addEventBanner,
   getRecentEvents,
-  createExternalEvent,
-  getExternalEvents,
+  getExternalEventInfo,
 } from '../interactions/streaming/event';
 import { updateAttendingList } from '../interactions/user';
 
@@ -83,43 +88,26 @@ export default function eventRoutes(app) {
     }
   );
 
-  app.post('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
-    const { _id: userID } = getUserFromJWT(req);
-    const {
-      title,
-      type,
-      streamLink,
-      startTime,
-      endTime,
-      donationLink,
-      description,
-      communityID,
-      image,
-      privacy,
-    } = req.body;
-
-    const packet = await createExternalEvent({
-      title,
-      type,
-      streamLink,
-      startTime,
-      endTime,
-      donationLink,
-      description,
-      communityID,
-      image,
-      userID,
-      privacy,
-    });
-
-    return res.status(packet.status).json(packet);
-  });
-
-  app.get('/api/webinar/external', isAuthenticatedWithJWT, async (req, res) => {
-    const query = getQueryParams<{ communityID?: string }>(req, {
-      communityID: { type: 'string', optional: true },
-    });
-    const packet = await getExternalEvents(query ? query.communityID : undefined);
-    res.status(packet.status).json(packet);
+  app.get('/api/event/external', async (req, res) => {
+    try {
+      const query = getQueryParams<{
+        eventID: string;
+        userID?: string;
+      }>(req, {
+        eventID: { type: 'string' },
+        userID: { type: 'string', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { eventID, userID } = query;
+      const packet = await getExternalEventInfo(
+        ObjectIdVal(eventID),
+        userID && ObjectIdVal(userID)
+      );
+      res.status(packet.status).json(packet);
+    } catch (err) {
+      log('err', err);
+      res.status(500).json(sendPacket(-1, err.message));
+    }
   });
 }

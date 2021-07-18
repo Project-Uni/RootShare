@@ -12,3 +12,7 @@ export * from './getCommunityMedia';
 export * from './getRecentEvents';
 export * from './getScaleEventInformation';
 export * from './getSavedAdminDBQueries';
+export * from './getCommunityInformation';
+export * from './getExternalEventInfo';
+
+export * from './getCommunityAdminPortal';

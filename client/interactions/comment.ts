@@ -14,8 +14,8 @@ export async function leaveCommentOnPost(
     return sendPacket(0, 'Message is empty');
   }
   try {
-    const userExistsPromise = await User.model.exists({ _id: userID });
-    const postExistsPromise = await Post.model.exists({ _id: postID });
+    const userExistsPromise = User.model.exists({ _id: userID });
+    const postExistsPromise = Post.model.exists({ _id: postID });
 
     return Promise.all([userExistsPromise, postExistsPromise])
       .then(async ([userExists, postExists]) => {

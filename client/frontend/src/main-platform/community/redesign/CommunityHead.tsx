@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
 
 import { FaLock } from 'react-icons/fa';
 import { Menu, MenuItem } from '@material-ui/core';
@@ -20,7 +21,7 @@ import {
 } from '../components/MeetTheGreeks';
 
 import Theme from '../../../theme/Theme';
-import { Community, U2CR, CommunityType } from '../../../helpers/types';
+import { Community, U2CR, CommunityType, UserAvatar } from '../../../helpers/types';
 
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
@@ -126,11 +127,21 @@ type Props = {
   communityInfo: Community;
   currentTab: CommunityTab;
   handleTabChange: (newTab: CommunityTab) => void;
+  handleAddMember: (newMember: UserAvatar) => void;
 };
 
 export const CommunityHead = (props: Props) => {
   const styles = useStyles();
-  const { style, className, communityInfo, currentTab, handleTabChange } = props;
+  const history = useHistory();
+
+  const {
+    style,
+    className,
+    communityInfo,
+    currentTab,
+    handleTabChange,
+    handleAddMember,
+  } = props;
 
   const [membersModalOpen, setMembersModalOpen] = useState(false);
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
@@ -146,6 +157,7 @@ export const CommunityHead = (props: Props) => {
     private: isPrivate,
     type,
     members,
+    numMutual,
     profilePicture,
     bannerPicture,
     relationship,
@@ -297,6 +309,7 @@ export const CommunityHead = (props: Props) => {
             onChange={handleTabChange}
             selected={currentTab}
             className={styles.tabs}
+            theme="university"
           />
         )}
       </div>
@@ -309,12 +322,12 @@ export const CommunityHead = (props: Props) => {
         <div className={styles.editBtnContainer}>
           {relationship === U2CR.ADMIN && (
             <RSButtonV2
-              variant="universitySecondary"
+              variant="university"
               className={styles.editButton}
-              onClick={() => setShowEditCommunityModal(true)}
+              onClick={() => history.push(`/community/${communityID}/admin`)}
               borderRadius={25}
             >
-              <RSText size={10}>Edit Profile</RSText>
+              <RSText size={10}>Admin Portal</RSText>
             </RSButtonV2>
           )}
           {scaleEventType && scaleEventComponents()}
@@ -322,7 +335,7 @@ export const CommunityHead = (props: Props) => {
         <div className={styles.btnContainer}>
           <RSText size={11}>{`${numMembers} ${
             numMembers === 1 ? 'Member' : 'Members'
-          }`}</RSText>
+          } | ${numMutual || 0} Mutual`}</RSText>
           {relationship === U2CR.ADMIN && (
             //TODO Get counts from backend
             <div style={{ marginTop: 5, marginBottom: 5 }}>
@@ -418,6 +431,7 @@ export const CommunityHead = (props: Props) => {
             onChange={handleTabChange}
             selected={currentTab}
             className={styles.tabs}
+            theme="university"
           />
         ) : (
           <></>
@@ -432,6 +446,7 @@ export const CommunityHead = (props: Props) => {
         open={membersModalOpen}
         communityID={communityInfo._id}
         handleClose={() => setMembersModalOpen(false)}
+        handleAddMember={handleAddMember}
       />
     </div>
   );

@@ -15,6 +15,7 @@ import {
   makeRequest,
   formatDatePretty,
   formatTime,
+  localDateTimeFromUTC,
 } from '../../../helpers/functions';
 import Theme from '../../../theme/Theme';
 
@@ -93,8 +94,8 @@ export default function EventsBody(props: Props) {
       let varMutualSignups = connectionIDs.filter((x: string) =>
         currEvent.RSVPs.includes(x)
       );
-      const eventDateTime = new Date(currEvent.dateTime);
-      const eventDate = formatDatePretty(eventDateTime); //Aug 14, 2020
+      const eventDateTime = localDateTimeFromUTC(currEvent.dateTime);
+      const eventDate = formatDatePretty(eventDateTime);
       const eventTime = formatTime(eventDateTime);
       output.push(
         <Event

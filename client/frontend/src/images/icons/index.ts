@@ -8,6 +8,7 @@ import GoogleIcon from './GoogleIcon.svg';
 import LinkedInIcon from './LinkedInIcon.png';
 import PurdueIcon from './PurdueIcon.png';
 import DefaultProfilePictureIcon from './DefaultProfilePictureIcon.png';
+import CreateEventIcon from './CreateEventIcon.png';
 
 export {
   RightArrowIcon,
@@ -20,4 +21,5 @@ export {
   LinkedInIcon,
   PurdueIcon,
   DefaultProfilePictureIcon,
+  CreateEventIcon,
 };

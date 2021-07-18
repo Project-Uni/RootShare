@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, createContext } from 'react';
 import './App.css';
 
 import { Router, Route, Switch } from 'react-router-dom';
@@ -17,19 +17,26 @@ import {
   MeetTheGreeks,
   HomepageBody,
   ProfileBody,
+  Community,
+  CommunityAdminPortal,
+  CommunityAdminPortalLeftSidebar,
   EventsBody,
   ConnectionsBody,
   YourCommunitiesBody,
   PostPage,
+  EventInfoPage,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
-import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
+import {
+  AuthenticatedPage,
+  OptionalAuthenticatedPage,
+} from './main-platform/base-page-frames';
 import { SnackbarNotification } from './main-platform/reusable-components';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
-import Community from './main-platform/community/redesign/Community'; //NEW COMMUNITY
 import { ThemeProvider } from '@material-ui/styles';
 import { muiTheme } from './theme/Theme';
+import { CommunityAdminPortalContextWrapper } from './main-platform/community/admin-portal/AdminPortalContext';
 
 const analyticsTrackingID = 'UA-169916177-1';
 ReactGA.initialize(analyticsTrackingID);
@@ -112,6 +119,20 @@ const App = () => {
               />
               <Route
                 exact
+                path="/community/:communityID/admin"
+                render={(props) => (
+                  <CommunityAdminPortalContextWrapper>
+                    <AuthenticatedPage
+                      component={<CommunityAdminPortal />}
+                      leftElement={<CommunityAdminPortalLeftSidebar />}
+                      rightElement={<span />}
+                      showNavigationMenuDefault
+                    />
+                  </CommunityAdminPortalContextWrapper>
+                )}
+              />
+              <Route
+                exact
                 path="/connections/:userID"
                 render={(props) => (
                   <AuthenticatedPage component={<ConnectionsBody />} />
@@ -128,6 +149,13 @@ const App = () => {
                 exact
                 path="/post/:postID"
                 render={(props) => <AuthenticatedPage component={<PostPage />} />}
+              />
+              <Route
+                exact
+                path="/eventInfo/:eventID"
+                render={(props) => (
+                  <OptionalAuthenticatedPage component={<EventInfoPage />} />
+                )}
               />
               <Route component={PageNotFound} />
             </Switch>

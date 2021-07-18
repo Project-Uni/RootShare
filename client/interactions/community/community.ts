@@ -1,5 +1,6 @@
 import {
   Community,
+  CommunityBoardMember,
   CommunityEdge,
   User,
   University,
@@ -9,31 +10,28 @@ import {
   IUser,
   ICommunityEdge,
   IConnection,
-} from '../rootshare_db/models';
-import { CommunityGetOptions } from '../rootshare_db/models/communities';
+  ICommunityBoardMember,
+} from '../../rootshare_db/models';
+import { CommunityGetOptions } from '../../rootshare_db/models/communities';
 import {
   CommunityType,
   U2CR,
   AccountType,
   ObjectIdVal,
   ObjectIdType,
-} from '../rootshare_db/types';
-import {
-  log,
-  sendPacket,
-  retrieveSignedUrl,
-  deleteFile,
-} from '../helpers/functions';
+} from '../../rootshare_db/types';
+import { log, sendPacket, deleteFile } from '../../helpers/functions';
 import {
   generateSignedProfilePromises,
   connectionsToUserIDStrings,
   getUserToUserRelationship,
   addCalculatedUserFields,
   addProfilePicturesAll,
-} from './utilities';
-import { retrieveAllUrls } from './media';
-import { deletePost, retrievePosts } from './post';
-import NotificationService from './notification';
+  addBannerPicturesAll,
+} from '../utilities';
+import { retrieveAllUrls } from '../media';
+import { deletePost, retrievePosts } from '../post';
+import NotificationService from '../notification';
 
 export async function createNewCommunity(
   name: string,
@@ -60,7 +58,13 @@ export async function createNewCommunity(
   try {
     const savedCommunity = await newCommunity.save();
 
-    const adminUpdate = User.model
+    const boardMemberUpdate = CommunityBoardMember.model.create({
+      user: adminID,
+      community: savedCommunity._id,
+      title: 'Admin',
+    });
+
+    const userUpdate = User.model
       .updateOne(
         { _id: adminID },
         { $addToSet: { joinedCommunities: savedCommunity._id } }
@@ -74,12 +78,19 @@ export async function createNewCommunity(
       )
       .exec();
 
-    return Promise.all([adminUpdate, universityUpdate]).then(() => {
-      log('info', `Successfully created community ${name}`);
-      return sendPacket(1, 'Successfully created new community', {
-        community: savedCommunity,
-      });
-    });
+    return Promise.all([boardMemberUpdate, userUpdate, universityUpdate]).then(
+      async ([newBoardMember]) => {
+        await Community.model.updateOne(
+          { _id: savedCommunity._id },
+          { boardMembers: [newBoardMember._id] }
+        );
+
+        log('info', `Successfully created community ${name}`);
+        return sendPacket(1, 'Successfully created new community', {
+          community: savedCommunity,
+        });
+      }
+    );
   } catch (err) {
     log('error', err);
     return sendPacket(0, `Failed to create community ${name}`);
@@ -244,85 +255,91 @@ export async function getCommunityInformation(
   communityID: ObjectIdType,
   userID: ObjectIdType
 ) {
-  try {
-    const communityPromise = Community.model
-      .findById(communityID, [
-        'name',
-        'description',
-        'admin',
-        'private',
-        'type',
-        'members',
-        'pendingMembers',
-        'university',
-        'profilePicture',
-        'followedByCommunities',
-        'incomingPendingCommunityFollowRequests',
-        'scaleEventType',
-      ])
-      .populate({ path: 'university', select: 'universityName' })
-      .populate({
-        path: 'admin',
-        select: ['_id', 'firstName', 'lastName', 'email'],
-      })
-      .populate({
-        path: 'incomingPendingCommunityFollowRequests',
-        select: 'from',
-      })
-      .populate({ path: 'followedByCommunities', select: 'from' })
-      .exec();
+  const communityPromise = Community.model
+    .findById(communityID, [
+      'admin',
+      'boardMembers',
+      'name',
+      'members',
+      'pendingMembers',
+      'description',
+      'bio',
+      'private',
+      'type',
+      'profilePicture',
+      'bannerPicture',
+      'scaleEventType',
+    ])
+    .populate({ path: 'admin', select: 'firstName lastName profilePicture' })
+    .populate({
+      path: 'members',
+      select: 'firstName lastName profilePicture',
+    })
+    .populate({
+      path: 'boardMembers',
+      select: 'user title',
+      populate: {
+        path: 'user',
+        select: 'firstName lastName profilePicture',
+      },
+    })
+    .lean<ICommunity>()
+    .exec();
 
-    const userPromise = User.model
-      .findById(userID)
-      .select(['connections', 'joinedCommunities'])
-      .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
-      .exec();
+  const userPromise = User.model
+    .findById(userID)
+    .select(['connections', 'joinedCommunities'])
+    .populate({ path: 'connections', select: ['from', 'to', 'accepted'] })
+    .exec();
 
-    return Promise.all([communityPromise, userPromise])
-      .then(([community, user]) => {
-        //Calculating Connections in Community
-        const connections = connectionsToUserIDStrings(
+  return Promise.all([communityPromise, userPromise]).then(
+    async ([community, user]) => {
+      // Community Decoration
+      let decoratedCommunity = (
+        await Community.getUserToCommunityRelationship_V2({
           userID,
-          user.connections as IConnection[]
-        );
-        const members = (community.members as ObjectIdType[]).map(
-          (member) => member
-        );
-
-        const mutualConnections = members.filter(
-          (member) => connections.indexOf(member) !== -1
-        );
-
-        let hasFollowingAccess = false;
-
-        if (community.private) {
-          const followedByCommunities = (community.followedByCommunities as ICommunityEdge[]).map(
-            (community) => community.from.toString()
-          );
-          const communityIntersection = (user.joinedCommunities as ObjectIdType[]).filter(
-            (community) => followedByCommunities.includes(community.toString())
-          );
-          if (communityIntersection.length > 0) hasFollowingAccess = true;
+          communities: [community],
+        })
+      )[0];
+      decoratedCommunity.pendingMembers = undefined;
+      decoratedCommunity.boardMembers = decoratedCommunity.boardMembers.map(
+        (boardMember) => {
+          return { ...boardMember.user, title: boardMember.title };
         }
+      );
 
+      //Calculating Connections in Community
+      const connections = connectionsToUserIDStrings(
+        userID,
+        user.connections as IConnection[]
+      );
+
+      decoratedCommunity.numMutual = (decoratedCommunity.members as IUser[])
+        .map((member) => member._id)
+        .filter(
+          (member) =>
+            connections.filter((connection) => connection.equals(member)).length > 0
+        ).length;
+
+      const promises: Promise<any>[] = [];
+      promises.push(addProfilePicturesAll([decoratedCommunity], 'communityProfile'));
+      promises.push(addBannerPicturesAll([decoratedCommunity], 'communityBanner'));
+      promises.push(addProfilePicturesAll(decoratedCommunity.members, 'profile'));
+      promises.push(
+        addProfilePicturesAll(decoratedCommunity.boardMembers, 'profile')
+      );
+      promises.push(addProfilePicturesAll([decoratedCommunity.admin], 'profile'));
+      return Promise.all(promises).then(() => {
         log(
           'info',
           `Successfully retrieved community information for ${community.name}`
         );
         return sendPacket(1, 'Successfully retrieved community', {
-          community,
-          mutualConnections,
-          hasFollowingAccess,
+          community: decoratedCommunity,
         });
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
       });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
+    }
+  );
 }
 
 export async function joinCommunity(
@@ -476,150 +493,61 @@ export async function joinCommunity(
   }
 }
 
-export async function getAllPendingMembers(communityID: ObjectIdType) {
-  try {
-    const { pendingMembers } = (await Community.model
-      .findById(communityID)
-      .select(['pendingMembers'])
-      .populate({
-        path: 'pendingMembers',
-        select: ['_id', 'firstName', 'lastName', 'profilePicture'],
-      })) as { pendingMembers: IUser[] };
-
-    for (let i = 0; i < pendingMembers.length; i++) {
-      let pictureFileName = `${pendingMembers[i]._id}_profile.jpeg`;
-
-      try {
-        if (pendingMembers[i].profilePicture)
-          pictureFileName = pendingMembers[i].profilePicture;
-      } catch (err) {
-        log('err', err);
-      }
-
-      const imageURL = await retrieveSignedUrl('images', 'profile', pictureFileName);
-      if (imageURL) {
-        pendingMembers[i].profilePicture = imageURL;
-      }
-    }
-
-    log(
-      'info',
-      `Successfully retrieved all pending members for community ${communityID}`
-    );
-
-    return sendPacket(1, 'Successfully retrieved all pending members', {
-      pendingMembers,
-    });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
-export async function rejectPendingMember(
-  communityID: ObjectIdType,
-  userID: ObjectIdType
-) {
-  try {
-    const communityPromise = Community.model
-      .updateOne({ _id: communityID }, { $pull: { pendingMembers: userID } })
-      .exec();
-
-    const userPromise = User.model
-      .updateOne({ _id: userID }, { $pull: { pendingCommunities: communityID } })
-      .exec();
-
-    return Promise.all([communityPromise, userPromise])
-      .then((values) => {
-        log('info', `Rejected user ${userID} from community ${communityID}`);
-        return sendPacket(1, 'Successfully rejected pending request');
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
-export async function acceptPendingMember(
-  communityID: ObjectIdType,
-  userID: ObjectIdType
-) {
-  try {
-    const community = await Community.model.findOne({
-      _id: communityID,
-      pendingMembers: { $elemMatch: { $eq: userID } },
-    });
-    if (!community) {
-      log(
-        'info',
-        `Could not find pending request for user ${userID} in ${communityID}`
-      );
-      return sendPacket(0, 'Could not find pending request for user in community');
-    }
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, 'There was an error');
-  }
-
-  try {
-    const communityPromise = Community.model
-      .updateOne(
-        { _id: communityID },
-        {
-          $pull: { pendingMembers: userID },
-          $addToSet: { members: userID },
-        }
-      )
-      .exec();
-
-    const userPromise = User.model
-      .updateOne(
-        { _id: userID },
-        {
-          $pull: { pendingCommunities: communityID },
-          $addToSet: { joinedCommunities: communityID },
-        }
-      )
-      .exec();
-
-    new NotificationService().communityAccept({
-      communityID: communityID.toString(),
-      forUser: userID.toString(),
-    });
-    return Promise.all([communityPromise, userPromise])
-      .then((values) => {
-        log('info', `Accepted user ${userID} into community ${communityID}`);
-        return sendPacket(1, 'Successfully accepted pending request');
-      })
-      .catch((err) => {
-        log('error', err);
-        return sendPacket(-1, err);
-      });
-  } catch (err) {
-    log('error', err);
-    return sendPacket(-1, err);
-  }
-}
-
 export async function leaveCommunity(
   communityID: ObjectIdType,
   userID: ObjectIdType
 ) {
   try {
-    const communityPromise = Community.model
-      .updateOne({ _id: communityID }, { $pull: { members: userID } })
-      .exec();
+    const isMainAdmin = await Community.model.exists({
+      _id: communityID,
+      admin: userID,
+    });
+    if (isMainAdmin) return sendPacket(0, "Main Admin can't leave the community");
 
-    const userPromise = User.model
-      .updateOne({ _id: userID }, { $pull: { joinedCommunities: communityID } })
-      .exec();
+    const community = await Community.model
+      .findById(communityID)
+      .populate({ path: 'boardMembers', select: 'user' })
+      .lean<{
+        boardMembers: { _id: ObjectIdType; user: ObjectIdType }[];
+      }>();
 
-    return Promise.all([communityPromise, userPromise])
-      .then((values) => {
+    const filteredMembers = community.boardMembers.filter((boardMember) =>
+      boardMember.user.equals(userID)
+    );
+    const leavePromises = [];
+    if (filteredMembers.length > 0) {
+      const boardMember = filteredMembers[0];
+      leavePromises.push(
+        Community.model
+          .updateOne(
+            { _id: communityID },
+            { $pull: { boardMembers: boardMember._id } }
+          )
+          .exec()
+      );
+      leavePromises.push(
+        CommunityBoardMember.model
+          .deleteOne({
+            _id: boardMember._id,
+          })
+          .exec()
+      );
+    }
+
+    leavePromises.push(
+      Community.model
+        .updateOne({ _id: communityID }, { $pull: { members: userID } })
+        .exec()
+    );
+
+    leavePromises.push(
+      User.model
+        .updateOne({ _id: userID }, { $pull: { joinedCommunities: communityID } })
+        .exec()
+    );
+
+    return Promise.all(leavePromises)
+      .then(() => {
         log('info', `User ${userID} left community ${communityID}`);
         return sendPacket(1, 'Successfully left community', {
           newStatus: U2CR.OPEN,

@@ -76,13 +76,6 @@ const RSButtonV2 = (props: Props) => {
     onHover,
   } = props;
 
-  const [style, setStyle] = useState({
-    ...props.style,
-    fontSize,
-    borderRadius,
-    textTransform: caps,
-  });
-
   return (
     <Button
       className={[
@@ -92,7 +85,12 @@ const RSButtonV2 = (props: Props) => {
       ].join(' ')}
       disabled={disabled}
       onClick={onClick}
-      style={style}
+      style={{
+        ...props.style,
+        fontSize,
+        borderRadius,
+        textTransform: caps,
+      }}
       onMouseEnter={() => onHover && onHover(true)}
       onMouseLeave={() => onHover && onHover(false)}
     >

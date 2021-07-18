@@ -61,7 +61,7 @@ export async function addCalculatedCommunityFields(
   const cleanedCommunity = copyObject(community, ['members']);
   cleanedCommunity.numMembers = community.members.length;
   cleanedCommunity.numMutual = mutualMembers.length;
-  cleanedCommunity.status = U2UR.OPEN;
+  cleanedCommunity.status = U2CR.OPEN;
 
   return cleanedCommunity;
 }

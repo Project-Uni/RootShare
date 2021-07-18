@@ -93,9 +93,6 @@ export default function discoverRoutes(app: Express) {
         return res.status(500).json(sendPacket(-1, 'No query provided'));
 
       let { query, communityID, limit } = reqQuery;
-      communityID = communityID as string;
-      query = query as string;
-      limit = limit as number;
 
       const packet = await communityInviteSearch({
         query,
@@ -103,6 +100,7 @@ export default function discoverRoutes(app: Express) {
         communityID,
         userID: userID.toString(),
       });
+
       const status = packet.success === 1 ? 200 : 500;
       res.status(status).json(packet);
     }

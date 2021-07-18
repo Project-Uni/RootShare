@@ -1,25 +1,22 @@
-import { ObjectIdVal, ObjectIdType } from '../rootshare_db/types';
+import { ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
 import {
   getUserFromJWT,
   sendPacket,
   getQueryParams,
   log,
-} from '../helpers/functions';
-import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
+} from '../../helpers/functions';
+import { isAuthenticatedWithJWT } from '../../passport/middleware/isAuthenticated';
 import {
   isCommunityAdmin,
   isCommunityAdminFromQueryParams,
   isCommunityMemberFromQueryParams,
-} from './middleware/communityAuthentication';
+} from '../middleware/communityAuthentication';
 
 import {
   //General Community Actions
   createNewCommunity,
   getCommunityInformation,
   joinCommunity,
-  getAllPendingMembers,
-  rejectPendingMember,
-  acceptPendingMember,
   leaveCommunity,
   cancelCommunityPendingRequest,
   getCommunityMembers,
@@ -39,7 +36,7 @@ import {
   pinPost,
   getPinnedPosts,
   inviteUser,
-} from '../interactions/community';
+} from '../../interactions/community/community';
 
 /**
  *
@@ -80,16 +77,24 @@ export default function communityRoutes(app) {
     return res.json(packet);
   });
 
-  app.get(
-    '/api/community/:communityID/info',
-    isAuthenticatedWithJWT,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const { _id } = getUserFromJWT(req);
-      const packet = await getCommunityInformation(communityID, _id);
-      return res.json(packet);
+  app.get('/api/community/info', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams<{ communityID: string }>(req, {
+        communityID: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+
+      const { communityID } = query;
+      const packet = await getCommunityInformation(ObjectIdVal(communityID), userID);
+
+      res.json(packet);
+    } catch (err) {
+      log('err', err);
+      res.json(sendPacket(-1, err.message));
     }
-  );
+  });
 
   app.post(
     '/api/community/:communityID/join',
@@ -98,47 +103,6 @@ export default function communityRoutes(app) {
       const { communityID } = req.params;
       const { _id } = getUserFromJWT(req);
       const packet = await joinCommunity(communityID, _id);
-      return res.json(packet);
-    }
-  );
-
-  app.get(
-    '/api/community/:communityID/pending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const packet = await getAllPendingMembers(communityID);
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/community/:communityID/rejectPending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const { userID } = req.body;
-      if (!userID)
-        return res.json(sendPacket(-1, 'userID missing from request body'));
-
-      const packet = await rejectPendingMember(communityID, userID);
-      return res.json(packet);
-    }
-  );
-
-  app.post(
-    '/api/community/:communityID/acceptPending',
-    isAuthenticatedWithJWT,
-    isCommunityAdmin,
-    async (req, res) => {
-      const { communityID } = req.params;
-      const { userID } = req.body;
-      if (!userID)
-        return res.json(sendPacket(-1, 'userID missing from request body'));
-
-      const packet = await acceptPendingMember(communityID, userID);
       return res.json(packet);
     }
   );
@@ -429,7 +393,17 @@ export default function communityRoutes(app) {
       try {
         populatesRaw.forEach((populateRaw) => {
           const split = populateRaw.split(':');
-          populates.push({ path: split[0], select: split[1] });
+          let mainPopulateAction: any = {};
+          let nextPopulateAction = mainPopulateAction;
+          for (let i = 0; i < split.length - 1; i += 2) {
+            if (i !== 0) {
+              nextPopulateAction.populate = {};
+              nextPopulateAction = nextPopulateAction.populate;
+            }
+            nextPopulateAction.path = split[i];
+            nextPopulateAction.select = split[i + 1];
+          }
+          populates.push(mainPopulateAction);
         });
       } catch (err) {
         log('err', err);

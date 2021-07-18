@@ -9,11 +9,16 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { CommunityHead } from './CommunityHead';
 import { CommunityMedia } from './CommunityMedia';
 import { RSText } from '../../../base-components';
-import { CommunityAbout, AboutPageUser } from './CommunityAbout';
+import { CommunityAbout } from './CommunityAbout';
 import { CommunityFeed } from './CommunityFeed';
 
-import { getCommunities } from '../../../api';
-import { Community as CommunityFields, U2CR } from '../../../helpers/types';
+import { getCommunityInformation } from '../../../api';
+import {
+  Community as CommunityFields,
+  U2CR,
+  UserAvatar,
+  BoardMember,
+} from '../../../helpers/types';
 import { FaLock } from 'react-icons/fa';
 import Theme from '../../../theme/Theme';
 
@@ -51,46 +56,32 @@ const Community = (props: Props) => {
 
   const fetchCommunityInfo = useCallback(async () => {
     setLoading(true);
-    const data = await getCommunities([communityID], {
-      fields: [
-        'admin',
-        'name',
-        'members',
-        'description',
-        'bio',
-        'private',
-        'type',
-        'profilePicture',
-        'bannerPicture',
-        'scaleEventType',
-      ],
-      options: {
-        getRelationship: true,
-        limit: 1,
-        includeDefaultFields: true,
-        populates: [
-          'admin:firstName lastName profilePicture',
-          'members:firstName lastName profilePicture',
-        ],
-      },
-    });
-    if (data.success !== 1) {
-      dispatch(
+    const data = await getCommunityInformation(communityID);
+    if (data.success !== 1)
+      return dispatch(
         dispatchSnackbar({
           message: 'There was an error retrieving this community',
           mode: 'error',
         })
       );
-      return;
-    }
 
-    setInfo(data.content.communities[0]);
+    setInfo(data.content.community);
     setLoading(false);
   }, [communityID]);
 
   useEffect(() => {
     fetchCommunityInfo();
   }, [fetchCommunityInfo]);
+
+  const handleAddMember = (newMember: UserAvatar) => {
+    setInfo((prevInfo) => {
+      if (prevInfo)
+        return {
+          ...prevInfo,
+          members: (prevInfo.members as UserAvatar[]).concat(newMember),
+        };
+    });
+  };
 
   const getTabContent = React.useCallback(() => {
     if (!info) return;
@@ -101,16 +92,16 @@ const Community = (props: Props) => {
             communityID={communityID}
             editable={info.relationship === U2CR.ADMIN}
             aboutDesc={info.description}
-            admin={info.admin as AboutPageUser}
-            // moderators={info.moderators as AboutPageUser[]} // TODO: add this functionality later
-            members={info.members as AboutPageUser[]}
+            admin={info.admin as UserAvatar}
+            boardMembers={info.boardMembers as BoardMember[]}
+            members={info.members as UserAvatar[]}
           />
         );
       case 'feed': {
         return (
           <CommunityFeed
             communityID={communityID}
-            admin={(info.admin as AboutPageUser)._id}
+            admin={(info.admin as UserAvatar)._id}
             isPrivate={info.private}
             isMember={
               info.relationship === U2CR.JOINED || info.relationship === U2CR.ADMIN
@@ -125,7 +116,7 @@ const Community = (props: Props) => {
         return (
           <CommunityMedia
             communityID={communityID}
-            admin={(info.admin as AboutPageUser)?._id}
+            admin={(info.admin as UserAvatar)?._id}
             editable={info.relationship === 'admin'}
           />
         );
@@ -147,6 +138,7 @@ const Community = (props: Props) => {
                 communityInfo={info}
                 currentTab={currentTab}
                 handleTabChange={(newTab: CommunityTab) => setCurrentTab(newTab)}
+                handleAddMember={handleAddMember}
               />
               {(info.relationship === U2CR.OPEN ||
                 info.relationship === U2CR.PENDING) &&

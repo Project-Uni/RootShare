@@ -4,9 +4,11 @@ import { Box } from '@material-ui/core';
 
 import Theme, { customShadow } from '../../../theme/Theme';
 
+export const RSCARD_WRAPPER_MARGIN = 10;
+
 const useStyles = makeStyles((_: any) => ({
   wrapper: {
-    margin: 10,
+    margin: RSCARD_WRAPPER_MARGIN,
   },
   primaryBackground: {
     background: Theme.foreground,
