@@ -32,7 +32,7 @@ export const CommunityAdminPortal = (props: Props) => {
     checkAdmin();
   }, []);
 
-  const renderPortalTab = (selectedTab: string) => {
+  const renderPortalTab = () => {
     switch (selectedTab) {
       case 'members':
         return <PortalMembers communityID={communityID} />;
@@ -43,5 +43,5 @@ export const CommunityAdminPortal = (props: Props) => {
     }
   };
 
-  return loading ? <CircularProgress size={100} /> : renderPortalTab(selectedTab);
+  return loading ? <CircularProgress size={100} /> : renderPortalTab();
 };
