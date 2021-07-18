@@ -2,10 +2,6 @@ import { AccountType } from '../../helpers/types';
 import { HoverProps } from '../../main-platform/reusable-components/components/HoverPreview';
 import { SnackbarProps } from '../../main-platform/reusable-components/components/SnackbarNotification';
 import { SidebarComponents } from '../../main-platform/RightSidebar/RightSidebar';
-import {
-  CommunityAdminPortalTab,
-  COMMUNITY_ADMIN_PORTAL_TABS,
-} from '../../main-platform/community/admin-portal/CommunityAdminPortalLeftSidebar';
 
 export type RootshareReduxState = {
   user: {
@@ -36,7 +32,6 @@ export type RootshareReduxState = {
     accountType?: AccountType;
     verified?: boolean;
   };
-  communityAdminPortalTab: CommunityAdminPortalTab;
 };
 
 export const initializeState = (): RootshareReduxState => ({
@@ -67,5 +62,4 @@ export const initializeState = (): RootshareReduxState => ({
   },
   sidebarComponents: { names: [] },
   registration: null,
-  communityAdminPortalTab: COMMUNITY_ADMIN_PORTAL_TABS[0],
 });

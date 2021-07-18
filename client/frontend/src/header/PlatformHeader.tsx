@@ -28,7 +28,6 @@ import {
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
 import { RSLink, RSButton } from '../main-platform/reusable-components';
-import { AiFillCaretDown } from 'react-icons/ai';
 import { HeaderSearch, NotificationButton } from '.';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({

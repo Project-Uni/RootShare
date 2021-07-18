@@ -1,34 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 
-import { useSelector } from 'react-redux';
-import { RootshareReduxState } from '../../../redux/store/stateManagement';
-
-import { CircularProgress } from '@material-ui/core';
-
 import { PortalMembers, PortalEvents } from './tabs';
 
+import { CommunityAdminPortalContext } from './AdminPortalContext';
 import { getIsCommunityAdminCheck } from '../../../api';
-
-const useStyles = makeStyles((_: any) => ({
-  wrapper: {},
-}));
+import { CircularProgress } from '@material-ui/core';
 
 type Props = {};
 
 export const CommunityAdminPortal = (props: Props) => {
-  const styles = useStyles();
   const history = useHistory();
-
-  const { communityID } = useParams<{ communityID: string }>();
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAdmin();
-  }, []);
+  const { communityID } = useParams<{ communityID: string }>();
+
+  const { selectedTab, setSelectedTab } = React.useContext(
+    CommunityAdminPortalContext
+  );
 
   const checkAdmin = useCallback(async () => {
     const data = await getIsCommunityAdminCheck(communityID);
@@ -37,11 +28,11 @@ export const CommunityAdminPortal = (props: Props) => {
     else setLoading(false);
   }, []);
 
-  const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-    selectedTab: state.communityAdminPortalTab,
-  }));
+  useEffect(() => {
+    checkAdmin();
+  }, []);
 
-  const renderPortalTab = () => {
+  const renderPortalTab = (selectedTab: string) => {
     switch (selectedTab) {
       case 'members':
         return <PortalMembers communityID={communityID} />;
@@ -52,5 +43,5 @@ export const CommunityAdminPortal = (props: Props) => {
     }
   };
 
-  return loading ? <CircularProgress size={100} /> : renderPortalTab();
+  return loading ? <CircularProgress size={100} /> : renderPortalTab(selectedTab);
 };

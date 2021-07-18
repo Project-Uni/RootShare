@@ -102,6 +102,8 @@ export async function addMemberToBoard(
 
   return Promise.all([memberPromise, boardMemberPromise]).then(
     async ([isMember, community]) => {
+      if (!isMember) return sendPacket(0, 'Cannot make this user a board member');
+
       const existingBoardMember = community.boardMembers
         .filter((boardMember) => boardMember.user.equals(userID))
         .pop();
