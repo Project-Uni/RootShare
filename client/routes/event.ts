@@ -1,4 +1,10 @@
-import { getQueryParams, getUserFromJWT, sendPacket } from '../helpers/functions';
+import { ObjectIdVal } from '../rootshare_db/types';
+import {
+  getQueryParams,
+  getUserFromJWT,
+  sendPacket,
+  log,
+} from '../helpers/functions';
 import { isAuthenticatedWithJWT } from '../passport/middleware/isAuthenticated';
 import {
   getAllRecentEvents,
@@ -8,6 +14,7 @@ import {
   addEventImage,
   addEventBanner,
   getRecentEvents,
+  getExternalEventInfo,
 } from '../interactions/streaming/event';
 import { updateAttendingList } from '../interactions/user';
 
@@ -80,4 +87,27 @@ export default function eventRoutes(app) {
       await updateAttendingList(userID, webinarID, (packet) => res.json(packet));
     }
   );
+
+  app.get('/api/event/external', async (req, res) => {
+    try {
+      const query = getQueryParams<{
+        eventID: string;
+        userID?: string;
+      }>(req, {
+        eventID: { type: 'string' },
+        userID: { type: 'string', optional: true },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { eventID, userID } = query;
+      const packet = await getExternalEventInfo(
+        ObjectIdVal(eventID),
+        userID && ObjectIdVal(userID)
+      );
+      res.status(packet.status).json(packet);
+    } catch (err) {
+      log('err', err);
+      res.status(500).json(sendPacket(-1, err.message));
+    }
+  });
 }

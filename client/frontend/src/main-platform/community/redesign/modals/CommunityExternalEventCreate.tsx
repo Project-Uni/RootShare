@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme as MuiTheme } from '@material-ui/core/styles';
-import {
-  RSButton,
-  RSModal,
-  RSSelect,
-  RSTextField,
-} from '../../../reusable-components';
-import { useForm } from '../../../../helpers/hooks';
-import { RSText } from '../../../../base-components';
+
+import { useDispatch } from 'react-redux';
+import { dispatchSnackbar } from '../../../../redux/actions';
+
 import { FormHelperText } from '@material-ui/core';
 import {
   DatePicker,
@@ -15,12 +11,19 @@ import {
   TimePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+
 import {
-  IPostCreateExternalEventResponse,
-  postCreateExternalEvent,
-} from '../../../../api';
-import { useDispatch } from 'react-redux';
-import { dispatchSnackbar } from '../../../../redux/actions';
+  RSButton,
+  RSModal,
+  RSSelect,
+  RSTextField,
+} from '../../../reusable-components';
+import { RSText } from '../../../../base-components';
+
+import { postCreateExternalEvent } from '../../../../api';
+import { useForm } from '../../../../helpers/hooks';
+import { ExternalEventDefault } from '../../../../helpers/types';
+import { ExternalEventPrivacyEnum } from '../../../../helpers/enums';
 import Theme from '../../../../theme/Theme';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
@@ -38,11 +41,6 @@ const useStyles = makeStyles((muiTheme: MuiTheme) => ({
   },
 }));
 
-export enum PrivacyEnum {
-  PRIVATE = 'PRIVATE',
-  PUBLIC = 'PUBLIC',
-}
-
 type ICreateEventForm = {
   title: string;
   type: string;
@@ -52,7 +50,7 @@ type ICreateEventForm = {
   endTime: string;
   streamLink: string;
   donationLink: string;
-  privacy: PrivacyEnum;
+  privacy: ExternalEventPrivacyEnum;
 };
 
 const initialFormData: ICreateEventForm = {
@@ -64,14 +62,14 @@ const initialFormData: ICreateEventForm = {
   endTime: new Date(Date.now()).toUTCString(),
   streamLink: '',
   donationLink: '',
-  privacy: PrivacyEnum.PUBLIC,
+  privacy: ExternalEventPrivacyEnum.PUBLIC,
 };
 
 type Props = {
   open: boolean;
   onClose: () => void;
   communityID: string;
-  onSuccess?: (event: IPostCreateExternalEventResponse['event']) => void;
+  onSuccess?: (event: ExternalEventDefault) => void;
 };
 
 export const CommunityExternalEventCreate = (props: Props) => {
@@ -115,7 +113,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
       formattedEndDate.setHours(endData.getHours());
       formattedEndDate.setMinutes(endData.getMinutes());
 
-      const data = await postCreateExternalEvent({
+      const data = await postCreateExternalEvent(communityID, {
         ...rest,
         communityID,
         startTime: formattedStartDate.toUTCString(),
@@ -298,6 +296,7 @@ export const CommunityExternalEventCreate = (props: Props) => {
             style={{ width: '100%' }}
             placeholder="Description"
             value={formFields.description}
+            multiline
             onChange={handleChange('description')}
             variant="standard"
             error={!!formErrors.description}
@@ -319,8 +318,8 @@ export const CommunityExternalEventCreate = (props: Props) => {
           <RSSelect
             onChange={handleChange('privacy')}
             options={[
-              { label: 'Public', value: PrivacyEnum.PUBLIC },
-              { label: 'Private', value: PrivacyEnum.PRIVATE },
+              { label: 'Public', value: ExternalEventPrivacyEnum.PUBLIC },
+              { label: 'Private', value: ExternalEventPrivacyEnum.PRIVATE },
             ]}
             label=""
             fontSize={14}

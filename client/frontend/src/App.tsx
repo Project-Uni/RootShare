@@ -24,10 +24,14 @@ import {
   ConnectionsBody,
   YourCommunitiesBody,
   PostPage,
+  EventInfoPage,
 } from './main-platform';
 
 import { AdminRoutes } from './routes';
-import AuthenticatedPage from './main-platform/AuthenticatedPage/AuthenticatedPage';
+import {
+  AuthenticatedPage,
+  OptionalAuthenticatedPage,
+} from './main-platform/base-page-frames';
 import { SnackbarNotification } from './main-platform/reusable-components';
 import AccountTypeSelect from './landing-page/redesign/AccountTypeSelect'; //NEW ACCOUNT TYPE SELECT
 import { ThemeProvider } from '@material-ui/styles';
@@ -145,6 +149,13 @@ const App = () => {
                 exact
                 path="/post/:postID"
                 render={(props) => <AuthenticatedPage component={<PostPage />} />}
+              />
+              <Route
+                exact
+                path="/eventInfo/:eventID"
+                render={(props) => (
+                  <OptionalAuthenticatedPage component={<EventInfoPage />} />
+                )}
               />
               <Route component={PageNotFound} />
             </Switch>

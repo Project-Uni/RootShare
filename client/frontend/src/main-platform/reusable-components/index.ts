@@ -21,6 +21,7 @@ import HoverPreview from './components/HoverPreview';
 import SnackbarNotification from './components/SnackbarNotification';
 import { RSLink } from './components/RSLink';
 import { FeaturedEvent } from './components/FeaturedEvent';
+import { SingleExternalEvent } from './components/SingleExternalEvent';
 
 export * from './components/RSCard';
 export * from './components/RSTextField';
@@ -52,4 +53,5 @@ export {
   SnackbarNotification,
   RSLink,
   FeaturedEvent,
+  SingleExternalEvent,
 };

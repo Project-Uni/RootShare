@@ -108,6 +108,8 @@ export async function addMemberToBoard(
         .filter((boardMember) => boardMember.user.equals(userID))
         .pop();
 
+      if (!isMember) return sendPacket(0, 'Cannot make this user a board member');
+
       if (existingBoardMember) {
         await CommunityBoardMember.model.updateOne(
           { _id: existingBoardMember._id },
@@ -389,10 +391,10 @@ export async function createExternalEvent({
  * }
  */
 
-export async function getExternalEvents(communityID?: string) {
+export async function getExternalEvents(communityID?: ObjectIdType) {
   let events: LeanDocument<IExternalEvent[]> | false;
   if (communityID) {
-    events = await ExternalEvent.getEventsForCommunity(ObjectIdVal(communityID));
+    events = await ExternalEvent.getEventsForCommunity(communityID);
   } else {
     events = await ExternalEvent.getAllEvents();
   }
@@ -401,4 +403,35 @@ export async function getExternalEvents(communityID?: string) {
     return createPacket(true, 200, 'Successfully retrieved events', { events });
   }
   return createPacket(false, 400, 'Failed to retrieve events');
+}
+
+/**
+ *
+ * @param communityID
+ * @returns void
+ */
+
+export async function deleteExternalEvent(eventID: ObjectIdType) {
+  const deletion = await ExternalEvent.model.deleteOne({ _id: eventID });
+
+  if (deletion.deletedCount === 1)
+    return createPacket(true, 200, 'Successfully deleted event');
+  else return createPacket(false, 400, 'Failed to delete event');
+}
+
+/**
+ *
+ * @param communityID
+ * @param userID
+ * @returns {
+ *  isCommunityAdmin: boolean
+ * }
+ */
+
+export async function isCommunityAdminCheck(
+  communityID: ObjectIdType,
+  userID: ObjectIdType
+) {
+  const isCommunityAdmin = await Community.isAdmin(communityID, userID);
+  return createPacket(true, 200, 'Sending isCommunityAdmin', { isCommunityAdmin });
 }

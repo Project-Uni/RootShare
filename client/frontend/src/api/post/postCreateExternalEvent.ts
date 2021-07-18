@@ -1,5 +1,7 @@
+import { stringify } from 'qs';
 import { makeRequest } from '../../helpers/functions';
-import { PrivacyEnum } from '../../main-platform/community/redesign/modals/CommunityExternalEventCreate';
+import { ExternalEventDefault } from '../../helpers/types';
+import { ExternalEventPrivacyEnum } from '../../helpers/enums';
 
 type IPostCreateExternalEventParams = {
   title: string;
@@ -10,38 +12,24 @@ type IPostCreateExternalEventParams = {
   startTime: string;
   endTime: string;
   communityID: string;
-  privacy: PrivacyEnum;
+  privacy: ExternalEventPrivacyEnum;
   image: string;
   isDev?: boolean;
 };
 
 export type IPostCreateExternalEventResponse = {
-  event: {
-    _id: string;
-    title: string;
-    type: string;
-    description: string;
-    streamLink: string;
-    donationLink: string;
-    startTime: string;
-    endTime: string;
-    hostCommunity: string;
-    createdByUserID: string;
-    privacy: PrivacyEnum;
-    banner: string;
-    isDev: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  event: ExternalEventDefault;
 };
 
 export const postCreateExternalEvent = async (
-  params: IPostCreateExternalEventParams
+  communityID: string,
+  body: IPostCreateExternalEventParams
 ) => {
+  const params = stringify({ communityID });
   const { data } = await makeRequest<IPostCreateExternalEventResponse>(
     'post',
-    `/api/communityAdmin/event`,
-    params
+    `/api/communityAdmin/event?${params}`,
+    body
   );
 
   return (data as unknown) as {

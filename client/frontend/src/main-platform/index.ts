@@ -23,3 +23,4 @@ export {
 };
 
 export * from './postPage/PostPage';
+export * from './eventInfoPage/EventInfoPage';

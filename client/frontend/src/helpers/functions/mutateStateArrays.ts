@@ -21,6 +21,13 @@ export const appendToStateArray = (
   setItems((prevItems) => prevItems.concat(newItem));
 };
 
+export const prependToStateArray = (
+  newItem: any,
+  setItems: React.Dispatch<React.SetStateAction<any[]>>
+) => {
+  setItems((prevItems) => [newItem].concat(prevItems));
+};
+
 export const updateFieldInStateArray = (
   compareVal: string,
   compareField: string,

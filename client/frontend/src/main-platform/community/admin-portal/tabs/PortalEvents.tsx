@@ -12,22 +12,14 @@ import {
   RSTabsV2,
   RSAvatar,
   RSLink,
-  RSButtonV2,
+  SingleExternalEvent,
 } from '../../../reusable-components';
 import { CommunityExternalEventCreate } from '../../redesign/modals';
 
 import { CreateEventIcon } from '../../../../images';
-import {
-  formatDatePretty,
-  formatTime,
-  localDateTimeFromUTC,
-  appendToStateArray,
-} from '../../../../helpers/functions';
-import Theme from '../../../../theme/Theme';
-import {
-  IPostCreateExternalEventResponse,
-  getCommunityAdminEvents,
-} from '../../../../api';
+import { removeFromStateArray } from '../../../../helpers/functions';
+import { ExternalEventDefault } from '../../../../helpers/types';
+import { getCommunityAdminEvents } from '../../../../api';
 
 const NON_SCROLL_HEIGHT = 394;
 
@@ -69,15 +61,9 @@ export const PortalEvents = (props: Props) => {
 
   const [currentTab, setCurrentTab] = useState<EventTab>('approved');
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
-  const [events, setEvents] = useState<IPostCreateExternalEventResponse['event'][]>(
-    []
-  );
-  const [pendingEvents, setPendingEvents] = useState<
-    IPostCreateExternalEventResponse['event'][]
-  >([]);
-  const [deniedEvents, setDeniedEvents] = useState<
-    IPostCreateExternalEventResponse['event'][]
-  >([]);
+  const [events, setEvents] = useState<ExternalEventDefault[]>([]);
+  const [pendingEvents, setPendingEvents] = useState<ExternalEventDefault[]>([]);
+  const [deniedEvents, setDeniedEvents] = useState<ExternalEventDefault[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [scrollHeight, setScrollHeight] = useState(0);
@@ -110,20 +96,40 @@ export const PortalEvents = (props: Props) => {
     setScrollHeight(window.innerHeight - NON_SCROLL_HEIGHT);
   };
 
-  const updateEvents = (event: IPostCreateExternalEventResponse['event']) => {
-    appendToStateArray(event, setEvents);
+  const handleNewEvent = (newEvent: ExternalEventDefault) => {
+    setEvents((prevEvents) => {
+      let newEvents = prevEvents.slice();
+      for (let i = 0; i < newEvents.length; i++) {
+        if (newEvent.startTime > newEvents[i].startTime) {
+          newEvents.splice(i, 0, newEvent);
+          return newEvents;
+        }
+      }
+      newEvents.push(newEvent);
+      return newEvents;
+    });
+  };
+
+  const handleDeleteEvent = (eventID: string) => {
+    removeFromStateArray(eventID, '_id', setEvents);
   };
 
   function renderEvents() {
     if (currentTab === 'approved')
-      return events.map((event) => <SingleEvent key={event._id} event={event} />);
+      return events.map((event) => (
+        <SingleExternalEvent
+          key={event._id}
+          event={event}
+          onDelete={handleDeleteEvent}
+        />
+      ));
     if (currentTab === 'pending')
       return pendingEvents.map((event) => (
-        <SingleEvent key={event._id} event={event} />
+        <SingleExternalEvent key={event._id} event={event} />
       ));
     if (currentTab === 'denied')
       return deniedEvents.map((event) => (
-        <SingleEvent key={event._id} event={event} />
+        <SingleExternalEvent key={event._id} event={event} />
       ));
   }
 
@@ -133,7 +139,7 @@ export const PortalEvents = (props: Props) => {
         open={showCreateEventModal}
         onClose={() => setShowCreateEventModal(false)}
         communityID={communityID}
-        onSuccess={updateEvents}
+        onSuccess={handleNewEvent}
       />
       <RSCard variant="secondary">
         <RSTabsV2
@@ -180,90 +186,5 @@ export const PortalEvents = (props: Props) => {
         {loading ? <CircularProgress size={100} /> : renderEvents()}
       </div>
     </div>
-  );
-};
-
-type SingleEventProps = {
-  event: IPostCreateExternalEventResponse['event'];
-};
-
-const SingleEvent = (props: SingleEventProps) => {
-  const styles = useStyles();
-
-  const {
-    _id: eventID,
-    title,
-    type,
-    description,
-    streamLink,
-    donationLink,
-    privacy,
-    banner,
-    createdAt,
-    updatedAt,
-  } = props.event;
-  const startTime = localDateTimeFromUTC(props.event.startTime);
-  const endTime = localDateTimeFromUTC(props.event.endTime);
-
-  return (
-    <RSCard variant="secondary">
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <img
-          src={banner || CreateEventIcon}
-          style={{
-            margin: 25,
-            width: 300,
-            height: 200,
-            borderRadius: 20,
-            objectFit: 'contain',
-          }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            flex: 1,
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            padding: 20,
-            paddingRight: 60,
-            textAlign: 'left',
-          }}
-        >
-          <RSText weight="bold" size={17} style={{ paddingBottom: 10 }}>
-            {title}
-          </RSText>
-          <div style={{ display: 'flex', paddingBottom: 10 }}>
-            <RSText weight="light" size={13} style={{ paddingRight: 20 }}>
-              {formatDatePretty(startTime)}
-            </RSText>
-            <RSText weight="light" size={13}>
-              {formatTime(startTime)}
-            </RSText>
-          </div>
-          <RSText weight="light" style={{ paddingBottom: 25 }}>
-            {description}
-          </RSText>
-          <div
-            style={{
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'flex-end',
-              paddingBottom: 10,
-            }}
-          >
-            {/* <RSButtonV2 style={{ height: 30, marginRight: 20 }}>
-              <RSText size={10} color={Theme.altText}>
-                Download Attendees
-              </RSText>
-            </RSButtonV2> */}
-            {/* <RSButtonV2 style={{ height: 30 }}>
-              <RSText size={10} color={Theme.altText}>
-                Edit Event
-              </RSText>
-            </RSButtonV2> */}
-          </div>
-        </div>
-      </div>
-    </RSCard>
   );
 };

@@ -22,6 +22,8 @@ import {
   rejectPendingMember,
   createExternalEvent,
   getExternalEvents,
+  deleteExternalEvent,
+  isCommunityAdminCheck,
 } from '../../interactions/community/admin-portal';
 import { leaveCommunity } from '../../interactions/community/community';
 
@@ -229,43 +231,94 @@ export default function communityAdminPortalRoutes(app) {
     }
   );
 
-  app.post('/api/communityAdmin/event', isAuthenticatedWithJWT, async (req, res) => {
-    const { _id: userID } = getUserFromJWT(req);
-    const {
-      title,
-      type,
-      streamLink,
-      startTime,
-      endTime,
-      donationLink,
-      description,
-      communityID,
-      image,
-      privacy,
-    } = req.body;
+  app.post(
+    '/api/communityAdmin/event',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      const { _id: userID } = getUserFromJWT(req);
+      const {
+        title,
+        type,
+        streamLink,
+        startTime,
+        endTime,
+        donationLink,
+        description,
+        communityID,
+        image,
+        privacy,
+      } = req.body;
 
-    const packet = await createExternalEvent({
-      title,
-      type,
-      streamLink,
-      startTime,
-      endTime,
-      donationLink,
-      description,
-      communityID,
-      image,
-      userID,
-      privacy,
-    });
+      const packet = await createExternalEvent({
+        title,
+        type,
+        streamLink,
+        startTime,
+        endTime,
+        donationLink,
+        description,
+        communityID,
+        image,
+        userID,
+        privacy,
+      });
 
-    return res.status(packet.status).json(packet);
-  });
+      return res.status(packet.status).json(packet);
+    }
+  );
 
-  app.get('/api/communityAdmin/events', isAuthenticatedWithJWT, async (req, res) => {
-    const query = getQueryParams<{ communityID?: string }>(req, {
-      communityID: { type: 'string', optional: true },
-    });
-    const packet = await getExternalEvents(query ? query.communityID : undefined);
-    res.status(packet.status).json(packet);
+  app.get(
+    '/api/communityAdmin/events',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      const query = getQueryParams<{ communityID?: string }>(req, {
+        communityID: { type: 'string', optional: true },
+      });
+      const packet = await getExternalEvents(
+        query ? ObjectIdVal(query.communityID) : undefined
+      );
+      res.status(packet.status).json(packet);
+    }
+  );
+
+  app.delete(
+    '/api/communityAdmin/event',
+    isAuthenticatedWithJWT,
+    isCommunityAdminFromQueryParams,
+    async (req, res) => {
+      try {
+        const query = getQueryParams<{ communityID: string; eventID: string }>(req, {
+          communityID: { type: 'string' },
+          eventID: { type: 'string' },
+        });
+        if (!query)
+          return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+        const { communityID, eventID } = query;
+        const packet = await deleteExternalEvent(ObjectIdVal(eventID));
+        res.status(packet.status).json(packet);
+      } catch (err) {
+        log('err', err);
+        res.json(sendPacket(-1, err.message));
+      }
+    }
+  );
+
+  app.get('/api/communityAdmin/check', isAuthenticatedWithJWT, async (req, res) => {
+    try {
+      const { _id: userID } = getUserFromJWT(req);
+      const query = getQueryParams<{ communityID: string }>(req, {
+        communityID: { type: 'string' },
+      });
+      if (!query)
+        return res.status(500).json(sendPacket(-1, 'Invalid query params'));
+      const { communityID } = query;
+      const packet = await isCommunityAdminCheck(ObjectIdVal(communityID), userID);
+      res.status(packet.status).json(packet);
+    } catch (err) {
+      log('err', err);
+      res.json(sendPacket(-1, err.message));
+    }
   });
 }

@@ -1,11 +1,20 @@
-import { Webinar, User, IConnection, IWebinar } from '../../rootshare_db/models';
+import {
+  Webinar,
+  User,
+  IConnection,
+  IWebinar,
+  ExternalEvent,
+  Community,
+} from '../../rootshare_db/models';
 import { packetParams, ObjectIdVal, ObjectIdType } from '../../rootshare_db/types';
+import { ExternalEventPrivacyEnum } from '../../rootshare_db/models/external_events';
 import {
   log,
   sendPacket,
   uploadFile,
   decodeBase64Image,
   retrieveSignedUrl,
+  createPacket,
 } from '../../helpers/functions';
 
 export function timeStampCompare(
@@ -410,4 +419,30 @@ export function addEventImagesAll(
       log('error', err);
       return undefined;
     });
+}
+
+export async function getExternalEventInfo(
+  eventID: ObjectIdType,
+  userID: ObjectIdType
+) {
+  const event = await ExternalEvent.getEventInfo(eventID);
+  if (!event) return createPacket(true, 400, `The event doesn't exist`);
+
+  if (event.privacy === ExternalEventPrivacyEnum.PRIVATE) {
+    const isCommunityMember = await Community.model.exists({
+      _id: event.hostCommunity._id,
+      members: { $elemMatch: { $eq: userID } },
+    });
+    if (!isCommunityMember)
+      return createPacket(false, 403, `User doesn't have access to this event`, {
+        community: event.hostCommunity,
+      });
+  }
+
+  const isAdmin = await Community.isAdmin(event.hostCommunity._id, userID);
+
+  return createPacket(true, 200, 'Successfully retrieved event info', {
+    event,
+    isAdmin,
+  });
 }
