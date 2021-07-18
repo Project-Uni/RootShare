@@ -9,6 +9,7 @@ import { RootshareReduxState } from '../../../redux/store/stateManagement';
 import { CircularProgress } from '@material-ui/core';
 
 import { PortalMembers, PortalEvents } from './tabs';
+import { CommunityAdminPortalContext } from './AdminPortalContext';
 
 import { getIsCommunityAdminCheck } from '../../../api';
 
@@ -37,9 +38,9 @@ export const CommunityAdminPortal = (props: Props) => {
     else setLoading(false);
   }, []);
 
-  const { selectedTab } = useSelector((state: RootshareReduxState) => ({
-    selectedTab: state.communityAdminPortalTab,
-  }));
+  const { selectedTab, setSelectedTab } = React.useContext(
+    CommunityAdminPortalContext
+  );
 
   const renderPortalTab = () => {
     switch (selectedTab) {

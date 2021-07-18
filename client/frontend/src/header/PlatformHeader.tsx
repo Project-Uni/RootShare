@@ -123,7 +123,7 @@ function PlatformHeader(props: Props) {
     }
   }
 
-  const Icons = () => {
+  const renderIcons = () => {
     const iconProps = { size: iconSize.current, color: Theme.primary };
     // if (isDesktop.current && window.innerWidth >= 800) {
     return (
@@ -207,7 +207,7 @@ function PlatformHeader(props: Props) {
               ) : (
                 undefined
               )}
-              {authenticated ? <Icons /> : <LoginButtons />}
+              {authenticated ? renderIcons() : <LoginButtons />}
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               {window.innerWidth < 800 && authenticated ? (
