@@ -28,6 +28,7 @@ import {
 } from './drawer-components';
 import { checkDesktop } from '../helpers/functions';
 import { RSLink, RSButton } from '../main-platform/reusable-components';
+import { AiFillCaretDown } from 'react-icons/ai';
 import { HeaderSearch, NotificationButton } from '.';
 
 const useStyles = makeStyles((muiTheme: MuiTheme) => ({
@@ -122,7 +123,7 @@ function PlatformHeader(props: Props) {
     }
   }
 
-  const Icons = () => {
+  const renderIcons = () => {
     const iconProps = { size: iconSize.current, color: Theme.primary };
     // if (isDesktop.current && window.innerWidth >= 800) {
     return (
@@ -206,7 +207,7 @@ function PlatformHeader(props: Props) {
               ) : (
                 undefined
               )}
-              {authenticated ? <Icons /> : <LoginButtons />}
+              {authenticated ? renderIcons() : <LoginButtons />}
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               {window.innerWidth < 800 && authenticated ? (
